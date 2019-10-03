@@ -1,0 +1,12 @@
+{
+    "doc": {
+        "name": "required",
+        "type": "wsfield",
+        "synopsis": "The difference between HTML5 required and WSForm required",
+        "description": "<p>When a <strong>HTML5<\/strong> form field has the word \"<strong>required<\/strong>\" as an attribute, this field will always be required. Even <strong>required=\"no\"<\/strong> will make the field required.<\/p><p>With <strong>WSForm <\/strong>this needs to be <strong>required=\"required\"<\/strong> for an input field to be required. Only required or required=\"no\" or required=\"whatever\" will not make the field a required field.<br><\/p>",
+        "parameters": "required=\"required\"",
+        "example": "<wsfield type=\"email\" name=\"emailfield\" placeholder=\"This is a placeholder\" required=\"required\" \/> ",
+        "note": "--",
+        "links": "--"
+    }
+}

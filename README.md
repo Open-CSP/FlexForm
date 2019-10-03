@@ -1,0 +1,135 @@
+# WSForm
+
+WSForm is an enhanced HTML5 rendering engine
+
+## Features
+
+ * Renders all HTML5 form elements
+ * By default it allows all default additional element attributes (class, id, required, etc..)
+ * By default it will always use a method of post to a form handler script
+ * Form elements can be filled by url parameters
+ * A form can use a template to add or edit a page in the wiki
+ * A form can send an email
+ * Most options can be combined (create a new page, edit a page and send an email with one form)
+ * On a closed wiki it is possible to let anonymous persons also add a page to the wiki
+ * Acknowledges $wgEmailConfirmToEdit setting (if set to true, only users with verified email addresses can add a page to a wiki)
+ * Supports file upload to Wiki
+ * Supports signatures file upload to Wiki
+
+
+
+## Installation
+Grab in instance from the https://bitbucket.org/wikibasesolutions/mw-wsform/. Create a "WSForm" folder in your Wiki extensions folder and extract the files there.
+
+## Setup
+~~In order to add pages to your wiki, you will need to setup a BOT password for WSForm~~.
+~~More information on setting up a bot-password can be found [https://www.mediawiki.org/wiki/Manual:Bot_passwords](here).~~
+
+We skipped BOT password as they were unreliable. (will be added in the near future)
+To edit or create pages you will need to create an user account with all appropriate rights.
+
+First go to Special:CreateAccount and create an account e.g. formsubmitter.
+
+Set the appropriate rights in Special:UserRights.
+
+Open ``` /WSForm/WSForm.api.class ``` and somewhere in the top of the wbApi class fill the username and password you just created.
+
+If you are on FARM you can add a WSFormSettings.php in the wiki/name folder with the following content :
+```php
+<?php
+$this->app['username']='...';
+$this->app['password']='...';
+``` 
+For uploading files the user created will need to have the rights for :
+* upload
+* uploadfile
+* upload_by_url
+
+General settings that need to be enabled :
+* $wgAllowCopyUploads = true;
+* $wgCopyUploadsFromSpecialUpload = true;
+
+Finally add the following line at the end of your LocalSettings.php to enable the extension :
+```php
+require_once( "$IP/extensions/WSForm/WSForm.php" );
+```
+This is the "old-fashioned" way for backwards compatibility. You could also do :
+```php
+wfLoadExtension( 'WSForm' );
+```
+
+WSForm has a notification system build in. This is used to show possible errors or success / custom  messages.
+
+To enable this.. add to your header page :
+```php
+<wsform showmessages />
+```
+
+## Docs
+Visit : Special:WSForm/Docs
+
+## Example
+```HTML5
+<wsform class="ws-test-form" action="addToWiki" mwreturn="/thankyou.html">
+<wsfield type="hidden" name="mwtemplate" value="Testpage" /> <!-- name of a template to you use for creating new page -->
+<wsfield type="hidden" name="mwwrite" value="Wiki:Formcreate_" /><!-- name of new page -->
+<wsfield type="hidden" name="mwoption" value="add_random" /><!-- add unique identifier after name of new page -->
+<wsfield type="hidden" name="Username" value="{{CURRENTLOGGEDUSER}}" />
+<wsfield type="textarea" name="comment" placeholder="Write your comment here" />
+<wsfield type="submit" class="btn btn-default" value="Submit" />
+</wsform>
+```
+
+
+### Changelog
+
+* 0.8.0.3.2 : Made all config files separate added form tokens
+* 0.8.0.3.1 : Small doc contribution and ajax callback check
+* 0.8.0.3.0 : Initial release community version
+* 0.8.0.2.6 : Option to create a page without a template parameter
+* 0.8.0.2.5 : Added remove select option
+* 0.8.0.2.4 : Forgot one namespace migration
+* 0.8.0.2.3 : Added parsepost as WSForm system field
+* 0.8.0.2.2 : Added parsepost option to wsfield
+* 0.8.0.2.1 : Missing Semantic javaScript
+* 0.8.0.2.0 : Semantic relax lookup
+* 0.8.0.1.9 : More option for fileupload content page
+* 0.8.0.1.8 : Added support using formfields in fileupload content page
+* 0.8.0.1.7 : Added support for ranges and next available when using namespaces. Added leading zeros when using range
+* 0.8.0.1.6 : Added formbuilder
+* 0.8.0.1.5 : Added some security steps for external request
+* 0.8.0.1.4 : Various small fixes ( file upload, path calculation and more )
+* 0.8.0.1.3 : Changed API url lookup from wgserver to wgscript
+* 0.8.0.1.2 : Finalizing classes from hooks
+* 0.8.0.1.1 : Created all other classes
+* 0.8.0.1.0 : Started to create render, validate and wsform classes for better clarity
+* 0.8.0.0.3 : Added default settings for SMW queries
+* 0.8.0.0.2 : Add custom tokens support
+* 0.8.0.0.1 : Added new examples in Documentation
+* 0.8.0.0.0 : Larger version bump due to function documentation virtually complete. Added email template options.
+* 0.7.0.3.5 : Fixed: Fixed Docs menu not showing when no jQuery
+* 0.7.0.3.4 : Started implementing i18n. Fixed Docs menu not showing when no jQuery
+* 0.7.0.3.3 : Fixed end-result Ajax post
+* 0.7.0.3.2 : Cleanup and documentation
+* 0.7.0.3.1 : Cleanup
+* 0.7.0.3.0 : Added ip address for anonymous poster and adjusted api call for ranged pages to new MW api standard
+* 0.7.0.2.9 : Minor fixes introduced in previous version
+* 0.7.0.2.8 : Added no parse function for wsfield inputs
+* 0.7.0.2.7 : Check if JavaScript and CSS is only loaded once. Also for custom added js.
+* 0.7.0.2.6 : Changed code for v0.7.0.2.0 implemented features
+* 0.7.0.2.5 : Added Phabricator module (for creating tasks)
+* 0.7.0.2.4 : Start of translations
+* 0.7.0.2.3 : Code cleanup
+* 0.7.0.2.2 : Docs updated
+* 0.7.0.2.0 : Added next available and range to creating a new page and a class for reading i18n folder for messages
+* 0.7.0.1.9 : Added Form follow option
+* 0.7.0.1.8 : User lookup through cookies (needs work still)
+* 0.7.0.1.7 : Updated Docs
+* 0.7.0.1.6 : Extensions support for pre-render and after render
+* 0.7.0.1.5 : Added extensions and changed user info for summaries
+* 0.7.0.1.4 : Added user info on edit/save summaries
+* 0.7.0.1.3 : Success message linked to save btn instead of form. Added new docs layout
+* 0.7.0.1.2 : Fixed handling form field names with spaces (wscreate)
+* 0.7.0.1.1 : Added first steps for live mobile screenshots. Added general JavaScript for handling stuff
+* 0.7.0.1.0 : Added Signature support, updated docs and made it url aware
+* 0.7.0.0.0 : Initial stand-alone version

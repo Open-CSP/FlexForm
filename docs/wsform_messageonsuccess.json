@@ -1,0 +1,14 @@
+{
+    "doc": {
+        "name": "messageonsuccess",
+        "type": "wsform",
+        "synopsis": "Show a custom message when form is succesfully posted",
+        "description": "When not using Ajax post it's sometimes handy to show a custom message when a form has been successfully posted, especially when after a post you return to the same form page.<br>",
+        "parameters": "<p>messageonsuccess='&lt;message&gt;'<\/p>",
+        "example": "<form action=\"addToWiki\" messageonsuccess=\"Information posted, thanks!\">",
+        "note": "..",
+        "links": "..",
+        "created": "22-08-2018 07:50:03",
+        "created by": "Charlot"
+    }
+}

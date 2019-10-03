@@ -1,0 +1,14 @@
+{
+    "doc": {
+        "name": "restrictions",
+        "type": "wsform",
+        "synopsis": "enable anonymous form submission",
+        "description": "<p>By default WSForm will only allow a form to be submitted by a registered and logged in user.<\/p><p>In some cases, like e.g. a survey or contact form, you might want to be able to have an anonymous user submit a form.<\/p><p>To do so, use the <strong>restrictions=\"lifted\"<\/strong> on the initialization of a wsform.<\/p>",
+        "parameters": "restrictions=\"lifted\"<br>",
+        "example": "<wsform action=\"addToWiki\" restrictions=\"lifted\" >\r\n  You form elements here\r\n<\/wsform>",
+        "note": "<p>Make sure, if you have a closed Wiki, that the page the form is on is whitelisted for anonymous users.<\/p>",
+        "links": "..",
+        "created": "11-03-2019 21:32:23",
+        "created by": "Charlot Cobben"
+    }
+}

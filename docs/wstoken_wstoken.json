@@ -1,0 +1,16 @@
+{
+    "doc": {
+        "name": "wstoken",
+        "type": "wstoken",
+        "synopsis": "tokeniser",
+        "description": "Use of select2 tokens<br>",
+        "parameters": "<p>name = e.g. tokenfield[]<\/p><p>allowtags =  (no value) Allow to create values that do not exist<\/p><p>allowclear = allow user to clear his selection (for json ajax calls)<br><\/p><p>template = ?<\/p><p>id = mandatory<\/p><p>json= e.g. \/realtimer.php?tt=Official<\/p><p>callback = templateCallBack<\/p><p>multiple = (no value)<\/p><p>placeholder =<\/p><p>class =&nbsp;<\/p><p>data-origID =&nbsp;<\/p>",
+        "example": "<wstoken name=\"tokenfield[]\" id=\"tokener\" json=\"\/realtimer.php?tt=Official\" template=\"test\" callback=\"templateCallBack\" placeholder=\"Choose MF\" multiple allowtags>\r\n<\/wstoken>\r\n\r\n<wstoken placeholder=\"Select jurisdiction\" class=\"form-control\" name=\"Jurisdiction\" id=\"jurisdiction-select-{{#var:@id}}\" json=\"\/realtimer.php?tt=Jurisdiction&tr=name:::text,level:::text,jurisdiction id:::id&ds= (&de=)\" required>\r\n{{#if:{{#var:@jurisdictiondetails}}|\r\n{{#arraymap:{{#var:@jurisdictiondetails}}|^|@@STRING@@|{{#tag:wsfield|{{#explode:@@STRING@@|@@|1}}|type=option|value={{#explode:@@STRING@@|@@|2}}|selected=selected }}|}}\r\n}}<!-- .\/ if jurisdiction details -->\r\n<\/wstoken>",
+        "note": "...",
+        "links": "....",
+        "created": "",
+        "created_by": "",
+        "last modified": "06-09-2019 20:19:20",
+        "modified by": "Charlot Cobben"
+    }
+}

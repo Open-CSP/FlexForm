@@ -1,0 +1,14 @@
+{
+    "doc": {
+        "name": "formtarget",
+        "type": "wsform",
+        "synopsis": "Change the html post action to a custom one",
+        "description": "<p>In some rare cases you might want to create a wsform but not have wsform handle the post data. In that case use <strong>formtarget=\"you url here\"<\/strong> to tell html form where to go when someone submit data.<\/p>",
+        "parameters": "<p>formtarget=\"you url here\"<\/p>",
+        "example": "<wsform action=\"addToWiki\" formtarget=\"https:\/\/example.com\/handleform.php\" >\r\n   Your wsform elements here\r\n<\/wsform>",
+        "note": "This option will completely ignore WSForm on form submission.<br>",
+        "links": "..",
+        "created": "11-03-2019 21:37:28",
+        "created by": "Charlot Cobben"
+    }
+}

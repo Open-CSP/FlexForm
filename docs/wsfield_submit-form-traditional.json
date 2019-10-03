@@ -1,0 +1,12 @@
+{
+    "doc": {
+        "name": "submit-form-traditional",
+        "type": "wsfield",
+        "synopsis": "Traditional way of submitting a form using a submit input field",
+        "description": "<p>To have a form send to the handler it must have a submit button.<\/p><p><code>&lt;input&gt;<\/code> elements of type <strong><code>\"submit\"<\/code><\/strong> are rendered as buttons. When the <code>click<\/code> event occurs (typically because the user clicked the button), the user agent attempts to submit the form to the server.<\/p>",
+        "parameters": "<p>type=\"submit\"<\/p><p>All other arguments like \"class\"&nbsp; \"id\" etc are allowed<br><\/p>",
+        "example": "<wfield type=\"submit\" value=\"Send Request\" \/>",
+        "note": "...",
+        "links": "<a href=\"https:\/\/developer.mozilla.org\/en-US\/docs\/Web\/HTML\/Element\/input\/submit\" title=\"https:\/\/developer.mozilla.org\/en-US\/docs\/Web\/HTML\/Element\/input\/submit\" target=\"_blank\">https:\/\/developer.mozilla.org\/en-US\/docs\/Web\/HTML\/Element\/input\/submit<\/a>"
+    }
+}

@@ -1,0 +1,12 @@
+{
+    "doc": {
+        "name": "wstoken",
+        "type": "wsform",
+        "synopsis": "tokeniser",
+        "description": "<p>...<wstoken name=\"tokenfield[]\" id=\"tokener\" data-origid=\"tokener\" json=\"\/realtimer.php\" callback=\"mycallbacker\" multiple=\"\" placeholder=\"Make a choise\"> <\/wstoken><br><\/p><br><p>or<\/p><br><p><wstoken name=\"tokenfield[]\" id=\"tokener\" data-origid=\"tokener\" multiple=\"\" placeholder=\"Make a choise\"><\/wstoken><\/p><br><p><wsfield for=\"tokenfield[]\" type=\"option\" value=\"1\">first choice<\/wsfield><\/p><br><p><\/p><br><p><br><\/p>",
+        "parameters": "<p>name = e.g. tokenfield[]<\/p><p>template =&nbsp;<\/p><p>id =&nbsp;<\/p><p>json= e.g. \/realtimer.php?tt=Official<\/p><p>callback = templateCallBack<\/p><p>multiple = (no value)<\/p><p>placeholder =<\/p><p>class =&nbsp;<\/p><p>id =&nbsp;<\/p><p>data-origID =&nbsp;<\/p>",
+        "example": "<wstoken name=\"tokenfield[]\" id=\"tokener\" json=\"\/realtimer.php?tt=Official\" template=\"test\" callback=\"templateCallBack\" placeholder=\"Choose MF\" multiple>\r\n<\/wstoken>\r\n\r\n<wstoken placeholder=\"Select jurisdiction\" class=\"form-control\" name=\"Jurisdiction\" id=\"jurisdiction-select-{{#var:@id}}\" json=\"\/realtimer.php?tt=Jurisdiction&tr=name:::text,level:::text,jurisdiction id:::id&ds= (&de=)\" required>\r\n{{#if:{{#var:@jurisdictiondetails}}|\r\n{{#arraymap:{{#var:@jurisdictiondetails}}|^|@@STRING@@|{{#tag:wsfield|{{#explode:@@STRING@@|@@|1}}|type=option|value={{#explode:@@STRING@@|@@|2}}|selected=selected }}|}}\r\n}}<!-- .\/ if jurisdiction details -->\r\n<\/wstoken>",
+        "note": "...",
+        "links": "...."
+    }
+}

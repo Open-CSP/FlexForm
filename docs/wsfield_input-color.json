@@ -1,0 +1,14 @@
+{
+    "doc": {
+        "name": "input-color",
+        "type": "wsfield",
+        "synopsis": "How to use the color input field",
+        "description": "<p><code>wsfield<\/code> elements of type <code><strong>\"color\"<\/strong><\/code>\r\n provide a user interface element that lets a user specify a color, \r\neither by using a visual color picker interface or by entering the color\r\n into a text field in <code>\"#rrggbb\"<\/code> hexadecimal format. Only simple colors (with no alpha channel) are allowed.<\/p>\r\n\r\n<p>The element's presentation may vary substantially from one browser \r\nand\/or platform to another — it might be a simple textual input that \r\nautomatically validates to ensure that the color information is entered \r\nin the proper format, or a platform-standard color picker, or some kind \r\nof custom color picker window.<\/p>",
+        "parameters": "<p>wsfield type=\"color\"<\/p><p><br><\/p>",
+        "example": "<wsfield type=\"color\" value=\"#ff0000\" \/>",
+        "note": "When adding a standard value to a color field that is not a solid color or a number in HEX notation, the result will always be #000000 (in other words: black)<br>",
+        "links": "<a href=\"https:\/\/developer.mozilla.org\/en-US\/docs\/Web\/HTML\/Element\/input\/color\" title=\"Input type color HTML5\" target=\"_bank\">https:\/\/developer.mozilla.org\/en-US\/docs\/Web\/HTML\/Element\/input\/color<\/a>",
+        "last modified": "02-03-2018 21:07:36",
+        "modified by": "Charlot"
+    }
+}

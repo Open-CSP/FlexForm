@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+
+    <title>Slim</title>
+
+    <style>
+
+        html {
+            -webkit-font-smoothing: antialiased;
+            background:#fff;
+            color:#61564E;
+            font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size:1em;
+        }
+
+        html, body {
+            margin:0;
+            padding:0;
+        }
+
+        body {
+            line-height:1.4;
+            font-size:1.125rem;
+            font-weight:300;
+        }
+
+        main {
+            padding:2rem 2rem 4rem;
+            max-width:40rem;
+            margin:0 auto;
+        }
+
+        p {
+            max-width:32rem;
+        }
+
+        em {
+            font-style:normal;
+            color:#312C28;
+            background:#F2EFED;
+            padding:.125em .25em;
+            border-radius:.25em;
+        }
+
+        a {
+            color:#175C54;
+        }
+
+        li {
+            margin-bottom:.25em;
+        }
+
+        h1 {
+            color:#3E3F45;
+        }
+
+        h2 {
+            padding-top:1em;
+            margin:0 0 .75em;
+            font-weight:300;
+            font-size:2em;
+            color:#F9A1BC;
+        }
+
+        h3 {
+            margin:2em 0 .75em;
+            font-weight:300;
+            font-size:1.5em;
+            color:#2cb1a0;
+        }
+
+        code {
+            color:#68581d;
+            background:#FAF3D5;
+            padding:.125em .25em;
+            font-size:.875em;
+            border-radius:.25em;
+            font-family:menlo,monaco,consolas,monospace;
+        }
+
+        h1 {
+
+            display:flex;
+            align-items:baseline;
+            font-weight:400;
+            font-size:2.5em;
+            margin:0;
+        }
+
+        svg {
+            width:2em;
+            margin-right:.3125em;
+            margin-left:-.125em;
+            position:relative;
+            top:.125em;
+        }
+
+        form {
+            background:#e2e5ed;
+            border-radius:1em;
+            padding:2em;
+            color:#3a4153;
+            margin:2em auto;
+            text-align:center;
+        }
+
+        form h2 {
+            font-size:1em;
+            padding: 0;
+            color:#3a4153;
+        }
+
+        form div {
+            display:flex;
+            align-items:baseline;
+            justify-content:center;
+        }
+
+        input, button {
+            padding:.5em 1em;
+            font-size:1em;
+        }
+
+        input {
+            background:#fff;
+            border-radius:.25em 0 0 .25em;
+            margin:0;
+            border:none;
+        }
+
+        button {
+            border-radius:0 .25em .25em 0;
+            background:#49577e;
+            color:#fff;
+            font-weight:bold;
+            border:none;
+        }
+
+        .implicit {
+            position:absolute;
+            left:-10000px;
+            top:auto;
+            width:1px;
+            height:1px;
+            overflow:hidden;
+        }
+
+    </style>
+
+</head>
+<body>
+<main>
+
+    <h1>
+        <svg viewBox="0 0 58 48" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="1.414"><path fill="none" stroke-width="2" stroke-dasharray="4,4,0,0" stroke-dashoffset="8" stroke="#bbeae6" d="M4.61 1.525h52.25v41.777H4.61z"/><path fill="#fff" d="M0 12.24h40.736v33.588H0z"/><g opacity=".25" fill="#44d9c8"><path d="M17.79 22.387l.103.014.102.03.1.03.098.04.096.04.09.05.09.06.08.06.08.07.07.08.07.08.06.08.06.09 10.07 15.76.05.09.05.1.04.1.03.1.03.1.02.11.01.11v.21l-.01.11-.02.1-.03.1-.03.1-.04.1-.05.1-.05.09-.06.09-.06.08-.07.08-.07.08-.08.07-.08.07-.09.06-.09.05-.1.05-.1.04-.1.03-.1.02-.1.02-.11.01h-.22l-.11-.01-.1-.02-.1-.03-.1-.03-.09-.04-.1-.05-.09-.05-.09-.06-.08-.06-.08-.07-.07-.08-.07-.08-.06-.09-8.69-13.61-7.26 13.5-.06.09-.06.09-.06.08-.07.08-.08.08-.08.07-.09.06-.09.05-.09.05-.1.04-.1.04-.1.02-.1.02-.1.01-.11.01H9l-.103-.01-.1-.02-.1-.03-.1-.03-.09-.04-.09-.05-.08-.06-.085-.07-.08-.06-.08-.08-.07-.08-.064-.08-.06-.09-.05-.09-.043-.09-.04-.1-.03-.1-.025-.1-.02-.1-.01-.11-.003-.1v-.11l.01-.1.02-.11.02-.1.033-.1.04-.1.044-.1 8.466-15.8.052-.09.056-.09.07-.08.07-.07.073-.07.08-.07.09-.06.09-.05.09-.05.1-.04.1-.03.1-.03.1-.02.11-.01.1-.01h.1l.11.01z"/><path d="M30.62 27.234l.074.006.074.01.073.014.08.017.07.03.07.03.07.03.07.03.07.04.07.04.07.04.06.05.06.05.06.05.06.06.05.06.05.06.05.06.04.06 5.17 8.11.04.07.04.07.04.07.03.07.03.07.02.07.02.07.01.07.01.08.01.08.01.08v.08l-.01.07-.01.08-.01.08-.01.07-.02.08-.02.07-.03.07-.03.07-.04.07-.04.07-.04.07-.04.06-.04.06-.04.06-.05.06-.06.05-.05.05-.05.05-.06.05-.06.04-.07.04-.07.04-.06.03-.07.03-.07.03-.07.02-.07.02-.07.02-.07.01-.07.01h-.22l-.07-.01-.07-.01-.07-.02-.07-.02-.07-.03-.07-.03-.07-.03-.063-.04-.07-.03-.06-.04-.06-.05-.06-.04-.05-.05-.05-.05-.05-.05-.05-.05-.05-.06-.04-.06-3.8-5.96-3.15 5.85-.04.07-.04.06-.04.06-.05.06-.05.06-.05.06-.05.05-.06.05-.06.05-.06.047-.06.04-.06.04-.07.03-.07.03-.07.03-.07.02-.07.02-.07.02-.08.016-.072.006h-.29l-.075-.01-.07-.015-.07-.02-.07-.02-.07-.02-.07-.03-.07-.03-.07-.03-.06-.04-.066-.04-.06-.05-.06-.05-.06-.05-.05-.05-.05-.06-.05-.06-.04-.06-.04-.06-.04-.06-.04-.07-.03-.07-.03-.07-.02-.07-.02-.07-.02-.07-.01-.08-.01-.074-.05-.14v-.15l.006-.07.01-.07.01-.08.02-.07.02-.07.02-.07.03-.07.03-.07.034-.07 4.35-8.11.03-.07.04-.06.04-.06.04-.06.05-.05.05-.05.05-.05.05-.05.05-.04.06-.04.06-.04.07-.04.06-.04.07-.03.07-.03.07-.02.07-.02.07-.02.07-.01.07-.01h.21zm-10.252.926l-1.474 3.93-2.46-4.25 1.883-1.57"/><path d="M18.383 25.272l.048.005.05.006.05.01.05.01.05.013.05.015.05.02.04.02.05.02.04.03.04.03.04.03.04.03.04.03.03.04.04.04.03.04.03.04.03.04.03.04.03.05.02.04.02.04.02.05.02.05.02.05.02.05.01.04.01.05.01.05v.14l-.01.05v.05l-.01.05-.01.05-.01.05-.01.05-.02.05-.02.04-.02.04-.02.04-.03.05-.03.04-.03.04-.03.03-.03.03-.03.04-.03.03-1.23 1.03.98 1.69.73-1.95.02-.04.02-.04.02-.04.02-.04.03-.04.03-.04.03-.04.03-.03.04-.03.04-.03.04-.03.04-.03.04-.02.04-.03.04-.02.04-.02.04-.02.05-.02.05-.01.05-.02.05-.01.04-.01.05-.01h.19l.05.01.05.01.05.01.05.01.05.02.05.01.04.02.04.02.04.02.04.02.04.02.04.03.04.03.04.03.04.04.04.04.03.03.03.04.02.04.03.04.02.04.02.04.02.04.02.04.014.04.014.05.01.04.01.05.004.05v.15l-.01.05v.09l-.01.05-.01.05-.013.05-.02.046-1.48 3.93-.01.04-.02.04-.02.04-.025.04-.02.04-.03.04-.03.03-.03.03-.03.04-.04.03-.03.03-.04.03-.04.03-.04.02-.04.02-.04.02-.04.02-.05.02-.043.02-.05.01-.05.01-.05.01-.05.01-.05.005h-.15l-.05-.007-.05-.002-.05-.01-.045-.01-.05-.01-.05-.01-.05-.02-.04-.02-.047-.02-.04-.03-.04-.03-.04-.03-.04-.03-.04-.03-.03-.03-.04-.04-.03-.04-.03-.04-.02-.04-.02-.04-2.46-4.25-.02-.04-.02-.04-.02-.05-.01-.04-.014-.04-.01-.05-.01-.05-.01-.04v-.29l.01-.05.01-.04.01-.05.02-.045.01-.04.02-.043.02-.04.02-.04.02-.04.02-.04.03-.03.03-.04.03-.034.03-.03.038-.03.03-.03 1.88-1.57.04-.03.04-.02.04-.02.04-.03.04-.02.044-.02.04-.02.047-.02.047-.013.05-.01.05-.01h.05l.05-.01h.097l.046.01z"/><circle cx="26.121" cy="24.213" r="2.616"/></g><path fill="#79e2d7" fill-opacity=".196" d="M3.347 14.328h39.39V44.82H3.347z"/><path d="M42.876 13.338c.038.008.077.013.115.023.08.02.15.05.22.09.25.13.43.37.5.63.02.08.03.16.03.24v.12c-.04.46-.09.93-.13 1.39-.15 1.68-.28 3.36-.38 5.04-.17 3-.26 6.01-.24 9.02.02 2.86.13 5.72.32 8.57.12 1.68.27 3.36.44 5.03l.01.12c0 .1 0 .13-.03.23-.07.27-.25.51-.5.64-.07.04-.14.07-.22.09-.04.01-.08.02-.12.02l-1.2.15c-2.3.25-4.62.42-6.94.54-2.09.11-4.19.18-6.29.22-2.62.05-5.24.06-7.87.02-2.54-.03-5.08-.11-7.62-.24-2.25-.11-4.5-.27-6.75-.51-.33-.03-.66-.07-1-.11l-.24-.03c-.08-.01-.26-.03-.35-.05-.28-.07-.51-.25-.64-.5-.04-.07-.06-.15-.08-.23-.01-.04-.02-.08-.02-.12l-.14-1.09c-.2-1.74-.38-3.48-.53-5.23-.28-3.5-.42-7.01-.37-10.52.04-2.74.19-5.48.47-8.21.15-1.49.35-2.98.57-4.46l.03-.12c.04-.1.04-.13.1-.23.13-.21.34-.38.57-.45.08-.02.17-.04.25-.04h.13c.48.04.97.07 1.45.11 3.24.21 6.48.34 9.72.43 3.23.09 6.46.13 9.7.12 2.95 0 5.89-.04 8.84-.15 2.69-.09 5.37-.24 8.05-.49h.12l.11.01zM5.64 15.654c-.203 1.467-.374 2.938-.504 4.414-.225 2.56-.338 5.128-.35 7.697-.017 3.32.135 6.64.417 9.948.132 1.554.296 3.105.48 4.654l.036.296c2.63.3 5.27.48 7.91.608 3.18.16 6.36.23 9.55.24 3.2.01 6.4-.04 9.6-.18 2.88-.12 5.77-.3 8.64-.61l.21-.02-.13-1.34-.12-1.39c-.11-1.38-.2-2.76-.27-4.14-.13-2.58-.18-5.17-.16-7.76.02-2.59.11-5.19.27-7.78.09-1.55.22-3.09.36-4.64l.02-.2-.77.07-1.05.07c-2.96.2-5.92.3-8.88.36-2.6.05-5.2.07-7.81.05-2.79-.01-5.59-.06-8.38-.15-3.02-.09-6.03-.22-9.04-.43h-.03l-.04.26z" fill="#35cbb9" fill-rule="nonzero"/><circle cx="4.825" cy="14.505" r="2.912" fill="#fff" stroke-width="2" stroke="#35cbb9"/><circle cx="42.898" cy="14.152" r="2.912" fill="#35cbb8" stroke-width="2" stroke="#35cbb8"/><circle cx="42.736" cy="43.563" r="2.912" fill="#fff" stroke-width="2" stroke="#35cbb9"/><circle cx="4.912" cy="43.563" r="2.912" fill="#fff" stroke-width="2" stroke="#35cbb9"/><path d="M44.044 15.16l1.987 7.89 1.98-1.97 2.73 2.723 1.97-1.97-2.72-2.724 1.97-1.98-7.9-1.98z" fill="#fff"/><path d="M44.123 13.16l.082.005.082.01.082.01.08.015.08.02 7.9 1.978.08.02.08.026.07.03.07.03.07.035.07.03.07.04.07.04.07.04.06.05.06.05.06.05.06.05.05.06.06.06.05.06.05.06.05.07.04.07.04.07.04.07.03.07.03.07.03.08.02.08.02.08.02.08.01.08.01.08.01.08v.32l-.01.09-.01.08-.02.08-.02.08-.02.08-.03.08-.03.07-.03.07-.03.07-.04.07-.04.07-.05.07-.05.07-.05.06-.05.06-.06.06-.06.06-.56.55 1.31 1.31.05.06.05.06.06.06.05.07.04.07.04.07.04.07.04.07.03.08.03.08.03.08.03.08.02.08.02.08.01.08.01.08.01.08v.33l-.01.08-.01.08-.02.08-.02.08-.02.08-.02.08-.03.07-.04.08-.04.07-.04.07-.04.07-.04.07-.05.07-.05.07-.05.06-.06.06-.06.06-1.97 1.97-.06.06-.07.05-.06.05-.07.05-.07.05-.07.04-.07.04-.08.04-.08.03-.07.03-.08.03-.08.02-.08.03-.08.02-.08.02-.08.01-.08.01h-.08l-.08.01h-.17l-.08-.01-.08-.01-.08-.02-.08-.02-.08-.02-.08-.03-.08-.02-.077-.03-.074-.04-.07-.04-.07-.04-.07-.05-.07-.05-.06-.05-.065-.05-.06-.06-.06-.05-1.23-1.2-.56.55-.06.06-.064.05-.06.05-.07.05-.07.042-.07.05-.07.04-.08.034-.08.033-.08.03-.08.03-.08.02-.08.026-.08.02-.08.014-.09.02-.08.01-.09.006h-.17l-.09-.01-.08-.01-.09-.02-.08-.02-.08-.02-.08-.03-.08-.03-.08-.03-.08-.03-.08-.04-.07-.04-.07-.06-.07-.04-.07-.05-.07-.05-.07-.05-.06-.06-.06-.06-.06-.06-.06-.07-.06-.07-.05-.07-.05-.07-.05-.07-.04-.07-.03-.08-.04-.08-.03-.08-.03-.08-.03-.08-.02-.08-1.99-7.89-.02-.08-.01-.08-.01-.08-.01-.09v-.33l.01-.09.01-.08.014-.08.02-.08.02-.08.025-.08.03-.08.03-.076.03-.078.04-.073.04-.07.04-.07.05-.07.05-.07.05-.07.05-.06.06-.06.06-.06.06-.05.06-.05.07-.05.07-.04.07-.04.07-.04.075-.04.08-.034.08-.03.08-.03.08-.023.08-.02.08-.02.09-.02.08-.01.09-.01h.245zm1.908 9.89l1.98-1.97 2.73 2.723 1.97-1.97-2.72-2.724 1.97-1.98-7.9-1.98 1.99 7.89z" fill="#3e4045"/></svg>
+        Slim
+    </h1>
+
+    <p><strong>4.15.0</strong> | 18-12-2017</p>
+<ul>
+<li>Add <code>data-upload-method</code> to override request method type, defaults to POST</li>
+</ul>
+<p><strong>4.14.5</strong> | 16-11-2017</p>
+<ul>
+<li>Fixed problem where square images could be scaled down to below the min size</li>
+</ul>
+<p><strong>4.14.4</strong> | 16-10-2017</p>
+<ul>
+<li>Fixed problem where Safari would not open editor a second time in certain instances.</li>
+</ul>
+<p><strong>4.14.3</strong> | 12-09-2017</p>
+<ul>
+<li>Fixed problem where dropped base64 data would not load correctly and throw an error.</li>
+</ul>
+<p><strong>4.14.2</strong> | 24-08-2017</p>
+<ul>
+<li>Add <code>setForceSize</code> method to set new forced size after load.</li>
+</ul>
+<p><strong>4.14.1</strong> | 15-08-2017</p>
+<ul>
+<li>Fixed problem where adding new files was no longer possible on IE11 when using instant edit mode.</li>
+<li>Fixed problem where fetch method would no longer load remote urls.</li>
+</ul>
+<p><strong>4.14.0</strong> | 01-08-2017</p>
+<ul>
+<li>Improved <code>will-request</code> callback, will now also receive the data object being sent to the server.</li>
+</ul>
+<p><strong>4.13.0</strong> | 22-07-2017</p>
+<ul>
+<li>Add <code>blockPush</code> option to <code>load</code> method, so when calling the load method from javascript its possible to prevent auto push.</li>
+<li>Add <code>will-fetch</code> and <code>will-load</code> callbacks that can be used to modify the XMLHttpRequest objects for fetching and loading image urls, similar to <code>will-request</code>.</li>
+</ul>
+<p><strong>4.12.0</strong> | 11-07-2017</p>
+<ul>
+<li>Add <code>requestOutput</code> method to request the current output data.</li>
+<li>Add <code>data-force-min-size</code> attribute, set to false to allow output images to be smaller than required input, <code>true</code> by default.</li>
+</ul>
+<p><strong>4.11.1</strong> | 10-07-2017</p>
+<ul>
+<li>Add <code>data-service-format</code> attribute to determine service output format when using a service function. Set to <code>&quot;file&quot;</code> to send a file.</li>
+<li>Fix problem where wrapping label caused file browse event to fire twice.</li>
+<li>Fix problem where Slim would throw an error if post was set to <code>&#39;actions&#39;</code>.</li>
+<li>Fix problem where file dropped on button would be opened by browser.</li>
+</ul>
+<p><strong>4.11.0</strong> | 05-06-2017</p>
+<ul>
+<li>Add logic that copies JPEG meta data to output file when uploading async. Enable by setting <code>data-copy-image-head</code> to <code>true</code>.</li>
+<li>Fix Vue wrapper as it did not copy over component inner elements.</li>
+</ul>
+<p><strong>4.10.1</strong> | 01-06-2017</p>
+<ul>
+<li>Fix magic quote problems on PHP versions prior to 5.4.</li>
+<li>Fix supported test on UC Browser, now correctly reports false.</li>
+</ul>
+<p><strong>4.10.0</strong> | 18-05-2017</p>
+<ul>
+<li>Add VueJS wrapper.</li>
+<li>Add initialImage property for React, Angular 2 and VueJS.</li>
+<li>Improved Angular 2 wrapper code formatting.</li>
+<li>Improved React Module to use JavaScript Classes instead of React.createClass</li>
+</ul>
+<p><strong>4.9.0</strong> | 16-05-2017</p>
+<ul>
+<li>Add slim instance as last argument to all callback methods so it&#39;s easier to access Slim when the scope of the callback has been changed.</li>
+</ul>
+<p><strong>4.8.0</strong> | 09-05-2017</p>
+<ul>
+<li>Add attribute <code>data-popover-class-name</code> to set custom class name to popover element on open.</li>
+<li>Add scalar rounding correction when data-min-size is set so output image is always minimum the min size, standard min size has been adjusted to 0,0.</li>
+<li>Fix bug where fetching remote images would not work if fetcher url contained query string</li>
+</ul>
+<p><strong>4.7.1</strong> | 04-05-2017</p>
+<ul>
+<li>Add function that reads a hidden input with Slim data object as initial image.</li>
+<li>Add data-initial-image for use in Angular 1.x template.</li>
+</ul>
+<p><strong>4.7.0</strong> | 25-04-2017</p>
+<ul>
+<li>Fixed function scope for data-service method, was not scoped to slim instance.</li>
+<li>Improved Angular 1.x wrapper, now supports custom service function and better handles different project setups. Note that this is a breaking change, some code adjustments are required.</li>
+<li>Improved Slim.php regex implementations (moved from <code>mb_ereg</code> to <code>preg</code>).</li>
+</ul>
+<p><strong>4.6.5</strong> | 20-04-2017</p>
+<ul>
+<li>Add option to set data-service to a function, Slim will then call this function and pass the FormData object for upload.</li>
+</ul>
+<p><strong>4.6.4</strong> | 30-03-2017</p>
+<ul>
+<li>Fixed bug where cancel event never fired</li>
+</ul>
+<p><strong>4.6.3</strong> | 21-03-2017</p>
+<ul>
+<li>Fixed bug where crop offsets was a negative value which in turn caused problems in IE and Edge.</li>
+<li>Fixed bug where cropper without file input would throw an error on slow connections. </li>
+</ul>
+<p><strong>4.6.2</strong> | 17-03-2017</p>
+<ul>
+<li>Fixed bug in IE11 that prevented files from being dropped.</li>
+<li>Improved image resize algorithm output quality</li>
+</ul>
+<p><strong>4.6.1</strong> | 10-03-2017</p>
+<ul>
+<li>Add <code>data-drop-replace</code> attribute which when set to false will disable drop image to replace currently loaded image.</li>
+<li>Fixed problem where long error labels would break out of cropper area on IE11.</li>
+</ul>
+<p><strong>4.6.0</strong> | 08-03-2017</p>
+<ul>
+<li>Add drop URL functionality. You can now drop a URL and Slim will load the remote image.</li>
+<li>Add <code>data-did-confirm</code> callback which is called after the user presses the confirm button in the image editor</li>
+<li>Add <code>data-did-cancel</code> callback which is called after the user presses the cancel button in the image editor</li>
+<li>Add <code>rotation</code> and <code>filter</code> information to PHP data object.</li>
+<li>Improved drop area so user can drop a new image to replace the current image</li>
+<li>Improved <code>.supported</code> property, now more accurate. Will return false when not supported, will show error message when creating a cropper on unsupported browser. </li>
+<li>Improved Angular 1.x wrapper, now supports data binding for attributes mapping to internal setter methods (service, ratio, size and rotation).</li>
+<li>Fixed problem where web page would scroll behind image editor while dragging crop area.</li>
+<li>Fixed problem where long labels would break out of cropper area on IE11.</li>
+<li>Fixed problem where removing an image or loading a new image by file selector would throw an error</li>
+</ul>
+<p><strong>4.5.2</strong> | 22-02-2017</p>
+<ul>
+<li>Fixed problem where right-to-left text direction would cause problems in the image editor.</li>
+</ul>
+<p><strong>4.5.1</strong> | 21-02-2017</p>
+<ul>
+<li>Fixed problem where uploading both input and output to server in sync mode would not work.</li>
+</ul>
+<p><strong>4.5.0</strong> | 15-02-2017</p>
+<ul>
+<li>Improved image resizing algorithm.</li>
+<li>Improved file name for unknown files, name is now set to current date and time. </li>
+<li>Add <code>data-filter-sharpen</code> attribute, set to value between 0 and 100 to sharpen image after resize. Default is 0, a value between 10 and 20 gives the illusion of improved image quality.</li>
+<li>Fixed file name being &quot;undefined&quot; for downloaded files.</li>
+</ul>
+<p><strong>4.4.0</strong> | 08-02-2017</p>
+<ul>
+<li>Improved async crop output image uploading. Now uploads file instead of base64 encoded data. Set <code>data-upload-base64</code> to <code>&quot;true&quot;</code> if you wish to still send base64 data. Note that synchronous uploading still sends base64 data as it&#39;s not possible to &quot;write&quot; a file to a file input field.</li>
+</ul>
+<p><strong>4.3.0</strong> | 06-02-2017</p>
+<ul>
+<li>Improved upload button, will now hide by default when loading initial image, can be enabled with <code>data-save-initial-image</code>.</li>
+<li>Improved naming and handling of unknown files, base64 data or file data is now named with current date time.</li>
+<li>Add option to pass server errors to client status message using the <code>data-did-receive-server-error</code> handler.</li>
+</ul>
+<p><strong>4.2.1</strong> | 01-02-2017</p>
+<ul>
+<li>Fix problem with <code>data-push</code> progress indicator not being accurate.</li>
+<li>Fix problem where data was saved to hidden input before confirming instant edit crop.</li>
+<li>Now hides label when a preview image is shown.</li>
+<li>Add label to indicate loading image state.</li>
+<li>Improved loading indicator visibility while loading image.</li>
+</ul>
+<p><strong>4.2.0</strong> | 30-01-2017</p>
+<ul>
+<li>Fix problem with image position when opening cropper after rotation.</li>
+<li>Fix problem where Slim did automatically set the internal canvas size. This will now have to be supplied manually. The default size has been set to 4096 x 4096, this means that bigger images will automatically be scaled down.</li>
+<li>Improved crop rectangle, it now holds shape when rotating if crop ratio is 1:1 or set to free.</li>
+<li>Add <code>rotation</code> and <code>setRotation</code> end points to API to manually set image rotation.</li>
+<li>Add <code>data-rotation</code> attribute to set initial image rotation</li>
+</ul>
+<p><strong>4.1.6</strong> | 29-01-2017</p>
+<ul>
+<li>Fix file drop problems on Firefox.</li>
+</ul>
+<p><strong>4.1.5</strong> | 28-01-2017</p>
+<ul>
+<li>Added style resets to image elements inside Slim to override any theme layout styles.</li>
+</ul>
+<p><strong>4.1.4</strong> | 27-01-2017</p>
+<ul>
+<li>Added <code>internalCanvasSize</code> property. Which can be set to limit the internal canvas size Slim uses to load images. If a browser limits the canvas size this can be used to prevent overflowing the limit. Slim will automatically set this based on your <code>size</code> or <code>forceSize</code> settings.</li>
+<li>Improved performance of image editor.</li>
+</ul>
+<p><strong>4.1.3</strong> | 18-01-2017</p>
+<ul>
+<li>Fixed problem where the progress indicator would literally spiral out of control while uploading a file.</li>
+<li>Fixed progress indicator not showing 100% progress state.</li>
+</ul>
+<p><strong>4.1.2</strong> | 16-01-2017</p>
+<ul>
+<li>Fixed problem where <code>Slim.destroy</code> did not correctly remove image editor element.</li>
+<li>Fixed problem where server response status codes between 200 and 300 where not interpreted as successful.</li>
+</ul>
+<p><strong>4.1.1</strong> | 16-12-2016</p>
+<ul>
+<li>Improved slim handling size information. Now also accepts string based dimensions on options object.</li>
+</ul>
+<p><strong>4.1.0</strong> | 15-12-2016</p>
+<ul>
+<li>Added <code>setSize</code> and <code>setRatio</code> methods which both have a callback that returns the data after size and ratio have been applied.</li>
+<li>Fixed scale of rotate button.</li>
+<li>Fixed update of crop rectangle in image editor after ratio change. </li>
+</ul>
+<p><strong>4.0.2</strong> | 08-12-2016</p>
+<ul>
+<li>Added attribute <code>data-rotate-button</code> which can be set to &quot;false&quot; to hide the rotate button.</li>
+<li>Fixed a bug where <code>data-push</code> mode combined with <code>data-instant-edit</code> would push second image before editing. </li>
+<li>Fixed problem where download functionality would use input name and type instead of output.</li>
+</ul>
+<p><strong>4.0.1</strong> | 23-11-2016</p>
+<ul>
+<li>Fixed a bug where <code>data-instant-edit</code> mode would remove image on editor cancel when initial image was set.</li>
+</ul>
+<p><strong>4.0.0</strong> | 21-11-2016</p>
+<p>The way input and output file names are now stored is a bit different. Input will always be the name of the input file. Output will contain the name as modified by for instance <code>data-force-type</code>. It&#39;s important to test this when upgrading from an earlier version.</p>
+<ul>
+<li>Improved input data loading. When posting <code>input</code> data Slim now sends the original file instead of the Base64 version.</li>
+<li>Improved sync and async php files, they now save both input and output data when supplied with <code>data-post</code>.</li>
+<li>Improved internal image loading logic. Now has more accurate data on image type and size.</li>
+<li>Improved usage of memory, Slim now has a smaller memory footprint.</li>
+<li>Fixed <code>data-instant-edit</code> where when cancelled the image would still be loaded.</li>
+<li>Fixed problem with loading attribute options on IE10</li>
+</ul>
+<p><strong>3.4.1</strong> | 20-11-2016</p>
+<ul>
+<li>Fix problem where Firefox 50 would prevent files from being dropped.</li>
+</ul>
+<p><strong>3.4.0</strong> | 15-11-2016</p>
+<ul>
+<li>Add <code>data-force-size</code> attribute which allows forcing the output size to a certain width and height.</li>
+</ul>
+<p><strong>3.3.2</strong> | 07-11-2016</p>
+<ul>
+<li>Fixes to Angular 2 wrapper to make it work with final version of Angular 2.</li>
+<li>Fixes button sizes and padding sizes in image editor.</li>
+</ul>
+<p><strong>3.3.1</strong> | 27-10-2016</p>
+<ul>
+<li>Improved React wrapper so works with server rendering.</li>
+<li>Improved PHP file documentation.</li>
+<li>Fixed data-force-type attribute, it was not setting the force type correctly.</li>
+<li>Fixed React Unknown Prop Warning.</li>
+<li>Fixed problem where crop output did not conform to minimum size / ratio.</li>
+<li>Fixed rotate button title not being set correctly.</li>
+<li>Fixed rotate button size which was a little bit small.</li>
+</ul>
+<p><strong>3.3.0</strong> | 19-10-2016</p>
+<ul>
+<li>Added meta property to options object so metadata can now be passed on manual init.</li>
+<li>Improved metadata attribute. Data set by the attribute is now available on init. </li>
+<li>Improved and optimized attribute parsing logic.</li>
+</ul>
+<p><strong>3.2.0</strong> | 15-10-2016</p>
+<ul>
+<li>Added meta attribute to quickly add meta data to server request.  </li>
+<li>Added option to change rotate button title and class name.</li>
+</ul>
+<p><strong>3.1.1</strong> | 29-09-2016</p>
+<ul>
+<li>Added willRequest callback method to intercept XMLHttpRequest to make it possible to add custom request headers.</li>
+<li>Added example on how to remove image files from the server after the user taps the bin button.</li>
+<li>Improved file name security in Slim PHP script.</li>
+</ul>
+<p><strong>3.1.0</strong> | 23-09-2016</p>
+<ul>
+<li>Added rotation function. Images can now be rotated 90, 180 or 270 degrees using a button in the popup.</li>
+</ul>
+<p><strong>3.0.3</strong> | 06-09-2016</p>
+<ul>
+<li>Fixed a severe bug with the previous update where selecting a new image would no longer work.</li>
+<li>Improved Angular 1.x plugin inner workings.</li>
+</ul>
+<p><strong>3.0.2</strong> | 05-09-2016</p>
+<ul>
+<li>Fixed problem where Base64 images would not load on Safari because of cross origin related errors.</li>
+</ul>
+<p><strong>3.0.1</strong> | 21-08-2016</p>
+<ul>
+<li>Fixed jQuery constructor bug, where creating croppers would only work by passing an options object.</li>
+</ul>
+<p><strong>3.0.0</strong> | 19-08-2016</p>
+<p>This version contains changes to the jQuery API. These are small but incompatible with the previous version of Slim. The <a href="http://slimimagecropper.com/#javascript-api">documentation</a> has been updated to clearly illustrate all the changes.</p>
+<ul>
+<li>Improved jQuery API, now more in line with other jQuery plugins.</li>
+<li>Improved parsing of data uris now only tests against initial set of characters.</li>
+</ul>
+<p><strong>2.3.2</strong> | 12-08-2016</p>
+<ul>
+<li>Fixed problem where second attempt at cropping image would incorrectly render cropping controls.</li>
+</ul>
+<p><strong>2.3.1</strong> | 09-08-2016</p>
+<ul>
+<li>Fixed blocked page controls after closing editor on old iOS versions and old Android browsers. </li>
+</ul>
+<p><strong>2.3.0</strong> | 06-08-2016</p>
+<ul>
+<li>Added property to update <code>size</code> output after initialisation.</li>
+<li>Added property to update <code>ratio</code> after initialisation.</li>
+<li>Fixed bug where Slim would not function on certain Android browsers.</li>
+</ul>
+<p><strong>2.2.1</strong> | 28-07-2016</p>
+<ul>
+<li>Added Slim ES6 Module for use with React and Angular 2</li>
+<li>Improved React component setup</li>
+<li>Improved Angular component setup</li>
+<li>Improved Angular 2 component setup</li>
+<li>Fixed mimetype array problems caused by spaces</li>
+<li>Fixed React module by adding exports</li>
+</ul>
+<p><strong>2.2.0</strong> | 21-07-2016</p>
+<ul>
+<li>Added Slim React component</li>
+<li>Added Slim Angular directive</li>
+<li>Added Slim Angular 2 component</li>
+<li>Added <code>data-save-initial-image</code> attribute which when set to <code>true</code> saves initial image data after initialisation. </li>
+<li>Added <code>didTransform</code> callback</li>
+<li>Added public crop method <code>crop(rect, callback)</code>, this method expects input to adhere to bounds of image and the image ratio.</li>
+<li>Added public <code>edit()</code> method to summon the editor manually</li>
+<li>Added instant edit mode, set <code>data-instant-edit</code> to true to summon the image editor on file drop</li>
+<li>Added <code>data-force-type</code>, set to jpg or png to force the output type.</li>
+<li>Added fallback for files without extension, Slim now treats these files as png&#39;s.</li>
+<li>Improved handling of server response. If server responds with object and object contains status property, checks if it is &quot;failure&quot; if so, throws &quot;unknown error&quot;. </li>
+<li>Fixed Internet Explorer 10 problem where second file upload would no longer work.</li>
+<li>Fixed problems with extensions being uppercase</li>
+<li>Fixed rendering problems on older iOS browsers</li>
+<li>Removed stray log statement in version 2.1.0</li>
+<li>Removed minified versions of Commonjs and AMD wrappers as these will probably be minified in a custom build step</li>
+</ul>
+<p><strong>2.1.0</strong> | 12-07-2016</p>
+<ul>
+<li>Added <code>didSave</code> method which is called after saving the data</li>
+<li>Added <code>.dataBase64</code> property which returns the data in final form (similar to the format in which it is saved / sent to the server)</li>
+<li>Added JPEG compression control property <code>data-jpeg-compression</code> for output image</li>
+<li>Added basic Slim example setup to package</li>
+<li>Improved error testing in server scripts, if an output image is empty, it is no longer saved.</li>
+<li>Fixed default JPEG compression being 100% resulting in bigger file upload then necessary. Compression now defaults to browser which is around 90%.</li>
+<li>Fixed query string in url causing problems</li>
+<li>Fixed non existing file name would cause problems</li>
+<li>Fixed bug where Safari would not load the same image twice</li>
+<li>Fixed CSS icons not working in uncompressed &quot;slim.css&quot;</li>
+<li>Fixed jQuery methods not returning Slim return values</li>
+<li>Removed automatic replacing on preview image by uploaded server version</li>
+</ul>
+<p><strong>2.0.0</strong> | 07-07-2016</p>
+<p>This version contains changes to callback names and callback scope, if you update from a previous versions you&#39;ll have to rename the callback methods (exact changes are outlined below).</p>
+<ul>
+<li>Changes between Slim versions are now added to package and can be found in the file &quot;changes.html&quot;</li>
+<li>Streamlined callback methods, switched to did / will syntax. <code>this</code> in a callback now refers to Slim instance it belongs to. <ul>
+<li><code>onInit(slim)</code> has been changed to <code>didInit(data)</code></li>
+<li><code>onComplete(error, response)</code> has been changed to <code>didUpload(error, data, response)</code></li>
+<li><code>onRemove(slim, data)</code> has been changed to <code>didRemove(data)</code></li>
+<li><code>onBeforeRemove(slim, remove)</code> has been changed to <code>willRemove(data, remove)</code></li>
+<li><code>onTransform(data, ready)</code> has been changed to <code>willTransform(data, ready)</code></li>
+<li><code>onSave(data, ready)</code> has been changed to <code>willSave(data, ready)</code></li>
+</ul>
+</li>
+<li>Fixed download button not working on Firefox</li>
+<li>Fixed download button not working on Internet Explorer</li>
+<li>Fixed status messages not being removed after click on file input</li>
+<li>Fixed use of &quot;image/*&quot; accept attribute not correctly passing types to dropper</li>
+<li>Fixed invalid file message not showing on Windows and Linux when uploading files with file upload dialog</li>
+<li>Fixed showing previously loaded image when uploading image with same name</li>
+<li>Added status message when image is loaded that is smaller then data min size</li>
+<li>Added didLoad method to allow custom validation of user input</li>
+<li>Added element getter, <code>.element</code> now returns root element of Slim cropper. Combined with the fixed callback scope you can now use jQuery <code>$(this.element)</code> within a callback to refer to the root of the cropper.</li>
+<li>Added recursive mode to <code>mkdir</code> in &quot;Slim.php&quot; method so <code>saveFile</code> can now also create sub directories like <code>foo/bar/</code> instead of only <code>foo/</code></li>
+<li>Improved output, now only updates field value when user makes changes, unless is single image cropper</li>
+<li>Improved save callback, now only get&#39;s called when user makes changes, unless is single image cropper</li>
+<li>Updated docs</li>
+</ul>
+<p><strong>1.1.1</strong> | 27-06-2016</p>
+<ul>
+<li>Fixed bug where free ratio cropper area did not scale properly.</li>
+<li>Added <code>onBeforeRemoval</code> callback so you can optionally ask if the user is sure of a image removal.</li>
+</ul>
+<p><strong>1.1.0</strong> | 23-06-2016</p>
+<ul>
+<li>Added <code>data-on-complete</code> callback</li>
+<li>Added option to set initial crop coordinates using <code>data-crop</code> or by passing crop options to JavaScript <code>load</code> method</li>
+<li>Added property to retrieve a clone of the current crop data <code>.data</code></li>
+<li>Added feature where Slim cleans data sent to server but leaves <code>meta</code> property alone for custom values.</li>
+<li>Added flag to data object to indicate crop type (&#39;auto&#39;, &#39;manual&#39; or &#39;initial&#39; based on type of crop).</li>
+<li>Improved async uploading functionality. The server response (including the file name and path) is now stored in a hidden field to unlock this data when submitting the form </li>
+<li>Improved load method, it now returns resulting data object in callback</li>
+<li>Improved performance when Slim is not attached to the DOM</li>
+<li>Fixed bug where on iOS8 the popover would keep blocking the view after it closed</li>
+<li>Fixed problem when removing file by clicking on Slim, same file could not be loaded twice</li>
+<li>Removed &quot;invalid response&quot; status, as any server response is now acceptable for storage in hidden input.</li>
+</ul>
+<p><strong>1.0.7</strong> | 16-06-2016</p>
+<ul>
+<li>Fixed problem where hidden input was not emptied after remove button press</li>
+<li>Fixed problem where certain crop results would be transparent on Safari / iOS </li>
+<li>Remove function now returns data object immediately when calling via API</li>
+<li>When setting an initial image, the init method will now be called after the image has loaded</li>
+<li>The init method is now always called after the Slim instance has been created</li>
+<li>Fixed problem where Safari would not restore input of type &quot;file&quot; properly</li>
+</ul>
+<p><strong>1.0.6</strong> | 15-06-2016</p>
+<ul>
+<li>Fixed data object not being passed to remove callback</li>
+<li>Fixed destroy method not cleaning up properly</li>
+</ul>
+<p><strong>1.0.5</strong> | 14-06-2016</p>
+<ul>
+<li>Source files are now contained in the package as well</li>
+<li>Minified files are now a little bit more compact</li>
+<li>Fixed problems with editing a single image</li>
+<li>Fixed problem where push option would not push after adding a new image</li>
+<li>Fixed problem where push option would not push initial image</li>
+<li>Fixed problem where editing a single image would show remove button</li>
+<li>Renamed the &quot;reset&quot; end point to &quot;remove&quot;</li>
+</ul>
+<p><strong>1.0.4</strong> | 10-06-2016</p>
+<ul>
+<li>Fixed push option directly uploading on page load</li>
+<li>Now accepts cross origin urls. Make sure cross origin requests are configured correctly on the remote server.</li>
+<li>Now has the ability to load Data URI sources. File name will be set to &quot;unknown&quot;</li>
+</ul>
+<p><strong>1.0.3</strong> | 07-06-2016</p>
+<ul>
+<li>Add option to preload server image</li>
+<li>Fixed bug where second file would not be allowed to drop on Firefox </li>
+<li>Fixed bug where blurring in image editor was incorrect when loading a new image</li>
+<li>Fixed bug where data size would not resize bigger portrait images properly</li>
+<li>Added onRemove proeprty so it&#39;s possible to handle removal of images</li>
+<li>Added onInit property so it&#39;s possible to detect when Slim has initialised</li>
+<li>Slim.create now returns the created Slim instance</li>
+<li>Slim.parse now returns an array of created Slim instances</li>
+</ul>
+<p><strong>1.0.2</strong> | 03-06-2016</p>
+<ul>
+<li>Fixed problem where image editor button captions would not change to set labels</li>
+</ul>
+<p><strong>1.0.1</strong> | 02-06-2016</p>
+<ul>
+<li>Fixed problem where image was uploaded as PNG instead of JPEG</li>
+<li>Added functionality which corrects JPEGs uploaded as PNGs (which sometimes happens on older browsers). Slim now makes sure the extension matches the image format.</li>
+<li>Improved performance of image editor</li>
+<li>Fixed window resizing render problems in image editor</li>
+<li>Plus various small code optimisations</li>
+</ul>
+<p><strong>1.0.0</strong> | 26-05-2016 </p>
+<ul>
+<li>Initial release</li>
+</ul>
+
+
+</main>
+</body>
+</html>

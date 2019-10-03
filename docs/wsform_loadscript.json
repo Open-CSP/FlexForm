@@ -1,0 +1,16 @@
+{
+    "doc": {
+        "name": "loadscript",
+        "type": "wsform",
+        "synopsis": "Have WSForm load a JavaScript after Rendering a form",
+        "description": "<p>The loadscript option will search for a JavaScript with the same name in the WSForm\/modules\/customJS\/loadScripts folder.<\/p><p>Only use the name. .js will be added to it automatically.<\/p><p><em>This can be extremely handy if you want a JavaScript to only be loaded with a certain form. Where the JavaScript for example could check form values in on the fly.<\/em><br><\/p>",
+        "parameters": "<blockquote><p>loadscript=\"nameofmyjavascrtiptfile\"<\/p><\/blockquote>",
+        "example": "<wsform action=\"get\" loadscript=\"nameofmyjavascrtiptfile\"><\/wsform>",
+        "note": "<p>If the file cannot be found, it will just be ignored.<\/p>",
+        "links": "...",
+        "created": "28-12-2018 10:13:20",
+        "created_by": "Charlot Cobben",
+        "last modified": "17-01-2019 19:44:58",
+        "modified by": "Charlot Cobben"
+    }
+}

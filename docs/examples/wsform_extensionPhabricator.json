@@ -1,0 +1,13 @@
+{
+    "example": {
+        "name": "extensionPhabricator",
+        "type": "wsform",
+        "synopsis": "How to use the Phabricator extension for WSForm to create \/ edit tasks in Phabricator",
+        "description": "<p>Initialize WSform with <strong>extension=\"phabricator\"<\/strong><\/p><br><p>The extension looks for WSForm fields with the following names :<\/p><ul><li>task-title<\/li><li>task-id<\/li><li>task-description<\/li><li>task-status<br><\/li><li>task-priority<\/li><li>task-project<\/li><li>task-subscriber<\/li><\/ul><p>if you use <strong>task-id<\/strong>, the task with that id will be updated. Omit <strong>task-id<\/strong> and a new task will be created.<\/p><p><strong>task-subscriber<\/strong> holds the names to users in Phabricator that will be subscribed to the task (seperate more than one user with a column-sign : \"<strong>|<\/strong>\")<\/p><p><strong>task-project<\/strong> holds the name(s) or Id(s) of project(s) in Phabricator that will be tagged to this task (seperate more than one project with a column-sign : \"<strong>|<\/strong>\")<\/p> <br>",
+        "example": "<wsform action=\"addToWiki\" extension=\"phabricator\" messageonsuccess=\"ok\">\r\n<p><wslabel for=\"task-title\">Title of task <\/wslabel>\r\n<wsfield type=\"text\" id=\"task-title\" name=\"task-title\"  required=required \/><\/p><p>\r\n<wslabel for=\"task-description\">Description of task <\/wslabel>\r\n<wsfield type=\"textarea\" name=\"task-description\" id=\"task-description\" placeholder=\"Type your description there\" required=required><\/wsfield><\/p>\r\n<wsfield type=\"submit\" name=\"test\" value=\"test\" \/>\r\n<wsfield type=\"hidden\" name=\"task-id\" value=\"2865\" \/>\r\n<wsfield type=\"hidden\" name=\"task-project\" value=\"i.wikibase.nl\" \/>\r\n<wsfield type=\"hidden\" name=\"task-subscriber\" value=\"charlot|jip\" \/>\r\n<!-- priorities : unbreak, triage, high, normal, low, wish -->\r\n<wsfield type=\"hidden\" name=\"task-priority\" value=\"unbreak\" \/>\r\n<!-- status : open, resolved, wontfix, invalid, spite -->\r\n<wsfield type=\"hidden\" name=\"task-status\" value=\"open\" \/>\r\n<\/wsform>",
+        "note": "<ul><li>Task <strong>status<\/strong> can have the following values : <strong>open, resolved, wontfix, invalid, spite<\/strong><br><\/li><li>Task <strong>priority<\/strong> can have the following values : <strong>unbreak, triage, high, normal, low, wish<\/strong><br><\/li><\/ul>",
+        "links": "--",
+        "last modified": "23-01-2019 10:56:17",
+        "modified by": "Charlot Cobben"
+    }
+}

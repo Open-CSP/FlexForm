@@ -1,0 +1,16 @@
+{
+    "doc": {
+        "name": "handleQuery",
+        "type": "wsform",
+        "synopsis": "Custom extension code for realtime queries",
+        "description": "<p>Not actually a parameter. Query information via WSForm.api.php and write your own query code.<\/p>",
+        "parameters": "<p>Add a folder with php code to the <strong>WSForm\/modules\/handlers\/queries <\/strong>folder. (e.g. WSForm\/modules\/handlers\/queries\/yourhandlername)<\/p><p>In that folder there must be a file called <strong>query-handler.php<\/strong>. That code will be executed.<br><\/p><p>From JavaScript you can call <strong>WSForm.api.php <\/strong>in the WSForm folder with parameters you define.<\/p><p>Required parameters<\/p><ul><li> action=handleQuery <br><\/li><li>handler=yourhandlername<\/li><\/ul><p><br><\/p><p>All other options are passed to your query handling code.<\/p><br>",
+        "example": "WSForm.api.php?action=handleQuery&handler=yourhandlername&myvar=123",
+        "note": "<p><span style=\"color: rgb(192, 80, 77);\">Since WSForm is only a pass through, your code must have security check build in.<br><\/span><\/p>",
+        "links": "..",
+        "created": "28-12-2018 11:57:39",
+        "created_by": "",
+        "last modified": "16-05-2019 11:54:29",
+        "modified by": "Charlot Cobben"
+    }
+}

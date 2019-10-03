@@ -1,0 +1,14 @@
+{
+    "doc": {
+        "name": "input-range",
+        "type": "wsfield",
+        "synopsis": "Creating an input slider",
+        "description": "Used to get a value between x and y, presented to the user as a slider.<br>",
+        "parameters": "<p>type=\"range\"<\/p><p>Other options :<\/p><ul><li>autocomplete<\/li><li>list<\/li><li>min<\/li><li>max<\/li><li>step<\/li><li>value<br><\/li><\/ul>",
+        "example": "<wsfield type=\"range\" min=\"5\" max=\"10\" step=\"0.01\">",
+        "note": "<p>By default, the granularity, is 1, meaning that the value is always an integer. You can change the <code>step<\/code>\r\n attribute to control the granularity. For example, If you need a value \r\nbetween 5 and 10, accurate to two decimal places, you should set the \r\nvalue of <code>step<\/code> to 0.01.<\/p><p>If you want to accept any value regardless of how many decimal places it extends to, you can specify a value of <code>\"any\"<\/code> for the <code>step<\/code> attribute.<\/p>",
+        "links": "---",
+        "created": "05-03-2018 09:34:48",
+        "created by": "Charlot"
+    }
+}

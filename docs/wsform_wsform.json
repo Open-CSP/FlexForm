@@ -1,0 +1,16 @@
+{
+    "doc": {
+        "name": "wsform",
+        "type": "wsform",
+        "synopsis": "The form ",
+        "description": "<p>...<\/p>",
+        "parameters": "<ul><li>action = addToWiki, mail or get<\/li><li>mwreturn = see docs<br><\/li><li>loadscript =&nbsp; see docs<br><\/li><li>showmessages =&nbsp; See README<\/li><li>restrictions = see docs<br><\/li><li>no_submit_on_return = see docs<\/li><li>changetrigger = see docs<\/li><li>formtarget = see docs<br><\/li><\/ul><br><br>",
+        "example": "...",
+        "note": "....",
+        "links": "<p>...<\/p>",
+        "created": "",
+        "created_by": "",
+        "last modified": "28-03-2019 11:16:31",
+        "modified by": "Charlot Cobben"
+    }
+}

@@ -1,0 +1,13 @@
+{
+    "example": {
+        "name": "contactform",
+        "type": "wsemail",
+        "synopsis": "Example for creating a contact form",
+        "description": "<p>Here we use the email function of WSForm to send an email to the admin and show a success message to the user.<\/p><p>We also create a page in the wiki with this information.<\/p><p><strong>The form<\/strong><\/p><p>See : Example<br><\/p><p><strong>The template <\/strong>(Title: Mail body for contact form)<\/p><blockquote><p>%ws_to=admin@example.com%<br>%ws_from=webmaster@example.com%<br>%ws_subject=Contact form submitted%<br><\/p><p>Dear admin,<\/p><br><p><strong>$name<\/strong> has send you a message using the contact form on our Wiki.<\/p><p>Details:<br><\/p><p>Name : $name<br><\/p><p>Email : $email<br><\/p><p>Message : $content<\/p><p>Best regards,<\/p><p>WSform contact form<\/p><br><\/blockquote><p><strong>Page that will be created <\/strong>(Title Contact-form:<random number=\"\"><span style=\"color: rgb(155, 187, 89);\">random number<\/span>)<\/random><\/p><blockquote><p>{{contact form:<br>|name=<filled in=\"\" by=\"\" user=\"\"><span style=\"color: rgb(155, 187, 89);\">Filled in by the user through the form<\/span><br>|email=<filled in=\"\" by=\"\" user=\"\"><span style=\"color: rgb(155, 187, 89);\">Filled in by the user through the form<\/span><br>|content=<filled in=\"\" by=\"\" user=\"\"><span style=\"color: rgb(155, 187, 89);\">Filled in by the user through the form<\/span>}}<\/filled><\/filled><\/filled><\/p><\/blockquote>",
+        "example": "<wsform class=\"contact-form\" action=\"mail\" messageonsuccess=\"Thank you. We have received your inquiry\">\r\n<wscreate mwtemplate=\"contact form\" mwwrite=\"Contact-form:\" mwoption=\"add_random\" \/>\r\n<wsemail template=\"Mail body for contact form\" \/>\r\n<p><wslabel for=\"name\">Your name<\/wslabel><wsfield type=\"text\" name=\"name\" required=\"required\"\/><\/p>\r\n<p><wslabel for=\"email\">Your email address<\/wslabel><wsfield type=\"email\" name=\"email\" required=\"required\" \/><\/p>\r\n<p><wslabel for=\"content\">Your message<\/wslabel><wsfield type=\"textarea\" name=\"content\" placeholder=\"Type your message here\" required=\"required\" \/><\/p>\r\n<p><wsfield type=\"submit\" value=\"Send your message\" \/><\/p>\r\n<\/wsform>",
+        "note": "..",
+        "links": "..",
+        "last modified": "26-06-2019 10:46:42",
+        "modified by": "Ad Strack van Schijndel"
+    }
+}

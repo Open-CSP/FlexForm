@@ -1,0 +1,36 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"wsform-desc": "Awesome HTML5 Form renderer",
+	"wsform-i18n-welcome": "Welcome ",
+	"wsform-title": "wsform",
+	"wsform-intro": "Currently supported lookups",
+	"helloworld": "Hello world",
+	"wsform": "WSForm",
+	"specialpages-group-Wikibase": "Wikibase Solutions",
+	"wsform-mwoption-bad-range" : "No page title could be made (not a numeric range)",
+	"wsform-mwoption-out-of-range" : "No page title could be made (out of range)",
+	"wsform-mwcreate-wrong-title" : "No page title could be made (parser responded as not possible)",
+	"wsform-mwcreate-wrong-title2" : "No page title could be made (parser responded as not possible)",
+
+	"wsform-external-request-not-found" : "External dependency not found.",
+	"wsform-query-handler-not-found" : "External handler not found.",
+
+	"wsform-norequest-made" : "No requests",
+	"wsform-noreturn-found" : "No return found",
+	"wsform-session-expired" : "Form session (2hrs) expired",
+	"wsform-session-no-token" : "Did not receive a session token from the form.",
+	"wsform-session-no-equal-host" : "Form host and api host are not equal.",
+
+	"wsform-unverified-email1" : "<br><div class=\"alert alert-warning\" role=\"alert\">\n<p>You need to confirm your email account first.</p>\n",
+	"wsform-unverified-email2" : "<p>Please do it now by clicking on <a href=\"/Special:ConfirmEmail\">this link</a></p>\n</div>",
+	"wsform-anonymous-user" : "<br><div class=\"alert alert-warning\" role=\"alert\">\n <p>Please log in first.</p></div>",
+
+	"wsform-docs-create-new-doc" : "Create new documentation",
+	"wsform-docs-create-new-example" : "Create new example",
+	"wsform-docs-information" : "Information",
+	"wsform-docs-documentation" : "documentation",
+	"wsform-docs-log-in" : "You need to login first",
+	"wsform-docs-back-documentation" : "Back to documentation"
+}

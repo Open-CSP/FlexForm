@@ -1,0 +1,12 @@
+{
+    "doc": {
+        "name": "submit-form-ajax",
+        "type": "wsfield",
+        "synopsis": "Use Ajax (JavaScript) to submit a form",
+        "description": "When using Ajax (javascript) to submit a form, users will stay on the page and javaScript will handle the posting of the form.<br>",
+        "parameters": "<p>type=\"submit\" mwidentifier=\"ajax\"<br><\/p><p><br><\/p>",
+        "example": "<wsfield type=\"submit\" mwidentifier=\"ajax\" \/>",
+        "note": "...",
+        "links": "..."
+    }
+}

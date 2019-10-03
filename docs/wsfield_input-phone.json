@@ -1,0 +1,12 @@
+{
+    "doc": {
+        "name": "input-phone",
+        "type": "wsfield",
+        "synopsis": "Using a phone field input and why",
+        "description": "<p>elements of type <code><strong>\"tel\"<\/strong><\/code> are used to let the user enter and edit a telephone number. Unlike <a href=\"\/Special:WSForm\/docs\/wsfield_input-email\"><code>wsfield type=\"email\"<\/code><\/a> and <a href=\"\/Special:WSForm\/docs\/wsfield_input-url\"><code>wsfield type=\"url\"<\/code><\/a>\r\n , the input value is not automatically validated to a particular format\r\n before the form can be submitted, because formats for telephone numbers\r\n vary so much around the world.<\/p><p>Despite the fact that inputs of type <code>tel<\/code> are functionally identical to standard <code>text<\/code>\r\n inputs, they do serve useful purposes; the most quickly apparent of \r\nthese is that mobile browsers — especially on mobile phones — may opt to\r\n present a custom keypad optimized for entering phone numbers. Using a \r\nspecific input type for telephone numbers also makes adding custom \r\nvalidation and handling of phone numbers more convenient.<\/p>",
+        "parameters": "wsfield type=\"tel\"<br>",
+        "example": "<wsfield id=\"telNo\" name=\"telNo\" type=\"tel\" required pattern=\"[0-9]{3}-[0-9]{3}-[0-9]{4}\" \/>",
+        "note": "<p>For validation you can use the HTML5 pattern argument. E.g.<\/p><br><pre class=\"brush: html line-numbers language-html\"><code>pattern=\"[0-9]{3}-[0-9]{3}-[0-9]{4}\"&gt;<\/code><\/pre><br><p>This will result in phone numbers <br><\/p><pre><code>xxx-xxx-xxxx<\/code><\/pre>",
+        "links": "<p><a href=\"https:\/\/developer.mozilla.org\/en-US\/docs\/Web\/HTML\/Element\/input\/tel\" title=\"https:\/\/developer.mozilla.org\/en-US\/docs\/Web\/HTML\/Element\/input\/tel\" target=\"_bank\">https:\/\/developer.mozilla.org\/en-US\/docs\/Web\/HTML\/Element\/input\/tel<\/a><\/p>"
+    }
+}

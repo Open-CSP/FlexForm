@@ -1,0 +1,16 @@
+{
+    "doc": {
+        "name": "input-email",
+        "type": "wsfield",
+        "synopsis": "How to render an email input field ",
+        "description": "When rendering an email input field, the browser will check if it is a valid email address.",
+        "parameters": "<p>type=\"email\"<\/p><p>All other valid parameters for an input field are valid<\/p>",
+        "example": "<wsfield type=\"email\" name=\"mail\" placeholder=\"Type your email address\" required=\"required\" \/>",
+        "note": "All attributes for an email input field are supported (like in this case : name, placeholder and required.) ",
+        "links": "..",
+        "created": "",
+        "created_by": "",
+        "last modified": "15-12-2018 23:17:22",
+        "modified by": "Charlot Cobben"
+    }
+}

@@ -1,0 +1,105 @@
+
+nav .navbar.navbar-default {
+	z-index:0;
+}
+
+nav {
+	border-bottom: solid 1px #efefef;
+	min-height: 60px;
+	background: #fff;
+	padding-bottom:50px
+}
+
+nav .wrap-core-nav-list,
+nav .nav-header {
+	background: #fff;
+}
+
+nav .brand {
+	display: block;
+	position: relative;
+	width: 170px;
+	top: 20px;
+}
+
+nav a.brand:link {
+	text-decoration: none;
+}
+
+nav .brand img {
+	width: 60px;
+}
+
+
+
+nav .menu li a {
+	display: block;
+	padding: 20px 25px;
+	text-decoration: none !important;
+	color: #3a3a3a;
+}
+
+nav .menu li.active > a,
+nav .menu li a:hover {
+	color: #e74c3c;
+}
+nav .nfo {
+	width:auto !important;
+}
+nav .nfo span{
+	color: #3a3a3a;
+	font-style:italic;
+	font-size:11px;
+	width:auto !important;
+}
+nav .nfo li a:hover span {
+	text-decoration: none;
+	color: #3a3a3a;
+	background:#fff;
+	border:none;
+}
+
+nav ul.nfo {
+	width: auto !important;
+}
+
+nav button {
+	background: transparent;
+	border: none;
+	outline: none;
+}
+
+@media (max-width: 992px) {
+	nav .full-container,
+	nav .nav-container {
+		padding-left: 0;
+		padding-right: 0;
+	}
+
+	nav .nav-header {
+		min-height: 60px;
+	}
+
+	nav .nav-header .brand {
+		margin: 0 auto 5px;
+		float: none;
+	}
+
+
+
+	nav .nav-header .toggle-bar {
+		font-size: 18px;
+		position: absolute;
+		top: 17px;
+		left: 15px;
+	}
+
+	nav .menu li a {
+		padding: 10px 10px;
+		border-bottom: solid 1px #efefef;
+	}
+
+	nav .menu li:last-child a {
+		border-bottom: none;
+	}
+}

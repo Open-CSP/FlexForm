@@ -1,0 +1,16 @@
+{
+    "doc": {
+        "name": "wsfield",
+        "type": "wsfield",
+        "synopsis": "input field",
+        "description": "<p>...<\/p>",
+        "parameters": "<p>type = e.g. text, textarea, checkbox, hidden, submit, option ...<\/p><p>name = parameter name<\/p><p>value = value entered or predefined. Alternative option: add_random<\/p><p>class = css class, e.g. form-control, ws-wysiwyg<\/p><p>placeholder =<\/p><p>maxlength = max number of characters<\/p><p>rows =&nbsp;<\/p><p>checked = for checkboxes<\/p><p>input-email = <a href=\"\/Special:WSForm\/Docs\/wsfield_input-email\" title=\"Email input field\">see docs<\/a><\/p><p>input-text = <a href=\"\/Special:WSForm\/Docs\/wsfield_input-text\" title=\"Input text field\">see docs<\/a><\/p><p>parsepost = <br><\/p>",
+        "example": "...",
+        "note": "<p>the parameter parsepost can be used on e.g. a hidden field where the value holds names of other fields to be switched at post processing. e.g. <br><\/p><p><br><\/p><p>&lt;wsfield type=\"hidden\" name=\"newtitle\" value=\"[title]_54213[subtitle]\" \/&gt;<\/p><p><br><\/p><p>This will read the form field value with name \"title\" and replace [title] in the value of the newtitle field<br><\/p>",
+        "links": "<p>input-email = <a href=\"https:\/\/simplegov.wikibase.nl\/Special:WSForm\/Docs\/wsfield_input-email\" title=\"Email input field\">see docs<\/a><\/p><p>input-text = <a href=\"https:\/\/simplegov.wikibase.nl\/Special:WSForm\/Docs\/wsfield_input-text\" title=\"Input text field\">see docs<\/a><\/p>",
+        "created": "",
+        "created_by": "",
+        "last modified": "07-08-2019 15:22:32",
+        "modified by": "Charlot Cobben"
+    }
+}

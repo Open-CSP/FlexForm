@@ -1,0 +1,16 @@
+{
+    "doc": {
+        "name": "input-number",
+        "type": "wsfield",
+        "synopsis": "How to render a number only input field",
+        "description": "<p>elements of type <code><strong>\"number\"<\/strong><\/code> are used to let the user enter a number. They include built-in validation to reject non-numerical entries.\r\n The browser may opt to provide stepper arrows to let the user increase \r\nand decrease the value using their mouse or by simply tapping with a \r\nfingertip.<\/p><p>By default, the up and down buttons provided for you to step the number \r\nup and down will step the value up and down by 1. You can change this by\r\n providing a <code>step<\/code> attribute, which takes as its value a number specifying the step amount.<\/p><p>You can use the <code>min<\/code> and <code>max<\/code> attributes to specify a minimum and maximum value that the field can have.<\/p>",
+        "parameters": "wsfield type=\"number\"<br>",
+        "example": "<wsfield type=\"number\" placeholder=\"1.0\" step=\"0.01\" min=\"0\" max=\"10\">\r\nThis accepts only a value between 0 and 10 with steps of 0.01 (e.g. 2.21)",
+        "note": "..",
+        "links": "<p><a href=\"https:\/\/developer.mozilla.org\/en-US\/docs\/Web\/HTML\/Element\/input\/number\" title=\"https:\/\/developer.mozilla.org\/en-US\/docs\/Web\/HTML\/Element\/input\/number\" target=\"_blank\">https:\/\/developer.mozilla.org\/en-US\/docs\/Web\/HTML\/Element\/input\/number<\/a><\/p>",
+        "created": "02-03-2018 21:22:22",
+        "created_by": "Charlot",
+        "last modified": "02-03-2018 21:33:46",
+        "modified by": "Charlot"
+    }
+}

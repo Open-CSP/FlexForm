@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+
+    <title>Slim</title>
+
+    <style>
+
+        html {
+            -webkit-font-smoothing: antialiased;
+            background:#fff;
+            color:#61564E;
+            font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size:1em;
+        }
+
+        html, body {
+            margin:0;
+            padding:0;
+        }
+
+        body {
+            line-height:1.4;
+            font-size:1.125rem;
+            font-weight:300;
+        }
+
+        main {
+            padding:2rem 2rem 4rem;
+            max-width:40rem;
+            margin:0 auto;
+        }
+
+        p {
+            max-width:32rem;
+        }
+
+        em {
+            font-style:normal;
+            color:#312C28;
+            background:#F2EFED;
+            padding:.125em .25em;
+            border-radius:.25em;
+        }
+
+        a {
+            color:#175C54;
+        }
+
+        li {
+            margin-bottom:.25em;
+        }
+
+        h1 {
+            color:#3E3F45;
+        }
+
+        h2 {
+            padding-top:1em;
+            margin:0 0 .75em;
+            font-weight:300;
+            font-size:2em;
+            color:#F9A1BC;
+        }
+
+        h3 {
+            margin:2em 0 .75em;
+            font-weight:300;
+            font-size:1.5em;
+            color:#2cb1a0;
+        }
+
+        code {
+            color:#68581d;
+            background:#FAF3D5;
+            padding:.125em .25em;
+            font-size:.875em;
+            border-radius:.25em;
+            font-family:menlo,monaco,consolas,monospace;
+        }
+
+        h1 {
+
+            display:flex;
+            align-items:baseline;
+            font-weight:400;
+            font-size:2.5em;
+            margin:0;
+        }
+
+        svg {
+            width:2em;
+            margin-right:.3125em;
+            margin-left:-.125em;
+            position:relative;
+            top:.125em;
+        }
+
+        form {
+            background:#e2e5ed;
+            border-radius:1em;
+            padding:2em;
+            color:#3a4153;
+            margin:2em auto;
+            text-align:center;
+        }
+
+        form h2 {
+            font-size:1em;
+            padding: 0;
+            color:#3a4153;
+        }
+
+        form div {
+            display:flex;
+            align-items:baseline;
+            justify-content:center;
+        }
+
+        input, button {
+            padding:.5em 1em;
+            font-size:1em;
+        }
+
+        input {
+            background:#fff;
+            border-radius:.25em 0 0 .25em;
+            margin:0;
+            border:none;
+        }
+
+        button {
+            border-radius:0 .25em .25em 0;
+            background:#49577e;
+            color:#fff;
+            font-weight:bold;
+            border:none;
+        }
+
+        .implicit {
+            position:absolute;
+            left:-10000px;
+            top:auto;
+            width:1px;
+            height:1px;
+            overflow:hidden;
+        }
+
+    </style>
+
+</head>
+<body>
+<main>
+
+    <h1>
+        <svg viewBox="0 0 58 48" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="1.414"><path fill="none" stroke-width="2" stroke-dasharray="4,4,0,0" stroke-dashoffset="8" stroke="#bbeae6" d="M4.61 1.525h52.25v41.777H4.61z"/><path fill="#fff" d="M0 12.24h40.736v33.588H0z"/><g opacity=".25" fill="#44d9c8"><path d="M17.79 22.387l.103.014.102.03.1.03.098.04.096.04.09.05.09.06.08.06.08.07.07.08.07.08.06.08.06.09 10.07 15.76.05.09.05.1.04.1.03.1.03.1.02.11.01.11v.21l-.01.11-.02.1-.03.1-.03.1-.04.1-.05.1-.05.09-.06.09-.06.08-.07.08-.07.08-.08.07-.08.07-.09.06-.09.05-.1.05-.1.04-.1.03-.1.02-.1.02-.11.01h-.22l-.11-.01-.1-.02-.1-.03-.1-.03-.09-.04-.1-.05-.09-.05-.09-.06-.08-.06-.08-.07-.07-.08-.07-.08-.06-.09-8.69-13.61-7.26 13.5-.06.09-.06.09-.06.08-.07.08-.08.08-.08.07-.09.06-.09.05-.09.05-.1.04-.1.04-.1.02-.1.02-.1.01-.11.01H9l-.103-.01-.1-.02-.1-.03-.1-.03-.09-.04-.09-.05-.08-.06-.085-.07-.08-.06-.08-.08-.07-.08-.064-.08-.06-.09-.05-.09-.043-.09-.04-.1-.03-.1-.025-.1-.02-.1-.01-.11-.003-.1v-.11l.01-.1.02-.11.02-.1.033-.1.04-.1.044-.1 8.466-15.8.052-.09.056-.09.07-.08.07-.07.073-.07.08-.07.09-.06.09-.05.09-.05.1-.04.1-.03.1-.03.1-.02.11-.01.1-.01h.1l.11.01z"/><path d="M30.62 27.234l.074.006.074.01.073.014.08.017.07.03.07.03.07.03.07.03.07.04.07.04.07.04.06.05.06.05.06.05.06.06.05.06.05.06.05.06.04.06 5.17 8.11.04.07.04.07.04.07.03.07.03.07.02.07.02.07.01.07.01.08.01.08.01.08v.08l-.01.07-.01.08-.01.08-.01.07-.02.08-.02.07-.03.07-.03.07-.04.07-.04.07-.04.07-.04.06-.04.06-.04.06-.05.06-.06.05-.05.05-.05.05-.06.05-.06.04-.07.04-.07.04-.06.03-.07.03-.07.03-.07.02-.07.02-.07.02-.07.01-.07.01h-.22l-.07-.01-.07-.01-.07-.02-.07-.02-.07-.03-.07-.03-.07-.03-.063-.04-.07-.03-.06-.04-.06-.05-.06-.04-.05-.05-.05-.05-.05-.05-.05-.05-.05-.06-.04-.06-3.8-5.96-3.15 5.85-.04.07-.04.06-.04.06-.05.06-.05.06-.05.06-.05.05-.06.05-.06.05-.06.047-.06.04-.06.04-.07.03-.07.03-.07.03-.07.02-.07.02-.07.02-.08.016-.072.006h-.29l-.075-.01-.07-.015-.07-.02-.07-.02-.07-.02-.07-.03-.07-.03-.07-.03-.06-.04-.066-.04-.06-.05-.06-.05-.06-.05-.05-.05-.05-.06-.05-.06-.04-.06-.04-.06-.04-.06-.04-.07-.03-.07-.03-.07-.02-.07-.02-.07-.02-.07-.01-.08-.01-.074-.05-.14v-.15l.006-.07.01-.07.01-.08.02-.07.02-.07.02-.07.03-.07.03-.07.034-.07 4.35-8.11.03-.07.04-.06.04-.06.04-.06.05-.05.05-.05.05-.05.05-.05.05-.04.06-.04.06-.04.07-.04.06-.04.07-.03.07-.03.07-.02.07-.02.07-.02.07-.01.07-.01h.21zm-10.252.926l-1.474 3.93-2.46-4.25 1.883-1.57"/><path d="M18.383 25.272l.048.005.05.006.05.01.05.01.05.013.05.015.05.02.04.02.05.02.04.03.04.03.04.03.04.03.04.03.03.04.04.04.03.04.03.04.03.04.03.04.03.05.02.04.02.04.02.05.02.05.02.05.02.05.01.04.01.05.01.05v.14l-.01.05v.05l-.01.05-.01.05-.01.05-.01.05-.02.05-.02.04-.02.04-.02.04-.03.05-.03.04-.03.04-.03.03-.03.03-.03.04-.03.03-1.23 1.03.98 1.69.73-1.95.02-.04.02-.04.02-.04.02-.04.03-.04.03-.04.03-.04.03-.03.04-.03.04-.03.04-.03.04-.03.04-.02.04-.03.04-.02.04-.02.04-.02.05-.02.05-.01.05-.02.05-.01.04-.01.05-.01h.19l.05.01.05.01.05.01.05.01.05.02.05.01.04.02.04.02.04.02.04.02.04.02.04.03.04.03.04.03.04.04.04.04.03.03.03.04.02.04.03.04.02.04.02.04.02.04.02.04.014.04.014.05.01.04.01.05.004.05v.15l-.01.05v.09l-.01.05-.01.05-.013.05-.02.046-1.48 3.93-.01.04-.02.04-.02.04-.025.04-.02.04-.03.04-.03.03-.03.03-.03.04-.04.03-.03.03-.04.03-.04.03-.04.02-.04.02-.04.02-.04.02-.05.02-.043.02-.05.01-.05.01-.05.01-.05.01-.05.005h-.15l-.05-.007-.05-.002-.05-.01-.045-.01-.05-.01-.05-.01-.05-.02-.04-.02-.047-.02-.04-.03-.04-.03-.04-.03-.04-.03-.04-.03-.03-.03-.04-.04-.03-.04-.03-.04-.02-.04-.02-.04-2.46-4.25-.02-.04-.02-.04-.02-.05-.01-.04-.014-.04-.01-.05-.01-.05-.01-.04v-.29l.01-.05.01-.04.01-.05.02-.045.01-.04.02-.043.02-.04.02-.04.02-.04.02-.04.03-.03.03-.04.03-.034.03-.03.038-.03.03-.03 1.88-1.57.04-.03.04-.02.04-.02.04-.03.04-.02.044-.02.04-.02.047-.02.047-.013.05-.01.05-.01h.05l.05-.01h.097l.046.01z"/><circle cx="26.121" cy="24.213" r="2.616"/></g><path fill="#79e2d7" fill-opacity=".196" d="M3.347 14.328h39.39V44.82H3.347z"/><path d="M42.876 13.338c.038.008.077.013.115.023.08.02.15.05.22.09.25.13.43.37.5.63.02.08.03.16.03.24v.12c-.04.46-.09.93-.13 1.39-.15 1.68-.28 3.36-.38 5.04-.17 3-.26 6.01-.24 9.02.02 2.86.13 5.72.32 8.57.12 1.68.27 3.36.44 5.03l.01.12c0 .1 0 .13-.03.23-.07.27-.25.51-.5.64-.07.04-.14.07-.22.09-.04.01-.08.02-.12.02l-1.2.15c-2.3.25-4.62.42-6.94.54-2.09.11-4.19.18-6.29.22-2.62.05-5.24.06-7.87.02-2.54-.03-5.08-.11-7.62-.24-2.25-.11-4.5-.27-6.75-.51-.33-.03-.66-.07-1-.11l-.24-.03c-.08-.01-.26-.03-.35-.05-.28-.07-.51-.25-.64-.5-.04-.07-.06-.15-.08-.23-.01-.04-.02-.08-.02-.12l-.14-1.09c-.2-1.74-.38-3.48-.53-5.23-.28-3.5-.42-7.01-.37-10.52.04-2.74.19-5.48.47-8.21.15-1.49.35-2.98.57-4.46l.03-.12c.04-.1.04-.13.1-.23.13-.21.34-.38.57-.45.08-.02.17-.04.25-.04h.13c.48.04.97.07 1.45.11 3.24.21 6.48.34 9.72.43 3.23.09 6.46.13 9.7.12 2.95 0 5.89-.04 8.84-.15 2.69-.09 5.37-.24 8.05-.49h.12l.11.01zM5.64 15.654c-.203 1.467-.374 2.938-.504 4.414-.225 2.56-.338 5.128-.35 7.697-.017 3.32.135 6.64.417 9.948.132 1.554.296 3.105.48 4.654l.036.296c2.63.3 5.27.48 7.91.608 3.18.16 6.36.23 9.55.24 3.2.01 6.4-.04 9.6-.18 2.88-.12 5.77-.3 8.64-.61l.21-.02-.13-1.34-.12-1.39c-.11-1.38-.2-2.76-.27-4.14-.13-2.58-.18-5.17-.16-7.76.02-2.59.11-5.19.27-7.78.09-1.55.22-3.09.36-4.64l.02-.2-.77.07-1.05.07c-2.96.2-5.92.3-8.88.36-2.6.05-5.2.07-7.81.05-2.79-.01-5.59-.06-8.38-.15-3.02-.09-6.03-.22-9.04-.43h-.03l-.04.26z" fill="#35cbb9" fill-rule="nonzero"/><circle cx="4.825" cy="14.505" r="2.912" fill="#fff" stroke-width="2" stroke="#35cbb9"/><circle cx="42.898" cy="14.152" r="2.912" fill="#35cbb8" stroke-width="2" stroke="#35cbb8"/><circle cx="42.736" cy="43.563" r="2.912" fill="#fff" stroke-width="2" stroke="#35cbb9"/><circle cx="4.912" cy="43.563" r="2.912" fill="#fff" stroke-width="2" stroke="#35cbb9"/><path d="M44.044 15.16l1.987 7.89 1.98-1.97 2.73 2.723 1.97-1.97-2.72-2.724 1.97-1.98-7.9-1.98z" fill="#fff"/><path d="M44.123 13.16l.082.005.082.01.082.01.08.015.08.02 7.9 1.978.08.02.08.026.07.03.07.03.07.035.07.03.07.04.07.04.07.04.06.05.06.05.06.05.06.05.05.06.06.06.05.06.05.06.05.07.04.07.04.07.04.07.03.07.03.07.03.08.02.08.02.08.02.08.01.08.01.08.01.08v.32l-.01.09-.01.08-.02.08-.02.08-.02.08-.03.08-.03.07-.03.07-.03.07-.04.07-.04.07-.05.07-.05.07-.05.06-.05.06-.06.06-.06.06-.56.55 1.31 1.31.05.06.05.06.06.06.05.07.04.07.04.07.04.07.04.07.03.08.03.08.03.08.03.08.02.08.02.08.01.08.01.08.01.08v.33l-.01.08-.01.08-.02.08-.02.08-.02.08-.02.08-.03.07-.04.08-.04.07-.04.07-.04.07-.04.07-.05.07-.05.07-.05.06-.06.06-.06.06-1.97 1.97-.06.06-.07.05-.06.05-.07.05-.07.05-.07.04-.07.04-.08.04-.08.03-.07.03-.08.03-.08.02-.08.03-.08.02-.08.02-.08.01-.08.01h-.08l-.08.01h-.17l-.08-.01-.08-.01-.08-.02-.08-.02-.08-.02-.08-.03-.08-.02-.077-.03-.074-.04-.07-.04-.07-.04-.07-.05-.07-.05-.06-.05-.065-.05-.06-.06-.06-.05-1.23-1.2-.56.55-.06.06-.064.05-.06.05-.07.05-.07.042-.07.05-.07.04-.08.034-.08.033-.08.03-.08.03-.08.02-.08.026-.08.02-.08.014-.09.02-.08.01-.09.006h-.17l-.09-.01-.08-.01-.09-.02-.08-.02-.08-.02-.08-.03-.08-.03-.08-.03-.08-.03-.08-.04-.07-.04-.07-.06-.07-.04-.07-.05-.07-.05-.07-.05-.06-.06-.06-.06-.06-.06-.06-.07-.06-.07-.05-.07-.05-.07-.05-.07-.04-.07-.03-.08-.04-.08-.03-.08-.03-.08-.03-.08-.02-.08-1.99-7.89-.02-.08-.01-.08-.01-.08-.01-.09v-.33l.01-.09.01-.08.014-.08.02-.08.02-.08.025-.08.03-.08.03-.076.03-.078.04-.073.04-.07.04-.07.05-.07.05-.07.05-.07.05-.06.06-.06.06-.06.06-.05.06-.05.07-.05.07-.04.07-.04.07-.04.075-.04.08-.034.08-.03.08-.03.08-.023.08-.02.08-.02.09-.02.08-.01.09-.01h.245zm1.908 9.89l1.98-1.97 2.73 2.723 1.97-1.97-2.72-2.724 1.97-1.98-7.9-1.98 1.99 7.89z" fill="#3e4045"/></svg>
+        Slim
+    </h1>
+
+    <p>First of all, thank you so much for purchasing Slim!</p>
+<p>I&#39;ve tried to make <a href="http://slimimagecropper.com">the documentation</a> as extensive as possible. If you have any questions after reading it, <a href="https://codecanyon.net/item/slim-image-upload-and-ratio-cropping-plugin/16364167/support">do let me know</a>, if you&#39;ve ran into trouble, I&#39;ve added a <a href="#help">quick help guide</a> below.</p>
+<p><strong>Thanks again for your purchase and have fun!</strong></p>
+<form action="http://pqina.createsend.com/t/d/s/bkrcd/"
+      method="post"
+      id="subForm">
+    <h2>Stay up to date on new releases and upcoming products.</h2>
+    <label for="fieldEmail" class="implicit">Email</label>
+    <div>
+        <input id="fieldEmail" placeholder="E-mail address" name="cm-bkrcd-bkrcd" type="email" required />
+        <button type="submit">Subscribe</button>
+    </div>
+</form>
+
+
+<h2 id="package-contents">Package Contents</h2>
+<ul>
+<li>A <em>slim</em> folder containing the client library files (minified and sources).</li>
+<li>A <em>server</em> folder containing the PHP files.</li>
+<li>A <em>example</em> folder containing a basic setup of Slim plus a PHP server.</li>
+<li>A <em>licenses</em> folder containing the licenses for the open source JavaScript libraries Slim makes use of.</li>
+</ul>
+<p>If you want to alter Slim you can use the included source files. If not, the files ending with <em>.min</em> are the ones you&#39;re looking for. The <em>.min</em> part indicates this file has been minified, or compressed so to say (so it&#39;s faster to load for your users).</p>
+<p>Apart from the <em>slim.min.css</em> file the <em>slim</em> folder contains the following <em>.js</em> files.</p>
+<ul>
+<li>slim.kickstart.min.js</li>
+<li>slim.global.min.js</li>
+<li>slim.jquery.min.js</li>
+<li>slim.commonjs.js</li>
+<li>slim.module.js</li>
+<li>slim.amd.js</li>
+<li>slim.angular.js</li>
+<li>slim.angular2.ts</li>
+<li>slim.react.jsx</li>
+</ul>
+<p>Some choices to make it seems but not to worry, it&#39;s not as difficult as it looks. All of the above files contain the Slim library but are useful for different projects.</p>
+<ol>
+<li><p>If you don&#39;t know which file to pick, you probably need the <em>slim.kickstart.min.js</em> file. This version of Slim will automatically initialise Slim croppers when the website has loaded and can be used with the snippets on the demo site.</p>
+</li>
+<li><p>If you plan to use the <a href="http://slimimagecropper.com/#jquery-api">Slim jQuery API</a> it&#39;s best to pick the jQuery file. This version will not load croppers automatically, you&#39;ll have to parse the DOM for Slim nodes yourself using the following JavaScript snippet <code>$(&#39;body&#39;).slim(&#39;parse&#39;);</code></p>
+</li>
+<li><p>The other files might be useful if you&#39;re an experienced JavaScript Developer.</p>
+<ul>
+<li>Use the AMD version if you&#39;re using something like RequireJS;</li>
+<li>CommonJS might be handy if you&#39;re running Browserify;</li>
+<li>The Global variant exposes Slim on the window object;</li>
+<li>The Module version is for use with ES6 projects;</li>
+<li>Then there&#39;s the React, Angular 1.x and Angular 2.x wrappers; <ul>
+<li>The React wrapper has slim.module.js as a dependency;</li>
+<li>The Angular 2.x wrapper has <em>slim.commonjs.js</em> as a dependency;</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="are-you-considering-using-react-">Are you considering using React?</h3>
+<p>If you&#39;re thinking of using React or are interested in learning it, I highly recommend this <a href="http://bit.ly/react-course">React Beginner Course by Wes Bos</a> it&#39;s a lot of fun and really got me up to speed fast.</p>
+<h2 id="client-setup">Client Setup</h2>
+<p>To use Slim you have to upload both <em>slim.min.css</em> and the <em>.js</em> file you picked above to a folder on your website. For the code snippets below we&#39;ll assume it&#39;s the <em>slim.kickstart.js</em> version and the folder we are uploading to is named <em>slim</em>.</p>
+<p>Copy the following HTML snippet in the <code>&lt;head&gt;</code> of your web page.</p>
+<p><code>&lt;link href=&quot;/slim/slim.min.css&quot; rel=&quot;stylesheet&quot;&gt;</code></p>
+<p>Then copy the following snippet and place it just before the closing <code>&lt;/body&gt;</code> tag.</p>
+<p><code>&lt;script src=&quot;/slim/slim.kickstart.min.js&quot;&gt;&lt;/script&gt;</code></p>
+<p>Make sure the paths in the above code snippets match the location of the CSS and JS files.</p>
+<p>Information on how to <a href="http://slimimagecropper.com/#easy-configuration">customise Slim</a> or <a href="http://slimimagecropper.com/#javascript-api">use the APIs</a> can be found on the product website.</p>
+<h2 id="server-setup">Server Setup</h2>
+<p>The included server files allow you to quickly setup a PHP server that handles the uploaded files.</p>
+<p>The <em>slim.php</em> file contains the <a href="http://slimimagecropper.com/#php-api">Slim helper class</a>. You can use this class to quickly get to and save the uploaded files.</p>
+<p>The <em>sync.php</em> file contains the same code that&#39;s used on the product site to handle classic form POSTs. See the <a href="http://slimimagecropper.com/#form-post">avatar sample</a> on the product site for more details.</p>
+<p>The <em>async.php</em> file contains the code used for the <a href="http://slimimagecropper.com/#drag-drop-crop">AJAX examples on the product site</a>.</p>
+<p>Both <em>sync.ph</em> and <em>async.php</em> contain extensive comments explaining what could be wrong when Slim or the server throws and error.</p>
+<p>The <em>async-remove.php</em> file contains logic for allowing the client to remove images from the server. I would advice against this but have received multiple requests on how to do this, so here it is.</p>
+<p><strong>Always make sure your server is secure. Allowing users to upload files creates a security risk.</strong> A <a href="https://www.google.nl/?q=php+secure+file+upload">Google query on &quot;php secure file upload&quot;</a> will give you some quick pointers on what to take into account. As a starter, make sure you&#39;ve got an .htaccess file in your file upload folder that prevents PHP scripts from executing. Adding &quot;php_flag engine off&quot; to your .htaccess file should do the trick.</p>
+<h3 id="additional-features">Additional Features</h3>
+<p>I&#39;ve written a couple articles on how to use Slim in certain situations that might help you out in configuring it for your specific use case. Please note that this functionality is not included in the package and therefor not officially supported.</p>
+<p>If you want to <strong>create thumbnails</strong> of the images being uploaded, it&#39;s best to do this on the server as that makes the upload faster for the user. I&#39;ve written a short article on <a href="http://pqina.nl/blog/creating-thumbnails-with-php">Creating Thumbnails with PHP</a>.</p>
+<p>If you want to upload <strong>multiple files</strong> at once. <a href="http://pqina.nl/blog/multiple-file-upload-with-slim">Upload multiple files with Slim Image Cropper</a>.</p>
+<h2 id="help">Help</h2>
+<p><span id="help"></p>
+<p>Alright, unfortunately you&#39;ve run into an issue or have a question. Don&#39;t panic, we&#39;re gonna get this fixed!</p>
+<ol>
+<li><p>Take a moment to look over the <a href="https://codecanyon.net/item/slim-image-upload-and-ratio-cropping-plugin/16364167/support">Slim FAQ page on CodeCanyon</a>. I try to add the most common problems to the FAQ, so the answer might be in there.</p>
+</li>
+<li><p>If the answer to your question is not in the FAQ and you&#39;ve carefully read <a href="http://slimimagecropper.com">the documentation</a>, <a href="https://codecanyon.net/item/slim-image-upload-and-ratio-cropping-plugin/16364167/support/contact">contact me via CodeCanyon support</a>, I&#39;m happy to help out!</p>
+</li>
+</ol>
+<p>Do try to send me as much information as possible, this makes it a lot easier for me to help you resolve the problem. The following information is always useful.</p>
+<ul>
+<li>The browser(s) name and version you tested on.</li>
+<li>The device you test on.</li>
+<li>The error message (if any) you received.</li>
+<li>The OS and version you test on.</li>
+<li>Server configuration details (PHP version).</li>
+<li>Screenshots that clearly show the problem (really useful).</li>
+<li>Step by step test scenario (what steps can I take to reproduce the problem).</li>
+</ul>
+
+
+</main>
+</body>
+</html>

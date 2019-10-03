@@ -1,0 +1,12 @@
+{
+    "doc": {
+        "name": "wslabel",
+        "type": "wslabel",
+        "synopsis": "Creating a label for an input field",
+        "description": "<p>Labels are used to describe an input field. With CSS they can be styled to fit your needs.<\/p><p>To 'Assign' a label to a specific input field, use the 'for' argument. The example below illustrates this.<br><\/p>",
+        "parameters": "wslabel<br>Can hold classes, a for argument, styles and more<br>",
+        "example": "<wslabel for=\"uname\">Username\"<\/wslabel>\r\n\r\nThen you have an input field in the form (useally right after the label) with an ID of 'uname'. e.g.\r\n\r\n<wsfield id=\"uname\" name=\"username\" type=\"text\" \/>",
+        "note": "--",
+        "links": "--"
+    }
+}
