@@ -32,7 +32,11 @@ First go to Special:CreateAccount and create an account e.g. formsubmitter.
 
 Set the appropriate rights in Special:UserRights.
 
-Open ``` /WSForm/WSForm.api.class ``` and somewhere in the top of the wbApi class fill the username and password you just created.
+Open ``` /WSForm/config/config_default.php  ``` fill the username and password you just created.
+
+If you on a FARM add the path to the FARM (read the description in the config file). 
+
+Save the file as config.php
 
 If you are on FARM you can add a WSFormSettings.php in the wiki/name folder with the following content :
 ```php
