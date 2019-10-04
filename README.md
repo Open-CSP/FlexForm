@@ -45,13 +45,19 @@ $this->app['username']='...';
 $this->app['password']='...';
 ``` 
 For uploading files the user created will need to have the rights for :
+
 * upload
+
 * uploadfile
+
 * upload_by_url
 
 General settings that need to be enabled :
+
 * $wgAllowCopyUploads = true;
+
 * $wgCopyUploadsFromSpecialUpload = true;
+
 
 Finally add the following line at the end of your LocalSettings.php to enable the extension :
 ```php
