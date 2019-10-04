@@ -41,6 +41,6 @@ The FormBuilder also allows you to save form layouts and share them with others.
 Please report issues on https://bitbucket.org/wikibasesolutions/mw-wsform/.
 
 #Final note
-Discord invite : https://discord.gg/ehFrPmT if you want to ask questions
+Discord invite : https://discord.gg/ehFrPmT or https://matrix.to/#/!SqSDYvQmQEsVMVLTNo:matrix.org?via=matrix.org if you want to ask questions
 
 
