@@ -10,3 +10,6 @@ WSForm_docs
 /modules/customJS/mycallbackerExperimental.js
 /modules/handlers/queries/phabricator/phabricator.config.php
 /modules/handlers/posts/phabricator/phabricator.config.php
+_WSForm.api.class.php
+_WSForm.api.include.php
+_WSForm.api.mw.class.php

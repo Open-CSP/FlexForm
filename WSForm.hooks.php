@@ -487,6 +487,10 @@ class WSFormHooks {
 
         $mwdb = $wgDBname . $prefix;
 
+        if ( $placeholder !== false ) {
+            $out .= "placeholder: '" . $placeholder . "',";
+        }
+
 		if ( isset( $args['json'] ) && isset( $args['id'] ) ) {
 			if( strpos( $args['json'], 'semantic_ask' ) ) {
 				$json = $args['json'];
@@ -495,9 +499,7 @@ class WSFormHooks {
 			}
 
 
-			if ( $placeholder !== false ) {
-				$out .= "placeholder: '" . $placeholder . "',";
-			}
+
 			$out .= "\ntemplateResult: testSelect2Callback,\n";
 			$out .= "\najax: { url: '" . $json . "', dataType: 'json',"."\n";
 			$out .= "\ndata: function (params) { var queryParameters = { q: params.term, mwdb: '".$mwdb."' }\n";
