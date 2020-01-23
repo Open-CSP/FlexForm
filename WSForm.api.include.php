@@ -1345,6 +1345,10 @@ function sendMail($from, $to, $cc, $bcc, $subject, $body, $html=true ) {
     if(file_exists('modules/pm/src/PHPMailer.php')) {
         require_once ('modules/pm/src/PHPMailer.php');
     } else die('NO PM');
+    echo "<pre>";
+    print_r( mailparse_rfc822_parse_addresses( $to ) );
+    echo "</pre>";
+    die();
 	//require_once ('modules/pm/src/Exception.php');
 	//require_once ('modules/pm/src/PHPMailer.php');
 	//require_once ('modules/pm/src/SMTP.php');  Needed when doing SMTP

@@ -656,6 +656,23 @@ class wbApi {
         return $tmp;
       }
 
+    function googleSiteVerify( $secret, $token, $action ) {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL,"https://www.google.com/recaptcha/api/siteverify");
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query(array('secret' => $secret, 'response' => $token)));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($ch);
+        curl_close($ch);
+        $result = json_decode( $response, true );
+        // verify the response
+        if( $result["success"] == '1' && $result["action"] == $action && $result["score"] >= 0.5 ) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     /**
      * Make an actual POST/GET to the NediaWiki API
      *

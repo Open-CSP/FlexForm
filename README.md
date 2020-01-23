@@ -93,6 +93,7 @@ Visit : Special:WSForm/Docs
 
 ### Changelog
 
+* 0.8.0.3.4 : Implemented reCaptcha from 0.9.0.0
 * 0.8.0.3.3 : Added docs for issue #3
 * 0.8.0.3.2 : Made all config files separate added form tokens
 * 0.8.0.3.1 : Small doc contribution and ajax callback check

@@ -1,0 +1,16 @@
+{
+    "doc": {
+        "name": "recaptcha-v3-action",
+        "type": "wsform",
+        "synopsis": "Use reCaptcha Version 3",
+        "description": "<p>Have WSForm use Google reCAPTCHA v3 to prevent spamming in a form.<\/p><p>You need to add you recaptcha key and secret in the config file.<\/p><pre class=\"c-mrkdwn__pre\" data-stringify-type=\"pre\" style=\"box-sizing: inherit; margin: 4px 0px; padding: 8px; --saf-0:rgba(var(--sk_foreground_low,29,28,29),0.13); font-size: 12px; line-height: 1.50001; font-variant-ligatures: none; white-space: pre-wrap; overflow-wrap: break-word; word-break: normal; tab-size: 4; font-family: Monaco, Menlo, Consolas, &quot;Courier New&quot;, monospace !important; border: 1px solid var(--saf-0); border-radius: 4px; background: rgba(var(--sk_foreground_min,29,28,29),0.04); counter-reset: list-0 0 list-1 0 list-2 0 list-3 0 list-4 0 list-5 0 list-6 0 list-7 0 list-8 0 list-9 0; color: rgb(209, 210, 211); font-style: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration-style: initial; text-decoration-color: initial;\">\"rc_site_key\"        =&gt; '',<br style=\"box-sizing: inherit;\">\"rc_secret_key\"      =&gt; '',<\/pre><p>More information in the link at the bottom of these docs<\/p>",
+        "parameters": "<p>recaptcha-v3-action=\"action name\"<\/p><p><br><\/p><p>Action name is the name of the action to describe the form. It's an extra security measurement. You can choose your own name e.g. : contactform<br><\/p>",
+        "example": "<wsform action=\"email\" recaptcha-v3-action=\"contactform\" >\r\n<\/wsform>",
+        "note": "reCAPTCHA v3 will not work when submitting the form through AJAX (identifier=\"ajax\")<br>",
+        "links": "<p><a href=\"https:\/\/developers.google.com\/recaptcha\/docs\/v3\" title=\"Google reCAPTCHA v3\">Google reCAPTCHA v3<\/a><\/p><p>..<br><\/p>",
+        "created": "25-10-2019 20:48:03",
+        "created_by": "",
+        "last modified": "23-01-2020 12:03:26",
+        "modified by": "Charlot Cobben"
+    }
+}

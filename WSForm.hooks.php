@@ -381,6 +381,37 @@ class WSFormHooks {
 			$ret .= $loadScript;
         }
 
+        if( isset( $args['recaptcha-v3-action'] ) && ! wsform\wsform::isLoaded( 'google-captcha' ) ) {
+            $tmpCap = wsform\recaptcha\render::render_reCaptcha();
+            wsform\wsform::addAsLoaded( 'google-captcha' );
+            $ret = $tmpCap . $ret;
+        }
+
+        if( wsform\wsform::$reCaptcha !== false && ! wsform\wsform::isLoaded('recaptcha' ) ) {
+            if( !isset( $args['id']) || $args['id'] === '' ) {
+                $ret = wfMessage( "wsform-recaptcha-no-form-id" )->text();
+                return $ret;
+            }
+            if ( file_exists( $IP . '/extensions/WSForm/modules/recaptcha.js' ) ) {
+                $rcaptcha = file_get_contents( $IP . '/extensions/WSForm/modules/recaptcha.js' );
+                $replace = array(
+                    '%%id%%',
+                    '%%action%%',
+                    '%%sitekey%%',
+                );
+                $with = array(
+                    $args['id'],
+                    wsform\wsform::$reCaptcha,
+                    wsform\recaptcha\render::$rc_site_key
+                );
+                $rcaptcha = str_replace( $replace, $with, $rcaptcha );
+                $ret .= '<script>' . $rcaptcha . '</script>';
+                wsform\wsform::addAsLoaded( 'recaptcha' );
+            } else {
+                $ret = wfMessage( "wsform-recaptcha-no-js" )->text();
+                return $ret;
+            }
+        }
 		return array( $ret, "markerType" => 'nowiki' );
 
 	}

@@ -14,6 +14,11 @@ namespace wsform;
 class wsform {
 
 
+    /**
+     * Globally set as a variable to check if the posting add a reCaptcha v3 and to disable ajax submit
+     */
+    public static $reCaptcha = false;
+
 	/**
 	 * Will be set to true if WSForm has already been initialize (when having multiple WSForms on a page)
 	 */

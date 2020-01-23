@@ -36,6 +36,7 @@ ERROR_REPORTING(E_ALL);
 ini_set('display_errors', 1);
 
 require_once('WSForm.api.class.php');
+require_once('classes/recaptcha.class.php');
 
 $i18n = new wsi18n();
 $ret = false;
@@ -189,7 +190,37 @@ if( isset( $_POST['wsform_signature'] ) ) {
     $ret = $res; // v0.7.0.3.3 added
 }
 
+$captchaAction = getPostString( 'mw-captcha-action', false );
+$captchaToken = getPostString( 'mw-captcha-token', false );
+if( $captchaAction !== false && $captchaToken !== false ) {
+    $api = new wbApi();
+    $retCaptcha = array();
+    $returnto = getPostString('mwreturn');
+    $retCaptcha['mwreturn'] = $returnto;
 
+    if( $returnto === false ) {
+        $retCaptcha['msg'] = 'no return url defined';
+        $retCaptcha['status'] = 'error';
+
+        $messages->handleResonse( $retCaptcha );
+        die();
+    }
+    if( $captchaToken === '' || $captchaAction === '' ){
+        $retCaptcha['msg'] = 'no captcha details';
+        $retCaptcha['status'] = 'error';
+        $messages->handleResonse( $retCaptcha );
+        die();
+    }
+    //secret, token, action
+    $capClass = new wsform\recaptcha\render();
+    $captchaResult = $api->googleSiteVerify($capClass::$rc_secret_key, $captchaToken, $captchaAction );
+    if( $captchaResult === false ){
+        $retCaptcha['msg'] = 'Your Captcha score is to low. You form is not submitted';
+        $retCaptcha['status'] = 'error';
+        $messages->handleResonse( $retCaptcha );
+        die();
+    }
+}
 
 if ( getPostString('mwaction') !== false ) {
 	$action = getPostString('mwaction');
