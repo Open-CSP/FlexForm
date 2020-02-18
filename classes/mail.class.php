@@ -52,8 +52,14 @@ class render {
                 if ( $k == "html" ) {
                     $template .= sprintf( $t1, 'mwmailhtml', $v );
                 }
+                if ( $k == "attachment" ) {
+                    $template .= sprintf( $t1, 'mwmailattachment', $v );
+                }
                 if ( $k == "template" ) {
                     $template .= sprintf( $t1, 'mwmailtemplate', $v );
+                }
+                if ( $k == "parselast" ) {
+                    $template .= sprintf( $t1, 'mwparselast',"true" );
                 }
             }
 

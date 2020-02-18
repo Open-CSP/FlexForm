@@ -36,7 +36,9 @@ class validate {
 			"header",
 			"footer",
 			"html",
-			"template"
+			"template",
+            "parselast",
+            "attachment"
 		);
 		if ( $ret ) {
 			return $validEmailElements;
