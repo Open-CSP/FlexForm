@@ -1150,6 +1150,7 @@ if ( ! $mwedit && ! $email ) {
 		$mtemplate = getPostString('mwmailtemplate');
 		$mjob = getPostString('mwmailjob');
 		$html = getPostString('mwmailhtml');
+        $attachment = getPostString('mwmailattachment');
 
 
         if(!$weHaveApi) {
@@ -1164,15 +1165,28 @@ if ( ! $mwedit && ! $email ) {
 
         if($mtemplate) {
 
-            $tpl = $api->parseWikiPageByTitle($mtemplate);
+            if( $parseLast === false ) {
+                $tpl = $api->parseWikiPageByTitle($mtemplate);
+            } else {
+                $tpl = $api->getWikiPageByTitle( $mtemplate );
+            }
             if( $tpl == "" ) {
                 return createMsg('WSFORM :: Can not find template','error',$returnto);
             }
             //Get all form elements and replace in Template
             foreach ($_POST as $k=>$v) {
-                if ( !isWSFormSystemField($k) && $v != "" ) {
-                    $tpl = str_replace('$'.$k, $v, $tpl);
+                if ( !isWSFormSystemField($k) ) {
+                    if( is_array( $v ) ) {
+                        $tmpArray = implode(", ", $v );
+                        $tpl = str_replace('$' . $k, $tmpArray, $tpl);
+                    } else {
+                        $tpl = str_replace('$' . $k, $v, $tpl);
+                    }
                 }
+            }
+            $tpl = preg_replace('/\$([\S]+)/', '', $tpl);
+            if( $parseLast !== false ) {
+                $tpl = $api->parseWikiText( $tpl );
             }
             $tmp = $api->getTemplateValueAndDelete('to', $tpl );
             if( $to === false ) {
@@ -1263,7 +1277,7 @@ if ( ! $mwedit && ! $email ) {
 		if( $mjob === false ) {
             //echo $content;
             //die();
-			$result = sendmail($from, $to, $cc, $bcc, $subject, $content, $html) ;
+			$result = sendmail($from, $to, $cc, $bcc, $subject, $content, $html, $attachment) ;
 			if($result === true) {
                 return createMsg('Mail send successfully','ok',$returnto,'success');
 			} else {
@@ -1324,6 +1338,19 @@ function setWsPostFields() {
 	return $wsPostFields;
 }
 
+function checkEmailForName( $email ) {
+    preg_match('#\[(.*?)\]#', $email, $match);
+    $ret = array();
+    $ret['name'] = false;
+    if( !empty( $match ) ) {
+        $ret['name'] = trim( str_replace( $match[0], '', $email ) );
+        $ret['email'] = $match[1];
+    } else {
+        $ret['name'] = false;
+        $ret['email'] = $email;
+    }
+    return $ret;
+}
 
 /**
  * Actual email send function
@@ -1338,14 +1365,21 @@ function setWsPostFields() {
  * @return bool true when succeeded
  * @return string error message
  */
-function sendMail($from, $to, $cc, $bcc, $subject, $body, $html=true ) {
+function sendMail($from, $to, $cc, $bcc, $subject, $body, $html=true, $attachment=false ) {
     if(file_exists('modules/pm/src/Exception.php')) {
         require_once ('modules/pm/src/Exception.php');
     } else die('NO PM');
     if(file_exists('modules/pm/src/PHPMailer.php')) {
         require_once ('modules/pm/src/PHPMailer.php');
     } else die('NO PM');
-
+    $to = checkEmailForName( $to );
+    $from = checkEmailForName( $from );
+    if( $cc ) {
+        $cc = checkEmailForName($cc);
+    }
+    if( $bcc ) {
+        $bcc = checkEmailForName($bcc);
+    }
 	//require_once ('modules/pm/src/Exception.php');
 	//require_once ('modules/pm/src/PHPMailer.php');
 	//require_once ('modules/pm/src/SMTP.php');  Needed when doing SMTP
@@ -1363,17 +1397,44 @@ function sendMail($from, $to, $cc, $bcc, $subject, $body, $html=true ) {
     //$mail->SMTPSecure = 'tls';                            // Enable TLS encryption, `ssl` also accepted
     //$mail->Port = 587;                                    // TCP port to connect to
 
-		$mail->setFrom($from);
-        $mail->addAddress($to);     // Add a recipient
-		if($cc) {
-    	$mail->addCC($cc);
-		}
-		if($bcc) {
-    	$mail->addBCC($bcc);
-		}
+        if( $from['name'] === false ) {
+            $mail->setFrom( $from['email'] );
+        } else {
+            $mail->setFrom( $from['email'], $from['name'] );
+        }
+        if( $to['name'] === false ) {
+            $mail->addAddress( $to['email'] );     // Add a recipient
+        } else {
+            $mail->addAddress( $to['email'], $to['name'] );     // Add a recipient
+        }
+        if( $cc ) {
+            if( $cc['name'] === false ) {
+                $mail->addCC( $cc['email'] );
+            } else {
+                $mail->addCC( $cc['email'], $cc['name'] );
+            }
+        }
+        if($bcc) {
+            if( $bcc['name'] === false ) {
+                $mail->addBCC( $bcc['email'] );
+            } else {
+                $mail->addBCC( $bcc['email'], $bcc['name'] );
+            }
+        }
+        $protocol = stripos($_SERVER['SERVER_PROTOCOL'],'https') === 0 ? 'https:' : 'http:';
+        if( $attachment !== false ) {
+            $fileAttachedContent = file_get_contents($protocol . $attachment);
+        } else $fileAttachedContent = false;
+        if( $fileAttachedContent !== false ) {
+            $pInfo = pathinfo( $attachment );
+            $fileAttachedName = $pInfo['basename'];
+        }
 		$mail->isHTML($html);
 		$mail->Subject=$subject;
 		$mail->Body=$body;
+        if( $fileAttachedContent !== false ) {
+            $mail->addStringAttachment($fileAttachedContent, $fileAttachedName );
+        }
 		$mail->send();
 		return true;
 
