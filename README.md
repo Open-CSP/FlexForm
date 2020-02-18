@@ -93,6 +93,7 @@ Visit : Special:WSForm/Docs
 
 ### Changelog
 
+* 0.8.0.3.6 : Added support for multiple to, cc and bcc in email
 * 0.8.0.3.5 : Added parselast for email and add attachment to email
 * 0.8.0.3.4 : Implemented reCaptcha from 0.9.0.0
 * 0.8.0.3.3 : Added docs for issue #3

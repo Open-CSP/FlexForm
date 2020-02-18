@@ -1338,6 +1338,7 @@ function setWsPostFields() {
 	return $wsPostFields;
 }
 
+/*
 function checkEmailForName( $email ) {
     preg_match('#\[(.*?)\]#', $email, $match);
     $ret = array();
@@ -1351,6 +1352,13 @@ function checkEmailForName( $email ) {
     }
     return $ret;
 }
+*/
+
+function createEmailArray( $email, $mail ) {
+	$tmp =  str_replace( array('[',']'),array('<','>'), $email );
+	return $mail->parseAddresses( $tmp );
+}
+
 
 /**
  * Actual email send function
@@ -1372,22 +1380,26 @@ function sendMail($from, $to, $cc, $bcc, $subject, $body, $html=true, $attachmen
     if(file_exists('modules/pm/src/PHPMailer.php')) {
         require_once ('modules/pm/src/PHPMailer.php');
     } else die('NO PM');
-    $to = checkEmailForName( $to );
-    $from = checkEmailForName( $from );
+	$mail = new PHPMailer\PHPMailer\PHPMailer(true);
+    $to = createEmailArray( $to, $mail );
+    $from = createEmailArray( $from, $mail );
     if( $cc ) {
-        $cc = checkEmailForName($cc);
+        $cc = createEmailArray($cc, $mail);
     }
     if( $bcc ) {
-        $bcc = checkEmailForName($bcc);
+        $bcc = createEmailArray($bcc, $mail);
     }
 	//require_once ('modules/pm/src/Exception.php');
 	//require_once ('modules/pm/src/PHPMailer.php');
 	//require_once ('modules/pm/src/SMTP.php');  Needed when doing SMTP
 	$mail = new PHPMailer\PHPMailer\PHPMailer(true);
 	try {
+		//$to = $mail->parseAddresses(str_replace( array('[',']'),array('<','>'), $to ) );
+		//print_r($to);
+		//die();
 		//Server settings
 		$mail->isMail();
-    $mail->SMTPDebug = 2;                                 // Enable verbose debug output
+        $mail->SMTPDebug = 2;                                 // Enable verbose debug output
         // Left this in for when SMTP is needed on day
     //$mail->isSMTP();                                      // Set mailer to use SMTP
     //$mail->Host = 'smtp1.example.com;smtp2.example.com';  // Specify main and backup SMTP servers
@@ -1397,16 +1409,38 @@ function sendMail($from, $to, $cc, $bcc, $subject, $body, $html=true, $attachmen
     //$mail->SMTPSecure = 'tls';                            // Enable TLS encryption, `ssl` also accepted
     //$mail->Port = 587;                                    // TCP port to connect to
 
+		/*
         if( $from['name'] === false ) {
             $mail->setFrom( $from['email'] );
         } else {
             $mail->setFrom( $from['email'], $from['name'] );
         }
+		*/
+		foreach( $from as $single ) {
+			$mail->setFrom( $single['address'], $single['name'] );     // Add a recipient
+		}
+        /*
         if( $to['name'] === false ) {
             $mail->addAddress( $to['email'] );     // Add a recipient
         } else {
             $mail->addAddress( $to['email'], $to['name'] );     // Add a recipient
         }
+        */
+
+        foreach( $to as $single ) {
+	        $mail->addAddress( $single['address'], $single['name'] );     // Add a recipient
+        }
+        if( $cc !== false ) {
+	        foreach ( $cc as $single ) {
+		        $mail->addCC( $single['address'], $single['name'] );     // Add a recipient
+	        }
+        }
+		if( $bcc !== false ) {
+			foreach ( $bcc as $single ) {
+				$mail->addBCC( $single['address'], $single['name'] );     // Add a recipient
+			}
+		}
+		/*
         if( $cc ) {
             if( $cc['name'] === false ) {
                 $mail->addCC( $cc['email'] );
@@ -1414,6 +1448,7 @@ function sendMail($from, $to, $cc, $bcc, $subject, $body, $html=true, $attachmen
                 $mail->addCC( $cc['email'], $cc['name'] );
             }
         }
+
         if($bcc) {
             if( $bcc['name'] === false ) {
                 $mail->addBCC( $bcc['email'] );
@@ -1421,6 +1456,7 @@ function sendMail($from, $to, $cc, $bcc, $subject, $body, $html=true, $attachmen
                 $mail->addBCC( $bcc['email'], $bcc['name'] );
             }
         }
+		*/
         $protocol = stripos($_SERVER['SERVER_PROTOCOL'],'https') === 0 ? 'https:' : 'http:';
         if( $attachment !== false ) {
             $fileAttachedContent = file_get_contents($protocol . $attachment);

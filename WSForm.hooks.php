@@ -55,12 +55,20 @@ class WSFormHooks {
 	 */
 	public static function addToAdminLinks( ALTree &$adminLinksTree ) {
         global $wgServer;
-
-		$generalSection = $adminLinksTree->getSection( wfMessage( 'adminlinks_general' )->text() );
-		$extensionsRow = $generalSection->getRow( 'extensions' );
-		if ( is_null( $extensionsRow ) ) {
+		$wsSection = $adminLinksTree->getSection( 'WikiBase Solutions' );
+		if ( is_null( $wsSection ) ) {
+			$section = new ALSection( 'WikiBase Solutions' );
+			$adminLinksTree->addSection( $section, wfMessage( 'adminlinks_general' )->text() );
+			$wsSection = $adminLinksTree->getSection( 'WikiBase Solutions' );
 			$extensionsRow = new ALRow( 'extensions' );
-			$generalSection->addRow( $extensionsRow );
+			$wsSection->addRow( $extensionsRow );
+		}
+
+		$extensionsRow = $wsSection->getRow( 'extensions' );
+
+		if ( is_null( $extensionsRow) ) {
+			$extensionsRow = new ALRow( 'extensions' );
+			$wsSection->addRow( $extensionsRow );
 		}
 		$extensionsRow->addItem( ALItem::newFromExternalLink( $wgServer.'/index.php/Special:WSForm/Docs', 'WSForm documentation' ) );
 		return true;
