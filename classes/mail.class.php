@@ -31,6 +31,9 @@ class render {
                 if ( $k == "bcc" ) {
                     $template .= sprintf( $t1, 'mwmailbcc', $v );
                 }
+	            if ( $k == "replyto" ) {
+		            $template .= sprintf( $t1, 'mwmailreplyto', $v );
+	            }
                 if ( $k == "subject" ) {
                     $template .= sprintf( $t1, 'mwmailsubject', $v );
                 }

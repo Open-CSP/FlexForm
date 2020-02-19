@@ -1145,6 +1145,7 @@ if ( ! $mwedit && ! $email ) {
 		$content = getPostString('mwmailcontent');
 		$cc = getPostString('mwmailcc');
 		$bcc = getPostString('mwmailbcc');
+		$replyto = getPostString('mwmailreplyto');
 		$header = getPostString('mwmailheader');
 		$footer = getPostString('mwmailfooter');
 		$mtemplate = getPostString('mwmailtemplate');
@@ -1213,6 +1214,11 @@ if ( ! $mwedit && ! $email ) {
                 $bcc = $tmp['val'];
                 $tpl = $tmp['tpl'];
             }
+	        $tmp = $api->getTemplateValueAndDelete('replyto', $tpl );
+	        if( $replyto === false ) {
+		        $replyto = $tmp['val'];
+		        $tpl = $tmp['tpl'];
+	        }
             $tmp = $api->getTemplateValueAndDelete('header', $tpl );
             if( $header === false ) {
                 $header = $tmp['val'];
@@ -1277,7 +1283,7 @@ if ( ! $mwedit && ! $email ) {
 		if( $mjob === false ) {
             //echo $content;
             //die();
-			$result = sendmail($from, $to, $cc, $bcc, $subject, $content, $html, $attachment) ;
+			$result = sendmail($from, $to, $cc, $bcc, $replyto, $subject, $content, $html, $attachment) ;
 			if($result === true) {
                 return createMsg('Mail send successfully','ok',$returnto,'success');
 			} else {
@@ -1302,7 +1308,16 @@ if ( ! $mwedit && ! $email ) {
 			if ($data['status'] != 'ok') {
 				$errors .= '<p>WSForm Job error : '.$data['message'].'</p>';
 			} else {
-				$result = sendMail($data['data']['from'], $data['data']['to'], $data['data']['cc'], $data['data']['bcc'], $data['data']['subject'], $data['data']['body'], $data['data']['html']);
+				$result = sendMail(
+					$data['data']['from'],
+					$data['data']['to'],
+					$data['data']['cc'],
+					$data['data']['bcc'],
+					$data['data']['replyto'],
+					$data['data']['subject'],
+					$data['data']['body'],
+					$data['data']['html']
+				);
 
 				if(!$result) {
 					$errors .= '<p>WSForm Job Mail error :: '.$result.'</p>';
@@ -1373,7 +1388,7 @@ function createEmailArray( $email, $mail ) {
  * @return bool true when succeeded
  * @return string error message
  */
-function sendMail($from, $to, $cc, $bcc, $subject, $body, $html=true, $attachment=false ) {
+function sendMail($from, $to, $cc, $bcc, $replyto, $subject, $body, $html=true, $attachment=false ) {
     if(file_exists('modules/pm/src/Exception.php')) {
         require_once ('modules/pm/src/Exception.php');
     } else die('NO PM');
@@ -1383,6 +1398,7 @@ function sendMail($from, $to, $cc, $bcc, $subject, $body, $html=true, $attachmen
 	$mail = new PHPMailer\PHPMailer\PHPMailer(true);
     $to = createEmailArray( $to, $mail );
     $from = createEmailArray( $from, $mail );
+	$replyto = createEmailArray( $replyto, $mail );
     if( $cc ) {
         $cc = createEmailArray($cc, $mail);
     }
@@ -1432,12 +1448,17 @@ function sendMail($from, $to, $cc, $bcc, $subject, $body, $html=true, $attachmen
         }
         if( $cc !== false ) {
 	        foreach ( $cc as $single ) {
-		        $mail->addCC( $single['address'], $single['name'] );     // Add a recipient
+		        $mail->addCC( $single['address'], $single['name'] );     // Add a cc
 	        }
         }
 		if( $bcc !== false ) {
 			foreach ( $bcc as $single ) {
-				$mail->addBCC( $single['address'], $single['name'] );     // Add a recipient
+				$mail->addBCC( $single['address'], $single['name'] );     // Add a bcc
+			}
+		}
+		if( $replyto !== false ) {
+			foreach( $replyto as $single ) {
+				$mail->addReplyTo( $single['address'], $single['name'] );     // Add a reply to
 			}
 		}
 		/*

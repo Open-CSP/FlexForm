@@ -29,6 +29,7 @@ class validate {
 			"from",
 			"cc",
 			"bcc",
+			"replyto",
 			"subject",
 			"type",
 			"content",
