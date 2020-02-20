@@ -1284,8 +1284,10 @@ if ( ! $mwedit && ! $email ) {
             //echo $content;
             //die();
 			$result = sendmail($from, $to, $cc, $bcc, $replyto, $subject, $content, $html, $attachment) ;
-			if($result === true) {
-                return createMsg('Mail send successfully','ok',$returnto,'success');
+			if( $result === true ) {
+			    if( $msgOnSuccess === false ) {
+                    return createMsg('Mail sent successfully', 'ok', $returnto, 'success');
+                } else return( createMsg($msgOnSuccess,'ok',$returnto, 'success') );
 			} else {
                 return createMsg($result,'error',$returnto);
 			}
@@ -1326,8 +1328,8 @@ if ( ! $mwedit && ! $email ) {
 		}
 		if($errors != "") {
             return createMsg($errors,'error',$returnto);
-		} else {
-            return createMsg('Mailjob send successfully','ok',$returnto,'success');
+		} elseif( $msgOnSuccess === false ) {
+            return createMsg('Mailjob sent successfully','ok',$returnto,'success');
 		}
 	}
     if($msgOnSuccess !== false) {
