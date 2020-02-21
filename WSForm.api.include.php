@@ -1417,7 +1417,6 @@ function sendMail($from, $to, $cc, $bcc, $replyto, $subject, $body, $html=true, 
 		//die();
 		//Server settings
 		$mail->isMail();
-        $mail->CharSet = 'UTF-8';
         $mail->SMTPDebug = 2;                                 // Enable verbose debug output
         // Left this in for when SMTP is needed on day
     //$mail->isSMTP();                                      // Set mailer to use SMTP
