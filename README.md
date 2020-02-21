@@ -93,6 +93,7 @@ Visit : Special:WSForm/Docs
 
 ### Changelog
 
+* 0.8.0.3.9 : Forced email to UTF-8 encoding
 * 0.8.0.3.8 : Added message on success for emails
 * 0.8.0.3.7 : Added support for replyto. Also multiple to, cc and bcc support in templates
 * 0.8.0.3.6 : Added support for multiple to, cc and bcc in email
