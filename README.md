@@ -93,6 +93,7 @@ Visit : Special:WSForm/Docs
 
 ### Changelog
 
+* 0.8.0.4.0 : Added multi wscreates with next available and ranges {T4952}. Fixed enhancement Issue #2
 * 0.8.0.3.9 : Forced email to UTF-8 encoding
 * 0.8.0.3.8 : Added message on success for emails
 * 0.8.0.3.7 : Added support for replyto. Also multiple to, cc and bcc support in templates
