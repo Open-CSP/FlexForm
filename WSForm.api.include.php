@@ -928,6 +928,7 @@ function saveToWiki($email=false) {
 	}
 
 if($writepages !== false) {
+
 	foreach ($writepages as $singlePage) {
         $noTemplate = false;
 		$pageData = explode( '-^^-', $singlePage );
@@ -981,9 +982,66 @@ if($writepages !== false) {
 		if (strpos($pageTitle,'[') !== false) {
 			$pageTitle = parseTitle($pageTitle);
 		}
+
+		if( $pageOption == 'next_available' && $pageTitle !== false ) {
+			// get highest number
+			if($weHaveApi) {
+				$pageTitle = $pageTitle . $api->getWikiListNumber( $pageTitle );
+			} else {
+				require_once( 'WSForm.api.class.php' );
+				$api = new wbApi();
+				$res = $api->logMeIn();
+				$pageTitle = $pageTitle . $api->getWikiListNumber( $pageTitle );
+				//die( "New title : ". $pageTitle );
+			}
+			if( $pageTitle === false ) {
+				return createMsg($i18n->wsMessage( 'wsform-mwcreate-wrong-title2' ), 'error', $returnto);
+			}
+		}
+
+		// ranges begin
+		if ( substr( strtolower( $pageOption ) ,0,6 ) === 'range:' ) {
+			$range = substr( $pageOption,6 );
+			$range = explode('-', $range);
+
+			if( !$weHaveApi) {
+				require_once( 'WSForm.api.class.php' );
+				$api = new wbApi();
+				$res = $api->logMeIn();
+			}
+			//echo "<pre>";
+			//print_r($range);
+			//die();
+			if( !ctype_digit( $range[0] ) || !ctype_digit( $range[1] ) ) {
+				return createMsg($i18n->wsMessage( 'wsform-mwoption-bad-range' ), 'error', $returnto);
+			}
+
+
+			$startRange = (int)$range[0];
+			$endRange = (int)$range[1];
+
+
+			$tmp  = $api->getWikiListNumber( $pageTitle, array('start' => $startRange, 'end' => $endRange ) );
+			if($tmp === false) {
+				return createMsg($i18n->wsMessage('wsform-mwoption-out-of-range'), 'error', $returnto);
+			}
+			if( $leadByZero === true ) {
+				$endrangeLength = strlen($range[1]);
+				$tmp = str_pad($tmp, $endrangeLength, '0', STR_PAD_LEFT);
+			}
+
+
+			$pageTitle = $pageTitle . $tmp;
+
+		}
+		// ranges end
+
+
 		if ( $pageOption == 'add_random' && $pageTitle !== false ) {
 			$ptitle = $pageTitle . MakeTitle();
 		}
+
+
 		if ( $pageTitle !== false && $pageOption != "add_random" ) {
 			$ptitle = $pageTitle;
 		}
