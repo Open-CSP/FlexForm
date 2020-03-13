@@ -385,11 +385,13 @@ class wbApi {
             $lst = $lst['received']['query']['namespaces'];
         } else return false;
         foreach( $lst as $nameSpace ) {
-            $can = strtolower( $nameSpace['canonical'] );
-            $alias = strtolower( $nameSpace['*'] );
-            if( $can === $ns || $alias === $ns ) {
-                $id = $nameSpace['id'];
-                break;
+            if( isset( $nameSpace['canonical'] ) ) {
+                $can   = strtolower( $nameSpace['canonical'] );
+                $alias = strtolower( $nameSpace['*'] );
+                if ( $can === $ns || $alias === $ns ) {
+                    $id = $nameSpace['id'];
+                    break;
+                }
             }
         }
         return $id;
@@ -412,8 +414,9 @@ class wbApi {
             //print_r($split);
             $nameStartsWith = $split[1];
             $nameSpace = $split[0];
-        }
-        $id = $this->getIdForNameSpace( $nameSpace );
+            $id = $this->getIdForNameSpace( $nameSpace );
+        } else $id = 0;
+
         if( $id === false ) {
             return false;
         }
@@ -424,6 +427,7 @@ class wbApi {
                     "action" => "query",
                     "format" => "json",
                     "list" => "allpages",
+                    "aplimit" => "max",
                     "apprefix" => $nameStartsWith,
                     "apnamespace" => $id
                 ]);
@@ -431,6 +435,7 @@ class wbApi {
                 $postdata = http_build_query([
                     "action" => "query",
                     "format" => "json",
+                    "aplimit" => "max",
                     "apcontinue" => $appContinue,
                     "list" => "allpages",
                     "apprefix" => $nameStartsWith,
@@ -444,6 +449,7 @@ class wbApi {
                 $postdata = http_build_query([
                     "action" => "query",
                     "format" => "json",
+                    "aplimit" => "max",
                     "list" => "allpages",
                     "apnamespace" => $id,
                     "apprefix" => $nameStartsWith
@@ -453,6 +459,7 @@ class wbApi {
                     "action" => "query",
                     "format" => "json",
                     "list" => "allpages",
+                    "aplimit" => "max",
                     "apcontinue" => $appContinue,
                     "apnamespace" => $id,
                     "apprefix" => $nameStartsWith
