@@ -237,7 +237,7 @@ class render {
 
 		if ( ! $presentor ) {
 
-			if ( ! $verbose_id ) {
+			if ( $verbose_id !== false) {
 				$verbose_id = 'verbose_' . $id;
 
 				$ret .= '<div id="' . $verbose_id . '" class="wsform-verbose"></div>';
@@ -250,7 +250,13 @@ class render {
 			} else {
 				$error_custom = "yes";
 			}
-			$ret     .= '<script>$( document ).ready(function() { $("#' . $id . '").on("change", function(){ wsfiles( "' . $id . '", "' . $verbose_id . '", "' . $error_id . '", "' . $use_label . '", "' . $verbose_custom . '", "' . $error_custom . '");});});</script>';
+			$random = round(microtime(true) * 1000);
+			$onChangeScript = 'function WSFile'.$random.'(){'. "\n".'$("#' . $id . '").on("change", function(){'. "\n".'wsfiles( "';
+			$onChangeScript .= $id . '", "' . $verbose_id . '", "' . $error_id . '", "' . $use_label;
+			$onChangeScript .= '", "' . $verbose_custom . '", "' . $error_custom . '");'. "\n".'});'. "\n".'};';
+			$ret .= "<script>\n" . $onChangeScript . "\n";
+			$ret .= "\n" . "wachtff(WSFile".$random.");\n</script>";
+			//$ret     .= '<script>$( document ).ready(function() { $("#' . $random . '").on("change", function(){ wsfiles( "' . $id . '", "' . $verbose_id . '", "' . $error_id . '", "' . $use_label . '", "' . $verbose_custom . '", "' . $error_custom . '");});});</script>';
 			$css     = file_get_contents( "$IP/extensions/WSForm/WSForm_upload.css" );
 			$replace = array(
 				'{{verboseid}}',
@@ -259,12 +265,20 @@ class render {
 			$with    = array(
 				$verbose_id,
 				$error_id
-			);
+			); //wsfiles( "file-upload2", "hiddendiv2", "error_file-upload2", "", "yes", "none");
 			$css     = str_replace( $replace, $with, $css );
 			$ret     .= $css;
-			$js      = file_get_contents( "$IP/extensions/WSForm/WSForm_upload.js" );
-			$ret     .= '<script>' . $js . '</script><script>wsfiles( "' . $id . '", "' . $verbose_id . '", "' . $error_id . '", "' . $use_label . '");</script>';
+			if(! \wsform\wsform::isLoaded( 'WSFORM_upload.js' ) ) {
+				\wsform\wsform::addAsLoaded( 'WSFORM_upload.js' );
+				$js = file_get_contents( "$IP/extensions/WSForm/WSForm_upload.js" );
+			} else $js = '';
+			$ret     .= "\n" . '<script>' . $js . '</script>';
+			$wsFileScript = "\nfunction wsfilesFunc" . $random . "(){\n";
+			$wsFileScript .= "\n" . 'wsfiles( "' . $id . '", "' . $verbose_id . '", "' . $error_id . '", "' . $use_label . '");' . "\n";
+			$wsFileScript .= "}\n";
+			//$ret .= '<script>'. "\n".'wsfiles( "' . $id . '", "' . $verbose_id . '", "' . $error_id . '", "' . $use_label . '");</script>';
 
+			$ret .= '<script>'. "\n" . $wsFileScript . "\n" . 'wachtff(wsfilesFunc'. $random .');</script>';
 		} elseif ( $presentor == "slim" ) {
 			if ( $slim_image !== false ) {
 				$slim_image = '<img src="' . $slim_image . '">';
