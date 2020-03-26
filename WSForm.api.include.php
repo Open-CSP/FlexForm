@@ -913,7 +913,15 @@ function saveToWiki($email=false) {
 			return createMsg($result['received']['error'],'error',$returnto);
 		}
 		if( $mwfollow !== false ) {
-			$returnto = '/index.php/' . $title;
+			if( $mwfollow === 'true' ) {
+				$returnto = '/index.php/' . $title;
+			} else {
+				if( strpos( $returnto, '?' ) ) {
+					$returnto = $returnto . '&' . $mwfollow . '=' . $title;
+				} else {
+					$returnto = $returnto . '?' . $mwfollow . '=' . $title;
+				}
+			}
 		}
 		$weHaveApi = true;
 

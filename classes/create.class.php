@@ -66,8 +66,12 @@ class render {
                     $wsoption = '<input type="hidden" name="mwoption" value="' . $v . '">' . "\n";
                 }
 
-                if ( $k == "mwfollow" ) {
-                    $wsfollow = '<input type="hidden" name="mwfollow" value="true">' . "\n";
+                if ( $k === "mwfollow" ) {
+                	if( $wsfollow === 'true' ) {
+		                $wsfollow = '<input type="hidden" name="mwfollow" value="true">' . "\n";
+	                } else {
+		                $wsfollow = '<input type="hidden" name="mwfollow" value="'. $v .'">' . "\n";
+	                }
                 }
 
                 if ( $k == "mwleadingzero" ) {
