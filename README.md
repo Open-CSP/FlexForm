@@ -93,6 +93,7 @@ Visit : Special:WSForm/Docs
 
 ### Changelog
 
+* 0.8.0.4.3 : Enhancement Issue #7 {T5018}
 * 0.8.0.4.2 : Made changes to file-upload regarding to jQuery not loaded yet
 * 0.8.0.4.1 : Fixed two PHP notices : nameSpace and canonical being undefined
 * 0.8.0.4.0 : Added multi wscreates with next available and ranges {T4952}. Fixed enhancement Issue #2
