@@ -93,6 +93,7 @@ Visit : Special:WSForm/Docs
 
 ### Changelog
 
+* 0.8.0.4.4 : Added check if Config file exists
 * 0.8.0.4.3 : Enhancement Issue #7 {T5018}
 * 0.8.0.4.2 : Made changes to file-upload regarding to jQuery not loaded yet
 * 0.8.0.4.1 : Fixed two PHP notices : nameSpace and canonical being undefined

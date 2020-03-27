@@ -391,6 +391,9 @@ function signatureUpload() {
         require_once( 'WSForm.api.class.php' );
     }
     $api = new wbApi();
+	if( $api->getStatus() === false ){
+		return createMsg( $api->getStatus( true) );
+	}
     $upload_dir = getcwd()."/uploads/";
     if ($fileType !== 'svg') {
         $data = $api->getBase64Data( $data );
@@ -464,6 +467,9 @@ function fileUploadSlim() {
 		$output = Slim::saveFile($data, $name,$upload_dir,false);
 		require_once( 'WSForm.api.class.php' );
 		$api = new wbApi();
+		if( $api->getStatus() === false ) {
+			return createMsg( $api->getStatus( true ) );
+		}
 		$url = $api->app['baseURL'] . 'extensions/WSForm/uploads/'.$output['name'];
 		$api->logMeIn();
 		$pname = trim($_POST['wsform_file_target']);
@@ -535,6 +541,9 @@ function fileUpload() {
 	// file upload is done.. Now getting it into the wiki
 	require_once( 'WSForm.api.class.php' );
 	$api = new wbApi();
+	if( $api->getStatus() === false ) {
+		return createMsg( $api->getStatus( true ) );
+	}
 	$url = $api->app['baseURL'] . 'extensions/WSForm/uploads/'.$newFile;
 	$api->logMeIn();
 	$name = trim($_POST['wsform_file_target']);
@@ -852,6 +861,9 @@ function saveToWiki($email=false) {
 
 		require_once( 'WSForm.api.class.php' );
 		$api = new wbApi();
+		if( $api->getStatus() === false ){
+			return createMsg($i18n->wsMessage( 'wsform-config-not-found' ), 'error', $returnto);
+		}
 
 		if (strpos($writepage,'[') !== false) {
 			$writepage = parseTitle($writepage);
@@ -998,7 +1010,11 @@ if($writepages !== false) {
 			} else {
 				require_once( 'WSForm.api.class.php' );
 				$api = new wbApi();
+				if( $api->getStatus() === false ){
+					return createMsg($i18n->wsMessage( 'wsform-config-not-found' ), 'error', $returnto);
+				}
 				$res = $api->logMeIn();
+
 				$pageTitle = $pageTitle . $api->getWikiListNumber( $pageTitle );
 				//die( "New title : ". $pageTitle );
 			}
@@ -1015,6 +1031,9 @@ if($writepages !== false) {
 			if( !$weHaveApi) {
 				require_once( 'WSForm.api.class.php' );
 				$api = new wbApi();
+				if( $api->getStatus() === false ){
+					return createMsg($i18n->wsMessage( 'wsform-config-not-found' ), 'error', $returnto);
+				}
 				$res = $api->logMeIn();
 			}
 			//echo "<pre>";
@@ -1064,6 +1083,9 @@ if($writepages !== false) {
 		} else {
 			require_once( 'WSForm.api.class.php' );
 			$api = new wbApi();
+			if( $api->getStatus() === false ){
+				return createMsg($i18n->wsMessage( 'wsform-config-not-found' ), 'error', $returnto);
+			}
 			$res=$api->logMeIn();
 			if($res === false) {
 				return createMsg($res);
@@ -1141,6 +1163,9 @@ if ( ! $mwedit && ! $email ) {
 		//echo "logging in";
 		require_once( 'WSForm.api.class.php' );
 		$api = new wbApi();
+		if( $api->getStatus() === false ){
+			return createMsg($i18n->wsMessage( 'wsform-config-not-found' ), 'error', $returnto);
+		}
 		$api->logMeIn();
 
 
@@ -1223,6 +1248,9 @@ if ( ! $mwedit && ! $email ) {
         if(!$weHaveApi) {
             require_once( 'WSForm.api.class.php' );
             $api = new wbApi();
+	        if( $api->getStatus() === false ){
+		        return createMsg($i18n->wsMessage( 'wsform-config-not-found' ), 'error', $returnto);
+	        }
             $res = $api->logMeIn();
             if($res === false) {
                 return createMsg($res);
@@ -1580,6 +1608,9 @@ function renderWiki() {
     if( isset( $_POST['wikitxt'] ) && $_POST['wikitxt'] != '' ) {
         require_once( 'WSForm.api.class.php' );
         $api = new wbApi();
+	    if( $api->getStatus() === false ){
+		    return createMsg( $api->getStatus( true ) );
+	    }
         $api->logMeIn();
         $ret = array();
         $result= $api->parseWikiText($_POST['wikitxt']);

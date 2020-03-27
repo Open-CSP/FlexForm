@@ -159,6 +159,8 @@ class wbApi {
   public $api = "";
   public $services = "";
 
+  private $status = array();
+
   public $usr = false;
 
   public $api_logintoken = '';
@@ -173,6 +175,19 @@ class wbApi {
           $this->usr = true;
       }
     $this->loadSettings();
+  }
+
+  function setStatus( $state, $msg ) {
+      $this->status['state'] = $state;
+      $this->status['msg'] = $msg;
+  }
+
+  function getStatus( $returnMessage = false ) {
+      if( $returnMessage === false ) {
+          return $this->status['state'];
+      } else {
+          return $this->status['msg'];
+      }
   }
 
   function loadSettings() {
@@ -220,8 +235,12 @@ class wbApi {
     $this->app['IP'] = $_SERVER['DOCUMENT_ROOT'];
     $IP = $this->app['IP'];
     $serverName = strtolower( $_SERVER['SERVER_NAME'] );
-
-    include( __DIR__ . '/config/config.php' );
+    if( file_exists( __DIR__ . '/config/config.php' ) ) {
+        include( __DIR__ . '/config/config.php' );
+    } else {
+        $this->setStatus( false, "Could not load config file" );
+        return;
+    }
     if( $config['api-username'] !== '' ) {
         $this->app['username'] = $config['api-username'];
     } else $this->app['username'] = false;
@@ -253,6 +272,7 @@ class wbApi {
             require_once "$wgAbsoluteWikiPath/WSFormSettings.php";
         }
     }
+    $this->setStatus( true );
 
   }
 

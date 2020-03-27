@@ -90,16 +90,19 @@ if( isset( $_GET['action'] ) && $_GET['action'] === 'handleExternalRequest' ) {
                 // ok
             } else die();
         } else die();
-        require_once( 'WSForm.api.class.php' );
         $api = new wbApi();
-        $res = $api->logMeIn();
-        if ($res === false) {
-            $ret = createMsg($res);
+        if( $api->getStatus() === false ){
+	        $ret = createMsg( $api->getStatus( true ) );
         } else {
-            $IP = $api->app['IP'];
-            if (file_exists($IP . '/extensions/WSForm/modules/handlers/' . $external . '.php')) {
-                include_once($IP . '/extensions/WSForm/modules/handlers/' . $external . '.php');
-            }
+	        $res = $api->logMeIn();
+	        if ( $res === false ) {
+		        $ret = createMsg( $res );
+	        } else {
+		        $IP = $api->app['IP'];
+		        if ( file_exists( $IP . '/extensions/WSForm/modules/handlers/' . $external . '.php' ) ) {
+			        include_once( $IP . '/extensions/WSForm/modules/handlers/' . $external . '.php' );
+		        }
+	        }
         }
 
     } else {
@@ -194,6 +197,12 @@ $captchaAction = getPostString( 'mw-captcha-action', false );
 $captchaToken = getPostString( 'mw-captcha-token', false );
 if( $captchaAction !== false && $captchaToken !== false ) {
     $api = new wbApi();
+	if( $api->getStatus() === false ){
+		$arr = array();
+		$arr['msg'] = $i18n->wsMessage( 'wsform-config-not-found' );
+		$arr['status'] = 'error';
+		die();
+	}
     $retCaptcha = array();
     $returnto = getPostString('mwreturn');
     $retCaptcha['mwreturn'] = $returnto;
