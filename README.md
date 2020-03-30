@@ -93,6 +93,7 @@ Visit : Special:WSForm/Docs
 
 ### Changelog
 
+* 0.8.0.4.5 : Changed wsfollow
 * 0.8.0.4.4 : Added check if Config file exists
 * 0.8.0.4.3 : Enhancement Issue #7 {T5018}
 * 0.8.0.4.2 : Made changes to file-upload regarding to jQuery not loaded yet

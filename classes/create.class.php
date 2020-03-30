@@ -67,7 +67,7 @@ class render {
                 }
 
                 if ( $k === "mwfollow" ) {
-                	if( $wsfollow === 'true' ) {
+                	if( strlen( $v ) <= 1 ) {
 		                $wsfollow = '<input type="hidden" name="mwfollow" value="true">' . "\n";
 	                } else {
 		                $wsfollow = '<input type="hidden" name="mwfollow" value="'. $v .'">' . "\n";
