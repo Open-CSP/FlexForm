@@ -89,7 +89,7 @@ function wsfiles(id, verbose_id, error_id, hide, verbose_custom, error_custom) {
                      output += 'File name ' + current_files[i].name + '.</li>';
                    }
                 } else {
-                    output += '<li>' + del + 'File name ' + current_files[i].name + '.</li>';
+                    output += '<li>File name ' + current_files[i].name + '.</li>';
                   }
             } else {
               if (!error_custom) {

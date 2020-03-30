@@ -1211,11 +1211,18 @@ if ( ! $mwedit && ! $email ) {
 
 
 			$newTemplateContent = '';
+			$cnt = count( $expl );
+			$t = 0;
 			foreach ($expl as $line) {
 
 				if(strlen($line) > 1) {
 					$newTemplateContent .= "\n" . '|' . trim($line) ;
 				}
+				// Is it the last one. Then {5041} put end template }} on a new line
+				if( $t === ($cnt-1) ){
+					$newTemplateContent .= "\n";
+				}
+				$t++;
 
 			}
 			$pageContent = str_replace($templateContent,$newTemplateContent,$pageContent);
