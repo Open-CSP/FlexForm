@@ -273,6 +273,7 @@ class WSFormHooks {
 
 		global $wgUser, $wgEmailConfirmToEdit, $IP, $wgScript;
 
+		$anon = false;
 		$ret = '';
 
 		// Set i18n general messages
@@ -294,10 +295,13 @@ class WSFormHooks {
 			}
 		}
 
-		if ( isset( $args['restrictions'] ) && $args['restrictions'] == 'lifted' ) {
-			$anon = true;
-		} else {
-			$anon = false;
+		if ( isset( $args['restrictions'] ) ) {
+			if ( ( strpos( $args['restrictions'], '{' ) !== false ) && ( strpos( $args['restrictions'], "}" ) !== false ) ) {
+				$args['restrictions'] = $parser->recursiveTagParse( $args['restrictions'], $frame );
+			}
+			if ( strtolower( $args['restrictions'] ) === 'lifted' ) {
+				$anon = true;
+			}
 		}
 
         if ( ! $wgUser->isLoggedIn() && $anon === false ) {
