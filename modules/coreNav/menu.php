@@ -35,6 +35,9 @@
         <li>
             <a href="%index%"> Overview</a>
         </li>
+        <li>
+            <a href="%fb%"> Formbuilder</a>
+        </li>
     </ul>
 </nav>
 

@@ -237,7 +237,7 @@ class render {
 
 		if ( ! $presentor ) {
 
-			if ( $verbose_id !== false) {
+			if ( $verbose_id === false) {
 				$verbose_id = 'verbose_' . $id;
 
 				$ret .= '<div id="' . $verbose_id . '" class="wsform-verbose"></div>';

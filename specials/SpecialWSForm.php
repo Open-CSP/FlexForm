@@ -95,6 +95,7 @@ class SpecialWSForm extends SpecialPage {
         $exampleData = array();
         $createExample = $wgServer.'/index.php/Special:WSForm/Docs/Create Example';
 		$createDocumentation = $wgServer.'/index.php/Special:WSForm/Docs/Create';
+		$formBuilderUrl = $wgServer.'/index.php/Special:WSForm/Formbuilder';
 
         // Get normal documentation
         foreach( $fileList as $file ) {
@@ -146,8 +147,8 @@ class SpecialWSForm extends SpecialPage {
         } else $new = '';
 		$index = $wgServer.'/index.php/Special:WSForm/Docs/Index';
         $wsformpurl = $wgServer."/extensions/WSForm/";
-        $search = array('%items%', '%url%', '%back%', '%version%', '%new%', '%index%', '%%wsformpurl%%');
-        $replace = array($items, $wsformpurl . "WSForm-logo.png", $back, $ver, $new, $index, $wsformpurl );
+        $search = array('%items%', '%url%', '%back%', '%version%', '%new%', '%index%', '%%wsformpurl%%', '%fb%');
+        $replace = array($items, $wsformpurl . "WSForm-logo.png", $back, $ver, $new, $index, $wsformpurl, $formBuilderUrl );
         $nav = str_replace($search, $replace, $nav);
 
         //$out->addHTML($ret.$nav);
@@ -180,8 +181,6 @@ class SpecialWSForm extends SpecialPage {
 	public function execute( $sub ) {
 		global $IP, $wgUser, $wgExtensionCredits, $wgScript;
 
-
-
 		$realUrl = str_replace( '/index.php', '', $wgScript );
 		$ver = "";
 		foreach($wgExtensionCredits['parserhook'] as $ext) {
@@ -201,10 +200,12 @@ class SpecialWSForm extends SpecialPage {
 			$out->addHTML( '<p>' . wfMessage("wsform-docs-log-in")->text() . '</p>' );
 			return;
 		}
+		$back = '<div class="ws-documentation-back"><a href="'.$realUrl.'/index.php/Special:WSForm/Docs">' . wfMessage("wsform-docs-back-documentation")->text() . '</a></div>';
 		$args = $this->getArgumentsFromSpecialPage($sub);
 		if ($args !== false) {
 			if ( strtolower($args[0]) == 'formbuilder' ) {
 				$path = "$IP/extensions/WSForm/formbuilder/";
+				$out->addHTML( $back );
 				include ($path.'php/formbuilder.php');
 				return true;
 			}
@@ -264,8 +265,8 @@ class SpecialWSForm extends SpecialPage {
 							return;
 						}
 						$data['doc'] = $_POST;
-						$data['doc']['created']=date("d-m-Y H:i:s");
-						$data['doc']['created by']=$wgUser->getName();
+						$data['doc']['created'] = date("d-m-Y H:i:s");
+						$data['doc']['created by'] = $wgUser->getName();
 					if (file_put_contents($path.$type."_".$name.'.json',json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) ) ) {
 							$this->makeMessage('Documentation for <strong>'.$name.'</strong> stored.','success');
 							$out->redirect($realUrl.'/index.php/Special:WSForm/Docs');
@@ -289,8 +290,8 @@ class SpecialWSForm extends SpecialPage {
 						return;
 					}
 					$data['example'] = $_POST;
-					$data['example']['created']=date("d-m-Y H:i:s");
-					$data['example']['created by']=$wgUser->getName();
+					$data['example']['created'] = date("d-m-Y H:i:s");
+					$data['example']['created by'] = $wgUser->getName();
 					if (file_put_contents($examplePath.$type."_".$name.'.json',json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) ) ) {
 						$this->makeMessage('Example for <strong>'.$name.'</strong> stored.','success');
 						$out->redirect($realUrl.'/index.php/Special:WSForm/Docs');
@@ -325,8 +326,8 @@ class SpecialWSForm extends SpecialPage {
 						unset($_POST['pf']);
 
 						$data['doc'] = $_POST;
-						$data['doc']['last modified']=date("d-m-Y H:i:s");
-						$data['doc']['modified by']=$wgUser->getName();
+						$data['doc']['last modified'] = date("d-m-Y H:i:s");
+						$data['doc']['modified by'] = $wgUser->getName();
 						if (file_put_contents($path.$type."_".$name.'.json',json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) ) ) {
 							$this->makeMessage('Documentation for <strong>'.$name.'</strong> stored.','success');
 							$out->redirect($realUrl.'/index.php/Special:WSForm/Docs');
@@ -465,13 +466,14 @@ class SpecialWSForm extends SpecialPage {
 						'created by'
 					);
 
+
 					foreach ($fields as $field) {
 						if($example) {
 							$tmp = $doc['example'][$field];
 						} else {
 							$tmp = $doc['doc'][ $field ];
 						}
-						$form = str_replace('%%'.$field.'%%',$tmp,$form);
+						$form = str_replace('%%'.$field.'%%', $tmp, $form);
 					}
 
 					foreach ($formhooks as $option) {

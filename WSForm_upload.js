@@ -82,7 +82,7 @@ function wsfiles(id, verbose_id, error_id, hide, verbose_custom, error_custom) {
                      output += '<img class="wsform-image-preview" src="' + src + '">';
                      output += 'File name ' + current_files[i].name + '.</li>';
                    } else {
-                     var del = '<i class="wsform-reset-button" onClick="resetFile(\'' + id + '\', \'' + verbose_id + '\' )"></i> ';
+                     var del = '<i class="fa fa-times wsform-reset-button" onClick="resetFile(\'' + id + '\', \'' + verbose_id + '\' )"></i> ';
                      output += '<li>'+ del;
                      var src = window.URL.createObjectURL(current_files[i]);
                      output += '<img class="wsform-image-preview" src="' + src + '">';
