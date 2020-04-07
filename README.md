@@ -93,6 +93,7 @@ Visit : Special:WSForm/Docs
 
 ### Changelog
 
+* 0.8.0.4.9 : Added upload, edit and create as logged in user.
 * 0.8.0.4.8 : Minor tweaks. Fixed Verbose ID not working correctly. Changed file upload docs. Added Formbuilder
 * 0.8.0.4.7 : Restrictions parameter is now parsed first if needed
 * 0.8.0.4.6 : Removed PHP error notices. Added {T5041} (edit end brackets on new line). Changed upload JavaScript.

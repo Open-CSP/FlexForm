@@ -172,7 +172,7 @@ class wbApi {
 
   function __construct($user = false) {
       if ($user) {
-          $this->usr = true;
+          $this->usr = $user;
       }
     $this->loadSettings();
   }
@@ -582,6 +582,64 @@ class wbApi {
           return $ret;
       }
 
+    function maintenanceUploadFileToWiki( $name, $fileAndPath, $content, $summary, $uid ){
+        if(isset($_POST['mwdb'])) {
+            $server = str_replace('_', '.', $_POST['mwdb'] );
+        } else die('No server name found');
+        $details = base64_encode( $content );
+        if( $summary === false ) {
+            $summary = "Uploaded with WSForm";
+        }
+        /*
+		 * $this->addOption( 'summary', 'Additional text that will be added to the files imported History. [optional]', false, true, "s" );
+	  $this->addOption( 'action', 'What to do', true, true, "a" );
+	  $this->addOption( 'content', 'Page content', true, true );
+	  $this->addOption( 'title', 'Page title', true, true );
+      $this->addOption( 'fileincpath', "Filename and path", false, true );
+	  $this->addOption( 'user', 'Your username. Will be added to the import log. [mandatory]', true, true, "u" );
+	  $this->addOption( 'use-timestamp', 'Use the modification date of the page as the timestamp for the edit, instead of time of import' );
+	  $this->addOption( 'rc', 'Place revisions in RecentChanges.' );
+		 */
+        $cmd = 'SERVER_NAME=' . $server . ' php ' . __DIR__ . '/modules/maintenance/handlePostsToWiki.maintenance.php --action uploadFileToWiki';
+        $cmd .= ' --content "' . $details.'"';
+        $cmd .= ' --rc --title "' . $name.'"';
+        $cmd .= ' --user '. $uid;
+        $cmd .= ' --fip "'. $fileAndPath . '"';
+        $cmd .= ' --summary "' . $summary . '"';
+        echo $cmd;
+        $result = shell_exec( $cmd );
+        $res = explode('|', $result);
+        if($res[0] === 'ok' ) return true;
+        if($res[0] === 'error' ) die($res[1]);
+    }
+
+      function maintenanceSavePageToWiki( $name, $details, $summary, $uid ){
+          if(isset($_POST['mwdb'])) {
+              $server = str_replace('_', '.', $_POST['mwdb'] );
+          }
+          $details = base64_encode( $details );
+          $summary = "Edited with WSForm";
+          /*
+           * $this->addOption( 'summary', 'Additional text that will be added to the files imported History. [optional]', false, true, "s" );
+		$this->addOption( 'action', 'What to do', true, true, "a" );
+		$this->addOption( 'content', 'Page content', true, true );
+		$this->addOption( 'title', 'Page title', true, true );
+		$this->addOption( 'user', 'Your username. Will be added to the import log. [mandatory]', true, true, "u" );
+		$this->addOption( 'use-timestamp', 'Use the modification date of the page as the timestamp for the edit, instead of time of import' );
+		$this->addOption( 'rc', 'Place revisions in RecentChanges.' );
+           */
+          $cmd = 'SERVER_NAME=' . $server . ' php ' . __DIR__ . '/modules/maintenance/handlePostsToWiki.maintenance.php --action addPageToWiki';
+          $cmd .= ' --content "' . $details.'"';
+          $cmd .= ' --rc --title "' . $name.'"';
+          $cmd .= ' --user '. $uid;
+          $cmd .= ' --summary "' . $summary . '"';
+          //echo $cmd;
+          $result = shell_exec( $cmd );
+          $res = explode('|', $result);
+          if($res[0] === 'ok' ) return true;
+          if($res[0] === 'error' ) die($res[1]);
+      }
+
     /**
      * Main function to save a Page into MediaWiki
      *
@@ -590,9 +648,14 @@ class wbApi {
      * @param mixed $summary optional summary for a page. Default to false
      * @return array MediaWiki result
      */
-    function savePageToWiki($name, $details, $summary = false) {
-        if($this->usr !== false ) {
-            $token = $this->usr;
+    function savePageToWiki( $name, $details, $summary = false ) {
+        global $wsuid;
+        if($wsuid !== false ) {
+
+            // We have a user, lets use Maintenance script to save page to wiki
+            $this->maintenanceSavePageToWiki( $name, $details, $summary, $wsuid );
+            return array(true);
+
         } else {
             $postdata = http_build_query([
                 "action" => "query",
@@ -644,32 +707,43 @@ class wbApi {
      * @param $comment string Comment attached to a file
      * @return array API result
      */
-      function uploadFileToWiki( $name, $url, $details, $comment ) {
-            $postdata = http_build_query([
-            "action" => "query",
-            "format" => "json",
-            "meta" => 'tokens',
-            ]);
-            $result=$this->apiPost( $postdata );
-            if ($result['error'])  {
-                echo $result['error'];
-                exit;
-            }
-            $result=$result['received'];
-            $token=$result['query']['tokens']['csrftoken'];
-            $postdata = http_build_query([
-                "action" => "upload",
-                "format" => "json",
-                "comment" => $comment,
-                "text" => $details,
-                "filename" => $name,
-                'url' => $url,
-               "ignorewarnings"=>true,
-                "token"=>$token
-            ]);
+      function uploadFileToWiki( $name, $url, $details, $comment, $fileAndPath = false ) {
+          global $wsuid;
+          if ($wsuid !== false ) {
 
-            $result=$this->apiPost( $postdata );
-            return $result;
+              //$name, $fileAndPath, $content, $summary, $uid
+              // We have a user, lets use Maintenance script to upload file to wiki
+              $this->maintenanceUploadFileToWiki( $name, $fileAndPath, $details, $comment, $wsuid );
+              return array(true);
+
+          } else {
+              $postdata = http_build_query( [
+                  "action" => "query",
+                  "format" => "json",
+                  "meta"   => 'tokens',
+              ] );
+              $result   = $this->apiPost( $postdata );
+              if ( $result['error'] ) {
+                  echo $result['error'];
+                  exit;
+              }
+              $result   = $result['received'];
+              $token    = $result['query']['tokens']['csrftoken'];
+              $postdata = http_build_query( [
+                  "action"         => "upload",
+                  "format"         => "json",
+                  "comment"        => $comment,
+                  "text"           => $details,
+                  "filename"       => $name,
+                  'url'            => $url,
+                  "ignorewarnings" => true,
+                  "token"          => $token
+              ] );
+
+              $result = $this->apiPost( $postdata );
+
+              return $result;
+          }
       }
 
       function clearJSON($tmp) {
@@ -703,7 +777,7 @@ class wbApi {
     /**
      * Make an actual POST/GET to the NediaWiki API
      *
-     * @param $data array of preconfigured data
+     * @param array|string array or string of preconfigured data
      * @param bool $useGet if true do a GET otherwise a POST
      * @return mixed MediaWiki API result
      */

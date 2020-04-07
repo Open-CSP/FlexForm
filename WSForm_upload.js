@@ -61,7 +61,7 @@ function wsfiles(id, verbose_id, error_id, hide, verbose_custom, error_custom) {
           output = '';
         }
         if (error_custom) {
-          error = '';
+          err = '';
         }
         for (var i = 0; i < current_files.length; i++) {
             if (validFileType(idfile, current_files[i])) {

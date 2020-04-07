@@ -45,6 +45,11 @@ function getEditToken() {
 	} else return false;
 }
 
+function getUid() {
+	if (window.mw) {
+		return mw.user.getId();
+	} else return false;
+}
 
 // Used for SMQ queries
 function testSelect2Callback(state) {
@@ -65,6 +70,22 @@ function addTokenInfo() {
 					.attr('value', getEditToken())
 					.appendTo(this);
 			}
+			var res = $(this).find( 'input[name="wsuid"]');
+
+			//console.log(res);
+			if( $(res) && $(res).length === 0 ) {
+				var uid = getUid();
+				//console.log( uid );
+				if( uid !== false ) {
+					$('<input />')
+						.attr('type', 'hidden')
+						.attr('name', 'wsuid')
+						.attr('value', uid)
+						.appendTo(this);
+					//alert('ok');
+				}
+			}
+
 			//alert( 'ok');
 			return true;
 		});

@@ -63,7 +63,7 @@ $imageHandler  = [
 $title = "";
 
 include_once('WSForm.api.include.php');
-
+$wsuid = getPostString('wsuid');
 if( getGetString('version', false) !== false ) {
 	echo getVersion();
 	exit();
@@ -230,6 +230,7 @@ if( $captchaAction !== false && $captchaToken !== false ) {
         die();
     }
 }
+
 
 if ( getPostString('mwaction') !== false ) {
 	$action = getPostString('mwaction');

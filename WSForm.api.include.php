@@ -132,7 +132,8 @@ function isWSFormSystemField ($field) {
 		"wsedittoken",
 		"mwfollow",
 		"wsparsepost",
-        "mwtoken"
+        "mwtoken",
+		"wsuid"
 	);
 	if(in_array(strtolower($field),$WSFormSystemFields)) {
 		return true;
@@ -370,7 +371,7 @@ function createThumbnail($src, $dest, $targetWidth, $targetHeight = null) {
  * @return array|bool Either true on success or a createMsg() error
  */
 function signatureUpload() {
-
+	global $wsuid;
     $allowedTypes = array(
         'png',
         'jpg',
@@ -412,7 +413,7 @@ function signatureUpload() {
     $url = $api->app['baseURL'] . 'extensions/WSForm/uploads/'.$fname;
     $pname = trim($wname);
     $comment = "Uploaded using WSForm.";
-    $result = $api->uploadFileToWiki($pname, $url, $pcontent, $comment);
+    $result = $api->uploadFileToWiki($pname, $url, $pcontent, $comment, $upload_dir . $fname);
     unlink($upload_dir . $fname);
     return true;
 }
@@ -475,13 +476,13 @@ function fileUploadSlim() {
 		$pname = trim($_POST['wsform_file_target']);
 		$details = trim($_POST['wsform_page_content']);
 		$comment = "Uploaded using WSForm.";
-		$result = $api->uploadFileToWiki($pname, $url, $details, $comment);
+		$result = $api->uploadFileToWiki($pname, $url, $details, $comment, $upload_dir . $output['name']);
 		if($thumbWidth !== false) {
 			$thumbName = 'sm_'.$name;
             $turl = $api->app['baseURL'] . 'extensions/WSForm/uploads/'.$thumbName;
             if( createThumbnail($upload_dir.$name, $upload_dir.$thumbName, $thumbWidth, $thumbHeight) ) {
-                $result = $api->uploadFileToWiki('sm_'.$pname, $turl, $details, $comment);
-                unlink($upload_dir . $output['name']);
+                $result = $api->uploadFileToWiki('sm_'.$pname, $turl, $details, $comment, $upload_dir . $thumbName);
+                unlink($upload_dir . $thumbName);
 			}
 
 		}
@@ -552,7 +553,7 @@ function fileUpload() {
 	    $details = parseTitle( $details );
     }
 	$comment = "Uploaded using WSForm.";
-	$result = $api->uploadFileToWiki($name, $url, $details, $comment);
+	$result = $api->uploadFileToWiki($name, $url, $details, $comment, $upload_dir . $targetFile);
 	unlink($upload_dir . $targetFile);
 	return true;
 }
@@ -575,12 +576,12 @@ function createGet() {
 
 				$ret .= $delimiter . makeSpaceFromUnderscore( $k ) . "=";
 				foreach ( $v as $multiple ) {
-					$ret .= $multiple . ',';
+					$ret .= cleanBraces( $multiple ) . ',';
 				}
 				$ret = rtrim( $ret, ',' );
 			} else {
 				if ( $k !== "mwreturn" && $v != "" && $k !== 'mwdb' && !isWSFormSystemField( $k ) ) {
-					$ret .= $delimiter . makeSpaceFromUnderscore( $k ) . '=' . $v;
+					$ret .= $delimiter . makeSpaceFromUnderscore( $k ) . '=' . cleanBraces( $v );
 				}
 			}
 		}
@@ -690,7 +691,7 @@ function getPostString( $var ) {
 	} else {
 		$template = false;
 	}
-	return $template;
+	return cleanBraces( $template );
 }
 
 /**
@@ -783,6 +784,20 @@ function setSummary($onlyName=false) {
     }
 }
 
+/**
+ * Remove all curly braces
+ * @param string $value
+ *
+ * @return string cleaned text
+ */
+function cleanBraces( $value ) {
+	global $wsuid;
+	if( $wsuid !== false ) {
+		return $value;
+	}
+	//return $value;
+	return preg_replace("/\{{[^)]+\}}/","",$value);
+}
 
 /**
  * Main function for editing or creating new pages in wiki
@@ -841,13 +856,13 @@ function saveToWiki($email=false) {
 			if ( is_array( $v ) && !isWSFormSystemField($k) ) {
 				$ret .= "|" . makeSpaceFromUnderscore( $k ) . "=";
 				foreach ( $v as $multiple ) {
-					$ret .= $multiple . ',';
+					$ret .= cleanBraces( $multiple ) . ',';
 				}
 				$ret = rtrim( $ret, ',' ) . "\n";
 			} else {
 				if ( !isWSFormSystemField($k) && $v != "" ) {
 					if( !$noTemplate ) {
-						$ret .= '|' . makeSpaceFromUnderscore( $k ) . '=' . $v . "\n";
+						$ret .= '|' . makeSpaceFromUnderscore( $k ) . '=' . cleanBraces( $v ) . "\n";
 					} else {
 						$ret = $v . "\n";
 					}
@@ -918,8 +933,10 @@ function saveToWiki($email=false) {
 		// Now add the page to the wiki
 
 
-		$api->usr = $etoken;
+		//$api->usr = $etoken;
 		$api->logMeIn();
+		//die($wsuid);
+
 		$result = $api->savePageToWiki( $title, $ret, $summary );
 		if(isset($result['received']['error'])) {
 			return createMsg($result['received']['error'],'error',$returnto);
@@ -982,14 +999,14 @@ if($writepages !== false) {
 			if ( is_array( $v ) ) {
 				$ret .= "|" . makeSpaceFromUnderscore( $k ) . "=";
 				foreach ( $v as $multiple ) {
-					$ret .= $multiple . ',';
+					$ret .= cleanBraces( $multiple ) . ',';
 				}
 				$ret = rtrim( $ret, ',' ) . "\n";
 			} else {
 				if ( !isWSFormSystemField($k) && $v != "" ) {
 				//if ( $k !== "mwtemplate" && $k !== "mwoption" && $k !== "mwwrite" && $k !== "mwreturn" && $k !== "mwedit" && $v != "" ) {
                     if( !$noTemplate ) {
-                        $ret .= '|' . makeSpaceFromUnderscore($k) . '=' . $v . "\n";
+                        $ret .= '|' . makeSpaceFromUnderscore($k) . '=' . cleanBraces( $v ) . "\n";
                     } else {
                         $ret = $v;
                     }
@@ -1279,10 +1296,10 @@ if ( ! $mwedit && ! $email ) {
             foreach ($_POST as $k=>$v) {
                 if ( !isWSFormSystemField($k) ) {
                     if( is_array( $v ) ) {
-                        $tmpArray = implode(", ", $v );
+                        $tmpArray = implode(", ", cleanBraces( $v ) );
                         $tpl = str_replace('$' . $k, $tmpArray, $tpl);
                     } else {
-                        $tpl = str_replace('$' . $k, $v, $tpl);
+                        $tpl = str_replace('$' . $k, cleanBraces( $v ), $tpl);
                     }
                 }
             }
