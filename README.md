@@ -93,6 +93,7 @@ Visit : Special:WSForm/Docs
 
 ### Changelog
 
+* 0.8.0.5.0 : [MS] Added config option "use-api-user-only" to facilitate functionality add in 0.8.0.4.9. New version of formbuilder.
 * 0.8.0.4.9 : Added upload, edit and create as logged in user.
 * 0.8.0.4.8 : Minor tweaks. Fixed Verbose ID not working correctly. Changed file upload docs. Added Formbuilder
 * 0.8.0.4.7 : Restrictions parameter is now parsed first if needed

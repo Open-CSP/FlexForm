@@ -79,7 +79,7 @@ class Element {
     getWikiText() {
         let result = this.getDescription();
         result += '{{#tag:' + this.getWsFormType(true);
-        if ( typeof this.attr['text'] != 'undefined' ) {
+        if ( typeof this.attr['text'] !== 'undefined' && this.attr['text'] !== '' && this.type !== 'option') {
             result += '|' + this.attr['text'];
         }
         for (let $let in this.attr) {
@@ -118,6 +118,7 @@ class Element {
     /**
      *
      * @param wikiNotation
+     * @param isForClosing
      * @return {string}
      */
     getWsFormType(wikiNotation = false, isForClosing = false) {
@@ -125,22 +126,26 @@ class Element {
             case 'label':
                 return 'wslabel';
             case 'select':
+                if ( wikiNotation ) return 'wsselect|';
                 return 'wsselect';
             case 'wscreate':
+                if ( wikiNotation ) return 'wscreate|';
                 return 'wscreate';
             case 'wsedit':
+                if ( wikiNotation ) return 'wsedit|';
                 return 'wsedit';
             case 'wsemail':
+                if ( wikiNotation ) return 'wsemail|';
                 return 'wsemail';
             case 'form':
                 return 'wsform';
+            case 'option':
+                if ( wikiNotation ) return `wsfield|${this.attr['text']}|type=${this.type}`;
+                if ( isForClosing ) return 'wsfield';
+                return 'wsfield type="'+this.type+'"';
             default:
-                if ( wikiNotation ) {
-                    return 'wsfield|type='+this.type;
-                }
-                if ( isForClosing ) {
-                    return 'wsfield';
-                }
+                if ( wikiNotation ) return 'wsfield||type='+this.type;
+                if ( isForClosing ) return 'wsfield';
                 return 'wsfield type="'+this.type+'"';
         }
     }

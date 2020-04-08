@@ -310,7 +310,7 @@ function createLoadRow(fileObj) {
             function (json) {
                 let data = JSON.stringify(json);
                 $.ajax({
-                    url: "https://api.myjson.com/bins",
+                    url: "https://extendsclass.com/api/json-storage/bin",
                     type: "POST",
                     data: data,
                     contentType: "application/json; charset=utf-8",

@@ -47,7 +47,9 @@ function getEditToken() {
 
 function getUid() {
 	if (window.mw) {
-		return mw.user.getId();
+		if( mw.user.isAnon() !== false ) {
+			return mw.user.getId();
+		}
 	} else return false;
 }
 

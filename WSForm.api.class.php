@@ -245,6 +245,10 @@ class wbApi {
         $this->app['username'] = $config['api-username'];
     } else $this->app['username'] = false;
 
+      if( $config['use-api-user-only'] !== '' ) {
+          $this->app['use-api-user-only'] = strtolower( $config['use-api-user-only'] );
+      } else $this->app['use-api-user-only'] = 'yes';
+
     if( $config['api-password'] !== '' ) {
       $this->app['password'] = $config['api-password'];
     } else $this->app['password'] = false;
@@ -650,7 +654,7 @@ class wbApi {
      */
     function savePageToWiki( $name, $details, $summary = false ) {
         global $wsuid;
-        if($wsuid !== false ) {
+        if( $wsuid !== false && $this->app['use-api-user-only'] === 'no' ) {
 
             // We have a user, lets use Maintenance script to save page to wiki
             $this->maintenanceSavePageToWiki( $name, $details, $summary, $wsuid );
@@ -709,7 +713,7 @@ class wbApi {
      */
       function uploadFileToWiki( $name, $url, $details, $comment, $fileAndPath = false ) {
           global $wsuid;
-          if ($wsuid !== false ) {
+          if ( $wsuid !== false && $this->app['use-api-user-only'] === 'no' ) {
 
               //$name, $fileAndPath, $content, $summary, $uid
               // We have a user, lets use Maintenance script to upload file to wiki
