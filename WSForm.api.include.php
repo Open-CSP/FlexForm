@@ -682,16 +682,19 @@ function createJob($data, $api) {
  * Check and get a $_POST value
  *
  * @param $var $_POST value to check
+ * @param bool $clean to clean input
  * @return bool Returns false if not set or empty.
  * @return string value of the $_POST key
  */
-function getPostString( $var ) {
+function getPostString( $var, $clean = true ) {
 	if ( isset( $_POST[$var] ) && $_POST[$var] !== "" ) {
 		$template = $_POST[$var];
 	} else {
 		$template = false;
 	}
-	return cleanBraces( $template );
+	if( $clean === true ) {
+		return cleanBraces( $template );
+	} else return $template;
 }
 
 /**

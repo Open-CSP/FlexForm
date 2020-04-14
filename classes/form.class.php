@@ -60,6 +60,9 @@ class render {
 					case "action":
 						$wsaction = '<input type="hidden" name="mwaction" value="' . $v . '">' . "\n";
 						break;
+					case "recaptcha-v3-action":
+						wsform::$reCaptcha = $v;
+						break;
 					case "extension":
 						$wsextension = '<input type="hidden" name="mwextension" value="' . $v . '">' . "\n";
 						break;

@@ -195,6 +195,7 @@ if( isset( $_POST['wsform_signature'] ) ) {
 
 $captchaAction = getPostString( 'mw-captcha-action', false );
 $captchaToken = getPostString( 'mw-captcha-token', false );
+
 if( $captchaAction !== false && $captchaToken !== false ) {
     $api = new wbApi();
 	if( $api->getStatus() === false ){

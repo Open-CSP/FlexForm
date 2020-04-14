@@ -23,15 +23,14 @@ class render {
 		global $IP;
 		$serverName='';
 		include( $IP . '/extensions/WSForm/config/config.php' );
-		self::$rc_site_key = $config['rc_site_key'];
-		self::$rc_secret_key = $config['rc_secret_key'];
+		if( isset( $config['rc_site_key'] ) && isset( $config['rc_secret_key'] ) ) {
+			self::$rc_site_key   = $config['rc_site_key'];
+			self::$rc_secret_key = $config['rc_secret_key'];
+		}
 	}
 
 	/**
-	 * @brief Render Label Input field as HTML
-	 *
-	 * @param  array $args Arguments for the input field
-	 * @param  boolean $input not used
+	 * @brief Load reCaptcha JavaScript
 	 *
 	 * @return string Rendered HTML
 	 */
