@@ -578,13 +578,15 @@ class WSFormHooks {
 			if(! wsform\wsform::isLoaded($args['loadcallback'] ) ) {
 				if ( file_exists( $IP . '/extensions/WSForm/modules/customJS/wstoken/' . $args['callback'] . '.js' ) ) {
 					$lf  = file_get_contents( $IP . '/extensions/WSForm/modules/customJS/wstoken/' . $args['callback'] . '.js' );
-					$out .= "<script>$lf</script>\n";
+					$lcallback = "<script>$lf</script>\n";
 					wsform\wsform::addAsLoaded( $args['loadcallback'] );
 				}
 			}
 		}
-		$wgOut->addHTML( $out );
+		$attach = "<script>wachtff(attachTokens);</script>";
+		//$wgOut->addHTML( $out );
 
+		$ret = $ret . $out . $lcallback . $attach;
 
 		return array( $ret, "markerType" => 'nowiki' );
 	}
