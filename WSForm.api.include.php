@@ -795,7 +795,7 @@ function setSummary($onlyName=false) {
  */
 function cleanBraces( $value ) {
 	global $wsuid;
-	if( $wsuid !== false ) {
+	if( $wsuid !== false && !is_null( $wsuid ) ) {
 		return $value;
 	}
 	//return $value;

@@ -93,6 +93,7 @@ Visit : Special:WSForm/Docs
 
 ### Changelog
 
+* 0.8.0.5.3 : Fixed an issue checking for logged-in user
 * 0.8.0.5.2 : Changed WSToken rendering
 * 0.8.0.5.1 : Fixed reCaptcha bug and added missing file from 0.8.0.5.0
 * 0.8.0.5.0 : [MS] Added config option "use-api-user-only" to facilitate functionality add in 0.8.0.4.9. New version of formbuilder.
