@@ -207,29 +207,6 @@ class wbApi {
     // User-Agent used for loading external resources
     $this->app["useragent"] = "api stuff " . $this->app["version"] . " (LastModified: " . $this->app["lastmod"] . ") Contact: charlot (at) wikibase (.) nl";
 
-    // Cookie file for the session
-    $this->app["cookiefile"] = "/tmp/CURLCOOKIE";
-
-    // cURL to avoid repeating ourselfs
-    $this->app["curloptions"] =
-        array(
-            CURLOPT_COOKIEFILE => $this->app["cookiefile"],
-            CURLOPT_COOKIEJAR => $this->app["cookiefile"],
-            CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_USERAGENT => $this->app["useragent"],
-            CURLOPT_POST => true
-        );
-    $this->app["logincurloptions"] =
-      array(
-          CURLOPT_CONNECTTIMEOUT => 30,
-          CURLOPT_COOKIEJAR => $this->app["cookiefile"],
-          CURLOPT_RETURNTRANSFER => 1,
-          CURLOPT_USERAGENT => "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)",
-          CURLOPT_SSL_VERIFYPEER => 0,
-          CURLOPT_FOLLOWLOCATION => 1,
-          CURLOPT_POST => true
-      );
-
 
     // Getting the configuration file
     $this->app['IP'] = $_SERVER['DOCUMENT_ROOT'];
@@ -241,19 +218,23 @@ class wbApi {
         $this->setStatus( false, "Could not load config file" );
         return;
     }
-    if( $config['api-username'] !== '' ) {
+    if( isset( $config['api-username'] ) && $config['api-username'] !== '' ) {
         $this->app['username'] = $config['api-username'];
     } else $this->app['username'] = false;
 
-      if( $config['use-api-user-only'] !== '' ) {
-          $this->app['use-api-user-only'] = strtolower( $config['use-api-user-only'] );
-      } else $this->app['use-api-user-only'] = 'yes';
+    if( isset( $config['api-cookie-path'] ) && $config['api-cookie-path'] !== '' ) {
+        $this->app["cookiefile"] = $config['api-cookie-path'];
+    } else $this->app['username'] = false;
 
-    if( $config['api-password'] !== '' ) {
+    if( isset( $config['use-api-user-only'] ) && $config['use-api-user-only'] !== '' ) {
+      $this->app['use-api-user-only'] = strtolower( $config['use-api-user-only'] );
+    } else $this->app['use-api-user-only'] = 'yes';
+
+    if( isset( $config['api-password'] ) && $config['api-password'] !== '' ) {
       $this->app['password'] = $config['api-password'];
     } else $this->app['password'] = false;
 
-    if( $config['api-url-overrule'] === '' ) {
+    if( isset( $config['api-url-overrule']) && $config['api-url-overrule'] === '' ) {
 
         // Here we are trying to create the url for the API.
         // Although this should work on most servers, it might not.
@@ -270,13 +251,35 @@ class wbApi {
     } else {
         $this->app['apiURL'] = rtrim( $config['api-url-overrule'], '/') . '/api.php';
     }
-    if( $config['wgAbsoluteWikiPath'] !== '' ) {
+    if( isset( $config['wgAbsoluteWikiPath'] ) && $config['wgAbsoluteWikiPath'] !== '' ) {
         $wgAbsoluteWikiPath = rtrim( $config['wgAbsoluteWikiPath'], '/' );
         if(file_exists("$wgAbsoluteWikiPath/WSFormSettings.php")) {
             require_once "$wgAbsoluteWikiPath/WSFormSettings.php";
         }
     }
-    $this->setStatus( true );
+
+      // cURL to avoid repeating ourselfs
+      $this->app["curloptions"] =
+          array(
+              CURLOPT_COOKIEFILE => $this->app["cookiefile"],
+              CURLOPT_COOKIEJAR => $this->app["cookiefile"],
+              CURLOPT_RETURNTRANSFER => 1,
+              CURLOPT_USERAGENT => $this->app["useragent"],
+              CURLOPT_POST => true
+          );
+      $this->app["logincurloptions"] =
+          array(
+              CURLOPT_CONNECTTIMEOUT => 30,
+              CURLOPT_COOKIEJAR => $this->app["cookiefile"],
+              CURLOPT_RETURNTRANSFER => 1,
+              CURLOPT_USERAGENT => "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)",
+              CURLOPT_SSL_VERIFYPEER => 0,
+              CURLOPT_FOLLOWLOCATION => 1,
+              CURLOPT_POST => true
+          );
+
+
+    $this->setStatus( true, '' );
 
   }
 

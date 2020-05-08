@@ -17,6 +17,10 @@
  * api-url-overrule should be left empty unless WSForm cannot find the MediaWiki API
  * Example api-url-overrule : "https://mywebsite"
  *
+ * api-cookie-path will default to the tmp folder of the server. With some hosting providers
+ * you might need to change that location. Here's where you can change the path. When empty
+ * it defaults to /tmp/CURLCOOKIE
+ *
  * wgAbsoluteWikiPath is used when in a farm. Needs to be the path to the current wiki
  * There it will look for WSFormSettings.php to read the username and password for that wiki user
  * Example wgAbsoluteWikiPath :  $IP . '/wikis/' . $serverName
@@ -27,5 +31,6 @@ $config = array(
     "api-username"       => '',
     "api-password"       => '',
     "api-url-overrule"   => '',
+	"api-cookie-path"    => '',
     "wgAbsoluteWikiPath" => '',
 );

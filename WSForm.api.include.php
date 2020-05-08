@@ -497,6 +497,8 @@ function fileUploadSlim() {
 /**
  * Normal HTML5 file upload handling
  *
+ * TODO: Add upload of multiple file, by passing file to be uploaded, instead of using $_FILES
+ *
  * @return array|bool Either true on success or a createMsg() error
  */
 function fileUpload() {
