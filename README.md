@@ -93,6 +93,7 @@ Visit : Special:WSForm/Docs
 
 ### Changelog
 
+* 0.8.0.5.5 : Added installation manual in Docs
 * 0.8.0.5.4 : Added cookie path to config settings [still needs to be tested]
 * 0.8.0.5.3 : Fixed an issue checking for logged-in user
 * 0.8.0.5.2 : Changed WSToken rendering

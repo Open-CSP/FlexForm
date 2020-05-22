@@ -33,4 +33,6 @@ $config = array(
     "api-url-overrule"   => '',
 	"api-cookie-path"    => '',
     "wgAbsoluteWikiPath" => '',
+	"rc_site_key"        => '',
+	"rc_secret_key"      => '',
 );
