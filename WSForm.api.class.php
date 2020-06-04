@@ -182,6 +182,12 @@ class wbApi {
       $this->status['msg'] = $msg;
   }
 
+  function setConfigVar( $name, $config ) {
+      if( isset( $config[$name] ) ) {
+          $this->app[$name] = $config[$name];
+      } else $this->app[$name] = "";
+  }
+
   function getStatus( $returnMessage = false ) {
       if( $returnMessage === false ) {
           return $this->status['state'];
@@ -192,94 +198,113 @@ class wbApi {
 
   function loadSettings() {
 
-
-
-
-
       // Version
-    $this->app["version"] = "0.0.1-dev";
+      $this->app["version"] = "0.0.1-dev";
 
 
-    // Last modified
-    date_default_timezone_set("UTC");
-    $this->app["lastmod"] = date("Y-m-d H:i", getlastmod()) . " UTC"; // Example: 2010-04-15 18:09 UTC
+      // Last modified
+      date_default_timezone_set( "UTC" );
+      $this->app["lastmod"] = date( "Y-m-d H:i", getlastmod() ) . " UTC"; // Example: 2010-04-15 18:09 UTC
 
-    // User-Agent used for loading external resources
-    $this->app["useragent"] = "api stuff " . $this->app["version"] . " (LastModified: " . $this->app["lastmod"] . ") Contact: charlot (at) wikibase (.) nl";
+      // User-Agent used for loading external resources
+      $this->app["useragent"] = "api stuff " . $this->app["version"] . " (LastModified: " . $this->app["lastmod"] . ") Contact: charlot (at) wikibase (.) nl";
 
 
-    // Getting the configuration file
-    $this->app['IP'] = $_SERVER['DOCUMENT_ROOT'];
-    $IP = $this->app['IP'];
-    $serverName = strtolower( $_SERVER['SERVER_NAME'] );
-    if( file_exists( __DIR__ . '/config/config.php' ) ) {
-        include( __DIR__ . '/config/config.php' );
-    } else {
-        $this->setStatus( false, "Could not load config file" );
-        return;
-    }
-    if( isset( $config['api-username'] ) && $config['api-username'] !== '' ) {
-        $this->app['username'] = $config['api-username'];
-    } else $this->app['username'] = false;
+      // Getting the configuration file
+      $this->app['IP'] = $_SERVER['DOCUMENT_ROOT'];
+      $IP              = $this->app['IP'];
+      $serverName      = strtolower( $_SERVER['SERVER_NAME'] );
+      if ( file_exists( __DIR__ . '/config/config.php' ) ) {
+          include( __DIR__ . '/config/config.php' );
+      } else {
+          $this->setStatus( false, "Could not load config file" );
 
-    if( isset( $config['api-cookie-path'] ) && $config['api-cookie-path'] !== '' ) {
-        $this->app["cookiefile"] = $config['api-cookie-path'];
-    } else $this->app['username'] = false;
+          return;
+      }
+      if ( isset( $config['api-username'] ) && $config['api-username'] !== '' ) {
+          $this->app['username'] = $config['api-username'];
+      } else {
+          $this->app['username'] = false;
+      }
 
-    if( isset( $config['use-api-user-only'] ) && $config['use-api-user-only'] !== '' ) {
-      $this->app['use-api-user-only'] = strtolower( $config['use-api-user-only'] );
-    } else $this->app['use-api-user-only'] = 'yes';
+      if ( isset( $config['api-cookie-path'] ) && $config['api-cookie-path'] !== '' ) {
+          $this->app["cookiefile"] = $config['api-cookie-path'];
+      } else {
+          $this->app['username'] = false;
+      }
 
-    if( isset( $config['api-password'] ) && $config['api-password'] !== '' ) {
-      $this->app['password'] = $config['api-password'];
-    } else $this->app['password'] = false;
+      if ( isset( $config['use-api-user-only'] ) && $config['use-api-user-only'] !== '' ) {
+          $this->app['use-api-user-only'] = strtolower( $config['use-api-user-only'] );
+      } else {
+          $this->app['use-api-user-only'] = 'yes';
+      }
 
-    if( isset( $config['api-url-overrule']) && $config['api-url-overrule'] === '' ) {
+      if ( isset( $config['api-password'] ) && $config['api-password'] !== '' ) {
+          $this->app['password'] = $config['api-password'];
+      } else {
+          $this->app['password'] = false;
+      }
 
-        // Here we are trying to create the url for the API.
-        // Although this should work on most servers, it might not.
-        // If you experience any problems, just uncomment the last line and fill it the correct
-        // url for WSform.api.php.
-        $tmp_uri = $url = "http" . ( ! empty( $_SERVER['HTTPS'] ) ? "s" : "" ) . "://" . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
-        $parts   = explode( '/', $tmp_uri );
-        $dir     = "";
-        for ( $i = 0; $i < count( $parts ) - 3; $i ++ ) {
-            $dir .= $parts[ $i ] . "/";
-        }
-        $this->app["baseURL"] = $dir;
-        $this->app["apiURL"]  = $dir . "api.php";
-    } else {
-        $this->app['apiURL'] = rtrim( $config['api-url-overrule'], '/') . '/api.php';
-    }
-    if( isset( $config['wgAbsoluteWikiPath'] ) && $config['wgAbsoluteWikiPath'] !== '' ) {
-        $wgAbsoluteWikiPath = rtrim( $config['wgAbsoluteWikiPath'], '/' );
-        if(file_exists("$wgAbsoluteWikiPath/WSFormSettings.php")) {
-            require_once "$wgAbsoluteWikiPath/WSFormSettings.php";
-        }
-    }
+      if ( isset( $config['use-smtp'] ) && $config['use-smtp'] !== '' ) {
+          $this->app['use-smtp'] = $config['use-smtp'];
+      } else {
+          $this->app['use-smtp'] = "no";
+      }
+
+      $this->setConfigVar( 'smtp-host', $config );
+      $this->setConfigVar( 'smtp-authentication', $config );
+      $this->setConfigVar( 'smtp-username', $config );
+      $this->setConfigVar( 'smtp-password', $config );
+      $this->setConfigVar( 'smtp-secure', $config );
+      $this->setConfigVar( 'smtp-port', $config );
+
+
+      if ( isset( $config['api-url-overrule'] ) && $config['api-url-overrule'] === '' ) {
+
+          // Here we are trying to create the url for the API.
+          // Although this should work on most servers, it might not.
+          // If you experience any problems, just uncomment the last line and fill it the correct
+          // url for WSform.api.php.
+          $tmp_uri = $url = "http" . ( ! empty( $_SERVER['HTTPS'] ) ? "s" : "" ) . "://" . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
+          $parts   = explode( '/', $tmp_uri );
+          $dir     = "";
+          for ( $i = 0; $i < count( $parts ) - 3; $i ++ ) {
+              $dir .= $parts[ $i ] . "/";
+          }
+          $this->app["baseURL"] = $dir;
+          $this->app["apiURL"]  = $dir . "api.php";
+      } else {
+          $this->app['apiURL'] = rtrim( $config['api-url-overrule'], '/' ) . '/api.php';
+      }
+      if ( isset( $config['wgAbsoluteWikiPath'] ) && $config['wgAbsoluteWikiPath'] !== '' ) {
+          $wgAbsoluteWikiPath = rtrim( $config['wgAbsoluteWikiPath'], '/' );
+          if ( file_exists( "$wgAbsoluteWikiPath/WSFormSettings.php" ) ) {
+              require_once "$wgAbsoluteWikiPath/WSFormSettings.php";
+          }
+      }
 
       // cURL to avoid repeating ourselfs
-      $this->app["curloptions"] =
+      $this->app["curloptions"]      =
           array(
-              CURLOPT_COOKIEFILE => $this->app["cookiefile"],
-              CURLOPT_COOKIEJAR => $this->app["cookiefile"],
+              CURLOPT_COOKIEFILE     => $this->app["cookiefile"],
+              CURLOPT_COOKIEJAR      => $this->app["cookiefile"],
               CURLOPT_RETURNTRANSFER => 1,
-              CURLOPT_USERAGENT => $this->app["useragent"],
-              CURLOPT_POST => true
+              CURLOPT_USERAGENT      => $this->app["useragent"],
+              CURLOPT_POST           => true
           );
       $this->app["logincurloptions"] =
           array(
               CURLOPT_CONNECTTIMEOUT => 30,
-              CURLOPT_COOKIEJAR => $this->app["cookiefile"],
+              CURLOPT_COOKIEJAR      => $this->app["cookiefile"],
               CURLOPT_RETURNTRANSFER => 1,
-              CURLOPT_USERAGENT => "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)",
+              CURLOPT_USERAGENT      => "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)",
               CURLOPT_SSL_VERIFYPEER => 0,
               CURLOPT_FOLLOWLOCATION => 1,
-              CURLOPT_POST => true
+              CURLOPT_POST           => true
           );
 
 
-    $this->setStatus( true, '' );
+      $this->setStatus( true, '' );
 
   }
 

@@ -1520,6 +1520,14 @@ function sendMail($from, $to, $cc, $bcc, $replyto, $subject, $body, $html=true, 
     if(file_exists('modules/pm/src/PHPMailer.php')) {
         require_once ('modules/pm/src/PHPMailer.php');
     } else die('NO PM');
+	$api = new wbApi();
+	$useSMTP = false;
+	if( strtolower( $api->app['use-smtp'] ) === "yes" ) {
+		$useSMTP = true;
+	}
+
+
+
 	$mail = new PHPMailer\PHPMailer\PHPMailer(true);
     $to = createEmailArray( $to, $mail );
     $from = createEmailArray( $from, $mail );
@@ -1530,26 +1538,31 @@ function sendMail($from, $to, $cc, $bcc, $replyto, $subject, $body, $html=true, 
     if( $bcc ) {
         $bcc = createEmailArray($bcc, $mail);
     }
-	//require_once ('modules/pm/src/Exception.php');
-	//require_once ('modules/pm/src/PHPMailer.php');
+	if( $useSMTP ) {
+		if(file_exists('modules/pm/src/SMTP.php')) {
+			require_once( 'modules/pm/src/SMTP.php' ); // Needed when doing SMTP
+		}
+	}
 	//require_once ('modules/pm/src/SMTP.php');  Needed when doing SMTP
-	$mail = new PHPMailer\PHPMailer\PHPMailer(true);
+	//$mail = new PHPMailer\PHPMailer\PHPMailer(true);
 	try {
 		//$to = $mail->parseAddresses(str_replace( array('[',']'),array('<','>'), $to ) );
 		//print_r($to);
 		//die();
 		//Server settings
-		$mail->isMail();
+		if( $useSMTP ) {
+			$mail->isSMTP();
+			$mail->Host = $api->app['smtp-host'];                 // Specify main and backup SMTP servers
+			$mail->SMTPAuth = $api->app['smtp-authentication'];   // Enable SMTP authentication
+			$mail->Username = $api->app['smtp-username'];         // SMTP username
+			$mail->Password = $api->app['smtp-password'];         // SMTP password
+			$mail->SMTPSecure = $api->app['smtp-secure'];         // Enable TLS encryption, `ssl` also accepted
+			$mail->Port = $api->app['smtp-port'];
+		} else {
+			$mail->isMail();
+		}
         $mail->CharSet = 'UTF-8';
-        $mail->SMTPDebug = 2;                                 // Enable verbose debug output
-        // Left this in for when SMTP is needed on day
-    //$mail->isSMTP();                                      // Set mailer to use SMTP
-    //$mail->Host = 'smtp1.example.com;smtp2.example.com';  // Specify main and backup SMTP servers
-    //$mail->SMTPAuth = true;                               // Enable SMTP authentication
-    //$mail->Username = 'user@example.com';                 // SMTP username
-    //$mail->Password = 'secret';                           // SMTP password
-    //$mail->SMTPSecure = 'tls';                            // Enable TLS encryption, `ssl` also accepted
-    //$mail->Port = 587;                                    // TCP port to connect to
+        //$mail->SMTPDebug = 2;                                 // Enable verbose debug output
 
 		/*
         if( $from['name'] === false ) {

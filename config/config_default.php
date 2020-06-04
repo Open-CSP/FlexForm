@@ -24,15 +24,27 @@
  * wgAbsoluteWikiPath is used when in a farm. Needs to be the path to the current wiki
  * There it will look for WSFormSettings.php to read the username and password for that wiki user
  * Example wgAbsoluteWikiPath :  $IP . '/wikis/' . $serverName
+ *
+ * By default use-smtp is set to no, meaning it will use PHP Mail() functions. When set to yes, make sure
+ * you fill in all the other fields needed for SMTP. If you are in a Farm, please use WSFormSettings.php to setup
+ * SMTP on a farm.
+ *
  */
 
 $config = array(
-	"use-api-user-only"  => 'yes',
-    "api-username"       => '',
-    "api-password"       => '',
-    "api-url-overrule"   => '',
-	"api-cookie-path"    => '',
-    "wgAbsoluteWikiPath" => '',
-	"rc_site_key"        => '',
-	"rc_secret_key"      => '',
+	"use-api-user-only"   => 'yes',
+	"api-username"        => '',
+	"api-password"        => '',
+	"api-url-overrule"    => '',
+	"api-cookie-path"     => '',
+	"wgAbsoluteWikiPath"  => '',
+	"rc_site_key"         => '',
+	"rc_secret_key"       => '',
+	"use-smtp"            => 'no',
+	"smtp-host"           => '',
+	"smtp-authentication" => true,
+	"smtp-username"       => '',
+	"smtp-password"       => '',
+	"smtp-secure"         => 'TLS',
+	"smtp-port"           => '587',
 );
