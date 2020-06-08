@@ -93,6 +93,7 @@ Visit : Special:WSForm/Docs
 
 ### Changelog
 
+* 0.8.0.5.7 : Cookie path wrong code fixed
 * 0.8.0.5.6 : Added SMTP support for mailing
 * 0.8.0.5.5 : Added installation manual in Docs
 * 0.8.0.5.4 : Added cookie path to config settings [still needs to be tested]

@@ -230,7 +230,7 @@ class wbApi {
       if ( isset( $config['api-cookie-path'] ) && $config['api-cookie-path'] !== '' ) {
           $this->app["cookiefile"] = $config['api-cookie-path'];
       } else {
-          $this->app['username'] = false;
+          $this->app["cookiefile"] = "/tmp/CURLCOOKIE";
       }
 
       if ( isset( $config['use-api-user-only'] ) && $config['use-api-user-only'] !== '' ) {
