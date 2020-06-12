@@ -59,6 +59,21 @@ function wsform(btn,callback = 0, preCallback = 0) {
     //console.log(callback);
     var val = $(btn).prop('value');
     var frm = $(btn).closest('form');
+
+    // Added posting as user for Ajax v0.8.0.5.8
+    var res = $(frm).find( 'input[name="wsuid"]');
+    if( $(res) && $(res).length === 0 ) {
+        var uid = getUid();
+        //console.log( uid );
+        if( uid !== false ) {
+            $('<input />')
+                .attr('type', 'hidden')
+                .attr('name', 'wsuid')
+                .attr('value', uid)
+                .appendTo(frm);
+        }
+    }
+
     var test = frm[0].checkValidity();
     if(test === false) {
         frm[0].reportValidity();
