@@ -1091,12 +1091,26 @@ if($writepages !== false) {
 		}
 
 
+
 		if ( $pageTitle !== false && $pageOption != "add_random" ) {
 			$ptitle = $pageTitle;
 		}
 		if ( ! $pageTitle ) {
             return( createMsg('no title could be former [parser error]','error',$returnto) );
 		}
+
+		if( $mwfollow !== false ) {
+			if( $mwfollow === 'true' ) {
+				$returnto = '/index.php/' . $ptitle;
+			} else {
+				if( strpos( $returnto, '?' ) ) {
+					$returnto = $returnto . '&' . $mwfollow . '=' . $title;
+				} else {
+					$returnto = $returnto . '?' . $mwfollow . '=' . $title;
+				}
+			}
+		}
+
 		if($weHaveApi) {
 			$result = $api->savePageToWiki($ptitle, $ret, $summary );
 			if(isset($result['received']['error'])) {

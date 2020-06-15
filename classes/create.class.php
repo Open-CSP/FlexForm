@@ -41,6 +41,13 @@ class render {
                 if ( $k == "mwfields" ) {
                     $wsfields = $v;
                 }
+	            if ( $k === "mwfollow" ) {
+		            if( strlen( $v ) <= 1 ) {
+			            $wsfollow = '<input type="hidden" name="mwfollow" value="true">' . "\n";
+		            } else {
+			            $wsfollow = '<input type="hidden" name="mwfollow" value="'. $v .'">' . "\n";
+		            }
+	            }
 
             }
             if($template === '') {
@@ -49,8 +56,9 @@ class render {
             if($wswrite === '') {
                 return 'No valid title for creating a page.';
             }
+
             $def .= $template . $div . $wswrite . $div . $wsoption . $div . $wsfields . '">';
-            return $def;
+            return $def.$wsfollow ;
         } else {
 
             foreach ( $args as $k => $v ) {
@@ -75,7 +83,7 @@ class render {
                 }
 
                 if ( $k == "mwleadingzero" ) {
-                    $wsfollow = '<input type="hidden" name="mwleadingzero" value="true">' . "\n";
+                    $wsleadingzero = '<input type="hidden" name="mwleadingzero" value="true">' . "\n";
                 }
 
                 /*
@@ -87,7 +95,7 @@ class render {
         }
 
 
-        return $template . $wswrite . $wsoption . $wsfollow;
+        return $template . $wswrite . $wsoption . $wsfollow. $wsleadingzero;
 
 
     }

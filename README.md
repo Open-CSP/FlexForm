@@ -93,6 +93,7 @@ Visit : Special:WSForm/Docs
 
 ### Changelog
 
+* 0.8.0.5.9 : wsfollow lost in multiple wscreate
 * 0.8.0.5.8 : Added support for posting as user using Ajax
 * 0.8.0.5.7 : Cookie path wrong code fixed
 * 0.8.0.5.6 : Added SMTP support for mailing
