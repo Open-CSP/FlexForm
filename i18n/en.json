@@ -17,6 +17,7 @@
 	"wsform-external-request-not-found" : "External dependency not found.",
 	"wsform-query-handler-not-found" : "External handler not found.",
 	"wsform-config-not-found" : "Could not find the config file for WSForm. Please read the manual",
+	"wsform-config-credentials-not-found" : "We need all the API user credentials",
 
 	"wsform-norequest-made" : "No requests",
 	"wsform-noreturn-found" : "No return found",

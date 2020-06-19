@@ -242,7 +242,7 @@ function convert_image($convert_type, $target_dir, $target_name, $image, $image_
  * @param bool|string $type type of visial notice to show (error, warning, success, etc)
  * @return array
  */
-function createMsg($msg,$status="error",$mwreturn=false,$type=false) {
+function createMsg($msg,$status="error", $mwreturn=false, $type=false) {
 		$tmp = array();
 		$tmp['status']=$status;
         $tmp['type']=$type;
@@ -882,7 +882,7 @@ function saveToWiki($email=false) {
 		require_once( 'WSForm.api.class.php' );
 		$api = new wbApi();
 		if( $api->getStatus() === false ){
-			return createMsg($i18n->wsMessage( 'wsform-config-not-found' ), 'error', $returnto);
+			return createMsg( $api->getStatus( true ), 'error', $returnto);
 		}
 
 		if (strpos($writepage,'[') !== false) {
@@ -1034,7 +1034,7 @@ if($writepages !== false) {
 				require_once( 'WSForm.api.class.php' );
 				$api = new wbApi();
 				if( $api->getStatus() === false ){
-					return createMsg($i18n->wsMessage( 'wsform-config-not-found' ), 'error', $returnto);
+					return createMsg( $api->getStatus( true ), 'error', $returnto);
 				}
 				$res = $api->logMeIn();
 
@@ -1055,7 +1055,7 @@ if($writepages !== false) {
 				require_once( 'WSForm.api.class.php' );
 				$api = new wbApi();
 				if( $api->getStatus() === false ){
-					return createMsg($i18n->wsMessage( 'wsform-config-not-found' ), 'error', $returnto);
+					return createMsg( $api->getStatus( true ), 'error', $returnto);
 				}
 				$res = $api->logMeIn();
 			}
@@ -1121,7 +1121,7 @@ if($writepages !== false) {
 			require_once( 'WSForm.api.class.php' );
 			$api = new wbApi();
 			if( $api->getStatus() === false ){
-				return createMsg($i18n->wsMessage( 'wsform-config-not-found' ), 'error', $returnto);
+				return createMsg( $api->getStatus( true ), 'error', $returnto);
 			}
 			$res=$api->logMeIn();
 			if($res === false) {
@@ -1201,7 +1201,7 @@ if ( ! $mwedit && ! $email ) {
 		require_once( 'WSForm.api.class.php' );
 		$api = new wbApi();
 		if( $api->getStatus() === false ){
-			return createMsg($i18n->wsMessage( 'wsform-config-not-found' ), 'error', $returnto);
+			return createMsg( $api->getStatus( true ), 'error', $returnto);
 		}
 		$api->logMeIn();
 
@@ -1293,7 +1293,7 @@ if ( ! $mwedit && ! $email ) {
             require_once( 'WSForm.api.class.php' );
             $api = new wbApi();
 	        if( $api->getStatus() === false ){
-		        return createMsg($i18n->wsMessage( 'wsform-config-not-found' ), 'error', $returnto);
+		        return createMsg( $api->getStatus( true ), 'error', $returnto);
 	        }
             $res = $api->logMeIn();
             if($res === false) {

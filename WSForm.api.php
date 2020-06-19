@@ -200,7 +200,7 @@ if( $captchaAction !== false && $captchaToken !== false ) {
     $api = new wbApi();
 	if( $api->getStatus() === false ){
 		$arr = array();
-		$arr['msg'] = $i18n->wsMessage( 'wsform-config-not-found' );
+		$arr['msg'] = $api->getStatus( true );
 		$arr['status'] = 'error';
 		die();
 	}

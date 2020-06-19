@@ -170,10 +170,13 @@ class wbApi {
 
   public $app = array();
 
+  private $i18n;
+
   function __construct($user = false) {
       if ($user) {
           $this->usr = $user;
       }
+
     $this->loadSettings();
   }
 
@@ -200,7 +203,7 @@ class wbApi {
 
       // Version
       $this->app["version"] = "0.0.1-dev";
-
+      $i18n = new wsi18n();
 
       // Last modified
       date_default_timezone_set( "UTC" );
@@ -217,7 +220,7 @@ class wbApi {
       if ( file_exists( __DIR__ . '/config/config.php' ) ) {
           include( __DIR__ . '/config/config.php' );
       } else {
-          $this->setStatus( false, "Could not load config file" );
+          $this->setStatus( false, $i18n->wsMessage( 'wsform-config-not-found' ) );
 
           return;
       }
@@ -281,6 +284,12 @@ class wbApi {
           if ( file_exists( "$wgAbsoluteWikiPath/WSFormSettings.php" ) ) {
               require_once "$wgAbsoluteWikiPath/WSFormSettings.php";
           }
+      }
+
+      if( $this->app['password'] === false || $this->app['username'] === false ) {
+          $this->setStatus( false, $i18n->wsMessage( 'wsform-config-credentials-not-found' ) );
+
+          return;
       }
 
       // cURL to avoid repeating ourselfs
