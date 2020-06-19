@@ -913,6 +913,7 @@ function saveToWiki($email=false) {
 
 
 			$tmp  = $api->getWikiListNumber($title, array('start' => $startRange, 'end' => $endRange) );
+
 			if($tmp === false) {
 				return createMsg($i18n->wsMessage('wsform-mwoption-out-of-range'), 'error', $returnto);
 			}

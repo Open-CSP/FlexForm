@@ -461,14 +461,11 @@ class wbApi {
      * @return mixed API results
      */
     function getDataForWikiList( $nameStartsWith, $appContinue, $range = false ) {
-        if( strpos( $nameStartsWith, ':' ) !== false ) {
-            $split = explode(':', $nameStartsWith);
-            //print_r($split);
-            $nameStartsWith = $split[1];
-            $nameSpace = $split[0];
-            $id = $this->getIdForNameSpace( $nameSpace );
-        } else $id = 0;
 
+
+        $id = $this->getNameSpaceIdFromTitle( $nameStartsWith );
+
+        //die();
         if( $id === false ) {
             return false;
         }
@@ -518,9 +515,26 @@ class wbApi {
                 ]);
             }
         }
+        //echo "<pre>";
+        //print_r($postdata);
         $result = $this->apiPost($postdata, true);
+        //var_dump($result);
+        //die();
         return $result;
     }
+
+    function getNameSpaceIdFromTitle( $title ) {
+        if( strpos( $title, ':' ) !== false ) {
+            $split = explode(':', $title);
+            //print_r($split);
+            $nameStartsWith = $split[1];
+            $nameSpace = $split[0];
+            $id = $this->getIdForNameSpace( $nameSpace );
+        } else $id = 0;
+        return $id;
+    }
+
+
 
 
     /**
@@ -560,7 +574,12 @@ class wbApi {
 
             if($thisCnt > 0) {
                 foreach ($pages as $page) {
-                    $number[] = substr($page['title'], strrpos($page['title'], '/') + 1);
+
+                    $tempTitle = str_replace( $nameStartsWith, '', $page['title'] );
+
+                    if( is_numeric( $tempTitle ) ) {
+                        $number[] = $tempTitle;
+                    }
                 }
             }
             if( $appContinue === false ) {
@@ -579,7 +598,9 @@ class wbApi {
             }
             $s = $range['start'];
             $e = $range['end'];
+
             for( $t=$s; $t < $e; $t++ ) {
+
                 if(!in_array($t, $number)) {
                     return $t;
                 }
