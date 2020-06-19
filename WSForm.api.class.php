@@ -463,9 +463,14 @@ class wbApi {
     function getDataForWikiList( $nameStartsWith, $appContinue, $range = false ) {
 
 
-        $id = $this->getNameSpaceIdFromTitle( $nameStartsWith );
+        if( strpos( $nameStartsWith, ':' ) !== false ) {
+            $split = explode(':', $nameStartsWith);
+            $nameStartsWith = $split[1];
+            $nameSpace = $split[0];
+            $id = $this->getIdForNameSpace( $nameSpace );
+        } else $id = 0;
 
-        //die();
+
         if( $id === false ) {
             return false;
         }
@@ -523,16 +528,7 @@ class wbApi {
         return $result;
     }
 
-    function getNameSpaceIdFromTitle( $title ) {
-        if( strpos( $title, ':' ) !== false ) {
-            $split = explode(':', $title);
-            //print_r($split);
-            $nameStartsWith = $split[1];
-            $nameSpace = $split[0];
-            $id = $this->getIdForNameSpace( $nameSpace );
-        } else $id = 0;
-        return $id;
-    }
+
 
 
 
@@ -587,6 +583,7 @@ class wbApi {
             }
 
         }
+
 
         if(!$range) {
             rsort($number);
