@@ -299,6 +299,7 @@ class wbApi {
               CURLOPT_COOKIEJAR      => $this->app["cookiefile"],
               CURLOPT_RETURNTRANSFER => 1,
               CURLOPT_USERAGENT      => $this->app["useragent"],
+              CURLOPT_SSL_VERIFYPEER => 0,
               CURLOPT_POST           => true
           );
       $this->app["logincurloptions"] =

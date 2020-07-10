@@ -93,6 +93,7 @@ Visit : Special:WSForm/Docs
 
 ### Changelog
 
+* 0.8.0.6.2 : Added do not verify peer for WSForm (issue rvs)
 * 0.8.0.6.1 : Added a message on missing config information ( .. )
 * 0.8.0.6.0 : change to range options to fix page names that are similar
 * 0.8.0.5.9 : wsfollow lost in multiple wscreate
