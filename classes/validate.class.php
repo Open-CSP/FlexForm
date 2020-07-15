@@ -156,6 +156,7 @@ class validate {
 			"size",
 			"style",
 			"maxlength",
+			"minlength",
 			"autocomplete",
 			"placeholder",
 			"autofocus",
