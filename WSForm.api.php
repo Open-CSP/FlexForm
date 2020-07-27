@@ -35,8 +35,9 @@ if ( strcmp($currentHost, $referrerHost['host']) !== 0)
 //ERROR_REPORTING(E_ALL);
 //ini_set('display_errors', 1);
 
-require_once('WSForm.api.class.php');
-require_once('classes/recaptcha.class.php');
+require_once( 'WSForm.api.class.php' );
+require_once( 'classes/recaptcha.class.php' );
+require_once( 'modules/htmlpurifier/library/HTMLPurifier.auto.php' );
 
 $i18n = new wsi18n();
 $ret = false;

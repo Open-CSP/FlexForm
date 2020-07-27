@@ -695,7 +695,10 @@ function getPostString( $var, $clean = true ) {
 		$template = false;
 	}
 	if( $clean === true ) {
-		return cleanBraces( $template );
+		$config = HTMLPurifier_Config::createDefault();
+		$purifier = new HTMLPurifier($config);
+		$clean_html = $purifier->purify( $template );
+		return cleanBraces( $clean_html );
 	} else return $template;
 }
 
