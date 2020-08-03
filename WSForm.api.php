@@ -138,34 +138,35 @@ if( isset( $_GET['action'] ) && $_GET['action'] === 'handleQuery' ) {
 
 // Setup messages and responses
 
-$identifier = getPostString('mwidentifier');
+$identifier         = getPostString( 'mwidentifier' );
 $pauseBeforeRefresh = getPostString( 'mwpause' );
-$messages = new wbHandleResponses($identifier);
+$messages           = new wbHandleResponses( $identifier );
 
+if( !is_cli() ) {
 // check credentials
-$sessInfo = checkDefaultInformation();
-if ($sessInfo['mwtoken'] = false ) {
-    $messages->doDie( $i18n->wsMessage( 'wsform-session-no-token' ) );
-    if ( isset( $_POST['mwreturn'] ) && $_POST['mwreturn'] !== "" ) {
-        $messages->redirect($_POST['mwreturn']);
-        exit;
-    }
-}
-if ($sessInfo['mwsession'] = false ) {
-    $messages->doDie( $i18n->wsMessage( 'wsform-session-expired' ) );
-    if ( isset( $_POST['mwreturn'] ) && $_POST['mwreturn'] !== "" ) {
-        $messages->redirect($_POST['mwreturn']);
-        exit;
-    }
-}
-if ($sessInfo['mwhost'] = false ) {
-	$messages->doDie( $i18n->wsMessage( 'wsform-session-no-equal-host' ) );
-	if ( isset( $_POST['mwreturn'] ) && $_POST['mwreturn'] !== "" ) {
-		$messages->redirect($_POST['mwreturn']);
-		exit;
+	$sessInfo = checkDefaultInformation();
+	if ( $sessInfo['mwtoken'] === false ) {
+		$messages->doDie( $i18n->wsMessage( 'wsform-session-no-token' ) );
+		if ( isset( $_POST['mwreturn'] ) && $_POST['mwreturn'] !== "" ) {
+			$messages->redirect( $_POST['mwreturn'] );
+			exit;
+		}
+	}
+	if ( $sessInfo['mwsession'] === false ) {
+		$messages->doDie( $i18n->wsMessage( 'wsform-session-expired' ) );
+		if ( isset( $_POST['mwreturn'] ) && $_POST['mwreturn'] !== "" ) {
+			$messages->redirect( $_POST['mwreturn'] );
+			exit;
+		}
+	}
+	if ( $sessInfo['mwhost'] === false ) {
+		$messages->doDie( $i18n->wsMessage( 'wsform-session-no-equal-host' ) );
+		if ( isset( $_POST['mwreturn'] ) && $_POST['mwreturn'] !== "" ) {
+			$messages->redirect( $_POST['mwreturn'] );
+			exit;
+		}
 	}
 }
-
 
 if(isset($_FILES['wsformfile'])) {
 	if (file_exists($_FILES['wsformfile']['tmp_name']) || is_uploaded_file($_FILES['wsformfile']['tmp_name'])) {

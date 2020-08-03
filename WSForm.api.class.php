@@ -564,7 +564,15 @@ class wbApi {
 
             $appContinue = $this->getApiContinue( $result );
 
+            if( !isset( $result['received']['query'] ) ) {
+                return false;
+            }
+
             $pages = $result['received']['query']['allpages'];
+
+            if( is_null( $pages ) || $pages === false ) {
+                return false;
+            }
 
             $thisCnt = count( $pages );
 
