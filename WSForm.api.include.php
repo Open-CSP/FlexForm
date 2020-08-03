@@ -37,13 +37,15 @@ function checkDefaultInformation() {
         $ret['mwtoken'] = true;
         $token = base64_decode($_POST['mwtoken']);
 	    $explo = explode('_', $token );
-        $time = $token[2];
-        $host = $token[1];
+        $ttime = $explo[2];
+        $host = $explo[1];
         if( $_SERVER['HTTP_HOST'] === $host ) {
 	        $ret['mwhost'] = true;
         }
         $ctime = time();
-        $difference = $ctime - $time;
+        $difference = $ctime - (int)$ttime;
+        //echo "<p>$ctime - $ttime = $difference</p>";
+	    //die($token);
         if ($difference < 7200) { // 2 hrs session time
             $ret['mwsession'] = true;
         }
@@ -799,7 +801,7 @@ function setSummary($onlyName=false) {
 		if($onlyName === true) {
 			return ($_COOKIE[$dbn.'UserName'] );
 		} else {
-			return ('User: ' . $_COOKIE[$dbn . 'UserName']);
+			return ('[[User:' . $_COOKIE[$dbn . 'UserName'] . ']]');
 		}
 	} else {
 	    $ip = $_SERVER['REMOTE_ADDR'];
