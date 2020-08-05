@@ -49,7 +49,7 @@ if( $query  === false ) {
         $t=0;
         foreach($data as $k => $val) {
             if( $returnText === false ) {
-                $ret['results'][$t]['text'] = htmlentities ($val['displaytitle'] );
+                $ret['results'][$t]['text'] = htmlentities($val['displaytitle'] );
             } elseif( isset( $val['printouts'][$returnText][0] ) ) {
                 $ret['results'][$t]['text'] = htmlentities( $val['printouts'][$returnText][0] );
             } else $ret['results'][$t]['text'] = 'Not found';

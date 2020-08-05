@@ -544,6 +544,7 @@ class WSFormHooks {
 
 
 			$out .= "\ntemplateResult: testSelect2Callback,\n";
+			$out .= "\nescapeMarkup: function (markup) { return markup; },\n";
 			$out .= "\najax: { url: '" . $json . "', dataType: 'json',"."\n";
 			$out .= "\ndata: function (params) { var queryParameters = { q: params.term, mwdb: '".$mwdb."' }\n";
 			$out .= "\nreturn queryParameters; }}";
@@ -554,7 +555,7 @@ class WSFormHooks {
 				} else $templ = '';
 				$cb  = $parser->recursiveTagParse( $args['callback'], $frame );
 				$callb = "$('#" . $id . "').on('select2:select', function(e) { " . $cb . "('" . $id . "'" . $templ . ")});\n";
-				$callb = "$('#" . $id . "').on('select2:unselect', function(e) { " . $cb . "('" . $id . "'" . $templ . ")});\n";
+				$callb .= "$('#" . $id . "').on('select2:unselect', function(e) { " . $cb . "('" . $id . "'" . $templ . ")});\n";
 			}
 		}
 		if( isset( $args['allowtags'] ) ) {
@@ -573,6 +574,7 @@ class WSFormHooks {
 		}
 
 		$out .= '});"';
+		$callb .= "$('select').trigger('change');\n";
 		$out .= $callb . ' />';
 		if(isset($args['loadcallback'])) {
 			if(! wsform\wsform::isLoaded($args['loadcallback'] ) ) {
