@@ -59,6 +59,7 @@ function wsform(btn,callback = 0, preCallback = 0) {
     //console.log(callback);
     var val = $(btn).prop('value');
     var frm = $(btn).closest('form');
+    frm.addClass( "wsform-submitting" );
 
     // Added posting as user for Ajax v0.8.0.5.8
     var res = $(frm).find( 'input[name="wsuid"]');
@@ -78,6 +79,7 @@ function wsform(btn,callback = 0, preCallback = 0) {
     if(test === false) {
         frm[0].reportValidity();
         $(btn).removeClass( "disabled" );
+        frm.removeClass( "wsform-submitting" );
         return false;
     }
 
@@ -96,6 +98,8 @@ function wsform(btn,callback = 0, preCallback = 0) {
         dataType: "json",
         success: function(result) {
             $(btn).removeClass( "disabled" );
+            frm.removeClass( "wsform-submitting" );
+            frm.addClass( "wsform-submitted" );
             //alert(result);
             if(result.status == 'ok') {
                 showMessage('Saved succesfully', "success", $(btn));
