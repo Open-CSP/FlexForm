@@ -78,7 +78,11 @@ class render {
 		}
 
 		// Create a unique token for this form
-        $token = base64_encode( "wsform_" . $_SERVER['HTTP_HOST'] . "_" . time() );
+        if( isset( $_SERVER['HTTP_HOST'] ) ) {
+            $token = base64_encode("wsform_" . $_SERVER['HTTP_HOST'] . "_" . time());
+        } else {
+            $token = base64_encode("wsform_TERMINAL_" . time());
+        }
 		$wstoken = '<input type="hidden" name="mwtoken" value="' . $token . '">' . "\n";
 		if ( $wsreturn == "" ) {
 			$wsreturn = '<input type="hidden" name="mwreturn" value="' . $title . '">' . "\n";

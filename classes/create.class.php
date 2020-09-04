@@ -84,7 +84,7 @@ class render {
 
                 if ( $k == "mwleadingzero" ) {
                     $wsleadingzero = '<input type="hidden" name="mwleadingzero" value="true">' . "\n";
-                }
+                } else $wsleadingzero = '';
 
                 /*
                 if ( $k == "mwfields" ) {

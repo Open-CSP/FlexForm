@@ -92,6 +92,7 @@ Visit : Special:WSForm/Docs
 
 
 ### Changelog
+* 0.8.0.6.7 : Removing PHP notices
 * 0.8.0.6.6 : Added classes for ajax submit to form {T5851}
 * 0.8.0.6.5 : Added markup cleaning for wstoken {T5575}. Added change for tokens when page is loaded.
 * 0.8.0.6.45: Fixed form time out (form can be shown for 2 hrs, then time-out). Changed username summary to [User:<username>] {T4989}

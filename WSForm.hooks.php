@@ -576,6 +576,7 @@ class WSFormHooks {
 		$out .= '});"';
 		$callb .= "$('select').trigger('change');\n";
 		$out .= $callb . ' />';
+        $lcallback = '';
 		if(isset($args['loadcallback'])) {
 			if(! wsform\wsform::isLoaded($args['loadcallback'] ) ) {
 				if ( file_exists( $IP . '/extensions/WSForm/modules/customJS/wstoken/' . $args['callback'] . '.js' ) ) {
