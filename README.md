@@ -92,6 +92,7 @@ Visit : Special:WSForm/Docs
 
 
 ### Changelog
+* 0.8.0.6.8 : Removed cleaning of return url
 * 0.8.0.6.7 : Removing PHP notices
 * 0.8.0.6.6 : Added classes for ajax submit to form {T5851}
 * 0.8.0.6.5 : Added markup cleaning for wstoken {T5575}. Added change for tokens when page is loaded.

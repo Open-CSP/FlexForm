@@ -207,7 +207,7 @@ if( $captchaAction !== false && $captchaToken !== false ) {
 		die();
 	}
     $retCaptcha = array();
-    $returnto = getPostString('mwreturn');
+    $returnto = getPostString('mwreturn', false );
     $retCaptcha['mwreturn'] = $returnto;
 
     if( $returnto === false ) {
