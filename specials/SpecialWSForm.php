@@ -476,7 +476,7 @@ class SpecialWSForm extends SpecialPage {
 						'note',
 						'links',
 						'created',
-						'created by'
+						'created_by'
 					);
 
 
@@ -592,9 +592,9 @@ class SpecialWSForm extends SpecialPage {
 										$documentation .= $out->parse( '<h3>' . ucfirst( $k ) . '</h3>' . "\n<p><pre>" . $v . "</pre></p>\n" );
 										$documentation .= $out->parse( '<h3>Rendered example</h3>' . "\n<p>" . $v . "</p>\n" );
 										//$documentation .= '<h3>Rendered example</h3>' . "\n<p>" . $v . "</p>\n";
-									} elseif ($k=='last modified' || $k=='created' || $k=='created by' || $k=='created_by' || $k=='modified by') {
+									} elseif ($k=='last modified' || $k=='created' || $k=='created_by' || $k=='created_by' || $k=='modified by') {
 										if($k == 'created_by') {
-											$k = 'created by';
+											$k = 'created_by';
 										}
 										$documentation .= '<p class="info"><strong>' . ucfirst( $k ) . '</strong> : ' . "$v</p>\n"; }
 									else {
@@ -618,9 +618,9 @@ class SpecialWSForm extends SpecialPage {
 							foreach ( $doc['doc'] as $k => $v ) {
 								if ( $k == "example" ) {
 									$documentation .= $out->parse( '<h3>' . ucfirst( $k ) . '</h3>' . "\n<p><pre>" . $v . "</pre></p>\n" );
-								} elseif ($k=='last modified' || $k=='created' || $k=='created by' || $k=='created_by' || $k=='modified by') {
+								} elseif ($k=='last modified' || $k=='created' || $k=='created_by' || $k=='created_by' || $k=='modified by') {
 									if($k == 'created_by') {
-										$k = 'created by';
+										$k = 'created_by';
 									}
 									$documentation .= '<p class="info"><strong>' . ucfirst( $k ) . '</strong> : ' . "$v</p>\n";
 								} else {
