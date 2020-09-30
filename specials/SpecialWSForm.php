@@ -195,7 +195,9 @@ class SpecialWSForm extends SpecialPage {
 			if($ext['name'] == 'WSForm') {
 				$ver = "v<strong>".$ext['version']."</strong>";
 				if( $sourceVersion !== false ) {
-					$ver .= ' <br>Latest = v' . $sourceVersion ;
+					if( $sourceVersion != $ext['version'] ) {
+						$ver .= ' <br><span style="font-size:11px; color:red;">NEW : v' . $sourceVersion .'</span>';
+					}
 				}
 			}
 		};
