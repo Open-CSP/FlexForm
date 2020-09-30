@@ -183,9 +183,20 @@ class SpecialWSForm extends SpecialPage {
 
 		$realUrl = str_replace( '/index.php', '', $wgScript );
 		$ver = "";
+		$bitbucketSource = 'https://api.bitbucket.org/2.0/repositories/wikibasesolutions/mw-wsform/src/master/extension.json';
+		$extJson = file_get_contents( $bitbucketSource );
+		if( $extJson !== false ) {
+			$extJson = json_decode( $extJson, true );
+			if( isset( $extJson['version'] ) ) {
+				$sourceVersion = $extJson['version'];
+			} else $sourceVersion = false;
+		}
 		foreach($wgExtensionCredits['parserhook'] as $ext) {
 			if($ext['name'] == 'WSForm') {
 				$ver = "v<strong>".$ext['version']."</strong>";
+				if( $sourceVersion !== false ) {
+					$ver .= ' <br>Latest = v' . $sourceVersion ;
+				}
 			}
 		};
         $path = "$IP/extensions/WSForm/docs/";

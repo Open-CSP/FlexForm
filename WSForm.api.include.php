@@ -578,6 +578,7 @@ function fileUpload() {
 }
 
 function createGet() {
+
 	if ( isset( $_POST['mwreturn'] ) && $_POST['mwreturn'] !== "" ) {
 		$returnto = $_POST['mwreturn'];
 	} else {
@@ -599,16 +600,15 @@ function createGet() {
 				}
 				$ret = rtrim( $ret, ',' );
 			} else {
-				if ( $k !== "mwreturn" && $v != "" && $k !== 'mwdb' && !isWSFormSystemField( $k ) ) {
+				if ( $k !== "mwreturn" && $v != "" && $k !== 'mwdb' && ! isWSFormSystemField( $k ) ) {
 					$ret .= $delimiter . makeSpaceFromUnderscore( $k ) . '=' . cleanBraces( $v );
 				}
 			}
 		}
-		//echo "--".$ret;
+
 		//exit;
 		return $ret;
 	}
-
 }
 
 /**

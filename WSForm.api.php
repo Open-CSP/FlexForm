@@ -22,7 +22,6 @@ use PHPMailer\PHPMailer\SMTP;
 $currentHost = $_SERVER['HTTP_HOST'];
 $referrerHost = parse_url($_SERVER['HTTP_REFERER']);
 
-
 if ( strcmp($currentHost, $referrerHost['host']) !== 0)
 {
     http_response_code(404);
@@ -233,6 +232,7 @@ if( $captchaAction !== false && $captchaToken !== false ) {
         die();
     }
 }
+
 
 
 if ( getPostString('mwaction') !== false ) {

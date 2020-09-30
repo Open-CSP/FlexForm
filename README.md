@@ -92,6 +92,7 @@ Visit : Special:WSForm/Docs
 
 
 ### Changelog
+* 0.8.0.6.9 : Added repo version check for Doc pages
 * 0.8.0.6.8 : Removed cleaning of return url
 * 0.8.0.6.7 : Removing PHP notices
 * 0.8.0.6.6 : Added classes for ajax submit to form {T5851}
