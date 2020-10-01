@@ -34,5 +34,8 @@
 	"wsform-docs-information" : "Information",
 	"wsform-docs-documentation" : "documentation",
 	"wsform-docs-log-in" : "You need to login first",
-	"wsform-docs-back-documentation" : "Back to documentation"
+	"wsform-docs-back-documentation" : "Back to documentation",
+	"wsform-docs-editing-disabled" : "Editing is disabled",
+	"wsform-docs-changelog" : "New version",
+	"wsform-docs-no-new-version" : "You have the latest version"
 }

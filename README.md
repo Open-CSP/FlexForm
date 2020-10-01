@@ -92,6 +92,7 @@ Visit : Special:WSForm/Docs
 
 
 ### Changelog
+* 0.8.0.7.1 : Added new version information and changelog
 * 0.8.0.7.0 : Updated email docs and fixed bug when editing doc (lost creator and creator date)
 * 0.8.0.6.9 : Added repo version check for Doc pages
 * 0.8.0.6.8 : Removed cleaning of return url

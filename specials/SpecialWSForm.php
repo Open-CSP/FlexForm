@@ -73,6 +73,7 @@ class SpecialWSForm extends SpecialPage {
 	}
 
 
+
     /**
      * @brief WSForm Docs menu.
      * Builds and renders the WSForm Docs menu
@@ -86,7 +87,7 @@ class SpecialWSForm extends SpecialPage {
      * @param $wsformpurl string WSForm url
      * @param $ver string WSForm version
      */
-	public function renderMenu($path, $examplePath, $purl, $eurl, $wgServer, $out, $wsformpurl, $ver) {
+	public function renderMenu($path, $examplePath, $purl, $eurl, $wgServer, $out, $wsformpurl, $ver, $newVersionAvailable) {
         $fileList = glob($path.'*.json');
         $exampleList = glob($examplePath.'*.json');
         global $IP, $wgParser;
@@ -96,6 +97,9 @@ class SpecialWSForm extends SpecialPage {
         $createExample = $wgServer.'/index.php/Special:WSForm/Docs/Create Example';
 		$createDocumentation = $wgServer.'/index.php/Special:WSForm/Docs/Create';
 		$formBuilderUrl = $wgServer.'/index.php/Special:WSForm/Formbuilder';
+		$changeLogUrl = $wgServer.'/index.php/Special:WSForm/Docs/ChangeLog';
+		$changeLogUrl = '<li><a href="' . $changeLogUrl . '"> '.wfMessage("wsform-docs-changelog")->text().'</a></li>';
+
 
         // Get normal documentation
         foreach( $fileList as $file ) {
@@ -144,11 +148,16 @@ class SpecialWSForm extends SpecialPage {
         if( $this->allowEditDocs ) {
             $new = '<li><a href="' . $createDocumentation . '">' . wfMessage("wsform-docs-create-new-doc")->text() . '</a></li>';
             $new .= '<li><a href="' . $createExample . '">' . wfMessage("wsform-docs-create-new-example")->text() . '</a></li>';
-        } else $new = '';
+        } else $new = '<li>'. wfMessage("wsform-docs-editing-disabled")->text() . '</li>';
+
+        if( $newVersionAvailable === false ) {
+	        $changeLogUrl = '';
+        }
+
 		$index = $wgServer.'/index.php/Special:WSForm/Docs/Index';
         $wsformpurl = $wgServer."/extensions/WSForm/";
-        $search = array('%items%', '%url%', '%back%', '%version%', '%new%', '%index%', '%%wsformpurl%%', '%fb%');
-        $replace = array($items, $wsformpurl . "WSForm-logo.png", $back, $ver, $new, $index, $wsformpurl, $formBuilderUrl );
+        $search = array('%items%', '%url%', '%back%', '%version%', '%new%', '%index%', '%%wsformpurl%%', '%fb%', '%changelog%');
+        $replace = array($items, $wsformpurl . "WSForm-logo.png", $back, $ver, $new, $index, $wsformpurl, $formBuilderUrl, $changeLogUrl );
         $nav = str_replace($search, $replace, $nav);
 
         //$out->addHTML($ret.$nav);
@@ -171,6 +180,26 @@ class SpecialWSForm extends SpecialPage {
         return;
     }
 
+	private function get_string_between($string, $start, $end){
+		$string = " ".$string;
+		$ini = strpos($string,$start);
+		if ($ini == 0) return "";
+		$ini += strlen($start);
+		$len = strrpos($string,$end,$ini) - $ini;
+		return substr($string,$ini,$len);
+	}
+
+    private function getChangeLog( $bitbucketChangelog, $currentVersion ) {
+	    $readme = file_get_contents( $bitbucketChangelog );
+	    if( $readme === false ) {
+	    	return "not found";
+	    }
+	    $changeLog = $this->get_string_between( $readme, '### Changelog', '* ' . $currentVersion );
+	    $changeLog = ltrim( $changeLog, "\n");
+	    $changeLog = str_replace( "\n", "<br>", $changeLog);
+	    return $changeLog;
+    }
+
 	/**
 	 * @brief Show the page to the user.
      * Also used for handling Documentation
@@ -184,6 +213,7 @@ class SpecialWSForm extends SpecialPage {
 		$realUrl = str_replace( '/index.php', '', $wgScript );
 		$ver = "";
 		$bitbucketSource = 'https://api.bitbucket.org/2.0/repositories/wikibasesolutions/mw-wsform/src/master/extension.json';
+		$bitbucketChangelog = 'https://api.bitbucket.org/2.0/repositories/wikibasesolutions/mw-wsform/src/master/README.md';
 		$extJson = file_get_contents( $bitbucketSource );
 		if( $extJson !== false ) {
 			$extJson = json_decode( $extJson, true );
@@ -196,8 +226,11 @@ class SpecialWSForm extends SpecialPage {
 				$ver = "v<strong>".$ext['version']."</strong>";
 				if( $sourceVersion !== false ) {
 					if( $sourceVersion != $ext['version'] ) {
+						$newVersionAvailable = true;
+						$currentVersion = $ext['version'];
 						$ver .= ' <br><span style="font-size:11px; color:red;">NEW : v' . $sourceVersion .'</span>';
-					}
+						//$ver .= $this->getChangeLog( $bitbucketChangelog, $ext['version'] );
+					} else $newVersionAvailable = false;
 				}
 			}
 		};
@@ -208,7 +241,7 @@ class SpecialWSForm extends SpecialPage {
         $eurl = $realUrl . "/index.php/Special:WSForm/Docs/examples";
         $out = $this->getOutput();
 		$out->addHTML( '<h1 class="hit-the-floor" style="text-align:center;">WSForm ' . wfMessage("wsform-docs-documentation")->text() . '</h1><hr class="brace">');
-        $this->renderMenu($path, $examplePath, $purl, $eurl, $realUrl, $out, $wsformpurl, $ver);
+        $this->renderMenu($path, $examplePath, $purl, $eurl, $realUrl, $out, $wsformpurl, $ver, $newVersionAvailable);
 		if ( ! $wgUser->isLoggedIn() ) {
 			$out->addHTML( '<p>' . wfMessage("wsform-docs-log-in")->text() . '</p>' );
 			return;
@@ -510,6 +543,15 @@ class SpecialWSForm extends SpecialPage {
 						$form = str_replace('%%delete%%',$rpl,$form);
 					}
 					$out->addHTML( $form.$back );
+					return;
+				}
+				// Changelog new version info
+				if ( isset($args[1]) && strtolower($args[1] ) == 'changelog' ) {
+
+					$changeLogTemplate = file_get_contents($path.'changelog.html');
+					$repl = array( '%version%', '%changelog%');
+					$with = array( $sourceVersion, $this->getChangeLog( $bitbucketChangelog, $currentVersion ) );
+					$out->addHTML( str_replace( $repl, $with, $changeLogTemplate) );
 					return;
 				}
 

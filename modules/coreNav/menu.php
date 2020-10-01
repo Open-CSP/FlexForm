@@ -35,6 +35,7 @@
         <li>
             <a href="%index%"> Overview</a>
         </li>
+        %changelog%
         <li>
             <a href="%fb%"> Formbuilder</a>
         </li>
