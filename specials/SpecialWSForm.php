@@ -180,23 +180,32 @@ class SpecialWSForm extends SpecialPage {
         return;
     }
 
-	private function get_string_between($string, $start, $end){
-		$string = " ".$string;
-		$ini = strpos($string,$start);
-		if ($ini == 0) return "";
-		$ini += strlen($start);
-		$len = strrpos($string,$end,$ini) - $ini;
-		return substr($string,$ini,$len);
+	private function get_string_between($string, $start, $end=""){
+		$r = explode($start, $string);
+		if (isset($r[1])){
+			if (!empty($end)){
+				$r = explode($end, $r[1]);
+				return $r[0];
+			}else{
+				return $r[1];
+			}
+		}
+		return "";
 	}
+
 
     private function getChangeLog( $bitbucketChangelog, $currentVersion ) {
 	    $readme = file_get_contents( $bitbucketChangelog );
 	    if( $readme === false ) {
 	    	return "not found";
 	    }
-	    $changeLog = $this->get_string_between( $readme, '### Changelog', '* ' . $currentVersion );
+	    if( $currentVersion === '' ) {
+		    $changeLog = $this->get_string_between( $readme, '### Changelog', $currentVersion );
+	    } else {
+		    $changeLog = $this->get_string_between( $readme, '### Changelog', '* ' . $currentVersion );
+	    }
 	    $changeLog = ltrim( $changeLog, "\n");
-	    $changeLog = str_replace( "\n", "<br>", $changeLog);
+	    //$changeLog = str_replace( "\n", "<br>", $changeLog);
 	    return $changeLog;
     }
 
@@ -559,7 +568,7 @@ class SpecialWSForm extends SpecialPage {
 						} else {
 							$changeLogText = wfMessage("wsform-docs-no-new-version-notice")->text();
 							$tableHead = wfMessage("wsform-docs-no-new-version-table")->text();
-							$changelogDetail = $this->getChangeLog( $bitbucketChangelog, '9999' );
+							$changelogDetail = $this->getChangeLog( $bitbucketChangelog, '' );
 						}
 					}
 					$changeLogTemplate = file_get_contents($path.'changelog.html');
