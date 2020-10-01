@@ -37,5 +37,9 @@
 	"wsform-docs-back-documentation" : "Back to documentation",
 	"wsform-docs-editing-disabled" : "Editing is disabled",
 	"wsform-docs-changelog" : "New version",
-	"wsform-docs-no-new-version" : "You have the latest version"
+	"wsform-docs-no-new-version" : "You have the latest version",
+	"wsform-docs-new-version-notice" : "There is a <strong>new</strong> version available for WSForm. Please contact your administrator so he can update this extension",
+	"wsform-docs-no-new-version-notice" : "There is <strong>no</strong> new version available for WSForm. The complete changelog is shown.",
+	"wsform-docs-new-version-table" : "Changelog from your version to this new version",
+	"wsform-docs-no-new-version-table" : "Complete changelog"
 }

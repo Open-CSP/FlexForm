@@ -230,7 +230,10 @@ class SpecialWSForm extends SpecialPage {
 						$currentVersion = $ext['version'];
 						$ver .= ' <br><span style="font-size:11px; color:red;">NEW : v' . $sourceVersion .'</span>';
 						//$ver .= $this->getChangeLog( $bitbucketChangelog, $ext['version'] );
-					} else $newVersionAvailable = false;
+					} else {
+						$newVersionAvailable = false;
+						$currentVersion = $ext['version'];
+					}
 				}
 			}
 		};
@@ -548,9 +551,20 @@ class SpecialWSForm extends SpecialPage {
 				// Changelog new version info
 				if ( isset($args[1]) && strtolower($args[1] ) == 'changelog' ) {
 
+					if( $sourceVersion !== false ) {
+						if( $sourceVersion !== $currentVersion ) {
+							$changeLogText = wfMessage("wsform-docs-new-version-notice")->text();
+							$tableHead = wfMessage("wsform-docs-new-version-table")->text();
+							$changelogDetail = $this->getChangeLog( $bitbucketChangelog, $currentVersion );
+						} else {
+							$changeLogText = wfMessage("wsform-docs-no-new-version-notice")->text();
+							$tableHead = wfMessage("wsform-docs-no-new-version-table")->text();
+							$changelogDetail = $this->getChangeLog( $bitbucketChangelog, '9999' );
+						}
+					}
 					$changeLogTemplate = file_get_contents($path.'changelog.html');
-					$repl = array( '%version%', '%changelog%');
-					$with = array( $sourceVersion, $this->getChangeLog( $bitbucketChangelog, $currentVersion ) );
+					$repl = array( '%changelogdescr%','%tablehead%','%version%', '%changelog%');
+					$with = array( $changeLogText, $tableHead, $sourceVersion, '<pre>' . $changelogDetail . '</pre>');
 					$out->addHTML( str_replace( $repl, $with, $changeLogTemplate) );
 					return;
 				}
