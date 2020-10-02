@@ -89,6 +89,11 @@ class SpecialWSForm extends SpecialPage {
      */
 	public function renderMenu($path, $examplePath, $purl, $eurl, $wgServer, $out, $wsformpurl, $ver, $newVersionAvailable) {
         $fileList = glob($path.'*.json');
+		//echo "<pre>";
+		//print_r($fileList);
+		//$fileList = 'https://api.bitbucket.org/2.0/repositories/wikibasesolutions/mw-wsform/src/master/docs/?pagelen=100';
+		//print_r(json_decode( file_get_contents( $fileList ), true ) );
+		//die();
         $exampleList = glob($examplePath.'*.json');
         global $IP, $wgParser;
         $menuPath = "$IP/extensions/WSForm/modules/coreNav/";
