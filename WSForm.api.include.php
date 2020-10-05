@@ -969,7 +969,8 @@ function saveToWiki($email=false) {
 		}
 		if( $mwfollow !== false ) {
 			if( $mwfollow === 'true' ) {
-				$returnto = '/index.php/' . $title;
+
+				$returnto = $api->app['wgScript'] . '/' . $title;
 			} else {
 				if( strpos( $returnto, '?' ) ) {
 					$returnto = $returnto . '&' . $mwfollow . '=' . $title;
@@ -1120,9 +1121,14 @@ if($writepages !== false) {
             return( createMsg('no title could be former [parser error]','error',$returnto) );
 		}
 
+		if( !$weHaveApi) {
+			require_once( 'WSForm.api.class.php' );
+			$api = new wbApi();
+		}
+
 		if( $mwfollow !== false ) {
 			if( $mwfollow === 'true' ) {
-				$returnto = '/index.php/' . $ptitle;
+				$returnto = $api->app['wgScript'] . '/' . $ptitle;
 			} else {
 				if( strpos( $returnto, '?' ) ) {
 					$returnto = $returnto . '&' . $mwfollow . '=' . $title;

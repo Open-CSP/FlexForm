@@ -92,6 +92,7 @@ Visit : Special:WSForm/Docs
 
 
 ### Changelog
+* 0.8.0.7.2 : Added config variable wgScript. Added config documentation
 * 0.8.0.7.1.1 : Cosmetics
 * 0.8.0.7.1 : Added new version information and changelog
 * 0.8.0.7.0 : Updated email docs and fixed bug when editing doc (lost creator and creator date)

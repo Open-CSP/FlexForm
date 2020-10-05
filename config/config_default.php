@@ -29,6 +29,12 @@
  * you fill in all the other fields needed for SMTP. If you are in a Farm, please use WSFormSettings.php to setup
  * SMTP on a farm.
  *
+ * wgScript default to '/index.php' and is used for following a new created page. If your main wiki instalment is
+ * somewhere else, then set it here
+ *
+ * If you want to use the Google Recaptcha, set rc_site_key and rc_secret_key. You receive this from Google when
+ * you sign-up
+ *
  */
 
 $config = array(
@@ -38,6 +44,7 @@ $config = array(
 	"api-url-overrule"    => '',
 	"api-cookie-path"     => '',
 	"wgAbsoluteWikiPath"  => '',
+	"wgScript"            => '/index.php',
 	"rc_site_key"         => '',
 	"rc_secret_key"       => '',
 	"use-smtp"            => 'no',

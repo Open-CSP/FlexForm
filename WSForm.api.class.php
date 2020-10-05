@@ -253,6 +253,11 @@ class wbApi {
       } else {
           $this->app['use-smtp'] = "no";
       }
+      if ( isset( $config['wgScript'] ) && $config['wgScript'] !== '' ) {
+          $this->app['wgScript'] = rtrim( $config['wgScript'], '/' );
+      } else {
+          $this->app['wgScript'] = "/index.php";
+      }
 
       $this->setConfigVar( 'smtp-host', $config );
       $this->setConfigVar( 'smtp-authentication', $config );

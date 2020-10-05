@@ -272,7 +272,6 @@ class WSFormHooks {
 	public static function WSForm( $input, array $args, Parser $parser, PPFrame $frame ) {
 
 		global $wgUser, $wgEmailConfirmToEdit, $IP, $wgScript;
-
 		$anon = false;
 		$ret = '';
 
