@@ -35,6 +35,8 @@
  * If you want to use the Google Recaptcha, set rc_site_key and rc_secret_key. You receive this from Google when
  * you sign-up
  *
+ * sec is work in progress and means security heavy. Will also filter javascript and such.
+ *
  */
 
 $config = array(
@@ -48,6 +50,7 @@ $config = array(
 	"rc_site_key"         => '',
 	"rc_secret_key"       => '',
 	"use-smtp"            => 'no',
+	"sec"                 => false,
 	"smtp-host"           => '',
 	"smtp-authentication" => true,
 	"smtp-username"       => '',

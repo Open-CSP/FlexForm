@@ -45,6 +45,14 @@ class wsform {
 	public static $gValues = true;
 
 	/**
+	 * @var array $chkSums
+	 * Holds checksum for every field in the form
+	 */
+	public static $chkSums = array();
+
+	public static $secure = false;
+
+	/**
 	 * @return string
 	 */
 	public static function getAPIurl() {
@@ -101,8 +109,12 @@ class wsform {
 			return "";
 		}
 		$k = str_replace( " ", "_", $k );
+
 		if ( isset( $_GET[ $k ] ) ) {
-			return $_GET[ $k ];
+			$tmp = $_GET[$k];
+			$tmp = str_replace('"', "", $tmp);
+			$tmp = str_replace("'", "", $tmp);
+			return $tmp;
 		} else {
 			return "";
 		}
@@ -144,6 +156,13 @@ class wsform {
 	 */
 	public static function getRun() {
 		return self::$haveIBeenRun;
+	}
+
+	public static function addCheckSum( $type, $name, $value ) {
+		self::$chkSums[] = array(
+			"type" => $type,
+			"name" => $name,
+			"value" => $value );
 	}
 
 

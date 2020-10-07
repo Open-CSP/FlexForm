@@ -267,6 +267,16 @@ class validate {
 	}
 
 
+	public static function purify( $value ) {
+		if( \wsform\wsform::$secure ) {
+			global $IP;
+			require_once( $IP . '/extensions/WSForm/modules/htmlpurifier/library/HTMLPurifier.auto.php' );
+			$config = \HTMLPurifier_Config::createDefault();
+			$purifier = new \HTMLPurifier($config);
+			return $purifier->purify( $value );
+		} else return $value;
+
+	}
 
 	/**
 	 * General function for parameters validation
@@ -275,10 +285,13 @@ class validate {
 	 *
 	 * @return string of formatted HTML
 	 */
-	public static function doSimpleParameters( $args ) {
+	public static function doSimpleParameters( $args, $type = false ) {
+
 		$name  = false;
 		$value = false;
+		$val   = '';
 		$ret   = "";
+
 		foreach ( $args as $k => $v ) {
 			if ( self::validParameters( $k ) ) {
 				if ( $k == "name" ) {
@@ -286,21 +299,25 @@ class validate {
 				}
 				if ( $k == "value" ) {
 					$value = true;
+					$val = self::purify( $v );
 				}
 				if ( self::check_disable_readonly_required_selected( $k, $v ) ) {
 					continue;
 				}
-				$ret .= $k . '="' . $v . '" ';
+				$ret .= $k . '="' . $val = self::purify( $v ) . '" ';
+
 			}
 		}
 		if ( $name && ! $value ) {
-			$tmp = \wsform\wsform::getValue( ( $name ) );
+			$tmp = self::purify( \wsform\wsform::getValue( ( $name ) ) );
 			if ( $tmp !== "" ) {
 				$ret .= 'value = "' . $tmp . '" ';
-			}
-		}
+				\wsform\wsform::addCheckSum( $type, $name, $tmp );
+			} else \wsform\wsform::addCheckSum( $type, $name, '' );
+		} else \wsform\wsform::addCheckSum( $type, $name, $val );
 
-		return $ret;
+
+		return self::purify( $ret );
 	}
 
 	/**
@@ -329,11 +346,12 @@ class validate {
 					continue;
 				}
 				$ret .= $k . '="' . $v . '" ';
+
 			}
 		}
 
 		if ( $name && $value && ! $checked ) {
-			$tmp = \wsform\wsform::getValue( ( $name ) );
+			$tmp = self::purify( \wsform\wsform::getValue( ( $name ) ) );
 			//echo "<HR>name=$name, value=$value, get=$tmp<HR>";
 			if ( $tmp !== "" ) {
 				if ( $tmp == $value ) {
@@ -341,7 +359,7 @@ class validate {
 				}
 			}
 		}
-
+		\wsform\wsform::addCheckSum( 'radio', $name, $value );
 		return $ret;
 	}
 
@@ -404,6 +422,7 @@ class validate {
 					continue;
 				}
 				$ret .= $k . '="' . $v . '" ';
+
 			}
 		}
 
@@ -411,7 +430,7 @@ class validate {
 			if ( strpos( $name, "[]" ) ) {
 				$name = rtrim( $name, '[]' );
 			}
-			$tmp = \wsform\wsform::getValue( ( $name ) );
+			$tmp = self::purify( \wsform\wsform::getValue( ( $name ) ) );
 
 			if ( $tmp !== "" ) {
 				if ( strpos( $tmp, "," ) ) {
@@ -424,7 +443,7 @@ class validate {
 				}
 			}
 		}
-
+		\wsform\wsform::addCheckSum( "checkbox", $name, $value );
 		return $ret;
 	}
 
@@ -451,6 +470,7 @@ class validate {
 					$checked = true;
 				}
 				$ret .= $k . '="' . $v . '" ';
+
 			}
 		}
 
@@ -458,7 +478,7 @@ class validate {
 			if ( strpos( $name, "[]" ) ) {
 				$name = rtrim( $name, '[]' );
 			}
-			$tmp = \wsform\wsform::getValue( ( $name ) );
+			$tmp = self::purify( \wsform\wsform::getValue( ( $name ) ) );
 
 			if ( $tmp !== "" ) {
 				if ( strpos( $tmp, "," ) ) {
@@ -471,7 +491,7 @@ class validate {
 				}
 			}
 		}
-
+		\wsform\wsform::addCheckSum( "select", $name, $value );
 		return $ret;
 	}
 

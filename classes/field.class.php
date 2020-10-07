@@ -19,7 +19,7 @@ class render {
 	 */
 	public static function render_text( $args, $input = false, $parser, $frame ) {
 		$ret = '<input type="text" ';
-		$ret .= validate::doSimpleParameters( $args );
+		$ret .= validate::doSimpleParameters( $args, "text" );
 		foreach ( $args as $k => $v ) {
 			if ( $k == 'mwidentifier' && $v == 'datepicker' ) {
 				$parser->disableCache();
@@ -42,7 +42,7 @@ class render {
 	 */
 	public static function render_hidden( $args, $input = false ) {
 		$ret = '<input type="hidden" ';
-		$ret .= validate::doSimpleParameters( $args );
+		$ret .= validate::doSimpleParameters( $args, "hidden" );
 		$ret .= ">\n";
 
 		return $ret;
@@ -58,7 +58,7 @@ class render {
 	 */
 	public static function render_search( $args, $input = false ) {
 		$ret = '<input type="search" ';
-		$ret .= validate::doSimpleParameters( $args );
+		$ret .= validate::doSimpleParameters( $args, "search" );
 		$ret .= ">\n";
 
 		return $ret;
@@ -74,7 +74,7 @@ class render {
 	 */
 	public static function render_number( $args, $input = false ) {
 		$ret = '<input type="number" ';
-		$ret .= validate::doSimpleParameters( $args );
+		$ret .= validate::doSimpleParameters( $args, "number" );
 		$ret .= ">\n";
 
 		return $ret;
@@ -305,7 +305,7 @@ class render {
 	 */
 	public static function render_date( $args, $input = false ) {
 		$ret = '<input type="date" ';
-		$ret .= validate::doSimpleParameters( $args );
+		$ret .= validate::doSimpleParameters( $args, "date" );
 		$ret .= ">\n";
 
 		return $ret;
@@ -321,7 +321,7 @@ class render {
 	 */
 	public static function render_month( $args, $input = false ) {
 		$ret = '<input type="month" ';
-		$ret .= validate::doSimpleParameters( $args );
+		$ret .= validate::doSimpleParameters( $args, "month" );
 		$ret .= ">\n";
 
 		return $ret;
@@ -337,7 +337,7 @@ class render {
 	 */
 	public static function render_week( $args, $input = false ) {
 		$ret = '<input type="week" ';
-		$ret .= validate::doSimpleParameters( $args );
+		$ret .= validate::doSimpleParameters( $args, "week" );
 		$ret .= ">\n";
 
 		return $ret;
@@ -353,7 +353,7 @@ class render {
 	 */
 	public static function render_time( $args, $input = false ) {
 		$ret = '<input type="time" ';
-		$ret .= validate::doSimpleParameters( $args );
+		$ret .= validate::doSimpleParameters( $args, "time" );
 		$ret .= ">\n";
 
 		return $ret;
@@ -369,7 +369,7 @@ class render {
 	 */
 	public static function render_datetime( $args, $input = false ) {
 		$ret = '<input type="datetime" ';
-		$ret .= validate::doSimpleParameters( $args );
+		$ret .= validate::doSimpleParameters( $args, "datetime" );
 		$ret .= ">\n";
 
 		return $ret;
@@ -385,7 +385,7 @@ class render {
 	 */
 	public static function render_datetimelocal( $args, $input = false ) {
 		$ret = '<input type="datetime-local" ';
-		$ret .= validate::doSimpleParameters( $args );
+		$ret .= validate::doSimpleParameters( $args, "datetimelocal" );
 		$ret .= ">\n";
 
 		return $ret;
@@ -401,7 +401,7 @@ class render {
 	 */
 	public static function render_password( $args, $input = false ) {
 		$ret = '<input type="password" ';
-		$ret .= validate::doSimpleParameters( $args );
+		$ret .= validate::doSimpleParameters( $args, "password" );
 		$ret .= ">\n";
 
 		return $ret;
@@ -417,7 +417,7 @@ class render {
 	 */
 	public static function render_email( $args, $input = false ) {
 		$ret = '<input type="email" ';
-		$ret .= validate::doSimpleParameters( $args );
+		$ret .= validate::doSimpleParameters( $args, "email" );
 		$ret .= ">\n";
 
 		return $ret;
@@ -433,7 +433,7 @@ class render {
 	 */
 	public static function render_color( $args, $input = false ) {
 		$ret = '<input type="color" ';
-		$ret .= validate::doSimpleParameters( $args );
+		$ret .= validate::doSimpleParameters( $args, "color" );
 		$ret .= ">\n";
 
 		return $ret;
@@ -449,7 +449,7 @@ class render {
 	 */
 	public static function render_range( $args, $input = false ) {
 		$ret = '<input type="range" ';
-		$ret .= validate::doSimpleParameters( $args );
+		$ret .= validate::doSimpleParameters( $args, "range" );
 		$ret .= ">\n";
 
 		return $ret;
@@ -468,6 +468,7 @@ class render {
 		foreach ( $args as $k => $v ) {
 			if ( validate::validParameters( $k ) ) {
 				$ret .= $k . '="' . $v . '" ';
+				\wsform\wsform::addCheckSum( "image", $k, $v );
 			}
 		}
 		$ret .= ">\n";
@@ -485,7 +486,7 @@ class render {
 	 */
 	public static function render_url( $args, $input = false ) {
 		$ret = '<input type="url" ';
-		$ret .= validate::doSimpleParameters( $args );
+		$ret .= validate::doSimpleParameters( $args, "url" );
 		$ret .= ">\n";
 
 		return $ret;
@@ -501,7 +502,7 @@ class render {
 	 */
 	public static function render_tel( $args, $input = false ) {
 		$ret = '<input type="tel" ';
-		$ret .= validate::doSimpleParameters( $args );
+		$ret .= validate::doSimpleParameters( $args, "tel" );
 		$ret .= ">\n";
 
 		return $ret;

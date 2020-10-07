@@ -80,9 +80,17 @@ class WSFormHooks {
 	 * @param Parser $parser Sets a list of all WSForm hooks
 	 */
 	public static function onParserFirstCallInit( Parser &$parser ) {
-
+		global $wgAbsoluteWikiPath;
 		include( 'classes/loader.php' );
 		\wsform\classLoader::register();
+
+		// Load config settings
+		if ( file_exists( __DIR__ . '/config/config.php' ) ) {
+			include( __DIR__ . '/config/config.php' );
+			if( isset( $config['sec'] ) && $config['sec'] === true ) {
+				\wsform\wsform::$secure = true;
+			}
+		}
 
 		$parser->setHook( 'wsform', 'WSFormHooks::WSForm' );
 		$parser->setHook( 'wsfield', 'WSFormHooks::WSField' );
@@ -423,6 +431,10 @@ class WSFormHooks {
                 return $ret;
             }
         }
+        //echo "<pre>";
+        //print_r( \wsform\wsform::$chkSums );
+        //echo "</pre>";
+        //print_r( \wsform\wsform::$secure );
 		return array( $ret, "markerType" => 'nowiki' );
 
 	}
