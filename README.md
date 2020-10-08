@@ -92,6 +92,7 @@ Visit : Special:WSForm/Docs
 
 
 ### Changelog
+* 0.8.0.7.3 : Returning Get url filtered. action="get" allows for wsedit and wscreate
 * 0.8.0.7.2.2 : If config sec=true, all input fields are filtered and new field "secure" comes available
 * 0.8.0.7.2.1 : First steps for heavy security setup
 * 0.8.0.7.2 : Added config variable wgScript. Added config documentation

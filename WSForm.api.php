@@ -290,7 +290,7 @@ if ( getPostString('mwaction') !== false ) {
  			break;
 
 		case "get" :
-			$ret = createGet();
+			$ret = saveToWiki('get');
 			if ( $ret ) {
 				$messages->redirect( $ret );
 				exit;
@@ -300,7 +300,7 @@ if ( getPostString('mwaction') !== false ) {
 			break;
 
 		case "mail" :
-			$ret = saveToWiki(true);
+			$ret = saveToWiki('yes' );
 			break;
 	}
 }

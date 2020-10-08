@@ -6,9 +6,11 @@
         "description": "<p><span style=\"color: rgb(99, 36, 35);\"><strong>As off version 0.8.0.7.2.2<\/strong><\/span><\/p><p>In the config file \"sec\" should be set to true for this to work!<span style=\"color: rgb(99, 36, 35);\"><strong><br><\/strong><\/span><\/p><p>The secure field is as a hidden field, just the name and value are not readable.<br><span style=\"color: rgb(99, 36, 35);\"><strong><\/strong><\/span><\/p><p><span style=\"color: rgb(99, 36, 35);\"><strong><\/strong><\/span><\/p>",
         "parameters": "<p>type=\"secure\"\r\n\r\nAll other valid parameters for an input field are valid, but will be never used on a hidden field<br><\/p>",
         "example": "<wsfield type=\"secure\" name=\"uname\" value=\"secure value\" \/>",
-        "note": "--",
+        "note": "When using action=\"get\" a secure field will not be returned in the url<br>",
         "links": "--",
         "created": "08-10-2020 12:09:27",
-        "created by": "Charlot"
+        "created_by": "",
+        "last modified": "08-10-2020 14:46:35",
+        "modified by": "Charlot"
     }
 }

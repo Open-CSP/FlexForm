@@ -599,13 +599,13 @@ function createGet() {
 
 				$ret .= $delimiter . makeSpaceFromUnderscore( $k ) . "=";
 				foreach ( $v as $multiple ) {
-					$ret .= cleanBraces( $multiple ) . ',';
+					$ret .= cleanHTML( cleanBraces( $multiple ) ). ',';
 				}
 				$ret = rtrim( $ret, ',' );
 			} else {
 				$resultDelete = in_array( $k, $removeList );
 				if ( $k !== "mwreturn" && $v != "" && $k !== 'mwdb' && ! isWSFormSystemField( $k ) && ! $resultDelete ) {
-					$ret .= $delimiter . makeSpaceFromUnderscore( $k ) . '=' . cleanBraces( $v );
+					$ret .= $delimiter . makeSpaceFromUnderscore( $k ) . '=' . cleanUrl( getPostString( $k ) );
 				}
 			}
 		}
@@ -723,6 +723,18 @@ function getPostString( $var, $clean = true ) {
 	} else return $template;
 }
 
+function cleanHTML( $var ) {
+	$config = HTMLPurifier_Config::createDefault();
+	$purifier = new HTMLPurifier($config);
+	return $purifier->purify( $var );
+}
+
+function cleanUrl( $var ) {
+	$var = str_replace('"', "", $var);
+	$var = str_replace("'", "", $var);
+	return $var;
+}
+
 /**
  * Helper function for WSForm extension to check available fields
  * @param $var string Key for field to check
@@ -747,7 +759,7 @@ function getFormValues( $var)  {
  * @return bool when false
  * @return string value of key
  */
-function getGetString( $var,$check = true ) {
+function getGetString( $var, $check = true, $clean = true ) {
 	if( $check ) {
 		if ( isset( $_GET[$var] ) && $_GET[$var] !== "" ) {
 			$template = $_GET[$var];
@@ -761,6 +773,13 @@ function getGetString( $var,$check = true ) {
 			$template = false;
 		}
 	}
+	if( $clean === true && $template !== false ) {
+		$config = HTMLPurifier_Config::createDefault();
+		$purifier = new HTMLPurifier($config);
+		$clean_html = $purifier->purify( $template );
+		$template = cleanBraces( $clean_html );
+	}
+
     return $template;
 }
 
@@ -834,7 +853,7 @@ function cleanBraces( $value ) {
  * @param bool $email
  * @return array
  */
-function saveToWiki($email=false) {
+function saveToWiki( $email=false ) {
 
 	global $title, $i18n;
 	$weHaveApi = false;
@@ -1303,7 +1322,7 @@ if ( ! $mwedit && ! $email ) {
 	}
 
 	}  // end mwedit
-	if($email) {
+	if($email === "yes" ) {
 		$to = getPostString('mwmailto');
 		$from = getPostString('mwmailfrom');
 		$subject = getPostString('mwmailsubject');
@@ -1499,6 +1518,8 @@ if ( ! $mwedit && ! $email ) {
 		} elseif( $msgOnSuccess === false ) {
             return createMsg('Mailjob sent successfully','ok',$returnto,'success');
 		}
+	} elseif( $email === "get" ) {
+		return createGet();
 	}
     if($msgOnSuccess !== false) {
         return( createMsg($msgOnSuccess,'ok',$returnto, 'success') );
