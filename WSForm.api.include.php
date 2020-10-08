@@ -578,6 +578,7 @@ function fileUpload() {
 }
 
 function createGet() {
+	global $removeList;
 
 	if ( isset( $_POST['mwreturn'] ) && $_POST['mwreturn'] !== "" ) {
 		$returnto = $_POST['mwreturn'];
@@ -585,6 +586,8 @@ function createGet() {
 		$returnto = false;
 	}
 	if ( $returnto ) {
+		require_once( 'WSForm.api.class.php' );
+		$api = new wbApi();
 		$ret = $returnto;
 		foreach ( $_POST as $k => $v ) {
 			if ( strpos( $ret, "?" ) ) {
@@ -600,7 +603,8 @@ function createGet() {
 				}
 				$ret = rtrim( $ret, ',' );
 			} else {
-				if ( $k !== "mwreturn" && $v != "" && $k !== 'mwdb' && ! isWSFormSystemField( $k ) ) {
+				$resultDelete = in_array( $k, $removeList );
+				if ( $k !== "mwreturn" && $v != "" && $k !== 'mwdb' && ! isWSFormSystemField( $k ) && ! $resultDelete ) {
 					$ret .= $delimiter . makeSpaceFromUnderscore( $k ) . '=' . cleanBraces( $v );
 				}
 			}

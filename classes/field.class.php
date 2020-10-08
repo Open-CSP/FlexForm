@@ -49,6 +49,24 @@ class render {
 	}
 
 	/**
+	 * @brief Render hidden Input field as HTML
+	 *
+	 * @param  array $args Arguments for the input field
+	 * @param  boolean $input not used
+	 *
+	 * @return string Rendered HTML
+	 */
+	public static function render_secure( $args, $input = false ) {
+		if( \wsform\wsform::$secure ) {
+			$ret = '<input type="hidden" ';
+			$ret .= validate::doSimpleParameters( $args, "secure" );
+			$ret .= ">\n";
+		} else $ret = '<!-- secure config setting not set , skipping -->';
+
+		return $ret;
+	}
+
+	/**
 	 * @brief Render Search Input field as HTML
 	 *
 	 * @param  array $args Arguments for the input field
@@ -696,8 +714,16 @@ class render {
 	 * @return string Rendered HTML
 	 */
 	public static function render_textarea( $args, $input = false ) {
+		$allowHtml = "yes";
+		$name = '';
+		if( isset( $args['nohtml'] ) ) {
+			$allowHtml = "no";
+		}
 		$ret = '<textarea ';
 		foreach ( $args as $k => $v ) {
+			if( $k == 'name' ) {
+				$name = $v;
+			}
 			if ( validate::check_disable_readonly_required_selected( $k, $v ) ) {
 				continue;
 			}
@@ -707,9 +733,11 @@ class render {
 		}
 		$ret .= ">";
 		if ( $input !== false ) {
-			$ret .=  $input;
+			$input = \wsform\protect\protect::purify( $input );
+			$ret .= $input;
 		}
 		$ret .= "</textarea>\n";
+		\wsform\wsform::addCheckSum( 'textarea', $name, $input, $allowHtml );
 		return $ret;
 	}
 

@@ -158,11 +158,14 @@ class wsform {
 		return self::$haveIBeenRun;
 	}
 
-	public static function addCheckSum( $type, $name, $value ) {
-		self::$chkSums[] = array(
-			"type" => $type,
-			"name" => $name,
-			"value" => $value );
+	public static function addCheckSum( $type, $name, $value, $allowHTML = "yes" ) {
+		if ( \wsform\wsform::$secure ) {
+			self::$chkSums[ $type ][] = array(
+				"name"  => $name,
+				"value" => $value,
+				"html"  => $allowHTML
+			);
+		}
 	}
 
 

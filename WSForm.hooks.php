@@ -80,7 +80,8 @@ class WSFormHooks {
 	 * @param Parser $parser Sets a list of all WSForm hooks
 	 */
 	public static function onParserFirstCallInit( Parser &$parser ) {
-		global $wgAbsoluteWikiPath;
+		global $wgAbsoluteWikiPath, $IP;
+		$serverName = strtolower( $_SERVER['SERVER_NAME'] );
 		include( 'classes/loader.php' );
 		\wsform\classLoader::register();
 
@@ -170,9 +171,9 @@ class WSFormHooks {
                 }
 
 				return array( $ret, "markerType" => 'nowiki');
-			}
+			} else return array( wfMessage( "wsform-field-invalid" )->text() . ": " . $type, "markerType" => 'nowiki');
 		} else {
-			return "Non valid fieldtype";
+			return array( wfMessage( "wsform-field-invalid" )->text(), "markerType" => 'nowiki');
 		}
 
 	}
@@ -388,6 +389,17 @@ class WSFormHooks {
 			wsform\wsform::setRun(true);
 		}
 		$ret .= wsform\form\render::render_form( $args, $parser->getTitle()->getLinkURL() );
+
+		//Add checksum
+
+		if( \wsform\wsform::$secure ) {
+			\wsform\protect\protect::setCrypt();
+			$chcksumName = \wsform\protect\protect::encrypt( 'checksum' );
+			$chcksumValue = \wsform\protect\protect::encrypt( serialize( \wsform\wsform::$chkSums ) );
+			$ret .= '<input type="hidden" name="'.$chcksumName.'" value="'.$chcksumValue.'">';
+		}
+
+
 		$ret .= $output . '</form>';
 
 		if ( $noEnter !== false ) {
@@ -432,7 +444,7 @@ class WSFormHooks {
             }
         }
         //echo "<pre>";
-        //print_r( \wsform\wsform::$chkSums );
+       // print_r( \wsform\wsform::$chkSums );
         //echo "</pre>";
         //print_r( \wsform\wsform::$secure );
 		return array( $ret, "markerType" => 'nowiki' );

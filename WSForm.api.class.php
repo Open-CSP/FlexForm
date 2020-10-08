@@ -199,6 +199,13 @@ class wbApi {
       }
   }
 
+  function isSecure(){
+      if( $this->app['sec'] !== '' ) {
+          return true;
+      } else return false;
+  }
+
+
   function loadSettings() {
 
       // Version
@@ -265,6 +272,7 @@ class wbApi {
       $this->setConfigVar( 'smtp-password', $config );
       $this->setConfigVar( 'smtp-secure', $config );
       $this->setConfigVar( 'smtp-port', $config );
+      $this->setConfigVar( 'sec', $config );
 
 
       if ( isset( $config['api-url-overrule'] ) && $config['api-url-overrule'] === '' ) {

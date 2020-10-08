@@ -41,6 +41,9 @@ class render {
 		$messageonsuccess = "";
 		$mwwikicontent = "";
 		$wsextension = "";
+		$lock = false;
+		$secure = true;
+		$wslock = "";
 		$ret      .= 'action="' . wsform::getAPIurl() . '" method="post" ';
 		foreach ( $args as $k => $v ) {
 			if ( validate::validFormParameters( $k ) ) {

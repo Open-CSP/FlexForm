@@ -41,6 +41,8 @@ require_once( 'modules/htmlpurifier/library/HTMLPurifier.auto.php' );
 $i18n = new wsi18n();
 $ret = false;
 
+$removeList = array();
+
 $imageHandler = array();
 
 $imageHandler  = [
@@ -238,6 +240,48 @@ if( $captchaAction !== false && $captchaToken !== false ) {
 if ( getPostString('mwaction') !== false ) {
 	$action = getPostString('mwaction');
 	unset( $_POST['mwaction'] );
+	$api = new wbApi();
+	if( $api->isSecure() ) {
+		require_once( 'classes/protect.class.php' );
+		$crypt = new wsform\protect\protect();
+		$crypt::setCrypt();
+		$checksum = false;
+		foreach( $_POST as $k=>$v ) {
+			if( $crypt::decrypt( $k ) === 'checksum' ) {
+				$checksum = unserialize( $crypt::decrypt( $v ) ) ;
+				unset( $_POST[$k] );
+			}
+		}
+		if( $checksum === false ) {
+			die( 'not a secure form' );
+		}
+		//echo "<pre>";
+		//print_r($checksum['secure']);
+		//print_r($_POST);
+		//echo "</pre>";
+		if( isset( $checksum['secure'] ) ) {
+			foreach( $checksum['secure'] as $secure ) {
+				$tmpName = getPostString( $secure['name'], false );
+				//var_dump($tmpName);
+				if( $tmpName !== false ) {
+					$newK = $crypt::decrypt( $secure['name'] );
+					$newV = $crypt::decrypt( $tmpName );
+					$delMe = $secure['name'];
+					unset( $_POST[$delMe] );
+					$removeList[] = $newK;
+					$_POST[$newK] = $newV;
+				} else {
+					die('Secure fields not complete');
+				}
+			}
+			//echo "<pre>";
+			//print_r($_POST);
+			//echo "</pre>";
+		}
+		//die();
+		$api->app['checksum'] = $checksum;
+	}
+
 
 	switch ( $action ) {
 
