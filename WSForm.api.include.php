@@ -588,6 +588,7 @@ function createGet() {
 	if ( $returnto ) {
 		require_once( 'WSForm.api.class.php' );
 		$api = new wbApi();
+		$secure = $api->isSecure();
 		$ret = $returnto;
 		foreach ( $_POST as $k => $v ) {
 			if ( strpos( $ret, "?" ) ) {
@@ -599,7 +600,7 @@ function createGet() {
 
 				$ret .= $delimiter . makeSpaceFromUnderscore( $k ) . "=";
 				foreach ( $v as $multiple ) {
-					$ret .= cleanHTML( cleanBraces( $multiple ) ). ',';
+					$ret .= cleanHTML( cleanBraces( $multiple ) ) . ',';
 				}
 				$ret = rtrim( $ret, ',' );
 			} else {
@@ -716,18 +717,63 @@ function getPostString( $var, $clean = true ) {
 		$template = false;
 	}
 	if( $clean === true && $template !== false ) {
-		$config = HTMLPurifier_Config::createDefault();
-		$purifier = new HTMLPurifier($config);
-		$clean_html = $purifier->purify( $template );
+		$clean_html = cleanHTML( $template, $var );
 		return cleanBraces( $clean_html );
 	} else return $template;
 }
 
-function cleanHTML( $var ) {
+function getHTMLType( $name ) {
+	global $checksum;
+	if(is_null( $checksum)) return "default";
+	if( isset( $checksum[$name] ) ) {
+		return $checksum[$name]['html'];
+	} else return "default";
+}
+
+function cleanHTML( $var, $name = false ) {
+	global $securedVersion;
+	if( $securedVersion === false ) {
+		return $var;
+	}
+	$html = '';
+	if( $name !== false ) {
+		$html = getHTMLType( $name );
+	}
+	require_once( 'classes/protect.class.php' );
+	$pure = new wsform\protect\protect();
+	return $pure::purify( $var, $html, $securedVersion );
+	/*
 	$config = HTMLPurifier_Config::createDefault();
 	$purifier = new HTMLPurifier($config);
 	return $purifier->purify( $var );
+	*/
 }
+
+function purify( $value, $clean = "default", $custom = false ) {
+	if( $clean === "all" ) return $value;
+	$api = new wbApi();
+	$IP = $api->app['IP'];
+	require_once( $IP . '/extensions/WSForm/modules/htmlpurifier/library/HTMLPurifier.auto.php' );
+	$config = \HTMLPurifier_Config::createDefault();
+	switch( $clean ) {
+		case "nohtml":
+			$config->set('HTML.Allowed', '');
+			break;
+		case "custom":
+			if( $custom !== false ){
+				$config->set('HTML.Allowed', $custom); // e.g. 'p,ul[style],ol,li'
+			}
+			break;
+		case "default" :
+
+		default:
+			break;
+	}
+	$purifier = new \HTMLPurifier($config);
+	return $purifier->purify( $value );
+
+}
+
 
 function cleanUrl( $var ) {
 	$var = str_replace('"', "", $var);

@@ -444,7 +444,7 @@ class WSFormHooks {
             }
         }
         //echo "<pre>";
-       // print_r( \wsform\wsform::$chkSums );
+        //print_r( \wsform\wsform::$chkSums );
         //echo "</pre>";
         //print_r( \wsform\wsform::$secure );
 		return array( $ret, "markerType" => 'nowiki' );

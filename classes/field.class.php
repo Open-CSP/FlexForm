@@ -714,30 +714,38 @@ class render {
 	 * @return string Rendered HTML
 	 */
 	public static function render_textarea( $args, $input = false ) {
-		$allowHtml = "yes";
+		if( $input === '' ) $input = false;
 		$name = '';
-		if( isset( $args['nohtml'] ) ) {
-			$allowHtml = "no";
-		}
+		$html = validate::validHTML( $args );
 		$ret = '<textarea ';
 		foreach ( $args as $k => $v ) {
 			if( $k == 'name' ) {
 				$name = $v;
 			}
+			if( $k == 'value' ) {
+				$input = $v;
+			}
 			if ( validate::check_disable_readonly_required_selected( $k, $v ) ) {
 				continue;
 			}
-			if ( validate::validParameters( $k ) ) {
+			if ( validate::validParameters( $k ) && $k !== 'value' ) {
 				$ret .= $k . '="' . $v . '" ';
 			}
 		}
 		$ret .= ">";
 		if ( $input !== false ) {
-			$input = \wsform\protect\protect::purify( $input );
+			$input = \wsform\protect\protect::purify( $input, $html, \wsform\wsform::$secure );
 			$ret .= $input;
+			\wsform\wsform::addCheckSum( 'textarea', $name, $input, $html );
+		} else {
+			$tmp = \wsform\protect\protect::purify( \wsform\wsform::getValue( ( $name ) ), $html, \wsform\wsform::$secure );
+			if ( $tmp !== "" ) {
+				$ret .= $tmp;
+				\wsform\wsform::addCheckSum( 'textarea', $name, $tmp, $html );
+			} else \wsform\wsform::addCheckSum( 'textarea', $name, '', $html );
 		}
 		$ret .= "</textarea>\n";
-		\wsform\wsform::addCheckSum( 'textarea', $name, $input, $allowHtml );
+
 		return $ret;
 	}
 

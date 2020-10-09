@@ -200,7 +200,7 @@ class wbApi {
   }
 
   function isSecure(){
-      if( $this->app['sec'] !== '' ) {
+      if( $this->app['sec'] === true ) {
           return true;
       } else return false;
   }

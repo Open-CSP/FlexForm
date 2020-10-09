@@ -65,6 +65,10 @@ $imageHandler  = [
 $title = "";
 
 include_once('WSForm.api.include.php');
+$api = new wbApi();
+$securedVersion = $api->isSecure();
+
+$IP = $api->app['IP'];
 $wsuid = getPostString('wsuid');
 if( getGetString('version', false) !== false ) {
 	echo getVersion();
@@ -240,8 +244,7 @@ if( $captchaAction !== false && $captchaToken !== false ) {
 if ( getPostString('mwaction') !== false ) {
 	$action = getPostString('mwaction');
 	unset( $_POST['mwaction'] );
-	$api = new wbApi();
-	if( $api->isSecure() ) {
+	if( $securedVersion ) {
 		require_once( 'classes/protect.class.php' );
 		$crypt = new wsform\protect\protect();
 		$crypt::setCrypt();
@@ -291,6 +294,7 @@ if ( getPostString('mwaction') !== false ) {
 
 		case "get" :
 			$ret = saveToWiki('get');
+			//die();
 			if ( $ret ) {
 				$messages->redirect( $ret );
 				exit;

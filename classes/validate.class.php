@@ -125,6 +125,27 @@ class validate {
 		}
 	}
 
+
+	public static function validHTML( $args ) {
+		if( isset( $args['html'] ) ) {
+			$tmp = explode('=', $args['html'] );
+			$html = $tmp[0];
+			$validParameters = array(
+				"default",
+				"nohtml",
+				"all",
+				"custom"
+			);
+			if ( in_array( $html, $validParameters ) ) {
+				if( $html === 'custom' && isset( $tmp[1] ) ) {
+					return array( $html, $tmp[1] );
+				}
+				return $html;
+			}
+		}
+		return "default";
+	}
+
 	/**
 	 * Check for valid parameters for general use
 	 *
@@ -280,10 +301,8 @@ class validate {
 		$value = false;
 		$val   = '';
 		$ret   = "";
-		$allowHtml = "yes";
-		if( isset( $args['nohtml'] ) ) {
-			$allowHtml = "no";
-		}
+		$html = self::validHTML( $args );
+		$secure = \wsform\wsform::$secure;
 
 		foreach ( $args as $k => $v ) {
 			if ( self::validParameters( $k ) ) {
@@ -298,17 +317,14 @@ class validate {
 				}
 				if ( $k == "value" ) {
 					$value = true;
-					if( $allowHtml ) {
-						// TODO: Add purify with settings to delete html
-						$val = $v;
-					} else {
-						$val = \wsform\protect\protect::purify( $v );
-						$v = $val; // set value to be purified
-					}
 					if( $type === "secure" ) {
 						\wsform\protect\protect::setCrypt();
 						$val = \wsform\protect\protect::encrypt( $v );
 						$v = $val; // set value to be encypted
+						$html = "all";
+					} else {
+						$val = \wsform\protect\protect::purify( $v, $html, $secure );
+						$v = $val; // set value to be purified
 					}
 				}
 				if ( self::check_disable_readonly_required_selected( $k, $v ) ) {
@@ -318,13 +334,13 @@ class validate {
 			}
 		}
 		if ( $name && ! $value ) {
-			$tmp = \wsform\protect\protect::purify( \wsform\wsform::getValue( ( $name ) ) );
+			$tmp = \wsform\protect\protect::purify( \wsform\wsform::getValue( ( $name ) ), $html, $secure );
 			if ( $tmp !== "" ) {
 				$ret .= 'value = "' . $tmp . '" ';
-				\wsform\wsform::addCheckSum( $type, $name, $tmp, $allowHtml );
-			} else \wsform\wsform::addCheckSum( $type, $name, '', $allowHtml );
-		} else \wsform\wsform::addCheckSum( $type, $name, $val, $allowHtml );
-		return \wsform\protect\protect::purify( $ret );
+				\wsform\wsform::addCheckSum( $type, $name, $tmp, $html );
+			} else \wsform\wsform::addCheckSum( $type, $name, '', $html );
+		} else \wsform\wsform::addCheckSum( $type, $name, $val, $html );
+		return \wsform\protect\protect::purify( $ret, $html, $secure );
 	}
 
 	/**
@@ -338,6 +354,7 @@ class validate {
 		$value   = false;
 		$checked = false;
 		$ret     = "";
+
 		foreach ( $args as $k => $v ) {
 			if ( self::validParameters( $k ) ) {
 				if ( $k == "name" ) {
@@ -358,7 +375,7 @@ class validate {
 		}
 
 		if ( $name && $value && ! $checked ) {
-			$tmp = \wsform\protect\protect::purify( \wsform\wsform::getValue( ( $name ) ) );
+			$tmp = \wsform\protect\protect::purify( \wsform\wsform::getValue( ( $name ) ),'', \wsform\wsform::$secure );
 			//echo "<HR>name=$name, value=$value, get=$tmp<HR>";
 			if ( $tmp !== "" ) {
 				if ( $tmp == $value ) {
@@ -436,7 +453,7 @@ class validate {
 			if ( strpos( $name, "[]" ) ) {
 				$name = rtrim( $name, '[]' );
 			}
-			$tmp = \wsform\protect\protect::purify( \wsform\wsform::getValue( ( $name ) ) );
+			$tmp = \wsform\protect\protect::purify( \wsform\wsform::getValue( ( $name ) ), '',  \wsform\wsform::$secure );
 			if ( $tmp !== "" ) {
 				if ( strpos( $tmp, "," ) ) {
 					$options = explode( ",", $tmp );
@@ -483,7 +500,7 @@ class validate {
 			if ( strpos( $name, "[]" ) ) {
 				$name = rtrim( $name, '[]' );
 			}
-			$tmp = \wsform\protect\protect::purify( \wsform\wsform::getValue( ( $name ) ) );
+			$tmp = \wsform\protect\protect::purify( \wsform\wsform::getValue( ( $name ) ), '', \wsform\wsform::$secure );
 
 			if ( $tmp !== "" ) {
 				if ( strpos( $tmp, "," ) ) {

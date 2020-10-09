@@ -57,14 +57,38 @@ class protect {
 
 	/**
 	 * @param $value String to purify html
+	 * @param $clean Array|String type
+	 * @param $custom String custom purify
 	 *
 	 * @return string purified html
 	 */
-	public static function purify( $value ) {
-		if( \wsform\wsform::$secure ) {
+	public static function purify( $value, $clean = "default", $secure = false ) {
+		if( is_array( $clean ) ) {
+			$custom = $clean[1];
+			$clean = $clean[0];
+		} else $custom = false;
+		if( $secure === false ) {
+			return $value;
+		}
+		if( $clean === '' ) $clean = 'default';
+		if( $clean === "all" ) return $value;
+		if( $secure ) {
 			global $IP;
 			require_once( $IP . '/extensions/WSForm/modules/htmlpurifier/library/HTMLPurifier.auto.php' );
 			$config = \HTMLPurifier_Config::createDefault();
+			switch( $clean ) {
+				case "nohtml":
+					$config->set('HTML.Allowed', '');
+					break;
+				case "custom":
+					if( $custom !== false ){
+						$config->set('HTML.Allowed', $custom); // e.g. 'p,ul[style],ol,li'
+					}
+					break;
+				case "default" :
+				default:
+					break;
+			}
 			$purifier = new \HTMLPurifier($config);
 			return $purifier->purify( $value );
 		} else return $value;
