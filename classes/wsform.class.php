@@ -50,6 +50,8 @@ class wsform {
 	 */
 	public static $chkSums = array();
 
+	public static $formId = "";
+
 	public static $secure = false;
 
 	/**
@@ -160,14 +162,15 @@ class wsform {
 
 	public static function addCheckSum( $type, $name, $value, $allowHTML = "default" ) {
 		if ( \wsform\wsform::$secure ) {
+			$formId = \wsform\wsform::$formId;
 			if( $type === 'secure' ) {
-				self::$chkSums[ $type ][] = array(
+				self::$chkSums[ $formId ][ $type ][] = array(
 					"name"  => $name,
 					"value" => $value,
 					"html"  => $allowHTML
 				);
 			} else {
-				self::$chkSums[ $name ] = array(
+				self::$chkSums[ $formId ][ $name ] = array(
 					"type"  => $type,
 					"value" => $value,
 					"html"  => $allowHTML

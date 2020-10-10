@@ -15,6 +15,13 @@
 	"wsform-mwcreate-wrong-title2" : "No page title could be made (parser responded as not possible)",
 
 
+	"apihelp-wsform-summary" : "Range and next available queries",
+	"apihelp-wsform-param-what" : "What action do you want to do? (getRange or nextAvailable)",
+	"apihelp-wsform-param-titleStartsWith" : "Title name to search for e.g. Invoice/",
+	"apihelp-wsform-param-range" : "When using getRange, define the range. Eg. 0000-9999",
+	"apihelp-wsform-example-1": "Get the first free Title number in a range from 0-9999 and a Title that starts with Invoice",
+	"apihelp-wsform-example-2": "Get the next available (highest) Title number that is free for a Title that starts with Invoice/",
+	"nextavailaable" : "apifailure",
 	"wsform-field-invalid" : "Non valid fieldtype",
 
 	"wsform-external-request-not-found" : "External dependency not found.",

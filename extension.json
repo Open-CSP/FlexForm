@@ -1,6 +1,6 @@
 {
 	"name": "WSForm",
-	"version": "0.8.0.7.4",
+	"version": "0.8.0.7.5",
 	"author": [
 		"Sen-Sai"
 	],
@@ -10,10 +10,14 @@
 	"type": "parserhook",
 	"AutoloadClasses": {
 		"WSFormHooks": "WSForm.hooks.php",
-		"SpecialWSForm": "specials/SpecialWSForm.php"
+		"SpecialWSForm": "specials/SpecialWSForm.php",
+		"ApiWSForm": "ApiWSForm.php"
 	},
 	"ExtensionMessagesFiles": {
 		"WBFormAlias": "WSForm.i18n.alias.php"
+	},
+	"APIModules": {
+		"wsform": "ApiWSForm"
 	},
 	"Hooks": {
 		"ParserFirstCallInit": [

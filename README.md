@@ -92,6 +92,7 @@ Visit : Special:WSForm/Docs
 
 
 ### Changelog
+* 0.8.0.7.5 : Added handling secure multiple forms. Rewrote next available and range to be indirect API calls (should be a lot faster) (TEST!!)
 * 0.8.0.7.4 : When sec-true, html option for fields is applied (rdy for internal testing)!
 * 0.8.0.7.3 : Returning Get url filtered. action="get" allows for wsedit and wscreate
 * 0.8.0.7.2.2 : If config sec=true, all input fields are filtered and new field "secure" comes available

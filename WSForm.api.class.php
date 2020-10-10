@@ -552,6 +552,39 @@ class wbApi {
     }
 
 
+    function getNextAvailable( $nameStartsWith ){
+        $postdata = http_build_query([
+            "action" => "wsform",
+            "format" => "json",
+            "what" => "nextAvailable",
+            "titleStartsWith" => $nameStartsWith
+        ]);
+        $result = $this->apiPost( $postdata, true );
+        if( isset( $result['received']['wsform']['error'] ) ) {
+            return(array('status' => 'error', 'message' => $result['received']['wsform']['error']['message']));
+        } else {
+            return(array('status' => 'ok', 'result' => $result['received']['wsform']['result']));
+        }
+        die();
+    }
+
+    function getFromRange( $nameStartsWith, $range ){
+         $postdata = http_build_query([
+            "action" => "wsform",
+            "format" => "json",
+            "what" => "getRange",
+            "titleStartsWith" => $nameStartsWith,
+            "range" => $range
+        ]);
+        $result = $this->apiPost( $postdata, true );
+
+        if( isset( $result['received']['wsform']['error'] ) ) {
+            return(array('status' => 'error', 'message' => $result['received']['wsform']['error']['message']));
+        } else {
+            return(array('status' => 'ok', 'result' => $result['received']['wsform']['result']));
+        }
+        die();
+    }
 
 
 

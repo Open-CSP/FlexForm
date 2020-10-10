@@ -281,8 +281,10 @@ class WSFormHooks {
 	public static function WSForm( $input, array $args, Parser $parser, PPFrame $frame ) {
 
 		global $wgUser, $wgEmailConfirmToEdit, $IP, $wgScript;
+		\wsform\wsform::$chkSums = array();
 		$anon = false;
 		$ret = '';
+		wsform\wsform::$formId = uniqid();
 
 		// Set i18n general messages
 		wsform\wsform::$msg_unverified_email = wfMessage( "wsform-unverified-email1" )->text() . wfMessage( "wsform-unverified-email2" )->text();
@@ -395,8 +397,11 @@ class WSFormHooks {
 		if( \wsform\wsform::$secure ) {
 			\wsform\protect\protect::setCrypt();
 			$chcksumName = \wsform\protect\protect::encrypt( 'checksum' );
-			$chcksumValue = \wsform\protect\protect::encrypt( serialize( \wsform\wsform::$chkSums ) );
-			$ret .= '<input type="hidden" name="'.$chcksumName.'" value="'.$chcksumValue.'">';
+			if( !empty( \wsform\wsform::$chkSums ) ) {
+				$chcksumValue = \wsform\protect\protect::encrypt( serialize( \wsform\wsform::$chkSums ) );
+				$ret          .= '<input type="hidden" name="' . $chcksumName . '" value="' . $chcksumValue . '">';
+				$ret          .= '<input type="hidden" name="formid" value="' . \wsform\wsform::$formId . '">';
+			}
 		}
 
 

@@ -31,8 +31,8 @@ if ( strcmp($currentHost, $referrerHost['host']) !== 0)
 }
 
 
-//ERROR_REPORTING(E_ALL);
-//ini_set('display_errors', 1);
+ERROR_REPORTING(E_ALL);
+ini_set('display_errors', 1);
 
 require_once( 'WSForm.api.class.php' );
 require_once( 'classes/recaptcha.class.php' );
@@ -249,21 +249,32 @@ if ( getPostString('mwaction') !== false ) {
 		$crypt = new wsform\protect\protect();
 		$crypt::setCrypt();
 		$checksum = false;
+		//echo "<pre>";
+
+		//print_r($_POST);
+		//echo "</pre>";
+		$formId = getPostString('formid' );
+		if( $formId !== false ) {
+			unset( $_POST['formid'] );
+		}
 		foreach( $_POST as $k=>$v ) {
+			//echo $crypt::decrypt( $k );
 			if( $crypt::decrypt( $k ) === 'checksum' ) {
 				$checksum = unserialize( $crypt::decrypt( $v ) ) ;
+				//print_r( $checksum );
 				unset( $_POST[$k] );
 			}
 		}
-		if( $checksum === false ) {
+		if( $checksum === false && $formId !== false ) {
 			die( 'not a secure form' );
 		}
 		//echo "<pre>";
-		//print_r($checksum['secure']);
+		//print_r($checksum);
+		//die();
 		//print_r($_POST);
 		//echo "</pre>";
-		if( isset( $checksum['secure'] ) ) {
-			foreach( $checksum['secure'] as $secure ) {
+		if( isset( $checksum[$formId]['secure'] ) ) {
+			foreach( $checksum[$formId]['secure'] as $secure ) {
 				$tmpName = getPostString( $secure['name'], false );
 				//var_dump($tmpName);
 				if( $tmpName !== false ) {
@@ -282,7 +293,7 @@ if ( getPostString('mwaction') !== false ) {
 			//echo "</pre>";
 		}
 		//die();
-		$api->app['checksum'] = $checksum;
+		//$api->app['checksum'] = $checksum;
 	}
 
 
@@ -290,17 +301,28 @@ if ( getPostString('mwaction') !== false ) {
 
 		case "addToWiki" :
 			$ret = saveToWiki();
+
  			break;
 
 		case "get" :
 			$ret = saveToWiki('get');
+			if( !is_array( $ret ) && $ret !== false ) {
+				$messages->redirect( $ret );
+				exit;
+			} elseif( $ret === false ) {
+				$messages->doDie( $i18n->wsMessage( 'wsform-noreturn-found' ) );
+			}
+			//print_r($ret);
 			//die();
+			//die();
+		/*
 			if ( $ret ) {
 				$messages->redirect( $ret );
 				exit;
 			} else {
 				$messages->doDie( $i18n->wsMessage( 'wsform-noreturn-found' ) );
 			}
+		*/
 			break;
 
 		case "mail" :
@@ -308,6 +330,7 @@ if ( getPostString('mwaction') !== false ) {
 			break;
 	}
 }
+
 
 
 $extension = getPostString('mwextension' );

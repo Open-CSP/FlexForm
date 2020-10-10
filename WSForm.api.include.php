@@ -983,37 +983,48 @@ function saveToWiki( $email=false ) {
 		}
 		if( $option == 'next_available' && $writepage !== false ) {
 			// get highest number
-			$title = $writepage . $api->getWikiListNumber($title);
+			$hnr = $api->getNextAvailable( $title );
+			if( $hnr['status'] !== 'error') {
+				$title = $writepage . $hnr['result'];
+			} else {
+				return createMsg( $hnr['message'], 'error', $returnto);
+			}
+			//$title = $writepage . $api->getNextAvailable( $title );
+			//die( $title );
+			//$title = $writepage . $api->getWikiListNumber($title);
 			if( $title === false ) {
                 return createMsg($i18n->wsMessage( 'wsform-mwcreate-wrong-title2' ), 'error', $returnto);
             }
 		}
 		if ( substr( strtolower( $option ) ,0,6 ) === 'range:' ) {
 			$range = substr( $option,6 );
-			$range = explode('-', $range);
+			$rangeCheck = explode('-', $range);
 
-			if( !ctype_digit( $range[0] ) || !ctype_digit( $range[1] ) ) {
+			if( !ctype_digit( $rangeCheck[0] ) || !ctype_digit( $rangeCheck[1] ) ) {
 				return createMsg($i18n->wsMessage( 'wsform-mwoption-bad-range' ), 'error', $returnto);
 			}
 
+            //$startRange = (int)$range[0];
+            //$endRange = (int)$range[1];
 
-            $startRange = (int)$range[0];
-            $endRange = (int)$range[1];
 
-
-			$tmp  = $api->getWikiListNumber($title, array('start' => $startRange, 'end' => $endRange) );
-
+			//$tmp  = $api->getWikiListNumber($title, array('start' => $startRange, 'end' => $endRange) );
+			$tmp  = $api->getFromRange( $title, $range );
+			if( $tmp['status'] === 'error') {
+				//echo $tmp['message'];
+				return createMsg( $tmp['message'], 'error', $returnto);
+			}
+			$tmp = $tmp['result'];
+			/*
 			if($tmp === false) {
 				return createMsg($i18n->wsMessage('wsform-mwoption-out-of-range'), 'error', $returnto);
 			}
+			*/
             if( $leadByZero === true ) {
                 $endrangeLength = strlen($range[1]);
                 $tmp = str_pad($tmp, $endrangeLength, '0', STR_PAD_LEFT);
             }
-
-
 			$title = $writepage . $tmp;
-
 		}
 
 		if ( $option == 'add_random' && $writepage !== false ) {
@@ -1119,7 +1130,13 @@ if($writepages !== false) {
 		if( $pageOption == 'next_available' && $pageTitle !== false ) {
 			// get highest number
 			if($weHaveApi) {
-				$pageTitle = $pageTitle . $api->getWikiListNumber( $pageTitle );
+				$hnr = $api->getNextAvailable( $pageTitle );
+				if( $hnr['status'] !== 'error') {
+					$pageTitle = $writepage . $hnr['result'];
+				} else {
+					return createMsg( $hnr['message'], 'error', $returnto);
+				}
+				//$pageTitle = $pageTitle . $api->getWikiListNumber( $pageTitle );
 			} else {
 				require_once( 'WSForm.api.class.php' );
 				$api = new wbApi();
@@ -1128,7 +1145,13 @@ if($writepages !== false) {
 				}
 				$res = $api->logMeIn();
 
-				$pageTitle = $pageTitle . $api->getWikiListNumber( $pageTitle );
+				//$pageTitle = $pageTitle . $api->getWikiListNumber( $pageTitle );
+				$hnr = $api->getNextAvailable( $pageTitle );
+				if( $hnr['status'] !== 'error') {
+					$pageTitle = $writepage . $hnr['result'];
+				} else {
+					return createMsg( $hnr['message'], 'error', $returnto);
+				}
 				//die( "New title : ". $pageTitle );
 			}
 			if( $pageTitle === false ) {
@@ -1139,7 +1162,7 @@ if($writepages !== false) {
 		// ranges begin
 		if ( substr( strtolower( $pageOption ) ,0,6 ) === 'range:' ) {
 			$range = substr( $pageOption,6 );
-			$range = explode('-', $range);
+			$rangeCheck = explode('-', $range);
 
 			if( !$weHaveApi) {
 				require_once( 'WSForm.api.class.php' );
@@ -1152,19 +1175,26 @@ if($writepages !== false) {
 			//echo "<pre>";
 			//print_r($range);
 			//die();
-			if( !ctype_digit( $range[0] ) || !ctype_digit( $range[1] ) ) {
+			if( !ctype_digit( $rangeCheck[0] ) || !ctype_digit( $rangeCheck[1] ) ) {
 				return createMsg($i18n->wsMessage( 'wsform-mwoption-bad-range' ), 'error', $returnto);
 			}
 
 
-			$startRange = (int)$range[0];
-			$endRange = (int)$range[1];
+			//$startRange = (int)$range[0];
+			//$endRange = (int)$range[1];
+			$tmp  = $api->getFromRange( $title, $range );
+			if( $tmp['status'] === 'error') {
+				//echo $tmp['message'];
+				return createMsg( $tmp['message'], 'error', $returnto);
+			}
+			$tmp = $tmp['result'];
 
-
+			/*
 			$tmp  = $api->getWikiListNumber( $pageTitle, array('start' => $startRange, 'end' => $endRange ) );
 			if($tmp === false) {
 				return createMsg($i18n->wsMessage('wsform-mwoption-out-of-range'), 'error', $returnto);
 			}
+			*/
 			if( $leadByZero === true ) {
 				$endrangeLength = strlen($range[1]);
 				$tmp = str_pad($tmp, $endrangeLength, '0', STR_PAD_LEFT);
