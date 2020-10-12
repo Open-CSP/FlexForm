@@ -21,7 +21,7 @@
 	"apihelp-wsform-param-range" : "When using getRange, define the range. Eg. 0000-9999",
 	"apihelp-wsform-example-1": "Get the first free Title number in a range from 0-9999 and a Title that starts with Invoice",
 	"apihelp-wsform-example-2": "Get the next available (highest) Title number that is free for a Title that starts with Invoice/",
-	"nextavailaable" : "apifailure",
+	"wsform-field-secure-not-available" : "<!-- secure config setting not set, skipping -->",
 	"wsform-field-invalid" : "Non valid fieldtype",
 
 	"wsform-external-request-not-found" : "External dependency not found.",
@@ -51,5 +51,11 @@
 	"wsform-docs-new-version-notice" : "There is a <strong>new</strong> version available for WSForm. Please contact your administrator so he can update this extension",
 	"wsform-docs-no-new-version-notice" : "There is <strong>no</strong> new version available for WSForm. The complete changelog is shown.",
 	"wsform-docs-new-version-table" : "Changelog from your version to this new version",
-	"wsform-docs-no-new-version-table" : "Complete changelog"
+	"wsform-docs-no-new-version-table" : "Complete changelog",
+
+	"wsform-api-error-allpages" : "No allpages result from MediaWiki API",
+	"wsform-api-error-noquery-response" : "No query result from MediaWiki API",
+	"wsform-api-error-parameter-range-missing" : "Range parameter is missing",
+	"wsform-api-error-bad-range" : "Bad range",
+	"wsform-api-error-unknown-what-parameter" : "What parameter unknown"
 }

@@ -47,13 +47,13 @@ class ApiWSForm extends ApiBase {
 				$title = $params['titleStartsWith'];
 				$range = $params['range'];
 				if (!$range || $range === null) {
-					$this->returnFailure("Range parameter is missing");
+					$this->returnFailure( wfMessage('wsform-api-error-parameter-range-missing')->text() );
 					break;
 				}
 				$range = explode('-', $range);
 
 				if( !ctype_digit( $range[0] ) || !ctype_digit( $range[1] ) ) {
-					$this->returnFailure("Bad range");
+					$this->returnFailure( wfMessage('wsform-api-error-bad-range')->text() );
 					break;
 				}
 				$startRange = (int)$range[0];
@@ -67,7 +67,7 @@ class ApiWSForm extends ApiBase {
 				$output = $result['data'];
 				break;
 			default :
-				$this->returnFailure("What parameter unknown");
+				$this->returnFailure( wfMessage('wsform-api-error-unknown-what-parameter')->text() );
 				break;
 		}
 
@@ -117,12 +117,12 @@ class ApiWSForm extends ApiBase {
 			$appContinue = $this->getApiContinue( $result );
 
 			if( !isset( $result['query'] ) ) {
-				return $this->createResult('error', "No result from MediaWiki API");
+				return $this->createResult('error', wfMessage('wsform-api-error-noquery-response')->text() );
 			}
 
 			$pages = $result['query']['allpages'];
 			if( is_null( $pages ) || $pages === false ) {
-				return $this->createResult('error', "No allpages result from MediaWiki API");
+				return $this->createResult('error', wfMessage('wsform-api-error-allpages')->text() );
 			}
 			if( isset( $pages['_element'] ) ) unset( $pages['_element'] );
 
@@ -215,13 +215,13 @@ class ApiWSForm extends ApiBase {
 			//var_dump( $appContinue );
 			//die();
 			if( !isset( $result['query'] ) ) {
-				return $this->createResult('error', "No query result from MediaWiki API");
+				return $this->createResult('error', wfMessage('wsform-api-error-noquery-response')->text());
 			}
 
 			$pages = $result['query']['allpages'];
 
 			if( is_null( $pages ) || $pages === false ) {
-				return $this->createResult('error', "No allpages result from MediaWiki API");
+				return $this->createResult('error', wfMessage('wsform-api-error-allpages')->text() );
 			}
 			if( isset( $pages['_element'] ) ) unset( $pages['_element'] );
 

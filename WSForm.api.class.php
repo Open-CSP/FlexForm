@@ -313,6 +313,7 @@ class wbApi {
               CURLOPT_RETURNTRANSFER => 1,
               CURLOPT_USERAGENT      => $this->app["useragent"],
               CURLOPT_SSL_VERIFYPEER => 0,
+              CURLOPT_SSL_VERIFYHOST => false,
               CURLOPT_POST           => true
           );
       $this->app["logincurloptions"] =
@@ -323,6 +324,7 @@ class wbApi {
               CURLOPT_USERAGENT      => "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)",
               CURLOPT_SSL_VERIFYPEER => 0,
               CURLOPT_FOLLOWLOCATION => 1,
+              CURLOPT_SSL_VERIFYHOST => false,
               CURLOPT_POST           => true
           );
 

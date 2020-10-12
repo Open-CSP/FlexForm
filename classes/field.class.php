@@ -61,7 +61,7 @@ class render {
 			$ret = '<input type="hidden" ';
 			$ret .= validate::doSimpleParameters( $args, "secure" );
 			$ret .= ">\n";
-		} else $ret = '<!-- secure config setting not set , skipping -->';
+		} else $ret = wfMessage( 'wsform-field-secure-not-available')->text();
 
 		return $ret;
 	}
