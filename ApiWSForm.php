@@ -365,7 +365,7 @@ class ApiWSForm extends ApiBase {
 	 */
 	protected function getExamplesMessages() {
 		return array(
-			'action=wsform&what=getRange&titleStartsWith=Invoice/&range=0000:9999' => 'apihelp-wsform-example-1',
+			'action=wsform&what=getRange&titleStartsWith=Invoice/&range=0000-9999' => 'apihelp-wsform-example-1',
 			'action=wsform&what=nextAvailable&&titleStartsWith=Invoice/' => 'apihelp-wsform-example-2'
 		);
 	}

@@ -53,6 +53,12 @@
 	"wsform-docs-new-version-table" : "Changelog from your version to this new version",
 	"wsform-docs-no-new-version-table" : "Complete changelog",
 
+	"wsform-captcha-missing-details" : "no captcha details",
+	"wsform-captcha-score-to-low" : "Your Captcha score is to low. You form is not submitted",
+
+	"wsform-secure-not" : "not a secure form",
+	"wsform-secure-fields-incomplete" : "Secure fields not complete",
+
 	"wsform-api-error-allpages" : "No allpages result from MediaWiki API",
 	"wsform-api-error-noquery-response" : "No query result from MediaWiki API",
 	"wsform-api-error-parameter-range-missing" : "Range parameter is missing",

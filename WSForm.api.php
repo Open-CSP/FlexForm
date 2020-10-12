@@ -216,14 +216,14 @@ if( $captchaAction !== false && $captchaToken !== false ) {
     $retCaptcha['mwreturn'] = $returnto;
 
     if( $returnto === false ) {
-        $retCaptcha['msg'] = 'no return url defined';
+        $retCaptcha['msg'] = $i18n->wsMessage( 'wsform-noreturn-found' );
         $retCaptcha['status'] = 'error';
 
         $messages->handleResonse( $retCaptcha );
         die();
     }
     if( $captchaToken === '' || $captchaAction === '' ){
-        $retCaptcha['msg'] = 'no captcha details';
+        $retCaptcha['msg'] = $i18n->wsMessage( 'wsform-captcha-missing-details' );
         $retCaptcha['status'] = 'error';
         $messages->handleResonse( $retCaptcha );
         die();
@@ -232,7 +232,7 @@ if( $captchaAction !== false && $captchaToken !== false ) {
     $capClass = new wsform\recaptcha\render();
     $captchaResult = $api->googleSiteVerify($capClass::$rc_secret_key, $captchaToken, $captchaAction );
     if( $captchaResult === false ){
-        $retCaptcha['msg'] = 'Your Captcha score is to low. You form is not submitted';
+        $retCaptcha['msg'] = $i18n->wsMessage( 'wsform-captcha-score-to-low' );
         $retCaptcha['status'] = 'error';
         $messages->handleResonse( $retCaptcha );
         die();
@@ -266,7 +266,7 @@ if ( getPostString('mwaction') !== false ) {
 			}
 		}
 		if( $checksum === false && $formId !== false ) {
-			die( 'not a secure form' );
+			$i18n->wsMessage( 'wsform-secure-not' );
 		}
 		//echo "<pre>";
 		//print_r($checksum);
@@ -285,7 +285,7 @@ if ( getPostString('mwaction') !== false ) {
 					$removeList[] = $newK;
 					$_POST[$newK] = $newV;
 				} else {
-					die('Secure fields not complete');
+					$i18n->wsMessage( 'wsform-secure-fields-incomplete' );
 				}
 			}
 			//echo "<pre>";
