@@ -47,7 +47,7 @@ function getEditToken() {
 
 function getUid() {
 	if (window.mw) {
-		return mw.user.getId();
+		return mw.config.get('wgUserId');
 	} else return false;
 }
 

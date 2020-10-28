@@ -229,12 +229,34 @@ class SpecialWSForm extends SpecialPage {
 		$bitbucketSource = 'https://api.bitbucket.org/2.0/repositories/wikibasesolutions/mw-wsform/src/master/extension.json';
 		$bitbucketChangelog = 'https://api.bitbucket.org/2.0/repositories/wikibasesolutions/mw-wsform/src/master/README.md';
 		$extJson = file_get_contents( $bitbucketSource );
+		$sourceVersion = false;
 		if( $extJson !== false ) {
 			$extJson = json_decode( $extJson, true );
 			if( isset( $extJson['version'] ) ) {
 				$sourceVersion = $extJson['version'];
 			} else $sourceVersion = false;
 		}
+
+		$myVersionJson = "$IP/extensions/WSForm/extension.json";
+		if( file_exists( $myVersionJson ) ) {
+			$extFile = file_get_contents( $myVersionJson);
+			if( $extFile !== false ) {
+				$myJson              = json_decode( $extFile, true );
+				$currentVersion      = $myJson['version'];
+				$ver = "v<strong>" . $currentVersion . "</strong>";
+				$newVersionAvailable = true;
+				if( $sourceVersion != $currentVersion ) {
+					$newVersionAvailable = true;
+					$ver .= ' <br><span style="font-size:11px; color:red;">NEW : v' . $sourceVersion .'</span>';
+					//$ver .= $this->getChangeLog( $bitbucketChangelog, $ext['version'] );
+				} else {
+					$newVersionAvailable = false;
+
+				}
+			}
+		}
+
+
 		foreach($wgExtensionCredits['parserhook'] as $ext) {
 			if($ext['name'] == 'WSForm') {
 				$ver = "v<strong>".$ext['version']."</strong>";
@@ -659,8 +681,13 @@ class SpecialWSForm extends SpecialPage {
 								$documentation = '<div class="ws-documentation-show">';
 								foreach ( $doc['example'] as $k => $v ) {
 									if ( $k == "example" ) {
-										$documentation .= $out->parse( '<h3>' . ucfirst( $k ) . '</h3>' . "\n<p><pre>" . $v . "</pre></p>\n" );
-										$documentation .= $out->parse( '<h3>Rendered example</h3>' . "\n<p>" . $v . "</p>\n" );
+										if (method_exists($out, 'parseAsContent') ) {
+											$documentation .= $out->parseAsContent( '<h3>' . ucfirst( $k ) . '</h3>' . "\n<p><pre>" . $v . "</pre></p>\n" );
+											$documentation .= $out->parseAsContent( '<h3>Rendered example</h3>' . "\n<p>" . $v . "</p>\n" );
+										} else {
+											$documentation .= $out->parse( '<h3>' . ucfirst( $k ) . '</h3>' . "\n<p><pre>" . $v . "</pre></p>\n" );
+											$documentation .= $out->parse( '<h3>Rendered example</h3>' . "\n<p>" . $v . "</p>\n" );
+										}
 										//$documentation .= '<h3>Rendered example</h3>' . "\n<p>" . $v . "</p>\n";
 									} elseif ($k=='last modified' || $k=='created' || $k=='created_by' || $k=='created_by' || $k=='modified by') {
 										if($k == 'created_by') {
@@ -687,7 +714,11 @@ class SpecialWSForm extends SpecialPage {
 							$documentation = '<div class="ws-documentation-show">';
 							foreach ( $doc['doc'] as $k => $v ) {
 								if ( $k == "example" ) {
-									$documentation .= $out->parse( '<h3>' . ucfirst( $k ) . '</h3>' . "\n<p><pre>" . $v . "</pre></p>\n" );
+									if (method_exists($out, 'parseAsContent') ) {
+										$documentation .= $out->parseAsContent( '<h3>' . ucfirst( $k ) . '</h3>' . "\n<p><pre>" . $v . "</pre></p>\n" );
+									} else {
+										$documentation .= $out->parse( '<h3>' . ucfirst( $k ) . '</h3>' . "\n<p><pre>" . $v . "</pre></p>\n" );
+									}
 								} elseif ($k=='last modified' || $k=='created' || $k=='created_by' || $k=='created_by' || $k=='modified by') {
 									if($k == 'created_by') {
 										$k = 'created_by';
