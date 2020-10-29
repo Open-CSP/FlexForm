@@ -69,7 +69,7 @@ $api = new wbApi();
 $securedVersion = $api->isSecure();
 
 $IP = $api->app['IP'];
-$wsuid = getPostString('wsuid');
+
 if( getGetString('version', false) !== false ) {
 	echo getVersion();
 	exit();
@@ -239,7 +239,7 @@ if( $captchaAction !== false && $captchaToken !== false ) {
     }
 }
 
-
+$wsuid = getPostString('wsuid');
 
 if ( getPostString('mwaction') !== false ) {
 	$action = getPostString('mwaction');

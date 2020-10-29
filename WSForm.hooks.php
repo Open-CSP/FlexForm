@@ -91,6 +91,9 @@ class WSFormHooks {
 			if( isset( $config['sec'] ) && $config['sec'] === true ) {
 				\wsform\wsform::$secure = true;
 			}
+			if( isset( $config['use-api-user-only'] ) && $config['use-api-user-only'] !== "yes" ) {
+				\wsform\wsform::$runAsUser = true;
+			}
 		}
 
 		$parser->setHook( 'wsform', 'WSFormHooks::WSForm' );
@@ -396,12 +399,19 @@ class WSFormHooks {
 
 		if( \wsform\wsform::$secure ) {
 			\wsform\protect\protect::setCrypt();
+			if( \wsform\wsform::$runAsUser ) {
+				$chcksumwuid = \wsform\protect\protect::encrypt( 'wuid' );
+				$uid = \wsform\protect\protect::encrypt( $wgUser->getId() );
+				\wsform\wsform::addCheckSum( 'secure', $chcksumwuid, $uid, "all" );
+				$ret          .= '<input type="hidden" name="' . $chcksumwuid . '" value="' . $uid . '">';
+			}
 			$chcksumName = \wsform\protect\protect::encrypt( 'checksum' );
 			if( !empty( \wsform\wsform::$chkSums ) ) {
 				$chcksumValue = \wsform\protect\protect::encrypt( serialize( \wsform\wsform::$chkSums ) );
 				$ret          .= '<input type="hidden" name="' . $chcksumName . '" value="' . $chcksumValue . '">';
 				$ret          .= '<input type="hidden" name="formid" value="' . \wsform\wsform::$formId . '">';
 			}
+
 		}
 
 

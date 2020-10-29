@@ -92,6 +92,7 @@ Visit : Special:WSForm/Docs
 
 
 ### Changelog
+* 0.8.0.7.7 : When sec and not posting as API, userID crypted
 * 0.8.0.7.6 : MW.135 renamed parser function in outputpage (not documented!!) Also removed mw.user functions {T6399} {T6390}
 * 0.8.0.7.5 : Added handling secure multiple forms. Rewrote next available and range to be indirect API calls (should be a lot faster) (TEST!!)
 * 0.8.0.7.4 : When sec-true, html option for fields is applied (rdy for internal testing)!

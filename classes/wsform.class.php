@@ -54,6 +54,8 @@ class wsform {
 
 	public static $secure = false;
 
+	public static $runAsUser = false;
+
 	/**
 	 * @return string
 	 */
