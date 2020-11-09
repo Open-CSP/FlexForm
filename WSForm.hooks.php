@@ -452,6 +452,7 @@ class WSFormHooks {
                 );
                 $rcaptcha = str_replace( $replace, $with, $rcaptcha );
                 $ret .= '<script>' . $rcaptcha . '</script>';
+	            wsform\wsform::$reCaptcha = false;
              } else {
                 $ret = wfMessage( "wsform-recaptcha-no-js" )->text();
                 return $ret;
