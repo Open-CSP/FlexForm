@@ -433,7 +433,7 @@ class WSFormHooks {
             $ret = $tmpCap . $ret;
         }
 
-        if( wsform\wsform::$reCaptcha !== false && ! wsform\wsform::isLoaded('recaptcha' ) ) {
+        if( wsform\wsform::$reCaptcha !== false  ) {
             if( !isset( $args['id']) || $args['id'] === '' ) {
                 $ret = wfMessage( "wsform-recaptcha-no-form-id" )->text();
                 return $ret;
@@ -452,8 +452,7 @@ class WSFormHooks {
                 );
                 $rcaptcha = str_replace( $replace, $with, $rcaptcha );
                 $ret .= '<script>' . $rcaptcha . '</script>';
-                wsform\wsform::addAsLoaded( 'recaptcha' );
-            } else {
+             } else {
                 $ret = wfMessage( "wsform-recaptcha-no-js" )->text();
                 return $ret;
             }

@@ -113,7 +113,8 @@ class validate {
 			"mwreturn",
 			"extension",
 			"post-as-user",
-			"lock"
+			"lock",
+			"recaptcha-v3-action"
 		);
 		if ( $ret ) {
 			return $validFormElements;
