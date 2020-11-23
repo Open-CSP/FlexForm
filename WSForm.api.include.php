@@ -589,6 +589,7 @@ function createGet() {
 		require_once( 'WSForm.api.class.php' );
 		$api = new wbApi();
 		$secure = $api->isSecure();
+
 		$ret = $returnto;
 		foreach ( $_POST as $k => $v ) {
 			if ( strpos( $ret, "?" ) ) {
@@ -606,7 +607,15 @@ function createGet() {
 			} else {
 				$resultDelete = in_array( $k, $removeList );
 				if ( $k !== "mwreturn" && $v != "" && $k !== 'mwdb' && ! isWSFormSystemField( $k ) && ! $resultDelete ) {
-					$ret .= $delimiter . makeSpaceFromUnderscore( $k ) . '=' . cleanUrl( getPostString( $k ) );
+					$html = getHTMLType( $k );
+					if( $html !== "all" ) {
+						if( $html === "nohtml" ) {
+							$apo = true;
+						} else $apo = false;
+						$ret .= $delimiter . makeSpaceFromUnderscore( $k ) . '=' . cleanUrl( getPostString( $k ), $apo );
+					} else {
+						$ret .= $delimiter . makeSpaceFromUnderscore( $k ) . '=' . getPostString( $k );
+					}
 				}
 			}
 		}
@@ -723,10 +732,10 @@ function getPostString( $var, $clean = true ) {
 }
 
 function getHTMLType( $name ) {
-	global $checksum;
+	global $checksum, $formId;
 	if(is_null( $checksum)) return "default";
-	if( isset( $checksum[$name] ) ) {
-		return $checksum[$name]['html'];
+	if( isset( $checksum[$formId][$name] ) ) {
+		return $checksum[$formId][$name]['html'];
 	} else return "default";
 }
 
@@ -775,9 +784,11 @@ function purify( $value, $clean = "default", $custom = false ) {
 }
 
 
-function cleanUrl( $var ) {
+function cleanUrl( $var, $clearApo = true ) {
 	$var = str_replace('"', "", $var);
-	$var = str_replace("'", "", $var);
+	if( $clearApo ) {
+		$var = str_replace( "'", "", $var );
+	}
 	return $var;
 }
 

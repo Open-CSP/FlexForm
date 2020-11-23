@@ -335,7 +335,11 @@ class validate {
 			}
 		}
 		if ( $name && ! $value ) {
-			$tmp = \wsform\protect\protect::purify( \wsform\wsform::getValue( ( $name ) ), $html, $secure );
+			if( $html === "nohtml" ) {
+				$clean = true;
+			} else $clean = false;
+			$tmp = \wsform\protect\protect::purify( \wsform\wsform::getValue( $name, $clean ), $html, $secure );
+
 			if ( $tmp !== "" ) {
 				$ret .= 'value = "' . $tmp . '" ';
 				\wsform\wsform::addCheckSum( $type, $name, $tmp, $html );

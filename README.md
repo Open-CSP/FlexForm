@@ -92,6 +92,7 @@ Visit : Special:WSForm/Docs
 
 
 ### Changelog
+* 0.8.0.7.9 : apostroph no longer filtered when html=default for field
 * 0.8.0.7.8 : Missing reCaptcha code from 0.9.0.0 (added .js and valid params)
 * 0.8.0.7.7 : When sec and not posting as API, userID crypted
 * 0.8.0.7.6 : MW.135 renamed parser function in outputpage (not documented!!) Also removed mw.user functions {T6399} {T6390}

@@ -108,20 +108,25 @@ class wsform {
 	 * @param $k string key name
 	 * @return string either the value of the key or an empty string
 	 */
-	public static function getValue( $k ) {
+	public static function getValue( $k, $apo = false ) {
 		if ( ! self::$gValues ) {
 			return "";
 		}
 		$k = str_replace( " ", "_", $k );
 
+
 		if ( isset( $_GET[ $k ] ) ) {
-			$tmp = $_GET[$k];
-			$tmp = str_replace('"', "", $tmp);
-			$tmp = str_replace("'", "", $tmp);
+			$tmp = $_GET[ $k ];
+			$tmp = str_replace( '"', "", $tmp );
+			if( $apo ) {
+				$tmp = str_replace( "'", "", $tmp );
+			}
+
 			return $tmp;
 		} else {
 			return "";
 		}
+
 
 	}
 
