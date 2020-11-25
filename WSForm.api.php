@@ -296,6 +296,22 @@ if ( getPostString('mwaction') !== false ) {
 		//$api->app['checksum'] = $checksum;
 	}
 
+	if( $securedVersion ) {
+		foreach( $_POST as $k=>$v ){
+			if( !isWSFormSystemField( $k ) ) {
+				if ( is_array( $v ) ) {
+					$newArray = array();
+					foreach ( $v as $multiple ) {
+						$newArray[] = cleanHTML( $multiple, $k );
+					}
+					$_POST[ $k ] = $newArray;
+				} else {
+					$_POST[ $k ] = cleanHTML( $v, $k );
+				}
+			}
+		}
+	}
+
 
 	switch ( $action ) {
 
