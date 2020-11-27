@@ -135,6 +135,14 @@ class wbHandleResponses {
     }
 
     function redirect($redirect) {
+        $parsed = parse_url( $redirect );
+
+        if( isset( $parsed['host'] ) ){
+            if( $parsed['host'] !== $_SERVER['HTTP_HOST'] ) {
+                $i18n = new wsi18n();
+                die( $i18n->wsMessage( 'wsform-return-outside-domain' ) );
+            }
+        }
         global $pauseBeforeRefresh;
         if( $pauseBeforeRefresh !== false ) {
             sleep ( $pauseBeforeRefresh );
@@ -750,6 +758,7 @@ class wbApi {
           $cmd .= ' --user '. $uid;
           $cmd .= ' --summary "' . $summary . '"';
           //echo $cmd;
+          //die();
           $result = shell_exec( $cmd );
           $res = explode('|', $result);
           if($res[0] === 'ok' ) return true;

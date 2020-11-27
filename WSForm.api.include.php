@@ -33,10 +33,13 @@ function checkDefaultInformation() {
 	$ret['mwhost'] = false;
     $ret['mwtoken'] = false;
     $ret['mwsession'] = false;
-    if( isset($_POST['mwtoken'])) {
-        $ret['mwtoken'] = true;
-        $token = base64_decode($_POST['mwtoken']);
+    if( isset($_POST['mwtoken']) && $_POST['mwtoken'] !== '') {
+	    $token = base64_decode($_POST['mwtoken']);
 	    $explo = explode('_', $token );
+	    if($explo === false || !is_array( $explo ) ) {
+	    	return $ret;
+	    }
+	    $ret['mwtoken'] = true;
         $ttime = $explo[2];
         $host = $explo[1];
         if( $_SERVER['HTTP_HOST'] === $host ) {
