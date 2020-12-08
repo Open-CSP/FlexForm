@@ -788,11 +788,14 @@ function purify( $value, $clean = "default", $custom = false ) {
 
 
 function cleanUrl( $var, $clearApo = true ) {
+	return urlencode( $var ); // temp for allowing "" and ''
+	/*
 	$var = str_replace('"', "", $var);
 	if( $clearApo ) {
 		$var = str_replace( "'", "", $var );
 	}
 	return $var;
+	*/
 }
 
 /**

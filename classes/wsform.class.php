@@ -116,7 +116,8 @@ class wsform {
 
 
 		if ( isset( $_GET[ $k ] ) ) {
-			$tmp = $_GET[ $k ];
+			return htmlentities( $_GET[ $k ] );
+			//return $tmp;
 			$tmp = str_replace( '"', "", $tmp );
 			if( $apo ) {
 				$tmp = str_replace( "'", "", $tmp );
