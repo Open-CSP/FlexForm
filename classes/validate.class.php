@@ -338,14 +338,15 @@ class validate {
 			if( $html === "nohtml" ) {
 				$clean = true;
 			} else $clean = false;
-			$tmp = \wsform\protect\protect::purify( \wsform\wsform::getValue( $name, $clean ), $html, $secure );
+			//$tmp = \wsform\protect\protect::purify( \wsform\wsform::getValue( $name, $clean ), $html, $secure );
+			$tmp = \wsform\wsform::getValue( $name, $clean );
 
 			if ( $tmp !== "" ) {
 				$ret .= 'value = "' . $tmp . '" ';
 				\wsform\wsform::addCheckSum( $type, $name, $tmp, $html );
 			} else \wsform\wsform::addCheckSum( $type, $name, '', $html );
 		} else \wsform\wsform::addCheckSum( $type, $name, $val, $html );
-		return \wsform\protect\protect::purify( $ret, $html, $secure );
+		return  $ret;
 	}
 
 	/**
