@@ -49,25 +49,25 @@ class render {
 			if ( validate::validFormParameters( $k ) ) {
 				switch ($k) {
 					case "messageonsuccess" :
-						$messageonsuccess = '<input type="hidden" name="mwonsuccess" value="' . $v . '">' . "\n";
+						$messageonsuccess = \wsform\wsform::createHiddenField( 'mwonsuccess', $v );
 						break;
 					case "setwikicomment":
-						$mwwikicontent = '<input type="hidden" name="mwwikicomment" value="' . $v . '">' . "\n";
+						$mwwikicontent = \wsform\wsform::createHiddenField( 'mwwikicomment', $v );
 						break;
 					case "mwreturn":
-						$wsreturn = '<input type="hidden" name="mwreturn" value="' . $v . '">' . "\n";
+						$wsreturn = \wsform\wsform::createHiddenField( 'mwreturn', $v );
 						break;
 					case "formtarget":
 						$ret = '<form action="' . $v . '" method="post" ';
 						break;
 					case "action":
-						$wsaction = '<input type="hidden" name="mwaction" value="' . $v . '">' . "\n";
+						$wsaction = \wsform\wsform::createHiddenField( 'mwaction', $v );
 						break;
 					case "recaptcha-v3-action":
 						wsform::$reCaptcha = $v;
 						break;
 					case "extension":
-						$wsextension = '<input type="hidden" name="mwextension" value="' . $v . '">' . "\n";
+						$wsextension = \wsform\wsform::createHiddenField( 'mwextension', $v );
 						break;
 					case "post-as-user" :
 						$ret .= 'data-wsform="wsform-general" ';
@@ -88,11 +88,11 @@ class render {
         }
 		$wstoken = '<input type="hidden" name="mwtoken" value="' . $token . '">' . "\n";
 		if ( $wsreturn == "" ) {
-			$wsreturn = '<input type="hidden" name="mwreturn" value="' . $title . '">' . "\n";
+			$wsreturn = \wsform\wsform::createHiddenField( 'mwreturn', $title );
 		}
 
+		$db = \wsform\wsform::createHiddenField( 'mwdb', $wgDBname . $prefix );
 
-		$db = '<input type="hidden" name="mwdb" value="' . $wgDBname . $prefix . '">' . "\n";
 		$ret .= ">\n" . $template . $wswrite . $wsreturn . $wsaction . $messageonsuccess . $mwwikicontent . $db . $wsextension . $wstoken;
 
 		return $ret;

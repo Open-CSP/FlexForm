@@ -244,78 +244,83 @@ if( $captchaAction !== false && $captchaToken !== false ) {
 
 //$wsuid = getPostString('wsuid');
 
+
+if( $securedVersion ) {
+	require_once( 'classes/protect.class.php' );
+	$crypt = new wsform\protect\protect();
+	$crypt::setCrypt();
+	$checksum = false;
+	//echo "<pre>";
+
+	//print_r($_POST);
+	//echo "</pre>";
+	$formId = getPostString('formid' );
+	if( $formId !== false ) {
+		unset( $_POST['formid'] );
+	}
+	foreach( $_POST as $k=>$v ) {
+		//echo $crypt::decrypt( $k );
+		if( $crypt::decrypt( $k ) === 'checksum' ) {
+			$checksum = unserialize( $crypt::decrypt( $v ) ) ;
+			//print_r( $checksum );
+			unset( $_POST[$k] );
+		}
+	}
+	if( $checksum === false && $formId !== false ) {
+		$i18n->wsMessage( 'wsform-secure-not' );
+	}
+	//echo "<pre>";
+	//print_r($checksum);
+	//die();
+	//print_r($_POST);
+	//echo "</pre>";
+	if( isset( $checksum[$formId]['secure'] ) ) {
+		foreach( $checksum[$formId]['secure'] as $secure ) {
+			$tmpName = getPostString( $secure['name'], false );
+			//var_dump($tmpName);
+			if( $tmpName !== false ) {
+				$newK = $crypt::decrypt( $secure['name'] );
+				$newV = $crypt::decrypt( $tmpName );
+				$delMe = $secure['name'];
+				unset( $_POST[$delMe] );
+				$removeList[] = $newK;
+				$_POST[$newK] = $newV;
+			} else {
+				$i18n->wsMessage( 'wsform-secure-fields-incomplete' );
+			}
+		}
+		//echo "<pre>";
+		//print_r($_POST);
+		//echo "</pre>";
+	}
+	//die();
+	//$api->app['checksum'] = $checksum;
+}
+
+// Clean all fields
+if( $securedVersion ) {
+	foreach( $_POST as $k=>$v ){
+		if( !isWSFormSystemField( $k ) ) {
+			if ( is_array( $v ) ) {
+				$newArray = array();
+				foreach ( $v as $multiple ) {
+					$newArray[] = cleanHTML( $multiple, $k );
+				}
+				$_POST[ $k ] = $newArray;
+			} else {
+				$_POST[ $k ] = cleanHTML( $v, $k );
+			}
+		}
+	}
+}
+
+$wsuid = getPostString( 'wsuid' );
+
 if ( getPostString('mwaction') !== false ) {
 	$action = getPostString('mwaction');
 	unset( $_POST['mwaction'] );
-	if( $securedVersion ) {
-		require_once( 'classes/protect.class.php' );
-		$crypt = new wsform\protect\protect();
-		$crypt::setCrypt();
-		$checksum = false;
-		//echo "<pre>";
 
-		//print_r($_POST);
-		//echo "</pre>";
-		$formId = getPostString('formid' );
-		if( $formId !== false ) {
-			unset( $_POST['formid'] );
-		}
-		foreach( $_POST as $k=>$v ) {
-			//echo $crypt::decrypt( $k );
-			if( $crypt::decrypt( $k ) === 'checksum' ) {
-				$checksum = unserialize( $crypt::decrypt( $v ) ) ;
-				//print_r( $checksum );
-				unset( $_POST[$k] );
-			}
-		}
-		if( $checksum === false && $formId !== false ) {
-			$i18n->wsMessage( 'wsform-secure-not' );
-		}
-		//echo "<pre>";
-		//print_r($checksum);
-		//die();
-		//print_r($_POST);
-		//echo "</pre>";
-		if( isset( $checksum[$formId]['secure'] ) ) {
-			foreach( $checksum[$formId]['secure'] as $secure ) {
-				$tmpName = getPostString( $secure['name'], false );
-				//var_dump($tmpName);
-				if( $tmpName !== false ) {
-					$newK = $crypt::decrypt( $secure['name'] );
-					$newV = $crypt::decrypt( $tmpName );
-					$delMe = $secure['name'];
-					unset( $_POST[$delMe] );
-					$removeList[] = $newK;
-					$_POST[$newK] = $newV;
-				} else {
-					$i18n->wsMessage( 'wsform-secure-fields-incomplete' );
-				}
-			}
-			//echo "<pre>";
-			//print_r($_POST);
-			//echo "</pre>";
-		}
-		//die();
-		//$api->app['checksum'] = $checksum;
-	}
 
-	$wsuid = getPostString( 'wsuid' );
-
-	if( $securedVersion ) {
-		foreach( $_POST as $k=>$v ){
-			if( !isWSFormSystemField( $k ) ) {
-				if ( is_array( $v ) ) {
-					$newArray = array();
-					foreach ( $v as $multiple ) {
-						$newArray[] = cleanHTML( $multiple, $k );
-					}
-					$_POST[ $k ] = $newArray;
-				} else {
-					$_POST[ $k ] = cleanHTML( $v, $k );
-				}
-			}
-		}
-	}
 	//print_r($_POST);
 
 	switch ( $action ) {

@@ -153,7 +153,8 @@ function isWSFormSystemField ($field) {
 		"mwfollow",
 		"wsparsepost",
         "mwtoken",
-		"wsuid"
+		"wsuid",
+		"mwwikicomment"
 	);
 	if(in_array(strtolower($field),$WSFormSystemFields)) {
 		return true;
