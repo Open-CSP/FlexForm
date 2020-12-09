@@ -107,10 +107,16 @@ class handlePostsToWiki extends Maintenance {
 		if ( !$title || $title->hasFragment() ) {
 			return $this->createMsg( "Invalid title $pageName." );
 		}
-		$revLookup = MediaWikiServices::getInstance()->getRevisionLookup();
+
 		$exists = $title->exists();
 		$oldRevID = $title->getLatestRevID();
-		$oldRev = $oldRevID ? $revLookup->getRevisionById( $oldRevID ) : null;
+		if ( version_compare( $GLOBALS['wgVersion'], "1.35" ) < 0 ) {
+			$oldRev = $oldRevID ? Revision::newFromId( $oldRevID ) : null;
+		} else {
+			$revLookup = MediaWikiServices::getInstance()->getRevisionLookup();
+			$oldRev = $oldRevID ? $revLookup->getRevisionById( $oldRevID ) : null;
+		}
+
 
 		$rev = new WikiRevision( MediaWikiServices::getInstance()->getMainConfig() );
 		$rev->setTitle( $title );
@@ -119,8 +125,14 @@ class handlePostsToWiki extends Maintenance {
 		$rev->setUserObj( $user );
 		$rev->setComment( $summary );
 		$rev->setTimestamp( $timestamp );
-		if ( $exists && $rev->getContent()->equals( $oldRev->getContent( SlotRecord::MAIN ) ) ) {
-			return $this->createMsg( "Page has no changes from the current", true );
+		if ( version_compare( $GLOBALS['wgVersion'], "1.35" ) < 0 ) {
+			if ( $exists && $rev->getContent()->equals( $oldRev->getContent() ) ) {
+				return $this->createMsg( "Page has no changes from the current", true );
+			}
+		} else {
+			if ( $exists && $rev->getContent()->equals( $oldRev->getContent( SlotRecord::MAIN ) ) ) {
+				return $this->createMsg( "Page has no changes from the current", true );
+			}
 		}
 		$status = $rev->importOldRevision();
 		$newId = $title->getLatestRevID();
