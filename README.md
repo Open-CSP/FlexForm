@@ -92,6 +92,7 @@ Visit : Special:WSForm/Docs
 
 
 ### Changelog
+* 0.8.0.8.4 : 1.35 Maintenance script update > Thanks to Marijn!
 * 0.8.0.8.3 : Allow " and ' in form
 * 0.8.0.8.2 : {T6636} link for verifying email
 * 0.8.0.8.1 : {T6602}, {T6603}, {T6600}

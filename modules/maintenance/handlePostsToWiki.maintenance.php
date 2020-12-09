@@ -106,16 +106,19 @@ class handlePostsToWiki extends Maintenance {
 		if ( !$title || $title->hasFragment() ) {
 			return $this->createMsg( "Invalid title $pageName." );
 		}
+		$revLookup = MediaWikiServices::getInstance()->getRevisionLookup();
 		$exists = $title->exists();
 		$oldRevID = $title->getLatestRevID();
-		$oldRev = $oldRevID ? Revision::newFromId( $oldRevID ) : null;
+		$oldRev = $oldRevID ? $revLookup->getRevisionById( $oldRevID ) : null;
+
 		$rev = new WikiRevision( MediaWikiServices::getInstance()->getMainConfig() );
-		$rev->setText( rtrim( $content ) );
 		$rev->setTitle( $title );
+		$rev->setModel( $rev->getModel() ); // Fix for 1.35; $model must not be NULL and getModel() retrieves the correct model iff it is not available
+		$rev->setText( rtrim( $content ) );
 		$rev->setUserObj( $user );
 		$rev->setComment( $summary );
 		$rev->setTimestamp( $timestamp );
-		if ( $exists && $rev->getContent()->equals( $oldRev->getContent() ) ) {
+		if ( $exists && $rev->getContent()->equals( $oldRev->getContent( SlotRecord::MAIN ) ) ) {
 			return $this->createMsg( "Page has no changes from the current", true );
 		}
 		$status = $rev->importOldRevision();
@@ -131,7 +134,11 @@ class handlePostsToWiki extends Maintenance {
 
 		if ( $exists ) {
 			if ( is_object( $oldRev ) ) {
-				$oldContent = $oldRev->getContent();
+				if ( version_compare( $GLOBALS['wgVersion'], "1.35" ) < 0 ) {
+					$oldContent = $oldRev->getContent();
+				} else {
+					$oldContent = $oldRev->getContent( SlotRecord::MAIN );
+				}
 				RecentChange::notifyEdit(
 					$timestamp,
 					$title,
