@@ -742,7 +742,7 @@ class wbApi {
               $server = str_replace('_', '.', $_POST['mwdb'] );
           }
           $details = base64_encode( $details );
-          $summary = "Edited with WSForm";
+          //$summary = "Edited with WSForm";
           /*
            * $this->addOption( 'summary', 'Additional text that will be added to the files imported History. [optional]', false, true, "s" );
 		$this->addOption( 'action', 'What to do', true, true, "a" );

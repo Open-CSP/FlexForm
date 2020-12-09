@@ -935,6 +935,7 @@ function saveToWiki( $email=false ) {
 	$mwfollow = getPostString('mwfollow');
     $leadByZero = false;
 	$summary = getPostString('mwwikicomment');
+
 	if( $summary === false ) {
 		$summary = setSummary();
 	}
