@@ -12,6 +12,7 @@
 #ini_set( 'display_errors', 1 );
 
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Revision\SlotRecord;
 
 $IP = getenv( 'MW_INSTALL_PATH' );
 if ( $IP === false ) {
