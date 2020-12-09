@@ -400,7 +400,7 @@ class WSFormHooks {
 		if( \wsform\wsform::$secure ) {
 			\wsform\protect\protect::setCrypt();
 			if( \wsform\wsform::$runAsUser ) {
-				$chcksumwuid = \wsform\protect\protect::encrypt( 'wuid' );
+				$chcksumwuid = \wsform\protect\protect::encrypt( 'wsuid' );
 				$uid = \wsform\protect\protect::encrypt( $wgUser->getId() );
 				\wsform\wsform::addCheckSum( 'secure', $chcksumwuid, $uid, "all" );
 				$ret          .= '<input type="hidden" name="' . $chcksumwuid . '" value="' . $uid . '">';

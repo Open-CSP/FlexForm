@@ -168,6 +168,16 @@ class wsform {
 		return self::$haveIBeenRun;
 	}
 
+	public static function createHiddenField( $name, $value ) {
+		if( \wsform\wsform::$secure ) {
+			\wsform\protect\protect::setCrypt();
+			$name  = \wsform\protect\protect::encrypt( $name );
+			$value = \wsform\protect\protect::encrypt( $value );
+			\wsform\wsform::addCheckSum( 'secure', $name, $value, "all" );
+		}
+		return '<input type="hidden" name="' . $name . '" value="' . $value . '">' . "\n";
+	}
+
 	public static function addCheckSum( $type, $name, $value, $allowHTML = "default" ) {
 		if ( \wsform\wsform::$secure ) {
 			$formId = \wsform\wsform::$formId;

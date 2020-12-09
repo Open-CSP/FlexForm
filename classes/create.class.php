@@ -20,10 +20,9 @@ class render {
         $wsoption = "";
         $wsfields = "";
         $wsfollow = "";
-        $wsleadbyzero = "";
+	    $mwleadingzero = "";
 
         if(isset($args['mwfields']) && $args['mwfields'] != '') {
-            $def = '<input type="hidden" name="mwcreatemultiple[]" value="';
             $div = '-^^-';
             foreach ( $args as $k => $v ) {
                 if ( $k == "mwtemplate" ) {
@@ -42,11 +41,14 @@ class render {
                     $wsfields = $v;
                 }
 	            if ( $k === "mwfollow" ) {
+		            $fname = 'mwfollow';
+
 		            if( strlen( $v ) <= 1 ) {
-			            $wsfollow = '<input type="hidden" name="mwfollow" value="true">' . "\n";
+			            $fvalue = "true";
 		            } else {
-			            $wsfollow = '<input type="hidden" name="mwfollow" value="'. $v .'">' . "\n";
+			            $fvalue = $v;
 		            }
+		            $wsoption = \wsform\wsform::createHiddenField( $fname, $fvalue );
 	            }
 
             }
@@ -57,33 +59,35 @@ class render {
                 return 'No valid title for creating a page.';
             }
 
-            $def .= $template . $div . $wswrite . $div . $wsoption . $div . $wsfields . '">';
+            $createValue = $template . $div . $wswrite . $div . $wsoption . $div . $wsfields;
+	        $def = \wsform\wsform::createHiddenField( 'mwcreatemultiple[]', $createValue );
+
             return $def.$wsfollow ;
         } else {
 
             foreach ( $args as $k => $v ) {
                 if ( $k == "mwtemplate" ) {
-                    $template = '<input type="hidden" name="mwtemplate" value="' . $v . '">' . "\n";
+                	$template = \wsform\wsform::createHiddenField( 'mwtemplate', $v );
                 }
 
                 if ( $k == "mwwrite" ) {
-                    $wswrite = '<input type="hidden" name="mwwrite" value="' . $v . '">' . "\n";
+	                $wswrite = \wsform\wsform::createHiddenField( 'mwwrite', $v );
                 }
 
                 if ( $k == "mwoption" ) {
-                    $wsoption = '<input type="hidden" name="mwoption" value="' . $v . '">' . "\n";
+	                $wsoption = \wsform\wsform::createHiddenField( 'mwoption', $v );
                 }
 
                 if ( $k === "mwfollow" ) {
                 	if( strlen( $v ) <= 1 ) {
-		                $wsfollow = '<input type="hidden" name="mwfollow" value="true">' . "\n";
+		                $wsfollow = \wsform\wsform::createHiddenField( 'mwfollow', 'true' );
 	                } else {
-		                $wsfollow = '<input type="hidden" name="mwfollow" value="'. $v .'">' . "\n";
+		                $wsfollow = \wsform\wsform::createHiddenField( 'mwfollow', $v );
 	                }
                 }
 
                 if ( $k == "mwleadingzero" ) {
-                    $wsleadingzero = '<input type="hidden" name="mwleadingzero" value="true">' . "\n";
+	                $wsleadingzero = \wsform\wsform::createHiddenField( 'mwleadingzero', 'true' );
                 } else $wsleadingzero = '';
 
                 /*

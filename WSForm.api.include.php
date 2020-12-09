@@ -984,7 +984,6 @@ function saveToWiki( $email=false ) {
 			$ret .= "}}";
 		}
 
-
 		require_once( 'WSForm.api.class.php' );
 		$api = new wbApi();
 		if( $api->getStatus() === false ){

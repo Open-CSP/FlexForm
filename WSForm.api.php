@@ -242,7 +242,7 @@ if( $captchaAction !== false && $captchaToken !== false ) {
     }
 }
 
-$wsuid = getPostString('wsuid');
+//$wsuid = getPostString('wsuid');
 
 if ( getPostString('mwaction') !== false ) {
 	$action = getPostString('mwaction');
@@ -299,6 +299,8 @@ if ( getPostString('mwaction') !== false ) {
 		//$api->app['checksum'] = $checksum;
 	}
 
+	$wsuid = getPostString( 'wsuid' );
+
 	if( $securedVersion ) {
 		foreach( $_POST as $k=>$v ){
 			if( !isWSFormSystemField( $k ) ) {
@@ -314,7 +316,7 @@ if ( getPostString('mwaction') !== false ) {
 			}
 		}
 	}
-
+	//print_r($_POST);
 
 	switch ( $action ) {
 
