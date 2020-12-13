@@ -119,12 +119,21 @@ class handlePostsToWiki extends Maintenance {
 
 
 		$rev = new WikiRevision( MediaWikiServices::getInstance()->getMainConfig() );
-		$rev->setTitle( $title );
-		$rev->setModel( $rev->getModel() ); // Fix for 1.35; $model must not be NULL and getModel() retrieves the correct model iff it is not available
-		$rev->setText( rtrim( $content ) );
-		$rev->setUserObj( $user );
-		$rev->setComment( $summary );
-		$rev->setTimestamp( $timestamp );
+		if ( version_compare( $GLOBALS['wgVersion'], "1.35" ) < 0 ) {
+			$rev->setTitle( $title );
+			$rev->setModel( $rev->getModel() ); // Fix for 1.35; $model must not be NULL and getModel() retrieves the correct model iff it is not available
+			$rev->setText( rtrim( $content ) );
+			$rev->setUserObj( $user );
+			$rev->setComment( $summary );
+			$rev->setTimestamp( $timestamp );
+		} else {
+			$content = ContentHandler::makeContent( rtrim( $content ), $title );
+			$rev->setContent( SlotRecord::MAIN, $content );
+			$rev->setTitle( $title );
+			$rev->setUserObj( $user );
+			$rev->setComment( $summary );
+			$rev->setTimestamp( $timestamp );
+		}
 		if ( version_compare( $GLOBALS['wgVersion'], "1.35" ) < 0 ) {
 			if ( $exists && $rev->getContent()->equals( $oldRev->getContent() ) ) {
 				return $this->createMsg( "Page has no changes from the current", true );
