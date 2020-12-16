@@ -198,7 +198,7 @@ if( isset($_POST['wsformfile_slim']) ) {
 if( isset( $_POST['wsform_signature'] ) ) {
     $res = signatureUpload();
     if ($res['status'] == 'error') {
-        $messages->doDie( ' singature : '.$res['msg'] );
+        $messages->doDie( ' signature : '.$res['msg'] );
     }
     $ret = $res; // v0.7.0.3.3 added
 }
@@ -233,9 +233,10 @@ if( $captchaAction !== false && $captchaToken !== false ) {
     }
     //secret, token, action
     $capClass = new wsform\recaptcha\render();
+    $capClass::loadSettings();
     $captchaResult = $api->googleSiteVerify($capClass::$rc_secret_key, $captchaToken, $captchaAction );
-    if( $captchaResult === false ){
-        $retCaptcha['msg'] = $i18n->wsMessage( 'wsform-captcha-score-to-low' );
+    if( $captchaResult['status'] === false ) {
+        $retCaptcha['msg'] = $i18n->wsMessage( 'wsform-captcha-score-to-low' ) . ' : ' . $captchaResult['results']['score'];
         $retCaptcha['status'] = 'error';
         $messages->handleResonse( $retCaptcha );
         die();

@@ -429,8 +429,10 @@ class WSFormHooks {
 
         if( isset( $args['recaptcha-v3-action'] ) && ! wsform\wsform::isLoaded( 'google-captcha' ) ) {
             $tmpCap = wsform\recaptcha\render::render_reCaptcha();
-            wsform\wsform::addAsLoaded( 'google-captcha' );
-            $ret = $tmpCap . $ret;
+            if( $tmpCap !== false ) {
+	            wsform\wsform::addAsLoaded( 'google-captcha' );
+	            $ret = $tmpCap . $ret;
+            }
         }
 
         if( wsform\wsform::$reCaptcha !== false  ) {

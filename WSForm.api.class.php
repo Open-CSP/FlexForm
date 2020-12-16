@@ -893,9 +893,9 @@ class wbApi {
         $result = json_decode( $response, true );
         // verify the response
         if( $result["success"] == '1' && $result["action"] == $action && $result["score"] >= 0.5 ) {
-            return true;
+            return array( "status" => true, "result" => $result );
         } else {
-            return false;
+            return array( "status" => false, "result" => $result );
         }
     }
 
