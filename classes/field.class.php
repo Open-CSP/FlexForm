@@ -3,6 +3,7 @@
 namespace wsform\field;
 
 use \wsform\validate\validate;
+use ExtensionRegistry;
 
 class render {
 
@@ -714,10 +715,12 @@ class render {
 	 * @return string Rendered HTML
 	 */
 	public static function render_textarea( $args, $input = false ) {
+		global $wgOutput;
 		if( $input === '' ) $input = false;
 		$name = '';
 		$html = validate::validHTML( $args );
 		$ret = '<textarea ';
+		$editor = false;
 		foreach ( $args as $k => $v ) {
 			if( $k == 'name' ) {
 				$name = $v;
@@ -730,6 +733,16 @@ class render {
 			}
 			if ( validate::validParameters( $k ) && $k !== 'value' ) {
 				$ret .= $k . '="' . $v . '" ';
+			}
+			// Editor option
+			if( strtolower( $k )  === 'editor' && strtolower( $v ) === 've' ){
+				if ( ExtensionRegistry::getInstance()->isLoaded( 'VEForAll' ) ) {
+					$wgOutput->addModules( 'ext.veforall.main' );
+					$editor = true;
+					$js = '<script>var WSFormEditor = "VE";</script>';
+					$ret = '<span class="ve-area-wrapper">' . $ret;
+				}
+
 			}
 		}
 		$ret .= ">";
@@ -745,6 +758,9 @@ class render {
 			} else \wsform\wsform::addCheckSum( 'textarea', $name, '', $html );
 		}
 		$ret .= "</textarea>\n";
+		if( $editor ) {
+			$ret .= '</span>' . PHP_EOL;
+		}
 
 		return $ret;
 	}

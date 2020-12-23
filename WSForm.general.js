@@ -34,6 +34,16 @@ function wachtff(method, both = false) {
     }
 }
 
+function initializeVE(){
+	$('.ve-area-wrapper textarea').each( function(){
+		var textAreaContent = $(this).val();
+		var pipesReplace = textAreaContent.replace(/{{!}}/gmi, "|");
+		$(this).val( pipesReplace );
+		$(this).applyVisualEditor();
+	});
+}
+
+
 function getEditToken() {
 	if (window.mw) {
 		var tokens = mw.user.tokens.get();
@@ -112,3 +122,6 @@ function attachTokens() {
  * Wait for jQuery to load and initialize, then go to method addTokenInfo()
  */
 wachtff(addTokenInfo);
+if ( typeof WSFormEditor !== 'undefined' ) {
+	wachtff( initializeVE );
+}
