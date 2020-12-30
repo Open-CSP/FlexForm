@@ -92,6 +92,7 @@ Visit : Special:WSForm/Docs
 
 
 ### Changelog
+* 0.8.0.8.8 : Added VE4ALL support
 * 0.8.0.8.7 : Fixed reCaptcha
 * 0.8.0.8.6 : More secured form rendering
 * 0.8.0.8.5 : Marijn's script was broken for not 1.35 wiki's. Fixed
