@@ -85,10 +85,11 @@ function testSelect2Callback(state) {
 function addTokenInfo() {
 	$(document).ready(function() {
 		//alert('adding tokeninfo');
-		$("form").on('submit', function() {
+		$("form").one('submit', function(e) {
 			//alert ( 'submitting' );
 			// Check for Visial editor
-
+			e.preventDefault();
+			var pform = $(this);
 			if( $(this).data( 'wsform' ) && $(this).data( 'wsform' ) === 'wsform-general' ) {
 				// We have a WSForm form
 				alert ( 'adding fields' );
@@ -113,34 +114,40 @@ function addTokenInfo() {
 					//alert('ok');
 				}
 			}
+			var wrong = false;
 			if ( typeof WSFormEditor !== 'undefined' && WSFormEditor === 'VE') {
 
 				$(this).find("span.ve-area-wrapper").each(function () {
+					var form = $(this);
 
 					var veInstance = $(this).getVEInstances();
 					var editor = veInstance[ veInstance.length - 1 ];
-					//console.log(editor);
 					if( editor.$node.length > 0 ) {
-						editor.target.updateContent()
-							.fail(function( result ) {
-								alert('Could not initialize ve4all, see console for error');
-								console.log(result);
-								return false;
-							})
-							.done(function(){
-								var area = $(this).find('textarea')[0];
-								var areaTxt = area.val();
-								var esc = areaTxt.replace(/(?<!{{[^}]+)\|(?!=[^]+}})/gmi, "{{!}}");
-								area.val(esc);
-								addTokenInfo(this);
-								return true;
-							});
+						new mw.Api().post({
+							action: 'veforall-parsoid-utils',
+							from: 'html',
+							to: 'wikitext',
+							content: editor.target.getSurface().getHtml(),
+							title: mw.config.get( 'wgPageName' ).split( /(\\|\/)/g ).pop()
+						} )
+						.then( function ( data ) {
+							var text = data[ 'veforall-parsoid-utils' ].content;
+							var esc = text.replace(/(?<!{{[^}]+)\|(?!=[^]+}})/gmi, "{{!}}");
+							var area = form.find('textarea')[0];
+							$(area).val(esc);
+							pform.submit();
+						} )
+						.fail( function () {
+							alert('Could not initialize ve4all, see console for error');
+							console.log(result);
+							wrong = false;
+							return false;
+						} );
 					}
 				});
 			} else {
-				return true;
+				pform.submit();
 			}
-			return false;
 		});
 	});
 
