@@ -81,41 +81,38 @@ function testSelect2Callback(state) {
 	return state.text;
 }
 
-function addTokenInfo( form ){
-	if( $( form ).data( 'wsform' ) && $( form ).data( 'wsform' ) === 'wsform-general' ) {
-		// We have a WSForm form
-		//alert ( 'adding fields' );
-		$('<input />')
-			.attr('type', 'hidden')
-			.attr('name','wsedittoken')
-			.attr('value', getEditToken())
-			.appendTo(form);
-	}
-	var res = $(form).find( 'input[name="wsuid"]');
 
-	//console.log(res);
-	if( $(res) && $(res).length === 0 ) {
-		var uid = getUid();
-		//console.log( uid );
-		if( uid !== false ) {
-			$('<input />')
-				.attr('type', 'hidden')
-				.attr('name', 'wsuid')
-				.attr('value', uid)
-				.appendTo(form);
-			//alert('ok');
-		}
-	}
-	return true;
-}
-
-function onWSFormSubmit() {
+function addTokenInfo() {
 	$(document).ready(function() {
 		//alert('adding tokeninfo');
-		$("form").on('submit', function(event) {
+		$("form").on('submit', function() {
 			//alert ( 'submitting' );
 			// Check for Visial editor
-			event.preventDefault();
+
+			if( $(this).data( 'wsform' ) && $(this).data( 'wsform' ) === 'wsform-general' ) {
+				// We have a WSForm form
+				alert ( 'adding fields' );
+				$('<input />')
+					.attr('type', 'hidden')
+					.attr('name','wsedittoken')
+					.attr('value', getEditToken())
+					.appendTo(this);
+			}
+			var res = $(this).find( 'input[name="wsuid"]');
+
+			//console.log(res);
+			if( $(res) && $(res).length === 0 ) {
+				var uid = getUid();
+				//console.log( uid );
+				if( uid !== false ) {
+					$('<input />')
+						.attr('type', 'hidden')
+						.attr('name', 'wsuid')
+						.attr('value', uid)
+						.appendTo(this);
+					//alert('ok');
+				}
+			}
 			if ( typeof WSFormEditor !== 'undefined' && WSFormEditor === 'VE') {
 
 				$(this).find("span.ve-area-wrapper").each(function () {
@@ -136,13 +133,12 @@ function onWSFormSubmit() {
 								var esc = areaTxt.replace(/(?<!{{[^}]+)\|(?!=[^]+}})/gmi, "{{!}}");
 								area.val(esc);
 								addTokenInfo(this);
-								$(this).submit();
+								return true;
 							});
 					}
 				});
 			} else {
-				addTokenInfo(this);
-				$(this).submit();
+				return true;
 			}
 			return false;
 		});
@@ -168,5 +164,5 @@ function attachTokens() {
 /**
  * Wait for jQuery to load and initialize, then go to method addTokenInfo()
  */
-wachtff( onWSFormSubmit );
+wachtff( addTokenInfo );
 wachtff( initializeWSFormEditor );
