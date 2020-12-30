@@ -971,13 +971,13 @@ function saveToWiki( $email=false ) {
 				foreach ( $v as $multiple ) {
 					$ret .= cleanBraces( $multiple ) . ',';
 				}
-				$ret = rtrim( $ret, ',' ) . "\n";
+				$ret = rtrim( $ret, ',' ) . PHP_EOL;
 			} else {
 				if ( !isWSFormSystemField($k) && $v != "" ) {
 					if( !$noTemplate ) {
 						$ret .= '|' . makeSpaceFromUnderscore( $k ) . '=' . cleanBraces( $v ) . "\n";
 					} else {
-						$ret = $v . "\n";
+						$ret = $v . PHP_EOL;
 					}
 				}
 			}
@@ -1126,12 +1126,12 @@ if($writepages !== false) {
 				foreach ( $v as $multiple ) {
 					$ret .= cleanBraces( $multiple ) . ',';
 				}
-				$ret = rtrim( $ret, ',' ) . "\n";
+				$ret = rtrim( $ret, ',' ) . PHP_EOL;
 			} else {
 				if ( !isWSFormSystemField($k) && $v != "" ) {
 				//if ( $k !== "mwtemplate" && $k !== "mwoption" && $k !== "mwwrite" && $k !== "mwreturn" && $k !== "mwedit" && $v != "" ) {
                     if( !$noTemplate ) {
-                        $ret .= '|' . makeSpaceFromUnderscore($k) . '=' . cleanBraces( $v ) . "\n";
+                        $ret .= '|' . makeSpaceFromUnderscore($k) . '=' . cleanBraces( $v ) . PHP_EOL;
                     } else {
                         $ret = $v;
                     }
