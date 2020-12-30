@@ -714,8 +714,9 @@ class render {
 	 *
 	 * @return string Rendered HTML
 	 */
-	public static function render_textarea( $args, $input = false ) {
+	public static function render_textarea( $args, $input = false, $parser, $frame ) {
 		global $wgOutput;
+		$out = $parser->getOutput();
 		if( $input === '' ) $input = false;
 		$name = '';
 		$html = validate::validHTML( $args );
@@ -737,7 +738,7 @@ class render {
 			// Editor option
 			if( strtolower( $k )  === 'editor' && strtolower( $v ) === 've' ){
 				if ( ExtensionRegistry::getInstance()->isLoaded( 'VEForAll' ) ) {
-					$wgOutput->addModules( 'ext.veforall.main' );
+					$out->addModules( 'ext.veforall.main' );
 					$editor = true;
 					$js = '<script>var WSFormEditor = "VE";</script>';
 					$ret = '<span class="ve-area-wrapper">' . $ret;
@@ -762,7 +763,7 @@ class render {
 			$ret .= '</span>' . PHP_EOL;
 		}
 
-		return $ret;
+		return $ret . $js;
 	}
 
 	/**

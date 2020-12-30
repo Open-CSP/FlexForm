@@ -33,14 +33,28 @@ function wachtff(method, both = false) {
         setTimeout(function() { wachtff(method) }, 50);
     }
 }
+function waitForVE( method ) {
+	if( typeof $().applyVisualEditor === 'function' ){
+		method();
+	} else {
+		setTimeout(function() { waitForVE4(method) }, 50);
+	}
+}
+
+function initializeWSFormEditor(){
+	if ( typeof WSFormEditor !== 'undefined' && WSFormEditor === 'VE') {
+		waitForVE( initializeVE );
+	}
+}
 
 function initializeVE(){
-	$('.ve-area-wrapper textarea').each( function(){
+	$('.ve-area-wrapper textarea').each(function () {
 		var textAreaContent = $(this).val();
 		var pipesReplace = textAreaContent.replace(/{{!}}/gmi, "|");
-		$(this).val( pipesReplace );
+		$(this).val(pipesReplace);
 		$(this).applyVisualEditor();
 	});
+
 }
 
 
@@ -122,6 +136,4 @@ function attachTokens() {
  * Wait for jQuery to load and initialize, then go to method addTokenInfo()
  */
 wachtff(addTokenInfo);
-if ( typeof WSFormEditor !== 'undefined' ) {
-	wachtff( initializeVE );
-}
+wachtff( initializeWSFormEditor );

@@ -160,7 +160,7 @@ class WSFormHooks {
                         $input = $parser->recursiveTagParse($input, $frame);
                     }
 					//End test
-					if ( $type == 'render_option' || $type == 'render_file' || $type == 'render_submit' || $type == 'render_text') {
+					if ( $type == 'render_option' || $type == 'render_file' || $type == 'render_submit' || $type == 'render_text' || $type == 'render_textarea') {
 						$ret = wsform\field\render::$type( $args, $input, $parser, $frame );
 					} else {
 						$ret = wsform\field\render::$type( $args, $input );
