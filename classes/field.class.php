@@ -722,6 +722,8 @@ class render {
 		$html = validate::validHTML( $args );
 		$ret = '<textarea ';
 		$editor = false;
+		$class = '';
+		$js = '';
 		foreach ( $args as $k => $v ) {
 			if( $k == 'name' ) {
 				$name = $v;
@@ -732,7 +734,10 @@ class render {
 			if ( validate::check_disable_readonly_required_selected( $k, $v ) ) {
 				continue;
 			}
-			if ( validate::validParameters( $k ) && $k !== 'value' ) {
+			if( $k === "class" ) {
+				$class .= $v;
+			}
+			if ( validate::validParameters( $k ) && $k !== 'value' && $k !== 'class' ) {
 				$ret .= $k . '="' . $v . '" ';
 			}
 			// Editor option
@@ -741,12 +746,19 @@ class render {
 					$out->addModules( 'ext.veforall.main' );
 					$editor = true;
 					$js = '<script>var WSFormEditor = "VE";</script>';
+					$js .= '<style>
+							.load-editor{ 
+								background: url("https://www.wikibase.nl/load-editor.gif") no-repeat bottom right #fff; 
+								background-size: contain;
+							}
+							</style>';
 					$ret = '<span class="ve-area-wrapper">' . $ret;
+					$class .= ' load-editor ';
 				}
 
 			}
 		}
-		$ret .= ">";
+		$ret .= 'class="' . $class . '">';
 		if ( $input !== false ) {
 			$input = \wsform\protect\protect::purify( $input, $html, \wsform\wsform::$secure );
 			$ret .= $input;

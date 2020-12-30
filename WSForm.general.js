@@ -37,7 +37,7 @@ function waitForVE( method ) {
 	if( typeof $().applyVisualEditor === 'function' ){
 		method();
 	} else {
-		setTimeout(function() { waitForVE4(method) }, 50);
+		setTimeout(function() { waitForVE(method) }, 50);
 	}
 }
 
@@ -53,6 +53,7 @@ function initializeVE(){
 		var pipesReplace = textAreaContent.replace(/{{!}}/gmi, "|");
 		$(this).val(pipesReplace);
 		$(this).applyVisualEditor();
+		$(this).removeClass('load-editor');
 	});
 
 }
@@ -80,38 +81,70 @@ function testSelect2Callback(state) {
 	return state.text;
 }
 
-function addTokenInfo() {
+function addTokenInfo( form ){
+	if( $( form ).data( 'wsform' ) && $( form ).data( 'wsform' ) === 'wsform-general' ) {
+		// We have a WSForm form
+		//alert ( 'adding fields' );
+		$('<input />')
+			.attr('type', 'hidden')
+			.attr('name','wsedittoken')
+			.attr('value', getEditToken())
+			.appendTo(form);
+	}
+	var res = $(form).find( 'input[name="wsuid"]');
+
+	//console.log(res);
+	if( $(res) && $(res).length === 0 ) {
+		var uid = getUid();
+		//console.log( uid );
+		if( uid !== false ) {
+			$('<input />')
+				.attr('type', 'hidden')
+				.attr('name', 'wsuid')
+				.attr('value', uid)
+				.appendTo(form);
+			//alert('ok');
+		}
+	}
+	return true;
+}
+
+function onWSFormSubmit() {
 	$(document).ready(function() {
 		//alert('adding tokeninfo');
-		$("form").on ("submit", function() {
+		$("form").on('submit', function(event) {
 			//alert ( 'submitting' );
-			if( $( this ).data( 'wsform' ) && $( this ).data( 'wsform' ) === 'wsform-general' ) {
-				// We have a WSForm form
-				//alert ( 'adding fields' );
-				$('<input />')
-					.attr('type', 'hidden')
-					.attr('name','wsedittoken')
-					.attr('value', getEditToken())
-					.appendTo(this);
-			}
-			var res = $(this).find( 'input[name="wsuid"]');
+			// Check for Visial editor
+			event.preventDefault();
+			if ( typeof WSFormEditor !== 'undefined' && WSFormEditor === 'VE') {
 
-			//console.log(res);
-			if( $(res) && $(res).length === 0 ) {
-				var uid = getUid();
-				//console.log( uid );
-				if( uid !== false ) {
-					$('<input />')
-						.attr('type', 'hidden')
-						.attr('name', 'wsuid')
-						.attr('value', uid)
-						.appendTo(this);
-					//alert('ok');
-				}
-			}
+				$(this).find("span.ve-area-wrapper").each(function () {
 
-			//alert( 'ok');
-			return true;
+					var veInstance = $(this).getVEInstances();
+					var editor = veInstance[ veInstance.length - 1 ];
+					//console.log(editor);
+					if( editor.$node.length > 0 ) {
+						editor.target.updateContent()
+							.fail(function( result ) {
+								alert('Could not initialize ve4all, see console for error');
+								console.log(result);
+								return false;
+							})
+							.done(function(){
+								var area = $(this).find('textarea')[0];
+								var areaTxt = area.val();
+								var esc = areaTxt.replace(/(?<!{{[^}]+)\|(?!=[^]+}})/gmi, "{{!}}");
+								area.val(esc);
+								addTokenInfo(this);
+								$(this).submit();
+							});
+					}
+				});
+			} else {
+				addTokenInfo(this);
+				$(this).submit();
+			}
+			return false;
 		});
 	});
 
@@ -135,5 +168,5 @@ function attachTokens() {
 /**
  * Wait for jQuery to load and initialize, then go to method addTokenInfo()
  */
-wachtff(addTokenInfo);
+wachtff( onWSFormSubmit );
 wachtff( initializeWSFormEditor );
