@@ -114,36 +114,42 @@ function addTokenInfo() {
 					//alert('ok');
 				}
 			}
-			var wrong = false;
 			if ( typeof WSFormEditor !== 'undefined' && WSFormEditor === 'VE') {
+				var VEditors = $(this).find("span.ve-area-wrapper");
+				var numberofEditors = VEditors.length;
+				var tAreasFieldNames = [];
+				var tAreas = $(this).find("textarea").each(function(){
+					tAreasFieldNames.push( $(this).attr('name') );
+				});
 
-				$(this).find("span.ve-area-wrapper").each(function () {
-					var form = $(this);
-
-					var veInstance = $(this).getVEInstances();
-					var editor = veInstance[ veInstance.length - 1 ];
-					if( editor.$node.length > 0 ) {
+				var veInstances = VEditors.getVEInstances();
+				$(veInstances).each(function () {
+					var instanceName = $(this)[0].$node[0].name;
+					if( $.inArray( instanceName, tAreasFieldNames ) !== -1 ) {
 						new mw.Api().post({
 							action: 'veforall-parsoid-utils',
 							from: 'html',
 							to: 'wikitext',
-							content: editor.target.getSurface().getHtml(),
+							content: $(this)[0].target.getSurface().getHtml(),
 							title: mw.config.get( 'wgPageName' ).split( /(\\|\/)/g ).pop()
 						} )
 						.then( function ( data ) {
 							var text = data[ 'veforall-parsoid-utils' ].content;
 							var esc = text.replace(/(?<!{{[^}]+)\|(?!=[^]+}})/gmi, "{{!}}");
-							var area = form.find('textarea')[0];
+							var area = pform.find("textarea[name='" + instanceName + "']")[0];
 							$(area).val(esc);
-							pform.submit();
+							numberofEditors--;
+							if( numberofEditors === 0 ){
+								pform.submit();
+							}
 						} )
 						.fail( function () {
 							alert('Could not initialize ve4all, see console for error');
 							console.log(result);
-							wrong = false;
-							return false;
+							pform.cancel();
 						} );
 					}
+
 				});
 			} else {
 				pform.submit();
