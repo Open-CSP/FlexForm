@@ -901,7 +901,21 @@ class SpecialWSForm extends SpecialPage {
 	}
 
 	private function setupWSForm( $path, $purl ){
+		global $wgGroupPermissions, $wgAllowCopyUploads, $wgCopyUploadsFromSpecialUpload;
 
+
+		$mwcheck = "<table><thead><th>MediaWiki option</th><th>status</th></thead><tbody>";
+		if( isset( $wgAllowCopyUploads ) && $wgAllowCopyUploads === true ) {
+			$mwcheck .= '<tr><td>$wgAllowCopyUploads</td><td class="wsf-ok">ok</td></tr>';
+		} else {
+			$mwcheck .= '<tr><td>$wgAllowCopyUploads</td><td class="wsf-nok">Set this to true in your LocalSettings.php</td></tr>';
+		}
+		if( isset( $wgCopyUploadsFromSpecialUpload ) && $wgCopyUploadsFromSpecialUpload === true ) {
+			$mwcheck .= '<tr><td>$wgCopyUploadsFromSpecialUpload</td><td class="wsf-ok">ok</td></tr>';
+		} else {
+			$mwcheck .= '<tr><td>$wgCopyUploadsFromSpecialUpload</td><td class="wsf-nok">Set this to true in your LocalSettings.php</td></tr>';
+		}
+		$mwcheck .= '</tbody></table>';
 		$action = $this->getPostString( 'setup' );
 
 		$tmp_uri = $url = "http" . ( ! empty( $_SERVER['HTTPS'] ) ? "s" : "" ) . "://" . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
@@ -1037,13 +1051,15 @@ class SpecialWSForm extends SpecialPage {
 				'%%api-cookie-span%%',
 				'%%api-cookie-path%%',
 				'%%url%%',
-				'%%api-url-overrule%%'
+				'%%api-url-overrule%%',
+				'%%mwcheck%%'
 			);
 			$replace = array(
 				$notWriteable,
 				$cookiefile,
 				$purl,
-				$api_url
+				$api_url,
+				$mwcheck
 
 			);
 			$form = str_replace( $find ,$replace, $form );
@@ -1143,6 +1159,7 @@ class SpecialWSForm extends SpecialPage {
 
 
 			$find = array(
+				'%%mwcheck%%',
 				'%%api-cookie-span%%',
 				'%%api-cookie-path%%',
 				'%%url%%',
@@ -1173,6 +1190,7 @@ class SpecialWSForm extends SpecialPage {
 				'%%smtp-port%%'
 			);
 			$replace =  array(
+				$mwcheck,
 				$apiCookieSpan,
 				$apiCookiePath,
 				$purl,

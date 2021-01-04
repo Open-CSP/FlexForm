@@ -19,24 +19,40 @@ WSForm is an enhanced HTML5 rendering engine
 
 
 ## Installation
+
+**This information can also be found index.php/Special:WSForm/Docs. Look for wsform installation and wsform config**
+
 Grab in instance from the https://bitbucket.org/wikibasesolutions/mw-wsform/. Create a "WSForm" folder in your Wiki extensions folder and extract the files there.
 
-## Setup
-~~In order to add pages to your wiki, you will need to setup a BOT password for WSForm~~.
-~~More information on setting up a bot-password can be found [https://www.mediawiki.org/wiki/Manual:Bot_passwords](here).~~
+---
 
-We skipped BOT password as they were unreliable. (will be added in the near future)
-To edit or create pages you will need to create an user account with all appropriate rights.
+## Setup
+In order to add pages to your wiki, you will need to setup a BOT password for WSForm.
+More information on setting up a bot-password can be found [https://www.mediawiki.org/wiki/Manual:Bot_passwords](here).
+
+OR
+
+You will need to create an user account with all appropriate rights.
 
 First go to Special:CreateAccount and create an account e.g. formsubmitter.
 
 Set the appropriate rights in Special:UserRights.
+
+---
+
+METHOD 1:
 
 Open ``` /WSForm/config/config_default.php  ``` fill the username and password you just created.
 
 If you on a FARM add the path to the FARM (read the description in the config file). 
 
 Save the file as config.php
+
+METHOD 2:
+
+Go to index.php/Special:WSForm/Setup and follow the instructions
+
+---
 
 If you are on FARM you can add a WSFormSettings.php in the wiki/name folder with the following content :
 ```php
@@ -53,11 +69,10 @@ For uploading files the user created will need to have the rights for :
 * upload_by_url
 
 General settings that need to be enabled :
-
-* $wgAllowCopyUploads = true;
-
-* $wgCopyUploadsFromSpecialUpload = true;
-
+```php
+$wgAllowCopyUploads = true;
+$wgCopyUploadsFromSpecialUpload = true;
+````
 
 Finally add the following line at the end of your LocalSettings.php to enable the extension :
 ```php
@@ -71,7 +86,7 @@ wfLoadExtension( 'WSForm' );
 WSForm has a notification system build in. This is used to show possible errors or success / custom  messages.
 
 To enable this.. add to your header page :
-```php
+```html
 <wsform showmessages />
 ```
 

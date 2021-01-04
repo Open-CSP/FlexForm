@@ -1,7 +1,26 @@
 <div style="max-width:75%; margin: 0 auto;">
     <h2>Configuring WSForm</h2>
-
-
+    <div class="wsform-note">
+        <p><b>If you do not want this Special page to be shown. Edit config.php and add :</b>
+        <code>
+            'allow-special-page-setup' => false
+        </code>
+        </p>
+    </div>
+    <div class="wsform-note">
+        <p>
+            Read the manual (readme or Special:WSForm/Docs/wsform_installation) on how to create a user for WSForm
+            and add this to a user group that has the following permission (example is if WSForm user is in group <b>admin</b>:
+            <code>
+                $wgGroupPermissions['admin']['upload'] = true;<br>
+                $wgGroupPermissions['admin']['uploadfile'] = true;<br>
+                $wgGroupPermissions['admin']['upload_by_url'] = true;
+            </code>
+        </p>
+        <p>The other MediaWiki settings have been checked and if you need to take action it is marked in red below</p>
+        <p>%%mwcheck%%</p>
+    </div>
+    <p><br></p>
     <form id="wsform-setup-1" class="ws-documentation" method="post" action="%%url%%">
         <fieldset>
             <legend>Setup WSForm - General</legend>
