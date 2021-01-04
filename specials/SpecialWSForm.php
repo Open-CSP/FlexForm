@@ -22,6 +22,11 @@ class SpecialWSForm extends SpecialPage {
 
 
     public $allowEditDocs = true;
+	public $showFormBuilder = true;
+	public $app = array();
+	private $config = false;
+	private $configFile = '';
+	private $config_default = false;
 
 	public function __construct() {
 		parent::__construct( 'WSForm' );
@@ -72,6 +77,12 @@ class SpecialWSForm extends SpecialPage {
 		} else return false;
 	}
 
+	private function setConfigVar( $name, $config ) {
+		if( isset( $config[$name] ) ) {
+			$this->app[$name] = $config[$name];
+		} else $this->app[$name] = "";
+	}
+
 
 
     /**
@@ -102,6 +113,9 @@ class SpecialWSForm extends SpecialPage {
         $createExample = $wgServer.'/index.php/Special:WSForm/Docs/Create Example';
 		$createDocumentation = $wgServer.'/index.php/Special:WSForm/Docs/Create';
 		$formBuilderUrl = $wgServer.'/index.php/Special:WSForm/Formbuilder';
+		if( $this->showFormBuilder ) {
+			$formBuilderHTML = '<li><a href="' . $formBuilderUrl . '"> Formbuilder</a></li>';
+		} else $formBuilderHTML = '';
 		$changeLogUrl = $wgServer.'/index.php/Special:WSForm/Docs/ChangeLog';
 		$changeLogUrl = '<li><a href="' . $changeLogUrl . '"> '.wfMessage("wsform-docs-changelog")->text().'</a></li>';
 
@@ -162,7 +176,7 @@ class SpecialWSForm extends SpecialPage {
 		$index = $wgServer.'/index.php/Special:WSForm/Docs/Index';
         $wsformpurl = $wgServer."/extensions/WSForm/";
         $search = array('%items%', '%url%', '%back%', '%version%', '%new%', '%index%', '%%wsformpurl%%', '%fb%', '%changelog%');
-        $replace = array($items, $wsformpurl . "WSForm-logo.png", $back, $ver, $new, $index, $wsformpurl, $formBuilderUrl, $changeLogUrl );
+        $replace = array($items, $wsformpurl . "WSForm-logo.png", $back, $ver, $new, $index, $wsformpurl, $formBuilderHTML, $changeLogUrl );
         $nav = str_replace($search, $replace, $nav);
 
         //$out->addHTML($ret.$nav);
@@ -224,6 +238,29 @@ class SpecialWSForm extends SpecialPage {
 	public function execute( $sub ) {
 		global $IP, $wgUser, $wgExtensionCredits, $wgScript;
 
+		$config_default = false;
+		$config = false;
+
+		$this->configFile = $IP . '/extensions/WSForm/config/config.php';
+
+		if ( file_exists( $IP . '/extensions/WSForm/config/config_default.php' ) ) {
+			include( $IP . '/extensions/WSForm/config/config.php' );
+			$this->config_default = $config;
+		}
+		if ( file_exists( $this->configFile ) ) {
+			include( $this->configFile );
+			$this->config = $config;
+		}
+		$editDocs = $this->getConfigSetting('allow-edit-docs' );
+		if( $editDocs ) {
+			$this->allowEditDocs = true;
+		} else $this->allowEditDocs = false;
+
+		$allowFB = $this->getConfigSetting('use-formbuilder' );
+		if( $allowFB ) {
+			$this->showFormBuilder = true;
+		} else $this->showFormBuilder = false;
+
 		$realUrl = str_replace( '/index.php', '', $wgScript );
 		$ver = "";
 		$bitbucketSource = 'https://api.bitbucket.org/2.0/repositories/wikibasesolutions/mw-wsform/src/master/extension.json';
@@ -277,6 +314,7 @@ class SpecialWSForm extends SpecialPage {
         $wsformpurl = $realUrl . "/extensions/WSForm/";
         $examplePath = $path.'examples/';
         $purl = $realUrl . "/index.php/Special:WSForm/Docs";
+		$setupUrl = $realUrl . "/index.php/Special:WSForm/Setup";
         $eurl = $realUrl . "/index.php/Special:WSForm/Docs/examples";
         $out = $this->getOutput();
 		$out->addHTML( '<h1 class="hit-the-floor" style="text-align:center;">WSForm ' . wfMessage("wsform-docs-documentation")->text() . '</h1><hr class="brace">');
@@ -330,6 +368,22 @@ class SpecialWSForm extends SpecialPage {
             $out->addHTML( $loadJS );
 
 			$back = '<div class="ws-documentation-back"><a href="'.$realUrl.'/index.php/Special:WSForm/Docs">' . wfMessage("wsform-docs-back-documentation")->text() . '</a></div>';
+
+			if ( strtolower($args[0]) == 'setup' ) {
+				$allowed = $this->getConfigSetting('allow-special-page-setup' );
+				if( $allowed !== false ) {
+					$css = file_get_contents( $path . 'docs.css' );
+					$out->addHTML( '<style>' . $css . '</style>' );
+					//$out->addHTML('<HR><pre>');
+					$out->addHTML( $this->setupWSForm( $path, $setupUrl ) );
+
+					//$out->addHTML('</pre><HR>');
+					return;
+				} else {
+					$out->addHTML( '<p>Setup through Special page disabled</p>' );
+				}
+			}
+
 			if ( strtolower($args[0]) == 'docs' ) {
 				$css = file_get_contents($path.'docs.css');
 				$out->addHTML( '<style>'.$css.'</style>' );
@@ -837,4 +891,331 @@ class SpecialWSForm extends SpecialPage {
 			return $args;
 		} else return false;
 	}
+
+	private function getPostSetup( $name ){
+		$value = $this->getPostString( $name );
+		if( $value === false ) {
+			return "";
+		}
+		return $value;
+	}
+
+	private function setupWSForm( $path, $purl ){
+
+		$action = $this->getPostString( 'setup' );
+
+		$tmp_uri = $url = "http" . ( ! empty( $_SERVER['HTTPS'] ) ? "s" : "" ) . "://" . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
+		$parts   = explode( '/', $tmp_uri );
+		$dir     = "";
+		for ( $i = 0; $i < count( $parts ) - 3; $i ++ ) {
+			$dir .= $parts[ $i ] . "/";
+		}
+		$api_url  = $dir . "api.php";
+
+		if( $action === 'step1' ) {
+			$config = array();
+			$config['api-cookie-path'] = $this->getPostString('api-cookie-path' );
+			if( $config['api-cookie-path'] === false ){
+				$config['api-cookie-path'] = '/tmp/WSCOOKIE';
+			} else {
+				$config['api-cookie-path'] = rtrim($config['api-cookie-path'], '/' );
+				$config['api-cookie-path'] .= '/WSCOOKIE';
+			}
+			$config['api-url-overrule'] = $this->getPostString('api-url-overrule' );
+			if( $config['api-url-overrule'] === false ) {
+				$config['api-url-overrule'] = $api_url;
+			}
+
+			$config['api-username'] = $this->getPostString('api-username' );
+			$config['api-password'] = $this->getPostString('api-password' );
+			$ret = '<?php' . PHP_EOL;
+			$ret .= '$config = ';
+			$ret .= var_export( $config, true ) . ';' . PHP_EOL;
+			file_put_contents( $this->configFile, $ret);
+			$this->config = $config;
+		}
+
+		if( $action === 'general' ) {
+			$config = array();
+			$config['api-cookie-path'] = $this->getPostString('api-cookie-path' );
+			if( $config['api-cookie-path'] === false ){
+				$config['api-cookie-path'] = '/tmp/WSCOOKIE';
+			} else {
+				$config['api-cookie-path'] = rtrim( $config['api-cookie-path'], '/' );
+				$config['api-cookie-path'] .= '/WSCOOKIE';
+			}
+			$config['api-url-overrule'] = $this->getPostString('api-url-overrule' );
+			if( $config['api-url-overrule'] === false ) {
+				$config['api-url-overrule'] = $api_url;
+			}
+			$config['api-username'] = $this->getPostString('api-username' );
+			$config['api-password'] = $this->getPostString('api-password' );
+			$config['wgAbsoluteWikiPath'] = $this->getPostString('wgAbsoluteWikiPath' );
+			if( $config['wgAbsoluteWikiPath'] === false ) {
+				$config['wgAbsoluteWikiPath'] = '';
+			}
+			$config['wgScript'] = $this->getPostString('wgScript' );
+			if( $config['wgScript'] === false ) {
+				$config['wgScript'] = '';
+			}
+			$config['use-api-user-only'] = $this->getPostString('use-api-user-only' );
+			$config['rc_site_key'] = $this->getPostString('rc_site_key' );
+			if( $config['rc_site_key'] === false ) {
+				$config['rc_site_key'] = '';
+			}
+			$config['rc_secret_key'] = $this->getPostString('rc_secret_key' );
+			if( $config['rc_secret_key'] === false ) {
+				$config['rc_secret_key'] = '';
+			}
+			$config['use-formbuilder'] = $this->getPostString('use-formbuilder' );
+			if( $config['use-formbuilder'] === "yes" ){
+				$config['use-formbuilder'] = true;
+			} else $config['use-formbuilder'] = false;
+			$config['allow-edit-docs'] = $this->getPostString('allow-edit-docs' );
+			if( $config['allow-edit-docs'] === "yes" ){
+				$config['allow-edit-docs'] =  true;
+			} else $config['allow-edit-docs'] = false;
+			$config['sec'] = $this->getPostString('sec' );
+			if( $config['sec'] === "yes" ){
+				$config['sec'] =  true;
+			} else $config['sec'] = false;
+			$config['use-smtp'] = $this->getPostString('use-smtp' );
+			if( $config['use-smtp'] === "yes" ){
+				$config['use-smtp'] =  true;
+			} else $config['use-smtp'] = false;
+			$config['smtp-authentication'] = $this->getPostString('smtp-authentication' );
+			if( $config['smtp-authentication'] === "yes" ){
+				$config['smtp-authentication'] =  true;
+			} else $config['smtp-authentication'] = false;
+			$config['smtp-host'] = $this->getPostString('smtp-host' );
+			if( $config['smtp-host'] === false ) {
+				$config['smtp-host'] = '';
+			}
+			$config['smtp-username'] = $this->getPostString('smtp-username' );
+			if( $config['smtp-username'] === false ) {
+				$config['smtp-username'] = '';
+			}
+			$config['smtp-password'] = $this->getPostString('smtp-password' );
+			if( $config['smtp-password'] === false ) {
+				$config['smtp-password'] = '';
+			}
+			$config['smtp-secure'] = $this->getPostString('smtp-secure' );
+			if( $config['smtp-secure'] === false ) {
+				$config['smtp-secure'] = '';
+			}
+			$config['smtp-port'] = $this->getPostString('smtp-port' );
+			if( $config['smtp-port'] === false ) {
+				$config['smtp-port'] = '';
+			}
+			$ret = '<?php' . PHP_EOL;
+			$ret .= '$config = ';
+			$ret .= var_export( $config, true ) . ';' . PHP_EOL;
+			file_put_contents( $this->configFile, $ret);
+			$this->config = $config;
+		}
+
+		if( $this->config === false ) {
+			// Here we are trying to create the url for the API.
+			// Although this should work on most servers, it might not.
+			// If you experience any problems, just uncomment the last line and fill it the correct
+			// url for WSform.api.php.
+			$tmp_uri = $url = "http" . ( ! empty( $_SERVER['HTTPS'] ) ? "s" : "" ) . "://" . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
+			$parts   = explode( '/', $tmp_uri );
+			$dir     = "";
+			for ( $i = 0; $i < count( $parts ) - 3; $i ++ ) {
+				$dir .= $parts[ $i ] . "/";
+			}
+			$api_url  = $dir . "api.php";
+
+			$cookiefile = "/tmp";
+			if( !is_writable( $cookiefile ) ) {
+				$notWriteable = ' <span style="font-weight:normal; color:red;"> This is the default path to a folder to write cookies. It is not writeable on your system, please change!</span>';
+			} else $notWriteable = '';
+
+			$form = file_get_contents($path.'setup_1.html');
+			$find = array(
+				'%%api-cookie-span%%',
+				'%%api-cookie-path%%',
+				'%%url%%',
+				'%%api-url-overrule%%'
+			);
+			$replace = array(
+				$notWriteable,
+				$cookiefile,
+				$purl,
+				$api_url
+
+			);
+			$form = str_replace( $find ,$replace, $form );
+
+			return $form;
+
+		} else {
+
+			$tmp_uri = $url = "http" . ( ! empty( $_SERVER['HTTPS'] ) ? "s" : "" ) . "://" . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
+			$parts   = explode( '/', $tmp_uri );
+			$dir     = "";
+			for ( $i = 0; $i < count( $parts ) - 3; $i ++ ) {
+				$dir .= $parts[ $i ] . "/";
+			}
+			$api_url  = $dir . "api.php";
+
+			$useApiUserOnly = $this->getConfigSetting('use-api-user-only');
+			if( strtolower( $useApiUserOnly ) === 'yes' || $useApiUserOnly === "" ){
+				$useApiUserOnlySelectedYes = 'selected="selected"';
+				$useApiUserOnlySelectedNo = "";
+			} else {
+				$useApiUserOnlySelectedYes = "";
+				$useApiUserOnlySelectedNo = 'selected="selected"';
+			}
+			//$apiCookiePath = $this->getConfigSetting('api-cookie-path');
+			$apiCookiePath = substr($this->config['api-cookie-path'], 0, strrpos( $this->config['api-cookie-path'], '/'));
+			if( !is_writable( $apiCookiePath ) ) {
+				$apiCookieSpan = ' <span style="font-weight:normal; color:red;"> This is the path to a folder to write cookies. It is not writeable on your system, please change!</span>';
+			} else $apiCookieSpan = '';
+
+
+			$apiUrlOverRule = $this->getConfigSetting('api-url-overrule');
+			if( $apiUrlOverRule === "" ) {
+				$apiUrlOverRulePlaceHolder = $api_url;
+			} else $apiUrlOverRulePlaceHolder = "";
+
+
+
+			$apiUsername = $this->getConfigSetting('api-username');
+			$apiPassword = $this->getConfigSetting('api-password');
+			$wgAbsoluteWikiPath = $this->getConfigSetting('wgAbsoluteWikiPath');
+			$wgScript = $this->getConfigSetting('wgScript');
+			$rc_site_key = $this->getConfigSetting('rc_site_key');
+			$rc_secret_key = $this->getConfigSetting('rc_secret_key');
+			$useSMTP = $this->getConfigSetting('use-smtp');
+			if( $useSMTP === "" || $useSMTP === false) {
+				$useSMTPSelectedYes = "";
+				$useSMTPSelectedNo = 'selected="selected"';
+			} else {
+				$useSMTPSelectedYes = 'selected="selected"';
+				$useSMTPSelectedNo = "";
+			}
+			$SMTPHost = $this->getConfigSetting('smtp-host');
+			$SMTPAuthentication = $this->getConfigSetting('smtp-authentication');
+			if( $SMTPAuthentication === "" || $SMTPAuthentication === true) {
+				$SMTPAuthenticationSelectedYes = 'selected="selected"';
+				$SMTPAuthenticationSelectedNo = "";
+			} else {
+				$SMTPAuthenticationSelectedYes = "";
+				$SMTPAuthenticationSelectedNo = 'selected="selected"';
+			}
+			$SMTPUsername = $this->getConfigSetting('smtp-username');
+			$SMTPPassword = $this->getConfigSetting('smtp-password');
+			$SMTPSecure = $this->getConfigSetting('smtp-secure');
+			if( $SMTPSecure === '' ) {
+				$SMTPSecure = 'TLS';
+			}
+			$SMTPPort = $this->getConfigSetting('smtp-port');
+			if( $SMTPPort === '' ) {
+				$SMTPPort = 587;
+			}
+			$sec = $this->getConfigSetting('sec');
+			if( $sec === true ) {
+				$secSelectedYes = 'selected="selected"';
+				$secSelectedNo = "";
+			} else {
+				$secSelectedYes = "";
+				$secSelectedNo = 'selected="selected"';
+			}
+			$useFormbuilder = $this->getConfigSetting('use-formbuilder');
+			if( $useFormbuilder === true || $useFormbuilder === "" ){
+				$useFormbuilderSelectedYes = 'selected="selected"';
+				$useFormbuilderSelectedNo = "";
+			} else {
+				$useFormbuilderSelectedYes = "";
+				$useFormbuilderSelectedNo = 'selected="selected"';
+			}
+			$allowEditDocs = $this->getConfigSetting('allow-edit-docs');
+			if( $allowEditDocs === true || $allowEditDocs === "" ){
+				$allowEditDocsSelectedYes = 'selected="selected"';
+				$allowEditDocsSelectedNo = "";
+			} else {
+				$allowEditDocsSelectedYes = "";
+				$allowEditDocsSelectedNo = 'selected="selected"';
+			}
+
+
+
+			$find = array(
+				'%%api-cookie-span%%',
+				'%%api-cookie-path%%',
+				'%%url%%',
+				'%%api-url-overrule%%',
+				'%%api-url-overrule-placeholder%%',
+				'%%api-username%%',
+				'%%api-password%%',
+				'%%wgAbsoluteWikiPath%%',
+				'%%wgScript%%',
+				'%%use-api-user-only-selected-yes%%',
+				'%%use-api-user-only-selected-no%%',
+				'%%rc_site_key%%',
+				'%%rc_secret_key%%',
+				'%%use-formbuilder-selected-yes%%',
+				'%%use-formbuilder-selected-no%%',
+				'%%allow-edit-docs-selected-yes%%',
+				'%%allow-edit-docs-selected-no%%',
+				'%%sec-selected-yes%%',
+				'%%sec-selected-no%%',
+				'%%use-smtp-selected-yes%%',
+				'%%use-smtp-selected-no%%',
+				'%%smtp-authentication-selected-yes%%',
+				'%%smtp-authentication-selected-no%%',
+				'%%smtp-host%%',
+				'%%smtp-username%%',
+				'%%smtp-password%%',
+				'%%smtp-secure%%',
+				'%%smtp-port%%'
+			);
+			$replace =  array(
+				$apiCookieSpan,
+				$apiCookiePath,
+				$purl,
+				$apiUrlOverRule,
+				$apiUrlOverRulePlaceHolder,
+				$apiUsername,
+				$apiPassword,
+				$wgAbsoluteWikiPath,
+				$wgScript,
+				$useApiUserOnlySelectedYes,
+				$useApiUserOnlySelectedNo,
+				$rc_site_key,
+				$rc_secret_key,
+				$useFormbuilderSelectedYes,
+				$useFormbuilderSelectedNo,
+				$allowEditDocsSelectedYes,
+				$allowEditDocsSelectedNo,
+				$secSelectedYes,
+				$secSelectedNo,
+				$useSMTPSelectedYes,
+				$useSMTPSelectedNo,
+				$SMTPAuthenticationSelectedYes,
+				$SMTPAuthenticationSelectedNo,
+				$SMTPHost,
+				$SMTPUsername,
+				$SMTPPassword,
+				$SMTPSecure,
+				$SMTPPort
+
+			);
+
+			$form = file_get_contents($path.'setup_all.html');
+			$form = str_replace( $find, $replace, $form );
+
+			return $form;
+
+		}
+	}
+
+	private function getConfigSetting( $name ) {
+		if( isset( $this->config[$name]) ) {
+			return $this->config[$name];
+		} else return "";
+	}
+
 }

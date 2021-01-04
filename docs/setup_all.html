@@ -1,0 +1,108 @@
+<div style="max-width:75%; margin: 0 auto;">
+    <h2>Configuring WSForm</h2>
+
+
+    <form id="wsform-setup-1" class="ws-documentation" method="post" action="%%url%%">
+        <fieldset>
+            <legend>Setup WSForm - General</legend>
+            <input type="hidden" name="setup" value="general"/>
+
+            <label for="api-username">API user name</label>
+            <input type="text" id="api-username" value="%%api-username%%" name="api-username" placeholder="Enter API user name" required/>
+
+            <label for="api-password">API user password</label>
+            <input type="text" id="api-password" value="%%api-password%%" name="api-password" placeholder="Enter API user password" required/>
+
+            <label for="api-url-overrule">Url to MediaWiki API <span style="font-weight: normal;">This url is automatically calculated. If it is not correct, please correct it.</span></label>
+            <input type="text" id="api-url-overrule" name="api-url-overrule" placeholder="%%api-url-overrule-placeholder%%" value="%%api-url-overrule%%" />
+
+            <label for="api-cookie-path">Path to COOKIE %%api-cookie-span%%</label>
+            <input type="text" id="api-cookie-path" name="api-cookie-path" placeholder="" value="%%api-cookie-path%%" />
+        </fieldset>
+
+        <fieldset>
+            <legend>Setup WSForm - Tweaking</legend>
+
+            <label for="wgAbsoluteWikiPath">wgAbsoluteWikiPath <span style="font-weight: normal;">Read the config docs before changing.</span></label>
+            <input type="text" id="wgAbsoluteWikiPath" name="wgAbsoluteWikiPath" value="%%wgAbsoluteWikiPath%%" placeholder="Enter wgAbsoluteWikiPath for use in farms" />
+
+            <label for="wgScript">wgScript <span style="font-weight: normal;">Read the config docs before changing.</span></label>
+            <input type="text" id="wgScript" name="wgScript" placeholder="Enter wgScript path to index.php" value="%%wgScript%%" />
+        </fieldset>
+
+        <fieldset>
+            <legend>Setup WSForm - Config</legend>
+
+            <label for="use-api-user-only">Should WSForm only handle posts through MW API? <span style="font-weight: normal;">Read the config docs before changing. Defaults to yes</span></label>
+            <select name="use-api-user-only" id="use-api-user-only" required>
+                <option value="yes" %%use-api-user-only-selected-yes%%>yes</option>
+                <option value="no" %%use-api-user-only-selected-no%%>no</option>
+            </select>
+
+
+            <label for="rc_site_key">Recaptcha v3 site key <span style="font-weight: normal;">Read the config docs before changing. Leave empty if not used</span></label>
+            <input type="text" id="rc_site_key" name="rc_site_key" placeholder="Enter ReCaptcha v3 site key" value="%%rc_site_key%%" />
+
+            <label for="rc_secret_key">Recaptcha v3 secret key <span style="font-weight: normal;">Read the config docs before changing. Leave empty if not used</span></label>
+            <input type="text" id="rc_secret_key" name="rc_secret_key" placeholder="Enter ReCaptcha v3 secret key" value="%%rc_secret_key%%" />
+
+            <label for="use-formbuilder">Should Formbuilder be accessable? <span style="font-weight: normal;">Read the config docs before changing. Defaults to yes</span></label>
+            <select name="use-formbuilder" id="use-formbuilder" required>
+                <option value="yes" %%use-formbuilder-selected-yes%%>yes</option>
+                <option value="no" %%use-formbuilder-selected-no%%>no</option>
+            </select>
+
+            <label for="allow-edit-docs">Enable editing documentation? <span style="font-weight: normal;">Read the config docs before changing. Defaults to no</span></label>
+            <select name="allow-edit-docs" id="allow-edit-docs" required>
+                <option value="yes" %%allow-edit-docs-selected-yes%%>yes</option>
+                <option value="no" %%allow-edit-docs-selected-no%%>no</option>
+            </select>
+
+        </fieldset>
+
+        <fieldset>
+            <legend>Setup WSForm - Security</legend>
+
+            <label for="sec">Should WSForm use deep security features? <span style="font-weight: normal;">Read the config docs before changing. Defaults to no</span></label>
+            <select name="sec" id="sec" required>
+                <option value="yes" %%sec-selected-yes%%>yes</option>
+                <option value="no" %%sec-selected-no%%>no</option>
+            </select>
+        </fieldset>
+
+        <fieldset>
+            <legend>Setup WSForm - SMTP</legend>
+
+            <label for="use-smtp">Use SMTP when emailing? <span style="font-weight: normal;">Read the config docs before changing. Defaults to no</span></label>
+            <select name="use-smtp" id="use-smtp" required>
+                <option value="yes" %%use-smtp-selected-yes%%>yes</option>
+                <option value="no" %%use-smtp-selected-no%%>no</option>
+            </select>
+            <label for="smtp-authentication">Use SMTP authentication? <span style="font-weight: normal;">Read the config docs before changing. Defaults to yes</span></label>
+            <select name="smtp-authentication" id="smtp-authentication" required>
+                <option value="yes" %%smtp-authentication-selected-yes%%>yes</option>
+                <option value="no" %%smtp-authentication-selected-no%%>no</option>
+            </select>
+
+
+            <label for="smtp-host">SMTP Host</label>
+            <input type="text" id="smtp-host" name="smtp-host" placeholder="Enter SMTP Host" value="%%smtp-host%%" />
+
+            <label for="smtp-username">SMTP User name</label>
+            <input type="text" id="smtp-username" name="smtp-username" placeholder="Enter SMTP User name" value="%%smtp-username%%" />
+
+            <label for="smtp-password">SMTP Password</label>
+            <input type="password" id="smtp-password" name="smtp-password" placeholder="Enter SMTP Password" value="%%smtp-password%%" />
+
+            <label for="smtp-secure">SMTP Security type</label>
+            <input type="text" id="smtp-secure" name="smtp-secure" placeholder="Enter SMTP Security type" value="%%smtp-secure%%" />
+
+            <label for="smtp-port">SMTP port</label>
+            <input type="text" id="smtp-port" name="smtp-port" placeholder="Enter SMTP Port number" value="%%smtp-port%%" />
+
+
+        </fieldset>
+
+        <input type="submit" class="btn" value="Save settings"/>
+    </form>
+</div>

@@ -92,6 +92,7 @@ Visit : Special:WSForm/Docs
 
 
 ### Changelog
+* 0.8.0.8.9 : Added Install Wizard
 * 0.8.0.8.8 : Added VE4ALL support
 * 0.8.0.8.7 : Fixed reCaptcha
 * 0.8.0.8.6 : More secured form rendering
