@@ -542,7 +542,7 @@ class WSFormHooks {
             $prefix = '_' . $wgDBprefix;
         } else $prefix = '';
 
-		$parser->disableCache();
+		//$parser->disableCache();
 		//$parser->getOutput()->addModules( 'ext.wsForm.select2.kickstarter' );
 		$ret         = '<select data-inputtype="ws-select2"';
 		$placeholder = false;
