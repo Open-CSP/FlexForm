@@ -748,8 +748,8 @@ class render {
 					$js = '<script>var WSFormEditor = "VE";</script>';
 					$js .= '<style>
 							.load-editor{ 
-								background: url("https://www.wikibase.nl/load-editor.gif") no-repeat bottom right #fff; 
-								background-size: contain;
+								background: url("https://www.wikibase.nl/load-editor.gif") no-repeat bottom right #fff;
+								background-size: 50px; 
 							}
 							</style>';
 					$ret = '<span class="ve-area-wrapper">' . $ret;
