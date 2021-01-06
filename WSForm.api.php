@@ -14,6 +14,9 @@
  *    Date : October 2017
  */
 //use \MediawikiApi\Api\ApiUser;
+$cookieParams = session_get_cookie_params();
+$cookieParams[samesite] = "Lax";
+session_set_cookie_params($cookieParams);
 session_start();
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -249,36 +252,24 @@ if( $captchaAction !== false && $captchaToken !== false ) {
 if( $securedVersion ) {
 	require_once( 'classes/protect.class.php' );
 	$crypt = new wsform\protect\protect();
-	$crypt::setCrypt();
+	$crypt::setCrypt( $api->getCheckSumKey() );
 	$checksum = false;
-	//echo "<pre>";
-
-	//print_r($_POST);
-	//echo "</pre>";
 	$formId = getPostString('formid' );
 	if( $formId !== false ) {
 		unset( $_POST['formid'] );
 	}
 	foreach( $_POST as $k=>$v ) {
-		//echo $crypt::decrypt( $k );
 		if( $crypt::decrypt( $k ) === 'checksum' ) {
 			$checksum = unserialize( $crypt::decrypt( $v ) ) ;
-			//print_r( $checksum );
 			unset( $_POST[$k] );
 		}
 	}
 	if( $checksum === false && $formId !== false ) {
 		$i18n->wsMessage( 'wsform-secure-not' );
 	}
-	//echo "<pre>";
-	//print_r($checksum);
-	//die();
-	//print_r($_POST);
-	//echo "</pre>";
 	if( isset( $checksum[$formId]['secure'] ) ) {
 		foreach( $checksum[$formId]['secure'] as $secure ) {
 			$tmpName = getPostString( $secure['name'], false );
-			//var_dump($tmpName);
 			if( $tmpName !== false ) {
 				$newK = $crypt::decrypt( $secure['name'] );
 				$newV = $crypt::decrypt( $tmpName );
@@ -290,12 +281,7 @@ if( $securedVersion ) {
 				$i18n->wsMessage( 'wsform-secure-fields-incomplete' );
 			}
 		}
-		//echo "<pre>";
-		//print_r($_POST);
-		//echo "</pre>";
 	}
-	//die();
-	//$api->app['checksum'] = $checksum;
 }
 
 // Clean all fields

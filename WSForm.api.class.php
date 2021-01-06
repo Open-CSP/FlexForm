@@ -213,6 +213,12 @@ class wbApi {
       } else return false;
   }
 
+  function getCheckSumKey(){
+      if( isset( $this->app['sec-key'] ) ) {
+          return $this->app['sec-key'];
+      } else return false;
+  }
+
 
   function loadSettings() {
 
@@ -281,6 +287,7 @@ class wbApi {
       $this->setConfigVar( 'smtp-secure', $config );
       $this->setConfigVar( 'smtp-port', $config );
       $this->setConfigVar( 'sec', $config );
+      $this->setConfigVar( 'sec-key', $config );
 
 
       if ( isset( $config['api-url-overrule'] ) && $config['api-url-overrule'] === '' ) {

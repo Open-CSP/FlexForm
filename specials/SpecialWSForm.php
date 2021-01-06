@@ -993,6 +993,10 @@ class SpecialWSForm extends SpecialPage {
 			if( $config['sec'] === "yes" ){
 				$config['sec'] =  true;
 			} else $config['sec'] = false;
+			$config['sec-key'] = $this->getPostString('sec-key' );
+			if( $config['sec-key'] === false ){
+				$config['seckkey'] =  '';
+			}
 			$config['use-smtp'] = $this->getPostString('use-smtp' );
 			if( $config['use-smtp'] === "yes" ){
 				$config['use-smtp'] =  true;
@@ -1139,6 +1143,7 @@ class SpecialWSForm extends SpecialPage {
 				$secSelectedYes = "";
 				$secSelectedNo = 'selected="selected"';
 			}
+			$secKey = $this->getConfigSetting('sec-key');
 			$useFormbuilder = $this->getConfigSetting('use-formbuilder');
 			if( $useFormbuilder === true || $useFormbuilder === "" ){
 				$useFormbuilderSelectedYes = 'selected="selected"';
@@ -1187,7 +1192,8 @@ class SpecialWSForm extends SpecialPage {
 				'%%smtp-username%%',
 				'%%smtp-password%%',
 				'%%smtp-secure%%',
-				'%%smtp-port%%'
+				'%%smtp-port%%',
+				'%%sec-key%%'
 			);
 			$replace =  array(
 				$mwcheck,
@@ -1218,7 +1224,8 @@ class SpecialWSForm extends SpecialPage {
 				$SMTPUsername,
 				$SMTPPassword,
 				$SMTPSecure,
-				$SMTPPort
+				$SMTPPort,
+				$secKey
 
 			);
 

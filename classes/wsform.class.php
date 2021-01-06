@@ -48,6 +48,8 @@ class wsform {
 	 * @var array $chkSums
 	 * Holds checksum for every field in the form
 	 */
+	public static $checksumKey = false;
+
 	public static $chkSums = array();
 
 	public static $formId = "";
@@ -170,7 +172,7 @@ class wsform {
 
 	public static function createHiddenField( $name, $value ) {
 		if( \wsform\wsform::$secure ) {
-			\wsform\protect\protect::setCrypt();
+			\wsform\protect\protect::setCrypt( \wsform\wsform::$checksumKey );
 			$name  = \wsform\protect\protect::encrypt( $name );
 			$value = \wsform\protect\protect::encrypt( $value );
 			\wsform\wsform::addCheckSum( 'secure', $name, $value, "all" );

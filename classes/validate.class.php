@@ -309,7 +309,7 @@ class validate {
 			if ( self::validParameters( $k ) ) {
 				if ( $k == "name" ) {
 					if( $type === "secure" ) {
-						\wsform\protect\protect::setCrypt();
+						\wsform\protect\protect::setCrypt( \wsform\wsform::$checksumKey );
 						$name = \wsform\protect\protect::encrypt( $v );
 						$v = $name; // set value to be encypted
 					} else {
@@ -319,7 +319,7 @@ class validate {
 				if ( $k == "value" ) {
 					$value = true;
 					if( $type === "secure" ) {
-						\wsform\protect\protect::setCrypt();
+						\wsform\protect\protect::setCrypt( \wsform\wsform::$checksumKey );
 						$val = \wsform\protect\protect::encrypt( $v );
 						$v = $val; // set value to be encypted
 						$html = "all";

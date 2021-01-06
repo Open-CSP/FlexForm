@@ -94,6 +94,9 @@ class WSFormHooks {
 			if( isset( $config['use-api-user-only'] ) && $config['use-api-user-only'] !== "yes" ) {
 				\wsform\wsform::$runAsUser = true;
 			}
+			if( isset( $config['sec-key'] ) && !empty( $config['sec-key'] ) ) {
+				\wsform\wsform::$checksumKey = $config['sec-key'];
+			}
 		}
 
 		$parser->setHook( 'wsform', 'WSFormHooks::WSForm' );
@@ -398,7 +401,7 @@ class WSFormHooks {
 		//Add checksum
 
 		if( \wsform\wsform::$secure ) {
-			\wsform\protect\protect::setCrypt();
+			\wsform\protect\protect::setCrypt( \wsform\wsform::$checksumKey );
 			if( \wsform\wsform::$runAsUser ) {
 				$chcksumwuid = \wsform\protect\protect::encrypt( 'wsuid' );
 				$uid = \wsform\protect\protect::encrypt( $wgUser->getId() );

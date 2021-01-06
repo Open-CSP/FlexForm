@@ -9,7 +9,6 @@
 
 namespace wsform\protect;
 
-
 class protect {
 
 	protected static $method = 'aes-128-ctr'; // default cipher method if none supplied
