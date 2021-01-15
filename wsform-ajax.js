@@ -23,6 +23,26 @@ function showMessage(msg,type,where = false, stick=false) {
     }
 }
 
+(function($) {
+    $.fn.autoSave = function(callback, ms) {
+        return this.each(function() {
+            var timer = 0,
+                $this = $(this),
+                delay = ms || 1000;
+            $this.keyup(function() {
+                clearTimeout(timer);
+                var $context = $this.val();
+                if(localStorage) {
+                    localStorage.setItem("autoSave", $context);
+                }
+                timer = setTimeout(function() {
+                    callback();
+                }, delay);
+            });
+        });
+    };
+})(jQuery);
+
 var WSFormEditorsUpdates = false;
 
 function test1() {
@@ -35,6 +55,14 @@ function test2(btn,callback) {
 	wsform(btn,callback);
 }
 
+function wsAutoSave() {
+    var autosaveForms = $('form.ws-autosave');
+    autosaveForms.each(function(){
+        $(this).autoSave(function(){
+            //$(this).
+        }, 5000);
+    });
+}
 
 function updateVE( btn, callback, preCallback, pform ){
    // console.log("updating..");
@@ -116,7 +144,9 @@ function wsform(btn,callback = 0, preCallback = 0) {
         updateVE( btn, callback, preCallback, frm );
     } else {
 
-
+        if ( typeof window.mwonsuccess === 'undefined' ) {
+            var mwonsuccess = 'Saved successfully';
+        } else mwonsuccess = window.mwonsuccess;
         // Added posting as user for Ajax v0.8.0.5.8
         var res = $(frm).find('input[name="wsuid"]');
         if ($(res) && $(res).length === 0) {
@@ -155,8 +185,8 @@ function wsform(btn,callback = 0, preCallback = 0) {
                 frm.removeClass("wsform-submitting");
                 frm.addClass("wsform-submitted");
                 //alert(result);
-                if (result.status == 'ok') {
-                    showMessage('Saved succesfully', "success", $(btn));
+                if (result.status === 'ok') {
+                    showMessage( mwonsuccess, "success", $(btn));
                     if (callback !== 0 && typeof callback !== 'undefined') {
                         callback(frm);
                     }

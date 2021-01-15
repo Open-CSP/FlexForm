@@ -383,6 +383,10 @@ class WSFormHooks {
             $changeCall = $args['changetrigger'];
             $onchange = "<script>$('#" . $changeId . "').change(" . $changeCall . "(this));</script>";
         } else $onchange = false;
+
+        if( isset( $args['messageonsuccess']) && $args['messageonsuccess'] !== '' ) {
+            $msgOnSuccessJs = $js = '<script>var mwonsuccess = "' . $args['messageonsuccess'] . '";</script>';
+        } else $msgOnSuccessJs = '';
 		
 
 		$output = $parser->recursiveTagParse( $input, $frame );
@@ -428,6 +432,9 @@ class WSFormHooks {
         }
         if( $loadScript !== false ) {
 			$ret .= $loadScript;
+        }
+        if( $msgOnSuccessJs !== false ) {
+            $ret .= $msgOnSuccessJs;
         }
 
         if( isset( $args['recaptcha-v3-action'] ) && ! wsform\wsform::isLoaded( 'google-captcha' ) ) {

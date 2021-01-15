@@ -389,7 +389,7 @@ class SpecialWSForm extends SpecialPage {
 				$out->addHTML( '<style>'.$css.'</style>' );
 				// Did we have Posts ????
 				$create = $this->getPostString('create');
-				if ( $create && $create == 'create' ) {
+				if ( $create && $create === 'create' ) {
 						unset( $_POST['create'] );
 
 						$name = $this->getPostString('name');
@@ -406,10 +406,11 @@ class SpecialWSForm extends SpecialPage {
 						$data['doc'] = $_POST;
 						$data['doc']['created'] = date("d-m-Y H:i:s");
 						$data['doc']['created by'] = $wgUser->getName();
-					if (file_put_contents($path.$type."_".$name.'.json',json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) ) ) {
-							$this->makeMessage('Documentation for <strong>'.$name.'</strong> stored.','success');
-							$out->redirect($realUrl.'/index.php/Special:WSForm/Docs');
-						} else $out->addHTML( '<p>Could NOT store documentation for <strong>'.$name.'</strong>.</p>'.$back );
+
+                        if (file_put_contents($path.$type."_".$name.'.json',json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) ) ) {
+                                $this->makeMessage('Documentation for <strong>'.$name.'</strong> stored.','success');
+                                $out->redirect($realUrl.'/index.php/Special:WSForm/Docs');
+                            } else $out->addHTML( '<p>Could NOT store documentation for <strong>'.$name.'</strong>.</p>'.$back );
 
 						return ;
 				}
@@ -438,7 +439,7 @@ class SpecialWSForm extends SpecialPage {
 
 					return ;
 				}
-				if ( $create && $create == 'edit' ) {
+				if ( $create && $create === 'edit' ) {
 						unset( $_POST['create'] );
 
 						$name = $this->getPostString('name');
@@ -607,13 +608,17 @@ class SpecialWSForm extends SpecialPage {
 
 
 					foreach ($fields as $field) {
-						if($example) {
-							$tmp = $doc['example'][$field];
-						} else {
-							$tmp = $doc['doc'][ $field ];
-						}
-						$form = str_replace('%%'.$field.'%%', $tmp, $form);
+					    if( $field !== 'created_by' ) {
+                            if ($example) {
+                                $tmp = $doc['example'][$field];
+                            } else {
+                                $tmp = $doc['doc'][$field];
+                            }
+                            $form = str_replace('%%' . $field . '%%', $tmp, $form);
+                        }
 					}
+
+                    $form = str_replace('%%created_by%%', $doc['doc']['created by'], $form);
 
 					foreach ($formhooks as $option) {
 						if ($type == $option) {
@@ -993,10 +998,6 @@ class SpecialWSForm extends SpecialPage {
 			if( $config['sec'] === "yes" ){
 				$config['sec'] =  true;
 			} else $config['sec'] = false;
-			$config['sec-key'] = $this->getPostString('sec-key' );
-			if( $config['sec-key'] === false ){
-				$config['seckkey'] =  '';
-			}
 			$config['use-smtp'] = $this->getPostString('use-smtp' );
 			if( $config['use-smtp'] === "yes" ){
 				$config['use-smtp'] =  true;
@@ -1143,7 +1144,6 @@ class SpecialWSForm extends SpecialPage {
 				$secSelectedYes = "";
 				$secSelectedNo = 'selected="selected"';
 			}
-			$secKey = $this->getConfigSetting('sec-key');
 			$useFormbuilder = $this->getConfigSetting('use-formbuilder');
 			if( $useFormbuilder === true || $useFormbuilder === "" ){
 				$useFormbuilderSelectedYes = 'selected="selected"';
@@ -1192,8 +1192,7 @@ class SpecialWSForm extends SpecialPage {
 				'%%smtp-username%%',
 				'%%smtp-password%%',
 				'%%smtp-secure%%',
-				'%%smtp-port%%',
-				'%%sec-key%%'
+				'%%smtp-port%%'
 			);
 			$replace =  array(
 				$mwcheck,
@@ -1224,8 +1223,7 @@ class SpecialWSForm extends SpecialPage {
 				$SMTPUsername,
 				$SMTPPassword,
 				$SMTPSecure,
-				$SMTPPort,
-				$secKey
+				$SMTPPort
 
 			);
 

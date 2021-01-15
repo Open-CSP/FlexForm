@@ -114,7 +114,8 @@ class validate {
 			"extension",
 			"post-as-user",
 			"lock",
-			"recaptcha-v3-action"
+			"recaptcha-v3-action",
+            "autosave"
 		);
 		if ( $ret ) {
 			return $validFormElements;

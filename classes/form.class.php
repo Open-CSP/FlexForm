@@ -44,11 +44,12 @@ class render {
 		$lock = false;
 		$secure = true;
 		$wslock = "";
+		$class = array();
 		$ret      .= 'action="' . wsform::getAPIurl() . '" method="post" ';
 		foreach ( $args as $k => $v ) {
 			if ( validate::validFormParameters( $k ) ) {
 				switch ($k) {
-					case "messageonsuccess" :
+					case "'messageonsuccess'" :
 						$messageonsuccess = \wsform\wsform::createHiddenField( 'mwonsuccess', $v );
 						break;
 					case "setwikicomment":
@@ -72,6 +73,12 @@ class render {
 					case "post-as-user" :
 						$ret .= 'data-wsform="wsform-general" ';
 						break;
+                    case "autosave" :
+                        $class[] = 'ws-autosave';
+                        break;
+                    case "class" :
+                        $class[] = $v;
+                        break;
 					default :
 						$ret .= $k . '="' . $v . '" ';
 						break;
@@ -79,6 +86,8 @@ class render {
 				}
 			}
 		}
+
+		$ret .= 'class = "' . implode( " ", $class ) . '" ';
 
 		// Create a unique token for this form
         if( isset( $_SERVER['HTTP_HOST'] ) ) {

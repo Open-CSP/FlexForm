@@ -7,10 +7,10 @@
         "parameters": "<pre>wsfield type=\"checkbox\"<\/pre>",
         "example": "Example checkbox:\r\n\r\n<wsfield type=\"checkbox\" name=\"Archived\" value=\"Yes\" id=\"archived-checkbox\" \/> <wslabel for=\"archived-checkbox\">Yes, archive this page<\/wslabel>\r\n\r\nExample multiple checkboxes:\r\n\r\n<wsfield type=\"checkbox\" name=\"Role[]\" value=\"organizer\" id=\"organizer-checkbox\" \/> <wslabel for=\"organizer-checkbox\">Organizer<\/wslabel><br>\r\n<wsfield type=\"checkbox\" name=\"Role[]\" value=\"participant\" id=\"participant-checkbox\" \/> <wslabel for=\"participant-checkbox\">Participant<\/wslabel><br>\r\n<wsfield type=\"checkbox\" name=\"Role[]\" value=\"contact\" id=\"contact-checkbox\" \/> <wslabel for=\"contact-checkbox\">Contact<\/wslabel><br>\r\n<wsfield type=\"checkbox\" name=\"Role[]\" value=\"user\" id=\"user-checkbox\" \/> <wslabel for=\"user-checkbox\">User<\/wslabel>",
         "note": "<p><strong>Note<\/strong>:Radio buttons\r\n are similar to checkboxes, but with an important distinction — radio \r\nbuttons are grouped into a set in which only one radio button can be \r\nselected at a time, whereas checkboxes allow you to turn single values \r\non and off. Where multiple controls exist, radio buttons allow one to be\r\n selected out of them all, whereas checkboxes allow multiple values to \r\nbe selected.<\/p>",
-        "links": "..",
+        "links": "<ul><li><a href=\"https:\/\/developer.mozilla.org\/en-US\/docs\/Web\/HTML\/Element\/input\/checkbox\">https:\/\/developer.mozilla.org\/en-US\/docs\/Web\/HTML\/Element\/input\/checkbox<\/a><\/li><\/ul>",
         "created": "04-10-2019 17:29:30",
         "created_by": "",
-        "last modified": "04-10-2019 18:23:40",
+        "last modified": "07-01-2021 11:34:02",
         "modified by": "Charlot"
     }
 }

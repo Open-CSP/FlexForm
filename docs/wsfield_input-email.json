@@ -7,10 +7,10 @@
         "parameters": "<p>type=\"email\"<\/p><p>All other valid parameters for an input field are valid<\/p>",
         "example": "<wsfield type=\"email\" name=\"mail\" placeholder=\"Type your email address\" required=\"required\" \/>",
         "note": "All attributes for an email input field are supported (like in this case : name, placeholder and required.) ",
-        "links": "..",
+        "links": "<ul><li><a href=\"https:\/\/developer.mozilla.org\/en-US\/docs\/Web\/HTML\/Element\/input\/email\">https:\/\/developer.mozilla.org\/en-US\/docs\/Web\/HTML\/Element\/input\/email<\/a><\/li><\/ul>",
         "created": "",
         "created_by": "",
-        "last modified": "15-12-2018 23:17:22",
-        "modified by": "Charlot Cobben"
+        "last modified": "07-01-2021 11:35:32",
+        "modified by": "Charlot"
     }
 }
