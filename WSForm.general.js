@@ -8,6 +8,30 @@
  *
  */
 
+/**
+ * Show popup message. Initiated and loaded bu wsform function
+ * @param  {[string]}  msg           [Text message]
+ * @param  {[string]}  type          [what kind of alert (success, alert, warning, etc..)]
+ * @param  {Boolean} [where=false] [where to show]
+ * @param  {Boolean} [stick=false] [wether popup must be sticky or not]
+ * @return {[type]}                []
+ */
+function showMessage(msg,type,where = false, stick=false) {
+	if ( typeof $.notify === "undefined" ) return;
+	if (where !== false) {
+		if(stick) {
+			where.notify(msg,type, {clickToHide: true, autoHide: false });
+		} else {
+			where.notify(msg,type);
+		}
+	} else {
+		if(stick) {
+			$.notify(msg, type, {clickToHide: true, autoHide: false });
+		} else {
+			$.notify(msg, type);
+		}
+	}
+}
 
 /**
  * Holds further JavaScript execution intull jQuery is loaded
@@ -58,6 +82,239 @@ function initializeVE(){
 
 }
 
+function updateVE( btn, callback, preCallback, pform ){
+	// console.log("updating..");
+	var VEditors = $(pform).find("span.ve-area-wrapper");
+	var numberofEditors = VEditors.length;
+	var tAreasFieldNames = [];
+	var tAreas = $(pform).find("textarea").each(function(){
+		tAreasFieldNames.push( $(this).attr('name') );
+	});
+	// console.log(tAreasFieldNames);
+	var veInstances = VEditors.getVEInstances();
+	$(veInstances).each(function () {
+		var instanceName = $(this)[0].$node[0].name;
+		//console.log("updating.. " + instanceName);
+		if( $.inArray( instanceName, tAreasFieldNames ) !== -1 ) {
+			//console.log("updating.. ..");
+			new mw.Api().post({
+				action: 'veforall-parsoid-utils',
+				from: 'html',
+				to: 'wikitext',
+				content: $(this)[0].target.getSurface().getHtml(),
+				title: mw.config.get( 'wgPageName' ).split( /(\\|\/)/g ).pop()
+			} )
+				.then( function ( data ) {
+					//console.log("updating.. then");
+					var text = data[ 'veforall-parsoid-utils' ].content;
+					var esc = text.replace(/(?<!{{[^}]+)\|(?!=[^]+}})/gmi, "{{!}}");
+					var area = pform.find("textarea[name='" + instanceName + "']")[0];
+					$(area).val(esc);
+					numberofEditors--;
+					if( numberofEditors === 0 ) {
+						WSFormEditorsUpdates = true;
+						//console.log("updating.. done");
+						if(window.wsAutoSaveActive === false ) {
+							wsform(btn, callback, preCallback);
+						} else {
+							wsAutoSave(btn, true);
+							window.wsAutoSaveActive = false;
+						}
+					}
+				} )
+				.fail( function () {
+					//console.log("updating.. fail");
+					alert('Could not initialize ve4all, see console for error');
+					console.log(result);
+				} );
+		}
+
+	});
+}
+
+var WSFormEditorsUpdates = false;
+var wsFormTimeOutId = [];
+var wsAutoSaveActive = false;
+var wsAutoSaveGlobalInterval = 30000;
+var wsAutoSaveOnChangeInterval = 3000;
+
+function wsAutoSave( form, reset = false ){
+	var mwonsuccessBackup = false;
+	if ( typeof window.mwonsuccess === 'undefined' ) {
+		window.mwonsuccess = 'Autosave';
+	} else {
+		mwonsuccessBackup = window.mwonsuccess;
+		window.mwonsuccess = 'Autosave';
+	}
+	wsAutoSaveActive = true;
+	console.log (window.wsAjax );
+	if( window.wsAjax === true ) {
+
+		$(form).click();
+	} else {
+		wsform( form );
+	}
+	if( mwonsuccessBackup !== false ) {
+		window.mwonsuccess = mwonsuccessBackup;
+	} else {
+		delete window.mwonsuccess;
+	}
+	if( reset !== false ) {
+		clearTimeout(wsFormTimeOutId[reset + '_general']);
+		setGlobalAutoSave( form, reset );
+	}
+}
+
+
+function setGlobalAutoSave( btn, id ) {
+	wsFormTimeOutId[id + '_general'] = setTimeout( function() {
+		wsAutoSave( btn, id );
+	}, wsAutoSaveGlobalInterval );
+}
+
+function wsAutoSaveInit() {
+	var autosaveForms = $('form.ws-autosave');
+	autosaveForms.each(function(){
+		var form = this;
+		var id = $(this).attr('id');
+		if( typeof id === 'undefined' ) {
+			return;
+		}
+		//observer[id] = new MutationObserver(function(){
+
+		$(form).find("input[type=submit]").each(function(){
+			setGlobalAutoSave( this, id, true );
+		});
+		$(this).on('input paste change', 'input, select, textarea, div', function(){
+			// $(this).bind("DOMSubtreeModified", function(){
+			var btn = $( "input[type=submit]", form );
+			clearTimeout(wsFormTimeOutId[id + '_general']);
+			if( typeof wsFormTimeOutId !== 'undefined' ) {
+				if( wsFormTimeOutId[id] !== undefined ) {
+					clearTimeout(wsFormTimeOutId[id]);
+				}
+			}
+			wsFormTimeOutId[id] = setTimeout( function() {
+				wsAutoSave(btn, false );
+			}, wsAutoSaveOnChangeInterval );
+			setGlobalAutoSave( btn, id );
+
+		});
+		//observer[id].observe(this, { childList: true, subtree: true } );
+	});
+}
+
+
+/**
+ * WSform Ajax handler
+ * @param  {[object]}  btn              [btn that was clicked]
+ * @param  {Boolean or boolean} [callback=false] [either function to callback or false if none]
+ * @return {[none]}                   [run given callback]
+ */
+function wsform(btn,callback = 0, preCallback = 0) {
+
+	if(preCallback !== 0 && typeof preCallback !== 'undefined') {
+		preCallback(btn,callback);
+		return;
+	}
+	$(btn).addClass( "disabled" );
+
+	if (typeof $.notify === "undefined" ) {
+		var u = mw.config.values.wgScriptPath;
+
+		if( u === "undefined" ) {
+			u = "";
+		}
+
+		$.getScript(u + '/extensions/WSForm/modules/notify.js');
+	}
+
+
+
+	//console.log(callback);
+	var val = $(btn).prop('value');
+	var frm = $(btn).closest('form');
+	frm.addClass( "wsform-submitting" );
+
+	if ( typeof WSFormEditor !== 'undefined' && WSFormEditor === 'VE' && WSFormEditorsUpdates === false ) {
+		updateVE( btn, callback, preCallback, frm );
+	} else {
+
+		if ( typeof window.mwonsuccess === 'undefined' ) {
+			var mwonsuccess = 'Saved successfully';
+		} else mwonsuccess = window.mwonsuccess;
+		// Added posting as user for Ajax v0.8.0.5.8
+		var res = $(frm).find('input[name="wsuid"]');
+		if ($(res) && $(res).length === 0) {
+			var uid = getUid();
+			//console.log( uid );
+			if (uid !== false) {
+				$('<input />')
+					.attr('type', 'hidden')
+					.attr('name', 'wsuid')
+					.attr('value', uid)
+					.appendTo(frm);
+			}
+		}
+
+		if( window.wsAjax === false ) {
+			var doWeHaveField = $(frm).find( 'input[name="mwidentifier"]');
+			// $ret = '<input type="hidden" name="mwidentifier" value="' . $v . '">' . "\n";
+			if ($(doWeHaveField) && $(doWeHaveField).length === 0) {
+				$('<input />')
+					.attr('type', 'hidden')
+					.attr('name', 'mwidentifier')
+					.attr('value', 'ajax')
+					.appendTo(frm);
+			}
+		}
+
+		var test = frm[0].checkValidity();
+		if (test === false) {
+			frm[0].reportValidity();
+			$(btn).removeClass("disabled");
+			frm.removeClass("wsform-submitting");
+			return false;
+		}
+
+		var content = frm.contents();
+		var dat = frm.serialize();
+		var target = frm.attr('action');
+		//form.empty();
+		//form.addClass('wsform-show');
+
+		$.ajax({
+			url: target,
+			type: 'POST',
+			data: dat,
+			dataType: "json",
+			success: function (result) {
+				$(btn).removeClass("disabled");
+				frm.removeClass("wsform-submitting");
+				frm.addClass("wsform-submitted");
+				//alert(result);
+				if( window.wsAjax === false ) {
+					$(frm).find( 'input[name="mwidentifier"]')[0].remove();
+				}
+				if (result.status === 'ok') {
+					showMessage( mwonsuccess, "success", $(btn));
+					if (callback !== 0 && typeof callback !== 'undefined') {
+						callback(frm);
+					}
+					//$(btn).prop('value', val + ' (saved)');
+				} else {
+					$.notify('WSForm : ERROR: ' + result.message, "error");
+					//$(btn).prop('value', val + ' (ERROR: '+result.message+')');
+				}
+				//form.removeClass('wsform-show');
+				//form.html(content);
+			}
+		});
+		if ( typeof WSFormEditor !== 'undefined' && WSFormEditor === 'VE' ){
+			WSFormEditorsUpdates = false;
+		}
+	}
+}
 
 function getEditToken() {
 	if (window.mw) {
@@ -92,7 +349,6 @@ function addTokenInfo() {
 			var pform = $(this);
 			if( $(this).data( 'wsform' ) && $(this).data( 'wsform' ) === 'wsform-general' ) {
 				// We have a WSForm form
-				alert ( 'adding fields' );
 				$('<input />')
 					.attr('type', 'hidden')
 					.attr('name','wsedittoken')
@@ -179,3 +435,8 @@ function attachTokens() {
  */
 wachtff( addTokenInfo );
 wachtff( initializeWSFormEditor );
+if( typeof wsAutoSaveInitAjax === 'undefined' ) {
+	var wsAjax = false;
+	wachtff( wsAutoSaveInit );
+}
+

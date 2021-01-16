@@ -51,10 +51,13 @@ $config = array(
 	"rc_secret_key"       => '',
 	"use-smtp"            => 'no',
 	"sec"                 => false,
+	"sec-key"             => '',
 	"smtp-host"           => '',
 	"smtp-authentication" => true,
 	"smtp-username"       => '',
 	"smtp-password"       => '',
 	"smtp-secure"         => 'TLS',
 	"smtp-port"           => '587',
+	'use-formbuilder'     => true,
+	'allow-edit-docs'     => true,
 );

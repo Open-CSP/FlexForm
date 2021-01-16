@@ -49,7 +49,7 @@ class render {
 		foreach ( $args as $k => $v ) {
 			if ( validate::validFormParameters( $k ) ) {
 				switch ($k) {
-					case "'messageonsuccess'" :
+					case "messageonsuccess" :
 						$messageonsuccess = \wsform\wsform::createHiddenField( 'mwonsuccess', $v );
 						break;
 					case "setwikicomment":

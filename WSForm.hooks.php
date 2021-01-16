@@ -299,8 +299,8 @@ class WSFormHooks {
 		// Do we have messages to show
 		if ( isset( $args['showmessages'] ) ) {
 
-			if ( isset ( $_COOKIE['wsform'] ) ) {
 
+			if ( isset ( $_COOKIE['wsform'] ) ) {
 				$ret = '<div class="alert alert-' . $_COOKIE['wsform']['type'] . '">' . $_COOKIE['wsform']['txt'] . '</div>';
 				setcookie( "wsform[type]", "", time() - 3600, '/' );
 				setcookie( "wsform[txt]", "", time() - 3600, '/' );

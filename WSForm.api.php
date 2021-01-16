@@ -21,6 +21,8 @@ session_start();
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
+//setcookie("wsform[type]", "danger", 0, '/');
+//setcookie("wsform[txt]", "test", 0, '/');
 
 $currentHost = $_SERVER['HTTP_HOST'];
 $referrerHost = parse_url($_SERVER['HTTP_REFERER']);
@@ -303,6 +305,10 @@ if( $securedVersion ) {
 
 $wsuid = getPostString( 'wsuid' );
 
+if( $wsuid !== false ){
+	unset($_POST['wsuid']);
+}
+
 if ( getPostString('mwaction') !== false ) {
 	$action = getPostString('mwaction');
 	unset( $_POST['mwaction'] );
@@ -358,6 +364,8 @@ if( $extension !== false ) {
 }
 
 //die('testing..');
+
+//die();
 
 if( $ret !== false ) {
 	$messages->handleResonse( $ret );
