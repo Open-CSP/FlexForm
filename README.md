@@ -107,6 +107,7 @@ Visit : Special:WSForm/Docs
 
 
 ### Changelog
+* 0.8.0.9.2 : Fixed saving of api-url-overrule from Special setup page
 * 0.8.0.9.1 : Added autosave functionality. Needs testing! TODO: docs
 * 0.8.0.9.0 : Added Security key in config for multiple instances on e.g. AWS
 * 0.8.0.8.9 : Added Install Wizard

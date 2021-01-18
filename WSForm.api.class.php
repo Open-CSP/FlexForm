@@ -290,7 +290,7 @@ class wbApi {
       $this->setConfigVar( 'sec-key', $config );
 
 
-      if ( isset( $config['api-url-overrule'] ) && $config['api-url-overrule'] === '' ) {
+      if ( !isset( $config['api-url-overrule'] ) || $config['api-url-overrule'] === '' ) {
 
           // Here we are trying to create the url for the API.
           // Although this should work on most servers, it might not.

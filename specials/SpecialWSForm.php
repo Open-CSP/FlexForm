@@ -929,7 +929,7 @@ class SpecialWSForm extends SpecialPage {
 		for ( $i = 0; $i < count( $parts ) - 3; $i ++ ) {
 			$dir .= $parts[ $i ] . "/";
 		}
-		$api_url  = $dir . "api.php";
+		$api_url  = $dir;
 
 		if( $action === 'step1' ) {
 			$config = array();
@@ -942,7 +942,9 @@ class SpecialWSForm extends SpecialPage {
 			}
 			$config['api-url-overrule'] = $this->getPostString('api-url-overrule' );
 			if( $config['api-url-overrule'] === false ) {
-				$config['api-url-overrule'] = $api_url;
+				$config['api-url-overrule'] = $dir;
+			} else {
+				$config['api-url-overrule'] = str_replace( "api.php", '', $api_url );
 			}
 
 			$config['api-username'] = $this->getPostString('api-username' );
@@ -965,7 +967,9 @@ class SpecialWSForm extends SpecialPage {
 			}
 			$config['api-url-overrule'] = $this->getPostString('api-url-overrule' );
 			if( $config['api-url-overrule'] === false ) {
-				$config['api-url-overrule'] = $api_url;
+				$config['api-url-overrule'] = $dir;
+			} else {
+				$config['api-url-overrule'] = str_replace( "api.php", '', $api_url );
 			}
 			$config['api-username'] = $this->getPostString('api-username' );
 			$config['api-password'] = $this->getPostString('api-password' );
@@ -1044,7 +1048,7 @@ class SpecialWSForm extends SpecialPage {
 			for ( $i = 0; $i < count( $parts ) - 3; $i ++ ) {
 				$dir .= $parts[ $i ] . "/";
 			}
-			$api_url  = $dir . "api.php";
+			$api_url  = $dir;
 
 			$cookiefile = "/tmp";
 			if( !is_writable( $cookiefile ) ) {
@@ -1079,7 +1083,7 @@ class SpecialWSForm extends SpecialPage {
 			for ( $i = 0; $i < count( $parts ) - 3; $i ++ ) {
 				$dir .= $parts[ $i ] . "/";
 			}
-			$api_url  = $dir . "api.php";
+			$api_url  = $dir;
 
 			$useApiUserOnly = $this->getConfigSetting('use-api-user-only');
 			if( strtolower( $useApiUserOnly ) === 'yes' || $useApiUserOnly === "" ){
