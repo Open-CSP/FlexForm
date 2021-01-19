@@ -44,7 +44,7 @@ class render {
 		$lock = false;
 		$secure = true;
 		$wslock = "";
-		$class = array();
+		$class = array( 'wsform' );
 		$ret      .= 'action="' . wsform::getAPIurl() . '" method="post" ';
 		foreach ( $args as $k => $v ) {
 			if ( validate::validFormParameters( $k ) ) {

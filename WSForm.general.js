@@ -342,7 +342,7 @@ function testSelect2Callback(state) {
 function addTokenInfo() {
 	$(document).ready(function() {
 		//alert('adding tokeninfo');
-		$("form").one('submit', function(e) {
+		$("form.wsform").one('submit', function(e) {
 			//alert ( 'submitting' );
 			// Check for Visial editor
 			e.preventDefault();
