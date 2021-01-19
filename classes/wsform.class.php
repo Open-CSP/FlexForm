@@ -58,6 +58,8 @@ class wsform {
 
 	public static $runAsUser = false;
 
+	public static $wsConfig = false;
+
 	/**
 	 * @return string
 	 */

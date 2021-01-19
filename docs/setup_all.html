@@ -76,8 +76,23 @@
                 <option value="yes" %%allow-edit-docs-selected-yes%%>yes</option>
                 <option value="no" %%allow-edit-docs-selected-no%%>no</option>
             </select>
-
         </fieldset>
+        <fieldset>
+            <legend>Setup WSForm - Autosave</legend>
+            <label for="autosave-incremental">Incremental time <span style="font-weight: normal;">Read the config docs before changing. Leave empty to set defaults</span></label>
+            <input type="text" id="autosave-incremental" name="autosave-incremental" placeholder="Enter Incremental time" value="%%autosave-incremental%%" />
+
+            <label for="autosave-after-change">After change time <span style="font-weight: normal;">Read the config docs before changing. Leave empty to set defaults</span></label>
+            <input type="text" id="autosave-after-change" name="autosave-after-change" placeholder="Enter After change time" value="%%autosave-after-change%%" />
+
+            <label for="autosave-btn-on">Text for autosave incremental button ON <span style="font-weight: normal;">Read the config docs before changing. Leave empty to set defaults</span></label>
+            <input type="text" id="autosave-btn-on" name="autosave-btn-on" placeholder="Enter Button text when autosave is on" value="%%autosave-btn-on%%" />
+
+            <label for="autosave-btn-off">Text for autosave incremental button OFF <span style="font-weight: normal;">Read the config docs before changing. Leave empty to set defaults</span></label>
+            <input type="text" id="autosave-btn-off" name="autosave-btn-off" placeholder="Enter Button text when autosave is off" value="%%autosave-btn-off%%" />
+        </fieldset>
+
+
 
         <fieldset>
             <legend>Setup WSForm - Security</legend>

@@ -97,6 +97,7 @@ class WSFormHooks {
 			if( isset( $config['sec-key'] ) && !empty( $config['sec-key'] ) ) {
 				\wsform\wsform::$checksumKey = $config['sec-key'];
 			}
+			\wsform\wsform::$wsConfig = $config;
 		}
 
 		$parser->setHook( 'wsform', 'WSFormHooks::WSForm' );

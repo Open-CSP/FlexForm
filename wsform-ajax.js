@@ -9,8 +9,8 @@ function test1() {
 
 
 function test2(btn,callback) {
-	alert("callback before posting");
-	wsform(btn,callback);
+    alert("callback before posting");
+    wsform(btn,callback);
 }
 
 
@@ -19,36 +19,28 @@ function wsAutoSaveInitAjax() {
     var autosaveForms = $('form.ws-autosave');
     autosaveForms.each(function(){
         var form = this;
+        var type = $(this).attr('data-autosave');
         var id = $(this).attr('id');
         if( typeof id === 'undefined' ) {
             return;
         }
         //observer[id] = new MutationObserver(function(){
 
-        $(form).find("input[type=button]").each(function(){
-            if( typeof $(this).attr('onclick') !== 'undefined' && $(this).attr('onclick') !== false ) {
-                setGlobalAutoSave( this, id );
-            }
-        });
-        $(this).on('input paste change', 'input, select, textarea, div', function(){
-        // $(this).bind("DOMSubtreeModified", function(){
-            $(form).find("input[type=button]").each(function(){
-                if( typeof $(this).attr('onclick') !== 'undefined' && $(this).attr('onclick') !== false ) {
-                    var btn = this;
-                    clearTimeout(wsFormTimeOutId[id + '_general']);
-                    if( typeof wsFormTimeOutId !== 'undefined' ) {
-                        if( wsFormTimeOutId[id] !== undefined ) {
-                            clearTimeout(wsFormTimeOutId[id]);
-                        }
-                    }
-                    wsFormTimeOutId[id] = setTimeout( function() {
-                        wsAutoSave(btn);
-                    }, wsAutoSaveOnChangeInterval );
-                    setGlobalAutoSave( btn, id );
-                }
-
+        if( type === 'auto' || type === 'oninterval' ) {
+            $('<button onClick="wsToggleIntervalSave(this)" class="btn btn-primary ws-interval-on" id="btn-' + id + '">Autosave is On</button>').insertBefore(form);
+            $(form).find("input[type=button]").each(function () {
+                setGlobalAutoSave(this, id);
             });
-        });
+        }
+
+        if( type === 'auto' || type === 'onchange' ) {
+            $(this).on('input paste change', 'input, select, textarea, div', function(){
+                console.log("setting wsSetEventsAutoSave");
+                wsSetEventsAutoSave(form);
+            });
+        }
+
+
         //observer[id].observe(this, { childList: true, subtree: true } );
     });
 }

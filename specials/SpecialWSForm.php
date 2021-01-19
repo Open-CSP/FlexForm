@@ -990,6 +990,24 @@ class SpecialWSForm extends SpecialPage {
 			if( $config['rc_secret_key'] === false ) {
 				$config['rc_secret_key'] = '';
 			}
+			//Autosave start
+			$config['autosave-incremental'] = $this->getPostString('autosave-incremental' );
+			if( $config['autosave-incremental'] === false ) {
+				$config['autosave-incremental'] = 30000;
+			}
+			$config['autosave-after-change'] = $this->getPostString('autosave-after-change' );
+			if( $config['autosave-after-change'] === false ) {
+				$config['autosave-after-change'] = 3000;
+			}
+			$config['autosave-btn-on'] = $this->getPostString('autosave-btn-on' );
+			if( $config['autosave-btn-on'] === false ) {
+				$config['autosave-btn-on'] = 'Autosave is on';
+			}
+			$config['autosave-btn-off'] = $this->getPostString('autosave-btn-off' );
+			if( $config['autosave-btn-off'] === false ) {
+				$config['autosave-btn-off'] = 'Autosave is off';
+			}
+			//Autosave end
 			$config['use-formbuilder'] = $this->getPostString('use-formbuilder' );
 			if( $config['use-formbuilder'] === "yes" ){
 				$config['use-formbuilder'] = true;
@@ -1164,6 +1182,10 @@ class SpecialWSForm extends SpecialPage {
 				$allowEditDocsSelectedYes = "";
 				$allowEditDocsSelectedNo = 'selected="selected"';
 			}
+			$autoSaveIncremental = $this->getConfigSetting('autosave-incremental');
+			$autoSaveAfterChange = $this->getConfigSetting('autosave-after-change');
+			$autoSaveButtonOn = $this->getConfigSetting('autosave-btn-on');
+			$autoSaveButtonOFF = $this->getConfigSetting('autosave-btn-off');
 
 
 
@@ -1196,7 +1218,11 @@ class SpecialWSForm extends SpecialPage {
 				'%%smtp-username%%',
 				'%%smtp-password%%',
 				'%%smtp-secure%%',
-				'%%smtp-port%%'
+				'%%smtp-port%%',
+				'%%autosave-incremental%%',
+				'%%autosave-after-change%%',
+				'%%autosave-btn-on%%',
+				'%%autosave-btn-off%%'
 			);
 			$replace =  array(
 				$mwcheck,
@@ -1227,7 +1253,11 @@ class SpecialWSForm extends SpecialPage {
 				$SMTPUsername,
 				$SMTPPassword,
 				$SMTPSecure,
-				$SMTPPort
+				$SMTPPort,
+				$autoSaveIncremental,
+				$autoSaveAfterChange,
+				$autoSaveButtonOn,
+				$autoSaveButtonOFF
 
 			);
 
