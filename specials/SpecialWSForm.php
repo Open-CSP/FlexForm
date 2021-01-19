@@ -991,9 +991,9 @@ class SpecialWSForm extends SpecialPage {
 				$config['rc_secret_key'] = '';
 			}
 			//Autosave start
-			$config['autosave-incremental'] = $this->getPostString('autosave-incremental' );
-			if( $config['autosave-incremental'] === false ) {
-				$config['autosave-incremental'] = 30000;
+			$config['autosave-interval'] = $this->getPostString('autosave-interval' );
+			if( $config['autosave-interval'] === false ) {
+				$config['autosave-interval'] = 30000;
 			}
 			$config['autosave-after-change'] = $this->getPostString('autosave-after-change' );
 			if( $config['autosave-after-change'] === false ) {
@@ -1182,7 +1182,7 @@ class SpecialWSForm extends SpecialPage {
 				$allowEditDocsSelectedYes = "";
 				$allowEditDocsSelectedNo = 'selected="selected"';
 			}
-			$autoSaveIncremental = $this->getConfigSetting('autosave-incremental');
+			$autoSaveIncremental = $this->getConfigSetting('autosave-interval');
 			$autoSaveAfterChange = $this->getConfigSetting('autosave-after-change');
 			$autoSaveButtonOn = $this->getConfigSetting('autosave-btn-on');
 			$autoSaveButtonOFF = $this->getConfigSetting('autosave-btn-off');
@@ -1219,7 +1219,7 @@ class SpecialWSForm extends SpecialPage {
 				'%%smtp-password%%',
 				'%%smtp-secure%%',
 				'%%smtp-port%%',
-				'%%autosave-incremental%%',
+				'%%autosave-interval%%',
 				'%%autosave-after-change%%',
 				'%%autosave-btn-on%%',
 				'%%autosave-btn-off%%'
