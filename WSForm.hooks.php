@@ -320,6 +320,7 @@ class WSFormHooks {
 			}
 		}
 
+		//TODO: Will be deprecated in 1.36. As off 1.34 use isRegistered()
         if ( ! $wgUser->isLoggedIn() && $anon === false ) {
             $ret = wsform\wsform::$msg_anonymous_user;
             return $ret;

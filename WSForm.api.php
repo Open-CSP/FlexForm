@@ -15,7 +15,7 @@
  */
 //use \MediawikiApi\Api\ApiUser;
 $cookieParams = session_get_cookie_params();
-$cookieParams[samesite] = "Lax";
+$cookieParams['samesite'] = "Lax";
 session_set_cookie_params($cookieParams);
 session_start();
 use PHPMailer\PHPMailer\PHPMailer;
