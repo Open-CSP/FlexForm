@@ -148,7 +148,8 @@ var wsAutoSaveGlobalInterval = 30000;
 var wsAutoSaveOnChangeInterval = 3000;
 
 function wsAutoSave( form, reset = false ){
-
+	var frm = $(form).closest('form');
+	var type = $(frm).attr('data-autosave');
 	var mwonsuccessBackup = false;
 	if ( typeof window.mwonsuccess === 'undefined' ) {
 		window.mwonsuccess = 'Autosave';
@@ -171,15 +172,22 @@ function wsAutoSave( form, reset = false ){
 	}
 	if( reset !== false ) {
 		clearTimeout(wsFormTimeOutId[reset + '_general']);
-		setGlobalAutoSave( form, reset );
+		setGlobalAutoSave(form, reset);
+
 	}
 }
 
 
+
 function setGlobalAutoSave( btn, id ) {
-	wsFormTimeOutId[id + '_general'] = setTimeout( function() {
-		wsAutoSave( btn, id );
-	}, wsAutoSaveGlobalInterval );
+	var toggleBtn = $('#btn-' + id);
+
+	wsFormTimeOutId[id + '_general'] = setTimeout(function () {
+		if ($(toggleBtn).hasClass('ws-interval-on')) {
+			wsAutoSave(btn, id);
+		} else console.log('skipped');
+	}, wsAutoSaveGlobalInterval);
+
 }
 
 function wsFormTinymceReady( editorid ) {
@@ -194,25 +202,53 @@ function wsFormTinymceReady( editorid ) {
 }
 
 function wsSetEventsAutoSave( form ) {
+	var type = $(form).attr('data-autosave');
 	var id = $(form).attr('id');
 	var btn = $( "input[type=submit]", form );
-	clearTimeout(wsFormTimeOutId[id + '_general']);
 	if( typeof wsFormTimeOutId !== 'undefined' ) {
+		clearTimeout(wsFormTimeOutId[id + '_general']);
 		if( wsFormTimeOutId[id] !== undefined ) {
 			clearTimeout(wsFormTimeOutId[id]);
 		}
 	}
-	wsFormTimeOutId[id] = setTimeout( function() {
-		wsAutoSave(btn, false );
-	}, wsAutoSaveOnChangeInterval );
-	setGlobalAutoSave( btn, id );
+	if( type === 'auto' || type === 'onchange' ) {
+		wsFormTimeOutId[id] = setTimeout(function () {
+			wsAutoSave(btn, false);
+		}, wsAutoSaveOnChangeInterval);
+	}
+	if( type === 'auto' || type === 'oninterval' ) {
+		setGlobalAutoSave(btn, id);
+	}
 }
 
+function wsToggleIntervalSave( element ) {
+	var id = $(element).attr('id');
+	var splitResult = id.split('-');
+	var formId = splitResult[1];
+	var text = $(element).text();
+	if ($(element).hasClass('ws-interval-on')) {
+		$(element).removeClass('ws-interval-on');
+		$(element).removeClass('btn-primary');
+		$(element).addClass('btn-btn');
+		$(element).addClass('ws-interval-off');
+		$(element).text('Autosave is off');
+	} else {
+		$(element).removeClass('ws-interval-off');
+		$(element).removeClass('btn-btn');
+		$(element).addClass('btn-primary');
+		$(element).addClass('ws-interval-on');
+		$(element).text('Autosave is on');
+		$('#' + formId).find("input[type=submit]").each(function () {
+			setGlobalAutoSave(this, formId);
+		});
+	}
+}
 
 function wsAutoSaveInit() {
 
 	var autosaveForms = $('form.ws-autosave');
 	autosaveForms.each(function(){
+		var type = $(this).attr('data-autosave');
 		var form = this;
 		var id = $(this).attr('id');
 		if( typeof id === 'undefined' ) {
@@ -220,13 +256,18 @@ function wsAutoSaveInit() {
 		}
 		//observer[id] = new MutationObserver(function(){
 
-		$(form).find("input[type=submit]").each(function(){
-			setGlobalAutoSave( this, id, true );
-		});
+		if( type === 'auto' || type === 'oninterval' ) {
+			$('<button onClick="wsToggleIntervalSave(this)" class="btn btn-primary ws-interval-on" id="btn-' + id + '">Autosave is On</button>').insertBefore(form);
 
-		$(this).on('input paste change', 'input, select, textarea, div', function(){
-			wsSetEventsAutoSave( form );
-		} );
+			$(form).find("input[type=submit]").each(function () {
+				setGlobalAutoSave(this, id);
+			});
+		}
+		if( type === 'auto' || type === 'onchange' ) {
+			$(this).on('input paste change', 'input, select, textarea, div', function () {
+				wsSetEventsAutoSave(form);
+			});
+		}
 
 		checkForTinyMCE();
 		//observer[id].observe(this, { childList: true, subtree: true } );
@@ -491,3 +532,6 @@ if( typeof wsAutoSaveInitAjax === 'undefined' ) {
 }
 
 // tinyMCE stuff if needed
+
+
+

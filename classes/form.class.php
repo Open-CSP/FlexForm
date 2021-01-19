@@ -73,9 +73,21 @@ class render {
 					case "post-as-user" :
 						$ret .= 'data-wsform="wsform-general" ';
 						break;
-                    case "autosave" :
-                        $class[] = 'ws-autosave';
-                        break;
+					case "autosave" :
+						switch( $v ) {
+							case "onchange":
+								$ret .= ' data-autosave="onchange" ';
+								break;
+							case "oninterval":
+								$ret .= ' data-autosave="oninterval" ';
+								break;
+							case "auto":
+							default:
+								$ret .= ' data-autosave="auto" ';
+								break;
+						}
+						$class[] = 'ws-autosave';
+						break;
                     case "class" :
                         $class[] = $v;
                         break;
