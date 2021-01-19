@@ -39,24 +39,33 @@ function showMessage(msg,type,where = false, stick=false) {
  * @param both bool if true it will also wait until jQuery.ui is loaded.
  */
 function wachtff(method, both = false) {
-    //console.log('wacht ff op jQuery..');
-    if (window.jQuery) {
-        if (both === false) {
-	        //console.log( 'ok JQuery active.. lets go!' );
-	        method();
-        } else {
-	       // console.log('wacht ff op jQuery.ui..');
-            if(window.jQuery.ui) {
-	            //console.log( 'ok JQuery.ui active.. lets go!' );
-	            method();
-            } else {
-	            setTimeout(function() { wachtff(method, true) }, 50);
-            }
-        }
-    } else {
-        setTimeout(function() { wachtff(method) }, 50);
-    }
+	//console.log('wacht ff op jQuery..');
+	if (window.jQuery) {
+		if (both === false) {
+			//console.log( 'ok JQuery active.. lets go!' );
+			method();
+		} else {
+			// console.log('wacht ff op jQuery.ui..');
+			if(window.jQuery.ui) {
+				//console.log( 'ok JQuery.ui active.. lets go!' );
+				method();
+			} else {
+				setTimeout(function() { wachtff(method, true) }, 50);
+			}
+		}
+	} else {
+		setTimeout(function() { wachtff(method) }, 50);
+	}
 }
+
+function waitForTinyMCE( method ) {
+	if( typeof window.tinymce !== 'undefined' ){
+		method();
+	} else {
+		setTimeout(function() { waitForTinyMCE(method) }, 50);
+	}
+}
+
 function waitForVE( method ) {
 	if( typeof $().applyVisualEditor === 'function' ){
 		method();
@@ -139,6 +148,7 @@ var wsAutoSaveGlobalInterval = 30000;
 var wsAutoSaveOnChangeInterval = 3000;
 
 function wsAutoSave( form, reset = false ){
+
 	var mwonsuccessBackup = false;
 	if ( typeof window.mwonsuccess === 'undefined' ) {
 		window.mwonsuccess = 'Autosave';
@@ -147,7 +157,7 @@ function wsAutoSave( form, reset = false ){
 		window.mwonsuccess = 'Autosave';
 	}
 	wsAutoSaveActive = true;
-	console.log (window.wsAjax );
+	//console.log (window.wsAjax );
 	if( window.wsAjax === true ) {
 
 		$(form).click();
@@ -172,7 +182,35 @@ function setGlobalAutoSave( btn, id ) {
 	}, wsAutoSaveGlobalInterval );
 }
 
+function wsFormTinymceReady( editorid ) {
+	var _editor = tinymce.editors[editorid];
+	var txtare = _editor.getElement();
+	var form = $(txtare).closest('form');
+	_editor.on("change", function(e){
+		//console.log('changed');
+		_editor.save();
+		wsSetEventsAutoSave( form );
+	});
+}
+
+function wsSetEventsAutoSave( form ) {
+	var id = $(form).attr('id');
+	var btn = $( "input[type=submit]", form );
+	clearTimeout(wsFormTimeOutId[id + '_general']);
+	if( typeof wsFormTimeOutId !== 'undefined' ) {
+		if( wsFormTimeOutId[id] !== undefined ) {
+			clearTimeout(wsFormTimeOutId[id]);
+		}
+	}
+	wsFormTimeOutId[id] = setTimeout( function() {
+		wsAutoSave(btn, false );
+	}, wsAutoSaveOnChangeInterval );
+	setGlobalAutoSave( btn, id );
+}
+
+
 function wsAutoSaveInit() {
+
 	var autosaveForms = $('form.ws-autosave');
 	autosaveForms.each(function(){
 		var form = this;
@@ -185,21 +223,12 @@ function wsAutoSaveInit() {
 		$(form).find("input[type=submit]").each(function(){
 			setGlobalAutoSave( this, id, true );
 		});
-		$(this).on('input paste change', 'input, select, textarea, div', function(){
-			// $(this).bind("DOMSubtreeModified", function(){
-			var btn = $( "input[type=submit]", form );
-			clearTimeout(wsFormTimeOutId[id + '_general']);
-			if( typeof wsFormTimeOutId !== 'undefined' ) {
-				if( wsFormTimeOutId[id] !== undefined ) {
-					clearTimeout(wsFormTimeOutId[id]);
-				}
-			}
-			wsFormTimeOutId[id] = setTimeout( function() {
-				wsAutoSave(btn, false );
-			}, wsAutoSaveOnChangeInterval );
-			setGlobalAutoSave( btn, id );
 
-		});
+		$(this).on('input paste change', 'input, select, textarea, div', function(){
+			wsSetEventsAutoSave( form );
+		} );
+
+		checkForTinyMCE();
 		//observer[id].observe(this, { childList: true, subtree: true } );
 	});
 }
@@ -389,21 +418,21 @@ function addTokenInfo() {
 							content: $(this)[0].target.getSurface().getHtml(),
 							title: mw.config.get( 'wgPageName' ).split( /(\\|\/)/g ).pop()
 						} )
-						.then( function ( data ) {
-							var text = data[ 'veforall-parsoid-utils' ].content;
-							var esc = text.replace(/(?<!{{[^}]+)\|(?!=[^]+}})/gmi, "{{!}}");
-							var area = pform.find("textarea[name='" + instanceName + "']")[0];
-							$(area).val(esc);
-							numberofEditors--;
-							if( numberofEditors === 0 ){
-								pform.submit();
-							}
-						} )
-						.fail( function () {
-							alert('Could not initialize ve4all, see console for error');
-							console.log(result);
-							pform.cancel();
-						} );
+							.then( function ( data ) {
+								var text = data[ 'veforall-parsoid-utils' ].content;
+								var esc = text.replace(/(?<!{{[^}]+)\|(?!=[^]+}})/gmi, "{{!}}");
+								var area = pform.find("textarea[name='" + instanceName + "']")[0];
+								$(area).val(esc);
+								numberofEditors--;
+								if( numberofEditors === 0 ){
+									pform.submit();
+								}
+							} )
+							.fail( function () {
+								alert('Could not initialize ve4all, see console for error');
+								console.log(result);
+								pform.cancel();
+							} );
 					}
 
 				});
@@ -430,13 +459,35 @@ function attachTokens() {
 	}
 }
 
+function wsInitTinyMCE(){
+	console.log('initializing tmce autosave');
+	for( id in window.tinymce.editors ) {
+		if( id.trim() ) {
+			wsFormTinymceReady( id );
+		}
+	}
+	window.tinymce.on('AddEditor', function (e) {
+		wsFormTinymceReady(e.editor.id);
+	});
+}
+
+function checkForTinyMCE(){
+	if ($(".tinymce")[0]){
+		if( typeof window.tinymce === 'undefined' ) {
+			waitForTinyMCE( wsInitTinyMCE );
+		} else wsInitTinyMCE();
+	}
+}
+
 /**
  * Wait for jQuery to load and initialize, then go to method addTokenInfo()
  */
 wachtff( addTokenInfo );
 wachtff( initializeWSFormEditor );
+wachtff( checkForTinyMCE );
 if( typeof wsAutoSaveInitAjax === 'undefined' ) {
 	var wsAjax = false;
 	wachtff( wsAutoSaveInit );
 }
 
+// tinyMCE stuff if needed
