@@ -62,11 +62,11 @@
                             if (text.replace(/\s/g, '') !== '') {
                                 try {
                                     var curtag = getSelectionParentElement().tagName.toLowerCase();
-                                    if (curtag === 'code' || curtag === 'pre') {
+                                    if (curtag === 'xmp' || curtag === 'pre') {
                                         return unwrapCode();
                                     }
                                     else {
-                                        trumbowyg.execCmd('insertHTML', '<pre><code>' + strip(text) + '</code></pre>');
+                                        trumbowyg.execCmd('insertHTML', '<pre><xmp>' + strip(text) + '</xmp></pre>');
                                     }
                                 } catch (e) {
                                 }
@@ -132,14 +132,14 @@
 
         //'paranoic' unwrap
         var ispre = $(container).contents().closest('pre').length;
-        var iscode = $(container).contents().closest('code').length;
+        var iscode = $(container).contents().closest('xmp').length;
 
         if (ispre && iscode) {
-            $(container).contents().unwrap('code').unwrap('pre');
+            $(container).contents().unwrap('xmp').unwrap('pre');
         } else if (ispre) {
             $(container).contents().unwrap('pre');
         } else if (iscode) {
-            $(container).contents().unwrap('code');
+            $(container).contents().unwrap('xmp');
         }
     }
 })(jQuery);

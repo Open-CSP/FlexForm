@@ -338,12 +338,15 @@ class SpecialWSForm extends SpecialPage {
 
             $loadJS = '<script src="'.$wsformpurl.'docs/waitForJQ.js"></script>';
             $loadJS .= '<link rel="stylesheet" href="'.$wsformpurl.'modules/wysiwyg/ui/trumbowyg.min.css">';
+			$loadJS .= '<link rel="stylesheet" href="'.$wsformpurl.'modules/wysiwyg/plugins/emoji/ui/trumbowyg.emoji.min.css">';
+			$loadJS .= '<link rel="stylesheet" href="'.$wsformpurl.'modules/wysiwyg/plugins/table/ui/trumbowyg.table.min.css">';
             $loadJS .= "
 <script>
     function getTrumbo() {
 	    $.getScript( '".$wsformpurl."modules/wysiwyg/trumbowyg.js' ).done( function () {
 		    $.when(
 			    $.getScript( '".$wsformpurl."modules/wysiwyg/plugins/colors/trumbowyg.colors.min.js' ),
+			    $.getScript( '".$wsformpurl."modules/wysiwyg/plugins/emoji/trumbowyg.emoji.min.js' ),
 			    $.getScript( '".$wsformpurl."modules/wysiwyg/plugins/fontfamily/trumbowyg.fontfamily.min.js' ),
 			    $.getScript( '".$wsformpurl."modules/wysiwyg/plugins/fontsize/trumbowyg.fontsize.min.js' ),
 			    $.getScript( '".$wsformpurl."modules/wysiwyg/plugins/table/trumbowyg.table.min.js' ),
@@ -353,7 +356,7 @@ class SpecialWSForm extends SpecialPage {
 		    ).done( function () {
 			    $( 'textarea.wsdocs-wysiwyg' ).trumbowyg( {
 				    svgPath: '".$wsformpurl."modules/wysiwyg/ui/icons.svg', autogrow: true, removeformatPasted: false,
-				    btns: [['viewHTML'], ['undo', 'redo'], ['formatting'], ['strong', 'em', 'del'], ['superscript', 'subscript'], ['foreColor', 'backColor'], ['link'], ['insertImage'], ['justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'], ['unorderedList', 'orderedList'], ['horizontalRule'],['table'], ['removeformat'],['preformatted'], ['fullscreen']]
+				    btns: [['viewHTML'], ['undo', 'redo'], ['formatting'], ['strong', 'em', 'del'], ['superscript', 'subscript'], ['foreColor', 'backColor'], ['link'], ['insertImage'], ['justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'], ['unorderedList', 'orderedList'], ['horizontalRule'],['table'], ['removeformat'],['preformatted'], ['emoji'], ['fullscreen']]
 			    } )
 		    } )
 	    } );
@@ -1020,6 +1023,7 @@ class SpecialWSForm extends SpecialPage {
 			if( $config['sec'] === "yes" ){
 				$config['sec'] =  true;
 			} else $config['sec'] = false;
+			$config['sec-key'] = $this->getPostString('sec-key' );
 			$config['use-smtp'] = $this->getPostString('use-smtp' );
 			if( $config['use-smtp'] === "yes" ){
 				$config['use-smtp'] =  true;
@@ -1166,6 +1170,7 @@ class SpecialWSForm extends SpecialPage {
 				$secSelectedYes = "";
 				$secSelectedNo = 'selected="selected"';
 			}
+			$secKey = $this->getConfigSetting('sec-key');
 			$useFormbuilder = $this->getConfigSetting('use-formbuilder');
 			if( $useFormbuilder === true || $useFormbuilder === "" ){
 				$useFormbuilderSelectedYes = 'selected="selected"';
@@ -1222,7 +1227,8 @@ class SpecialWSForm extends SpecialPage {
 				'%%autosave-interval%%',
 				'%%autosave-after-change%%',
 				'%%autosave-btn-on%%',
-				'%%autosave-btn-off%%'
+				'%%autosave-btn-off%%',
+				'%%sec-key%%'
 			);
 			$replace =  array(
 				$mwcheck,
@@ -1257,7 +1263,8 @@ class SpecialWSForm extends SpecialPage {
 				$autoSaveIncremental,
 				$autoSaveAfterChange,
 				$autoSaveButtonOn,
-				$autoSaveButtonOFF
+				$autoSaveButtonOFF,
+				$secKey
 
 			);
 
