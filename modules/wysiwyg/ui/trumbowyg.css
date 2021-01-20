@@ -1,5 +1,5 @@
 /**
- * Trumbowyg v2.7.2 - A lightweight WYSIWYG editor
+ * Trumbowyg v2.23.0 - A lightweight WYSIWYG editor
  * Default stylesheet for Trumbowyg editor
  * ------------------------
  * @link http://alex-d.github.io/Trumbowyg
@@ -20,10 +20,14 @@
 
 .trumbowyg-box *,
 .trumbowyg-box *::before,
-.trumbowyg-box *::after {
+.trumbowyg-box *::after,
+.trumbowyg-modal *,
+.trumbowyg-modal *::before,
+.trumbowyg-modal *::after {
   box-sizing: border-box; }
 
-.trumbowyg-box svg {
+.trumbowyg-box svg,
+.trumbowyg-modal svg {
   width: 17px;
   height: 100%;
   fill: #222; }
@@ -34,8 +38,7 @@
   position: relative;
   border: 1px solid #DDD;
   width: 100%;
-  min-height: 300px;
-  margin: 17px auto; }
+  min-height: 300px; }
 
 .trumbowyg-box .trumbowyg-editor {
   margin: 0 auto; }
@@ -54,7 +57,11 @@
   border-style: none;
   resize: none;
   outline: none;
-  overflow: auto; }
+  overflow: auto;
+  -webkit-user-select: text;
+     -moz-user-select: text;
+      -ms-user-select: text;
+          user-select: text; }
   .trumbowyg-editor.trumbowyg-autogrow-on-enter,
   .trumbowyg-textarea.trumbowyg-autogrow-on-enter {
     transition: height 300ms ease-out; }
@@ -78,7 +85,6 @@
   display: block;
   overflow: auto;
   border: none;
-  white-space: normal;
   font-size: 14px;
   font-family: "Inconsolata", "Consolas", "Courier", "Courier New", sans-serif;
   line-height: 18px; }
@@ -92,7 +98,8 @@
   opacity: 0 !important; }
 
 .trumbowyg-box.trumbowyg-editor-hidden .trumbowyg-textarea {
-  display: block; }
+  display: block;
+  margin-bottom: 1px; }
 
 .trumbowyg-box.trumbowyg-editor-hidden .trumbowyg-editor {
   display: none; }
@@ -104,7 +111,8 @@
 .trumbowyg-editor[contenteditable=true]:empty:not(:focus)::before {
   content: attr(placeholder);
   color: #999;
-  pointer-events: none; }
+  pointer-events: none;
+  white-space: break-spaces; }
 
 .trumbowyg-button-pane {
   width: 100%;
@@ -116,8 +124,7 @@
   position: relative;
   list-style-type: none;
   line-height: 10px;
-  -webkit-backface-visibility: hidden;
-          backface-visibility: hidden;
+  backface-visibility: hidden;
   z-index: 11; }
   .trumbowyg-button-pane::after {
     content: " ";
@@ -133,13 +140,16 @@
     display: inline-block; }
     .trumbowyg-button-pane .trumbowyg-button-group .trumbowyg-fullscreen-button svg {
       color: transparent; }
-    .trumbowyg-button-pane .trumbowyg-button-group:not(:empty) + .trumbowyg-button-group::before {
+    .trumbowyg-button-pane .trumbowyg-button-group::after {
       content: " ";
       display: inline-block;
       width: 1px;
       background: #d7e0e2;
       margin: 0 5px;
-      height: 35px; }
+      height: 35px;
+      vertical-align: top; }
+    .trumbowyg-button-pane .trumbowyg-button-group:last-child::after {
+      content: none; }
   .trumbowyg-button-pane button {
     display: inline-block;
     position: relative;
@@ -151,11 +161,17 @@
     border: none;
     cursor: pointer;
     background: none;
+    vertical-align: middle;
     transition: background-color 150ms, opacity 150ms; }
     .trumbowyg-button-pane button.trumbowyg-textual-button {
       width: auto;
-      line-height: 35px; }
+      line-height: 35px;
+      -webkit-user-select: none;
+         -moz-user-select: none;
+          -ms-user-select: none;
+              user-select: none; }
   .trumbowyg-button-pane.trumbowyg-disable button:not(.trumbowyg-not-disable):not(.trumbowyg-active),
+  .trumbowyg-button-pane button.trumbowyg-disable,
   .trumbowyg-disabled .trumbowyg-button-pane button:not(.trumbowyg-not-disable):not(.trumbowyg-viewHTML-button) {
     opacity: 0.2;
     cursor: default; }
@@ -185,18 +201,20 @@
       right: 7px; }
   .trumbowyg-button-pane .trumbowyg-right {
     float: right; }
-    .trumbowyg-button-pane .trumbowyg-right::before {
-      display: none !important; }
 
 .trumbowyg-dropdown {
-  width: 200px;
+  max-width: 300px;
+  max-height: 250px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  white-space: nowrap;
   border: 1px solid #ecf0f1;
   padding: 5px 0;
   border-top: none;
   background: #FFF;
   margin-left: -1px;
   box-shadow: rgba(0, 0, 0, 0.1) 0 2px 3px;
-  z-index: 11; }
+  z-index: 12; }
   .trumbowyg-dropdown button {
     display: block;
     width: 100%;
@@ -204,7 +222,7 @@
     line-height: 35px;
     text-decoration: none;
     background: #FFF;
-    padding: 0 10px;
+    padding: 0 20px 0 10px;
     color: #333 !important;
     border: none;
     cursor: pointer;
@@ -222,22 +240,19 @@
   position: absolute;
   top: 0;
   left: 50%;
-  -webkit-transform: translateX(-50%);
-          transform: translateX(-50%);
+  transform: translateX(-50%);
   max-width: 520px;
   width: 100%;
   height: 350px;
-  z-index: 11;
+  z-index: 12;
   overflow: hidden;
-  -webkit-backface-visibility: hidden;
-          backface-visibility: hidden; }
+  backface-visibility: hidden; }
 
 .trumbowyg-modal-box {
   position: absolute;
   top: 0;
   left: 50%;
-  -webkit-transform: translateX(-50%);
-          transform: translateX(-50%);
+  transform: translateX(-50%);
   max-width: 500px;
   width: calc(100% - 20px);
   padding-bottom: 45px;
@@ -246,8 +261,7 @@
   text-align: center;
   font-size: 14px;
   box-shadow: rgba(0, 0, 0, 0.2) 0 2px 3px;
-  -webkit-backface-visibility: hidden;
-          backface-visibility: hidden; }
+  backface-visibility: hidden; }
   .trumbowyg-modal-box .trumbowyg-modal-title {
     font-size: 24px;
     font-weight: bold;
@@ -264,6 +278,7 @@
     top: 58px; }
     .trumbowyg-modal-box .trumbowyg-progress .trumbowyg-progress-bar {
       background: #2BC06A;
+      width: 0;
       height: 100%;
       transition: width 150ms linear; }
   .trumbowyg-modal-box label {
@@ -311,6 +326,15 @@
         border: 1px solid #95a5a6; }
       .trumbowyg-modal-box label input:focus {
         background: #fbfcfc; }
+    .trumbowyg-modal-box label input[type="checkbox"] {
+      left: 6px;
+      top: 6px;
+      right: auto;
+      height: 16px;
+      width: 16px; }
+      .trumbowyg-modal-box label input[type="checkbox"] + .trumbowyg-input-infos span {
+        width: auto;
+        padding-left: 25px; }
   .trumbowyg-modal-box .error {
     margin-top: 25px;
     display: block;
@@ -401,12 +425,13 @@ body.trumbowyg-body-fullscreen {
     height: auto; }
   .trumbowyg-editor img {
     cursor: move; }
+  .trumbowyg-editor canvas:focus {
+    outline: none; }
   .trumbowyg-editor.trumbowyg-reset-css {
     background: #FEFEFE !important;
     font-family: "Trebuchet MS", Helvetica, Verdana, sans-serif !important;
     font-size: 14px !important;
     line-height: 1.45em !important;
-    white-space: normal !important;
     color: #333; }
     .trumbowyg-editor.trumbowyg-reset-css a {
       color: #15c !important;
@@ -432,6 +457,10 @@ body.trumbowyg-body-fullscreen {
       margin-left: 32px !important;
       font-style: italic !important;
       color: #555; }
+    .trumbowyg-editor.trumbowyg-reset-css ul {
+      list-style: disc; }
+    .trumbowyg-editor.trumbowyg-reset-css ol {
+      list-style: decimal; }
     .trumbowyg-editor.trumbowyg-reset-css ul,
     .trumbowyg-editor.trumbowyg-reset-css ol {
       padding-left: 20px !important; }
@@ -502,11 +531,11 @@ body.trumbowyg-body-fullscreen {
   border-bottom-color: #343434; }
   .trumbowyg-dark .trumbowyg-button-pane::after {
     background: #343434; }
-  .trumbowyg-dark .trumbowyg-button-pane .trumbowyg-button-group:not(:empty)::before {
+  .trumbowyg-dark .trumbowyg-button-pane .trumbowyg-button-group:not(:empty)::after {
     background-color: #343434; }
   .trumbowyg-dark .trumbowyg-button-pane .trumbowyg-button-group:not(:empty) .trumbowyg-fullscreen-button svg {
     color: transparent; }
-  .trumbowyg-dark .trumbowyg-button-pane.trumbowyg-disable .trumbowyg-button-group::before {
+  .trumbowyg-dark .trumbowyg-button-pane.trumbowyg-disable .trumbowyg-button-group::after {
     background-color: #2a2a2a; }
   .trumbowyg-dark .trumbowyg-button-pane button:not(.trumbowyg-disable):hover,
   .trumbowyg-dark .trumbowyg-button-pane button:not(.trumbowyg-disable):focus,
@@ -515,7 +544,7 @@ body.trumbowyg-body-fullscreen {
   .trumbowyg-dark .trumbowyg-button-pane .trumbowyg-open-dropdown::after {
     border-top-color: #fff; }
 
-.trumbowyg-dark .trumbowyg-fullscreen .trumbowyg-button-group .trumbowyg-fullscreen-button svg {
+.trumbowyg-dark .trumbowyg-fullscreen .trumbowyg-button-pane .trumbowyg-button-group:not(:empty) .trumbowyg-fullscreen-button svg {
   color: #ecf0f1;
   fill: transparent; }
 

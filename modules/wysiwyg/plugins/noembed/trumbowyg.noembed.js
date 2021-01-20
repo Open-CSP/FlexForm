@@ -19,24 +19,49 @@
 
     $.extend(true, $.trumbowyg, {
         langs: {
+            // jshint camelcase:false
             en: {
-                noembed: 'noEmbed',
+                noembed: 'Noembed',
                 noembedError: 'Error'
-            },
-            sk: {
-                noembedError: 'Chyba'
-            },
-            fr: {
-                noembed: 'noEmbed',
-                noembedError: 'Erreur'
             },
             cs: {
                 noembedError: 'Chyba'
             },
+            da: {
+                noembedError: 'Fejl'
+            },
+            fr: {
+                noembedError: 'Erreur'
+            },
+            hu: {
+                noembed: 'Noembed',
+                noembedError: 'Hiba'
+            },
             ja: {
-                noembed: 'noEmbed',
                 noembedError: 'エラー'
-            }
+            },
+            ko: {
+                noembed: 'oEmbed 넣기',
+                noembedError: '에러'
+            },
+            pt_br: {
+                noembed: 'Incorporar',
+                noembedError: 'Erro'
+            },
+            ru: {
+                noembedError: 'Ошибка'
+            },
+            sk: {
+                noembedError: 'Chyba'
+            },
+            tr: {
+                noembedError: 'Hata'
+            },
+            zh_tw: {
+                noembed: '插入影片',
+                noembedError: '錯誤'
+            },
+            // jshint camelcase:true
         },
 
         plugins: {

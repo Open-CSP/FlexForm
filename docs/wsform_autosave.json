@@ -1,0 +1,16 @@
+{
+    "doc": {
+        "name": "autosave",
+        "type": "wsform",
+        "synopsis": "Auto save forms on interval, after change or both.",
+        "description": "<p>WSForm <strong>autosave <\/strong>function allows for saving the open form in the background while someone is writing in it.<\/p><p>This feature has 3 options:<\/p><p>Save a form in the background on <strong>interval<\/strong>, on <strong>change <\/strong>or <strong>both<\/strong>.<\/p><p>It support \"normal\" forms as well as form with mwidentifier=\"ajax\", meaning a form setup to be posted as an Ajax call.<\/p><p>Also tested with VE Editor ( and the VEforAll extension ) and TinyMCE ( tinymce extension ).<\/p><p>When using auto or oninterval a button will be added to the top of the form showing autosave interval is on. Clicking the button will turn interval saving off. When you turn it off and autosave is set to auto, the after change will still autosave.<br><\/p><br>",
+        "parameters": "<p>On form create add autosave as parameter. e.g. <br><\/p>\r\n\r\n\r\n<pre><xmp><wsform action=\"addToWiki\" autosave=\"\"><\/wsform><\/xmp><\/pre><p>This will set autosave to auto.<\/p><p>Set autosave to interval only : <br><\/p><pre><xmp><wsform action=\"addToWiki\" autosave=\"oninterval\"><\/wsform><\/xmp><\/pre><p>Set autosave to change only :<\/p><pre><xmp><wsform action=\"addToWiki\" autosave=\"onchange\"><\/wsform><\/xmp><\/pre>",
+        "example": "See Parameters description.",
+        "note": "<p>The interval time and the after on change time can be set in the config file.<\/p><p>When using interval or auto, the text for the button that appears above the form can be set in the config file.<\/p><p><br><\/p><p>To style the button to switch off and on the Interval saving classes are added to it in different states:<\/p><p>When on it will have the classes :<strong> btn btn-primary ws-interval-on<\/strong><br>When off it will have the classes : <strong>btn btn ws-interval-off<\/strong><br><\/p>",
+        "links": "--",
+        "created": "19-01-2021 22:26:32",
+        "created_by": "",
+        "last modified": "20-01-2021 08:41:33",
+        "modified by": "Charlot"
+    }
+}

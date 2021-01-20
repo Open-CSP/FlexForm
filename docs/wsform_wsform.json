@@ -4,13 +4,13 @@
         "type": "wsform",
         "synopsis": "The form ",
         "description": "<p>...<\/p>",
-        "parameters": "<ul><li>action = addToWiki, mail or get<\/li><li>mwreturn = see docs<br><\/li><li>loadscript =&nbsp; see docs<br><\/li><li>showmessages =&nbsp; See README<\/li><li>restrictions = see docs<br><\/li><li>no_submit_on_return = see docs<\/li><li>changetrigger = see docs<\/li><li>formtarget = see docs<\/li><li>setwikicomment = example is setwikicomment=\"Form to edit user\" where \"Form to edit user\" will be added as comment to the change. Done so you can quickly find what form invoked this change action.<br><\/li><\/ul><br><br>",
+        "parameters": "<ul><li>action = addToWiki, mail or get<\/li><li>mwreturn = see docs<br><\/li><li>loadscript =&nbsp; see docs<br><\/li><li>showmessages =&nbsp; See README<\/li><li>restrictions = see docs<br><\/li><li>no_submit_on_return = see docs<\/li><li>changetrigger = see docs<\/li><li>formtarget = see docs<\/li><li>autosave = see docs<br><\/li><li>setwikicomment = example is setwikicomment=\"Form to edit user\" where \"Form to edit user\" will be added as comment to the change. Done so you can quickly find what form invoked this change action.<br><\/li><\/ul><br><br>",
         "example": "...",
-        "note": "....",
+        "note": "<p>....<\/p>",
         "links": "<p>...<\/p>",
         "created": "",
         "created_by": "",
-        "last modified": "09-12-2020 20:37:02",
+        "last modified": "20-01-2021 09:19:18",
         "modified by": "Charlot"
     }
 }

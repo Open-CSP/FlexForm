@@ -107,6 +107,7 @@ Visit : Special:WSForm/Docs
 
 
 ### Changelog
+* 0.8.0.9.3 : New version of trumbowyg, updated docs for new features, updated setup page
 * 0.8.0.9.2 : Fixed saving of api-url-overrule from Special setup page
 * 0.8.0.9.1 : Added autosave functionality. Needs testing! TODO: docs
 * 0.8.0.9.0 : Added Security key in config for multiple instances on e.g. AWS

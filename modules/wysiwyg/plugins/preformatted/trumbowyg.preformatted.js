@@ -16,18 +16,39 @@
             en: {
                 preformatted: 'Code sample <pre>'
             },
+            da: {
+                preformatted: 'Præformateret <pre>'
+            },
             fr: {
-                preformatted: 'Exemple de code'
+                preformatted: 'Exemple de code <pre>'
+            },
+            hu: {
+                preformatted: 'Kód minta <pre>'
             },
             it: {
                 preformatted: 'Codice <pre>'
             },
+            ja: {
+                preformatted: 'コードサンプル <pre>'
+            },
+            ko: {
+                preformatted: '코드 예제 <pre>'
+            },
+            pt_br: {
+                preformatted: 'Exemple de código <pre>'
+            },
+            ru: {
+                preformatted: 'Пример кода <pre>'
+            },
+            tr: {
+                preformatted: 'Kod örneği <pre>'
+            },
             zh_cn: {
                 preformatted: '代码示例 <pre>'
             },
-            ja: {
-                preformatted: 'コードサンプル <pre>'
-            }
+            zh_tw: {
+                preformatted: '代碼範例 <pre>'
+            },
         },
         // jshint camelcase:true
 
@@ -66,6 +87,7 @@
     function getSelectionParentElement() {
         var parentEl = null,
             selection;
+
         if (window.getSelection) {
             selection = window.getSelection();
             if (selection.rangeCount) {
@@ -77,6 +99,7 @@
         } else if ((selection = document.selection) && selection.type !== 'Control') {
             parentEl = selection.createRange().parentElement();
         }
+
         return parentEl;
     }
 
@@ -97,6 +120,7 @@
      */
     function unwrapCode() {
         var container = null;
+
         if (document.selection) { //for IE
             container = document.selection.createRange().parentElement();
         } else {
@@ -105,9 +129,11 @@
                 container = select.getRangeAt(0).startContainer.parentNode;
             }
         }
+
         //'paranoic' unwrap
         var ispre = $(container).contents().closest('pre').length;
         var iscode = $(container).contents().closest('code').length;
+
         if (ispre && iscode) {
             $(container).contents().unwrap('code').unwrap('pre');
         } else if (ispre) {
@@ -116,5 +142,4 @@
             $(container).contents().unwrap('code');
         }
     }
-
 })(jQuery);
