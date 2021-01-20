@@ -35,7 +35,7 @@ function wsAutoSaveInitAjax() {
 
         if( type === 'auto' || type === 'onchange' ) {
             $(this).on('input paste change', 'input, select, textarea, div', function(){
-                console.log("setting wsSetEventsAutoSave");
+                //console.log("setting wsSetEventsAutoSave");
                 wsSetEventsAutoSave(form);
             });
         }
