@@ -540,7 +540,7 @@ function wsInitTinyMCE(){
 }
 
 function checkForTinyMCE(){
-	if ($(".tinymce")[0]){
+	if ($('[class^="tinymce"]')[0]){
 		if( typeof window.tinymce === 'undefined' ) {
 			waitForTinyMCE( wsInitTinyMCE );
 		} else wsInitTinyMCE();
