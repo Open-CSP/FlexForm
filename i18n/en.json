@@ -32,7 +32,7 @@
 	"wsform-norequest-made" : "No requests",
 	"wsform-noreturn-found" : "No return found",
 	"wsform-return-outside-domain" : "The return value is outside the server domain. Cancelled",
-	"wsform-session-expired" : "Form session (2hrs) expired",
+	"wsform-session-expired" : "Form session expired",
 	"wsform-session-no-token" : "Did not receive a session token from the form.",
 	"wsform-session-no-equal-host" : "Form host and api host are not equal.",
 

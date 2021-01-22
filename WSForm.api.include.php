@@ -29,6 +29,7 @@ function is_cli()
 }
 
 function checkDefaultInformation() {
+	global $api;
     $ret = array();
 	$ret['mwhost'] = false;
     $ret['mwtoken'] = false;
@@ -49,7 +50,12 @@ function checkDefaultInformation() {
         $difference = $ctime - (int)$ttime;
         //echo "<p>$ctime - $ttime = $difference</p>";
 	    //die($token);
-        if ($difference < 7200) { // 2 hrs session time
+	    // Get config timeout
+		$timeOut = $api->app['form-timeout-limit'];
+		if( $timeOut === '' ) {
+			$timeOut = 7200;
+		}
+        if ($difference < (int) $timeOut) { // 2 hrs session time
             $ret['mwsession'] = true;
         }
     }

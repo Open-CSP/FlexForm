@@ -1052,6 +1052,10 @@ class SpecialWSForm extends SpecialPage {
 			if( $config['smtp-port'] === false ) {
 				$config['smtp-port'] = '';
 			}
+			$config['form-timeout-limit'] = $this->getPostString('form-timeout-limit' );
+			if( $config['form-timeout-limit'] === false ) {
+				$config['form-timeout-limit'] = 7200;
+			}
 			$ret = '<?php' . PHP_EOL;
 			$ret .= '$config = ';
 			$ret .= var_export( $config, true ) . ';' . PHP_EOL;
@@ -1191,6 +1195,7 @@ class SpecialWSForm extends SpecialPage {
 			$autoSaveAfterChange = $this->getConfigSetting('autosave-after-change');
 			$autoSaveButtonOn = $this->getConfigSetting('autosave-btn-on');
 			$autoSaveButtonOFF = $this->getConfigSetting('autosave-btn-off');
+			$formTimeOut = $this->getConfigSetting('form-timeout-limit');
 
 
 
@@ -1228,7 +1233,8 @@ class SpecialWSForm extends SpecialPage {
 				'%%autosave-after-change%%',
 				'%%autosave-btn-on%%',
 				'%%autosave-btn-off%%',
-				'%%sec-key%%'
+				'%%sec-key%%',
+				'%%form-timeout-limit%%'
 			);
 			$replace =  array(
 				$mwcheck,
@@ -1264,7 +1270,8 @@ class SpecialWSForm extends SpecialPage {
 				$autoSaveAfterChange,
 				$autoSaveButtonOn,
 				$autoSaveButtonOFF,
-				$secKey
+				$secKey,
+				$formTimeOut
 
 			);
 

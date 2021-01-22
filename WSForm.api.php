@@ -147,36 +147,71 @@ if( isset( $_GET['action'] ) && $_GET['action'] === 'handleQuery' ) {
 	echo $ret;
 	exit;
 }
-
-
 // Setup messages and responses
 
 $identifier         = getPostString( 'mwidentifier' );
 $pauseBeforeRefresh = getPostString( 'mwpause' );
 $messages           = new wbHandleResponses( $identifier );
 
+if( $securedVersion ) {
+	require_once( 'classes/protect.class.php' );
+	$crypt = new wsform\protect\protect();
+	$crypt::setCrypt( $api->getCheckSumKey() );
+	$checksum = false;
+	$formId = getPostString('formid' );
+	if( $formId !== false ) {
+		unset( $_POST['formid'] );
+	}
+	foreach( $_POST as $k=>$v ) {
+		if( $crypt::decrypt( $k ) === 'checksum' ) {
+			$checksum = unserialize( $crypt::decrypt( $v ) ) ;
+			unset( $_POST[$k] );
+		}
+	}
+	if( $checksum === false && $formId !== false ) {
+		$messages->doDie( $i18n->wsMessage( 'wsform-secure-not' ) );
+	}
+	if( isset( $checksum[$formId]['secure'] ) ) {
+		foreach( $checksum[$formId]['secure'] as $secure ) {
+			$tmpName = getPostString( $secure['name'], false );
+			if( $tmpName !== false ) {
+				$newK = $crypt::decrypt( $secure['name'] );
+				$newV = $crypt::decrypt( $tmpName );
+				$delMe = $secure['name'];
+				unset( $_POST[$delMe] );
+				$removeList[] = $newK;
+				$_POST[$newK] = $newV;
+			} else {
+				$messages->doDie( $i18n->wsMessage( 'wsform-secure-fields-incomplete' ) );
+			}
+		}
+	}
+}
+
+
 if( !is_cli() ) {
 // check credentials
 	$sessInfo = checkDefaultInformation();
+
 	if ( $sessInfo['mwtoken'] === false ) {
 		$messages->doDie( $i18n->wsMessage( 'wsform-session-no-token' ) );
 		if ( isset( $_POST['mwreturn'] ) && $_POST['mwreturn'] !== "" ) {
 			$messages->redirect( $_POST['mwreturn'] );
-			exit;
+			die();
 		}
 	}
 	if ( $sessInfo['mwsession'] === false ) {
 		$messages->doDie( $i18n->wsMessage( 'wsform-session-expired' ) );
 		if ( isset( $_POST['mwreturn'] ) && $_POST['mwreturn'] !== "" ) {
 			$messages->redirect( $_POST['mwreturn'] );
-			exit;
+			die();
 		}
 	}
 	if ( $sessInfo['mwhost'] === false ) {
 		$messages->doDie( $i18n->wsMessage( 'wsform-session-no-equal-host' ) );
 		if ( isset( $_POST['mwreturn'] ) && $_POST['mwreturn'] !== "" ) {
 			$messages->redirect( $_POST['mwreturn'] );
-			exit;
+			die();
 		}
 	}
 }
@@ -251,40 +286,7 @@ if( $captchaAction !== false && $captchaToken !== false ) {
 //$wsuid = getPostString('wsuid');
 
 
-if( $securedVersion ) {
-	require_once( 'classes/protect.class.php' );
-	$crypt = new wsform\protect\protect();
-	$crypt::setCrypt( $api->getCheckSumKey() );
-	$checksum = false;
-	$formId = getPostString('formid' );
-	if( $formId !== false ) {
-		unset( $_POST['formid'] );
-	}
-	foreach( $_POST as $k=>$v ) {
-		if( $crypt::decrypt( $k ) === 'checksum' ) {
-			$checksum = unserialize( $crypt::decrypt( $v ) ) ;
-			unset( $_POST[$k] );
-		}
-	}
-	if( $checksum === false && $formId !== false ) {
-		$i18n->wsMessage( 'wsform-secure-not' );
-	}
-	if( isset( $checksum[$formId]['secure'] ) ) {
-		foreach( $checksum[$formId]['secure'] as $secure ) {
-			$tmpName = getPostString( $secure['name'], false );
-			if( $tmpName !== false ) {
-				$newK = $crypt::decrypt( $secure['name'] );
-				$newV = $crypt::decrypt( $tmpName );
-				$delMe = $secure['name'];
-				unset( $_POST[$delMe] );
-				$removeList[] = $newK;
-				$_POST[$newK] = $newV;
-			} else {
-				$i18n->wsMessage( 'wsform-secure-fields-incomplete' );
-			}
-		}
-	}
-}
+
 
 // Clean all fields
 if( $securedVersion ) {

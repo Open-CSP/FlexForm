@@ -36,32 +36,57 @@
  * you sign-up
  *
  * sec is work in progress and means security heavy. Will also filter javascript and such.
+ * sec-key is a general seed key for securing forms. Needs to be set if run on multiple instances
+ * environment like AWS
+ *
+ * autosave-interval
+ * When using autosave and autosave is set to auto or oninterval. This will be the interval time in milliseconds (30000 is 30 seconds) the form will be saved.
+ *
+ * autosave-after-change
+ * When using autosave and autosave is set to auto or onchange. This will be the time in milliseconds (3000 is 3 seconds) the form will be saved after the last change.
+ *
+ * autosave-btn-on
+ * When using autosave and autosave is set to auto or oninterval. This will be the text on the button above the form when interval is on.
+ *
+ * autosave-btn-off
+ * When using autosave and autosave is set to auto or oninterval. This will be the text on the button above the form when interval is off.
+ *
+ * use-formbuilder
+ * Defaults to true and shows the link to Formbuilder in the menus. Hide the link by changing the setting to false;
+ *
+ * allow-edit-docs
+ * If people with access to the documentation are allowed to edit them, defaults to false. Set to true to enable edit. Warning: When WSForm is updated by the administrator, all documentation that comes with WSForm will overwrite local made edits. Only custom new documentation will remain.
+ *
+ * allow-special-page-setup
+ * When set to true, the index.php/Special:WSForm/Setup allows for editing the config file from the Special page. Set to false to disable.
  *
  */
 
 $config = array(
-	"use-api-user-only"     => 'yes',
-	"api-username"          => '',
-	"api-password"          => '',
-	"api-url-overrule"      => '',
-	"api-cookie-path"       => '',
-	"wgAbsoluteWikiPath"    => '',
-	"wgScript"              => '/index.php',
-	"rc_site_key"           => '',
-	"rc_secret_key"         => '',
-	"use-smtp"              => 'no',
-	"sec"                   => false,
-	"sec-key"               => '',
-	'autosave-interval'  => 30000,
-	'autosave-after-change' => 3000,
-	'autosave-btn-on'       => 'Autosave is on',
-	'autosave-btn-off'      => 'Autosave is off',
-	"smtp-host"             => '',
-	"smtp-authentication"   => true,
-	"smtp-username"         => '',
-	"smtp-password"         => '',
-	"smtp-secure"           => 'TLS',
-	"smtp-port"             => '587',
-	'use-formbuilder'       => true,
-	'allow-edit-docs'       => true,
+	"use-api-user-only"        => 'yes',
+	"api-username"             => '',
+	"api-password"             => '',
+	"api-url-overrule"         => '',
+	"api-cookie-path"          => '',
+	"wgAbsoluteWikiPath"       => '',
+	"wgScript"                 => '/index.php',
+	"rc_site_key"              => '',
+	"rc_secret_key"            => '',
+	"use-smtp"                 => 'no',
+	"sec"                      => false,
+	"sec-key"                  => '',
+	'autosave-interval'        => 30000,
+	'autosave-after-change'    => 3000,
+	'autosave-btn-on'          => 'Autosave is on',
+	'autosave-btn-off'         => 'Autosave is off',
+	"smtp-host"                => '',
+	"smtp-authentication"      => true,
+	"smtp-username"            => '',
+	"smtp-password"            => '',
+	"smtp-secure"              => 'TLS',
+	"smtp-port"                => '587',
+	'use-formbuilder'          => true,
+	'allow-edit-docs'          => true,
+	'form-timeout-limit'       => 7200,
+	'allow-special-page-setup' => true
 );

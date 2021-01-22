@@ -104,6 +104,10 @@
             </select>
             <label for="sec-key">Security key</label>
             <input type="text" id="sec-key" name="sec-key" placeholder="Enter Security Key, you can type whatever you like." value="%%sec-key%%" />
+
+            <label for="form-timeout-limit">Form time-out time in seconds <span style="font-weight: normal;">Read the config docs before changing. Leave empty to set defaults</span></label>
+            <input type="text" id="form-timeout-limit" name="form-timeout-limit" placeholder="Enter Form time-out limit in seconds. (default: 7200, meaning 2 hrs)" value="%%form-timeout-limit%%" />
+
         </fieldset>
 
         <fieldset>
@@ -139,6 +143,6 @@
 
         </fieldset>
 
-        <input type="submit" class="btn" value="Save settings"/>
+        <input type="submit" class="btn btn-primary" value="Save settings"/>
     </form>
 </div>

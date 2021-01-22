@@ -267,7 +267,6 @@ function wsToggleIntervalSave( element ) {
 }
 
 function wsAutoSaveInit() {
-	console.log("init autosave");
 	var autosaveForms = $('form.ws-autosave');
 	autosaveForms.each(function(){
 		var type = $(this).attr('data-autosave');

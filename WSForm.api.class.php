@@ -288,6 +288,7 @@ class wbApi {
       $this->setConfigVar( 'smtp-port', $config );
       $this->setConfigVar( 'sec', $config );
       $this->setConfigVar( 'sec-key', $config );
+      $this->setConfigVar( 'form-timeout-limit', $config );
 
 
       if ( !isset( $config['api-url-overrule'] ) || $config['api-url-overrule'] === '' ) {
