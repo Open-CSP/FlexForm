@@ -88,8 +88,8 @@ class render {
 								break;
 						}
 						$class[] = 'ws-autosave';
-						if( isset( \wsform\wsform::$wsConfig['autosave-incremental'] ) ) {
-							$js .= 'var wsAutoSaveGlobalInterval = ' . \wsform\wsform::$wsConfig['autosave-incremental'] . ';';
+						if( isset( \wsform\wsform::$wsConfig['autosave-interval'] ) ) {
+							$js .= 'var wsAutoSaveGlobalInterval = ' . \wsform\wsform::$wsConfig['autosave-interval'] . ';';
 						} else $js .= 'var wsAutoSaveGlobalInterval = 30000;';
 						if( isset( \wsform\wsform::$wsConfig['autosave-after-change'] ) ) {
 							$js .='var wsAutoSaveOnChangeInterval = ' . \wsform\wsform::$wsConfig['autosave-after-change'] . ';';
