@@ -81,7 +81,10 @@ class WSFormHooks {
 	 */
 	public static function onParserFirstCallInit( Parser &$parser ) {
 		global $wgAbsoluteWikiPath, $IP;
-		$serverName = strtolower( $_SERVER['SERVER_NAME'] );
+		if( php_sapi_name() !== 'cli' ) {
+			$serverName = strtolower( $_SERVER['SERVER_NAME'] );
+		}
+
 		include( 'classes/loader.php' );
 		\wsform\classLoader::register();
 

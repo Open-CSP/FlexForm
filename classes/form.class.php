@@ -114,7 +114,7 @@ class render {
 
 		if( $js !== "" ){
 			$jScript = '<script>'. $js . "</script>";
-		}
+		} else $jScript = '';
 
 
 		$ret .= 'class = "' . implode( " ", $class ) . '" ';
