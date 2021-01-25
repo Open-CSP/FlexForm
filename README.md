@@ -107,6 +107,7 @@ Visit : Special:WSForm/Docs
 
 
 ### Changelog
+* 0.8.0.9.5 : Awainting MWF answer for carriage return, stripped in this version (NEEDS TESTING IF IT NOT BREAKS ANYTHING ELSE). Changed form handling priorities
 * 0.8.0.9.4 : Added config for form session timeout. This changed the security code and needs a good WSForm general test! {T6962}
 * 0.8.0.9.3.1 : Two addendums and two terminal notices removed.
 * 0.8.0.9.3 : New version of trumbowyg, updated docs for new features, updated setup page

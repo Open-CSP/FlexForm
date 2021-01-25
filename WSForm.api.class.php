@@ -773,6 +773,11 @@ class wbApi {
           if($res[0] === 'error' ) die($res[1]);
       }
 
+      function removeCarriageReturnFromContent( $content ){
+          return str_replace("\r", '' , $content );
+      }
+
+
     /**
      * Main function to save a Page into MediaWiki
      *
@@ -783,6 +788,7 @@ class wbApi {
      */
     function savePageToWiki( $name, $details, $summary = false ) {
         global $wsuid;
+        $details = $this->removeCarriageReturnFromContent( $details );
         if( $wsuid !== false && $this->app['use-api-user-only'] === 'no' ) {
 
             // We have a user, lets use Maintenance script to save page to wiki

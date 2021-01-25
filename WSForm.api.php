@@ -149,9 +149,7 @@ if( isset( $_GET['action'] ) && $_GET['action'] === 'handleQuery' ) {
 }
 // Setup messages and responses
 
-$identifier         = getPostString( 'mwidentifier' );
-$pauseBeforeRefresh = getPostString( 'mwpause' );
-$messages           = new wbHandleResponses( $identifier );
+
 
 if( $securedVersion ) {
 	require_once( 'classes/protect.class.php' );
@@ -187,7 +185,9 @@ if( $securedVersion ) {
 		}
 	}
 }
-
+$identifier         = getPostString( 'mwidentifier' );
+$pauseBeforeRefresh = getPostString( 'mwpause' );
+$messages           = new wbHandleResponses( $identifier );
 
 if( !is_cli() ) {
 // check credentials
@@ -214,33 +214,6 @@ if( !is_cli() ) {
 			die();
 		}
 	}
-}
-
-if(isset($_FILES['wsformfile'])) {
-	if (file_exists($_FILES['wsformfile']['tmp_name']) || is_uploaded_file($_FILES['wsformfile']['tmp_name'])) {
-		$res = fileUpload();
-		if ($res['status'] == 'error') {
-			$messages->doDie(' file : '.$res['msg']);
-		}
-		$ret = $res; // v0.7.0.3.3 added
-	}
-}
-
-if( isset($_POST['wsformfile_slim']) ) {
-	$ret=fileUploadSlim();
-	if (isset($ret['status']) && $ret['status'] === 'error') {
-		$messages->doDie( ' slim : '.$ret['msg'] );
-	}
-
-}
-
-
-if( isset( $_POST['wsform_signature'] ) ) {
-    $res = signatureUpload();
-    if ($res['status'] == 'error') {
-        $messages->doDie( ' signature : '.$res['msg'] );
-    }
-    $ret = $res; // v0.7.0.3.3 added
 }
 
 $captchaAction = getPostString( 'mw-captcha-action', false );
@@ -309,6 +282,31 @@ $wsuid = getPostString( 'wsuid' );
 
 if( $wsuid !== false ){
 	unset($_POST['wsuid']);
+}
+
+if( isset( $_POST['wsform_signature'] ) ) {
+	$res = signatureUpload();
+	if ($res['status'] == 'error') {
+		$messages->doDie( ' signature : '.$res['msg'] );
+	}
+	$ret = $res; // v0.7.0.3.3 added
+}
+if(isset($_FILES['wsformfile'])) {
+	if (file_exists($_FILES['wsformfile']['tmp_name']) || is_uploaded_file($_FILES['wsformfile']['tmp_name'])) {
+		$res = fileUpload();
+		if ($res['status'] == 'error') {
+			$messages->doDie(' file : '.$res['msg']);
+		}
+		$ret = $res; // v0.7.0.3.3 added
+	}
+}
+
+if( isset($_POST['wsformfile_slim']) ) {
+	$ret=fileUploadSlim();
+	if (isset($ret['status']) && $ret['status'] === 'error') {
+		$messages->doDie( ' slim : '.$ret['msg'] );
+	}
+
 }
 
 if ( getPostString('mwaction') !== false ) {
