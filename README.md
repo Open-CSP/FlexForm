@@ -107,6 +107,7 @@ Visit : Special:WSForm/Docs
 
 
 ### Changelog
+* 0.8.0.9.5.2 : Addendum
 * 0.8.0.9.5.1 : Fix for Zero-width assertion that ensures a pattern is preceded by another pattern in a JavaScript regular expression that is not supported by Safari, IOS Safari and Opera mini
 * 0.8.0.9.5 : Awaiting MWF answer for carriage return, stripped in this version (NEEDS TESTING IF IT NOT BREAKS ANYTHING ELSE). Changed form handling priorities
 * 0.8.0.9.4 : Added config for form session timeout. This changed the security code and needs a good WSForm general test! {T6962}
