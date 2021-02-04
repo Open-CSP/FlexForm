@@ -85,8 +85,8 @@ class WSFormHooks {
 			$serverName = strtolower( $_SERVER['SERVER_NAME'] );
 		}
 
-		include( 'classes/loader.php' );
-		\wsform\classLoader::register();
+		include_once( 'classes/loader.php' );
+		\wsform\WSClassLoader::register();
 
 		// Load config settings
 		if ( file_exists( __DIR__ . '/config/config.php' ) ) {

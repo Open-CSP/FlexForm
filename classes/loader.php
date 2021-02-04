@@ -11,7 +11,7 @@
 namespace wsform;
 
 
-abstract class classLoader {
+abstract class WSClassLoader {
 	/**
 	 * register the classes
 	 */
@@ -19,7 +19,7 @@ abstract class classLoader {
 		global $IP;
 		$classPath = $IP . '/extensions/WSForm/classes/*.class.php';
 		foreach ( glob($classPath) as $fileName ) {
-			include $fileName;
+			include_once $fileName;
 		}
 	}
 
