@@ -164,7 +164,7 @@ class WSFormHooks {
 
 					//Test to see if this gets parsed
                     if( $noParse === false ) {
-                        $input = $parser->recursiveTagParse($input, $frame);
+                        $input = $parser->recursiveTagParseFully($input, $frame);
                     }
 					//End test
 					if ( $type == 'render_option' || $type == 'render_file' || $type == 'render_submit' || $type == 'render_text' || $type == 'render_textarea') {
@@ -173,7 +173,7 @@ class WSFormHooks {
 						$ret = wsform\field\render::$type( $args, $input );
 					}
 				} else {
-					$ret = $type . " is unkown";
+					$ret = $type . " is unknown";
 				}
 
                 if( $parsePost === true ) {

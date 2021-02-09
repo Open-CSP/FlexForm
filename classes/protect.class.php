@@ -75,6 +75,7 @@ class protect {
 			global $IP;
 			require_once( $IP . '/extensions/WSForm/modules/htmlpurifier/library/HTMLPurifier.auto.php' );
 			$config = \HTMLPurifier_Config::createDefault();
+			//
 			switch( $clean ) {
 				case "nohtml":
 					$config->set('HTML.Allowed', '');
@@ -85,9 +86,13 @@ class protect {
 					}
 					break;
 				case "default" :
+					$config->set('HTML.Allowed', 'nowiki');
 				default:
 					break;
 			}
+			$def = $config->getHTMLDefinition(true);
+			$def->addElement('nowiki',  'Inline', 'Inline', 'Common');
+
 			$purifier = new \HTMLPurifier($config);
 			return $purifier->purify( $value );
 		} else return $value;

@@ -149,7 +149,8 @@ if( isset( $_GET['action'] ) && $_GET['action'] === 'handleQuery' ) {
 }
 // Setup messages and responses
 
-
+$identifier         = getPostString( 'mwidentifier' );
+$messages           = new wbHandleResponses( $identifier );
 
 if( $securedVersion ) {
 	require_once( 'classes/protect.class.php' );
@@ -185,9 +186,8 @@ if( $securedVersion ) {
 		}
 	}
 }
-$identifier         = getPostString( 'mwidentifier' );
+
 $pauseBeforeRefresh = getPostString( 'mwpause' );
-$messages           = new wbHandleResponses( $identifier );
 
 if( !is_cli() ) {
 // check credentials
@@ -325,6 +325,7 @@ if ( getPostString('mwaction') !== false ) {
 
 		case "get" :
 			$ret = saveToWiki('get');
+
 			if( !is_array( $ret ) && $ret !== false ) {
 				$messages->redirect( $ret );
 				exit;

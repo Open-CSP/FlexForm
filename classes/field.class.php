@@ -760,7 +760,10 @@ class render {
 		}
 		$ret .= 'class="' . $class . '">';
 		if ( $input !== false ) {
+
 			$input = \wsform\protect\protect::purify( $input, $html, \wsform\wsform::$secure );
+
+			//die();
 			$ret .= $input;
 			\wsform\wsform::addCheckSum( 'textarea', $name, $input, $html );
 		} else {
