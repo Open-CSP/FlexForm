@@ -309,7 +309,7 @@ function wsAutoSaveInit() {
         }
 
         if (type === 'auto' || type === 'oninterval') {
-            $('<button onClick="wsToggleIntervalSave(this)" class="btn btn-primary ws-interval-on" id="btn-' + id + '">Autosave is On</button>').insertBefore(form);
+            $('<button onClick="wsToggleIntervalSave(this)" class="btn btn-primary ws-interval-on" id="btn-' + id + '">' + wsAutoSaveButtonOn + '</button>').insertBefore(form);
 
             $(form).find("input[type=submit]").each(function () {
                 setGlobalAutoSave(this, id);
