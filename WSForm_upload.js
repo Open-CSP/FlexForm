@@ -19,7 +19,7 @@ function wsfiles(id, verbose_id, error_id, hide, verbose_custom, error_custom) {
     var idfile = $('#' + id);
     var form = idfile.closest('form');
     var enctype = form.attr('enctype');
-  //  var convert_to = idfile.attr('data-force');
+    //  var convert_to = idfile.attr('data-force');
     var current_files = idfile[0].files;
     var verbose = $('#' + verbose_id);
     var error = $('#' + error_id);
@@ -28,20 +28,21 @@ function wsfiles(id, verbose_id, error_id, hide, verbose_custom, error_custom) {
     } else {
         verbose_custom = true;
     }
-	if (error_custom === "none") {
-		error_custom = false;
-	} else {
-		error_custom = true;
-	}
-
-/*
-    if(typeof convert_to === 'undefined' || !convert_to || !isImage(convert_to)) {
-      convert_to = false;
-      alert("force parameter ("+convert_to+")not valid");
+    if (error_custom === "none") {
+        error_custom = false;
+    } else {
+        error_custom = true;
     }
-*/
-    if(typeof enctype === 'undefined' || !enctype || enctype !== 'multipart/form-data') {
-        var er= '<ol><li>You cannot upload a file without a form enctype parameter.';
+
+    /*
+        if(typeof convert_to === 'undefined' || !convert_to || !isImage(convert_to)) {
+          convert_to = false;
+          alert("force parameter ("+convert_to+")not valid");
+        }
+    */
+    if ((typeof enctype === 'undefined') || enctype === false || enctype
+        !== 'multipart/form-data' ) {
+        var er = '<ol><li>You cannot upload a file without a form enctype parameter.';
         er += '<br>(<a target="_blank" href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form">';
         er += 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form</a>)<BR>';
         er += '[hint: enctype should be multipart/form-data]</li></ol>';
@@ -58,51 +59,52 @@ function wsfiles(id, verbose_id, error_id, hide, verbose_custom, error_custom) {
         var output = '<ol>';
         var err = '<ol>';
         if (verbose_custom) {
-          output = '';
+            output = '';
         }
         if (error_custom) {
-          err = '';
+            err = '';
         }
         for (var i = 0; i < current_files.length; i++) {
             if (validFileType(idfile, current_files[i])) {
                 console.log(current_files[i]);
                 if (isImage(current_files[i].type)) {
-                  /*   VOOR LATER
-                    if( current_files[i].type !== convert_to ) {
-                      if(convert_to !== false) {
-                        var cannie = convertImageToCanvas($('#' + id).val());
-                        $('#' + id).val( convertCanvasToImage( cannie, convert_to ) );
+                    /*   VOOR LATER
+                      if( current_files[i].type !== convert_to ) {
+                        if(convert_to !== false) {
+                          var cannie = convertImageToCanvas($('#' + id).val());
+                          $('#' + id).val( convertCanvasToImage( cannie, convert_to ) );
+                        }
                       }
+                      */
+                    if (!verbose_custom) {
+                        var del = ' <i class="fa fa-times wsform-reset-button" onClick="resetFile(\'' + id + '\', \'' + verbose_id + '\' )"></i> ';
+                        output += '<li>' + del;
+                        var src = window.URL.createObjectURL(current_files[i]);
+                        output += '<img class="wsform-image-preview" src="' + src + '">';
+                        output += 'File name ' + current_files[i].name + '.</li>';
+                    } else {
+                        var del = '<i class="fa fa-times wsform-reset-button" onClick="resetFile(\'' + id + '\', \'' + verbose_id + '\' )"></i> ';
+                        output += '<li>' + del;
+                        var src = window.URL.createObjectURL(current_files[i]);
+                        output += '<img class="wsform-image-preview" src="' + src + '">';
+                        output += 'File name ' + current_files[i].name + '.</li>';
                     }
-                    */
-                   if (!verbose_custom) {
-                     var del = ' <i class="fa fa-times wsform-reset-button" onClick="resetFile(\'' + id + '\', \'' + verbose_id + '\' )"></i> ';
-                     output += '<li>' + del;
-                     var src = window.URL.createObjectURL(current_files[i]);
-                     output += '<img class="wsform-image-preview" src="' + src + '">';
-                     output += 'File name ' + current_files[i].name + '.</li>';
-                   } else {
-                     var del = '<i class="fa fa-times wsform-reset-button" onClick="resetFile(\'' + id + '\', \'' + verbose_id + '\' )"></i> ';
-                     output += '<li>'+ del;
-                     var src = window.URL.createObjectURL(current_files[i]);
-                     output += '<img class="wsform-image-preview" src="' + src + '">';
-                     output += 'File name ' + current_files[i].name + '.</li>';
-                   }
                 } else {
                     output += '<li>File name ' + current_files[i].name + '.</li>';
-                  }
+                }
             } else {
-              if (!error_custom) {
-                err += '<li>File name ' + current_files[i].name + ': Not a valid file type. Update your selection.</li>';
-                $('#' + id).val("");
-              } else {
-                err += '<li>File name ' + current_files[i].name + ': Not a valid file type. Update your selection.</li>';
-                $('#' + id).val("");
-              }
+                if (!error_custom) {
+                    err += '<li>File name ' + current_files[i].name + ': Not a valid file type. Update your selection.</li>';
+                    $('#' + id).val("");
+                } else {
+                    err += '<li>File name ' + current_files[i].name + ': Not a valid file type. Update your selection.</li>';
+                    $('#' + id).val("");
+                }
             }
         }
         output += '</ol>';
-        if(err != '<ol>') {
+        if (err
+            !== '<ol>') {
             err += '</ol>';
         } else err = '';
 
@@ -113,24 +115,24 @@ function wsfiles(id, verbose_id, error_id, hide, verbose_custom, error_custom) {
 }
 
 function convertImageToCanvas(image) {
-	var oCanvas = document.createElement("canvas");
-      oCtx = oCanvas.getContext('2d');
-	oCanvas.width = image.width;
-	oCanvas.height = image.height;
-	oCtx.drawImage(image, 0, 0);
+    var oCanvas = document.createElement("canvas");
+    oCtx = oCanvas.getContext('2d');
+    oCanvas.width = image.width;
+    oCanvas.height = image.height;
+    oCtx.drawImage(image, 0, 0);
 
-	return oCanvas;
+    return oCanvas;
 }
 
 function convertCanvasToImage(canvas, type) {
-	var image = new Image();
-	image.src = canvas.toDataURL(type);
-	return image;
+    var image = new Image();
+    image.src = canvas.toDataURL(type);
+    return image;
 }
 
 function getFileNameOnly(file) {
-  var filename = file.substring( 0,file.lastIndexOf('.') );
-  return filename;
+    var filename = file.substring(0, file.lastIndexOf('.'));
+    return filename;
 }
 
 function resetFile(id, verbose_id) {

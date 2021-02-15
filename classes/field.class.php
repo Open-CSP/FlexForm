@@ -291,7 +291,9 @@ class render {
 				\wsform\wsform::addAsLoaded( 'WSFORM_upload.js' );
 				$js = file_get_contents( "$IP/extensions/WSForm/WSForm_upload.js" );
 			} else $js = '';
-			$ret     .= "\n" . '<script>' . $js . '</script>';
+			// As of MW 1.35+ we get errors here. It's replacing spaces with &#160; So now we put the js in the header
+			echo "\n<script>" . $js . "</script>";
+			$js="";
 			$wsFileScript = "\nfunction wsfilesFunc" . $random . "(){\n";
 			$wsFileScript .= "\n" . 'wsfiles( "' . $id . '", "' . $verbose_id . '", "' . $error_id . '", "' . $use_label . '");' . "\n";
 			$wsFileScript .= "}\n";
