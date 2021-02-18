@@ -107,6 +107,7 @@ Visit : Special:WSForm/Docs
 
 
 ### Changelog
+* 0.8.0.9.6 : Rewrote css and JavaScript includes. !!NEEDS TESTING BEFORE DEPLOY ON PRODUCTION SERVERS!!
 * 0.8.0.9.5.3 : Changed recursiveTagParse to recursiveTagParseFully
 * 0.8.0.9.5.2 : Addendum
 * 0.8.0.9.5.1 : Fix for Zero-width assertion that ensures a pattern is preceded by another pattern in a JavaScript regular expression that is not supported by Safari, IOS Safari and Opera mini

@@ -179,6 +179,7 @@ class WSFormHooks {
                 if( $parsePost === true ) {
                     $ret .= '<input type="hidden" name="wsparsepost[]" value="' . $parseName . "\">\n";
                 }
+				self::addInlineJavaScriptAndCSS();
 
 				return array( $ret, "markerType" => 'nowiki');
 			} else return array( wfMessage( "wsform-field-invalid" )->text() . ": " . $type, "markerType" => 'nowiki');
@@ -210,7 +211,7 @@ class WSFormHooks {
 		}
 
 		$ret = wsform\edit\render::render_edit( $args );
-
+		self::addInlineJavaScriptAndCSS();
 		return array( $ret, 'noparse' => true, "markerType" => 'nowiki' );
 	}
 
@@ -236,7 +237,7 @@ class WSFormHooks {
 			}
 		}
 		$ret = wsform\create\render::render_create( $args );
-
+		self::addInlineJavaScriptAndCSS();
 		return array( $ret, 'noparse' => true, "markerType" => 'nowiki' );
 	}
 
@@ -263,7 +264,7 @@ class WSFormHooks {
 			}
 		}
 		$ret = wsform\mail\render::render_mail( $args );
-
+		self::addInlineJavaScriptAndCSS();
 		return array( $ret, 'noparse' => true, "markerType" => 'nowiki' );
 	}
 
@@ -285,8 +286,7 @@ class WSFormHooks {
 	 * @param Parser $parser MediaWiki Parser
 	 * @param PPFrame $frame MediaWiki PPFrame
 	 *
-	 * @return array send to the MediaWiki Parser or
-	 * @return string send to the MediaWiki Parser with the message not a valid function
+	 * @return array|string send to the MediaWiki Parser or send to the MediaWiki Parser with the message not a valid function
 	 */
 	public static function WSForm( $input, array $args, Parser $parser, PPFrame $frame ) {
 
@@ -335,7 +335,8 @@ class WSFormHooks {
 				if ( file_exists( $IP . '/extensions/WSForm/modules/customJS/loadScripts/' . $args['loadscript'] . '.js' ) ) {
 					$ls = file_get_contents( $IP . '/extensions/WSForm/modules/customJS/loadScripts/' . $args['loadscript'] . '.js' );
 					if ( $ls !== false ) {
-						$loadScript = "<script>" . $ls . "</script>\n";
+						//$loadScript = "<script>" . $ls . "</script>\n";
+						wsform\wsform::includeInlineScript( $ls );
 						wsform\wsform::addAsLoaded( $args['loadscript'] );
 					}
 				}
@@ -355,7 +356,7 @@ class WSFormHooks {
 		$noEnter = false;
 		if ( isset( $args['no_submit_on_return'] ) ) {
 			if(! wsform\wsform::isLoaded('keypress') ) {
-				$noEnter = "<script>$(document).on('keyup keypress', 'form input[type=\"text\"]', function(e) {
+				$noEnter = "$(document).on('keyup keypress', 'form input[type=\"text\"]', function(e) {
             if(e.keyCode == 13) {
               e.preventDefault();
               return false;
@@ -370,7 +371,8 @@ class WSFormHooks {
               e.preventDefault();
               return false;
             }
-          })</script>";
+          })";
+				wsform\wsform::includeInlineScript( $noEnter );
                 wsform\wsform::addAsLoaded( 'keypress' );
 			}
 		}
@@ -386,11 +388,13 @@ class WSFormHooks {
             $onchange = "";
             $changeId = $args['id'];
             $changeCall = $args['changetrigger'];
-            $onchange = "<script>$('#" . $changeId . "').change(" . $changeCall . "(this));</script>";
+            $onchange = "$('#" . $changeId . "').change(" . $changeCall . "(this));";
+            wsform\wsform::includeInlineScript( $onchange );
         } else $onchange = false;
 
         if( isset( $args['messageonsuccess']) && $args['messageonsuccess'] !== '' ) {
-            $msgOnSuccessJs = $js = '<script>var mwonsuccess = "' . $args['messageonsuccess'] . '";</script>';
+            $msgOnSuccessJs = $js = 'var mwonsuccess = "' . $args['messageonsuccess'] . '";';
+	        wsform\wsform::includeInlineScript( $msgOnSuccessJs );
         } else $msgOnSuccessJs = '';
 		
 
@@ -429,19 +433,6 @@ class WSFormHooks {
 
 		$ret .= $output . '</form>';
 
-		if ( $noEnter !== false ) {
-			$ret = $ret . $noEnter;
-		}
-        if ( $onchange !== false ) {
-            $ret = $ret . $onchange;
-        }
-        if( $loadScript !== false ) {
-			$ret .= $loadScript;
-        }
-        if( $msgOnSuccessJs !== false ) {
-            $ret .= $msgOnSuccessJs;
-        }
-
         if( isset( $args['recaptcha-v3-action'] ) && ! wsform\wsform::isLoaded( 'google-captcha' ) ) {
             $tmpCap = wsform\recaptcha\render::render_reCaptcha();
             if( $tmpCap !== false ) {
@@ -468,7 +459,7 @@ class WSFormHooks {
                     wsform\recaptcha\render::$rc_site_key
                 );
                 $rcaptcha = str_replace( $replace, $with, $rcaptcha );
-                $ret .= '<script>' . $rcaptcha . '</script>';
+                wsform\wsform::includeInlineScript( $rcaptcha );
 	            wsform\wsform::$reCaptcha = false;
              } else {
                 $ret = wfMessage( "wsform-recaptcha-no-js" )->text();
@@ -479,6 +470,7 @@ class WSFormHooks {
        // print_r( \wsform\wsform::$chkSums );
        // echo "</pre>";
         //print_r( \wsform\wsform::$secure );
+		self::addInlineJavaScriptAndCSS();
 		return array( $ret, "markerType" => 'nowiki' );
 
 	}
@@ -502,7 +494,7 @@ class WSFormHooks {
 		}
 		$output = $parser->recursiveTagParse( $input, $frame );
 		$ret    .= '>' . $output . '</fieldset>';
-
+		self::addInlineJavaScriptAndCSS();
 		return array( $ret, "markerType" => 'nowiki' );
 
 
@@ -534,7 +526,7 @@ class WSFormHooks {
 		$output = $parser->recursiveTagParse( $input, $frame );
 
 		$ret .= '>' . $output . '</select>';
-
+		self::addInlineJavaScriptAndCSS();
 		return array( $ret, "markerType" => 'nowiki' );
 
 
@@ -578,7 +570,6 @@ class WSFormHooks {
 		$ret    .= '>' . $output . '</select>' . "\n";
 		$out    = "";
 		$out    .= '<input type="hidden" id="select2options-' . $id . '" value="';
-
 		$out .= "$('#" . $id . "').select2({";
 
 		$callb = '';
@@ -637,15 +628,17 @@ class WSFormHooks {
 				if ( file_exists( $IP . '/extensions/WSForm/modules/customJS/wstoken/' . $args['callback'] . '.js' ) ) {
 					$lf  = file_get_contents( $IP . '/extensions/WSForm/modules/customJS/wstoken/' . $args['callback'] . '.js' );
 					$lcallback = "<script>$lf</script>\n";
+					wsform\wsform::includeInlineScript( $lf );
 					wsform\wsform::addAsLoaded( $args['loadcallback'] );
 				}
 			}
 		}
-		$attach = "<script>wachtff(attachTokens);</script>";
+		//$attach = "<script>wachtff(attachTokens);</script>";
+		wsform\wsform::includeInlineScript( 'wachtff(attachTokens);' );
 		//$wgOut->addHTML( $out );
 
-		$ret = $ret . $out . $lcallback . $attach;
-
+		$ret = $ret . $out;
+		self::addInlineJavaScriptAndCSS();
 		return array( $ret, "markerType" => 'nowiki' );
 	}
 
@@ -723,6 +716,7 @@ class WSFormHooks {
         //echo "<BR><BR><BR><pre>";
         //echo $ret;
         //echo "</pre>";
+	    self::addInlineJavaScriptAndCSS();
         return array( $ret, "markerType" => 'nowiki' );
         //return array($ret, "noparse" => 'true', 'isHTML' => true);
 
@@ -797,6 +791,7 @@ class WSFormHooks {
             }
         }
         $ret = $css . $jsLoad . $ret . $javaScript;
+	    self::addInlineJavaScriptAndCSS();
         return array( $ret, "markerType" => 'nowiki' );
 
     }
@@ -821,7 +816,7 @@ class WSFormHooks {
 			$ret .= ' align="' . $args['align'] . '"';
 		}
 		$ret .= '>' . $input . '</legend>';
-
+		self::addInlineJavaScriptAndCSS();
 		return array( $ret, "markerType" => 'nowiki' );
 
 	}
@@ -849,7 +844,7 @@ class WSFormHooks {
 
 		$output = $parser->recursiveTagParse( $input, $frame );
 		$ret    .= '>' . $output . '</label>';
-
+		self::addInlineJavaScriptAndCSS();
 		return array( $ret, "markerType" => 'nowiki' );
 
 	}
@@ -880,6 +875,24 @@ class WSFormHooks {
 			}
 		}
 		return $results;
+	}
+
+	private static function addInlineJavaScriptAndCSS() {
+		$scripts = \wsform\wsform::getJavaScriptToBeIncluded();
+		$csss = \wsform\wsform::getCSSToBeIncluded();
+		$out = \RequestContext::getMain()->getOutput();
+		if( !empty( $scripts ) ) {
+			foreach ( $scripts as $js ) {
+				$out->addInlineScript( $js );
+			}
+			wsform\wsform::cleanJavaScriptList();
+		}
+		if( !empty( $csss ) ) {
+			foreach ( $csss as $css ) {
+				$out->addInlineStyle( $css );
+			}
+			wsform\wsform::cleanCSSList();
+		}
 	}
 
 }

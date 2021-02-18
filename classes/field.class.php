@@ -4,6 +4,7 @@ namespace wsform\field;
 
 use \wsform\validate\validate;
 use ExtensionRegistry;
+use wsform\wsform;
 
 class render {
 
@@ -273,33 +274,42 @@ class render {
 			$onChangeScript = 'function WSFile'.$random.'(){'. "\n".'$("#' . $id . '").on("change", function(){'. "\n".'wsfiles( "';
 			$onChangeScript .= $id . '", "' . $verbose_id . '", "' . $error_id . '", "' . $use_label;
 			$onChangeScript .= '", "' . $verbose_custom . '", "' . $error_custom . '");'. "\n".'});'. "\n".'};';
-			$ret .= "<script>\n" . $onChangeScript . "\n";
-			$ret .= "\n" . "wachtff(WSFile".$random.");\n</script>";
+			$jsChange = $onChangeScript . "\n";
+			//$ret .= "<script>\n" . $onChangeScript . "\n";
+			$jsChange .= "\n" . "wachtff(WSFile".$random.");\n";
+			wsform::includeInlineScript( $jsChange );
 			//$ret     .= '<script>$( document ).ready(function() { $("#' . $random . '").on("change", function(){ wsfiles( "' . $id . '", "' . $verbose_id . '", "' . $error_id . '", "' . $use_label . '", "' . $verbose_custom . '", "' . $error_custom . '");});});</script>';
 			$css     = file_get_contents( "$IP/extensions/WSForm/WSForm_upload.css" );
 			$replace = array(
 				'{{verboseid}}',
-				'{{errorid}}'
+				'{{errorid}}',
+				'<style>',
+				'</style>'
 			);
 			$with    = array(
 				$verbose_id,
-				$error_id
+				$error_id,
+				'',
+				''
 			); //wsfiles( "file-upload2", "hiddendiv2", "error_file-upload2", "", "yes", "none");
 			$css     = str_replace( $replace, $with, $css );
-			$ret     .= $css;
+			wsform::includeInlineCSS( $css );
+			//$ret     .= $css;
 			if(! \wsform\wsform::isLoaded( 'WSFORM_upload.js' ) ) {
 				\wsform\wsform::addAsLoaded( 'WSFORM_upload.js' );
 				$js = file_get_contents( "$IP/extensions/WSForm/WSForm_upload.js" );
+				wsform::includeInlineScript( $js );
 			} else $js = '';
 			// As of MW 1.35+ we get errors here. It's replacing spaces with &#160; So now we put the js in the header
-			echo "\n<script>" . $js . "</script>";
+			//echo "\n<script>" . $js . "</script>";
+
 			$js="";
 			$wsFileScript = "\nfunction wsfilesFunc" . $random . "(){\n";
 			$wsFileScript .= "\n" . 'wsfiles( "' . $id . '", "' . $verbose_id . '", "' . $error_id . '", "' . $use_label . '");' . "\n";
 			$wsFileScript .= "}\n";
 			//$ret .= '<script>'. "\n".'wsfiles( "' . $id . '", "' . $verbose_id . '", "' . $error_id . '", "' . $use_label . '");</script>';
 
-			$ret .= '<script>'. "\n" . $wsFileScript . "\n" . 'wachtff(wsfilesFunc'. $random .');</script>';
+			wsform::includeInlineScript( "\n" . $wsFileScript . "\n" . 'wachtff(wsfilesFunc'. $random .');' );
 		} elseif ( $presentor == "slim" ) {
 			if ( $slim_image !== false ) {
 				$slim_image = '<img src="' . $slim_image . '">';
@@ -747,13 +757,12 @@ class render {
 				if ( ExtensionRegistry::getInstance()->isLoaded( 'VEForAll' ) ) {
 					$out->addModules( 'ext.veforall.main' );
 					$editor = true;
-					$js = '<script>var WSFormEditor = "VE";</script>';
-					$js .= '<style>
-							.load-editor{ 
+					wsform::includeInlineScript( 'var WSFormEditor = "VE";' );
+					$cssVE = '.load-editor{ 
 								background: url("https://www.wikibase.nl/load-editor.gif") no-repeat bottom right #fff;
 								background-size: 50px; 
-							}
-							</style>';
+							}';
+					wsform::includeInlineCSS( $cssVE );
 					$ret = '<span class="ve-area-wrapper">' . $ret;
 					$class .= ' load-editor ';
 				}
@@ -857,12 +866,13 @@ class render {
 
 		$jsOptions = rtrim($jsOptions,', \n');
 
-		$css = "<style>".file_get_contents($IP.'/extensions/WSForm/modules/signature/css/jquery.signature.css')."</style>";
-		$css .= '<link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/south-street/jquery-ui.css" rel="stylesheet">';
-		$js = '<script type="text/javascript" charset="UTF-8" src="/extensions/WSForm/modules/signature/js/do-signature.js"></script>'."\n";
-		$js .= '<script>';
+		$cssFile = file_get_contents($IP.'/extensions/WSForm/modules/signature/css/jquery.signature.css');
+		wsform::includeInlineCSS( $cssFile );
+		$css = '<link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/south-street/jquery-ui.css" rel="stylesheet">';
+		$css .= '<script type="text/javascript" charset="UTF-8" src="/extensions/WSForm/modules/signature/js/do-signature.js"></script>'."\n";
 
-		$js .= 'function doWSformActions(){'."\n";
+
+		$js = 'function doWSformActions(){'."\n";
 		$js .= '$("#wsform-signature").signature({'."\n";
 		$js .= 'syncField: "#wsform_signature_data", syncFormat: "'.strtoupper($ftype).'"';
 		$js .= $jsOptions;
@@ -870,7 +880,7 @@ class render {
 		$js .= '$("#wsform_signature_clear").click(function(){'."\n".'$("#wsform-signature").signature("clear");'."\n".'});'."\n";
 
 		$js .='};';
-		$js .= '</script>';
+		wsform::includeInlineScript( $js );
 		$ret = '<input type="hidden" name="wsform_signature_filename" value="'.$args['fname'].'" >'."\n";
 		$ret .= '<input type="hidden" name="wsform_signature_type" value="'.$ftype.'" >'."\n";
 		$ret .= '<input type="hidden" name="wsform_signature_page_content" value="'.$pcontent.'" >'."\n";
@@ -879,7 +889,7 @@ class render {
 		$ret .= '<button type="button" id="wsform_signature_clear" class="wsform-signature-clear '.$bclass.'">'.$btxt.'</button>'."\n";
 		$ret .= "\n";
 
-		return $css.$ret.$js;
+		return $css.$ret;
 	}
 
 	/**
@@ -933,13 +943,13 @@ class render {
 		$html = '<video id="wsform-player" controls autoplay class="'.$class.'"></video>'.$end;
 		$html .= '<button id="wsform-capture-screenshot" type="button" class="'.$btnClass.'">'.$btnTxt.'</button>'.$end;
 		$html .= '<canvas id="wsform-screenshot-canvas" width='.$pw.' height='.$ph.'></canvas>'.$end;
-		$html .= "<script>".$end;
-		$html .= "const player = document.getElementById('wsform-player');".$end;
-		$html .= "const canvas = document.getElementById('wsform-screenshot-canvas');".$end;
-		$html .= "const context = canvas.getContext('2d');".$end;
-		$html .= "const captureButton = document.getElementById('wsform-capture-screenshot');".$end;
-		$html .= 'const constraints = {'.$end.'video: true,'.$end.'};'.$end;
-		$html .= "captureButton.addEventListener('click', () => {
+
+		$js = "const player = document.getElementById('wsform-player');".$end;
+		$js .= "const canvas = document.getElementById('wsform-screenshot-canvas');".$end;
+		$js .= "const context = canvas.getContext('2d');".$end;
+		$js .= "const captureButton = document.getElementById('wsform-capture-screenshot');".$end;
+		$js .= 'const constraints = {'.$end.'video: true,'.$end.'};'.$end;
+		$js .= "captureButton.addEventListener('click', () => {
     context.drawImage(player, 0, 0, canvas.width, canvas.height);
 
     // Stop all video streams.
@@ -950,8 +960,8 @@ class render {
     .then((stream) => {
       // Attach the video stream to the video element and autoplay.
       player.srcObject = stream;
-    });
-</script>";
+    });";
+		wsform::includeInlineScript( $js );
 
 		$html .= '<input type="hidden" name="wsform_screenshot_filename" value="'.$args['fname'].'" >'."\n";
 		$html .= '<input type="hidden" name="wsform_screenshot_type" value="'.$ftype.'" >'."\n";

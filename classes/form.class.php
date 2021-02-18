@@ -113,8 +113,8 @@ class render {
 		}
 
 		if( $js !== "" ){
-			$jScript = '<script>'. $js . "</script>";
-		} else $jScript = '';
+			wsform::includeInlineScript( $js );
+		}
 
 
 		$ret .= 'class = "' . implode( " ", $class ) . '" ';
@@ -132,7 +132,7 @@ class render {
 
 		$db = \wsform\wsform::createHiddenField( 'mwdb', $wgDBname . $prefix );
 
-		$ret .= ">\n" . $template . $wswrite . $wsreturn . $wsaction . $messageonsuccess . $mwwikicontent . $db . $wsextension . $wstoken . $jScript;
+		$ret .= ">\n" . $template . $wswrite . $wsreturn . $wsaction . $messageonsuccess . $mwwikicontent . $db . $wsextension . $wstoken;
 
 		return $ret;
 	}

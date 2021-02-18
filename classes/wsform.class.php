@@ -60,6 +60,10 @@ class wsform {
 
 	public static $wsConfig = false;
 
+	private static $javaScript = array();
+
+	private static $cssStyles = array();
+
 	/**
 	 * @return string
 	 */
@@ -142,6 +146,54 @@ class wsform {
 	 */
 	public static function addAsLoaded($name) {
 		self::$loadedScripts[] = $name;
+	}
+
+	/**
+	 * @brief Add script to be included
+	 *
+	 * @param $src string JavaScript source (without <script>)
+	 */
+	public static function includeInlineScript( $src ) {
+		self::$javaScript[] = $src;
+	}
+
+	/**
+	 * Retrieve list of JavaScript to be loaded inline
+	 * @return array
+	 */
+	public static function getJavaScriptToBeIncluded(){
+		return self::$javaScript;
+	}
+
+	/**
+	 * Retrieve list of CSS to be loaded inline
+	 * @return array
+	 */
+	public static function getCSSToBeIncluded(){
+		return self::$cssStyles;
+	}
+
+	/**
+	 * Clear CSS list to be loaded inline
+	 */
+	public static function cleanCSSList(){
+		self::$cssStyles = array();
+	}
+
+	/**
+	 * Clear JavaScript list to be loaded inline
+	 */
+	public static function cleanJavaScriptList(){
+		self::$javaScript = array();
+	}
+
+	/**
+	 * @brief Add css to be included
+	 *
+	 * @param $src string CSS source (without <style>)
+	 */
+	public static function includeInlineCSS( $src ) {
+		self::$cssStyles[] = $src;
 	}
 
 	/**
