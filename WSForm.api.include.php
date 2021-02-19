@@ -1783,9 +1783,16 @@ function sendMail($from, $to, $cc, $bcc, $replyto, $subject, $body, $html=true, 
             }
         }
 		*/
+
         $protocol = stripos($_SERVER['SERVER_PROTOCOL'],'https') === 0 ? 'https:' : 'http:';
         if( $attachment !== false ) {
-            $fileAttachedContent = file_get_contents($protocol . $attachment);
+
+	        if( strpos( $attachment, 'http' ) === false ) {
+		        $fileAttachedContent = file_get_contents( $protocol . $attachment );
+	        } else {
+		        $fileAttachedContent = file_get_contents( $attachment );
+	        }
+
         } else $fileAttachedContent = false;
         if( $fileAttachedContent !== false ) {
             $pInfo = pathinfo( $attachment );
