@@ -330,12 +330,22 @@ class WSFormHooks {
             return $ret;
         }
 
+		if ( isset( $args['id'] ) && $args['id'] !== '' ) {
+			$formId =  $args['id'];
+		} else $formId = false;
+
 		if ( isset( $args['loadscript'] ) && $args['loadscript'] !== '' ) {
 			if(! wsform\wsform::isLoaded($args['loadscript'])) {
 				if ( file_exists( $IP . '/extensions/WSForm/modules/customJS/loadScripts/' . $args['loadscript'] . '.js' ) ) {
 					$ls = file_get_contents( $IP . '/extensions/WSForm/modules/customJS/loadScripts/' . $args['loadscript'] . '.js' );
 					if ( $ls !== false ) {
 						//$loadScript = "<script>" . $ls . "</script>\n";
+
+						if( $formId !== false ) {
+							$globalScriptId = 'var wsForm_' . $args['loadscript'];
+							$globalScriptId .= " = '" . $formId . "';";
+							wsform\wsform::includeInlineScript( $globalScriptId );
+						}
 						wsform\wsform::includeInlineScript( $ls );
 						wsform\wsform::addAsLoaded( $args['loadscript'] );
 					}
