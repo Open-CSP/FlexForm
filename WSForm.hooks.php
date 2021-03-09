@@ -342,9 +342,9 @@ class WSFormHooks {
 						//$loadScript = "<script>" . $ls . "</script>\n";
 
 						if( $formId !== false ) {
-							$globalScriptId = 'var wsForm_' . $args['loadscript'];
-							$globalScriptId .= " = '" . $formId . "';";
-							wsform\wsform::includeInlineScript( $globalScriptId );
+							$k = 'wsForm_' . $args['loadscript'];
+							$v = $formId;
+							wsform\wsform::includeJavaScriptConfig( $k, $v );
 						}
 						wsform\wsform::includeInlineScript( $ls );
 						wsform\wsform::addAsLoaded( $args['loadscript'] );
@@ -902,6 +902,10 @@ class WSFormHooks {
 				$out->addInlineStyle( $css );
 			}
 			wsform\wsform::cleanCSSList();
+		}
+		if( !empty( $jsconfigs ) ) {
+			$out->addJsConfigVars( array( 'wsformConfigVars' => $jsconfigs ) );
+			wsform\wsform::cleanJavaScriptConfigVars();
 		}
 	}
 

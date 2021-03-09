@@ -64,6 +64,8 @@ class wsform {
 
 	private static $cssStyles = array();
 
+	private static $javaScriptConfigVars = array();
+
 	/**
 	 * @return string
 	 */
@@ -194,6 +196,30 @@ class wsform {
 	 */
 	public static function includeInlineCSS( $src ) {
 		self::$cssStyles[] = $src;
+	}
+
+	/**
+	 * @brief Add javascript config variables included
+	 *
+	 * @param $src string JavaScript source (without <script>)
+	 */
+	public static function includeJavaScriptConfig( $k, $v ) {
+		self::$javaScriptConfigVars[$k] = $v;
+	}
+
+	/**
+	 * Retrieve list of JavaScript config to be loaded inline
+	 * @return array
+	 */
+	public static function getJavaScriptConfigToBeAdded(){
+		return self::$javaScriptConfigVars;
+	}
+
+	/**
+	 * Clear JavaScript config vars list to be loaded inline
+	 */
+	public static function cleanJavaScriptConfigVars(){
+		self::$javaScriptConfigVars = array();
 	}
 
 	/**
