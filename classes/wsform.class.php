@@ -201,9 +201,18 @@ class wsform {
 	/**
 	 * @brief Add javascript config variables included
 	 *
-	 * @param $src string JavaScript source (without <script>)
+	 * @param $k string JavaScript source name (without <script>)
+	 * @param $v string id of the form
 	 */
-	public static function includeJavaScriptConfig( $k, $v ) {
+	public static function includeJavaScriptConfig( string $k, string $v ) {
+		if( isset( self::$javaScriptConfigVars[$k] ) ) {
+			if( is_array( self::$javaScriptConfigVars[$k] ) ) {
+				self::$javaScriptConfigVars[$k][] = $v;
+			} else {
+				$tmpValue = self::$javaScriptConfigVars[$k];
+				self::$javaScriptConfigVars[$k][] = $tmpValue;
+			}
+		}
 		self::$javaScriptConfigVars[$k] = $v;
 	}
 
@@ -211,7 +220,7 @@ class wsform {
 	 * Retrieve list of JavaScript config to be loaded inline
 	 * @return array
 	 */
-	public static function getJavaScriptConfigToBeAdded(){
+	public static function getJavaScriptConfigToBeAdded(): array {
 		return self::$javaScriptConfigVars;
 	}
 

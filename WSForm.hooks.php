@@ -890,6 +890,7 @@ class WSFormHooks {
 	private static function addInlineJavaScriptAndCSS() {
 		$scripts = \wsform\wsform::getJavaScriptToBeIncluded();
 		$csss = \wsform\wsform::getCSSToBeIncluded();
+		$jsconfigs = \wsform\wsform::getJavaScriptConfigToBeAdded();
 		$out = \RequestContext::getMain()->getOutput();
 		if( !empty( $scripts ) ) {
 			foreach ( $scripts as $js ) {
