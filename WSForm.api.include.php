@@ -608,15 +608,23 @@ function createGet() {
 				$delimiter = '?';
 			}
 			if ( is_array( $v ) ) {
-
-				$ret .= $delimiter . makeSpaceFromUnderscore( $k ) . "=";
-				foreach ( $v as $multiple ) {
-					$ret .= cleanHTML( cleanBraces( $multiple ) ) . ',';
+				if( !isWSFormSystemField( $k ) ) {
+					$ret .= $delimiter . makeSpaceFromUnderscore( $k ) . "=";
+					foreach ( $v as $multiple ) {
+						$ret .= cleanHTML( cleanBraces( $multiple ) ) . ',';
+					}
+					$ret = rtrim( $ret,
+						',' );
 				}
-				$ret = rtrim( $ret, ',' );
 			} else {
 				$resultDelete = in_array( $k, $removeList );
-				if ( $k !== "mwreturn" && $v != "" && $k !== 'mwdb' && ! isWSFormSystemField( $k ) && ! $resultDelete ) {
+				if ( $k !== "mwreturn" &&
+					 $v != "" &&
+					 $k !== 'mwdb' &&
+					 (isWSFormSystemField( $k ) === false ) &&
+					 !$resultDelete
+				) {
+
 					$html = getHTMLType( $k );
 					if( $html !== "all" ) {
 						if( $html === "nohtml" ) {
@@ -629,7 +637,6 @@ function createGet() {
 				}
 			}
 		}
-
 		//exit;
 		return $ret;
 	}
@@ -1325,6 +1332,7 @@ if ( ! $mwedit && ! $email ) {
 			$ff = makeUnderscoreFromSpace($edit[2]);
 			// Does this field exist in the current form so we can use ?
 			if ( ! isset( $_POST[ $ff ] ) ) {
+				$data[$pid][$t]['value'] = '';
 				continue;
 			}
 			// The value will be grabbed from the form
@@ -1367,6 +1375,7 @@ if ( ! $mwedit && ! $email ) {
 			continue;
 		}
 		$usedVariables = array();
+		print_r($edits);
 		foreach ($edits as $edit) {
 			if($edit['find'] !== false) {
 				$templateContent = $api->getTemplate( $pageContent, $edit['template'], $edit['find'], $edit['val'] );
@@ -1385,8 +1394,8 @@ if ( ! $mwedit && ! $email ) {
 			$expl = pregExplode($templateContent);
 			foreach ($expl as $k=>$line) {
 				$tmp = explode('=',$line);
-				if(trim($tmp[0])==$edit['variable']){
-					$expl[$k]=$edit['variable'].'='.$edit['value'];
+				if( trim( $tmp[0]) == $edit['variable'] ) {
+					$expl[$k] = $edit['variable'].'='.$edit['value'];
 					$usedVariables[]=$edit['variable'];
 				}
 			}
