@@ -107,6 +107,7 @@ Visit : Special:WSForm/Docs
 
 
 ### Changelog
+* 0.8.0.9.6.3 : Added default value for checkboxes. Updated Docs
 * 0.8.0.9.6.2 : Added loadscript options to config. Updated Docs
 * 0.8.0.9.6.1 : Added global variable to loadscript feature
 * 0.8.0.9.6 : Rewrote css and JavaScript includes. !!NEEDS TESTING BEFORE DEPLOY ON PRODUCTION SERVERS!!

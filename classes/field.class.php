@@ -125,7 +125,26 @@ class render {
 	 * @return string Rendered HTML
 	 */
 	public static function render_checkbox( $args, $input = false ) {
-		$ret = '<input type="checkbox" ';
+
+		// Added in v0.8.0.9.6.2. Allowing for a default value for a checkbox
+		// for when the checkbox is not checked.
+		$ret = '';
+		if( isset( $args['default'] ) && $args['default'] !== '' ) {
+			$value = $args['default'];
+			$name = false;
+			if ( isset( $args['name'] ) ) {
+				$name = "wsdefault_" . $args['name'];
+				if ( strpos( $name, "[]" ) ) {
+					$name = rtrim( $name, '[]' );
+				}
+			}
+			if( $name !== false && $value !== false ) {
+				$ret .= \wsform\wsform::createHiddenField( $name, $value );
+			}
+		}
+		// END default checkbox
+
+		$ret .= '<input type="checkbox" ';
 		$ret .= validate::doCheckboxParameters( $args );
 		$ret .= ">\n";
 

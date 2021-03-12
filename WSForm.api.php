@@ -280,6 +280,16 @@ if( $securedVersion ) {
 
 $wsuid = getPostString( 'wsuid' );
 
+// Check default variables
+foreach( $_POST as $k=>$v ) {
+	if( strpos( $k, 'wsdefault_' ) !== false ) {
+		$tempVar = str_replace( 'wsdefault_', '', $k );
+		if( !isset( $_POST[$tempVar] ) ) {
+			$_POST[$tempVar] = $v;
+		}
+	}
+}
+
 if( $wsuid !== false ){
 	unset($_POST['wsuid']);
 }
@@ -325,7 +335,6 @@ if ( getPostString('mwaction') !== false ) {
 
 		case "get" :
 			$ret = saveToWiki('get');
-
 			if( !is_array( $ret ) && $ret !== false ) {
 				$messages->redirect( $ret );
 				exit;

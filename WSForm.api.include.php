@@ -1375,8 +1375,7 @@ if ( ! $mwedit && ! $email ) {
 			continue;
 		}
 		$usedVariables = array();
-		print_r($edits);
-		foreach ($edits as $edit) {
+		foreach ( $edits as $edit ) {
 			if($edit['find'] !== false) {
 				$templateContent = $api->getTemplate( $pageContent, $edit['template'], $edit['find'], $edit['val'] );
 				if($templateContent===false) {
