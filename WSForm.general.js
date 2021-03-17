@@ -17,7 +17,7 @@ var wsAjax = false;
  * @param  {[string]}  type          [what kind of alert (success, alert, warning, etc..)]
  * @param  {Boolean} [where=false] [where to show]
  * @param  {Boolean} [stick=false] [wether popup must be sticky or not]
- * @return {[type]}                []
+ * @return
  */
 function showMessage(msg, type, where = false, stick = false) {
     if (typeof $.notify === "undefined") return;
@@ -182,10 +182,18 @@ function wsAutoSave(form, reset = false) {
         window.mwonsuccess = 'Autosave';
     }
     wsAutoSaveActive = true;
-    if (window.wsAjax === true) {
-        $(form).click();
+    if( ! $(frm).hasClass('ws-edit-tracking-info--disabled') ) {
+        if (window.wsAjax === true) {
+            $(form).click();
+        } else {
+            wsform(form);
+        }
     } else {
-        wsform(form);
+        if (typeof wsFormTimeOutId !== 'undefined') {
+            wsFormTimeOutId.forEach( function( value ) {
+                clearTimeout( value );
+            })
+        }
     }
     if (mwonsuccessBackup !== false) {
         window.mwonsuccess = mwonsuccessBackup;
