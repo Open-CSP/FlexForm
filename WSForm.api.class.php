@@ -821,7 +821,7 @@ class wbApi {
                 "title" => $name,
                 "text" => $details,
                 "token" => $token,
-                "bot" => $this['app']['is-bot']
+                "bot" => $this->app['is-bot']
             ]);
         } else {
             $postdata = http_build_query([
@@ -831,7 +831,7 @@ class wbApi {
                 "text" => $details,
                 "summary" => $summary,
                 "token" => $token,
-                "bot" => $this['app']['is-bot']
+                "bot" => $this->app['is-bot']
             ]);
         }
           $result=$this->apiPost($postdata);
