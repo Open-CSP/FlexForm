@@ -290,6 +290,11 @@ class wbApi {
       $this->setConfigVar( 'sec-key', $config );
       $this->setConfigVar( 'form-timeout-limit', $config );
 
+      $this->setConfigVar( 'is-bot', $config );
+      if( $this->app['is-bot'] !== true ) {
+          $this->app['is-bot'] = false;
+      }
+
 
       if ( !isset( $config['api-url-overrule'] ) || $config['api-url-overrule'] === '' ) {
 
@@ -815,7 +820,8 @@ class wbApi {
                 "format" => "json",
                 "title" => $name,
                 "text" => $details,
-                "token" => $token
+                "token" => $token,
+                "bot" => $this['app']['is-bot']
             ]);
         } else {
             $postdata = http_build_query([
@@ -824,7 +830,8 @@ class wbApi {
                 "title" => $name,
                 "text" => $details,
                 "summary" => $summary,
-                "token" => $token
+                "token" => $token,
+                "bot" => $this['app']['is-bot']
             ]);
         }
           $result=$this->apiPost($postdata);

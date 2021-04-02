@@ -64,6 +64,7 @@
 
 $config = array(
 	"use-api-user-only"        => 'yes',
+	"is-bot"                    => false,
 	"api-username"             => '',
 	"api-password"             => '',
 	"api-url-overrule"         => '',
