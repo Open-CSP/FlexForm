@@ -773,6 +773,7 @@ class wbApi {
           //echo $cmd;
           //die();
           $result = shell_exec( $cmd );
+          //var_dump( $result );
           $res = explode('|', $result);
           if($res[0] === 'ok' ) return true;
           if($res[0] === 'error' ) die($res[1]);

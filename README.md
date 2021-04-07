@@ -107,6 +107,7 @@ Visit : Special:WSForm/Docs
 
 
 ### Changelog
+* 0.8.0.9.6.5 : Added preSaveTransform and force smw properties update in maintenance script
 * 0.8.0.9.6.4 : Added isBot to config
 * 0.8.0.9.6.3 : Added default value for checkboxes. Updated Docs
 * 0.8.0.9.6.2 : Added loadscript options to config. Updated Docs

@@ -36,8 +36,8 @@ if ( strcmp($currentHost, $referrerHost['host']) !== 0)
 }
 
 
-//ERROR_REPORTING(E_ALL);
-//ini_set('display_errors', 1);
+ERROR_REPORTING(E_ALL);
+ini_set('display_errors', 1);
 
 require_once( 'WSForm.api.class.php' );
 require_once( 'classes/recaptcha.class.php' );

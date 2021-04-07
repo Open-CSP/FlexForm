@@ -1075,6 +1075,7 @@ function saveToWiki( $email=false ) {
 		//die($wsuid);
 
 		$result = $api->savePageToWiki( $title, $ret, $summary );
+
 		if(isset($result['received']['error'])) {
 			return createMsg($result['received']['error'],'error',$returnto);
 		}

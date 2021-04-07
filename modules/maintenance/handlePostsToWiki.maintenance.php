@@ -13,6 +13,11 @@
 
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
+use SMW\ApplicationFactory;
+use SMW\Options;
+use SMW\Store;
+use SMW\StoreFactory;
+
 
 $IP = getenv( 'MW_INSTALL_PATH' );
 if ( $IP === false ) {
@@ -97,6 +102,27 @@ class handlePostsToWiki extends Maintenance {
 
 	}
 
+	/**
+	 * @param Title $title
+	 */
+	public function refreshSMWProperties( Title $title ){
+		$store = StoreFactory::getStore();
+		$store->setOption( Store::OPT_CREATE_UPDATE_JOB, false );
+
+		$rebuilder = new \SMW\Maintenance\DataRebuilder(
+			$store,
+			ApplicationFactory::getInstance()->newTitleFactory()
+		);
+
+		$rebuilder->setOptions(
+		// Tell SMW to only rebuild the current page
+			new Options( [ 'page' => $title ] )
+		);
+
+		$rebuilder->rebuild();
+
+	}
+
 	public function savePageToWiki( $pageName, $content, $summary, $timestamp, $bot, $rc, $uname ) {
 		$ret = array();
 		$user = $this->getUser( $uname );
@@ -117,6 +143,9 @@ class handlePostsToWiki extends Maintenance {
 			$oldRev = $oldRevID ? $revLookup->getRevisionById( $oldRevID ) : null;
 		}
 
+		$parser = MediaWikiServices::getInstance()->getParser();
+
+		$content = $parser->preSaveTransform( $content, $title, $user, ParserOptions::newCanonical() );
 
 		$rev = new WikiRevision( MediaWikiServices::getInstance()->getMainConfig() );
 		if ( version_compare( $GLOBALS['wgVersion'], "1.35" ) < 0 ) {
@@ -145,6 +174,7 @@ class handlePostsToWiki extends Maintenance {
 		}
 		$status = $rev->importOldRevision();
 		$newId = $title->getLatestRevID();
+		$this->refreshSMWProperties( $title );
 		if( $rc ){
 			$this->addToRecentChanges( $exists, $oldRev, $timestamp, $rev, $user, $summary, $oldRevID, $bot, $newId, $title );
 		}
