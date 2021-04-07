@@ -19,6 +19,7 @@ use SMW\Store;
 use SMW\StoreFactory;
 
 
+
 $IP = getenv( 'MW_INSTALL_PATH' );
 if ( $IP === false ) {
 	$IP = __DIR__ . '/../../../..';
@@ -106,6 +107,12 @@ class handlePostsToWiki extends Maintenance {
 	 * @param Title $title
 	 */
 	public function refreshSMWProperties( Title $title ){
+		if ( !ExtensionRegistry::getInstance()->isLoaded( 'SemanticMediaWiki' ) ||
+		     !MediaWikiServices::getInstance()->getMainConfig()->get( 'RPImmediateSMWUpdate' )
+		) {
+			return;
+		}
+
 		$store = StoreFactory::getStore();
 		$store->setOption( Store::OPT_CREATE_UPDATE_JOB, false );
 
