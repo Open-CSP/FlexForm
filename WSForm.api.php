@@ -368,8 +368,18 @@ if( $extension !== false ) {
 	$extensionsFolder = getcwd()."/modules/handlers/posts/";
 	if( file_exists($extensionsFolder . $extension . '/post-handler.php') ) {
 		$usrt = setSummary(true);
+		$mwreturn = '';
+		if ( isset( $_POST['mwreturn'] ) && $_POST['mwreturn'] !== "" ) {
+			$mwreturn = $_POST['mwreturn'];
+		}
 		$wsPostFields = setWsPostFields();
 		include($extensionsFolder . $extension . '/post-handler.php');
+		if ( $mwreturn !== "" ) {
+			$messages->redirect( $mwreturn );
+			exit;
+		} elseif($identifier !== 'ajax') {
+			$messages->outputMsg( $i18n->wsMessage( 'wsform-noreturn-found' ) );
+		}
 	}
 }
 

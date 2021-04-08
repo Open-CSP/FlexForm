@@ -743,7 +743,7 @@ class wbApi {
         $cmd .= ' --user '. $uid;
         $cmd .= ' --fip "'. $fileAndPath . '"';
         $cmd .= ' --summary "' . $summary . '"';
-        echo $cmd;
+        //echo $cmd;
         $result = shell_exec( $cmd );
         $res = explode('|', $result);
         if($res[0] === 'ok' ) return true;
