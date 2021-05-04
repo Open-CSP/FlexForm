@@ -42,7 +42,7 @@ function showMessage(msg, type, where = false, stick = false) {
  * @param both bool if true it will also wait until jQuery.ui is loaded.
  */
 function wachtff(method, both = false) {
-    //console.log('wacht ff op jQuery..');
+    //console.log('wacht ff op jQuery..: ' + method.name );
     if (window.jQuery) {
         if (both === false) {
             //console.log( 'ok JQuery active.. lets go!' );
@@ -55,7 +55,7 @@ function wachtff(method, both = false) {
             } else {
                 setTimeout(function () {
                     wachtff(method, true)
-                }, 50);
+                }, 250);
             }
         }
     } else {
@@ -71,7 +71,7 @@ function waitForTinyMCE(method) {
     } else {
         setTimeout(function () {
             waitForTinyMCE(method)
-        }, 50);
+        }, 250);
     }
 }
 
@@ -81,7 +81,7 @@ function waitForVE(method) {
     } else {
         setTimeout(function () {
             waitForVE(method)
-        }, 50);
+        }, 250);
     }
 }
 
@@ -579,7 +579,6 @@ function checkForTinyMCE() {
 wachtff(addTokenInfo);
 wachtff(initializeWSFormEditor);
 wachtff(checkForTinyMCE);
-
 
 // tinyMCE stuff if needed
 
