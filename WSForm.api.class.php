@@ -1021,7 +1021,6 @@ class wbApi {
      * @return array|mixed|void
      */
     function logMeIn ( $user=false, $pass=false, $rurl=false ) {
-        echo "<pre>";
         if ( $this->app["username"] === false || $this->app["password"] === false ){
             $result = array();
             $result['error'] = 'No WSForm API username or password defined';
@@ -1037,7 +1036,6 @@ class wbApi {
                 "type" => "login",
             ]);
             $result = $this->apiPost($postdata);
-            print_r($result);
             if ($result['error']) {
                 echo $result['error'];
                 exit;
@@ -1053,7 +1051,6 @@ class wbApi {
                     "lgtoken" => $_SESSION["logintoken"],
                 ]);
                 $result = $this->apiPost($postdata);
-                print_r($result);
                 if ($result['error']) {
                     echo $result['error'];
                     exit;
@@ -1061,7 +1058,6 @@ class wbApi {
 
             }
         }
-        die();
     }
 
 
