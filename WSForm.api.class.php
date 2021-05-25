@@ -335,7 +335,8 @@ class wbApi {
               CURLOPT_USERAGENT      => $this->app["useragent"],
               CURLOPT_SSL_VERIFYPEER => 0,
               CURLOPT_SSL_VERIFYHOST => false,
-              CURLOPT_POST           => true
+              CURLOPT_POST           => true,
+              CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1
           );
       $this->app["logincurloptions"] =
           array(
@@ -346,7 +347,8 @@ class wbApi {
               CURLOPT_SSL_VERIFYPEER => 0,
               CURLOPT_FOLLOWLOCATION => 1,
               CURLOPT_SSL_VERIFYHOST => false,
-              CURLOPT_POST           => true
+              CURLOPT_POST           => true,
+              CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1
           );
 
 
@@ -1019,6 +1021,7 @@ class wbApi {
      * @return array|mixed|void
      */
     function logMeIn ( $user=false, $pass=false, $rurl=false ) {
+        echo "<pre>";
         if ( $this->app["username"] === false || $this->app["password"] === false ){
             $result = array();
             $result['error'] = 'No WSForm API username or password defined';
@@ -1034,6 +1037,7 @@ class wbApi {
                 "type" => "login",
             ]);
             $result = $this->apiPost($postdata);
+            print_r($result);
             if ($result['error']) {
                 echo $result['error'];
                 exit;
@@ -1049,6 +1053,7 @@ class wbApi {
                     "lgtoken" => $_SESSION["logintoken"],
                 ]);
                 $result = $this->apiPost($postdata);
+                print_r($result);
                 if ($result['error']) {
                     echo $result['error'];
                     exit;
@@ -1056,6 +1061,7 @@ class wbApi {
 
             }
         }
+        die();
     }
 
 
