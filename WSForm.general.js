@@ -545,8 +545,9 @@ function replacePipes(text) {
 
 function attachTokens() {
     if ($('select[data-inputtype="ws-select2"]')[0]) {
-        mw.loader.load('/extensions/WSForm/select2.min.css', 'text/css');
-        $.getScript('/extensions/WSForm/select2.min.js').done(function () {
+        var scriptPath = mw.config.values('wgScriptPath');
+        mw.loader.load(scriptPath + '/extensions/WSForm/select2.min.css', 'text/css');
+        $.getScript(scriptPath + '/extensions/WSForm/select2.min.js').done(function () {
             $('select[data-inputtype="ws-select2"]').each(function () {
                 var selectid = $(this).attr('id');
                 var selectoptionsid = 'select2options-' + selectid;
