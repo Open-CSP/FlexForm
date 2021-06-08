@@ -26,15 +26,14 @@ use PHPMailer\PHPMailer\SMTP;
 
 $currentHost = $_SERVER['HTTP_HOST'];
 $referrerHost = parse_url($_SERVER['HTTP_REFERER']);
-
+/*
 if ( strcmp($currentHost, $referrerHost['host']) !== 0)
 {
     http_response_code(404);
     //include('myCustom404.php'); // provide your own 404 error page
-    die('no no no sir'); /* remove this if you want to execute the rest of
-              the code inside the file before redirecting. */
+    die('no no no sir'); // remove this if you want to execute the rest of the code inside the file before redirecting.
 }
-
+*/
 
 //ERROR_REPORTING(E_ALL);
 //ini_set('display_errors', 1);
