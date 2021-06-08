@@ -490,6 +490,10 @@ function addTokenInfo() {
             }
             if (typeof WSFormEditor !== 'undefined' && WSFormEditor === 'VE') {
                 var VEditors = $(this).find("span.ve-area-wrapper");
+                if( VEditors.length === 0 ) {
+                    // normal for so submit
+                    pform.submit();
+                }
                 var numberofEditors = VEditors.length;
                 var tAreasFieldNames = [];
                 var tAreas = $(this).find("textarea").each(function () {

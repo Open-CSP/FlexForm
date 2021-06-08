@@ -107,6 +107,7 @@ Visit : Special:WSForm/Docs
 
 
 ### Changelog
+* 0.8.0.9.6.7 : Handling of Form post with multiple WSForms on one page and VE included
 * 0.8.0.9.6.6 : Better handling for extensions
 * 0.8.0.9.6.5 : Added preSaveTransform and force smw properties update in maintenance script
 * 0.8.0.9.6.4 : Added isBot to config
