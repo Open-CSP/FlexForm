@@ -276,6 +276,11 @@ class wbApi {
       }
       if ( isset( $config['wgScript'] ) && $config['wgScript'] !== '' ) {
           $this->app['wgScript'] = rtrim( $config['wgScript'], '/' );
+          // /w/index.php -> /w
+          $withoutIndex = str_replace('/index.php/', '',  $this->app['wgScript'] );
+          if( !empty( $withoutIndex ) ) {
+              $this->app['IP'] =  $this->app['IP'] . '/' . $withoutIndex;
+          }
       } else {
           $this->app['wgScript'] = "/index.php";
       }
