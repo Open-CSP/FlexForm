@@ -27,6 +27,7 @@ class render {
             }
         }
         $ret .= ">\n";
+
         if ( isset( $args['placeholder'] ) ) {
             if ( ! isset( $args['selected'] ) ) {
                 $ret .= '<option value="" disabled selected>' . $args['placeholder'] . '</option>';

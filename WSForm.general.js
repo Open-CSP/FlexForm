@@ -547,7 +547,7 @@ function attachTokens() {
     $(document).ready(function () {
         if ($('select[data-inputtype="ws-select2"]')[0]) {
             var scriptPath = mw.config.get('wgScriptPath');
-            if( scriptPath === null ) {
+            if( scriptPath === null || !scriptPath ) {
                 scriptPath = '';
             }
             mw.loader.load(scriptPath + '/extensions/WSForm/select2.min.css', 'text/css');

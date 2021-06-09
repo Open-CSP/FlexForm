@@ -521,6 +521,7 @@ class WSFormHooks {
      */
 	public static function WSSelect( $input, array $args, Parser $parser, PPFrame $frame ) {
 
+
 		$ret = '<select ';
 
 
@@ -535,7 +536,12 @@ class WSFormHooks {
 		}
 		$output = $parser->recursiveTagParse( $input, $frame );
 
-		$ret .= '>' . $output . '</select>';
+		$ret .= '>';
+		if ( isset( $args['placeholder'] ) ) {
+			$ret .= '<option value="" disabled selected>' . $args['placeholder'] . '</option>';
+		}
+		$ret .=  $output . '</select>';
+
 		self::addInlineJavaScriptAndCSS();
 		return array( $ret, "markerType" => 'nowiki' );
 
