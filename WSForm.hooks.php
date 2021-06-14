@@ -571,11 +571,14 @@ class WSFormHooks {
 		$placeholder = false;
 		$allowtags = false;
 		$onlyone = false;
+		$multiple = false;
 		foreach ( $args as $k => $v ) {
 			if ( wsform\validate\validate::validParameters( $k ) ) {
 				if ( $k == 'placeholder' ) {
 					$placeholder = $parser->recursiveTagParse( $v, $frame );
-				}    else {
+				} elseif( strtolower( $k ) === "multiple") {
+					$multiple = $parser->recursiveTagParse( $v, $frame );
+				}  else {
 					$ret .= $k . '="' . $parser->recursiveTagParse( $v, $frame ) . '" ';
 				}
 			}
@@ -634,7 +637,8 @@ class WSFormHooks {
 				$out .= "\nallowClear: true";
 			}
 		}
-		if( isset( $args['multiple'] ) ) {
+
+		if( $multiple !== false && strtolower( $multiple ) === "multiple" ) {
 			if ( ( isset( $args['json'] ) && isset( $args['id'] ) ) || isset( $args['allowtags'] ) || isset( $args['allowclear'] ) ) {
 				$out .= ",\nmultiple: true";
 			} else {
