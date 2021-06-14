@@ -179,7 +179,7 @@ class WSFormHooks {
                 if( $parsePost === true ) {
                     $ret .= '<input type="hidden" name="wsparsepost[]" value="' . $parseName . "\">\n";
                 }
-				self::addInlineJavaScriptAndCSS();
+				//self::addInlineJavaScriptAndCSS();
 
 				return array( $ret, "markerType" => 'nowiki');
 			} else return array( wfMessage( "wsform-field-invalid" )->text() . ": " . $type, "markerType" => 'nowiki');
@@ -211,7 +211,7 @@ class WSFormHooks {
 		}
 
 		$ret = wsform\edit\render::render_edit( $args );
-		self::addInlineJavaScriptAndCSS();
+		//self::addInlineJavaScriptAndCSS();
 		return array( $ret, 'noparse' => true, "markerType" => 'nowiki' );
 	}
 
@@ -237,7 +237,7 @@ class WSFormHooks {
 			}
 		}
 		$ret = wsform\create\render::render_create( $args );
-		self::addInlineJavaScriptAndCSS();
+		//self::addInlineJavaScriptAndCSS();
 		return array( $ret, 'noparse' => true, "markerType" => 'nowiki' );
 	}
 
@@ -264,7 +264,7 @@ class WSFormHooks {
 			}
 		}
 		$ret = wsform\mail\render::render_mail( $args );
-		self::addInlineJavaScriptAndCSS();
+		//self::addInlineJavaScriptAndCSS();
 		return array( $ret, 'noparse' => true, "markerType" => 'nowiki' );
 	}
 
@@ -504,7 +504,7 @@ class WSFormHooks {
 		}
 		$output = $parser->recursiveTagParse( $input, $frame );
 		$ret    .= '>' . $output . '</fieldset>';
-		self::addInlineJavaScriptAndCSS();
+		//self::addInlineJavaScriptAndCSS();
 		return array( $ret, "markerType" => 'nowiki' );
 
 
@@ -542,7 +542,7 @@ class WSFormHooks {
 		}
 		$ret .=  $output . '</select>';
 
-		self::addInlineJavaScriptAndCSS();
+		//self::addInlineJavaScriptAndCSS();
 		return array( $ret, "markerType" => 'nowiki' );
 
 
@@ -634,6 +634,19 @@ class WSFormHooks {
 				$out .= "\nallowClear: true";
 			}
 		}
+		if( isset( $args['multiple'] ) ) {
+			if ( ( isset( $args['json'] ) && isset( $args['id'] ) ) || isset( $args['allowtags'] ) || isset( $args['allowclear'] ) ) {
+				$out .= ",\nmultiple: true";
+			} else {
+				$out .= "\nmultiple: true";
+			}
+		} else {
+			if ( ( isset( $args['json'] ) && isset( $args['id'] ) ) || isset( $args['allowtags'] ) || isset( $args['allowclear'] ) ) {
+				$out .= ",\nmultiple: false";
+			} else {
+				$out .= "\nmultiple: false";
+			}
+		}
 
 		$out .= '});"';
 		$callb .= "$('select').trigger('change');\n";
@@ -654,7 +667,7 @@ class WSFormHooks {
 		//$wgOut->addHTML( $out );
 
 		$ret = $ret . $out;
-		self::addInlineJavaScriptAndCSS();
+		//self::addInlineJavaScriptAndCSS();
 		return array( $ret, "markerType" => 'nowiki' );
 	}
 
@@ -732,7 +745,7 @@ class WSFormHooks {
         //echo "<BR><BR><BR><pre>";
         //echo $ret;
         //echo "</pre>";
-	    self::addInlineJavaScriptAndCSS();
+	    //self::addInlineJavaScriptAndCSS();
         return array( $ret, "markerType" => 'nowiki' );
         //return array($ret, "noparse" => 'true', 'isHTML' => true);
 
@@ -807,7 +820,7 @@ class WSFormHooks {
             }
         }
         $ret = $css . $jsLoad . $ret . $javaScript;
-	    self::addInlineJavaScriptAndCSS();
+	   // self::addInlineJavaScriptAndCSS();
         return array( $ret, "markerType" => 'nowiki' );
 
     }
@@ -832,7 +845,7 @@ class WSFormHooks {
 			$ret .= ' align="' . $args['align'] . '"';
 		}
 		$ret .= '>' . $input . '</legend>';
-		self::addInlineJavaScriptAndCSS();
+		//self::addInlineJavaScriptAndCSS();
 		return array( $ret, "markerType" => 'nowiki' );
 
 	}
@@ -860,7 +873,7 @@ class WSFormHooks {
 
 		$output = $parser->recursiveTagParse( $input, $frame );
 		$ret    .= '>' . $output . '</label>';
-		self::addInlineJavaScriptAndCSS();
+		//self::addInlineJavaScriptAndCSS();
 		return array( $ret, "markerType" => 'nowiki' );
 
 	}
@@ -894,8 +907,8 @@ class WSFormHooks {
 	}
 
 	private static function addInlineJavaScriptAndCSS() {
-		$scripts = \wsform\wsform::getJavaScriptToBeIncluded();
-		$csss = \wsform\wsform::getCSSToBeIncluded();
+		$scripts = array_unique( \wsform\wsform::getJavaScriptToBeIncluded() );
+		$csss = array_unique( \wsform\wsform::getCSSToBeIncluded() );
 		$jsconfigs = \wsform\wsform::getJavaScriptConfigToBeAdded();
 		$out = \RequestContext::getMain()->getOutput();
 		if( !empty( $scripts ) ) {

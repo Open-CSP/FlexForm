@@ -107,6 +107,7 @@ Visit : Special:WSForm/Docs
 
 
 ### Changelog
+* 0.8.0.9.7.0 : wstokens multiple="multople" and only the wsform tag will load needed JavaScript. Meaning fields that need JavaScript need to be inside wsform tag
 * 0.8.0.9.6.9 : Added placeholder to wsselect. Changed docs.
 * 0.8.0.9.6.8 : wgScript used to set correct url to folders
 * 0.8.0.9.6.7 : Handling of Form post with multiple WSForms on one page and VE included
