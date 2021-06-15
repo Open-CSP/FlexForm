@@ -54,7 +54,7 @@ class WSFormHooks {
 	 * @return bool
 	 */
 	public static function addToAdminLinks( ALTree &$adminLinksTree ) {
-        global $wgServer;
+        global $wgScript;
 		$wsSection = $adminLinksTree->getSection( 'WikiBase Solutions' );
 		if ( is_null( $wsSection ) ) {
 			$section = new ALSection( 'WikiBase Solutions' );
@@ -70,7 +70,8 @@ class WSFormHooks {
 			$extensionsRow = new ALRow( 'extensions' );
 			$wsSection->addRow( $extensionsRow );
 		}
-		$extensionsRow->addItem( ALItem::newFromExternalLink( $wgServer.'/index.php/Special:WSForm/Docs', 'WSForm documentation' ) );
+		$realUrl = str_replace( '/index.php', '', $wgScript );
+		$extensionsRow->addItem( ALItem::newFromExternalLink( $realUrl.'/index.php/Special:WSForm/Docs', 'WSForm documentation' ) );
 		return true;
 	}
 
@@ -677,7 +678,7 @@ class WSFormHooks {
 			}
 		}
 		//$attach = "<script>wachtff(attachTokens);</script>";
-		wsform\wsform::includeInlineScript( 'document.addEventListener("DOMContentLoaded", function() { wachtff(attachTokens); }, false);' );
+		wsform\wsform::includeInlineScript( 'document.addEventListener("DOMContentLoaded", function() { wachtff(attachTokens, true); }, false);' );
 		//$wgOut->addHTML( $out );
 
 		$ret = $ret . $out;

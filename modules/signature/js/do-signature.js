@@ -14,12 +14,17 @@ function wachtff(method) {
 
 
 function doSignature() {
+	var path = mw.config.get('wgScriptPath');
+	if( path === null || !path ) {
+		path = '';
+	}
 	$.when(
 		$.getScript( "https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" )
 	).done( function () {
 		$.when(
-			$.getScript( "/extensions/WSForm/modules/signature/js/touch-punch.js" ),
-			$.getScript( "/extensions/WSForm/modules/signature/js/jquery.signature.js" )
+
+			$.getScript( path + "/extensions/WSForm/modules/signature/js/touch-punch.js" ),
+			$.getScript( path + "/extensions/WSForm/modules/signature/js/jquery.signature.js" )
 		).done( function () {
 			doWSformActions();
 		} )

@@ -12,7 +12,13 @@ function includeJsFiles() {
 
         $.getScript('https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js');
         //showAllFiles();
-        let path = '/extensions/WSForm/formbuilder/js/';
+        //let path = '/extensions/WSForm/formbuilder/js/';
+        var path = mw.config.get('wgScriptPath');
+        if( path === null || !path ) {
+            path = '/extensions/WSForm/formbuilder/js/';
+        } else {
+            path = path + '/extensions/WSForm/formbuilder/js/';
+        }
 
         $.getScript(path + 'Element.js');
         $.getScript(path + 'addSortElements.js');

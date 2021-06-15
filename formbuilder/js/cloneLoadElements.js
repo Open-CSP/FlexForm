@@ -69,7 +69,11 @@ function loadForm(filename) {
     let data = {
         filename: filename
     };
-    $.post('/extensions/WSForm/formbuilder/php/loadForm.php', data,
+    var path = mw.config.get('wgScriptPath');
+    if( path === null || !path ) {
+        path = '';
+    }
+    $.post( path + '/extensions/WSForm/formbuilder/php/loadForm.php', data,
         function (json) {
             convertJSONToForm(json);
         } ,"json");
@@ -145,7 +149,11 @@ function removeFile(filename) {
     let data = {
         filename: filename
     };
-    $.post('/extensions/WSForm/formbuilder/php/removeForm.php', data, function(res) {
+    var path = mw.config.get('wgScriptPath');
+    if( path === null || !path ) {
+        path = '';
+    }
+    $.post(path + '/extensions/WSForm/formbuilder/php/removeForm.php', data, function(res) {
 
     }, "json");
 }
@@ -164,7 +172,11 @@ $('#load-form-btn').on('click', function (e) {
  */
 function showAllFiles() {
     $('#search-form-input').val("");
-    $.post('/extensions/WSForm/formbuilder/php/getAllFiles.php', {},
+    var path = mw.config.get('wgScriptPath');
+    if( path === null || !path ) {
+        path = '';
+    }
+    $.post( path + '/extensions/WSForm/formbuilder/php/getAllFiles.php', {},
         function (data) {
             filesArray = [];
             let count = 0;
@@ -306,7 +318,11 @@ function createLoadRow(fileObj) {
     });
 
     $(shareBtn).on('click', function (e) {
-        $.post('/extensions/WSForm/formbuilder/php/loadForm.php', {filename: $(this).data('share_id')+".json"},
+        var path = mw.config.get('wgScriptPath');
+        if( path === null || !path ) {
+            path = '';
+        }
+        $.post( path + '/extensions/WSForm/formbuilder/php/loadForm.php', {filename: $(this).data('share_id')+".json"},
             function (json) {
                 let data = JSON.stringify(json);
                 $.ajax({

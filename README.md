@@ -107,6 +107,7 @@ Visit : Special:WSForm/Docs
 
 
 ### Changelog
+* 0.8.0.9.7.2 : Updated to work when wiki is installed in a subfolder. Updated Formbuilder. Changed Docs behaviour
 * 0.8.0.9.7.1 : Updates select2 to version 4.0.13
 * 0.8.0.9.7.0 : wstokens multiple="multiple" and only the wsform tag will load needed JavaScript. Meaning fields that need JavaScript need to be inside wsform tag
 * 0.8.0.9.6.9 : Added placeholder to wsselect. Changed docs.

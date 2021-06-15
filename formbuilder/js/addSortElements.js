@@ -422,8 +422,12 @@ $('#save-form-btn').click(function (e) {
             content: JSON.stringify(renderorder),
             formElement: JSON.stringify(formJson)
         };
+        var path = mw.config.get('wgScriptPath');
+        if( path === null || !path ) {
+            path = '';
+        }
         // /data/www/sg-staging.wikibase.nl/public_html/extensions/WSForm/formbuilder/php/saveform.php
-        $.post('/extensions/WSForm/formbuilder/php/saveform.php', data,
+        $.post( path + '/extensions/WSForm/formbuilder/php/saveform.php', data,
             function (what) {
                 //console.log(what);
             } ,"json");

@@ -39,7 +39,7 @@ function showMessage(msg, type, where = false, stick = false) {
 /**
  * Holds further JavaScript execution intull jQuery is loaded
  * @param method string Name of the method to call once jQuery is ready
- * @param both bool if true it will also wait until jQuery.ui is loaded.
+ * @param both bool if true it will also wait until MW is loaded.
  */
 function wachtff(method, both = false) {
     //console.log('wacht ff op jQuery..: ' + method.name );
@@ -49,9 +49,15 @@ function wachtff(method, both = false) {
             method();
         } else {
             // console.log('wacht ff op jQuery.ui..');
-            if (window.jQuery.ui) {
-                //console.log( 'ok JQuery.ui active.. lets go!' );
-                method();
+            if (window.mw) {
+                var scriptPath = mw.config.get('wgScript');
+                if( scriptPath !== null && scriptPath !== false ) {
+                    method();
+                } else {
+                    setTimeout(function () {
+                        wachtff(method, true)
+                    }, 250);
+                }
             } else {
                 setTimeout(function () {
                     wachtff(method, true)
@@ -349,7 +355,7 @@ function wsform(btn, callback = 0, preCallback = 0) {
     $(btn).addClass("disabled");
 
     if (typeof $.notify === "undefined") {
-        var u = mw.config.values.wgScriptPath;
+        var u = mw.config.get('wgScriptPath');
 
         if (u === "undefined") {
             u = "";
@@ -546,10 +552,11 @@ function replacePipes(text) {
 function attachTokens() {
     $(document).ready(function () {
         if ($('select[data-inputtype="ws-select2"]')[0]) {
-            var scriptPath = mw.config.get('wgScriptPath');
+            var scriptPath = mw.config.get('wgScript');
             if( scriptPath === null || !scriptPath ) {
                 scriptPath = '';
             }
+            scriptPath = scriptPath.replace("/index.php", "");
             mw.loader.load(scriptPath + '/extensions/WSForm/select2.min.css', 'text/css');
             $.getScript(scriptPath + '/extensions/WSForm/select2.min.js').done(function () {
                 $('select[data-inputtype="ws-select2"]').each(function () {

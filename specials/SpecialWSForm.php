@@ -375,7 +375,7 @@ class SpecialWSForm extends SpecialPage {
 			if ( strtolower($args[0]) == 'setup' ) {
 				$allowed = $this->getConfigSetting('allow-special-page-setup' );
 				if( $allowed !== false ) {
-					$css = file_get_contents( $path . 'docs.css' );
+					$css = $this->getDocsCSS( $path, $wsformpurl );
 					$out->addHTML( '<style>' . $css . '</style>' );
 					//$out->addHTML('<HR><pre>');
 					$out->addHTML( $this->setupWSForm( $path, $setupUrl ) );
@@ -388,7 +388,7 @@ class SpecialWSForm extends SpecialPage {
 			}
 
 			if ( strtolower($args[0]) == 'docs' ) {
-				$css = file_get_contents($path.'docs.css');
+				$css = $this->getDocsCSS( $path, $wsformpurl );
 				$out->addHTML( '<style>'.$css.'</style>' );
 				// Did we have Posts ????
 				$create = $this->getPostString('create');
@@ -667,6 +667,11 @@ class SpecialWSForm extends SpecialPage {
 					return;
 				}
 
+				if ( !isset( $args[1] ) ) {
+					//$out->addHTML( '<div><p><BR><BR><BR></p></div>' );
+					$args[1] = 'index';
+				}
+
 				// Show the index page
 //if( isset($args[1]) && strtolower($args[1] ) == 'create' ) {
 				if ( isset($args[1]) && strtolower($args[1] ) == 'index' ) {
@@ -725,10 +730,11 @@ class SpecialWSForm extends SpecialPage {
 					return;
 				}
 
+				/*
 				if ( !isset( $args[1] ) ) {
 					$out->addHTML( '<div><p><BR><BR><BR></p></div>' );
 				}
-
+*/
 				if( isset($args[1]) && strlen($args[1]) > 2 ) {
 					if( strtolower( $args[1] ) == 'examples') {
 						if( isset($args[2]) && strlen($args[2]) > 2 ) {
@@ -1281,6 +1287,11 @@ class SpecialWSForm extends SpecialPage {
 			return $form;
 
 		}
+	}
+
+	private function getDocsCSS( $path, $url ){
+		$css = file_get_contents($path.'docs.css');
+		return str_replace('%%url%%', $url, $css );
 	}
 
 	private function getConfigSetting( $name ) {

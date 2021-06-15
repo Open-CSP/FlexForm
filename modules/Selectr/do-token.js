@@ -1,6 +1,7 @@
 
 
 function doToken() {
+
 	$.when(
 		$.getScript( "/extensions/WSForm/modules/Selectr/dist/selectr.min.js" )
 	).done( function () {
