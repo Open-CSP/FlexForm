@@ -578,6 +578,9 @@ class WSFormHooks {
 					$placeholder = $parser->recursiveTagParse( $v, $frame );
 				} elseif( strtolower( $k ) === "multiple") {
 					$multiple = $parser->recursiveTagParse( $v, $frame );
+					if ( $multiple === "multiple" ) {
+						$ret .= 'multiple="multiple" ';
+					}
 				}  else {
 					$ret .= $k . '="' . $parser->recursiveTagParse( $v, $frame ) . '" ';
 				}
@@ -586,7 +589,12 @@ class WSFormHooks {
 
 		$output = $parser->recursiveTagParse( $input );
 		$id   = $parser->recursiveTagParse( $args['id'], $frame );
-		$ret    .= '>' . $output . '</select>' . "\n";
+
+		$ret    .= '>';
+		if( $placeholder !== false ){
+			$ret .= '<option></option>';
+		}
+		$ret .= $output . '</select>' . "\n";
 		$out    = "";
 		$out    .= '<input type="hidden" id="select2options-' . $id . '" value="';
 		$out .= "$('#" . $id . "').select2({";
@@ -638,7 +646,9 @@ class WSFormHooks {
 			}
 		}
 
+/*
 		if( $multiple !== false && strtolower( $multiple ) === "multiple" ) {
+
 			if ( ( isset( $args['json'] ) && isset( $args['id'] ) ) || isset( $args['allowtags'] ) || isset( $args['allowclear'] ) ) {
 				$out .= ",\nmultiple: true";
 			} else {
@@ -651,9 +661,9 @@ class WSFormHooks {
 				$out .= "\nmultiple: false";
 			}
 		}
-
-		$out .= '});"';
-		$callb .= "$('select').trigger('change');\n";
+*/
+		$out .= '});';
+		$callb .= "$('select').trigger('change');\"\n";
 		$out .= $callb . ' />';
         $lcallback = '';
 		if(isset($args['loadcallback'])) {
@@ -667,11 +677,11 @@ class WSFormHooks {
 			}
 		}
 		//$attach = "<script>wachtff(attachTokens);</script>";
-		wsform\wsform::includeInlineScript( 'wachtff(attachTokens);' );
+		wsform\wsform::includeInlineScript( 'document.addEventListener("DOMContentLoaded", function() { wachtff(attachTokens); }, false);' );
 		//$wgOut->addHTML( $out );
 
 		$ret = $ret . $out;
-		//self::addInlineJavaScriptAndCSS();
+		self::addInlineJavaScriptAndCSS();
 		return array( $ret, "markerType" => 'nowiki' );
 	}
 
