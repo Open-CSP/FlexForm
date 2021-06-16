@@ -37,6 +37,7 @@ class handlePostsToWiki extends Maintenance {
 		$this->addOption( 'content', 'Page content', true, true );
 		$this->addOption( 'title', 'Page title', true, true );
 		$this->addOption( 'fip', "Filename and path", false, true );
+		$this->addOption( 'slot', "Slot to save content to", false, true );
 		$this->addOption( 'user', 'Your username. Will be added to the import log. [mandatory]', true, true, "u" );
 		$this->addOption( 'rc', 'Place revisions in RecentChanges.' );
 	}
@@ -144,8 +145,13 @@ class handlePostsToWiki extends Maintenance {
 
 	}
 
-	public function savePageToWiki( $pageName, $content, $summary, $timestamp, $bot, $rc, $uname ) {
+	public function savePageToWiki( $pageName, $content, $summary, $timestamp, $bot, $rc, $uname, $slot = false ) {
 		$ret = array();
+
+
+		if( $slot !== false) {
+			define( "CUSTOMSLOT", $slot );
+		}
 		$user = $this->getUser( $uname );
 		if( $user === false ){
 			return $this->createMsg( 'Cannot find user' );
@@ -178,7 +184,12 @@ class handlePostsToWiki extends Maintenance {
 			$rev->setTimestamp( $timestamp );
 		} else {
 			$content = ContentHandler::makeContent( rtrim( $content ), $title );
-			$rev->setContent( SlotRecord::MAIN, $content );
+			if( $slot === false ) {
+				$rev->setContent( SlotRecord::MAIN, $content );
+			} else {
+				$rev->setContent( $slot, $content );
+				$rev->setContent( SlotRecord::MAIN, $oldRev->getContent( SlotRecord::MAIN ) );
+			}
 			$rev->setTitle( $title );
 			$rev->setUserObj( $user );
 			$rev->setComment( $summary );
@@ -189,28 +200,45 @@ class handlePostsToWiki extends Maintenance {
 				return $this->createMsg( "Page has no changes from the current", true );
 			}
 		} else {
-			if ( $exists && $rev->getContent()->equals( $oldRev->getContent( SlotRecord::MAIN ) ) ) {
-				return $this->createMsg( "Page has no changes from the current", true );
+			if( $slot === false ) {
+				if ( $exists && $rev->getContent()->equals( $oldRev->getContent( SlotRecord::MAIN ) ) ) {
+					return $this->createMsg( "Page has no changes from the current", true );
+				}
+			} else {
+				//TODO find out why this does not work!
+				/*
+				if ( $exists && $rev->getContent( CUSTOMSLOT )->equals( $oldRev->getContent( CUSTOMSLOT ) ) ) {
+					return $this->createMsg( "Page has no changes from the current", true );
+				}
+				*/
 			}
 		}
 		$status = $rev->importOldRevision();
 		$newId = $title->getLatestRevID();
 		$this->refreshSMWProperties( $title );
-		if( $rc ){
-			$this->addToRecentChanges( $exists, $oldRev, $timestamp, $rev, $user, $summary, $oldRevID, $bot, $newId, $title );
+		if( $rc && $slot = false ){
+			$this->addToRecentChanges( $exists, $oldRev, $timestamp, $rev, $user, $summary, $oldRevID, $bot, $newId, $title, $slot );
 		}
 		return $this->createMsg('ok', true);
 
 	}
 
-	public function addToRecentChanges( $exists, $oldRev, $timestamp, $rev, $user, $summary, $oldRevID, $bot, $newId, $title ){
-
+	public function addToRecentChanges( $exists, $oldRev, $timestamp, $rev, $user, $summary, $oldRevID, $bot, $newId, $title, $slot ){
+		if( $slot !== false) {
+			define( "CUSTOMSLOT", $slot );
+		}
 		if ( $exists ) {
 			if ( is_object( $oldRev ) ) {
 				if ( version_compare( $GLOBALS['wgVersion'], "1.35" ) < 0 ) {
 					$oldContent = $oldRev->getContent();
 				} else {
-					$oldContent = $oldRev->getContent( SlotRecord::MAIN );
+					if( $slot === false ) {
+						$oldContent = $oldRev->getContent( SlotRecord::MAIN );
+					} else {
+						//TODO: Same here
+						//$oldContent = $oldRev->getContent( CUSTOMSLOT );
+						$oldContent = false;
+					}
 				}
 				RecentChange::notifyEdit(
 					$timestamp,
@@ -268,6 +296,8 @@ class handlePostsToWiki extends Maintenance {
 
 		$bot = false;
 
+		$slot = false;
+
 		$IP = getenv( 'MW_INSTALL_PATH' );
 
 		if ( $IP === false ) {
@@ -307,6 +337,10 @@ class handlePostsToWiki extends Maintenance {
 			return;
 		}
 
+		if( $this->hasOption( 'slot' ) ) {
+			$slot = $this->getOption( 'slot' );
+		}
+
 		$fileAndPath = $this->getOption( 'fip', false );
 
 		$timestamp = wfTimestampNow();
@@ -316,7 +350,7 @@ class handlePostsToWiki extends Maintenance {
 		switch( $action ) {
 			case "addPageToWiki" :
 				//$pageName, $content, $summary, $timestamp, $bot, $rc, $uname
-				$result = $this->savePageToWiki( $title, $content, $summary, $timestamp, $bot, $rc, $user );
+				$result = $this->savePageToWiki( $title, $content, $summary, $timestamp, $bot, $rc, $user, $slot );
 				break;
 			case "uploadFileToWiki" :
 				if( $fileAndPath === false ) {
