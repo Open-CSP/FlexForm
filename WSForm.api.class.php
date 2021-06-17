@@ -757,11 +757,13 @@ class wbApi {
         if($res[0] === 'error' ) die($res[1]);
     }
 
-      function maintenanceSavePageToWiki( $name, $details, $summary, $uid ){
+      function maintenanceSavePageToWiki( $name, $details, $summary, $uid, $slot = false ){
           if(isset($_POST['mwdb'])) {
               $server = str_replace('_', '.', $_POST['mwdb'] );
           }
+
           $details = base64_encode( $details );
+
           //$summary = "Edited with WSForm";
           /*
            * $this->addOption( 'summary', 'Additional text that will be added to the files imported History. [optional]', false, true, "s" );
@@ -776,11 +778,15 @@ class wbApi {
           $cmd .= ' --content "' . $details.'"';
           $cmd .= ' --rc --title "' . $name.'"';
           $cmd .= ' --user '. $uid;
+          if( $slot !== false ){
+              $cmd .= ' --slot "' . $slot . '"';
+          }
           $cmd .= ' --summary "' . $summary . '"';
           //echo $cmd;
           //die();
           $result = shell_exec( $cmd );
           //var_dump( $result );
+
           $res = explode('|', $result);
           if($res[0] === 'ok' ) return true;
           if($res[0] === 'error' ) die($res[1]);
@@ -799,13 +805,13 @@ class wbApi {
      * @param mixed $summary optional summary for a page. Default to false
      * @return array MediaWiki result
      */
-    function savePageToWiki( $name, $details, $summary = false ) {
+    function savePageToWiki( $name, $details, $summary = false, $slot = false ) {
         global $wsuid;
         $details = $this->removeCarriageReturnFromContent( $details );
         if( $wsuid !== false && $this->app['use-api-user-only'] === 'no' ) {
 
             // We have a user, lets use Maintenance script to save page to wiki
-            $this->maintenanceSavePageToWiki( $name, $details, $summary, $wsuid );
+            $this->maintenanceSavePageToWiki( $name, $details, $summary, $wsuid, $slot );
             return array(true);
 
         } else {

@@ -160,7 +160,8 @@ function isWSFormSystemField ($field) {
 		"wsparsepost",
         "mwtoken",
 		"wsuid",
-		"mwwikicomment"
+		"mwwikicomment",
+		"mwslot"
 	);
 	if(in_array(strtolower($field),$WSFormSystemFields)) {
 		return true;
@@ -935,6 +936,8 @@ function saveToWiki( $email=false ) {
 	global $title, $i18n;
 	$weHaveApi = false;
 
+
+
     $parsePost = getPostString('wsparsepost' );
     $parseLast = getPostString('mwparselast');
 	$etoken = getPostString('wsedittoken' );
@@ -949,6 +952,7 @@ function saveToWiki( $email=false ) {
 	$mwfollow = getPostString('mwfollow');
     $leadByZero = false;
 	$summary = getPostString('mwwikicomment');
+	$slot = getPostString( 'mwslot' );
 
 	if( $summary === false ) {
 		$summary = setSummary();
@@ -972,6 +976,7 @@ function saveToWiki( $email=false ) {
 
 	$noTemplate = false;
 	if ( $template !== false && $writepage !== false ) {
+
 		if( $template === strtolower( 'wsnone' ) ) {
 			$noTemplate = true;
 		}
@@ -1074,7 +1079,7 @@ function saveToWiki( $email=false ) {
 		$api->logMeIn();
 		//die($wsuid);
 
-		$result = $api->savePageToWiki( $title, $ret, $summary );
+		$result = $api->savePageToWiki( $title, $ret, $summary, $slot );
 
 		if(isset($result['received']['error'])) {
 			return createMsg($result['received']['error'],'error',$returnto);
@@ -1270,7 +1275,7 @@ if($writepages !== false) {
 		}
 
 		if($weHaveApi) {
-			$result = $api->savePageToWiki($ptitle, $ret, $summary );
+			$result = $api->savePageToWiki($ptitle, $ret, $summary, $slot );
 			if(isset($result['received']['error'])) {
 				return createMsg($result['received']['error'],'error',$returnto);
 			}
@@ -1284,7 +1289,7 @@ if($writepages !== false) {
 			if($res === false) {
 				return createMsg($res);
 			}
-			$result = $api->savePageToWiki($ptitle, $ret, $summary );
+			$result = $api->savePageToWiki($ptitle, $ret, $summary, $slot );
 			if(isset($result['received']['error'])) {
                 return createMsg($result['received']['error'],'error',$returnto);
 			}
@@ -1424,7 +1429,7 @@ if ( ! $mwedit && ! $email ) {
 
 		}
 
-		$result = $api->savePageToWiki($pageTitle, $pageContent, $summary );
+		$result = $api->savePageToWiki($pageTitle, $pageContent, $summary, $slot );
 		if(isset($result['received']['error'])) {
             return createMsg($result['received']['error'],'error',$returnto);
 		}

@@ -35,8 +35,8 @@ if ( strcmp($currentHost, $referrerHost['host']) !== 0)
 }
 */
 
-//ERROR_REPORTING(E_ALL);
-//ini_set('display_errors', 1);
+ERROR_REPORTING(E_ALL);
+ini_set('display_errors', 1);
 
 require_once( 'WSForm.api.class.php' );
 require_once( 'classes/recaptcha.class.php' );
@@ -98,7 +98,7 @@ if( isset( $_GET['action'] ) && $_GET['action'] === 'handleExternalRequest' ) {
             $cok = $_GET['mwdb'] . 'UserID';
             if( isset( $_COOKIE[$cok] ) && $_COOKIE[$cok] != "0" ) {
                 // ok
-            } else die();
+            } else die( 'not identified' );
         } else die();
         $api = new wbApi();
         if( $api->getStatus() === false ){
@@ -113,7 +113,7 @@ if( isset( $_GET['action'] ) && $_GET['action'] === 'handleExternalRequest' ) {
 		        if ( file_exists( $IP . '/extensions/WSForm/modules/handlers/' . basename( $external ) . '.php' ) ) {
 			        include_once( $IP . '/extensions/WSForm/modules/handlers/' . basename( $external ) . '.php' );
 		        } else {
-			        $ret = createMsg($i18n->wsMessage( 'wsform-external-request-not-found' ) );
+		        	$ret = createMsg($i18n->wsMessage( 'wsform-external-request-not-found' ) );
 		        }
 	        }
         }

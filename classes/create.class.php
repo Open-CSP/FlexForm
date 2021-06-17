@@ -20,6 +20,7 @@ class render {
         $wsoption = "";
         $wsfields = "";
         $wsfollow = "";
+        $wsSlot   = "";
 	    $mwleadingzero = "";
 
         if(isset($args['mwfields']) && $args['mwfields'] != '') {
@@ -78,6 +79,12 @@ class render {
 	                $wsoption = \wsform\wsform::createHiddenField( 'mwoption', $v );
                 }
 
+	            if ( $k == "mwslot" ) {
+	            	//{{#set: Hello=World | Description=These properties are not visible in the content }}
+		            //mds-metadataslot als test
+		            $wsSlot = \wsform\wsform::createHiddenField( 'mwslot', $v );
+	            }
+
                 if ( $k === "mwfollow" ) {
                 	if( strlen( $v ) <= 1 ) {
 		                $wsfollow = \wsform\wsform::createHiddenField( 'mwfollow', 'true' );
@@ -99,7 +106,7 @@ class render {
         }
 
 
-        return $template . $wswrite . $wsoption . $wsfollow. $wsleadingzero;
+        return $template . $wswrite . $wsoption . $wsfollow. $wsleadingzero . $wsSlot;
 
 
     }
