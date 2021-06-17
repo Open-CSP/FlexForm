@@ -260,7 +260,10 @@ class wsform {
 	}
 
 	public static function getMWReturn( $url ) {
+		if( strpos( $url, 'http' ) === false ) return $url;
+		libxml_use_internal_errors( true );
 		$xml = new \SimpleXMLElement( $url );
+
 		if( isset( $xml['href'] ) ) {
 			return $xml['href'];
 		} else return $url;
