@@ -107,6 +107,7 @@ Visit : Special:WSForm/Docs
 
 
 ### Changelog
+* 0.8.0.9.7.4 : Added extension wslogger and docs on wslogger
 * 0.8.0.9.7.3 : Updated external requests where url was encoded by server
 * 0.8.0.9.7.2 : Updated to work when wiki is installed in a subfolder. Updated Formbuilder. Changed Docs behaviour
 * 0.8.0.9.7.1 : Updates select2 to version 4.0.13

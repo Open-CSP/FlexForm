@@ -40,7 +40,8 @@ class WSFormHooks {
 			'wstoken2',
 			'wsedit',
 			'wscreate',
-			'wsemail'
+			'wsemail',
+			'extension'
 		);
 
 		return $data;
