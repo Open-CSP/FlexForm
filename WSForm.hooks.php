@@ -598,6 +598,16 @@ class WSFormHooks {
 		$ret .= $output . '</select>' . "\n";
 		$out    = "";
 		$out    .= '<input type="hidden" id="select2options-' . $id . '" value="';
+		if ( isset( $args['json'] ) && isset( $args['id'] ) ) {
+			if ( strpos( $args['json'], 'semantic_ask' ) ) {
+				$json = $args['json'];
+			} else {
+				$json = $parser->recursiveTagParse( $args['json'], $frame );
+			}
+			$out .= "var jsonDecoded = decodeURIComponent( '" . urlencode( $json ) . "' );\n";
+		}
+
+
 		$out .= "$('#" . $id . "').select2({";
 
 		$callb = '';
@@ -609,17 +619,10 @@ class WSFormHooks {
         }
 
 		if ( isset( $args['json'] ) && isset( $args['id'] ) ) {
-			if( strpos( $args['json'], 'semantic_ask' ) ) {
-				$json = $args['json'];
-			} else {
-				$json = $parser->recursiveTagParse( $args['json'], $frame );
-			}
-
-
 
 			$out .= "\ntemplateResult: testSelect2Callback,\n";
 			$out .= "\nescapeMarkup: function (markup) { return markup; },\n";
-			$out .= "\najax: { url: '" . $json . "', dataType: 'json',"."\n";
+			$out .= "\najax: { url: jsonDecoded, delay:500, dataType: 'json',"."\n";
 			$out .= "\ndata: function (params) { var queryParameters = { q: params.term, mwdb: '".$mwdb."' }\n";
 			$out .= "\nreturn queryParameters; }}";
 			$callb= '';

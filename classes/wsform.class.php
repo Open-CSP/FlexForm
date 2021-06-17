@@ -259,6 +259,14 @@ class wsform {
 		return self::$haveIBeenRun;
 	}
 
+	public static function getMWReturn( $url ) {
+		$xml = new \SimpleXMLElement( $url );
+		if( isset( $xml['href'] ) ) {
+			return $xml['href'];
+		} else return $url;
+
+	}
+
 	public static function createHiddenField( $name, $value ) {
 		if( \wsform\wsform::$secure ) {
 			\wsform\protect\protect::setCrypt( \wsform\wsform::$checksumKey );

@@ -57,7 +57,7 @@ class render {
 						$mwwikicontent = \wsform\wsform::createHiddenField( 'mwwikicomment', $v );
 						break;
 					case "mwreturn":
-						$wsreturn = \wsform\wsform::createHiddenField( 'mwreturn', $v );
+						$wsreturn = \wsform\wsform::createHiddenField( 'mwreturn', \wsform\wsform::getMWReturn( $v ) );
 						break;
 					case "formtarget":
 						$ret = '<form action="' . $v . '" method="post" ';
