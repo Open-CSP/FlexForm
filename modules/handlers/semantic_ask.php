@@ -5,13 +5,15 @@ $returnId = getGetString('returnid');
 $returnText = getGetString('returntext');
 $limit = getGetString('limit');
 $ret = array();
-if( strlen( $q ) < 3 ) return;
+$ret['results'] = array();
+//if( strlen( $q ) < 3 ) return $ret;
 if( $query  === false ) {
-    $ret = createMsg('No query found.');
+    //$ret = createMsg('No query found.');
     // test query :  $query = "[[Class::Organization]] [[Name::~*ik*]]|?Name |format=json |limit=99999"
     // ik kan dat q worden voor select2 door !!! in te vullen in de query, deze wordt dan vervangen.
 } elseif (strlen($q) >= 3) {
     $query = html_entity_decode(urldecode($query));
+    //var_dump($query);
     if($q !== false) {
     	$q2 = ucwords( $q );
 	    $q3 = strtoupper( $q );
@@ -44,8 +46,9 @@ if( $query  === false ) {
     $data = $api->apiPost($postdata, true);
 
 
-    if (isset($data['received']['query']['results'])) {
+    if (isset($data['received']['query']['results']) && !empty( $data['received']['query']['results'] )) {
         $data = $data['received']['query']['results'];
+
         $t=0;
         foreach($data as $k => $val) {
             if( $returnText === false ) {
@@ -62,5 +65,6 @@ if( $query  === false ) {
             $t++;
         }
     }
+
 }
 
