@@ -24,7 +24,6 @@ class render {
 		$ret .= validate::doSimpleParameters( $args, "text" );
 		foreach ( $args as $k => $v ) {
 			if ( $k == 'mwidentifier' && $v == 'datepicker' ) {
-				$parser->disableCache();
 				$parser->getOutput()->addModules( 'ext.wsForm.datePicker.scripts' );
 				$parser->getOutput()->addModuleStyles( 'ext.wsForm.datePicker.styles' );
 			}
@@ -336,7 +335,6 @@ class render {
 				$slim_image = "";
 			}
 			$ret = $slim . $ret . $slim_image . "</div>$br";
-			$parser->disableCache();
 			$parser->getOutput()->addModuleStyles( 'ext.wsForm.slim.styles' );
 			$parser->getOutput()->addModules( 'ext.wsForm.slim.scripts' );
 		}
