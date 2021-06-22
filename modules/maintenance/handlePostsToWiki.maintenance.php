@@ -108,23 +108,8 @@ class handlePostsToWiki extends Maintenance {
 	 * @param Title $title
 	 */
 	public function refreshSMWProperties( Title $title ){
-
+		sleep( 1 );
 		if ( !ExtensionRegistry::getInstance()->isLoaded( 'SemanticMediaWiki' ) ) {
-			return;
-		}
-		try {
-			if( !MediaWikiServices::getInstance()->getMainConfig()->get( 'RPImmediateSMWUpdate' ) ) {
-				return;
-			}
-		} catch ( ConfigException $e ){
-			return;
-		}
-
-
-
-		if ( !ExtensionRegistry::getInstance()->isLoaded( 'SemanticMediaWiki' ) &&
-		     !MediaWikiServices::getInstance()->getMainConfig()->get( 'RPImmediateSMWUpdate' )
-		) {
 			return;
 		}
 
