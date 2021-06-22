@@ -235,7 +235,7 @@ class wbApi {
 
 
       // Getting the configuration file
-      $this->app['IP'] = $_SERVER['DOCUMENT_ROOT'];
+      $this->app['IP'] = rtrim( $_SERVER['DOCUMENT_ROOT'], '/') . '/';
       $IP              = $this->app['IP'];
       $serverName      = strtolower( $_SERVER['SERVER_NAME'] );
       if ( file_exists( __DIR__ . '/config/config.php' ) ) {
