@@ -107,7 +107,7 @@ Visit : Special:WSForm/Docs
 
 
 ### Changelog
-* 0.8.0.9.7.5 : changed behaviour for new version of select2
+* 0.8.0.9.7.5 : changed behaviour for new version of select2. Removed deprecated disableCache function. wsLogger extension removed.
 * 0.8.0.9.7.4 : Added extension wslogger and docs on wslogger
 * 0.8.0.9.7.3 : Updated external requests where url was encoded by server
 * 0.8.0.9.7.2 : Updated to work when wiki is installed in a subfolder. Updated Formbuilder. Changed Docs behaviour
