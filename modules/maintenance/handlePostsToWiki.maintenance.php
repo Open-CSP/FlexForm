@@ -47,6 +47,7 @@ class handlePostsToWiki extends Maintenance {
 			$status = "ok";
 		} else $status = "error";
 		echo $status . "|" . $msg;
+
 		return;
 	}
 
@@ -132,6 +133,7 @@ class handlePostsToWiki extends Maintenance {
 
 	public function savePageToWiki( $pageName, $content, $summary, $timestamp, $bot, $rc, $uname, $slot = false ) {
 		$ret = array();
+		$error = false;
 
 
 		if( $slot !== false) {
@@ -172,8 +174,23 @@ class handlePostsToWiki extends Maintenance {
 			if( $slot === false ) {
 				$rev->setContent( SlotRecord::MAIN, $content );
 			} else {
-				$rev->setContent( $slot, $content );
-				$rev->setContent( SlotRecord::MAIN, $oldRev->getContent( SlotRecord::MAIN ) );
+				$slotStore = MediaWikiServices::getInstance()->getSlotRoleRegistry();
+				if( $slotStore->isKnownRole( $slot ) === false ) {
+					$error = "undefined slotrecord: $slot";
+					return $this->createMsg(
+						$error,
+						false
+					);
+				} else {
+					$rev->setContent(
+						$slot,
+						$content
+					);
+					$rev->setContent(
+						SlotRecord::MAIN,
+						$oldRev->getContent( SlotRecord::MAIN )
+					);
+				}
 			}
 			$rev->setTitle( $title );
 			$rev->setUserObj( $user );
@@ -204,8 +221,10 @@ class handlePostsToWiki extends Maintenance {
 		if( $rc && $slot = false ){
 			$this->addToRecentChanges( $exists, $oldRev, $timestamp, $rev, $user, $summary, $oldRevID, $bot, $newId, $title, $slot );
 		}
-		return $this->createMsg('ok', true);
-
+		return $this->createMsg(
+				'ok',
+				true
+			);
 	}
 
 	public function addToRecentChanges( $exists, $oldRev, $timestamp, $rev, $user, $summary, $oldRevID, $bot, $newId, $title, $slot ){

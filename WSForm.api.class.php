@@ -786,10 +786,17 @@ class wbApi {
           //die();
           $result = shell_exec( $cmd );
           //var_dump( $result );
-
+//die();
           $res = explode('|', $result);
-          if($res[0] === 'ok' ) return true;
-          if($res[0] === 'error' ) die($res[1]);
+        // print_r($res);
+         //die('ok');
+
+          if($res[0] === 'ok' ) return array(true);
+          if($res[0] === 'error' ) {
+              $result = array();
+              $result['received']['error'] = $res[1];
+              return $result;
+          }
       }
 
       function removeCarriageReturnFromContent( $content ){
@@ -811,8 +818,7 @@ class wbApi {
         if( $wsuid !== false && $this->app['use-api-user-only'] === 'no' ) {
 
             // We have a user, lets use Maintenance script to save page to wiki
-            $this->maintenanceSavePageToWiki( $name, $details, $summary, $wsuid, $slot );
-            return array(true);
+            return $this->maintenanceSavePageToWiki( $name, $details, $summary, $wsuid, $slot );
 
         } else {
             $postdata = http_build_query([
