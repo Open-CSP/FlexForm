@@ -49,7 +49,7 @@ class render {
 		            } else {
 			            $fvalue = $v;
 		            }
-		            $wsoption = \wsform\wsform::createHiddenField( $fname, $fvalue );
+					$wsfollow = \wsform\wsform::createHiddenField( $fname, $fvalue );
 	            }
 
             }
