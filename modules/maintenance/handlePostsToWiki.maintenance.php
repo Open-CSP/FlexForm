@@ -186,10 +186,17 @@ class handlePostsToWiki extends Maintenance {
 						$slot,
 						$content
 					);
-					$rev->setContent(
-						SlotRecord::MAIN,
-						$oldRev->getContent( SlotRecord::MAIN )
-					);
+					if( $exists ) {
+						$rev->setContent(
+							SlotRecord::MAIN,
+							$oldRev->getContent( SlotRecord::MAIN )
+						);
+					} else {
+						$rev->setContent(
+							SlotRecord::MAIN,
+							ContentHandler::makeContent( "", $title )
+						);
+					}
 				}
 			}
 			$rev->setTitle( $title );
@@ -218,7 +225,7 @@ class handlePostsToWiki extends Maintenance {
 		$status = $rev->importOldRevision();
 		$newId = $title->getLatestRevID();
 		$this->refreshSMWProperties( $title );
-		if( $rc && $slot = false ){
+		if( $rc ){
 			$this->addToRecentChanges( $exists, $oldRev, $timestamp, $rev, $user, $summary, $oldRevID, $bot, $newId, $title, $slot );
 		}
 		return $this->createMsg(
@@ -228,9 +235,6 @@ class handlePostsToWiki extends Maintenance {
 	}
 
 	public function addToRecentChanges( $exists, $oldRev, $timestamp, $rev, $user, $summary, $oldRevID, $bot, $newId, $title, $slot ){
-		if( $slot !== false) {
-			define( "CUSTOMSLOT", $slot );
-		}
 		if ( $exists ) {
 			if ( is_object( $oldRev ) ) {
 				if ( version_compare( $GLOBALS['wgVersion'], "1.35" ) < 0 ) {
@@ -239,9 +243,10 @@ class handlePostsToWiki extends Maintenance {
 					if( $slot === false ) {
 						$oldContent = $oldRev->getContent( SlotRecord::MAIN );
 					} else {
-						//TODO: Same here
-						//$oldContent = $oldRev->getContent( CUSTOMSLOT );
-						$oldContent = false;
+						//echo "oldID : " . $oldRev->getPageId();
+						$wp = WikiPage::newFromID( $oldRev->getPageId(), 'fromdb' );
+						$oldContent = $this->getSlotContent( $wp, CUSTOMSLOT );
+						//$oldContent = false;
 					}
 				}
 				RecentChange::notifyEdit(
@@ -274,6 +279,25 @@ class handlePostsToWiki extends Maintenance {
 				1
 			);
 		}
+	}
+
+	/**
+	 * @param WikiPage $wikipage
+	 * @param string $slot
+	 * @return Content|null The content in the given slot, or NULL if no content exists
+	 */
+	private function getSlotContent( WikiPage $wikipage, string $slot ) {
+		$revision_record = $wikipage->getRevisionRecord();
+
+		if ( $revision_record === null ) {
+			return null;
+		}
+
+		if ( !$revision_record->hasSlot( $slot ) ) {
+			return null;
+		}
+
+		return $revision_record->getContent( $slot );
 	}
 
 	public function getUser( $name ) {
