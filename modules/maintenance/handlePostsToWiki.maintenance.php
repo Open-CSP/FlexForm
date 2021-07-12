@@ -13,8 +13,8 @@
 
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
-use MediaWiki\Session\CsrfTokenSet;
-use MediaWiki\Api\ApiMain;
+use MediaWiki\Session;
+use MediaWiki\Api;
 use SMW\ApplicationFactory;
 use SMW\Options;
 use SMW\Store;
@@ -147,13 +147,15 @@ class handlePostsToWiki extends Maintenance {
 			'action' => 'query',
 			'meta' => 'tokens'
 		);
-		$tokenResult = $this->doApiRequest( $csrfTokenRequest );
-		print_r( $tokenResult );
-		die();
+		//$tokenResult = $this->doApiRequest( $csrfTokenRequest );
+		//print_r( $tokenResult );
+		//die();
 		$user = $this->getUser( $uname );
 		if( $user === false ){
 			return $this->createMsg( 'Cannot find user' );
 		}
+		$token = $user->getEditToken();
+		var_dump( $token );
 		$postData = [
 			'action' => 'editslot',
 			'title' => trim( $title ),
@@ -161,11 +163,13 @@ class handlePostsToWiki extends Maintenance {
 			'text' => $content,
 			'summary' => $summary,
 			'format' => 'json',
-			'token' => CsrfTokenSet::getToken()
+			'token' => $token
 		];
 		//return $this->createMsg( "Page has no changes from the current", true );
 		return $this->doApiRequest( $postData );
 	}
+
+
 
 
 	protected function doApiRequest( $params, $session = null, $appendModule = false ) {
@@ -175,7 +179,7 @@ class handlePostsToWiki extends Maintenance {
 		$request = new FauxRequest( $params, true, $session );
 		$module  = new ApiMain( $request, true );
 		$module->execute();
-		$results = array( $module->getResultData(), $request, $request->getSessionArray() );
+		$results = array( $module->getResult()->getResultData(), $request, $request->getSessionArray() );
 		if ( $appendModule ) {
 			$results[] = $module;
 		}
@@ -184,6 +188,7 @@ class handlePostsToWiki extends Maintenance {
 	}
 
 	private function makeRequest( $data, $useGet = false ) {
+		global $wgRequest;
 		/*
 		 * $postdata = [
 					"action" => "query",
@@ -197,7 +202,7 @@ class handlePostsToWiki extends Maintenance {
 		 */
 		$api = new ApiMain(
 			new DerivativeRequest(
-				$this->getRequest(), // Fallback upon $wgRequest if you can't access context
+				$wgRequest, // Fallback upon $wgRequest if you can't access context
 				$data,
 				/*
 				array(
@@ -207,7 +212,7 @@ class handlePostsToWiki extends Maintenance {
 				*/
 				$useGet // treat this as a POST
 			),
-			false // not write.
+			true // write.
 		);
 		$api->execute();
 		$data = $api->getResult()->getResultData();

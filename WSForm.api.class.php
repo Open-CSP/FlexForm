@@ -783,8 +783,8 @@ class wbApi {
               $cmd .= ' --slot "' . $slot . '"';
           }
           $cmd .= ' --summary "' . $summary . '"';
-          echo $cmd;
-          die();
+          //echo $cmd;
+          //die();
           $result = shell_exec( $cmd );
           //var_dump( $result );
 //die();
