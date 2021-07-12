@@ -13,6 +13,8 @@
 
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
+use MediaWiki\Session\CsrfTokenSet;
+use MediaWiki\Api\ApiMain;
 use SMW\ApplicationFactory;
 use SMW\Options;
 use SMW\Store;
@@ -131,12 +133,94 @@ class handlePostsToWiki extends Maintenance {
 
 	}
 
+	private function extensionInstalled ( $name ) {
+		return extensionRegistry::getInstance()->isLoaded( $name );
+	}
+
+	private function editSlotApi( $title, $content, $summary, $slot, $uname ) {
+
+		if( ! $this->extensionInstalled( 'WSSlots' ) ) {
+			return $this->createMsg( "WSSlots extension is not installed!" );
+		}
+
+		$csrfTokenRequest = array(
+			'action' => 'query',
+			'meta' => 'tokens'
+		);
+		$tokenResult = $this->doApiRequest( $csrfTokenRequest );
+		print_r( $tokenResult );
+		die();
+		$user = $this->getUser( $uname );
+		if( $user === false ){
+			return $this->createMsg( 'Cannot find user' );
+		}
+		$postData = [
+			'action' => 'editslot',
+			'title' => trim( $title ),
+			'slot' => $slot,
+			'text' => $content,
+			'summary' => $summary,
+			'format' => 'json',
+			'token' => CsrfTokenSet::getToken()
+		];
+		//return $this->createMsg( "Page has no changes from the current", true );
+		return $this->doApiRequest( $postData );
+	}
+
+
+	protected function doApiRequest( $params, $session = null, $appendModule = false ) {
+		if ( is_null( $session ) ) {
+			$session = array();
+		}
+		$request = new FauxRequest( $params, true, $session );
+		$module  = new ApiMain( $request, true );
+		$module->execute();
+		$results = array( $module->getResultData(), $request, $request->getSessionArray() );
+		if ( $appendModule ) {
+			$results[] = $module;
+		}
+
+		return $results;
+	}
+
+	private function makeRequest( $data, $useGet = false ) {
+		/*
+		 * $postdata = [
+					"action" => "query",
+					"format" => "json",
+					"list" => "allpages",
+					"aplimit" => "max",
+					"apcontinue" => $appContinue,
+					"apnamespace" => $id,
+					"apprefix" => $nameStartsWith
+				];
+		 */
+		$api = new ApiMain(
+			new DerivativeRequest(
+				$this->getRequest(), // Fallback upon $wgRequest if you can't access context
+				$data,
+				/*
+				array(
+					'action' => 'ask',
+					'query' => $query
+				),
+				*/
+				$useGet // treat this as a POST
+			),
+			false // not write.
+		);
+		$api->execute();
+		$data = $api->getResult()->getResultData();
+		return $data;
+	}
+
 	public function savePageToWiki( $pageName, $content, $summary, $timestamp, $bot, $rc, $uname, $slot = false ) {
 		$ret = array();
 		$error = false;
 
 
 		if( $slot !== false) {
+			return $this->editSlotApi( $pageName, $content, $summary, $slot, $uname );
 			define( "CUSTOMSLOT", $slot );
 		}
 		$user = $this->getUser( $uname );

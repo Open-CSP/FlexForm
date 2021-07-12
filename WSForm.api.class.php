@@ -751,6 +751,7 @@ class wbApi {
         $cmd .= ' --fip "'. $fileAndPath . '"';
         $cmd .= ' --summary "' . $summary . '"';
         //echo $cmd;
+
         $result = shell_exec( $cmd );
         $res = explode('|', $result);
         if($res[0] === 'ok' ) return true;
@@ -782,8 +783,8 @@ class wbApi {
               $cmd .= ' --slot "' . $slot . '"';
           }
           $cmd .= ' --summary "' . $summary . '"';
-          //echo $cmd;
-          //die();
+          echo $cmd;
+          die();
           $result = shell_exec( $cmd );
           //var_dump( $result );
 //die();
