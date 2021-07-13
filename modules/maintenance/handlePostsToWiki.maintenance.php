@@ -14,7 +14,6 @@
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
 use MediaWiki\Session;
-use MediaWiki\Api;
 use SMW\ApplicationFactory;
 use SMW\Options;
 use SMW\Store;
@@ -137,97 +136,52 @@ class handlePostsToWiki extends Maintenance {
 		return extensionRegistry::getInstance()->isLoaded( $name );
 	}
 
-	private function editSlotApi( $title, $content, $summary, $slot, $uname ) {
-
-		if( ! $this->extensionInstalled( 'WSSlots' ) ) {
+	/**
+	 * @param int $PageId
+	 * @param string $content
+	 * @param string $summary
+	 * @param string $slot
+	 * @param User $user
+	 *
+	 * @return mixed
+	 */
+	private function editSlot( int $pageId, string $content, string $summary, string $slot, User $user ) {
+		if ( ! $this->extensionInstalled( 'WSSlots' ) ) {
 			return $this->createMsg( "WSSlots extension is not installed!" );
 		}
 
-		$csrfTokenRequest = array(
-			'action' => 'query',
-			'meta' => 'tokens'
-		);
-		//$tokenResult = $this->doApiRequest( $csrfTokenRequest );
-		//print_r( $tokenResult );
-		//die();
-		$user = $this->getUser( $uname );
-		if( $user === false ){
-			return $this->createMsg( 'Cannot find user' );
+		if ( method_exists(
+			'WSSlots\WSSlots',
+			'editSlot'
+		) ) {
+			$wikiPageObject = WikiPage::newFromId( $pageId );
+			if ( is_null( $wikiPageObject ) ) {
+				return $this->createMsg( "Could not create a WikiPage Object from Article Id " . $pageId );
+			}
+			$result = WSSlots\WSSlots::editSlot(
+				$user,
+				$wikiPageObject,
+				$content,
+				$slot,
+				$summary,
+				false
+			);
+			if ( true !== $result ) {
+				list( $message, $code ) = $result;
+
+				return $this->createMsg( $message );
+			}
+
+			return true;
+		} else {
+			return $this->createMsg( "Could not find class WSSlots or method editSlot" );
 		}
-		$token = $user->getEditToken();
-		var_dump( $token );
-		$postData = [
-			'action' => 'editslot',
-			'title' => trim( $title ),
-			'slot' => $slot,
-			'text' => $content,
-			'summary' => $summary,
-			'format' => 'json',
-			'token' => $token
-		];
-		//return $this->createMsg( "Page has no changes from the current", true );
-		return $this->doApiRequest( $postData );
-	}
-
-
-
-
-	protected function doApiRequest( $params, $session = null, $appendModule = false ) {
-		if ( is_null( $session ) ) {
-			$session = array();
-		}
-		$request = new FauxRequest( $params, true, $session );
-		$module  = new ApiMain( $request, true );
-		$module->execute();
-		$results = array( $module->getResult()->getResultData(), $request, $request->getSessionArray() );
-		if ( $appendModule ) {
-			$results[] = $module;
-		}
-
-		return $results;
-	}
-
-	private function makeRequest( $data, $useGet = false ) {
-		global $wgRequest;
-		/*
-		 * $postdata = [
-					"action" => "query",
-					"format" => "json",
-					"list" => "allpages",
-					"aplimit" => "max",
-					"apcontinue" => $appContinue,
-					"apnamespace" => $id,
-					"apprefix" => $nameStartsWith
-				];
-		 */
-		$api = new ApiMain(
-			new DerivativeRequest(
-				$wgRequest, // Fallback upon $wgRequest if you can't access context
-				$data,
-				/*
-				array(
-					'action' => 'ask',
-					'query' => $query
-				),
-				*/
-				$useGet // treat this as a POST
-			),
-			true // write.
-		);
-		$api->execute();
-		$data = $api->getResult()->getResultData();
-		return $data;
 	}
 
 	public function savePageToWiki( $pageName, $content, $summary, $timestamp, $bot, $rc, $uname, $slot = false ) {
 		$ret = array();
 		$error = false;
 
-
-		if( $slot !== false) {
-			return $this->editSlotApi( $pageName, $content, $summary, $slot, $uname );
-			define( "CUSTOMSLOT", $slot );
-		}
 		$user = $this->getUser( $uname );
 		if( $user === false ){
 			return $this->createMsg( 'Cannot find user' );
@@ -237,86 +191,88 @@ class handlePostsToWiki extends Maintenance {
 			return $this->createMsg( "Invalid title $pageName." );
 		}
 
+		$pageId = $title->getArticleId();
 		$exists = $title->exists();
 		$oldRevID = $title->getLatestRevID();
-		if ( version_compare( $GLOBALS['wgVersion'], "1.35" ) < 0 ) {
+		if ( version_compare(
+				 $GLOBALS['wgVersion'],
+				 "1.35"
+			 ) < 0 ) {
 			$oldRev = $oldRevID ? Revision::newFromId( $oldRevID ) : null;
 		} else {
 			$revLookup = MediaWikiServices::getInstance()->getRevisionLookup();
-			$oldRev = $oldRevID ? $revLookup->getRevisionById( $oldRevID ) : null;
+			$oldRev    = $oldRevID ? $revLookup->getRevisionById( $oldRevID ) : null;
 		}
-
-		$parser = MediaWikiServices::getInstance()->getParser();
-
-		$content = $parser->preSaveTransform( $content, $title, $user, ParserOptions::newCanonical() );
-
 		$rev = new WikiRevision( MediaWikiServices::getInstance()->getMainConfig() );
-		if ( version_compare( $GLOBALS['wgVersion'], "1.35" ) < 0 ) {
-			$rev->setTitle( $title );
-			$rev->setModel( $rev->getModel() ); // Fix for 1.35; $model must not be NULL and getModel() retrieves the correct model iff it is not available
-			$rev->setText( rtrim( $content ) );
-			$rev->setUserObj( $user );
-			$rev->setComment( $summary );
-			$rev->setTimestamp( $timestamp );
+
+		if( $slot !== false) {
+			$slotEditResult = $this->editSlot( $pageId, $content, $summary, $slot, $user );
+			if( true !== $slotEditResult ) {
+				return $slotEditResult;
+			}
 		} else {
-			$content = ContentHandler::makeContent( rtrim( $content ), $title );
-			if( $slot === false ) {
-				$rev->setContent( SlotRecord::MAIN, $content );
+			$parser = MediaWikiServices::getInstance()->getParser();
+
+			$content = $parser->preSaveTransform(
+				$content,
+				$title,
+				$user,
+				ParserOptions::newCanonical()
+			);
+
+
+			if ( version_compare(
+					 $GLOBALS['wgVersion'],
+					 "1.35"
+				 ) < 0 ) {
+				$rev->setTitle( $title );
+				$rev->setModel(
+					$rev->getModel()
+				); // Fix for 1.35; $model must not be NULL and getModel() retrieves the correct model iff it is not available
+				$rev->setText( rtrim( $content ) );
+				$rev->setUserObj( $user );
+				$rev->setComment( $summary );
+				$rev->setTimestamp( $timestamp );
 			} else {
-				$slotStore = MediaWikiServices::getInstance()->getSlotRoleRegistry();
-				if( $slotStore->isKnownRole( $slot ) === false ) {
-					$error = "undefined slotrecord: $slot";
+				$content = ContentHandler::makeContent(
+					rtrim( $content ),
+					$title
+				);
+				$rev->setContent(
+					SlotRecord::MAIN,
+					$content
+				);
+				$rev->setTitle( $title );
+				$rev->setUserObj( $user );
+				$rev->setComment( $summary );
+				$rev->setTimestamp( $timestamp );
+			}
+			if ( version_compare(
+					 $GLOBALS['wgVersion'],
+					 "1.35"
+				 ) < 0 ) {
+				if ( $exists && $rev->getContent()->equals( $oldRev->getContent() ) ) {
 					return $this->createMsg(
-						$error,
-						false
+						"Page has no changes from the current",
+						true
 					);
-				} else {
-					$rev->setContent(
-						$slot,
-						$content
-					);
-					if( $exists ) {
-						$rev->setContent(
-							SlotRecord::MAIN,
-							$oldRev->getContent( SlotRecord::MAIN )
-						);
-					} else {
-						$rev->setContent(
-							SlotRecord::MAIN,
-							ContentHandler::makeContent( "", $title )
-						);
-					}
-				}
-			}
-			$rev->setTitle( $title );
-			$rev->setUserObj( $user );
-			$rev->setComment( $summary );
-			$rev->setTimestamp( $timestamp );
-		}
-		if ( version_compare( $GLOBALS['wgVersion'], "1.35" ) < 0 ) {
-			if ( $exists && $rev->getContent()->equals( $oldRev->getContent() ) ) {
-				return $this->createMsg( "Page has no changes from the current", true );
-			}
-		} else {
-			if( $slot === false ) {
-				if ( $exists && $rev->getContent()->equals( $oldRev->getContent( SlotRecord::MAIN ) ) ) {
-					return $this->createMsg( "Page has no changes from the current", true );
 				}
 			} else {
-				//TODO find out why this does not work!
-				/*
-				if ( $exists && $rev->getContent( CUSTOMSLOT )->equals( $oldRev->getContent( CUSTOMSLOT ) ) ) {
-					return $this->createMsg( "Page has no changes from the current", true );
+				if ( $exists && $rev->getContent()->equals( $oldRev->getContent( SlotRecord::MAIN ) ) ) {
+					return $this->createMsg(
+						"Page has no changes from the current",
+						true
+					);
 				}
-				*/
+			}
+			$status = $rev->importOldRevision();
+			$newId  = $title->getLatestRevID();
+			$this->refreshSMWProperties( $title );
+			if( $rc ){
+				$this->addToRecentChanges( $exists, $oldRev, $timestamp, $rev, $user, $summary, $oldRevID, $bot, $newId, $title, $slot );
 			}
 		}
-		$status = $rev->importOldRevision();
-		$newId = $title->getLatestRevID();
-		$this->refreshSMWProperties( $title );
-		if( $rc ){
-			$this->addToRecentChanges( $exists, $oldRev, $timestamp, $rev, $user, $summary, $oldRevID, $bot, $newId, $title, $slot );
-		}
+
 		return $this->createMsg(
 				'ok',
 				true
