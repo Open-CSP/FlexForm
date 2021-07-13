@@ -1112,6 +1112,7 @@ if($writepages !== false) {
 
 	foreach ($writepages as $singlePage) {
         $noTemplate = false;
+        $writePageSlot = false;
 		$pageData = explode( '-^^-', $singlePage );
 		if ( $pageData[0] == '' || $pageData[1] == '') {
 			continue;
@@ -1127,6 +1128,9 @@ if($writepages !== false) {
 		if ($pageData[3] == "") {
 			$formFields = false;
 		} else $formFields = $pageData[3];
+		if ($pageData[4] == "") {
+			$writePageSlot = false;
+		} else $writePageSlot = $pageData[4];
 		if ( !$noTemplate ) {
             $ret = "{{" . $pageTemplate . "\n";
         }
@@ -1275,7 +1279,7 @@ if($writepages !== false) {
 		}
 
 		if($weHaveApi) {
-			$result = $api->savePageToWiki($ptitle, $ret, $summary, $slot );
+			$result = $api->savePageToWiki( $ptitle, $ret, $summary, $writePageSlot );
 			if(isset($result['received']['error'])) {
 				return createMsg($result['received']['error'],'error',$returnto);
 			}
@@ -1289,7 +1293,7 @@ if($writepages !== false) {
 			if($res === false) {
 				return createMsg($res);
 			}
-			$result = $api->savePageToWiki($ptitle, $ret, $summary, $slot );
+			$result = $api->savePageToWiki($ptitle, $ret, $summary, $writePageSlot );
 			if(isset($result['received']['error'])) {
                 return createMsg($result['received']['error'],'error',$returnto);
 			}
@@ -1353,6 +1357,11 @@ if ( ! $mwedit && ! $email ) {
 				$data[$pid][$t]['value'] = $_POST[ $ff ];
 			}
 		}
+		if ( $edit[5] != '' ) {
+			$data[$pid][$t]['slot'] = $edit[5];
+		} else {
+			$data[$pid][$t]['slot'] = false;
+		}
 
 		$t++;
 	}
@@ -1373,7 +1382,8 @@ if ( ! $mwedit && ! $email ) {
 	}
 	foreach ($data as $pid => $edits) {
 		//echo count($edits);
-		$pageContent = $api->getWikiPage( $pid );
+		$editSlot = $edits[0]['slot'];
+		$pageContent = $api->getWikiPage( $pid, $editSlot );
 		$pageTitle = $pageContent['title'];
 		$pageContent=$pageContent['content'];
 		$pageContentBak=$pageContent;
@@ -1429,7 +1439,7 @@ if ( ! $mwedit && ! $email ) {
 
 		}
 
-		$result = $api->savePageToWiki($pageTitle, $pageContent, $summary, $slot );
+		$result = $api->savePageToWiki($pageTitle, $pageContent, $summary, $editSlot );
 		if(isset($result['received']['error'])) {
             return createMsg($result['received']['error'],'error',$returnto);
 		}

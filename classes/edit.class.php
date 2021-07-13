@@ -16,6 +16,7 @@ class render {
      * @return string Formatted HTML
      */
     public static function render_edit( $args ) {
+		$wsSlot = false;
         $def = '<input type="hidden" name="mwedit[]" value="';
         $div = '-^^-';
         if ( isset( $args['target'] ) && $args['target'] != "" ) {
@@ -43,6 +44,12 @@ class render {
             $usefield = false;
         }
 
+		if ( isset( $args['mwslot'] ) && $args['mwslot'] !== '' ) {
+			//{{#set: Hello=World | Description=These properties are not visible in the content }}
+			//mds-metadataslot als test
+			$wsSlot = $args['mwslot'];
+		} else $wsSlot = false;
+
         if ( isset( $args['value'] ) && $args['value'] != "" ) {
             $value = $args['value'];
         } else {
@@ -62,6 +69,12 @@ class render {
         } else {
             $val .= $div;
         }
+
+		if ( $wsSlot ) {
+			$val .= $div . $wsSlot;
+		} else {
+			$val .= $div;
+		}
         $ret = $def . $val . '">' . "\n";
 
         return $ret;

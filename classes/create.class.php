@@ -34,6 +34,10 @@ class render {
                     $wswrite = $v;
                 }
 
+				if ( $k == "wsslot" ) {
+					$wsSlot = $v;
+				}
+
                 if ( $k == "mwoption" ) {
                     $wsoption = $v;
                 }
@@ -60,7 +64,7 @@ class render {
                 return 'No valid title for creating a page.';
             }
 
-            $createValue = $template . $div . $wswrite . $div . $wsoption . $div . $wsfields;
+            $createValue = $template . $div . $wswrite . $div . $wsoption . $div . $wsfields . $div . $wsSlot;
 	        $def = \wsform\wsform::createHiddenField( 'mwcreatemultiple[]', $createValue );
 
             return $def.$wsfollow ;

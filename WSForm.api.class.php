@@ -709,20 +709,39 @@ class wbApi {
      * @param $id int ID of the page
      * @return array Mediawiki response
      */
-      function getWikiPage($id) {
+      function getWikiPage( $id, $slot = false ) {
 
-          $postdata = http_build_query([
-              "action" => "query",
-              "format" => "json",
-              "prop" => "revisions",
-              "rvprop" => "content",
-              "pageids" => $id
-          ]);
+          if( $slot !== false ) {
+              $postdata = http_build_query(
+                  [
+                      "action"  => "query",
+                      "format"  => "json",
+                      "prop"    => "revisions",
+                      "rvprop"  => "content",
+                      "rvslots" => $slot,
+                      "pageids" => $id
+                  ]
+              );
+          } else {
+              $postdata = http_build_query(
+                  [
+                      "action"  => "query",
+                      "format"  => "json",
+                      "prop"    => "revisions",
+                      "rvprop"  => "content",
+                      "pageids" => $id
+                  ]
+              );
+          }
           $result=$this->apiPost($postdata,true);
           $title = $result['received']['query']['pages'][$id]['title'];
           $ret=array();
           $ret['title']=$title;
-          $ret['content']= $result['received']['query']['pages'][$id]['revisions'][0]['*'];
+          if( false === $slot ) {
+              $ret['content'] = $result['received']['query']['pages'][$id]['revisions'][0]['*'];
+          } else {
+              $ret['content'] = $result['received']['query']['pages'][$id]['revisions'][0]['slots'][$slot]['*'];
+          }
           return $ret;
       }
 
