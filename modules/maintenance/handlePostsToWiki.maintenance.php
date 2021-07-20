@@ -137,7 +137,7 @@ class handlePostsToWiki extends Maintenance {
 	}
 
 	/**
-	 * @param int $PageId
+	 * @param Title $pTitle
 	 * @param string $content
 	 * @param string $summary
 	 * @param string $slot
@@ -145,7 +145,7 @@ class handlePostsToWiki extends Maintenance {
 	 *
 	 * @return mixed
 	 */
-	private function editSlot( int $pageId, string $content, string $summary, string $slot, User $user ) {
+	private function editSlot( Title $pTitle, string $content, string $summary, string $slot, User $user ) {
 		if ( ! $this->extensionInstalled( 'WSSlots' ) ) {
 			return $this->createMsg( "WSSlots extension is not installed!" );
 		}
@@ -154,9 +154,14 @@ class handlePostsToWiki extends Maintenance {
 			'WSSlots\WSSlots',
 			'editSlot'
 		) ) {
-			$wikiPageObject = WikiPage::newFromId( $pageId );
+			try {
+				$wikiPageObject = WikiPage::factory( $pTitle );
+			} catch ( MWException $e ) {
+				return $this->createMsg( "Could not create a WikiPage Object from titloe " . $pTitle->getText() .
+				'. Message ' . $e->getMessage() );
+			}
 			if ( is_null( $wikiPageObject ) ) {
-				return $this->createMsg( "Could not create a WikiPage Object from Article Id " . $pageId );
+				return $this->createMsg( "Could not create a WikiPage Object from Article Id " . $pTitle );
 			}
 			$result = WSSlots\WSSlots::editSlot(
 				$user,
@@ -206,7 +211,7 @@ class handlePostsToWiki extends Maintenance {
 		$rev = new WikiRevision( MediaWikiServices::getInstance()->getMainConfig() );
 
 		if( $slot !== false) {
-			$slotEditResult = $this->editSlot( $pageId, $content, $summary, $slot, $user );
+			$slotEditResult = $this->editSlot( $title, $content, $summary, $slot, $user );
 			if( true !== $slotEditResult ) {
 				return $slotEditResult;
 			}
