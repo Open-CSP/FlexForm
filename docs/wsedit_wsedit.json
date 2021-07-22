@@ -4,13 +4,13 @@
         "type": "wsedit",
         "synopsis": "Defines an input field for pages to be edited",
         "description": "<p>How to edit pages in the wiki with WSForm<br><\/p>",
-        "parameters": "<p><strong>target<\/strong> = targetpage<\/p><p><strong>template<\/strong> = name of template to be used<\/p><p><strong>formfield<\/strong> = Name of the field in the template. Field in the form should have the same name<br><\/p><p><strong>usefield <\/strong>= If the field in the form differs from the formfieldname, you can use \"usefield\" to let wsedit know what other field from the form it should use<\/p><p>value= don't read the value from the form field, but use this value explicitly<\/p><p>As off <span style=\"color: rgb(79, 129, 189);\">version 0.8.0.9.7.7<\/span>\r\n WSForm supports the WSSlot extension. If you have that extension \r\ninstalled WSForm can write content to different content slots in \r\nMediaWiki. This functionality is called <a href=\"https:\/\/www.mediawiki.org\/wiki\/Multi-Content_Revisions\" target=\"_blank\">Multi-Content Revisions<\/a>. To tell wscreate to write to a different slot use wsslot : <br><\/p><p><strong>wsslot<\/strong> = name of slot to use<\/p>",
+        "parameters": "<p><strong>target<\/strong> = targetpage<\/p><p><strong>template<\/strong> = name of template to be used<\/p><p><strong>formfield<\/strong> = Name of the field in the template. Field in the form should have the same name<br><\/p><p><strong>usefield <\/strong>= If the field in the form differs from the formfieldname, you can use \"usefield\" to let wsedit know what other field from the form it should use<\/p><p>value= don't read the value from the form field, but use this value explicitly<\/p><p>As off <span style=\"color: rgb(79, 129, 189);\">version 0.8.0.9.7.7<\/span>\r\n WSForm supports the WSSlot extension. If you have that extension \r\ninstalled WSForm can write content to different content slots in \r\nMediaWiki. This functionality is called <a href=\"https:\/\/www.mediawiki.org\/wiki\/Multi-Content_Revisions\" target=\"_blank\">Multi-Content Revisions<\/a>. To tell wsedit to edit to a different slot use wsslot : <br><\/p><p><strong>wsslot<\/strong> = name of slot to use<\/p>",
         "example": "<wsedit target=\"pageid\" template=\"template\" formfield=\"formfield\" value=\"value\" \/>\r\n",
         "note": "<ul><li>You can have multiple wsedit's in a form all doing different tasks.<\/li><li>If you have more than 5 edits to one singe page in the wiki, consider <strong>wscreate <\/strong>to speed-up the process.<br><\/li><li>If you omit value, then the value of the form will be used (so what a user has filled in).<br><\/li><\/ul>",
         "links": "...",
         "created": "",
         "created_by": "",
-        "last modified": "14-07-2021 12:00:33",
+        "last modified": "14-07-2021 16:14:47",
         "modified by": "Charlot"
     }
 }

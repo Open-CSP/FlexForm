@@ -645,7 +645,7 @@ class WSFormHooks {
 			}
 		}
 		if( isset( $args['allowclear'] ) ) {
-			if ( ( isset( $args['json'] ) && isset( $args['id'] ) ) || isset( $args['allowtags'] ) ) {
+			if ( ( isset( $args['id'] ) ) || isset( $args['allowtags'] ) ) {
 				$out .= ",\nallowClear: true";
 			} else {
 				$out .= "\nallowClear: true";

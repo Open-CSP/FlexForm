@@ -984,7 +984,9 @@ function saveToWiki( $email=false ) {
 			$ret = "{{" . $template . "\n";
 		}
 		foreach ( $_POST as $k => $v ) {
+
 			if ( is_array( $v ) && !isWSFormSystemField($k) ) {
+
 				$ret .= "|" . makeSpaceFromUnderscore( $k ) . "=";
 				foreach ( $v as $multiple ) {
 					$ret .= cleanBraces( $multiple ) . ',';
