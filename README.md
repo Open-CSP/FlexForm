@@ -107,6 +107,7 @@ Visit : Special:WSForm/Docs
 
 
 ### Changelog
+* 0.8.0.9.7.8 : Version bump
 * 0.8.0.9.7.7 : Added editing content slots [NEEDS TO BE TESTED!!]
 * 0.8.0.9.7.6 : Saving to a slot now done through WSSlots
 * 0.8.0.9.7.5 : changed behaviour for new version of select2. Removed deprecated disableCache function. wsLogger extension removed. Refresh SMW fixed. Force trailing slash on document root.
