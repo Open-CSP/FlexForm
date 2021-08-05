@@ -117,6 +117,7 @@ class WSFormHooks {
 		$parser->setHook( 'wsedit', 'WSFormHooks::WSEdit' );
 		$parser->setHook( 'wscreate', 'WSFormHooks::WSCreate' );
 		$parser->setHook( 'wsemail', 'WSFormHooks::WSEmail' );
+		$parser->setHook( 'wsinstance', 'WSFormHooks::WSInstance' );
 
 
 	}
@@ -269,6 +270,21 @@ class WSFormHooks {
 		//self::addInlineJavaScriptAndCSS();
 		return array( $ret, 'noparse' => true, "markerType" => 'nowiki' );
 	}
+
+	public static function WSInstance( $input, array $args, Parser $parser, PPFrame $frame ) {
+
+		// Add move, delete and add button with classes
+
+		$ret = '';
+
+		$output = $parser->recursiveTagParse( $input, $frame );
+
+		$ret .= $output . '</select>' . "\n";
+		//self::addInlineJavaScriptAndCSS();
+		return array( $ret, 'noparse' => true, "markerType" => 'nowiki' );
+	}
+
+
 
 	/**
 	 * @brief Function to render the Form itself.
