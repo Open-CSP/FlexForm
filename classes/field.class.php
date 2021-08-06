@@ -591,6 +591,7 @@ class render {
 	 */
 	public static function render_option( $args, $input = false, $parser, $frame ) {
 		$ret = '<option ';
+		$showOnSelect = false;
 		foreach ( $args as $k => $v ) {
 			if ( validate::check_disable_readonly_required_selected( $k, $v ) ) {
 				continue;
@@ -607,6 +608,29 @@ class render {
 					$ret .= $k . '="' . $v . '" ';
 				}
 			}
+			if( $k === 'show-on-selected' ) {
+				$showOnSelect = $v;
+
+
+				//wsformShowOnSelect( source, val, target )
+			}
+
+
+		}
+		if( $showOnSelect !== false && isset( $name ) ) {
+			$showOnSelectCmd = array(
+				'source' => $name,
+				'val' => $value,
+				'target' => $showOnSelect,
+			);
+			wsform::includeJavaScriptConfig( 'showOnSelect', $showOnSelectCmd );
+
+			if( !wsform::isLoaded( 'ShowOnSelect' ) ) {
+				$js = 'wachtff( wsformShowOnSelect, true );';
+				wsform::includeInlineScript( $js );
+				wsform::addAsLoaded( 'ShowOnSelect' );
+			}
+
 		}
 		if(isset($name)) {
 			$val = \wsform\wsform::getValue( $name );

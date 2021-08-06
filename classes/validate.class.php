@@ -86,6 +86,31 @@ class validate {
 	}
 
 	/**
+	 * Check for valid parameters when using signature
+	 *
+	 * @param $check string Holds parameter to check
+	 * @param bool $ret If set to true it will not check the "check" parameter but rather returns an array of valid parameters
+	 *
+	 * @return array|bool List of valid parameters bool true when "$check" is valid, false if not
+	 */
+	public static function validInstanceParameters ( $check, $ret = false ) {
+
+		$validInstanceElements = array(
+			"id",
+			"template",
+			"classname"
+		);
+		if ( $ret ) {
+			return $validInstanceElements;
+		}
+		if ( in_array( $check, $validInstanceElements ) ) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
 	 * Check for valid parameters when using form
 	 *
 	 * @param $check string Holds parameter to check

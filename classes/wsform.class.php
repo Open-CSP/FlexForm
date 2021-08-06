@@ -202,18 +202,21 @@ class wsform {
 	 * @brief Add javascript config variables included
 	 *
 	 * @param $k string JavaScript source name (without <script>)
-	 * @param $v string id of the form
+	 * @param mixed $v value
 	 */
-	public static function includeJavaScriptConfig( string $k, string $v ) {
+	public static function includeJavaScriptConfig( string $k, $v ) {
 		if( isset( self::$javaScriptConfigVars[$k] ) ) {
 			if( is_array( self::$javaScriptConfigVars[$k] ) ) {
 				self::$javaScriptConfigVars[$k][] = $v;
 			} else {
 				$tmpValue = self::$javaScriptConfigVars[$k];
 				self::$javaScriptConfigVars[$k][] = $tmpValue;
+				self::$javaScriptConfigVars[$k][] = $v;
 			}
+		} else {
+			self::$javaScriptConfigVars[$k][] = $v;
 		}
-		self::$javaScriptConfigVars[$k] = $v;
+
 	}
 
 	/**

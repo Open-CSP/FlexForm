@@ -275,11 +275,11 @@ class WSFormHooks {
 
 		// Add move, delete and add button with classes
 
-		$ret = '';
 
 		$output = $parser->recursiveTagParse( $input, $frame );
 
-		$ret .= $output . '</select>' . "\n";
+		$ret = wsform\instance\render::render_instance( $args, $output );
+
 		//self::addInlineJavaScriptAndCSS();
 		return array( $ret, 'noparse' => true, "markerType" => 'nowiki' );
 	}
@@ -498,6 +498,11 @@ class WSFormHooks {
        // print_r( \wsform\wsform::$chkSums );
        // echo "</pre>";
         //print_r( \wsform\wsform::$secure );
+		//print_r( wsform\wsform::getJavaScriptConfigToBeAdded() );
+
+		//echo "<pre>";
+		//print_r( wsform\wsform::getJavaScriptConfigToBeAdded() ) ;
+		//echo "</pre>";
 		self::addInlineJavaScriptAndCSS();
 		return array( $ret, "markerType" => 'nowiki' );
 

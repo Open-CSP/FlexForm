@@ -71,6 +71,58 @@ function wachtff(method, both = false) {
     }
 }
 
+function wsformShowOnSelect() {
+    var lst = mw.config.get('wsformConfigVars');
+    if( lst === null ) return;
+    if( lst.showOnSelect === undefined ) return;
+    var source = [];
+    var valueToCheckBe = '';
+    var targetBe = '';
+    $(lst.showOnSelect).each( function(){
+        $('#' + this.target).hide();
+        if( source.includes( this.source ) ) {
+
+        }
+        // WE STILL NEED TO FIX THIS
+        source.push( this.source );
+        valueToCheckBe = this.val;
+        targetBe = this.target;
+        $("#" + this.source ).on( 'change', function () {
+            console.log( this.value, valueToCheckBe );
+            if ( $ (this).value === valueToCheckBe ) {
+                $("#"+targetBe ).show();
+            } else {
+                $('#'+targetBe).hide();
+            }
+        });
+
+
+
+
+        console.log( "s=" + this.source, "v=" + this.val, "t=" + this.target );
+    } );
+    /*
+    $("#" + el ).on( 'change', function () {
+        if ( $ (this).value === val ) {
+            $("#"+target ).show();
+        } else {
+            $('#'+target).hide();
+        }
+    });
+    */
+
+}
+/*
+function wsformShowOnSelect( source, val, target ) {
+    $("#" + el ).on( 'change', function () {
+        if ( $ (this).value === val ) {
+            $("#"+target ).show();
+        } else {
+            $('#'+target).hide();
+        }
+    });
+}
+*/
 function waitForTinyMCE(method) {
     if (typeof window.tinymce !== 'undefined') {
         method();
