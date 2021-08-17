@@ -273,12 +273,28 @@ class WSFormHooks {
 
 	public static function WSInstance( $input, array $args, Parser $parser, PPFrame $frame ) {
 
+		global $IP;
+
+
 		// Add move, delete and add button with classes
 
 
 		$output = $parser->recursiveTagParse( $input, $frame );
 
 		$ret = wsform\instance\render::render_instance( $args, $output );
+
+		if(! wsform\wsform::isLoaded( 'multipleinstance' ) ) {
+			if ( file_exists( $IP . '/extensions/WSForm/modules/instances/wsInstance.js' ) ) {
+				$ls = file_get_contents( $IP . '/extensions/WSForm/modules/instances/wsInstance.js' );
+				if ( $ls !== false ) {
+					//$loadScript = "<script>" . $ls . "</script>\n";
+					wsform\wsform::includeInlineScript( $ls );
+					wsform\wsform::addAsLoaded( 'multipleinstance' );
+				}
+			}
+		}
+
+
 
 		//self::addInlineJavaScriptAndCSS();
 		return array( $ret, 'noparse' => true, "markerType" => 'nowiki' );

@@ -27,12 +27,15 @@ class render {
 		$classWrapper = "WSmultipleTemplateWrapper";
 		$mainClass = "WSmultipleTemplateMain";
 		$fieldClass = 'WSmultipleTemplateField';
+		$instanceList = 'WSmultipleTemplateList';
 		$instanceName = '';
 		$template  = "";
 		$instanceId = "";
 		$instanceMainClass = "";
 		$instanceAddButtonClass = "";
 		$instanceRemoveButtonClass = "";
+		$instanceMoveButtonClass = 'ws-formgroup-sortable';
+		$instanceMoveListClass = 'ws-sortable-handle';
 		$allowMove = true;
 
 		if( isset( $args['template'] ) ) $template = $args['template'];
@@ -45,19 +48,25 @@ class render {
 		if( isset( $args['remove-button-class'] ) ) $instanceRemoveButtonClass = $args['remove-button-class'];
 		if( isset( $args['disable-move'] ) ) $allowMove = false;
 
-		$ret .= '<div class="' . $classWrapper . ' hidden" data-id="' . $instanceId . '>' . PHP_EOL;
+		if( $allowMove ) {
+			$instanceMoveListClass = ' ' . $instanceMoveListClass;
+		} else $instanceMoveListClass = '';
 
-		$ret .= '<div id="' . $instanceId . '" data-template=' . $template . '" class="' . $fieldClass . '">';
+		$ret .= '<div class="' . $classWrapper . ' hidden" data-id="' . $instanceId . '">' . PHP_EOL;
+
+		$ret .= '<div id="' . $instanceId . '" data-template="' . $template . '" class="' . $fieldClass . '">';
 
 		$ret .= '<textarea rows="10" name="' . $instanceName . '"></textarea>' . PHP_EOL . '</div>' . PHP_EOL;
 
 		$ret .= '<div class="hidden">' . PHP_EOL;
 
-		$ret .= 'div class="' . $mainClass . ' ' . $instanceMainClass . '">' . PHP_EOL;
+		$ret .= '<div class="' . $mainClass . ' ' . $instanceMainClass . '">' . PHP_EOL;
 
 		$ret .= $innerHtml;
 
-		$ret .= '</div></div></div>';
+		$ret .= '</div></div>';
+
+		$ret .= PHP_EOL . '<div class="' . $instanceList . $instanceMoveListClass . '"></div>' . PHP_EOL . '</div>' . PHP_EOL;
 
 		return $ret;
 
