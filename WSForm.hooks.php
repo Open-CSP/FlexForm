@@ -296,7 +296,6 @@ class WSFormHooks {
 
 
 
-		//self::addInlineJavaScriptAndCSS();
 		return array( $ret, 'noparse' => true, "markerType" => 'nowiki' );
 	}
 
@@ -963,7 +962,7 @@ class WSFormHooks {
 		return $results;
 	}
 
-	private static function addInlineJavaScriptAndCSS() {
+	private static function addInlineJavaScriptAndCSS( $parentConfig = false ) {
 		$scripts = array_unique( \wsform\wsform::getJavaScriptToBeIncluded() );
 		$csss = array_unique( \wsform\wsform::getCSSToBeIncluded() );
 		$jsconfigs = \wsform\wsform::getJavaScriptConfigToBeAdded();
@@ -981,7 +980,11 @@ class WSFormHooks {
 			wsform\wsform::cleanCSSList();
 		}
 		if( !empty( $jsconfigs ) ) {
-			$out->addJsConfigVars( array( 'wsformConfigVars' => $jsconfigs ) );
+			if( $parentConfig ) {
+				$out->addJsConfigVars( array( $jsconfigs ) );
+			} else {
+				$out->addJsConfigVars( array( 'wsformConfigVars' => $jsconfigs ) );
+			}
 			wsform\wsform::cleanJavaScriptConfigVars();
 		}
 	}

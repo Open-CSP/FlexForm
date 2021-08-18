@@ -11,6 +11,7 @@
 namespace wsform\instance;
 
 use wsform\validate\validate;
+use wsform\wsform;
 
 class render {
 
@@ -30,7 +31,6 @@ class render {
 		$instanceList = 'WSmultipleTemplateList';
 		$instanceName = '';
 		$template  = "";
-		$instanceId = "";
 		$instanceMainClass = "";
 		$instanceAddButtonClass = "";
 		$instanceRemoveButtonClass = "";
@@ -38,10 +38,11 @@ class render {
 		$instanceMoveListClass = 'ws-sortable-handle';
 		$allowMove = true;
 
+		if( isset( $args['buttons-position'] ) ) $template = $args['template'];
+
 		if( isset( $args['template'] ) ) $template = $args['template'];
 		if( isset( $args['name'] ) ) {
 			$instanceName = $args['name'];
-			$instanceId = str_replace(' ', '_', $instanceName );
 		}
 		if( isset( $args['main-class'] ) ) $instanceMainClass = $args['main-class'];
 		if( isset( $args['add-button-class'] ) ) $instanceAddButtonClass = $args['add-button-class'];
@@ -52,13 +53,13 @@ class render {
 			$instanceMoveListClass = ' ' . $instanceMoveListClass;
 		} else $instanceMoveListClass = '';
 
-		$ret .= '<div class="' . $classWrapper . ' hidden" data-id="' . $instanceId . '">' . PHP_EOL;
-
-		$ret .= '<div id="' . $instanceId . '" data-template="' . $template . '" class="' . $fieldClass . '">';
-
-		$ret .= '<textarea rows="10" name="' . $instanceName . '"></textarea>' . PHP_EOL . '</div>' . PHP_EOL;
+		$ret .= '<div class="' . $classWrapper . '">' . PHP_EOL;
 
 		$ret .= '<div class="hidden">' . PHP_EOL;
+
+		//$ret .= '<div data-template="' . $template . '" class="hidden ' . $fieldClass . '">';
+
+		$ret .= '<textarea rows="10" name="' . $instanceName . '"  class="hidden ' . $fieldClass . '" data-template="' . $template . '"></textarea>' . PHP_EOL;
 
 		$ret .= '<div class="' . $mainClass . ' ' . $instanceMainClass . '">' . PHP_EOL;
 
@@ -67,6 +68,27 @@ class render {
 		$ret .= '</div></div>';
 
 		$ret .= PHP_EOL . '<div class="' . $instanceList . $instanceMoveListClass . '"></div>' . PHP_EOL . '</div>' . PHP_EOL;
+
+		$instanceSettings = array(
+			'draggable' => $allowMove,
+			'addButtonClass' => "." . $instanceAddButtonClass,
+			'removeButtonClass' => "." . $instanceRemoveButtonClass,
+			'handleClass' => "." . trim( $instanceMoveListClass ),
+			'selector' => "." . $classWrapper,
+			'textarea' => "." . $fieldClass,
+			'list' => "." . $instanceList,
+			'copy' => "." . $mainClass
+		);
+
+		$out = \RequestContext::getMain()->getOutput();
+		$out->addJsConfigVars( array( "wsinstance" => $instanceSettings ) );
+
+
+		if( !wsform::isLoaded( 'wsinstance' ) ) {
+			$js = 'wachtff( startInstance, true );';
+			wsform::includeInlineScript( $js );
+			wsform::addAsLoaded( 'wsinstance' );
+		}
 
 		return $ret;
 

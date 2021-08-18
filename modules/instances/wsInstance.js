@@ -38,6 +38,12 @@ const WsInstance = function (selector, options) {
     _.list = _.wrapper.find(_.settings.list);
     _.clone = _.wrapper.find(_.settings.copy);
 
+    if ( !$(_.saveField).is('textarea') ) {
+        console.log( 'is not textarea!!');
+        _.saveField = $(_.saveField).find('textarea');
+    }
+
+
     /**
      * get content from textarea and copy into list
      */
@@ -47,6 +53,12 @@ const WsInstance = function (selector, options) {
 
         let textarea_content = _.saveField.val();
         let textarea_items = textarea_content.split('{{').filter((v) => v);
+
+        if ( textarea_items.length === 0 ) {
+            let clone = _.getCloneInstance();
+            let el = _.getCloneElementHandled(clone);
+            _.list.append(el);
+        }
 
         $.each(textarea_items, function(i, val) {
             let content_array = val.split('\n').filter((v) => v.includes('='));
@@ -170,7 +182,7 @@ const WsInstance = function (selector, options) {
      * @returns {HTMLElement }
      */
     _.getCloneInstance = () => {
-        return _.clone.clone();
+        return _.clone.clone().removeClass('WSmultipleTemplateMain').addClass('WSmultipleTemplateInstance');
     }
 
     _.handleIntegrations = () => {
@@ -256,4 +268,8 @@ const WsInstance = function (selector, options) {
         console.log("init!!");
         _.convertPredefinedToInstances();
     }
+
+    _.init();
+
+    return _;
 }
