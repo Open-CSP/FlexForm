@@ -147,6 +147,23 @@ class render {
 		$ret .= validate::doCheckboxParameters( $args );
 		$ret .= ">\n";
 
+		if( isset( $args['show-on-checked'] ) && isset( $args['id'] ) ) {
+
+				$showOnCheckedCmd = array(
+					'source' => $args['id'],
+					'target' => $args['show-on-checked']
+				);
+				wsform::includeJavaScriptConfig( 'WSShowOnChecked', $showOnCheckedCmd );
+
+				if( !wsform::isLoaded( 'ShowOnChecked' ) ) {
+					$js = 'wachtff( wsformShowOnChecked, true );';
+					wsform::includeInlineScript( $js );
+					wsform::addAsLoaded( 'ShowOnChecked' );
+				}
+
+
+		}
+
 		return $ret;
 	}
 
@@ -590,6 +607,7 @@ class render {
 	 * @return string Rendered HTML
 	 */
 	public static function render_option( $args, $input = false, $parser, $frame ) {
+		global $wgScript;
 		$ret = '<option ';
 		$showOnSelect = false;
 		foreach ( $args as $k => $v ) {
@@ -608,15 +626,23 @@ class render {
 					$ret .= $k . '="' . $v . '" ';
 				}
 			}
-			if( $k === 'show-on-selected' ) {
-				$showOnSelect = $v;
+			if( $k === 'show-on-select' ) {
+				$ret .= 'data-wssos-show="' . $v . '" ';
 
 
-				//wsformShowOnSelect( source, val, target )
+				if( !wsform::isLoaded( 'ShowOnSelect' ) ) {
+					$showOnSelect = true;
+					$out = \RequestContext::getMain()->getOutput();
+					$out->addJsConfigVars( array( "WSFormShowOnSelect" => true ) );
+					$js = 'wachtff( WsShowOnSelect, true );';
+					wsform::includeInlineScript( $js );
+					wsform::addAsLoaded( 'ShowOnSelect' );
+				}
 			}
 
 
 		}
+		/*
 		if( $showOnSelect !== false && isset( $name ) ) {
 			$showOnSelectCmd = array(
 				'source' => $name,
@@ -632,6 +658,7 @@ class render {
 			}
 
 		}
+		*/
 		if(isset($name)) {
 			$val = \wsform\wsform::getValue( $name );
 		} else $val = "";
@@ -644,7 +671,11 @@ class render {
 			}
 		}
 		$ret .= ">" . $input . "</option>\n";
-
+		//TODO: change showonselect js to check if variable is set
+		if( $showOnSelect ) {
+			$realUrl = str_replace( '/index.php', '', $wgScript );
+			$ret .= '<script type="text/javascript" charset="UTF-8" src="' . $realUrl . '/extensions/WSForm/modules/showOnSelect/WSShowOnSelect.js"></script>' . "\n";
+		}
 		return $ret;
 	}
 
