@@ -198,7 +198,11 @@ class render {
 	}
 
 	private static function renderInstanceHtml( $instance, $innerHtml, $textAreaContent ) {
-		$ret = '<div class="' . $instance['selector'] . '">' . PHP_EOL;
+		if( wsform::isShowOnSelectActive() ) {
+			$ret = '<div class="' . $instance['selector'] . ' WSShowOnSelect">' . PHP_EOL;
+		} else {
+			$ret = '<div class="' . $instance['selector'] . '">' . PHP_EOL;
+		}
 
 		$ret .= '<div class="hidden">' . PHP_EOL;
 

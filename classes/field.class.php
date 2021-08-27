@@ -110,7 +110,15 @@ class render {
 	public static function render_radio( $args, $input = false ) {
 		$ret = '<input type="radio" ';
 		$ret .= validate::doRadioParameters( $args );
+		if( isset( $args['show-on-checked'] ) ) {
+			$ret .= 'data-wssos-show="' . $args['show-on-checked'] . '" ';
+			$showOnChecked = true;
+		}
 		$ret .= ">\n";
+
+		if( $showOnChecked ) {
+			$ret .= wsform::addShowOnSelectJS();
+		}
 
 		return $ret;
 	}
@@ -124,6 +132,9 @@ class render {
 	 * @return string Rendered HTML
 	 */
 	public static function render_checkbox( $args, $input = false ) {
+
+		$showOnChecked = false;
+		$showOnUnchecked = false;
 
 		// Added in v0.8.0.9.6.2. Allowing for a default value for a checkbox
 		// for when the checkbox is not checked.
@@ -145,23 +156,21 @@ class render {
 
 		$ret .= '<input type="checkbox" ';
 		$ret .= validate::doCheckboxParameters( $args );
+
+		if( isset( $args['show-on-checked'] ) ) {
+			$ret .= 'data-wssos-show="' . $args['show-on-checked'] . '" ';
+			$showOnChecked = true;
+		}
+		if( isset( $args['show-on-unchecked'] ) ) {
+			$ret .= 'data-wssos-show-unchecked="' . $args['show-on-unchecked'] . '" ';
+			$showOnUnchecked = true;
+		}
+
 		$ret .= ">\n";
 
-		if( isset( $args['show-on-checked'] ) && isset( $args['id'] ) ) {
 
-				$showOnCheckedCmd = array(
-					'source' => $args['id'],
-					'target' => $args['show-on-checked']
-				);
-				wsform::includeJavaScriptConfig( 'WSShowOnChecked', $showOnCheckedCmd );
-
-				if( !wsform::isLoaded( 'ShowOnChecked' ) ) {
-					$js = 'wachtff( wsformShowOnChecked, true );';
-					wsform::includeInlineScript( $js );
-					wsform::addAsLoaded( 'ShowOnChecked' );
-				}
-
-
+		if( $showOnChecked || $showOnUnchecked ) {
+			$ret .= wsform::addShowOnSelectJS();
 		}
 
 		return $ret;
@@ -608,6 +617,7 @@ class render {
 	 */
 	public static function render_option( $args, $input = false, $parser, $frame ) {
 		global $wgScript;
+		$jsFile = '';
 		$ret = '<option ';
 		$showOnSelect = false;
 		foreach ( $args as $k => $v ) {
@@ -628,16 +638,7 @@ class render {
 			}
 			if( $k === 'show-on-select' ) {
 				$ret .= 'data-wssos-show="' . $v . '" ';
-
-
-				if( !wsform::isLoaded( 'ShowOnSelect' ) ) {
-					$showOnSelect = true;
-					$out = \RequestContext::getMain()->getOutput();
-					$out->addJsConfigVars( array( "WSFormShowOnSelect" => true ) );
-					$js = 'wachtff( WsShowOnSelect, true );';
-					wsform::includeInlineScript( $js );
-					wsform::addAsLoaded( 'ShowOnSelect' );
-				}
+				$showOnSelect = true;
 			}
 
 
@@ -673,8 +674,7 @@ class render {
 		$ret .= ">" . $input . "</option>\n";
 		//TODO: change showonselect js to check if variable is set
 		if( $showOnSelect ) {
-			$realUrl = str_replace( '/index.php', '', $wgScript );
-			$ret .= '<script type="text/javascript" charset="UTF-8" src="' . $realUrl . '/extensions/WSForm/modules/showOnSelect/WSShowOnSelect.js"></script>' . "\n";
+			$ret .= wsform::addShowOnSelectJS();
 		}
 		return $ret;
 	}

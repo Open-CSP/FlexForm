@@ -439,7 +439,11 @@ class WSFormHooks {
             $msgOnSuccessJs = $js = 'var mwonsuccess = "' . $args['messageonsuccess'] . '";';
 	        wsform\wsform::includeInlineScript( $msgOnSuccessJs );
         } else $msgOnSuccessJs = '';
-		
+
+        if( isset( $args['show-on-select' ] ) ) {
+        	\wsform\wsform::setShowOnSelectActive();
+			$input = \wsform\wsform::checkForShowOnSelectValue( $input );
+		}
 
 		$output = $parser->recursiveTagParse( $input, $frame );
 		foreach ( $args as $k => $v ) {

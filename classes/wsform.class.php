@@ -14,6 +14,8 @@ namespace wsform;
 class wsform {
 
 
+	static $showOnSelectSet = false;
+
     /**
      * Globally set as a variable to check if the posting add a reCaptcha v3 and to disable ajax submit
      */
@@ -78,6 +80,14 @@ class wsform {
 		return $dir;
 	}
 
+	public static function setShowOnSelectActive() {
+		self::$showOnSelectSet = true;
+	}
+
+	public static function isShowOnSelectActive() {
+		return self::$showOnSelectSet;
+	}
+
 	/**
 	 * Simple function to get a string between string (start and end)
 	 *
@@ -139,6 +149,26 @@ class wsform {
 		}
 
 
+	}
+
+	public static function checkForShowOnSelectValue( $input ) {
+		if( strpos( $input, 'show-on-select-trigger=' ) ) {
+			return str_replace( 'show-on-select-trigger=', 'data-wssos-value=', $input );
+		} else return $input;
+	}
+
+	public static function addShowOnSelectJS(){
+		global $wgScript;
+		if( !wsform::isLoaded( 'ShowOnSelect' ) ) {
+			$out = \RequestContext::getMain()->getOutput();
+			$out->addJsConfigVars( array( "WSFormShowOnSelect" => true ) );
+			$js = 'wachtff( WsShowOnSelect, true );';
+			wsform::includeInlineScript( $js );
+			$realUrl = str_replace( '/index.php', '', $wgScript );
+			$jsFile = '<script type="text/javascript" charset="UTF-8" src="' . $realUrl . '/extensions/WSForm/modules/showOnSelect/WSShowOnSelect.js"></script>' . "\n";
+			wsform::addAsLoaded( 'ShowOnSelect' );
+			return $jsFile;
+		} else return '';
 	}
 
 	/**

@@ -11,6 +11,8 @@
 namespace wsform\validate;
 
 
+use wsform\wsform;
+
 class validate {
 
 
@@ -140,7 +142,8 @@ class validate {
 			"post-as-user",
 			"lock",
 			"recaptcha-v3-action",
-            "autosave"
+            "autosave",
+			"show-on-select"
 		);
 		if ( $ret ) {
 			return $validFormElements;
