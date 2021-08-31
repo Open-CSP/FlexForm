@@ -108,6 +108,7 @@ class render {
 	 * @return string Rendered HTML
 	 */
 	public static function render_radio( $args, $input = false ) {
+		$showOnChecked = false;
 		$ret = '<input type="radio" ';
 		$ret .= validate::doRadioParameters( $args );
 		if( isset( $args['show-on-checked'] ) ) {
