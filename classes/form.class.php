@@ -74,6 +74,13 @@ class render {
 					case "post-as-user" :
 						$ret .= 'data-wsform="wsform-general" ';
 						break;
+					case "show-on-select" :
+						$class[] = 'WSShowOnSelect';
+						$class[] = 'wsform-hide';
+						$style = '.wsform-hide { opacity:0; }';
+
+						wsform::includeInlineCSS( $style );
+						break;
 					case "autosave" :
 						switch( $v ) {
 							case "onchange":

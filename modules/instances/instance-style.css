@@ -1,0 +1,32 @@
+
+.wsform-instance-move-handle {
+
+    float: left;
+    padding: 2px;
+    text-align:center;
+    vertical-align: middle;
+    background-color: white;
+    display:inline-block;
+    cursor: move;
+    border:1px solid black;
+    margin-right:15px;
+
+}
+
+.wsform-instance-move-handle:before {
+    font-size: 19px;
+    font-weight: bold;
+    content: "\2630";
+}
+
+.wsform-instance-add-btn, .wsform-instance-delete-btn {
+    float:right;
+
+}
+
+.wsform-instance-record {
+    padding: 1rem;
+    border:1px dotted #666;
+    margin: 5px 0px 5px 0px;
+
+}

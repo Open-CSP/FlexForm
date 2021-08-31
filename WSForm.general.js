@@ -71,6 +71,108 @@ function wachtff(method, both = false) {
     }
 }
 
+function wsformShowOnSelect() {
+    var lst = mw.config.get('wsformConfigVars');
+    if( lst === null ) return;
+    if( lst.showOnSelect === undefined ) return;
+    var source = [];
+   // var valueToCheckBe = '';
+   //  var targetBe = '';
+
+    /**
+     * hide all targets from array
+     * @param array
+     */
+    function hideAll(array) {
+        $(array).each(function() {
+            console.log("hide:: ", this.target);
+            $('#' + this.target).hide();
+        });
+    }
+
+    /**
+     * show val from array
+     * @param val
+     * @param array
+     */
+    function showVal(val, array) {
+        $(array).each(function() {
+            if ( this.val === val ) {
+                $('#' + this.target).show();
+            }
+        });
+    }
+
+    let sourceObj = {};
+
+    /**
+     * convert array to object
+     */
+    $(lst.showOnSelect).each(function(i, obj) {
+        if ( sourceObj.hasOwnProperty(obj.source) ) {
+            sourceObj[obj.source].push(obj);
+        } else {
+            sourceObj[obj.source] = [obj];
+        }
+    });
+
+    /**
+     * loop through object and set onchange event
+     */
+    $.each(sourceObj, function (k, v) {
+        hideAll(v);
+       $('#' + k).on('change', function(e) {
+           hideAll(v);
+           showVal($(this).val(), v);
+       });
+
+       $('#' + k).trigger('change');
+    });
+}
+
+function startInstance(){
+    console.log( "initiating instance" );
+    var lst = mw.config.get('wsinstance');
+    if( lst === null ) return;
+    if( lst === undefined ) return;
+    $(lst).each(function(i, obj) {
+        /*
+        $instanceSettings = array(
+			'draggable' => $allowMove,
+			'addButtonClass' => "." . $instanceAddButtonClass,
+			'removeButtonClass' => "." . $instanceRemoveButtonClass,
+			'handleClass' => $instanceMoveListClass,
+			'selector' => $classWrapper,
+			'textarea' => $fieldClass,
+			'list' => $instanceList,
+			'copy' => $mainClass
+		);
+         */
+        var settings = {
+            draggable: obj.draggable,
+            addButtonClass: obj.addButtonClass,
+            removeButtonClass: obj.removeButtonClass,
+            handleClass: obj.handleClass,
+            selector: obj.selector,
+            textarea: obj.textarea,
+            list: obj.list,
+            copy: obj.copy,
+        }
+        const instance = new WsInstance( obj.selector, settings );
+    });
+
+}
+/*
+function wsformShowOnSelect( source, val, target ) {
+    $("#" + el ).on( 'change', function () {
+        if ( $ (this).value === val ) {
+            $("#"+target ).show();
+        } else {
+            $('#'+target).hide();
+        }
+    });
+}
+*/
 function waitForTinyMCE(method) {
     if (typeof window.tinymce !== 'undefined') {
         method();

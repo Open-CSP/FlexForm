@@ -41,7 +41,8 @@ class WSFormHooks {
 			'wsedit',
 			'wscreate',
 			'wsemail',
-			'extension'
+			'extension',
+			'wsinstance'
 		);
 
 		return $data;
@@ -117,6 +118,7 @@ class WSFormHooks {
 		$parser->setHook( 'wsedit', 'WSFormHooks::WSEdit' );
 		$parser->setHook( 'wscreate', 'WSFormHooks::WSCreate' );
 		$parser->setHook( 'wsemail', 'WSFormHooks::WSEmail' );
+		$parser->setHook( 'wsinstance', 'WSFormHooks::WSInstance' );
 
 
 	}
@@ -270,6 +272,38 @@ class WSFormHooks {
 		return array( $ret, 'noparse' => true, "markerType" => 'nowiki' );
 	}
 
+	public static function WSInstance( $input, array $args, Parser $parser, PPFrame $frame ) {
+
+		global $IP;
+
+
+		// Add move, delete and add button with classes
+		$parser->getOutput()->addModuleStyles( 'ext.wsForm.Instance.styles' );
+
+		$output = $parser->recursiveTagParse( $input, $frame );
+
+		$ret = wsform\instance\render::render_instance( $args, $output );
+
+		if(! wsform\wsform::isLoaded( 'multipleinstance' ) ) {
+			if ( file_exists( $IP . '/extensions/WSForm/modules/instances/wsInstance.js' ) ) {
+				$ls = file_get_contents( $IP . '/extensions/WSForm/modules/instances/wsInstance.js' );
+				if ( $ls !== false ) {
+					//$loadScript = "<script>" . $ls . "</script>\n";
+					wsform\wsform::includeInlineScript( $ls );
+					wsform\wsform::addAsLoaded( 'multipleinstance' );
+				}
+			}
+		}
+
+
+
+
+
+		return array( $ret, 'noparse' => true, "markerType" => 'nowiki' );
+	}
+
+
+
 	/**
 	 * @brief Function to render the Form itself.
 	 *
@@ -408,7 +442,11 @@ class WSFormHooks {
             $msgOnSuccessJs = $js = 'var mwonsuccess = "' . $args['messageonsuccess'] . '";';
 	        wsform\wsform::includeInlineScript( $msgOnSuccessJs );
         } else $msgOnSuccessJs = '';
-		
+
+        if( isset( $args['show-on-select' ] ) ) {
+        	\wsform\wsform::setShowOnSelectActive();
+			$input = \wsform\wsform::checkForShowOnSelectValue( $input );
+		}
 
 		$output = $parser->recursiveTagParse( $input, $frame );
 		foreach ( $args as $k => $v ) {
@@ -482,6 +520,11 @@ class WSFormHooks {
        // print_r( \wsform\wsform::$chkSums );
        // echo "</pre>";
         //print_r( \wsform\wsform::$secure );
+		//print_r( wsform\wsform::getJavaScriptConfigToBeAdded() );
+
+		//echo "<pre>";
+		//print_r( wsform\wsform::getJavaScriptConfigToBeAdded() ) ;
+		//echo "</pre>";
 		self::addInlineJavaScriptAndCSS();
 		return array( $ret, "markerType" => 'nowiki' );
 
@@ -926,7 +969,7 @@ class WSFormHooks {
 		return $results;
 	}
 
-	private static function addInlineJavaScriptAndCSS() {
+	private static function addInlineJavaScriptAndCSS( $parentConfig = false ) {
 		$scripts = array_unique( \wsform\wsform::getJavaScriptToBeIncluded() );
 		$csss = array_unique( \wsform\wsform::getCSSToBeIncluded() );
 		$jsconfigs = \wsform\wsform::getJavaScriptConfigToBeAdded();
@@ -944,7 +987,11 @@ class WSFormHooks {
 			wsform\wsform::cleanCSSList();
 		}
 		if( !empty( $jsconfigs ) ) {
-			$out->addJsConfigVars( array( 'wsformConfigVars' => $jsconfigs ) );
+			if( $parentConfig ) {
+				$out->addJsConfigVars( array( $jsconfigs ) );
+			} else {
+				$out->addJsConfigVars( array( 'wsformConfigVars' => $jsconfigs ) );
+			}
 			wsform\wsform::cleanJavaScriptConfigVars();
 		}
 	}

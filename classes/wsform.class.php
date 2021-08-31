@@ -14,6 +14,8 @@ namespace wsform;
 class wsform {
 
 
+	static $showOnSelectSet = false;
+
     /**
      * Globally set as a variable to check if the posting add a reCaptcha v3 and to disable ajax submit
      */
@@ -76,6 +78,14 @@ class wsform {
 			$dir = $apiUrl . 'extensions/WSForm/WSForm.api.php';
 		} else $dir='/extensions/WSForm/WSForm.api.php';
 		return $dir;
+	}
+
+	public static function setShowOnSelectActive() {
+		self::$showOnSelectSet = true;
+	}
+
+	public static function isShowOnSelectActive() {
+		return self::$showOnSelectSet;
 	}
 
 	/**
@@ -141,6 +151,26 @@ class wsform {
 
 	}
 
+	public static function checkForShowOnSelectValue( $input ) {
+		if( strpos( $input, 'show-on-select-trigger=' ) ) {
+			return str_replace( 'show-on-select-trigger=', 'data-wssos-value=', $input );
+		} else return $input;
+	}
+
+	public static function addShowOnSelectJS(){
+		global $wgScript;
+		if( !wsform::isLoaded( 'ShowOnSelect' ) ) {
+			$out = \RequestContext::getMain()->getOutput();
+			$out->addJsConfigVars( array( "WSFormShowOnSelect" => true ) );
+			$js = 'wachtff( WsShowOnSelect, true );';
+			wsform::includeInlineScript( $js );
+			$realUrl = str_replace( '/index.php', '', $wgScript );
+			$jsFile = '<script type="text/javascript" charset="UTF-8" src="' . $realUrl . '/extensions/WSForm/modules/showOnSelect/WSShowOnSelect.js"></script>' . "\n";
+			wsform::addAsLoaded( 'ShowOnSelect' );
+			return $jsFile;
+		} else return '';
+	}
+
 	/**
 	 * @brief Add script to list of loaded script
 	 *
@@ -202,18 +232,21 @@ class wsform {
 	 * @brief Add javascript config variables included
 	 *
 	 * @param $k string JavaScript source name (without <script>)
-	 * @param $v string id of the form
+	 * @param mixed $v value
 	 */
-	public static function includeJavaScriptConfig( string $k, string $v ) {
+	public static function includeJavaScriptConfig( string $k, $v ) {
 		if( isset( self::$javaScriptConfigVars[$k] ) ) {
 			if( is_array( self::$javaScriptConfigVars[$k] ) ) {
 				self::$javaScriptConfigVars[$k][] = $v;
 			} else {
 				$tmpValue = self::$javaScriptConfigVars[$k];
 				self::$javaScriptConfigVars[$k][] = $tmpValue;
+				self::$javaScriptConfigVars[$k][] = $v;
 			}
+		} else {
+			self::$javaScriptConfigVars[$k][] = $v;
 		}
-		self::$javaScriptConfigVars[$k] = $v;
+
 	}
 
 	/**

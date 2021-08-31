@@ -108,9 +108,18 @@ class render {
 	 * @return string Rendered HTML
 	 */
 	public static function render_radio( $args, $input = false ) {
+		$showOnChecked = false;
 		$ret = '<input type="radio" ';
 		$ret .= validate::doRadioParameters( $args );
+		if( isset( $args['show-on-checked'] ) ) {
+			$ret .= 'data-wssos-show="' . $args['show-on-checked'] . '" ';
+			$showOnChecked = true;
+		}
 		$ret .= ">\n";
+
+		if( $showOnChecked ) {
+			$ret .= wsform::addShowOnSelectJS();
+		}
 
 		return $ret;
 	}
@@ -124,6 +133,9 @@ class render {
 	 * @return string Rendered HTML
 	 */
 	public static function render_checkbox( $args, $input = false ) {
+
+		$showOnChecked = false;
+		$showOnUnchecked = false;
 
 		// Added in v0.8.0.9.6.2. Allowing for a default value for a checkbox
 		// for when the checkbox is not checked.
@@ -145,7 +157,22 @@ class render {
 
 		$ret .= '<input type="checkbox" ';
 		$ret .= validate::doCheckboxParameters( $args );
+
+		if( isset( $args['show-on-checked'] ) ) {
+			$ret .= 'data-wssos-show="' . $args['show-on-checked'] . '" ';
+			$showOnChecked = true;
+		}
+		if( isset( $args['show-on-unchecked'] ) ) {
+			$ret .= 'data-wssos-show-unchecked="' . $args['show-on-unchecked'] . '" ';
+			$showOnUnchecked = true;
+		}
+
 		$ret .= ">\n";
+
+
+		if( $showOnChecked || $showOnUnchecked ) {
+			$ret .= wsform::addShowOnSelectJS();
+		}
 
 		return $ret;
 	}
@@ -590,7 +617,10 @@ class render {
 	 * @return string Rendered HTML
 	 */
 	public static function render_option( $args, $input = false, $parser, $frame ) {
+		global $wgScript;
+		$jsFile = '';
 		$ret = '<option ';
+		$showOnSelect = false;
 		foreach ( $args as $k => $v ) {
 			if ( validate::check_disable_readonly_required_selected( $k, $v ) ) {
 				continue;
@@ -607,7 +637,30 @@ class render {
 					$ret .= $k . '="' . $v . '" ';
 				}
 			}
+			if( $k === 'show-on-select' ) {
+				$ret .= 'data-wssos-show="' . $v . '" ';
+				$showOnSelect = true;
+			}
+
+
 		}
+		/*
+		if( $showOnSelect !== false && isset( $name ) ) {
+			$showOnSelectCmd = array(
+				'source' => $name,
+				'val' => $value,
+				'target' => $showOnSelect,
+			);
+			wsform::includeJavaScriptConfig( 'showOnSelect', $showOnSelectCmd );
+
+			if( !wsform::isLoaded( 'ShowOnSelect' ) ) {
+				$js = 'wachtff( wsformShowOnSelect, true );';
+				wsform::includeInlineScript( $js );
+				wsform::addAsLoaded( 'ShowOnSelect' );
+			}
+
+		}
+		*/
 		if(isset($name)) {
 			$val = \wsform\wsform::getValue( $name );
 		} else $val = "";
@@ -620,7 +673,10 @@ class render {
 			}
 		}
 		$ret .= ">" . $input . "</option>\n";
-
+		//TODO: change showonselect js to check if variable is set
+		if( $showOnSelect ) {
+			$ret .= wsform::addShowOnSelectJS();
+		}
 		return $ret;
 	}
 
