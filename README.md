@@ -107,6 +107,7 @@ Visit : Special:WSForm/Docs
 
 
 ### Changelog
+* 0.8.0.9.7.9 : Multiple instances and show on select added. RDY FOR TESTNG!!
 * 0.8.0.9.7.8 : Version bump
 * 0.8.0.9.7.7 : Added editing content slots [NEEDS TO BE TESTED!!]
 * 0.8.0.9.7.6 : Saving to a slot now done through WSSlots
