@@ -36,10 +36,16 @@ function handleRadio(radioElm) {
   var pre_wssos_value = $(radioElm).data('wssos-show');
   var pre_parent_wssos = $(radioElm).parentsUntil('.WSShowOnSelect').parent()[0];
   var pre_wssos_elm = $(pre_parent_wssos).find('[data-wssos-value="'+pre_wssos_value+'"]');
+
   if ( $(radioElm).parent().hasClass('WSShowOnSelect') ) {
     pre_parent_wssos = $(radioElm).parent()[0];
     pre_wssos_elm = $(pre_parent_wssos).find('[data-wssos-value="'+pre_wssos_value+'"]');
   }
+
+  if ( pre_wssos_elm.length === 0 ) {
+    pre_wssos_elm = $(pre_parent_wssos).find('#' + pre_wssos_value);
+  }
+
   if ( radioElm.checked ) {
     $(pre_wssos_elm).show(0);
     putAllTypesDataInName(pre_wssos_elm);
@@ -47,18 +53,29 @@ function handleRadio(radioElm) {
     $(pre_wssos_elm).hide(0);
     putAllTypesNameInData(pre_wssos_elm);
   }
-  $(pre_parent_wssos).find('input[type=radio][name="'+ radioElm.name +'"]').on('change', function () {
+
+  $(radioElm).on('change', function () {
     var wssos_value = $(this).data('wssos-show');
     var parent_wssos = $(this).parentsUntil('.WSShowOnSelect').parent()[0];
     var wssos_elm = $(parent_wssos).find('[data-wssos-value="'+wssos_value+'"]');
+
     if ( $(this).parent().hasClass('WSShowOnSelect') ) {
       parent_wssos = $(this).parent()[0];
       wssos_elm = $(parent_wssos).find('[data-wssos-value="'+wssos_value+'"]');
     }
+
+    if ( wssos_elm.length === 0 ) {
+      wssos_elm = $(parent_wssos).find('#' + wssos_value);
+    }
+
     $(parent_wssos).find('input[name="'+this.name+'"][type="radio"]').each(function(index, radiobtn) {
       var radio_hide_data_attr = $(radiobtn).data('wssos-show');
-      $(parent_wssos).find('[data-wssos-value="'+radio_hide_data_attr+'"]').hide(0);
-      putAllTypesNameInData($(parent_wssos).find('[data-wssos-value="'+radio_hide_data_attr+'"]'));
+      var radio_hide_elm = $(parent_wssos).find('[data-wssos-value="'+radio_hide_data_attr+'"]');
+
+      if ( radio_hide_elm.length === 0 ) radio_hide_elm = $(parent_wssos).find('#' + radio_hide_data_attr);
+
+      radio_hide_elm.hide(0);
+      putAllTypesNameInData(radio_hide_elm);
     });
 
     if ( this.checked ) {
@@ -79,10 +96,16 @@ function handleCheckbox(checkElm) {
   var pre_wssos_value = $(checkElm).data('wssos-show');
   var pre_parent_wssos = $(checkElm).parentsUntil('.WSShowOnSelect').parent()[0];
   var pre_wssos_elm = $(pre_parent_wssos).find('[data-wssos-value="'+pre_wssos_value+'"]');
+
   if ( $(checkElm).parent().hasClass('WSShowOnSelect') ) {
     pre_parent_wssos = $(checkElm).parent()[0];
     pre_wssos_elm = $(pre_parent_wssos).find('[data-wssos-value="'+pre_wssos_value+'"]');
   }
+
+  if ( pre_wssos_elm.length === 0 ) {
+    pre_wssos_elm = $(pre_parent_wssos).find('#' + pre_wssos_value);
+  }
+
   if ( checkElm.checked ) {
     pre_wssos_elm.show(0);
     // set the dataset value of data-name-attribute back in the name attribute
@@ -92,6 +115,9 @@ function handleCheckbox(checkElm) {
     if ( $(checkElm).has('data-wssos-show-unchecked') ) {
       var pre_unchecked_value = $(checkElm).data('wssos-show-unchecked');
       var pre_unchecked_elm = $(pre_parent_wssos).find('[data-wssos-value="'+pre_unchecked_value+'"]');
+
+      if ( pre_unchecked_elm.length === 0 ) pre_unchecked_elm = $(pre_parent_wssos).find('#' + pre_unchecked_value);
+
       putAllTypesNameInData(pre_unchecked_elm);
     }
   } else {
@@ -102,6 +128,9 @@ function handleCheckbox(checkElm) {
     if ( $(checkElm).has('data-wssos-show-unchecked') ) {
       var pre_unchecked_value = $(checkElm).data('wssos-show-unchecked');
       var pre_unchecked_elm = $(pre_parent_wssos).find('[data-wssos-value="'+pre_unchecked_value+'"]');
+
+      if ( pre_unchecked_elm.length === 0 ) pre_unchecked_elm = $(pre_parent_wssos).find('#' + pre_unchecked_value);
+
       $(pre_unchecked_elm).show(0);
       // set the name attribute to the value of data-name-attribute
       putAllTypesDataInName(pre_unchecked_elm);
@@ -112,10 +141,14 @@ function handleCheckbox(checkElm) {
     var wssos_value = $(this).data('wssos-show');
     var parent_wssos = $(this).parentsUntil('.WSShowOnSelect').parent()[0];
     var wssos_elm = $(parent_wssos).find('[data-wssos-value="'+wssos_value+'"]');
+
     if ( $(this).parent().hasClass('WSShowOnSelect') ) {
       parent_wssos = $(this).parent()[0];
       wssos_elm = $(parent_wssos).find('[data-wssos-value="'+wssos_value+'"]');
     }
+
+    if ( wssos_elm.length === 0 ) wssos_elm = $(parent_wssos).find('#' + wssos_value);
+
     if ( this.checked ) {
       wssos_elm.show(0);
       putAllTypesDataInName(wssos_elm);
@@ -127,6 +160,9 @@ function handleCheckbox(checkElm) {
     if ( $(this).has('data-wssos-show-unchecked') ) {
       var wssos_unchecked_value = $(this).data('wssos-show-unchecked');
       var wssos_unchecked_elm = $(parent_wssos).find('[data-wssos-value="'+wssos_unchecked_value+'"]');
+
+      if ( wssos_unchecked_elm.length === 0 ) wssos_unchecked_elm = $(parent_wssos).find('#' + wssos_unchecked_value);
+
       if ( this.checked ) {
         wssos_unchecked_elm.hide(0);
         putAllTypesNameInData(wssos_unchecked_elm);
@@ -149,6 +185,9 @@ function handleSelect(selectElm) {
     var wssos_value = $(option).data('wssos-show');
     var parent_wssos = $(option).parentsUntil('.WSShowOnSelect').parent()[0];
     var wssos_elm = $(parent_wssos).find('[data-wssos-value="'+wssos_value+'"]');
+
+    if ( wssos_elm.length === 0 ) wssos_elm = $(parent_wssos).find('#'  + wssos_value);
+
     if ( option.selected || $(option).val() == selectVal) {
       wssos_elm.show(0);
       putAllTypesDataInName(wssos_elm);
@@ -163,6 +202,9 @@ function handleSelect(selectElm) {
       var wssos_value = $(option).data('wssos-show');
       var parent_wssos = $(this).parentsUntil('.WSShowOnSelect').parent()[0];
       var wssos_elm = $(parent_wssos).find('[data-wssos-value="'+wssos_value+'"]');
+
+      if ( wssos_elm.length === 0 ) wssos_elm = $(parent_wssos).find('#'  + wssos_value);
+
       if ( option.selected ) {
         wssos_elm.show(0);
         putAllTypesDataInName(wssos_elm);
@@ -179,6 +221,8 @@ function handleButton(btnElm) {
   var pre_parent_wssos = $(this).parentsUntil('.WSShowOnSelect').parent()[0];
   var pre_wssos_elm = $(pre_parent_wssos).find('[data-wssos-value="'+pre_wssos_value+'"]');
 
+  if ( pre_wssos_elm.length === 0 ) pre_wssos_elm = $(pre_parent_wssos).find('#'  + pre_wssos_value);
+
   // set up the start and make sure the element is hidden
   $(pre_wssos_elm).hide(0);
   putAllTypesNameInData(pre_wssos_elm);
@@ -187,6 +231,8 @@ function handleButton(btnElm) {
     var wssos_value = $(this).data('wssos-show');
     var parent_wssos = $(this).parentsUntil('.WSShowOnSelect').parent()[0];
     var wssos_elm = $(parent_wssos).find('[data-wssos-value="'+wssos_value+'"]');
+
+    if ( wssos_elm.length === 0 ) wssos_elm = $(parent_wssos).find('#'  + wssos_value);
 
     // possibility to hide the wanted element back if an option
     if ( $(wssos_elm).css("display") !== "none" ) {

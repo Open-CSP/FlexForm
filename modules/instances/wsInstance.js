@@ -1,6 +1,8 @@
+let idUnifier = 0;
+
 /**
  *
- * @param selector {string}
+ * @param selector {object}
  * @param options {object}
  * @constructor
  */
@@ -20,7 +22,6 @@ const WsInstance = function (selector, options) {
     }
 
     _.timesCopied = 0;
-    let idUnifier = 0;
 
     /**
      * returns unique id based on timestamp
@@ -31,17 +32,28 @@ const WsInstance = function (selector, options) {
 
     // update settings with custom options
     Object.assign(_.settings, options);
+    Object.assign(_.settings, {selector: selector});
 
     // fetch elements from dom
     _.wrapper = $(_.settings.selector);
+
+    if ( _.wrapper.length > 1 ) { // multiple wrapper elements with selector
+        let instanceArray = [];
+        $.each(_.wrapper, function(i, w) {
+            instanceArray.push(new WsInstance(w, _.settings));
+        });
+        return instanceArray;
+    }
+
     _.saveField = _.wrapper.find(_.settings.textarea);
     _.list = _.wrapper.find(_.settings.list);
     _.clone = _.wrapper.find(_.settings.copy);
+    _.sortable = null;
 
     if ( !$(_.saveField).is('textarea') ) {
-        console.log( 'is not textarea!!');
         _.saveField = $(_.saveField).find('textarea');
     }
+
 
 
     /**
@@ -67,8 +79,7 @@ const WsInstance = function (selector, options) {
                 name_array.push(item.split('=')[0].slice(1));
                 value_array.push(item.split('=')[1].split('}}')[0]);
             });
-            console.log(name_array);
-            console.log(value_array);
+
             handlePredefinedData(name_array, value_array);
             name_array = [];
             value_array = [];
@@ -142,8 +153,13 @@ const WsInstance = function (selector, options) {
         let del_btn = $(clone).find(_.settings.removeButtonClass);
         let add_button = $(clone).find(_.settings.addButtonClass);
         const id = 'copy_' +  _.getUniqueId();
-        $(clone).removeClass(_.settings.clone);
-        $(clone).addClass(_.settings.instance);
+
+        console.log({
+            del_btn: del_btn,
+            add_button: add_button,
+            id: id,
+            clone: clone
+        });
 
         $(clone).prop('id', id);
         $(del_btn).off('click');
@@ -174,7 +190,7 @@ const WsInstance = function (selector, options) {
      */
     _.addAboveInstance = (id) => {
         let element = _.getCloneElementHandled(_.getCloneInstance());
-        _.list.insertBefore(element, $('#' + id));
+        $(element).insertBefore($('#' + id));
     }
 
     /**
@@ -245,6 +261,9 @@ const WsInstance = function (selector, options) {
         return returnStr + '}}';
     }
 
+    /**
+     * init function
+     */
     _.init = () => {
         if ( _.wrapper.length === 0 ) {
             console.error("Selector is not active on this page");
@@ -265,7 +284,16 @@ const WsInstance = function (selector, options) {
             console.error("No selector for the element that needs to be copied");
             return;
         }
-        console.log("init!!");
+
+        if ( _.settings.draggable ) {
+            $.getScript('https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js').done(function() {
+                _.sortable = Sortable.create(_.list[0], {
+                    animation: 150,
+                    handle: _.settings.handleClass
+                });
+            });
+        }
+
         _.convertPredefinedToInstances();
     }
 
