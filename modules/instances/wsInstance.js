@@ -286,7 +286,8 @@ const WsInstance = function (selector, options) {
         }
 
         if ( _.settings.draggable ) {
-            $.getScript('https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js').done(function() {
+            var extensionPath = mw.config.get('wgExtensionAssetsPath');
+            $.getScript( extensionPath + '/WSForm/modules/instances/Sortable.min.js').done(function() {
                 _.sortable = Sortable.create(_.list[0], {
                     animation: 150,
                     handle: _.settings.handleClass

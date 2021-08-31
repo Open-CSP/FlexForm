@@ -24,11 +24,11 @@ class render {
 			'textarea'               => 'WSmultipleTemplateField',
 			'list'                   => 'WSmultipleTemplateList',
 			'addButtonClass'         => "WSmultipleTemplateAddAbove",
-			'addButtonClassExtra'    => "btn btn-default btn-sm",
+			'addButtonClassExtra'    => "wsform-instance-add-btn",
 			'removeButtonClass'      => "WSmultipleTemplateDel",
-			'removeButtonClassExtra' => "btn btn-primary btn-sm",
+			'removeButtonClassExtra' => "wsform-instance-remove-btn",
 			'handleClass'            => 'ws-sortable-handle',
-			'handleClassExtra'       => 'glyphicon glyphicon-move',
+			'handleClassExtra'       => 'wsform-instance-move-handle',
 			'instanceMoveClass'      => 'ws-formgroup-sortable',
 			'draggable'              => false,
 			'instanceName'           => '',
@@ -210,8 +210,6 @@ class render {
 
 		$ret .= '<div class="' . $instance['copy'] . ' ' . $instance['copyExtra'] . '">' . PHP_EOL;
 
-		$ret .= $innerHtml;
-
 		if ( $instance['handleClassExtra'] === 'none' ) {
 			$instance['handleClassExtra'] = '';
 		}
@@ -224,17 +222,21 @@ class render {
 			$instance['removeButtonClassExtra'] = '';
 		}
 
-		if ( $instance['handleClass'] !== 'none' && ! empty( $instance['handleClassExtra'] ) ) {
+		if ( $instance['handleClass'] !== 'none' ) {
 			$ret .= '<span class="' . $instance['handleClass'] . ' ' . $instance['handleClassExtra'] . '"></span>';
 		}
 
-		if ( $instance['addButtonClass'] !== 'none' && ! empty( $instance['addButtonClassExtra'] ) ) {
+		if ( $instance['removeButtonClass'] !== 'none' ) {
+			$ret .= '<button type="button" class="' . $instance['removeButtonClass'] . ' ' . $instance['removeButtonClassExtra'] . '" role="button"><i class="fa fa-times "></i></button>';
+		}
+
+		if ( $instance['addButtonClass'] !== 'none' ) {
 			$ret .= '<button type="button" class="' . $instance['addButtonClass'] . ' ' . $instance['addButtonClassExtra'] . '" role="button"><i class="fa fa-plus "></i></button>';
 		}
 
-		if ( $instance['removeButtonClass'] !== 'none' && ! empty( $instance['removeButtonClassExtra'] ) ) {
-			$ret .= '<button type="button" class="' . $instance['removeButtonClass'] . ' ' . $instance['removeButtonClassExtra'] . '" role="button"><i class="fa fa-times "></i></button>';
-		}
+		$ret .= $innerHtml;
+
+
 
 		$ret .= '</div></div>';
 

@@ -41,7 +41,8 @@ class WSFormHooks {
 			'wsedit',
 			'wscreate',
 			'wsemail',
-			'extension'
+			'extension',
+			'wsinstance'
 		);
 
 		return $data;
@@ -277,7 +278,7 @@ class WSFormHooks {
 
 
 		// Add move, delete and add button with classes
-
+		$parser->getOutput()->addModuleStyles( 'ext.wsForm.Instance.styles' );
 
 		$output = $parser->recursiveTagParse( $input, $frame );
 
@@ -293,6 +294,8 @@ class WSFormHooks {
 				}
 			}
 		}
+
+
 
 
 

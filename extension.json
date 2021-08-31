@@ -57,6 +57,10 @@
 			"styles": "select2.css",
 			"position": "top"
 		},
+		"ext.wsForm.Instance.styles": {
+			"styles": "modules/instances/instance-style.css",
+			"position": "top"
+		},
 		"ext.wsForm.datePicker.styles": {
 			"styles": "/simplegovscripts/bootstrap-datepicker.css",
 			"position": "top"
