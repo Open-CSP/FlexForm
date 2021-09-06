@@ -101,38 +101,42 @@ class render {
 		global $IP;
 		$instance       = self::instanceDefault( $args );
 		$pageWikiObject = \RequestContext::getMain()->getWikiPage();
-		$pageContent    = $pageWikiObject->getContent( RevisionRecord::RAW )->getText();
-		require_once( $IP . '/extensions/WSForm/WSForm.api.class.php' );
-		$api = new \wbApi();
-		//echo $instance['templateParent'];
-		if ( $instance['templateParent'] !== 'none' ) {
-			$templateContent = $api->getTemplate(
-				$pageContent,
-				$instance['templateParent']
-			);
-		} else {
-			$templateContent = $pageContent;
-		}
-		$expl = self::pregExplode( $templateContent );
-		//echo "<pre>";
-		//var_dump( $expl );
-		//echo "</pre>";
 		$textAreaContent = '';
-		foreach ( $expl as $k => $variable ) {
-			$tmp = explode(
-				'=',
-				$variable
-			);
-			//echo "<pre>Searching for ".$instance['instanceName'];
-			//echo 'key=' . $tmp[0];
+		if( $pageWikiObject->exists() ) {
+			$pageContent = $pageWikiObject->getContent( RevisionRecord::RAW )->getText();
+
+			require_once( $IP . '/extensions/WSForm/WSForm.api.class.php' );
+			$api = new \wbApi();
+			//echo $instance['templateParent'];
+			if ( $instance['templateParent'] !== 'none' ) {
+				$templateContent = $api->getTemplate(
+					$pageContent,
+					$instance['templateParent']
+				);
+			} else {
+				$templateContent = $pageContent;
+			}
+			$expl = self::pregExplode( $templateContent );
+			//echo "<pre>";
+			//var_dump( $expl );
 			//echo "</pre>";
-			if ( trim( $tmp[0] ) === trim( $instance['instanceName'] ) ) {
-				//echo "ok";
-				$textAreaContent .= '{{' . $instance['template'] . self::get_string_between(
-						$expl[$k],
-						'{{' . $instance['template'],
-						'}}'
-					) . '}}';
+
+			foreach ( $expl as $k => $variable ) {
+				$tmp = explode(
+					'=',
+					$variable
+				);
+				//echo "<pre>Searching for ".$instance['instanceName'];
+				//echo 'key=' . $tmp[0];
+				//echo "</pre>";
+				if ( trim( $tmp[0] ) === trim( $instance['instanceName'] ) ) {
+					//echo "ok";
+					$textAreaContent .= '{{' . $instance['template'] . self::get_string_between(
+							$expl[ $k ],
+							'{{' . $instance['template'],
+							'}}'
+						) . '}}';
+				}
 			}
 		}
 		//echo "<pre>";
@@ -231,15 +235,21 @@ class render {
 		}
 
 		if ( $instance['addButtonClass'] !== 'none' ) {
-			$ret .= '<button type="button" class="' . $instance['addButtonClass'] . ' ' . $instance['addButtonClassExtra'] . '" role="button"><i class="fa fa-plus "></i></button>';
+			$addBtn = '<button type="button" class="' . $instance['addButtonClass'] . ' ' . $instance['addButtonClassExtra'] . '" role="button"><i class="fa fa-plus "></i></button>';
+			$ret .= $addBtn;
+			$addBtn = '<button type="button" class="WSShowOnSelect-New-Instance ' . $instance['addButtonClass'] . ' ' . $instance['addButtonClassExtra'] . '" role="button"><i class="fa fa-plus "></i></button>';
 		}
 
 		$ret .= $innerHtml;
 
 
 
-		$ret .= '</div></div>';
+		$ret .= '</div>';
 
+		$ret .= '</div>';
+		if ( $instance['addButtonClass'] !== 'none' ) {
+			$ret .= $addBtn;
+		}
 		$ret .= PHP_EOL . '<div class="' . $instance['list'] . ' ' . $instance['handleClass'] . '"></div>' . PHP_EOL . '</div>' . PHP_EOL;
 
 		return $ret;

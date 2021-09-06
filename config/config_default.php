@@ -17,6 +17,12 @@
  * api-url-overrule should be left empty unless WSForm cannot find the MediaWiki API
  * Example api-url-overrule : "https://mywebsite"
  *
+ * api-url-option. We have a website and based on an url, cookie or language choice it changes database.
+ * All these three options set a variable. It can also be set with a parameter in the url.
+ * For the API to know what database to use, we use that url parameter. You can add this parameter and its value
+ * to this config option : api-url-action.
+ * Example : ?WSLanguage=' . $wikiID ( where $wikiID is a set variable we get from the cookie set ).
+ *
  * api-cookie-path will default to the tmp folder of the server. With some hosting providers
  * you might need to change that location. Here's where you can change the path. When empty
  * it defaults to /tmp/CURLCOOKIE
@@ -60,14 +66,17 @@
  * allow-special-page-setup
  * When set to true, the index.php/Special:WSForm/Setup allows for editing the config file from the Special page. Set to false to disable.
  *
+ *
+ *
  */
 
 $config = array(
 	"use-api-user-only"        => 'yes',
-	"is-bot"                    => false,
+	"is-bot"                   => false,
 	"api-username"             => '',
 	"api-password"             => '',
 	"api-url-overrule"         => '',
+	"api-url-option"           => '',	// or false
 	"api-cookie-path"          => '',
 	"wgAbsoluteWikiPath"       => '',
 	"wgScript"                 => '/index.php',

@@ -318,6 +318,11 @@ class wbApi {
       } else {
           $this->app['apiURL'] = rtrim( $config['api-url-overrule'], '/' ) . '/api.php';
       }
+
+      if( isset( $config['api-url-option'] ) && !empty( $config['api-url-option'] ) ) {
+          $this->app['apiExtraParam'] = $config['api-url-option'];
+      } else $this->app['apiExtraParam'] = false;
+
       if ( isset( $config['wgAbsoluteWikiPath'] ) && $config['wgAbsoluteWikiPath'] !== '' ) {
           $wgAbsoluteWikiPath = rtrim( $config['wgAbsoluteWikiPath'], '/' );
           if ( file_exists( "$wgAbsoluteWikiPath/WSFormSettings.php" ) ) {
@@ -986,7 +991,16 @@ class wbApi {
         if($useGet) {
           curl_setopt($ch, CURLOPT_POST, 0);
         }
-        curl_setopt($ch, CURLOPT_URL, $this->app["apiURL"]);
+        // Added io v0.8.0.9.8.0 the api-url-option config variable
+        if( $this->app['apiExtraParam'] !== false ) {
+            curl_setopt($ch, CURLOPT_URL, $this->app["apiURL"] . $this->app['apiExtraParam'] );
+        } else {
+            curl_setopt(
+                $ch,
+                CURLOPT_URL,
+                $this->app["apiURL"]
+            );
+        }
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         $result['received']=json_decode($this->clearJSON(curl_exec($ch)), true);
         if(curl_errno($ch)) {
