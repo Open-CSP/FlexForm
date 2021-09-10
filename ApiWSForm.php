@@ -25,6 +25,65 @@ class ApiWSForm extends ApiBase {
 		return $ret;
 	}
 
+	private function searchDocs( $keyword ){
+		global $IP, $wgScript;
+		$path = $IP . '/extensions/WSForm/docs/';
+		$realUrl = str_replace( '/index.php', '', $wgScript );
+		$purl = $realUrl . "/index.php/Special:WSForm/Docs";
+		$fileList = glob($path.'*.json');
+		$data = [];
+
+		foreach( $fileList as $file ) {
+			$content = json_decode(file_get_contents($file ), true );
+
+			$type = explode('_',basename( $file ),2 );
+			$t = $type[0];
+			$n = $type[1];
+			$pos = strpos( $content['doc']['description'], $keyword );
+			if( $pos !== false ) {
+				$pos = (int)$pos;
+				$tmparr = [];
+				$tmparr['name'] = substr( $n,0,-5 );
+				$tmparr['link'] = $purl.'/' . basename( $file );
+				$tmparr['pos'] = $pos;
+				$keywordLength = (int) strlen( $keyword );
+				$tmparr['l'] = $keywordLength;
+				if( ( $pos-10 ) >= 0 ) {
+					$start = $pos-10;
+				} else $start = $pos;
+
+				$end = ($pos+$keywordLength)+10;
+
+				$tmparr['start'] = $start;
+				$tmparr['end'] = $end;
+				$snippet = substr( $content['doc']['description'], $start, $end );
+				$tmparr['snippet'] = substr( $content['doc']['description'], (int) $start, (int) $end );
+				$tmparr['sl'] = strlen( $snippet );
+				$tmparr['slcalc'] = $end-$start;
+				$data[] = $tmparr;
+			}
+		}
+		//$ret[] = $keyword;
+		$ret = $data;
+		//$ret =  $this->array_search_own( $keyword, $data );
+		return $ret;
+
+	}
+
+	private function array_search_own( $keyword, $data) {
+		error_reporting( -1 );
+		ini_set( 'display_errors', 1 );
+		$newArr = [];
+		if( strpos( $data))
+		return array_filter($data, function ($subarray ) use ($keyword) {
+			if(  array_search( $keyword, $subarray ) )  {
+				return true;
+			} else return false;
+		});
+
+		return null;
+	}
+
 	public function execute(){
 		$params = $this->extractRequestParams();
 		$action = $params['what'];
@@ -32,6 +91,10 @@ class ApiWSForm extends ApiBase {
 			$this->dieUsageMsg('missingparam');
 		}
 		switch( $action ) {
+			case "searchdocs":
+				$output = $this->searchDocs( $params['for'] );
+
+				break;
 			case "nextAvailable" :
 				$title = $params['titleStartsWith'];
 				$result = $this->getNextAvailable( $title );
@@ -102,6 +165,9 @@ class ApiWSForm extends ApiBase {
 				ApiBase::PARAM_REQUIRED => true
 			),
 			'range' => array(
+				ApiBase::PARAM_TYPE => 'string'
+			),
+			'for' => array(
 				ApiBase::PARAM_TYPE => 'string'
 			)
 		);
