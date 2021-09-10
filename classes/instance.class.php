@@ -26,7 +26,7 @@ class render {
 			'addButtonClass'         => "WSmultipleTemplateAddAbove",
 			'addButtonClassExtra'    => "wsform-instance-add-btn",
 			'removeButtonClass'      => "WSmultipleTemplateDel",
-			'removeButtonClassExtra' => "wsform-instance-remove-btn",
+			'removeButtonClassExtra' => "wsform-instance-delete-btn",
 			'handleClass'            => 'ws-sortable-handle',
 			'handleClassExtra'       => 'wsform-instance-move-handle',
 			'instanceMoveClass'      => 'ws-formgroup-sortable',
@@ -68,9 +68,9 @@ class render {
 				$defaultInstance[$to] = $val;
 			} else {
 				switch ( $from ) {
-					case "button-add-extra":
-					case "button-move-extra":
-					case "button-remove-extra":
+					case "button-add":
+					case "button-move":
+					case "button-remove":
 					case "templateParent":
 						$defaultInstance[$to] = "none";
 						break;
@@ -237,7 +237,7 @@ class render {
 		if ( $instance['addButtonClass'] !== 'none' ) {
 			$addBtn = '<button type="button" class="' . $instance['addButtonClass'] . ' ' . $instance['addButtonClassExtra'] . '" role="button"><i class="fa fa-plus "></i></button>';
 			$ret .= $addBtn;
-			$addBtn = '<button type="button" class="WSShowOnSelect-New-Instance ' . $instance['addButtonClass'] . ' ' . $instance['addButtonClassExtra'] . '" role="button"><i class="fa fa-plus "></i></button>';
+			//$addBtn = '<button type="button" class="WSShowOnSelect-New-Instance ' . $instance['addButtonClass'] . ' ' . $instance['addButtonClassExtra'] . '" role="button"><i class="fa fa-plus "></i></button>';
 		}
 
 		$ret .= $innerHtml;
@@ -247,10 +247,12 @@ class render {
 		$ret .= '</div>';
 
 		$ret .= '</div>';
+		/*
 		if ( $instance['addButtonClass'] !== 'none' ) {
 			$ret .= $addBtn;
 		}
-		$ret .= PHP_EOL . '<div class="' . $instance['list'] . ' ' . $instance['handleClass'] . '"></div>' . PHP_EOL . '</div>' . PHP_EOL;
+		*/
+		$ret .= PHP_EOL . '<div class="' . $instance['list'] . '"></div>' . PHP_EOL . '</div>' . PHP_EOL;
 
 		return $ret;
 	}
