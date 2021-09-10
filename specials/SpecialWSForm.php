@@ -408,7 +408,7 @@ class SpecialWSForm extends SpecialPage {
 						}
 						$data['doc'] = $_POST;
 						$data['doc']['created'] = date("d-m-Y H:i:s");
-						$data['doc']['created by'] = $wgUser->getName();
+						$data['doc']['created_by'] = $wgUser->getName();
 
                         if (file_put_contents($path.$type."_".$name.'.json',json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) ) ) {
                                 $this->makeMessage('Documentation for <strong>'.$name.'</strong> stored.','success');
@@ -434,7 +434,7 @@ class SpecialWSForm extends SpecialPage {
 					}
 					$data['example'] = $_POST;
 					$data['example']['created'] = date("d-m-Y H:i:s");
-					$data['example']['created by'] = $wgUser->getName();
+					$data['example']['created_by'] = $wgUser->getName();
 					if (file_put_contents($examplePath.$type."_".$name.'.json',json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) ) ) {
 						$this->makeMessage('Example for <strong>'.$name.'</strong> stored.','success');
 						$out->redirect($realUrl.'/index.php/Special:WSForm/Docs');
@@ -552,7 +552,7 @@ class SpecialWSForm extends SpecialPage {
 						'links',
 						'delete',
 						'created',
-						'created by'
+						'created_by'
 					);
 					foreach ($fields as $field) {
 						$form = str_replace('%%'.$field.'%%','',$form);
@@ -621,7 +621,7 @@ class SpecialWSForm extends SpecialPage {
                         }
 					}
 
-                    $form = str_replace('%%created_by%%', $doc['doc']['created by'], $form);
+                    $form = str_replace('%%created_by%%', $doc['doc']['created_by'], $form);
 
 					foreach ($formhooks as $option) {
 						if ($type == $option) {
