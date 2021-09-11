@@ -25,6 +25,53 @@ class ApiWSForm extends ApiBase {
 		return $ret;
 	}
 
+	private function excerpt($text, $phrase, $radius = 100, $ending = "...") {
+
+
+		$phraseLen = strlen($phrase);
+		if ($radius < $phraseLen) {
+			$radius = $phraseLen;
+		}
+
+		$phrases = explode (' ',$phrase);
+
+		foreach ($phrases as $phrase) {
+			$pos = strpos(strtolower($text), strtolower($phrase));
+			if ($pos > -1) break;
+		}
+
+		$startPos = 0;
+		if ($pos > $radius) {
+			$startPos = $pos - $radius;
+		}
+
+		$textLen = strlen($text);
+
+		$endPos = $pos + $phraseLen + $radius;
+		if ($endPos >= $textLen) {
+			$endPos = $textLen;
+		}
+
+		$excerpt = substr($text, $startPos, $endPos - $startPos);
+		if ($startPos != 0) {
+			$excerpt = substr_replace($excerpt, $ending, 0, $phraseLen);
+		}
+
+		if ($endPos != $textLen) {
+			$excerpt = substr_replace($excerpt, $ending, -$phraseLen);
+		}
+
+		return $this->highlight( $excerpt, $phrase );
+	}
+
+	private function highlight($c,$q){
+		$q=explode(' ',str_replace(array('','\\','+','*','?','[','^',']','$','(',')','{','}','=','!','<','>','|',':','#','-','_'),'',$q));
+		for($i=0;$i<sizeOf($q);$i++)
+			$c=preg_replace("/($q[$i])(?![^<]*>)/i","<span class=\"highlight\">\${1}</span>",$c);
+		return $c;}
+
+
+
 	private function searchDocs( $keyword ){
 		global $IP, $wgScript;
 		$path = $IP . '/extensions/WSForm/docs/';
@@ -39,27 +86,18 @@ class ApiWSForm extends ApiBase {
 			$type = explode('_',basename( $file ),2 );
 			$t = $type[0];
 			$n = $type[1];
-			$pos = strpos( $content['doc']['description'], $keyword );
+			$textToSeach = $content['doc']['description'] . $content['doc']['synopsis'] . $content['doc']['parameters'];
+			$textToSeach .= $content['doc']['example'] . $content['doc']['note'] . $content['doc']['links'];
+			$pos = stripos( $textToSeach, $keyword );
 			if( $pos !== false ) {
 				$pos = (int)$pos;
 				$tmparr = [];
 				$tmparr['name'] = substr( $n,0,-5 );
-				$tmparr['link'] = $purl.'/' . basename( $file );
-				$tmparr['pos'] = $pos;
-				$keywordLength = (int) strlen( $keyword );
-				$tmparr['l'] = $keywordLength;
-				if( ( $pos-10 ) >= 0 ) {
-					$start = $pos-10;
-				} else $start = $pos;
+				$tmparr['link'] = $purl.'/' . substr( basename( $file ),0, -5 ) . "/" . $keyword;
 
-				$end = ($pos+$keywordLength)+10;
+				$tmparr['snippet'] = $this->excerpt( $textToSeach, $keyword );
+				//$tmparr['snippet'] = substr( $content['doc']['description'], (int) $start, (int) $end );
 
-				$tmparr['start'] = $start;
-				$tmparr['end'] = $end;
-				$snippet = substr( $content['doc']['description'], $start, $end );
-				$tmparr['snippet'] = substr( $content['doc']['description'], (int) $start, (int) $end );
-				$tmparr['sl'] = strlen( $snippet );
-				$tmparr['slcalc'] = $end-$start;
 				$data[] = $tmparr;
 			}
 		}

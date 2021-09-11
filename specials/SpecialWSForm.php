@@ -678,6 +678,7 @@ class SpecialWSForm extends SpecialPage {
 					$fileList = glob($path.'*.json');
 					$exampleList = glob($examplePath.'*.json');
 
+
 					foreach( $fileList as $file ) {
 						$type = explode('_',basename( $file ),2 );
 						$t = $type[0];
@@ -737,6 +738,7 @@ class SpecialWSForm extends SpecialPage {
 */
 				if( isset($args[1]) && strlen($args[1]) > 2 ) {
 					if( strtolower( $args[1] ) == 'examples') {
+						$searchForArgument = 3;
 						if( isset($args[2]) && strlen($args[2]) > 2 ) {
 							if( file_exists( $examplePath.$args[2].'.json' ) ) {
 								$doc = json_decode( file_get_contents( $examplePath . $args[2] . '.json' ), true );
@@ -771,6 +773,7 @@ class SpecialWSForm extends SpecialPage {
 							return;
 						}
 					} else {
+						$searchForArgument = 2;
 						if ( file_exists( $path . $args[1] . '.json' ) ) {
 							$doc = json_decode( file_get_contents( $path . $args[1] . '.json' ), true );
 							if( $this->allowEditDocs ) {
@@ -802,7 +805,15 @@ class SpecialWSForm extends SpecialPage {
 
 					$documentation .= '</div>';
 					$out->addHTML( $editButton );
-					$out->addHTML( $documentation );
+					if( isset( $args[$searchForArgument]) && strlen( $args[$searchForArgument] ) > 2 )  {
+						$highlight = $args[$searchForArgument];
+					} else $highlight = false;
+
+					if( $highlight ) {
+						$out->addHTML( $this->highlight( $documentation, $highlight ) );
+					} else {
+						$out->addHTML( $documentation );
+					}
 					$out->addHTML( '<div class="ws-documentation-back"><a href="'.$realUrl.'/index.php/Special:WSForm/Docs">Back to Documentation</a></div>' );
 
 					return;
@@ -1287,6 +1298,21 @@ class SpecialWSForm extends SpecialPage {
 			return $form;
 
 		}
+	}
+
+	/**
+	 * Highlighting matching string
+	 * @param   string  $text           subject
+	 * @param   string  $words          search string
+	 * @return  string  highlighted text
+	 */
+	private function highlight($text, $words) {
+		$words = str_replace( '_', ' ', $words );
+		preg_match_all('~\w+~', $words, $m);
+		if(!$m)
+			return $text;
+		$re = '~\\b(' . implode('|', $m[0]) . ')\\b~i';
+		return preg_replace($re, '<span class="ws-search-highlight">$0</span>', $text);
 	}
 
 	private function getDocsCSS( $path, $url ){

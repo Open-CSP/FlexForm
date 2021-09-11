@@ -215,3 +215,7 @@
 .wsform-note .wsf-ok {
     color: green;
 }
+.ws-search-highlight {
+    background-color:yellow;
+    color:black;
+}
