@@ -33,12 +33,26 @@
             </ul>
         </li>
         <li>
+            %%search%%
+        </li>
+        <li>
             <a href="%index%"> Overview</a>
         </li>
         %changelog%
         %fb%
     </ul>
 </nav>
+
+<div id="openModal" class="modalDialog">
+    <div>	<a href="#close" title="Close" class="close">X</a>
+
+        <h2>Search</h2>
+        <form class="ws-documentation" >
+            <input type="text" name="searcher" id="wsform-search" placeholder="Search here.."">
+        </form>
+        <div id="wsform-search-results"></div>
+    </div>
+</div>
 
 <script>
 
@@ -51,9 +65,28 @@
                 container: true,
                 animated: true
             });
-        } )
+        } );
+      $('#wsform-search').on("input", function(e) {
+
+        if( $(this).val().length > 2 ) {
+          var api = new mw.Api();
+          api.get({
+            action: 'wsform',
+            format: 'json',
+            what: 'searchdocs',
+            titleStartsWith: 'bs',
+            for : $(this).val()
+          }).done( function( data ){
+            var html = '';
+            $(data.wsform.result).each(function( index, val) {
+                html = html + '<p><a href="' + val.link + '"><strong>' + val.name + ' (' + val.type + ')</strong></a><br>';
+                html = html + '<span class="wsform-search-snippet">' + val.snippet.replace(/(<([^>]+)>)/ig,"") + '</span></p>';
+            });
+            $('#wsform-search-results').html( html );
+            console.log(data);
+          });
+        }
+      });
     }
-
-
 
 </script>

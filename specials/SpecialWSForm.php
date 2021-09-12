@@ -118,6 +118,7 @@ class SpecialWSForm extends SpecialPage {
 		} else $formBuilderHTML = '';
 		$changeLogUrl = $wgServer.'/index.php/Special:WSForm/Docs/ChangeLog';
 		$changeLogUrl = '<li><a href="' . $changeLogUrl . '"> '.wfMessage("wsform-docs-changelog")->text().'</a></li>';
+		$searchBtn = '<li><a href="#openModal">Search</a></li>';
 
 
         // Get normal documentation
@@ -175,8 +176,8 @@ class SpecialWSForm extends SpecialPage {
 
 		$index = $wgServer.'/index.php/Special:WSForm/Docs/Index';
         $wsformpurl = $wgServer."/extensions/WSForm/";
-        $search = array('%items%', '%url%', '%back%', '%version%', '%new%', '%index%', '%%wsformpurl%%', '%fb%', '%changelog%');
-        $replace = array($items, $wsformpurl . "WSForm-logo.png", $back, $ver, $new, $index, $wsformpurl, $formBuilderHTML, $changeLogUrl );
+        $search = array('%items%', '%url%', '%back%', '%version%', '%new%', '%index%', '%%wsformpurl%%', '%fb%', '%changelog%', '%%search%%' );
+        $replace = array($items, $wsformpurl . "WSForm-logo.png", $back, $ver, $new, $index, $wsformpurl, $formBuilderHTML, $changeLogUrl, $searchBtn );
         $nav = str_replace($search, $replace, $nav);
 
         //$out->addHTML($ret.$nav);

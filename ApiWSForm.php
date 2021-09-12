@@ -93,6 +93,7 @@ class ApiWSForm extends ApiBase {
 				$pos = (int)$pos;
 				$tmparr = [];
 				$tmparr['name'] = substr( $n,0,-5 );
+				$tmparr['type'] = $t;
 				$tmparr['link'] = $purl.'/' . substr( basename( $file ),0, -5 ) . "/" . $keyword;
 
 				$tmparr['snippet'] = $this->excerpt( $textToSeach, $keyword );
