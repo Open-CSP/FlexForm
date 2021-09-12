@@ -118,7 +118,7 @@ class SpecialWSForm extends SpecialPage {
 		} else $formBuilderHTML = '';
 		$changeLogUrl = $wgServer.'/index.php/Special:WSForm/Docs/ChangeLog';
 		$changeLogUrl = '<li><a href="' . $changeLogUrl . '"> '.wfMessage("wsform-docs-changelog")->text().'</a></li>';
-		$searchBtn = '<li><a href="#openModal">Search</a></li>';
+		$searchBtn = '<li><a href="#openSearch">Search</a></li>';
 
 
         // Get normal documentation

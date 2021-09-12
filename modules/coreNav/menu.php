@@ -43,10 +43,10 @@
     </ul>
 </nav>
 
-<div id="openModal" class="modalDialog">
+<div id="openSearch" class="modalDialog">
     <div>	<a href="#close" title="Close" class="close">X</a>
 
-        <h2>Search</h2>
+        <h2>Search WSForm documentation</h2>
         <form class="ws-documentation" >
             <input type="text" name="searcher" id="wsform-search" placeholder="Search here.."">
         </form>
@@ -83,7 +83,6 @@
                 html = html + '<span class="wsform-search-snippet">' + val.snippet.replace(/(<([^>]+)>)/ig,"") + '</span></p>';
             });
             $('#wsform-search-results').html( html );
-            console.log(data);
           });
         }
       });
