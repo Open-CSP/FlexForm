@@ -288,8 +288,9 @@ class WSFormHooks {
 			if ( file_exists( $IP . '/extensions/WSForm/modules/instances/wsInstance.js' ) ) {
 				$ls = file_get_contents( $IP . '/extensions/WSForm/modules/instances/wsInstance.js' );
 				if ( $ls !== false ) {
-					//$loadScript = "<script>" . $ls . "</script>\n";
+					//$ret .= "<script>" . $ls . "</script>\n";
 					wsform\wsform::includeInlineScript( $ls );
+					//$parser->getOutput()->addModules( ['ext.wsForm.instance'] );
 					wsform\wsform::addAsLoaded( 'multipleinstance' );
 				}
 			}

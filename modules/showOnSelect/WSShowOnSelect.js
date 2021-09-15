@@ -188,7 +188,7 @@ function handleSelect(selectElm) {
 
     if ( wssos_elm.length === 0 ) wssos_elm = $(parent_wssos).find('#'  + wssos_value);
 
-    if ( option.selected || $(option).val() == selectVal) {
+    if ( option.selected || $(option).val() === selectVal) {
       wssos_elm.show(0);
       putAllTypesDataInName(wssos_elm);
     } else {
@@ -250,6 +250,11 @@ function handleButton(btnElm) {
  * @param elm
  */
 function putAllTypesNameInData(elm) {
+  if ( $(elm).is('input,select,textarea') ) {
+    putNameAttrValueInDataset(elm);
+    putRequiredInDataset(elm);
+    return;
+  }
   putNameAttrValueInDataset($(elm).find('input,select,textarea'));
   putRequiredInDataset($(elm).find('input,select,textarea'));
 }
@@ -260,6 +265,11 @@ function putAllTypesNameInData(elm) {
  * @param elm
  */
 function putAllTypesDataInName(elm) {
+  if ( $(elm).is('input,select,textarea') ) {
+    putDatasetValueBackInName(elm);
+    putDatasetInRequired(elm);
+    return;
+  }
   putDatasetValueBackInName($(elm).find('input,select,textarea'));
   putDatasetInRequired($(elm).find('input,select,textarea'));
 }

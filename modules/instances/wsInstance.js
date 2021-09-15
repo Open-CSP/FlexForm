@@ -9,6 +9,8 @@ let idUnifier = 0;
 const WsInstance = function (selector, options) {
     const _ = this;
 
+    console.log(selector);
+    console.log(options);
     // default settings
     _.settings = {
         draggable: false,
@@ -66,6 +68,7 @@ const WsInstance = function (selector, options) {
         let textarea_content = _.saveField.val();
         let textarea_items = textarea_content.split('{{').filter((v) => v);
 
+        console.log(textarea_items);
         if ( textarea_items.length === 0 ) {
             let clone = _.getCloneInstance();
             let el = _.getCloneElementHandled(clone);
@@ -205,12 +208,23 @@ const WsInstance = function (selector, options) {
         // make functions for eventual integrations like select2 or wssos
     }
 
+    /**
+     * add instance to bottom
+     */
+    _.addToBottom = () => {
+        let element = _.getCloneElementHandled(_.getCloneInstance());
+        $(_.list).append(element);
+    }
+
+    /**
+     * saves the form
+     */
     _.save = () => {
         let saveString = '';
         _.list.find('.WSmultipleTemplateInstance').each(function (i, instance) {
             let valuesObj = {};
-            $(instance).find('[name*="WS multiple template"]').each(function (index, input) {
-                let name = returnValueBetweenBrackets(input.name);
+            $(instance).find('input,select,textarea').each(function (index, input) {
+                let name = input.name;
                 switch (input.type) {
                     case 'checkbox':
                         if ( input.checked ) {
@@ -231,9 +245,11 @@ const WsInstance = function (selector, options) {
 
             });
             saveString += createSaveStringForInstance(valuesObj);
+            console.log(saveString);
         });
 
         _.saveField.val(saveString);
+
     }
 
     const returnValueBetweenBrackets = (str) => {

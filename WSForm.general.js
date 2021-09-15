@@ -135,6 +135,9 @@ function startInstance(){
     var lst = mw.config.get('wsinstance');
     if( lst === null ) return;
     if( lst === undefined ) return;
+
+    var instance_array = [];
+    var temp_selector = '';
     $(lst).each(function(i, obj) {
         /*
         $instanceSettings = array(
@@ -159,9 +162,46 @@ function startInstance(){
             copy: obj.copy,
         }
         const instance = new WsInstance( obj.selector, settings );
+
+        if ( typeof instance === 'array' ) {
+            instance_array.push(...instance);
+        } else {
+            instance_array.push(instance);
+        }
+
+        temp_selector = obj.selector;
     });
 
+    /**
+     * saves all the instances in the array
+     */
+    function saveAllInstancesInForm() {
+        console.log('save form');
+        for ( var i = 0; i < instance_array.length; i++ ) {
+            instance_array[i].save();
+        }
+    }
+
+    $('#test').on('change', saveAllInstancesInForm);
+    // form event
+    $(temp_selector).closest('form').on('submit', saveAllInstancesInForm);
+
+    var submit_btn = $(temp_selector).closest('form').find('input[type="button"][onclick^="wsform"]');
+
+    var onclick_func = submit_btn[0].onclick;
+
+    $(submit_btn).removeAttr('onclick');
+    $(submit_btn).off('click');
+
+    // submit input event
+    $(temp_selector).closest('form').find('input[type="submit"]').on('click', saveAllInstancesInForm);
+
+    $(submit_btn).on('click', saveAllInstancesInForm);
+    $(submit_btn).on('click', onclick_func);
+
 }
+
+
 /*
 function wsformShowOnSelect( source, val, target ) {
     $("#" + el ).on( 'change', function () {

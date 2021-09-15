@@ -107,7 +107,8 @@ Visit : Special:WSForm/Docs
 
 
 ### Changelog
-* 0.8.0.9.8.1 : Show on select and multiple instance still no support. Added Docs Search function
+* 0.8.0.9.8.2 : Multiple instances and show-on-selected. Rdy for 2nd test stage! Added error message documentation.
+* 0.8.0.9.8.1 : Show on select and multiple instance still not supported (testing). Added Docs Search function
 * 0.8.0.9.8.0 : Extra config option api-url-option. See docs
 * 0.8.0.9.7.9 : Multiple instances and show on select added. RDY FOR TESTNG!!
 * 0.8.0.9.7.8 : Version bump

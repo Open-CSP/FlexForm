@@ -1,6 +1,6 @@
 {
 	"name": "WSForm",
-	"version": "0.8.0.9.8.1",
+	"version": "0.8.0.9.8.2",
 	"author": [
 		"[https://www.wikibase-solutions.com/author/charlot Sen-Sai]"
 	],
@@ -48,6 +48,10 @@
 		"ext.wsForm.datePicker.scripts": {
 			"scripts": "/simplegovscripts/bootstrap-datepicker.js",
 			"position": "bottom"
+		},
+		"ext.wsForm.instance": {
+			"scripts": "modules/instances/wsInstance.js",
+			"position": "top"
 		},
 		"ext.wsForm.scripts": {
 			"scripts": "select2.js",
