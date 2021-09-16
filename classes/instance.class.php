@@ -34,7 +34,7 @@ class render {
 			'instanceName'           => '',
 			'template'               => "",
 			'templateParent'         => "",
-			'copyExtra'              => ''
+			'copyExtra'              => 'wsform-instance-record'
 		);
 
 		$defaultTranslator = array(
@@ -62,15 +62,19 @@ class render {
 			if ( $val !== false ) {
 				switch ( $from ) {
 					case "button-move":
-						$defaultInstance['draggable'] = true;
+						if( strtolower( $val ) === "none" ) {
+							$defaultInstance['draggable'] = false;
+						}
+
 						break;
 				}
 				$defaultInstance[$to] = $val;
 			} else {
 				switch ( $from ) {
-					case "button-add":
 					case "button-move":
-					case "button-remove":
+						$defaultInstance['draggable'] = true;
+						break;
+
 					case "templateParent":
 						$defaultInstance[$to] = "none";
 						break;

@@ -188,7 +188,9 @@ function startInstance(){
 
     var submit_btn = $(temp_selector).closest('form').find('input[type="button"][onclick^="wsform"]');
 
-    var onclick_func = submit_btn[0].onclick;
+    if( submit_btn[0] !== undefined ) {
+        var onclick_func = submit_btn[0].onclick;
+    }
 
     $(submit_btn).removeAttr('onclick');
     $(submit_btn).off('click');
@@ -197,7 +199,9 @@ function startInstance(){
     $(temp_selector).closest('form').find('input[type="submit"]').on('click', saveAllInstancesInForm);
 
     $(submit_btn).on('click', saveAllInstancesInForm);
-    $(submit_btn).on('click', onclick_func);
+    if( submit_btn[0] !== undefined ) {
+        $(submit_btn).on('click', onclick_func);
+    }
 
 }
 

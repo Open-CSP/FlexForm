@@ -274,7 +274,8 @@ class WSFormHooks {
 
 	public static function WSInstance( $input, array $args, Parser $parser, PPFrame $frame ) {
 
-		global $IP;
+		global $IP, $wgScript;
+		$realUrl = str_replace( '/index.php', '', $wgScript );
 
 
 		// Add move, delete and add button with classes
@@ -286,13 +287,11 @@ class WSFormHooks {
 
 		if(! wsform\wsform::isLoaded( 'multipleinstance' ) ) {
 			if ( file_exists( $IP . '/extensions/WSForm/modules/instances/wsInstance.js' ) ) {
-				$ls = file_get_contents( $IP . '/extensions/WSForm/modules/instances/wsInstance.js' );
-				if ( $ls !== false ) {
-					//$ret .= "<script>" . $ls . "</script>\n";
-					wsform\wsform::includeInlineScript( $ls );
-					//$parser->getOutput()->addModules( ['ext.wsForm.instance'] );
-					wsform\wsform::addAsLoaded( 'multipleinstance' );
-				}
+				$ls =  $realUrl . '/extensions/WSForm/modules/instances/wsInstance.js';
+				$ret = '<script type="text/javascript" charset="UTF-8" src="' . $ls . '"></script>' . $ret ;
+				//wsform\wsform::includeInlineScript( $ls );
+				//$parser->getOutput()->addModules( ['ext.wsForm.instance'] );
+				wsform\wsform::addAsLoaded( 'multipleinstance' );
 			}
 		}
 
