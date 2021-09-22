@@ -163,7 +163,7 @@ function startInstance(){
         }
         const instance = new WsInstance( obj.selector, settings );
 
-        if ( typeof instance === 'array' ) {
+        if ( instance.length ) {
             instance_array.push(...instance);
         } else {
             instance_array.push(instance);
@@ -176,32 +176,26 @@ function startInstance(){
      * saves all the instances in the array
      */
     function saveAllInstancesInForm() {
-        console.log('save form');
         for ( var i = 0; i < instance_array.length; i++ ) {
             instance_array[i].save();
         }
     }
 
-    $('#test').on('change', saveAllInstancesInForm);
     // form event
     $(temp_selector).closest('form').on('submit', saveAllInstancesInForm);
-
-    var submit_btn = $(temp_selector).closest('form').find('input[type="button"][onclick^="wsform"]');
-
-    if( submit_btn[0] !== undefined ) {
-        var onclick_func = submit_btn[0].onclick;
-    }
-
-    $(submit_btn).removeAttr('onclick');
-    $(submit_btn).off('click');
 
     // submit input event
     $(temp_selector).closest('form').find('input[type="submit"]').on('click', saveAllInstancesInForm);
 
+    var submit_btn = $(temp_selector).closest('form').find('input[type="button"][onclick^="wsform"]');
+    if ( submit_btn.length === 0 ) return;
+
+    var onclick_func = submit_btn[0].onclick;
+
+    $(submit_btn).removeAttr('onclick');
+    $(submit_btn).off('click');
     $(submit_btn).on('click', saveAllInstancesInForm);
-    if( submit_btn[0] !== undefined ) {
-        $(submit_btn).on('click', onclick_func);
-    }
+    $(submit_btn).on('click', onclick_func);
 
 }
 
