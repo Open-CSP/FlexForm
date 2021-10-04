@@ -1480,7 +1480,7 @@ if ( ! $mwedit && ! $email ) {
         if($mtemplate) {
 
             if( $parseLast === false ) {
-                $tpl = $api->parseWikiPageByTitle($mtemplate);
+                $tpl = $api->parseWikiPageByTitle( $mtemplate );
             } else {
                 $tpl = $api->getWikiPageByTitle( $mtemplate );
             }

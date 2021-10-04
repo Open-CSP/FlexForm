@@ -2,6 +2,7 @@
  * applying show on select on the page and make sure everyting will be handled as needed
  */
 function WsShowOnSelect() {
+  console.log('activating wssos');
   var selectArray = [];
   $('.WSShowOnSelect').find('[data-wssos-show]').each(function (index, elm) {
     if ( $(elm).is('option') ) {
@@ -53,7 +54,7 @@ function handleRadio(radioElm) {
     $(pre_wssos_elm).hide(0);
     putAllTypesNameInData(pre_wssos_elm);
   }
-
+  $(radioElm).off('change');
   $(radioElm).on('change', function () {
     var wssos_value = $(this).data('wssos-show');
     var parent_wssos = $(this).parentsUntil('.WSShowOnSelect').parent()[0];
@@ -136,6 +137,8 @@ function handleCheckbox(checkElm) {
       putAllTypesDataInName(pre_unchecked_elm);
     }
   }
+
+  $(checkElm).off('change');
   $(checkElm).on('change', function(e) {
     e.stopPropagation();
     var wssos_value = $(this).data('wssos-show');
@@ -197,22 +200,33 @@ function handleSelect(selectElm) {
     }
   });
 
+  $(selectElm).off('change');
   $(selectElm).on('change', function () {
+    var wssos_show_elm = null;
     $(this).children().each(function (index, option) {
       var wssos_value = $(option).data('wssos-show');
       var parent_wssos = $(this).parentsUntil('.WSShowOnSelect').parent()[0];
       var wssos_elm = $(parent_wssos).find('[data-wssos-value="'+wssos_value+'"]');
+      console.log({
+        wssos_value: wssos_value,
+        wssos_elm: wssos_elm,
+        option: option.value
+      });
 
       if ( wssos_elm.length === 0 ) wssos_elm = $(parent_wssos).find('#'  + wssos_value);
 
       if ( option.selected ) {
-        wssos_elm.show(0);
-        putAllTypesDataInName(wssos_elm);
+        wssos_show_elm = wssos_elm;
       } else {
         wssos_elm.hide(0);
         putAllTypesNameInData(wssos_elm);
       }
     });
+
+    if ( wssos_show_elm === null ) return;
+
+    wssos_show_elm.show(0);
+    putAllTypesDataInName(wssos_show_elm);
   });
 }
 
@@ -226,6 +240,8 @@ function handleButton(btnElm) {
   // set up the start and make sure the element is hidden
   $(pre_wssos_elm).hide(0);
   putAllTypesNameInData(pre_wssos_elm);
+
+  $(btnElm).off('click');
   // add on click listener to the button
   $(btnElm).on('click', function(e) {
     var wssos_value = $(this).data('wssos-show');
