@@ -206,17 +206,18 @@ class render {
 	}
 
 	private static function renderInstanceHtml( $instance, $innerHtml, $textAreaContent ) {
-		if( wsform::isShowOnSelectActive() ) {
-			$ret = '<div class="' . $instance['selector'] . ' WSShowOnSelect">' . PHP_EOL;
-		} else {
-			$ret = '<div class="' . $instance['selector'] . '">' . PHP_EOL;
-		}
+
+		$ret = '<div class="' . $instance['selector'] . '">' . PHP_EOL;
 
 		$ret .= '<div class="hidden">' . PHP_EOL;
 
 		$ret .= '<textarea rows="10" name="' . $instance['instanceName'] . '"  class="hidden ' . $instance['textarea'] . '" data-template="' . $instance['template'] . '">' . $textAreaContent . '</textarea>' . PHP_EOL;
 
-		$ret .= '<div class="' . $instance['copy'] . ' ' . $instance['copyExtra'] . '">' . PHP_EOL;
+		if( wsform::isShowOnSelectActive() ) {
+			$ret .= '<div class="' . $instance['copy'] . ' ' . $instance['copyExtra'] . ' WSShowOnSelect">' . PHP_EOL;
+		} else {
+			$ret .= '<div class="' . $instance['copy'] . ' ' . $instance['copyExtra'] . '">' . PHP_EOL;
+		}
 
 		if ( $instance['handleClassExtra'] === 'none' ) {
 			$instance['handleClassExtra'] = '';

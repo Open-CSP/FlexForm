@@ -181,6 +181,18 @@ class wsform {
 	}
 
 	/**
+	 * @brief Add script to list of loaded script
+	 *
+	 * @param $name string JavaScript filename
+	 */
+	public static function removeAsLoaded( string $name ) {
+		if( $key = array_search( $name, self::$loadedScripts ) !== false ) {
+			unset( self::$loadedScripts[$key] );
+		}
+
+	}
+
+	/**
 	 * @brief Add script to be included
 	 *
 	 * @param $src string JavaScript source (without <script>)

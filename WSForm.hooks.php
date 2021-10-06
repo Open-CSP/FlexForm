@@ -281,9 +281,19 @@ class WSFormHooks {
 		// Add move, delete and add button with classes
 		$parser->getOutput()->addModuleStyles( 'ext.wsForm.Instance.styles' );
 
+		if( ! \wsform\wsform::isLoaded( 'wsinstance-initiated' ) ) {
+			wsform\wsform::addAsLoaded( 'wsinstance-initiated' );
+		}
+
 		$output = $parser->recursiveTagParse( $input, $frame );
 
+		if( ! \wsform\wsform::isLoaded( 'wsinstance-initiated' ) ) {
+			wsform\wsform::addAsLoaded( 'wsinstance-initiated' );
+		}
+
 		$ret = wsform\instance\render::render_instance( $args, $output );
+
+		wsform\wsform::removeAsLoaded( 'wsinstance-initiated' );
 
 		if(! wsform\wsform::isLoaded( 'multipleinstance' ) ) {
 			if ( file_exists( $IP . '/extensions/WSForm/modules/instances/wsInstance.js' ) ) {
@@ -617,6 +627,8 @@ class WSFormHooks {
 		$allowtags = false;
 		$onlyone = false;
 		$multiple = false;
+
+
 		foreach ( $args as $k => $v ) {
 			if ( wsform\validate\validate::validParameters( $k ) ) {
 				if ( $k == 'placeholder' ) {
@@ -626,7 +638,9 @@ class WSFormHooks {
 					if ( $multiple === "multiple" ) {
 						$ret .= 'multiple="multiple" ';
 					}
-				}  else {
+				} elseif( strtolower( $k ) === 'id' &&  \wsform\wsform::isLoaded( 'wsinstance-initiated' ) ) {
+					$ret .= 'data-wsselect2id="' . $v . '"';
+				} else {
 					$ret .= $k . '="' . $parser->recursiveTagParse( $v, $frame ) . '" ';
 				}
 			}
@@ -641,6 +655,11 @@ class WSFormHooks {
 		}
 		$ret .= $output . '</select>' . "\n";
 		$out    = "";
+		if ( ! \wsform\wsform::isLoaded( 'wsinstance-initiated' ) ){
+			$out    .= '<input type="hidden" id="select2options-' . $id . '" value="';
+		} else {
+			$out    .= '<input type="hidden" data-wsselect2options="select2options-' . $id . '" value="';
+		}
 		$out    .= '<input type="hidden" id="select2options-' . $id . '" value="';
 		if ( isset( $args['json'] ) && isset( $args['id'] ) ) {
 			if ( strpos( $args['json'], 'semantic_ask' ) ) {
