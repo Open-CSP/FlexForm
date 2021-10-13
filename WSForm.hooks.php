@@ -660,7 +660,6 @@ class WSFormHooks {
 		} else {
 			$out    .= '<input type="hidden" data-wsselect2options="select2options-' . $id . '" value="';
 		}
-		$out    .= '<input type="hidden" id="select2options-' . $id . '" value="';
 		if ( isset( $args['json'] ) && isset( $args['id'] ) ) {
 			if ( strpos( $args['json'], 'semantic_ask' ) ) {
 				$json = $args['json'];
