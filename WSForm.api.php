@@ -152,7 +152,6 @@ if( isset( $_GET['action'] ) && $_GET['action'] === 'handleQuery' ) {
 $identifier         = getPostString( 'mwidentifier' );
 $messages           = new wbHandleResponses( $identifier );
 
-var_dump( $securedVersion );
 
 if( $securedVersion ) {
 	require_once( 'classes/protect.class.php' );
@@ -285,6 +284,7 @@ if( $securedVersion ) {
 		}
 	}
 }
+
 
 $wsuid = getPostString( 'wsuid' );
 

@@ -1312,7 +1312,7 @@ if ( ! $mwedit && ! $email ) {
 	// We have edits to make to existing pages!
 	$data = array();
 	$t=0;
-	//edit = [0]pid [1]template [2]Form field [3]Use field [4]Value
+	//edit = [0]pid [1]template [2]Form field [3]Use field [4]Value [5]Slot
 	foreach ( $mwedit as $edits ) {
 		$edit = explode( '-^^-', $edits );
 		if ( $edit[0] == '' || $edit[1] == '' || $edit[2] == '' ) {
@@ -1382,28 +1382,48 @@ if ( ! $mwedit && ! $email ) {
 
 		$weHaveAPI = true;
 	}
+	$pageContents = array();
 	foreach ($data as $pid => $edits) {
-		//echo count($edits);
-		$editSlot = $edits[0]['slot'];
-		$pageContent = $api->getWikiPage( $pid, $editSlot );
-		$pageTitle = $pageContent['title'];
-		$pageContent=$pageContent['content'];
-		$pageContentBak=$pageContent;
-		if($pageContent == '') {
-			continue;
+		foreach( $edits as $edit ) {
+			if( $edit['slot'] !== false ) {
+				$pageTitle = $edit['title'];
+
+				$content = $api->getWikiPage( $pid, $edit['slot'] );
+				if( $content['content'] == '' ) {
+					$pageContents[ $edit['slot']['content'] ] = false;
+				} else {
+					$pageContents[ $edit['slot'] ] = $content['content'];
+				}
+
+				$pageTitle = $content['title'];
+			}
 		}
+		if( count( $pageContents ) < count( $edits ) ) {
+			$pageContents[ 'main' ] = $api->getWikiPage( $pid );
+			$pageTitle = $pageContents['main']['title'];
+			$pageContents['main'] = $pageContents['main']['content'];
+
+		}
+		//die();
+		//$editSlot = $edits[0]['slot'];
+		//$pageContent = $api->getWikiPage( $pid, $editSlot );
 		$usedVariables = array();
 		foreach ( $edits as $edit ) {
+			$slotToEdit = $edit['slot'];
+			if( $slotToEdit === false ){
+				$slotToEdit = 'main';
+			}
+
 			if($edit['find'] !== false) {
-				$templateContent = $api->getTemplate( $pageContent, $edit['template'], $edit['find'], $edit['val'] );
+				$templateContent = $api->getTemplate( $pageContents[$slotToEdit], $edit['template'], $edit['find'], $edit['val'] );
 				if($templateContent===false) {
 					$result['received']['error'][] = 'Template: '.$edit['template'].' where variable:'.$edit['find'] . '='.$edit['val'].' not found';
 				}
 			} else {
-				$templateContent = $api->getTemplate( $pageContent, $edit['template'] );
+				$templateContent = $api->getTemplate( $pageContents[$slotToEdit], $edit['template'] );
 			}
 			if ($templateContent === false) {
-				//echo 'skipping';
+				echo 'skipping ' . $edit['template'] ;
 				continue;
 			}
 
@@ -1437,14 +1457,21 @@ if ( ! $mwedit && ! $email ) {
 				$t++;
 
 			}
-			$pageContent = str_replace($templateContent,$newTemplateContent,$pageContent);
+			$pageContents[$slotToEdit] = str_replace($templateContent,$newTemplateContent, $pageContents[$slotToEdit] );
 
 		}
-
-		$result = $api->savePageToWiki($pageTitle, $pageContent, $summary, $editSlot );
-		if(isset($result['received']['error'])) {
-            return createMsg($result['received']['error'],'error',$returnto);
+		foreach( $pageContents as $slotName => $slotContents ) {
+			if( $slotName === 'main' ) $slotname = false;
+			$result = $api->savePageToWiki($pageTitle, $slotContents, $summary, $slotName );
+			if(isset($result['received']['error'])) {
+				return createMsg($result['received']['error'],'error',$returnto);
+			}
 		}
+
+		//$result = $api->savePageToWiki($pageTitle, $pageContents[$slotToEdit], $summary, $slotToEdit );
+		//if(isset($result['received']['error'])) {
+        //    return createMsg($result['received']['error'],'error',$returnto);
+		//}
 	}
 
 	}  // end mwedit

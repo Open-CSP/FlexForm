@@ -1195,7 +1195,7 @@ class wbApi {
      * @param bool $value
      * @return bool|string
      */
-  function getTemplate($source,$template,$find=false,$value=false) {
+  function getTemplate( $source,$template,$find=false,$value=false) {
     $multiple = substr_count($source, '{{'.$template );
     // template not found
     if($multiple == 0) return false;
