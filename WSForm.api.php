@@ -72,6 +72,7 @@ include_once('WSForm.api.include.php');
 $api = new wbApi();
 $securedVersion = $api->isSecure();
 
+
 $IP = $api->app['IP'];
 
 if( getGetString('version', false) !== false ) {
@@ -151,6 +152,8 @@ if( isset( $_GET['action'] ) && $_GET['action'] === 'handleQuery' ) {
 $identifier         = getPostString( 'mwidentifier' );
 $messages           = new wbHandleResponses( $identifier );
 
+var_dump( $securedVersion );
+
 if( $securedVersion ) {
 	require_once( 'classes/protect.class.php' );
 	$crypt = new wsform\protect\protect();
@@ -178,7 +181,13 @@ if( $securedVersion ) {
 				$delMe = $secure['name'];
 				unset( $_POST[$delMe] );
 				$removeList[] = $newK;
-				$_POST[$newK] = $newV;
+				if( substr( $newK, -2, 2 ) === '[]' ) {
+					echo "ÖKOKOKOKOK";
+					$newK = str_replace('[]', '', $newK );
+					$_POST[$newK]= array( $newV );
+				} else {
+					$_POST[ $newK ] = $newV;
+				}
 			} else {
 				$messages->doDie( $i18n->wsMessage( 'wsform-secure-fields-incomplete' ) );
 			}
