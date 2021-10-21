@@ -25,12 +25,19 @@ class render {
             return 'No valid target for edit';
         }
 
-        if ( isset( $args['template'] ) && $args['template'] != "" ) {
-            $template = $args['template'];
+        // mwtemplate will become the default, for now we allow both
+        if ( ( isset( $args['template'] ) && $args['template'] != "" ) || ( isset( $args['mwtemplate'] ) && $args['mwtemplate'] != "") ) {
+        	if( isset( $args['template'] ) ) {
+		        $template = $args['template'];
+	        }
+	        if( isset( $args['mwtemplate'] ) ) {
+		        $template = $args['mwtemplate'];
+	        }
             $template = str_replace( ' ', '_', $template );
         } else {
             return 'No valid template for edit';
         }
+
 
         if ( isset( $args['formfield'] ) && $args['formfield'] != "" ) {
             $formfield = $args['formfield'];

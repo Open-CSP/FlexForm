@@ -34,7 +34,7 @@ class render {
                     $wswrite = $v;
                 }
 
-				if ( $k == "wsslot" ) {
+				if ( $k == "mwslot" ) {
 					$wsSlot = $v;
 				}
 
