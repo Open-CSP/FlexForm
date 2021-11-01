@@ -9,8 +9,6 @@ let idUnifier = 0;
 const WsInstance = function (selector, options) {
     const _ = this;
 
-    console.log(selector);
-    console.log(options);
     // default settings
     _.settings = {
         draggable: false,
@@ -68,11 +66,11 @@ const WsInstance = function (selector, options) {
         let textarea_content = _.saveField.val();
         let textarea_items = textarea_content.split('{{').filter((v) => v);
 
-        console.log(textarea_items);
         if ( textarea_items.length === 0 ) {
             let clone = _.getCloneInstance();
             let el = _.getCloneElementHandled(clone);
             _.list.append(el);
+            _.handleIntegrations(el);
         }
 
         $.each(textarea_items, function(i, val) {
@@ -87,7 +85,6 @@ const WsInstance = function (selector, options) {
             name_array = [];
             value_array = [];
         });
-
     }
 
     /**
@@ -145,6 +142,7 @@ const WsInstance = function (selector, options) {
 
         let element = _.getCloneElementHandled(clone);
         _.list.append(element);
+        _.handleIntegrations(element);
     }
 
     /**
@@ -156,13 +154,6 @@ const WsInstance = function (selector, options) {
         let del_btn = $(clone).find(_.settings.removeButtonClass);
         let add_button = $(clone).find(_.settings.addButtonClass);
         const id = 'copy_' +  _.getUniqueId();
-
-        console.log({
-            del_btn: del_btn,
-            add_button: add_button,
-            id: id,
-            clone: clone
-        });
 
         $(clone).prop('id', id);
         $(del_btn).off('click');
@@ -194,6 +185,7 @@ const WsInstance = function (selector, options) {
     _.addAboveInstance = (id) => {
         let element = _.getCloneElementHandled(_.getCloneInstance());
         $(element).insertBefore($('#' + id));
+        _.handleIntegrations(element);
     }
 
     /**
@@ -204,8 +196,40 @@ const WsInstance = function (selector, options) {
         return _.clone.clone().removeClass('WSmultipleTemplateMain').addClass('WSmultipleTemplateInstance');
     }
 
-    _.handleIntegrations = () => {
+    _.handleIntegrations = (element) => {
         // make functions for eventual integrations like select2 or wssos
+        if ( typeof WsShowOnSelect === 'function') WsShowOnSelect();
+
+        const checkForSelect2 = function (n) {
+            if ( n > 25 ) return;
+            if ( typeof $.fn.select2 !== 'function' ) {
+                setTimeout(function () {
+                    checkForSelect2(n + 1);
+                }, 250);
+            }
+        }
+
+        checkForSelect2(0);
+
+        // TODO :: select2 integration
+        if ( $(element).find('[data-inputtype="ws-select2"]').length > 0 ) {
+            $(element).find('[data-wsselect2id]').each(function(i, select) {
+                let select2id = $(select).attr('data-wsselect2id');
+
+                $(select).attr('data-wsselect2id', select2id + idUnifier);
+                $(select).attr('id', select2id + idUnifier);
+
+                let sibling = $(select).siblings('[data-wsselect2options]')[0];
+                sibling.id = $(sibling).attr('data-wsselect2options') + idUnifier;
+
+                let statement = sibling.value;
+                statement = statement.replace(select2id, select2id + idUnifier);
+                if ( typeof $.fn.select2 !== 'function' ) sibling.value = statement;
+                else {
+                    new Function(statement)();
+                }
+            });
+        }
     }
 
     /**
@@ -214,6 +238,7 @@ const WsInstance = function (selector, options) {
     _.addToBottom = () => {
         let element = _.getCloneElementHandled(_.getCloneInstance());
         $(_.list).append(element);
+        _.handleIntegrations(element);
     }
 
     /**
@@ -242,10 +267,9 @@ const WsInstance = function (selector, options) {
                         valuesObj[name] = input.value;
                         break;
                 }
-
+                input.removeAttribute('name');
             });
             saveString += createSaveStringForInstance(valuesObj);
-            console.log(saveString);
         });
 
         _.saveField.val(saveString);

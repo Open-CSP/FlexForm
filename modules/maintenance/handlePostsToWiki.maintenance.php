@@ -102,6 +102,7 @@ class handlePostsToWiki extends Maintenance {
 			$props,
 			$timestamp
 		);
+		$this->refreshSMWProperties( $title );
 		return $this->createMsg('ok', true);
 
 	}
