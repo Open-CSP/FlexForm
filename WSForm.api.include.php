@@ -1384,8 +1384,11 @@ if ( ! $mwedit && ! $email ) {
 	}
 	$pageContents = array();
 	foreach ($data as $pid => $edits) {
+		//setup slots if needed
+		$wehaveslots = false;
 		foreach( $edits as $edit ) {
 			if( $edit['slot'] !== false ) {
+				$wehaveslots = true;
 				$pageTitle = $edit['title'];
 
 				$content = $api->getWikiPage( $pid, $edit['slot'] );
@@ -1398,7 +1401,8 @@ if ( ! $mwedit && ! $email ) {
 				$pageTitle = $content['title'];
 			}
 		}
-		if( count( $pageContents ) < count( $edits ) ) {
+		//print_r( "We have " . count( $pageContents ) . " pagecontents and we have " .count( $edits ). " edits" );
+		if( !$wehaveslots ) {
 			$pageContents[ 'main' ] = $api->getWikiPage( $pid );
 			$pageTitle = $pageContents['main']['title'];
 			$pageContents['main'] = $pageContents['main']['content'];
@@ -1460,6 +1464,9 @@ if ( ! $mwedit && ! $email ) {
 			$pageContents[$slotToEdit] = str_replace($templateContent,$newTemplateContent, $pageContents[$slotToEdit] );
 
 		}
+		//echo "<pre>";
+		//print_r( $pageContents );
+		//echo "</pre>";
 		foreach( $pageContents as $slotName => $slotContents ) {
 			if( $slotName === 'main' ) $slotname = false;
 			$result = $api->savePageToWiki($pageTitle, $slotContents, $summary, $slotName );
