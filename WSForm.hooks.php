@@ -743,11 +743,11 @@ class WSFormHooks {
 				}
 			}
 		}
-		//$attach = "<script>wachtff(attachTokens);</script>";
-		wsform\wsform::includeInlineScript( 'document.addEventListener("DOMContentLoaded", function() { wachtff(attachTokens, true); }, false);' );
+		$attach = "<script>wachtff(attachTokens, true );</script>";
+		//wsform\wsform::includeInlineScript( 'document.addEventListener("DOMContentLoaded", function() { wachtff(attachTokens, true); }, false);' );
 		//$wgOut->addHTML( $out );
 
-		$ret = $ret . $out;
+		$ret = $ret . $out . $attach;
 		self::addInlineJavaScriptAndCSS();
 		return array( $ret, "markerType" => 'nowiki' );
 	}
