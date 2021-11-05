@@ -845,7 +845,8 @@ class wbApi {
             // We have a user, lets use Maintenance script to save page to wiki
             return $this->maintenanceSavePageToWiki( $name, $details, $summary, $wsuid, $slot );
 
-        } else {
+        } elseif( $slot === 'main') {
+
             $postdata = http_build_query([
                 "action" => "query",
                 "format" => "json",
@@ -858,7 +859,7 @@ class wbApi {
             }
             $result = $result['received'];
             $token = $result['query']['tokens']['csrftoken'];
-        }
+        } else return [];
         if($summary === false) {
             $postdata = http_build_query([
                 "action" => "edit",
