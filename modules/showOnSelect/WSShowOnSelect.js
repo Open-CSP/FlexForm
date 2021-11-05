@@ -2,7 +2,6 @@
  * applying show on select on the page and make sure everyting will be handled as needed
  */
 function WsShowOnSelect() {
-  console.log('activating wssos');
   var selectArray = [];
   $('.WSShowOnSelect').find('[data-wssos-show]').each(function (index, elm) {
     if ( $(elm).is('option') ) {
@@ -207,11 +206,6 @@ function handleSelect(selectElm) {
       var wssos_value = $(option).data('wssos-show');
       var parent_wssos = $(this).parentsUntil('.WSShowOnSelect').parent()[0];
       var wssos_elm = $(parent_wssos).find('[data-wssos-value="'+wssos_value+'"]');
-      console.log({
-        wssos_value: wssos_value,
-        wssos_elm: wssos_elm,
-        option: option.value
-      });
 
       if ( wssos_elm.length === 0 ) wssos_elm = $(parent_wssos).find('#'  + wssos_value);
 

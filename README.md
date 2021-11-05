@@ -107,6 +107,7 @@ Visit : Special:WSForm/Docs
 
 
 ### Changelog
+* 0.8.0.9.8.5 : Multiple instances and show on select Final tests
 * 0.8.0.9.8.4 : Actual bug find by Dennis! After slot support, multiple edits were broken. Fixed!
 * 0.8.0.9.8.3 : Changed mwslot argument to be consistent throughout. Updated docs.
 * 0.8.0.9.8.2 : Multiple instances and show-on-selected. Rdy for 2nd test stage! Added error message documentation.

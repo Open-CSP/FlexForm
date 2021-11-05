@@ -210,8 +210,7 @@ const WsInstance = function (selector, options) {
         }
 
         checkForSelect2(0);
-
-        // TODO :: select2 integration
+        
         if ( $(element).find('[data-inputtype="ws-select2"]').length > 0 ) {
             $(element).find('[data-wsselect2id]').each(function(i, select) {
                 let select2id = $(select).attr('data-wsselect2id');
@@ -224,10 +223,8 @@ const WsInstance = function (selector, options) {
 
                 let statement = sibling.value;
                 statement = statement.replace(select2id, select2id + idUnifier);
-                if ( typeof $.fn.select2 !== 'function' ) sibling.value = statement;
-                else {
-                    new Function(statement)();
-                }
+                sibling.value = statement;
+                if ( typeof $.fn.select2 === 'function' )  Function(statement)();
             });
         }
     }
