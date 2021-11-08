@@ -158,7 +158,7 @@ class handlePostsToWiki extends Maintenance {
 			try {
 				$wikiPageObject = WikiPage::factory( $pTitle );
 			} catch ( MWException $e ) {
-				return $this->createMsg( "Could not create a WikiPage Object from titloe " . $pTitle->getText() .
+				return $this->createMsg( "Could not create a WikiPage Object from title " . $pTitle->getText() .
 				'. Message ' . $e->getMessage() );
 			}
 			if ( is_null( $wikiPageObject ) ) {

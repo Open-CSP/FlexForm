@@ -954,6 +954,8 @@ function saveToWiki( $email=false ) {
 	$summary = getPostString('mwwikicomment');
 	$slot = getPostString( 'mwslot' );
 
+
+
 	if( $summary === false ) {
 		$summary = setSummary();
 	}
@@ -1015,6 +1017,7 @@ function saveToWiki( $email=false ) {
 		if (strpos($writepage,'[') !== false) {
 			$writepage = parseTitle($writepage);
 		}
+
 
 		if ( $writepage !== false ) {
 			$title = $writepage;
@@ -1081,6 +1084,9 @@ function saveToWiki( $email=false ) {
 		$api->logMeIn();
 		//die($wsuid);
 
+		if( $api->app['create-seo-titles'] === true ) {
+			$title = $api->urlToSEO( $title );
+		}
 		$result = $api->savePageToWiki( $title, $ret, $summary, $slot );
 
 		if(isset($result['received']['error'])) {
@@ -1268,6 +1274,11 @@ if($writepages !== false) {
 			$api = new wbApi();
 		}
 
+		if( $api->app['create-seo-titles'] === true ) {
+
+			$ptitle = $api->urlToSEO( $ptitle );
+		}
+
 		if( $mwfollow !== false ) {
 			if( $mwfollow === 'true' ) {
 				$returnto = $api->app['wgScript'] . '/' . $ptitle;
@@ -1281,6 +1292,7 @@ if($writepages !== false) {
 		}
 
 		if($weHaveApi) {
+
 			$result = $api->savePageToWiki( $ptitle, $ret, $summary, $writePageSlot );
 			if(isset($result['received']['error'])) {
 				return createMsg($result['received']['error'],'error',$returnto);
@@ -1288,12 +1300,13 @@ if($writepages !== false) {
 		} else {
 			require_once( 'WSForm.api.class.php' );
 			$api = new wbApi();
-			if( $api->getStatus() === false ){
-				return createMsg( $api->getStatus( true ), 'error', $returnto);
-			}
+
 			$res=$api->logMeIn();
 			if($res === false) {
 				return createMsg($res);
+			}
+			if( $api->app['create-seo-titles'] === true ) {
+				$ptitle = $api->urlToSEO( $ptitle );
 			}
 			$result = $api->savePageToWiki($ptitle, $ret, $summary, $writePageSlot );
 			if(isset($result['received']['error'])) {
