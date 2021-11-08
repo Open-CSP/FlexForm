@@ -211,7 +211,7 @@ class handlePostsToWiki extends Maintenance {
 		}
 		$rev = new WikiRevision( MediaWikiServices::getInstance()->getMainConfig() );
 
-		if( $slot !== false) {
+		if( $slot !== false && $slot !== 'main' ) {
 			$slotEditResult = $this->editSlot( $title, $content, $summary, $slot, $user );
 			if( true !== $slotEditResult ) {
 				return $slotEditResult;
