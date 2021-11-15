@@ -886,7 +886,7 @@ class wbApi {
             // We have a user, lets use Maintenance script to save page to wiki
             return $this->maintenanceSavePageToWiki( $name, $details, $summary, $wsuid, $slot );
 
-        } elseif( $slot === 'main') {
+        } elseif( $slot === 'main' || $slot === false) {
 
             $postdata = http_build_query([
                 "action" => "query",
