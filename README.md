@@ -107,6 +107,7 @@ Visit : Special:WSForm/Docs
 
 
 ### Changelog
+* 0.8.0.9.8.7 : Version bump
 * 0.8.0.9.8.6 : Add support for SEO friendly slugs with WSCreate. To be set in the config. Updated docs.
 * 0.8.0.9.8.5 : Multiple instances and show on select Final tests
 * 0.8.0.9.8.4 : Actual bug find by Dennis! After slot support, multiple edits were broken. Fixed!
