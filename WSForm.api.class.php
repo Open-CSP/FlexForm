@@ -138,7 +138,10 @@ class wbHandleResponses {
         $parsed = parse_url( $redirect );
 
         if( isset( $parsed['host'] ) ){
-            if( $parsed['host'] !== $_SERVER['HTTP_HOST'] ) {
+            if( strtolower( $parsed['host'] ) !== strtolower( preg_replace(
+                '/:\d+$/',
+                '',
+                $_SERVER['HTTP_HOST'] ) ) ) {
                 $i18n = new wsi18n();
                 die( $i18n->wsMessage( 'wsform-return-outside-domain' ) );
             }
