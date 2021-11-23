@@ -827,11 +827,28 @@ class wbApi {
     }
 
       function maintenanceSavePageToWiki( $name, $details, $summary, $uid, $slot = false ){
+          $slotKeyValueSeparator = '_-_-_';
+          $slotSeparator = '-_-_-';
           if(isset($_POST['mwdb'])) {
               $server = str_replace('_', '.', $_POST['mwdb'] );
           }
 
-          $details = base64_encode( $details );
+
+          $slots = array();
+          if( false !== $slot ) {
+              if ( is_array( $slot ) ) {
+                  foreach ( $slot as $slotName => $slotValue ) {
+                      $slots[] = $slotName . $slotKeyValueSeparator . $slotValue;
+                  }
+              } else {
+                  $slots[] = $slot . $slotKeyValueSeparator . $details;
+              }
+
+          } else {
+              $slots[] = 'main' . $slotKeyValueSeparator . $details;
+          }
+          //var_dump( $slots );
+          $details = base64_encode( implode( $slotSeparator, $slots ) );
 
           //$summary = "Edited with WSForm";
           /*
@@ -847,9 +864,12 @@ class wbApi {
           $cmd .= ' --content "' . $details.'"';
           $cmd .= ' --rc --title "' . $name.'"';
           $cmd .= ' --user '. $uid;
+
+          /* We use slots now in the content
           if( $slot !== false ){
               $cmd .= ' --slot "' . $slot . '"';
           }
+          */
           $cmd .= ' --summary "' . $summary . '"';
           //echo $cmd;
           //die();

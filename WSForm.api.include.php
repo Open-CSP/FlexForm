@@ -937,7 +937,6 @@ function saveToWiki( $email=false ) {
 	$weHaveApi = false;
 
 
-
     $parsePost = getPostString('wsparsepost' );
     $parseLast = getPostString('mwparselast');
 	$etoken = getPostString('wsedittoken' );
@@ -1087,6 +1086,8 @@ function saveToWiki( $email=false ) {
 		if( $api->app['create-seo-titles'] === true ) {
 			$title = $api->urlToSEO( $title );
 		}
+
+		//$slot is false or has the name of the slot.
 		$result = $api->savePageToWiki( $title, $ret, $summary, $slot );
 
 		if(isset($result['received']['error'])) {
@@ -1118,9 +1119,23 @@ function saveToWiki( $email=false ) {
 
 if($writepages !== false) {
 
+	//Handling multiple wscreates
+
+	$pagesToSave = array();
+	$pageTitleToLinkTo = array();
+
 	foreach ($writepages as $singlePage) {
+		$createId = false;
         $noTemplate = false;
         $writePageSlot = false;
+        /*
+         *  [0] $template
+		    [1] $wswrite
+			[2]	$wsoption
+			[3]	$wsfields
+			[4]	$wsSlot
+			[5]	$wsCreateId;
+         */
 		$pageData = explode( '-^^-', $singlePage );
 		if ( $pageData[0] == '' || $pageData[1] == '') {
 			continue;
@@ -1139,6 +1154,10 @@ if($writepages !== false) {
 		if ($pageData[4] == "") {
 			$writePageSlot = false;
 		} else $writePageSlot = $pageData[4];
+		if ($pageData[5] == "") {
+			$createId = false;
+		} else $createId = $pageData[5];
+
 		if ( !$noTemplate ) {
             $ret = "{{" . $pageTemplate . "\n";
         }
@@ -1290,31 +1309,89 @@ if($writepages !== false) {
 				}
 			}
 		}
+		if( false !== $createId ) {
+			$pageTitleToLinkTo[ strtolower( $createId ) ] = $ptitle;
+		}
+		$pagesToSave[] = array( $ptitle, $ret, $summary, $writePageSlot );
 
-		if($weHaveApi) {
 
-			$result = $api->savePageToWiki( $ptitle, $ret, $summary, $writePageSlot );
+	}
+	// Now for the actual saving ..
+	$finalPages = array();
+	foreach( $pagesToSave as $k => $pageToSave ){
+		if( substr( $pageToSave[0], 0, 3 ) === 'id-' ){
+			// We need to append a create to a title
+			//echo "ok";
+			$idTitle = strtolower( substr( $pageToSave[0], 3 ) );
+			//var_dump( $idTitle );
+			if( isset( $pageTitleToLinkTo[$idTitle] ) ) {
+				$pagesToSave[$k][0] = $pageTitleToLinkTo[$idTitle];
+			}
+		}
+		if( $pageToSave[3] === false ) {
+			$pagesToSave[$k][3] = 'main';
+		}
+	}
+
+	echo "<pre>";
+	//print_r( $pageTitleToLinkTo);
+	//print_r( $pageTitleToLinkTo);
+
+
+	$cnt = 0;
+	foreach ( $pagesToSave as $k=>$pageToSave ){
+		//print_r( $pageToSave );
+		$title = $pageToSave[0]; //$ret, $summary, $writePageSlot
+		$summary = $pageToSave[2];
+		$slot = array( $pageToSave[3] => $pageToSave[1] );
+		$pArray = array(
+			'slot' => $slot,
+			'summary' => $summary
+		);
+		$finalPages[ $title ][] = $pArray;
+	}
+	//print_r( $finalPages);
+
+	if( $weHaveApi === false ) {
+		require_once( 'WSForm.api.class.php' );
+		$api = new wbApi();
+
+		$res=$api->logMeIn();
+		if($res === false) {
+			return createMsg($res);
+		}
+	}
+
+	foreach( $finalPages as $pTitle => $pContent ) {
+		$nrOfEdits = count( $pContent );
+		if( $nrOfEdits === 1 ) {
+			$slotName = key( $pContent[0]['slot'] );
+			//var_dump( $pTitle, $pContent[0]['slot'][$slotName], $pContent[0]['summary'], $slotName );
+			//var_dump( $pContent );
+			//die();
+			$result = $api->savePageToWiki( $pTitle, $pContent[0]['slot'][$slotName], $pContent[0]['summary'], $slotName  );
 			if(isset($result['received']['error'])) {
 				return createMsg($result['received']['error'],'error',$returnto);
 			}
-		} else {
-			require_once( 'WSForm.api.class.php' );
-			$api = new wbApi();
-
-			$res=$api->logMeIn();
-			if($res === false) {
-				return createMsg($res);
-			}
-			if( $api->app['create-seo-titles'] === true ) {
-				$ptitle = $api->urlToSEO( $ptitle );
-			}
-			$result = $api->savePageToWiki($ptitle, $ret, $summary, $writePageSlot );
-			if(isset($result['received']['error'])) {
-                return createMsg($result['received']['error'],'error',$returnto);
-			}
-			$weHaveApi = true;
 		}
+		if( $nrOfEdits > 1 ) {
+			$slotsToSend = array();
+			foreach( $pContent as $singleCreate ) {
+				$slotName = key( $singleCreate['slot'] );
+				$slotValue = $singleCreate['slot'][$slotName];
+				$slotsToSend[$slotName] = $slotValue;
+			}
+			//var_dump( $pTitle, '', $pContent[0]['summary'], $slotsToSend );
+			//die();
+			$result = $api->savePageToWiki( $pTitle, '', $pContent[0]['summary'], $slotsToSend );
+			if(isset($result['received']['error'])) {
+				return createMsg($result['received']['error'],'error',$returnto);
+			}
+		}
+
 	}
+
+
 }
 if ( ! $mwedit && ! $email ) {
 	if($msgOnSuccess !== false) {

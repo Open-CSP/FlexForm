@@ -54,6 +54,8 @@
 	"wsform-docs-new-version-table" : "Changelog from your version to this new version",
 	"wsform-docs-no-new-version-table" : "Complete changelog",
 
+	"wsform-unkown-slot" : "Unknown Content Slot",
+
 	"wsform-captcha-missing-details" : "no captcha details",
 	"wsform-captcha-score-to-low" : "Your Captcha score is to low. You form is not submitted",
 
