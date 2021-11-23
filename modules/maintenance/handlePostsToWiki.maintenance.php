@@ -54,6 +54,9 @@ class handlePostsToWiki extends Maintenance {
 	public function createMsg( $msg, $status = false ){
 		$ret = array();
 		$ret['status'] = $status;
+		if( is_array( $msg ) ) {
+			$msg = implode(',', $msg );
+		}
 		$ret['msg'] = $msg;
 		return $ret;
 	}
@@ -217,7 +220,7 @@ class handlePostsToWiki extends Maintenance {
 	 * @throws \MWContentSerializationException Should not happen
 	 * @throws \MWException Should not happen
 	 */
-	public static function editSlots(
+	public function editSlots(
 		User $user,
 		WikiPage $wikipage_object,
 		array $text,
@@ -290,17 +293,10 @@ class handlePostsToWiki extends Maintenance {
 			$comment,
 			EDIT_INTERNAL
 		);
-
 		if( true === $status ) {
-			return array(
-				"result"  => true,
-				"changed" => $page_updater->isUnchanged()
-			);
+			return true;
 		} else {
-			return array(
-				'result' => false,
-				'errors' => $errors
-			);
+			return $this->createMsg( $errors );
 		}
 
 	}

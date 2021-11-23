@@ -90,7 +90,7 @@ function get_all_string_between($string, $start, $end)
     return $result;
 }
 
-function parseTitle( $title ) {
+function parseTitle( $title, $api ) {
 	$tmp = get_all_string_between( $title, '[', ']' );
 	foreach ( $tmp as $fieldname ) {
         if( isset( $_POST[makeUnderscoreFromSpace($fieldname)] ) ) {
@@ -99,6 +99,9 @@ function parseTitle( $title ) {
                 $imp = implode( ', ', $fn );
                 $title = str_replace('[' . $fieldname . ']', $imp, $title);
             } elseif ( $fn !== '' ) {
+				if( $api->app['create-seo-titles'] === true ) {
+					$fn = $api->urlToSEO( $fn );
+				}
                 $title = str_replace('[' . $fieldname . ']', $fn, $title);
             } else {
                 $title = str_replace('[' . $fieldname . ']', '', $title);
@@ -580,7 +583,8 @@ function fileUpload() {
 	$name = trim($_POST['wsform_file_target']);
 	$details = trim($_POST['wsform_page_content']);
 	if( isset( $_POST['wsform_parse_content'] ) ) {
-	    $details = parseTitle( $details );
+		//TODO: Do not think this is correct .. needs a real parse?
+	    $details = parseTitle( $details, $api );
     }
 	$comment = "Uploaded using WSForm.";
 	$result = $api->uploadFileToWiki($name, $url, $details, $comment, $upload_dir . $targetFile);
@@ -953,7 +957,8 @@ function saveToWiki( $email=false ) {
 	$summary = getPostString('mwwikicomment');
 	$slot = getPostString( 'mwslot' );
 
-
+	require_once( 'WSForm.api.class.php' );
+	$api = new wbApi();
 
 	if( $summary === false ) {
 		$summary = setSummary();
@@ -969,7 +974,7 @@ function saveToWiki( $email=false ) {
     if( $parsePost !== false && is_array( $parsePost ) ) {
         foreach ( $parsePost as $pp ) {
             if( isset( $_POST[makeUnderscoreFromSpace($pp)] ) ) {
-                $_POST[makeUnderscoreFromSpace($pp)] = parseTitle( $_POST[makeUnderscoreFromSpace($pp)] );
+                $_POST[makeUnderscoreFromSpace($pp)] = parseTitle( $_POST[makeUnderscoreFromSpace($pp)], $api );
             }
         }
     }
@@ -1007,14 +1012,13 @@ function saveToWiki( $email=false ) {
 			$ret .= "}}";
 		}
 
-		require_once( 'WSForm.api.class.php' );
-		$api = new wbApi();
+
 		if( $api->getStatus() === false ){
 			return createMsg( $api->getStatus( true ), 'error', $returnto);
 		}
 
 		if (strpos($writepage,'[') !== false) {
-			$writepage = parseTitle($writepage);
+			$writepage = parseTitle($writepage, $api);
 		}
 
 
@@ -1082,10 +1086,6 @@ function saveToWiki( $email=false ) {
 		//$api->usr = $etoken;
 		$api->logMeIn();
 		//die($wsuid);
-
-		if( $api->app['create-seo-titles'] === true ) {
-			$title = $api->urlToSEO( $title );
-		}
 
 		//$slot is false or has the name of the slot.
 		$result = $api->savePageToWiki( $title, $ret, $summary, $slot );
@@ -1192,7 +1192,7 @@ if($writepages !== false) {
             $ret .= "}}";
         }
 		if (strpos($pageTitle,'[') !== false) {
-			$pageTitle = parseTitle($pageTitle);
+			$pageTitle = parseTitle($pageTitle, $api);
 		}
 
 		if( $pageOption == 'next_available' && $pageTitle !== false ) {
@@ -1293,14 +1293,13 @@ if($writepages !== false) {
 			$api = new wbApi();
 		}
 
-		if( $api->app['create-seo-titles'] === true ) {
-
-			$ptitle = $api->urlToSEO( $ptitle );
-		}
 
 		if( $mwfollow !== false ) {
 			if( $mwfollow === 'true' ) {
-				$returnto = $api->app['wgScript'] . '/' . $ptitle;
+				echo $ptitle;
+				if( strpos( $ptitle, 'id-' ) === false && strpos( $ptitle, 'id:' ) === false ) {
+					$returnto = $api->app['wgScript'] . '/' . $ptitle;
+				}
 			} else {
 				if( strpos( $returnto, '?' ) ) {
 					$returnto = $returnto . '&' . $mwfollow . '=' . $title;
@@ -1333,7 +1332,7 @@ if($writepages !== false) {
 		}
 	}
 
-	echo "<pre>";
+	//echo "<pre>";
 	//print_r( $pageTitleToLinkTo);
 	//print_r( $pageTitleToLinkTo);
 
@@ -1457,6 +1456,9 @@ if ( ! $mwedit && ! $email ) {
 
 		$t++;
 	}
+	//echo "<pre>";
+	//print_r( $data );
+	//die();
 	// We have all the info in the data Array
 	// Now we need to grab the page and replace what needs to be replaced.
 
