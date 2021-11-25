@@ -1443,10 +1443,9 @@ if ( ! $mwedit && ! $email ) {
 				$templateContent = $api->getTemplate( $pageContents[$slotToEdit], $edit['template'] );
 			}
 			if ($templateContent === false) {
-				echo 'skipping ' . $edit['template'] ;
+				//echo 'skipping ' . $edit['template'] ;
 				continue;
 			}
-
 
 			$expl = pregExplode($templateContent);
 			foreach ($expl as $k=>$line) {
