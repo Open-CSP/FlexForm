@@ -1296,8 +1296,8 @@ if($writepages !== false) {
 
 		if( $mwfollow !== false ) {
 			if( $mwfollow === 'true' ) {
-				echo $ptitle;
-				if( strpos( $ptitle, 'id-' ) === false && strpos( $ptitle, 'id:' ) === false ) {
+				//echo $ptitle;
+				if( strpos( $ptitle, '--id--' ) === false && strpos( $ptitle, '::id::' ) === false ) {
 					$returnto = $api->app['wgScript'] . '/' . $ptitle;
 				}
 			} else {
@@ -1317,11 +1317,15 @@ if($writepages !== false) {
 	}
 	// Now for the actual saving ..
 	$finalPages = array();
+	//echo "<pre>";
+	//print_r( $_POST);
+	//print_r( $pagesToSave );
 	foreach( $pagesToSave as $k => $pageToSave ){
-		if( substr( $pageToSave[0], 0, 3 ) === 'id-' ){
+		//var_dump(substr( trim( $pageToSave[0] ), 0, 6 ) );
+		if( substr( $pageToSave[0], 0, 6 ) === '--id--' || substr( $pageToSave[0], 0, 6 ) === '::id::' ){
 			// We need to append a create to a title
 			//echo "ok";
-			$idTitle = strtolower( substr( $pageToSave[0], 3 ) );
+			$idTitle = strtolower( substr( $pageToSave[0], 6 ) );
 			//var_dump( $idTitle );
 			if( isset( $pageTitleToLinkTo[$idTitle] ) ) {
 				$pagesToSave[$k][0] = $pageTitleToLinkTo[$idTitle];
@@ -1331,7 +1335,7 @@ if($writepages !== false) {
 			$pagesToSave[$k][3] = 'main';
 		}
 	}
-
+	//print_r( $pagesToSave );
 	//echo "<pre>";
 	//print_r( $pageTitleToLinkTo);
 	//print_r( $pageTitleToLinkTo);
@@ -1434,18 +1438,21 @@ if ( ! $mwedit && ! $email ) {
 			// Does this field exist in the current form so we can use ?
 			if ( ! isset( $_POST[ $ff ] ) ) {
 				$data[$pid][$t]['value'] = '';
-				continue;
-			}
-			// The value will be grabbed from the form
-			// But first check if this is an array
-			if ( is_array( $_POST[ $ff ] ) ) {
-				$data[$pid][$t]['value'] = "";
-				foreach ( $_POST[ $ff ] as $multiple ) {
-					$data[$pid][$t]['value'] .= $multiple . ',';
+			} else {
+				// The value will be grabbed from the form
+				// But first check if this is an array
+				if ( is_array( $_POST[$ff] ) ) {
+					$data[$pid][$t]['value'] = "";
+					foreach ( $_POST[$ff] as $multiple ) {
+						$data[$pid][$t]['value'] .= $multiple . ',';
+					}
+					$data[$pid][$t]['value'] = rtrim(
+						$data[$pid][$t]['value'],
+						','
+					);
+				} else { // it is not an array.
+					$data[$pid][$t]['value'] = $_POST[$ff];
 				}
-				$data[$pid][$t]['value'] = rtrim( $data[$pid][$t]['value'], ',' );
-			} else { // it is not an array.
-				$data[$pid][$t]['value'] = $_POST[ $ff ];
 			}
 		}
 		if ( $edit[5] != '' ) {

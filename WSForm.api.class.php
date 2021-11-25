@@ -1152,6 +1152,7 @@ class wbApi {
                 "type" => "login",
             ]);
             $result = $this->apiPost($postdata);
+            //print_r( $result);
             if ($result['error']) {
                 echo $result['error'];
                 exit;
