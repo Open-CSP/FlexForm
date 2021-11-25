@@ -1358,18 +1358,21 @@ if ( ! $mwedit && ! $email ) {
 			// Does this field exist in the current form so we can use ?
 			if ( ! isset( $_POST[ $ff ] ) ) {
 				$data[$pid][$t]['value'] = '';
-				continue;
-			}
-			// The value will be grabbed from the form
-			// But first check if this is an array
-			if ( is_array( $_POST[ $ff ] ) ) {
-				$data[$pid][$t]['value'] = "";
-				foreach ( $_POST[ $ff ] as $multiple ) {
-					$data[$pid][$t]['value'] .= $multiple . ',';
+			} else {
+				// The value will be grabbed from the form
+				// But first check if this is an array
+				if ( is_array( $_POST[$ff] ) ) {
+					$data[$pid][$t]['value'] = "";
+					foreach ( $_POST[$ff] as $multiple ) {
+						$data[$pid][$t]['value'] .= $multiple . ',';
+					}
+					$data[$pid][$t]['value'] = rtrim(
+						$data[$pid][$t]['value'],
+						','
+					);
+				} else { // it is not an array.
+					$data[$pid][$t]['value'] = $_POST[$ff];
 				}
-				$data[$pid][$t]['value'] = rtrim( $data[$pid][$t]['value'], ',' );
-			} else { // it is not an array.
-				$data[$pid][$t]['value'] = $_POST[ $ff ];
 			}
 		}
 		if ( $edit[5] != '' ) {

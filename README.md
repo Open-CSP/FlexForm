@@ -107,6 +107,7 @@ Visit : Special:WSForm/Docs
 
 
 ### Changelog
+* 0.8.0.9.8.9 : Fixed : WSEdits where a field does not exist in a form fails submission. Introduced in v0.8.0.9.8.5 
 * 0.8.0.9.8.8 : Server host security check remove possible port number
 * 0.8.0.9.8.7 : Version bump
 * 0.8.0.9.8.6 : Add support for SEO friendly slugs with WSCreate. To be set in the config. Updated docs.
