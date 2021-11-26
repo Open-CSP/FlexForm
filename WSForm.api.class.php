@@ -4,7 +4,59 @@
 # @License: Mine
 # @Copyright: 2018
 
+class wsDebug {
+    private static $debugMessages = array();
 
+    public static function addToDebug( $title, $details ) {
+        self::$debugMessages[$title] = $details;
+    }
+
+    private static function debugCSS(){
+        $ret = <<<ENDING
+<style>
+.wsform-debug {
+  padding: 1.5rem;
+}
+.wsform-debug details {
+    border: 1px solid #ddd;
+    background: #fff;
+    margin-bottom: 1.5rem;
+    border-radius: 0.35rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+		0 10px 10px -5px rgba(0, 0, 0, 0.04);
+		overflow: scroll;
+}
+.wsform-debug details summary {
+      cursor: pointer;
+      padding: 1rem;
+      border-bottom: 1px solid #ddd;
+    }
+.wsform-debug details div {
+      padding: 1rem 1.5rem;
+    }
+
+</style>
+
+ENDING;
+    return $ret;
+    }
+
+    public static function createDebugOutput() {
+        $ret = self::debugCSS();
+        $ret .= '<h2>WSForm Debug</h2><div class="wsform-debug">';
+        foreach( self::$debugMessages as $title=>$message ) {
+            $ret .= '<details><summary>'.$title.'</summary>';
+            $ret .= '<div>';
+            if( is_array( $message ) ) {
+                $ret .= "<pre>" . print_r( $message, true ) . '</pre>';
+            } else {
+                $ret .= '<p>' . $message . '</p>';
+            }
+            $ret .= '</div></details>';
+        }
+        return $ret . '</div';
+    }
+}
 
 /**
  * Class wsi18n
@@ -170,6 +222,9 @@ class wbApi {
   public $api = "";
   public $services = "";
 
+
+
+
   private $status = array();
 
   public $usr = false;
@@ -189,6 +244,10 @@ class wbApi {
       }
 
     $this->loadSettings();
+  }
+
+  function isDebug(){
+      return $this->app['debug'];
   }
 
   function setStatus( $state, $msg ) {
@@ -262,6 +321,8 @@ class wbApi {
   }
 
 
+
+
   function loadSettings() {
 
       // Version
@@ -309,6 +370,12 @@ class wbApi {
       } else {
           $this->app['password'] = false;
       }
+
+      if ( isset( $config['debug'] ) ) {
+          if( $config['debug'] === '' ) $this->app['debug'] = false;
+          if( $config['debug'] === true ) $this->app['debug'] = true;
+          if( $config['debug'] === false ) $this->app['debug'] = false;
+      } else $this->app['debug'] = false;
 
       if ( isset( $config['use-smtp'] ) && $config['use-smtp'] !== '' ) {
           $this->app['use-smtp'] = $config['use-smtp'];
@@ -850,11 +917,18 @@ class wbApi {
           }
           $cmd .= ' --summary "' . $summary . '"';
           //echo $cmd;
+          if( $this->isDebug() ) {
+              wsDebug::addToDebug( 'maintenance command ' . microtime(), $cmd );
+          }
           //die();
           $result = shell_exec( $cmd );
+          if( $this->isDebug() ) {
+              wsDebug::addToDebug( 'maintenance result ' . microtime(), $result );
+          }
           //var_dump( $result );
 //die();
           $res = explode('|', $result);
+
         // print_r($res);
          //die('ok');
 
@@ -1045,7 +1119,10 @@ class wbApi {
             );
         }
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        $result['received']=json_decode($this->clearJSON(curl_exec($ch)), true);
+        $result['received'] = json_decode($this->clearJSON(curl_exec($ch)), true);
+        if( $this->isDebug() ) {
+            wsDebug::addToDebug( 'API Post result '. microtime(), array('data'=>$data, 'result'=>$result ) );
+        }
         if(curl_errno($ch)) {
            $result['error'] =  "Error 003: " . curl_error($ch);
         } else $result['error']=false;

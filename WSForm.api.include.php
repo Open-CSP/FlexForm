@@ -1118,7 +1118,9 @@ function saveToWiki( $email=false ) {
 
 if($writepages !== false) {
 
+	$writePageCount = 0;
 	foreach ($writepages as $singlePage) {
+		$writePageCount++;
         $noTemplate = false;
         $writePageSlot = false;
 		$pageData = explode( '-^^-', $singlePage );
@@ -1291,9 +1293,17 @@ if($writepages !== false) {
 			}
 		}
 
-		if($weHaveApi) {
+		if( $api->isDebug() ) {
+			wsDebug::addToDebug( 'writepages '. $writePageCount, array(
+				'ptitle' => $ptitle,
+				'ret' => $ret,
+				'summary' => $summary,
+				'writePageSlot' => $writePageSlot
+			) );
+		}
 
-			$result = $api->savePageToWiki( $ptitle, $ret, $summary, $writePageSlot );
+		if($weHaveApi) {
+				$result = $api->savePageToWiki( $ptitle, $ret, $summary, $writePageSlot );
 			if(isset($result['received']['error'])) {
 				return createMsg($result['received']['error'],'error',$returnto);
 			}
@@ -1326,7 +1336,9 @@ if ( ! $mwedit && ! $email ) {
 	$data = array();
 	$t=0;
 	//edit = [0]pid [1]template [2]Form field [3]Use field [4]Value [5]Slot
+	 $editCount = 0;
 	foreach ( $mwedit as $edits ) {
+		$editCount++;
 		$edit = explode( '-^^-', $edits );
 		if ( $edit[0] == '' || $edit[1] == '' || $edit[2] == '' ) {
 			continue;
@@ -1383,6 +1395,7 @@ if ( ! $mwedit && ! $email ) {
 
 		$t++;
 	}
+
 	// We have all the info in the data Array
 	// Now we need to grab the page and replace what needs to be replaced.
 
@@ -1398,6 +1411,9 @@ if ( ! $mwedit && ! $email ) {
 
 		$weHaveAPI = true;
 	}
+	 if( $api->isDebug() ) {
+		 wsDebug::addToDebug( 'edit data accumulation '. $editCount, $data );
+	 }
 	$pageContents = array();
 	foreach ($data as $pid => $edits) {
 		//setup slots if needed
@@ -1478,6 +1494,9 @@ if ( ! $mwedit && ! $email ) {
 			}
 			$pageContents[$slotToEdit] = str_replace($templateContent,$newTemplateContent, $pageContents[$slotToEdit] );
 
+		}
+		if( $api->isDebug() ) {
+			wsDebug::addToDebug( 'edit data page formation ', $pageContents );
 		}
 		//echo "<pre>";
 		//print_r( $pageContents );

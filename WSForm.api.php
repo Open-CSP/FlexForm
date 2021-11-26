@@ -71,6 +71,12 @@ $title = "";
 include_once('WSForm.api.include.php');
 $api = new wbApi();
 
+if( $api->isDebug() ) {
+	ERROR_REPORTING(E_ALL);
+	ini_set('display_errors', 1);
+	wsDebug::addToDebug( '$_POST before checks', $_POST );
+}
+
 $securedVersion = $api->isSecure();
 
 
@@ -194,6 +200,8 @@ if( $securedVersion ) {
 	}
 }
 
+if( $api->isDebug() ) wsDebug::addToDebug( '$_POST after secured version check', $_POST );
+
 $pauseBeforeRefresh = getPostString( 'mwpause' );
 
 if( !is_cli() ) {
@@ -285,6 +293,8 @@ if( $securedVersion ) {
 	}
 }
 
+if( $api->isDebug() ) wsDebug::addToDebug( '$_POST after cleaned html', $_POST );
+
 
 $wsuid = getPostString( 'wsuid' );
 
@@ -297,6 +307,8 @@ foreach( $_POST as $k=>$v ) {
 		}
 	}
 }
+
+if( $api->isDebug() ) wsDebug::addToDebug( '$_POST after wsdefault changes', $_POST );
 
 if( $wsuid !== false ){
 	unset($_POST['wsuid']);
@@ -390,9 +402,13 @@ if( $extension !== false ) {
 		}
 	}
 }
-
-//die('testing..');
-
+if( $api->isDebug() ) {
+	if ( !$api->getStatus() ) {
+		wsDebug::addToDebug('API CLASS MESSAGES', $api->getStatus( true ) );
+	}
+	echo wsDebug::createDebugOutput();
+	die('testing..');
+}
 //die();
 if( !$api->getStatus()) { //$msg, $status="error", $mwreturn=false, $type=false
 	if ( isset( $_POST['mwreturn'] ) && $_POST['mwreturn'] !== "" ) {
