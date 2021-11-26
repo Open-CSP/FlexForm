@@ -70,6 +70,7 @@ $title = "";
 
 include_once('WSForm.api.include.php');
 $api = new wbApi();
+
 $securedVersion = $api->isSecure();
 
 
@@ -151,7 +152,6 @@ if( isset( $_GET['action'] ) && $_GET['action'] === 'handleQuery' ) {
 
 $identifier         = getPostString( 'mwidentifier' );
 $messages           = new wbHandleResponses( $identifier );
-
 
 if( $securedVersion ) {
 	require_once( 'classes/protect.class.php' );
@@ -394,7 +394,12 @@ if( $extension !== false ) {
 //die('testing..');
 
 //die();
-
+if( !$api->getStatus()) { //$msg, $status="error", $mwreturn=false, $type=false
+	if ( isset( $_POST['mwreturn'] ) && $_POST['mwreturn'] !== "" ) {
+		$ret = createMsg( $api->getStatus( true ), 'error', $_POST['mwreturn'], "danger" );
+	} else $ret = createMsg( $api->getStatus( true ), 'error', false, "danger" );
+	$messages->handleResonse( $ret );
+}
 if( $ret !== false ) {
 	$messages->handleResonse( $ret );
 } else {

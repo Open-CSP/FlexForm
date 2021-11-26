@@ -316,6 +316,7 @@ class SpecialWSForm extends SpecialPage {
         $examplePath = $path.'examples/';
         $purl = $realUrl . "/index.php/Special:WSForm/Docs";
 		$setupUrl = $realUrl . "/index.php/Special:WSForm/Setup";
+		$statusUrl = $realUrl . "/index.php/Special:WSForm/Status";
         $eurl = $realUrl . "/index.php/Special:WSForm/Docs/examples";
         $out = $this->getOutput();
 		$out->addHTML( '<h1 class="hit-the-floor" style="text-align:center;">WSForm ' . wfMessage("wsform-docs-documentation")->text() . '</h1><hr class="brace">');
@@ -386,6 +387,22 @@ class SpecialWSForm extends SpecialPage {
 				} else {
 					$out->addHTML( '<p>Setup through Special page disabled</p>' );
 				}
+			}
+
+			if ( strtolower($args[0]) == 'status' ) {
+				if( in_array( 'sysop', $wgUser->getGroups() ) ) {
+					$css = $this->getDocsCSS(
+						$path,
+						$wsformpurl
+					);
+					$out->addHTML( '<style>' . $css . '</style>' );
+					//$out->addHTML('<HR><pre>');
+					$out->addHTML( $this->showStatus() );
+
+					//$out->addHTML('</pre><HR>');
+					return;
+				}
+
 			}
 
 			if ( strtolower($args[0]) == 'docs' ) {
@@ -926,6 +943,39 @@ class SpecialWSForm extends SpecialPage {
 		return $value;
 	}
 
+	private function getValueType( $v ) {
+		$type = '';
+		if( is_bool( $v ) ) {
+			if( true === $v ) return "[bool] true";
+			if( false === $v ) return "[bool] false";
+		}
+		if( empty( $v ) ) {
+			return '[empty]';
+		}
+		if( is_numeric( $v ) ) {
+			return '[number] ';
+		} elseif( is_string ( $v ) ) {
+			return '[string] ';
+		}
+		return "[unknown]";
+	}
+
+	private function showStatus(){
+		$ret = '<h2>WSForm setup status</h2><p>Check WSForm <strong>docs -> wsform -> config</strong> for information</p>';
+		$ret .= "<table class='wsform-table'><thead><tr><th>Variable</th><th>Type</th><th>Value</th></tr></thead><tbody>";
+		$ret .= '<tr><td>$_SERVER[\'HTTPS\']</td><td>system</td><td>' . $_SERVER['HTTPS'] . '</td></tr>';
+		$ret .= '<tr><td>$_SERVER[\'SERVER_NAME\']</td><td>system</td><td>' . $_SERVER['SERVER_NAME'] . '</td></tr>';
+		$ret .= '<tr><td>$_SERVER[\'REQUEST_URI\']</td><td>system</td><td>' . $_SERVER['REQUEST_URI'] . '</td></tr>';
+
+		foreach( $this->config as $k=>$v ){
+			$ret .= '<tr><td>' . $k . '</td><td>';
+			$ret .= $this->getValueType( $v ) . '</td><td>';
+			$ret .= $v . '</td></tr>';
+		}
+		$ret .= '</tbody></table>';
+		return $ret;
+	}
+
 	private function setupWSForm( $path, $purl ){
 		global $wgGroupPermissions, $wgAllowCopyUploads, $wgCopyUploadsFromSpecialUpload;
 
@@ -1300,6 +1350,8 @@ class SpecialWSForm extends SpecialPage {
 
 		}
 	}
+
+
 
 	/**
 	 * Highlighting matching string

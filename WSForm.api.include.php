@@ -267,10 +267,10 @@ function convert_image($convert_type, $target_dir, $target_name, $image, $image_
  * @param string|array $msg Message to pass
  * @param string $status Defaults to error. "ok" to pass
  * @param bool|url $mwreturn url to return page
- * @param bool|string $type type of visial notice to show (error, warning, success, etc)
+ * @param bool|string $type type of visual notice to show (error, warning, success, etc)
  * @return array
  */
-function createMsg($msg,$status="error", $mwreturn=false, $type=false) {
+function createMsg($msg, $status="error", $mwreturn=false, $type=false) {
 		$tmp = array();
 		$tmp['status']=$status;
         $tmp['type']=$type;

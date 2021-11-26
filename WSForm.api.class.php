@@ -284,7 +284,6 @@ class wbApi {
           include( __DIR__ . '/config/config.php' );
       } else {
           $this->setStatus( false, $i18n->wsMessage( 'wsform-config-not-found' ) );
-
           return;
       }
       if ( isset( $config['api-username'] ) && $config['api-username'] !== '' ) {
@@ -376,7 +375,6 @@ class wbApi {
 
       if( $this->app['password'] === false || $this->app['username'] === false ) {
           $this->setStatus( false, $i18n->wsMessage( 'wsform-config-credentials-not-found' ) );
-
           return;
       }
 

@@ -286,3 +286,31 @@
 .close:hover {
     background: #00d9ff;
 }
+
+.wsform-table {
+    width:70%;
+    margin-top:20px;
+    display: grid;
+    grid-template-columns:auto auto auto;
+    gap:.2rem;
+    column-rule-color: #0e6dcd;
+}
+.wsform-table thead, .wsform-table tbody, .wsform-table tr {
+    display:contents;
+}
+.wsform-table tbody td {
+    border-bottom: 1px dotted #555;
+    padding:5px;
+}
+
+.wsform-table tbody td:first-child {
+    font-weight:bold;
+}
+
+.wsform-table thead th {
+    background-color: #00d9ff;
+    border-bottom: 5px solid #1e49ef;
+    color: white;
+    padding:5px;
+}
+
