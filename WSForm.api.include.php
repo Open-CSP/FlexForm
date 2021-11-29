@@ -1315,6 +1315,9 @@ if($writepages !== false) {
 
 
 	}
+	if( $api->isDebug() ) {
+		wsDebug::addToDebug( '$pagesToSave', $pagesToSave );
+	}
 	// Now for the actual saving ..
 	$finalPages = array();
 	//echo "<pre>";
@@ -1335,6 +1338,7 @@ if($writepages !== false) {
 			$pagesToSave[$k][3] = 'main';
 		}
 	}
+
 	//print_r( $pagesToSave );
 	//echo "<pre>";
 	//print_r( $pageTitleToLinkTo);
@@ -1353,15 +1357,11 @@ if($writepages !== false) {
 		);
 		$finalPages[ $title ][] = $pArray;
 	}
-	//print_r( $finalPages);
 	if( $api->isDebug() ) {
-		wsDebug::addToDebug( 'writepages '. $writePageCount, array(
-			'ptitle' => $ptitle,
-			'ret' => $ret,
-			'summary' => $summary,
-			'writePageSlot' => $writePageSlot
-		) );
+		wsDebug::addToDebug( '$finalPages', $finalPages );
 	}
+	//print_r( $finalPages);
+
 	if( $weHaveApi === false ) {
 		require_once( 'WSForm.api.class.php' );
 		$api = new wbApi();

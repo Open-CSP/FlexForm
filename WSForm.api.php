@@ -186,10 +186,11 @@ if( $securedVersion ) {
 				$delMe = $secure['name'];
 				unset( $_POST[$delMe] );
 				$removeList[] = $newK;
+				// Are we dealing with an array?
 				if( substr( $newK, -2, 2 ) === '[]' ) {
-					echo "ÖKOKOKOKOK";
+					//echo "okokoko";
 					$newK = str_replace('[]', '', $newK );
-					$_POST[$newK]= array( $newV );
+					$_POST[$newK][] = $newV;
 				} else {
 					$_POST[ $newK ] = $newV;
 				}
