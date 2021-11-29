@@ -21,6 +21,7 @@ class render {
         $wsfields = "";
         $wsfollow = "";
         $wsSlot   = "";
+        $wsCreateId = '';
 	    $mwleadingzero = "";
 
         if(isset($args['mwfields']) && $args['mwfields'] != '') {
@@ -29,6 +30,10 @@ class render {
                 if ( $k == "mwtemplate" ) {
                     $template = $v;
                 }
+
+                if( $k == 'id' ){
+					$wsCreateId = $v;
+				}
 
                 if ( $k == "mwwrite" ) {
                     $wswrite = $v;
@@ -64,7 +69,13 @@ class render {
                 return 'No valid title for creating a page.';
             }
 
-            $createValue = $template . $div . $wswrite . $div . $wsoption . $div . $wsfields . $div . $wsSlot;
+            $createValue =
+				$template . $div .
+				$wswrite . $div .
+				$wsoption . $div .
+				$wsfields . $div .
+				$wsSlot . $div .
+				$wsCreateId;
 	        $def = \wsform\wsform::createHiddenField( 'mwcreatemultiple[]', $createValue );
 
             return $def.$wsfollow ;
