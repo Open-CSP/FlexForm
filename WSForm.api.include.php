@@ -270,10 +270,10 @@ function convert_image($convert_type, $target_dir, $target_name, $image, $image_
  * @param string|array $msg Message to pass
  * @param string $status Defaults to error. "ok" to pass
  * @param bool|url $mwreturn url to return page
- * @param bool|string $type type of visial notice to show (error, warning, success, etc)
+ * @param bool|string $type type of visual notice to show (error, warning, success, etc)
  * @return array
  */
-function createMsg($msg,$status="error", $mwreturn=false, $type=false) {
+function createMsg($msg, $status="error", $mwreturn=false, $type=false) {
 		$tmp = array();
 		$tmp['status']=$status;
         $tmp['type']=$type;
@@ -1087,7 +1087,6 @@ function saveToWiki( $email=false ) {
 		$api->logMeIn();
 		//die($wsuid);
 
-		//$slot is false or has the name of the slot.
 		$result = $api->savePageToWiki( $title, $ret, $summary, $slot );
 
 		if(isset($result['received']['error'])) {
@@ -1123,8 +1122,9 @@ if($writepages !== false) {
 
 	$pagesToSave = array();
 	$pageTitleToLinkTo = array();
-
+	$writePageCount = 0;
 	foreach ($writepages as $singlePage) {
+		$writePageCount++;
 		$createId = false;
         $noTemplate = false;
         $writePageSlot = false;
@@ -1354,7 +1354,14 @@ if($writepages !== false) {
 		$finalPages[ $title ][] = $pArray;
 	}
 	//print_r( $finalPages);
-
+	if( $api->isDebug() ) {
+		wsDebug::addToDebug( 'writepages '. $writePageCount, array(
+			'ptitle' => $ptitle,
+			'ret' => $ret,
+			'summary' => $summary,
+			'writePageSlot' => $writePageSlot
+		) );
+	}
 	if( $weHaveApi === false ) {
 		require_once( 'WSForm.api.class.php' );
 		$api = new wbApi();
@@ -1406,7 +1413,9 @@ if ( ! $mwedit && ! $email ) {
 	$data = array();
 	$t=0;
 	//edit = [0]pid [1]template [2]Form field [3]Use field [4]Value [5]Slot
+	 $editCount = 0;
 	foreach ( $mwedit as $edits ) {
+		$editCount++;
 		$edit = explode( '-^^-', $edits );
 		if ( $edit[0] == '' || $edit[1] == '' || $edit[2] == '' ) {
 			continue;
@@ -1481,6 +1490,9 @@ if ( ! $mwedit && ! $email ) {
 
 		$weHaveAPI = true;
 	}
+	 if( $api->isDebug() ) {
+		 wsDebug::addToDebug( 'edit data accumulation '. $editCount, $data );
+	 }
 	$pageContents = array();
 	foreach ($data as $pid => $edits) {
 		//setup slots if needed
@@ -1526,7 +1538,7 @@ if ( ! $mwedit && ! $email ) {
 				$templateContent = $api->getTemplate( $pageContents[$slotToEdit], $edit['template'] );
 			}
 			if ($templateContent === false) {
-				echo 'skipping ' . $edit['template'] ;
+				//echo 'skipping ' . $edit['template'] ;
 				continue;
 			}
 
@@ -1562,6 +1574,9 @@ if ( ! $mwedit && ! $email ) {
 			}
 			$pageContents[$slotToEdit] = str_replace($templateContent,$newTemplateContent, $pageContents[$slotToEdit] );
 
+		}
+		if( $api->isDebug() ) {
+			wsDebug::addToDebug( 'edit data page formation ', $pageContents );
 		}
 		//echo "<pre>";
 		//print_r( $pageContents );
