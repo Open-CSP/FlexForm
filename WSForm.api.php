@@ -44,6 +44,7 @@ require_once( 'modules/htmlpurifier/library/HTMLPurifier.auto.php' );
 
 $i18n = new wsi18n();
 $ret = false;
+$failed = false;
 
 $removeList = array();
 
@@ -175,7 +176,9 @@ if( $securedVersion ) {
 		}
 	}
 	if( $checksum === false && $formId !== false ) {
+		if( $api->isDebug() ) wsDebug::addToDebug( 'Secured Version check: Checksum is false or no formid', $i18n->wsMessage( 'wsform-secure-not' ) );
 		$messages->doDie( $i18n->wsMessage( 'wsform-secure-not' ) );
+		$failed = true;
 	}
 	if( isset( $checksum[$formId]['secure'] ) ) {
 		foreach( $checksum[$formId]['secure'] as $secure ) {
@@ -196,6 +199,8 @@ if( $securedVersion ) {
 				}
 			} else {
 				$messages->doDie( $i18n->wsMessage( 'wsform-secure-fields-incomplete' ) );
+				$failed = true;
+				if( $api->isDebug() ) wsDebug::addToDebug( 'Secured Version check: missing secured fields', $i18n->wsMessage( 'wsform-secure-fields-incomplete' ) );
 			}
 		}
 	}
@@ -211,6 +216,8 @@ if( !is_cli() ) {
 
 	if ( $sessInfo['mwtoken'] === false ) {
 		$messages->doDie( $i18n->wsMessage( 'wsform-session-no-token' ) );
+		$failed = true;
+		if( $api->isDebug() ) wsDebug::addToDebug( 'checkDefaultInformation 1', $i18n->wsMessage( 'wsform-session-no-token' ) );
 		if ( isset( $_POST['mwreturn'] ) && $_POST['mwreturn'] !== "" ) {
 			$messages->redirect( $_POST['mwreturn'] );
 			die();
@@ -218,6 +225,8 @@ if( !is_cli() ) {
 	}
 	if ( $sessInfo['mwsession'] === false ) {
 		$messages->doDie( $i18n->wsMessage( 'wsform-session-expired' ) );
+		$failed = true;
+		if( $api->isDebug() ) wsDebug::addToDebug( 'checkDefaultInformation 2', $i18n->wsMessage( 'wsform-session-expired' ) );
 		if ( isset( $_POST['mwreturn'] ) && $_POST['mwreturn'] !== "" ) {
 			$messages->redirect( $_POST['mwreturn'] );
 			die();
@@ -225,6 +234,8 @@ if( !is_cli() ) {
 	}
 	if ( $sessInfo['mwhost'] === false ) {
 		$messages->doDie( $i18n->wsMessage( 'wsform-session-no-equal-host' ) );
+		$failed = true;
+		if( $api->isDebug() ) wsDebug::addToDebug( 'checkDefaultInformation 3', $i18n->wsMessage( 'wsform-session-no-equal-host' ) );
 		if ( isset( $_POST['mwreturn'] ) && $_POST['mwreturn'] !== "" ) {
 			$messages->redirect( $_POST['mwreturn'] );
 			die();
@@ -319,6 +330,7 @@ if( isset( $_POST['wsform_signature'] ) ) {
 	$res = signatureUpload();
 	if ($res['status'] == 'error') {
 		$messages->doDie( ' signature : '.$res['msg'] );
+		$failed = true;
 	}
 	$ret = $res; // v0.7.0.3.3 added
 }
@@ -327,6 +339,7 @@ if(isset($_FILES['wsformfile'])) {
 		$res = fileUpload();
 		if ($res['status'] == 'error') {
 			$messages->doDie(' file : '.$res['msg']);
+			$failed = true;
 		}
 		$ret = $res; // v0.7.0.3.3 added
 	}
@@ -336,11 +349,11 @@ if( isset($_POST['wsformfile_slim']) ) {
 	$ret=fileUploadSlim();
 	if (isset($ret['status']) && $ret['status'] === 'error') {
 		$messages->doDie( ' slim : '.$ret['msg'] );
+		$failed = true;
 	}
 
 }
-
-if ( getPostString('mwaction') !== false ) {
+if ( getPostString('mwaction') !== false && $failed === false) {
 	$action = getPostString('mwaction');
 	unset( $_POST['mwaction'] );
 
@@ -379,6 +392,8 @@ if ( getPostString('mwaction') !== false ) {
 			$ret = saveToWiki('yes' );
 			break;
 	}
+} else {
+	if( $api->isDebug() ) wsDebug::addToDebug( 'running main functions fail', array('action'=>getPostString('mwaction'), 'failed'=>$failed ) );
 }
 
 
@@ -403,6 +418,7 @@ if( $extension !== false ) {
 		}
 	}
 }
+
 if( $api->isDebug() ) {
 	if ( !$api->getStatus() ) {
 		wsDebug::addToDebug('API CLASS MESSAGES', $api->getStatus( true ) );

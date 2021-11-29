@@ -54,7 +54,7 @@ ENDING;
             }
             $ret .= '</div></details>';
         }
-        return $ret . '</div';
+        return $ret . '</div>';
     }
 }
 

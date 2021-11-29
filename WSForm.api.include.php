@@ -1199,8 +1199,9 @@ if($writepages !== false) {
 			// get highest number
 			if($weHaveApi) {
 				$hnr = $api->getNextAvailable( $pageTitle );
+				if( $api->isDebug() ) wsDebug::addToDebug( 'next available', $hnr );
 				if( $hnr['status'] !== 'error') {
-					$pageTitle = $writepage . $hnr['result'];
+					$pageTitle = $pageTitle . $hnr['result'];
 				} else {
 					return createMsg( $hnr['message'], 'error', $returnto);
 				}
@@ -1215,16 +1216,18 @@ if($writepages !== false) {
 
 				//$pageTitle = $pageTitle . $api->getWikiListNumber( $pageTitle );
 				$hnr = $api->getNextAvailable( $pageTitle );
+				if( $api->isDebug() ) wsDebug::addToDebug( 'next available', $hnr );
 				if( $hnr['status'] !== 'error') {
-					$pageTitle = $writepage . $hnr['result'];
+					$pageTitle = $pageTitle . $hnr['result'];
 				} else {
 					return createMsg( $hnr['message'], 'error', $returnto);
 				}
 				//die( "New title : ". $pageTitle );
 			}
-			if( $pageTitle === false ) {
-				return createMsg($i18n->wsMessage( 'wsform-mwcreate-wrong-title2' ), 'error', $returnto);
-			}
+
+		}
+		if( $pageTitle === false ) {
+			return createMsg($i18n->wsMessage( 'wsform-mwcreate-wrong-title2' ), 'error', $returnto);
 		}
 
 		// ranges begin
