@@ -107,6 +107,7 @@ Visit : Special:WSForm/Docs
 
 
 ### Changelog
+* 0.8.0.9.9.2 : Show on select in Security version with multiple wscreate's fixed
 * 0.8.0.9.9.1 : Merged Slot support. 1.35.x + version only
 * 0.8.0.9.9.0 : Debug info added
 * 0.8.0.9.8.9 : Fixed : WSEdits where a field does not exist in a form fails submission. Introduced in v0.8.0.9.8.5 

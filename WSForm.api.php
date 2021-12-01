@@ -165,6 +165,7 @@ if( $securedVersion ) {
 	$crypt = new wsform\protect\protect();
 	$crypt::setCrypt( $api->getCheckSumKey() );
 	$checksum = false;
+	$showOnSelect = false;
 	$formId = getPostString('formid' );
 	if( $formId !== false ) {
 		unset( $_POST['formid'] );
@@ -172,6 +173,10 @@ if( $securedVersion ) {
 	foreach( $_POST as $k=>$v ) {
 		if( $crypt::decrypt( $k ) === 'checksum' ) {
 			$checksum = unserialize( $crypt::decrypt( $v ) ) ;
+			unset( $_POST[$k] );
+		}
+		if( $crypt::decrypt( $k ) === 'showonselect' ) {
+			$showOnSelect = true;
 			unset( $_POST[$k] );
 		}
 	}
@@ -184,19 +189,21 @@ if( $securedVersion ) {
 		foreach( $checksum[$formId]['secure'] as $secure ) {
 			$tmpName = getPostString( $secure['name'], false );
 			if( $tmpName !== false ) {
-				$newK = $crypt::decrypt( $secure['name'] );
-				$newV = $crypt::decrypt( $tmpName );
+				$newK  = $crypt::decrypt( $secure['name'] );
+				$newV  = $crypt::decrypt( $tmpName );
 				$delMe = $secure['name'];
-				unset( $_POST[$delMe] );
+				unset( $_POST[ $delMe ] );
 				$removeList[] = $newK;
 				// Are we dealing with an array?
-				if( substr( $newK, -2, 2 ) === '[]' ) {
+				if ( substr( $newK, - 2, 2 ) === '[]' ) {
 					//echo "okokoko";
-					$newK = str_replace('[]', '', $newK );
-					$_POST[$newK][] = $newV;
+					$newK             = str_replace( '[]', '', $newK );
+					$_POST[ $newK ][] = $newV;
 				} else {
 					$_POST[ $newK ] = $newV;
 				}
+			} elseif( $showOnSelect ) {
+				continue;
 			} else {
 				$messages->doDie( $i18n->wsMessage( 'wsform-secure-fields-incomplete' ) );
 				$failed = true;

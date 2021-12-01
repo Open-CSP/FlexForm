@@ -473,6 +473,11 @@ class WSFormHooks {
 
 		//Add checksum
 
+		if( \wsform\wsform::isShowOnSelectActive() ) {
+			$ret .= \wsform\wsform::createHiddenField( 'showonselect', '1' );
+
+		}
+
 		if( \wsform\wsform::$secure ) {
 			\wsform\protect\protect::setCrypt( \wsform\wsform::$checksumKey );
 			if( \wsform\wsform::$runAsUser ) {
@@ -489,6 +494,8 @@ class WSFormHooks {
 			}
 
 		}
+
+
 
 
 		$ret .= $output . '</form>';
