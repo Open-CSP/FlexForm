@@ -19,8 +19,6 @@ use SMW\Options;
 use SMW\Store;
 use SMW\StoreFactory;
 
-
-
 $IP = getenv( 'MW_INSTALL_PATH' );
 if ( $IP === false ) {
 	$IP = __DIR__ . '/../../../..';
@@ -33,69 +31,130 @@ class handlePostsToWiki extends Maintenance {
 		parent::__construct();
 		$this->requireExtension( 'WSForm' );
 		$this->mDescription = "WSForm handling of posts\n";
-		$this->addOption( 'summary', 'Additional text that will be added to the files imported History. [optional]', false, true, "s" );
-		$this->addOption( 'action', 'What to do', true, true, "a" );
-		$this->addOption( 'content', 'Page content', true, true ); // including slots
-		$this->addOption( 'title', 'Page title', true, true );
-		$this->addOption( 'fip', "Filename and path", false, true );
-		$this->addOption( 'user', 'Your username. Will be added to the import log. [mandatory]', true, true, "u" );
-		$this->addOption( 'rc', 'Place revisions in RecentChanges.' );
+		$this->addOption(
+			'summary',
+			'Additional text that will be added to the files imported History. [optional]',
+			false,
+			true,
+			"s"
+		);
+		$this->addOption(
+			'action',
+			'What to do',
+			true,
+			true,
+			"a"
+		);
+		$this->addOption(
+			'content',
+			'Page content',
+			true,
+			true
+		); // including slots
+		$this->addOption(
+			'title',
+			'Page title',
+			true,
+			true
+		);
+		$this->addOption(
+			'fip',
+			"Filename and path",
+			false,
+			true
+		);
+		$this->addOption(
+			'user',
+			'Your username. Will be added to the import log. [mandatory]',
+			true,
+			true,
+			"u"
+		);
+		$this->addOption(
+			'rc',
+			'Place revisions in RecentChanges.'
+		);
 	}
 
-	public function returnMsg( $msg, $status = true ){
-		if( $status === true ){
+	public function returnMsg( $msg, $status = true ) {
+		if ( $status === true ) {
 			$status = "ok";
-		} else $status = "error";
+		} else {
+			$status = "error";
+		}
 		echo $status . "|" . $msg;
 
 		return;
 	}
 
-	public function createMsg( $msg, $status = false ){
-		$ret = array();
+	public function createMsg( $msg, $status = false ) {
+		$ret           = array();
 		$ret['status'] = $status;
-		if( is_array( $msg ) ) {
-			$msg = implode(',', $msg );
+		if ( is_array( $msg ) ) {
+			$msg = implode(
+				',',
+				$msg
+			);
 		}
 		$ret['msg'] = $msg;
+
 		return $ret;
 	}
 
 	public function uploadFileToWiki( $filePath, $filename, $uname, $content, $summary, $timestamp ) {
 		$ret = array();
 		global $wgUser;
-		if( !file_exists( $filePath ) ) {
+		if ( ! file_exists( $filePath ) ) {
 			return $this->createMsg( 'Cannot find file' );
 		}
 		$user = $this->getUser( $uname );
-		if( $user === false ){
+		if ( $user === false ) {
 			return $this->createMsg( 'Cannot find user' );
 		}
 		$wgUser = $user;
-		$base = UtfNormal\Validator::cleanUp( wfBaseName( $filename ) );
+		$base   = UtfNormal\Validator::cleanUp( wfBaseName( $filename ) );
 		# Validate a title
-		$title = Title::makeTitleSafe( NS_FILE, $base );
-		if ( !is_object( $title ) ) {
+		$title = Title::makeTitleSafe(
+			NS_FILE,
+			$base
+		);
+		if ( ! is_object( $title ) ) {
 			return $this->createMsg( "{$base} could not be imported; a valid title cannot be produced" );
 		}
 
-		$image = wfLocalFile( $title );
-		$mwProps = new MWFileProps( MediaWiki\MediaWikiServices::getInstance()->getMimeAnalyzer() );
-		$props = $mwProps->getPropsFromPath( $filePath, true );
-		$flags = 0;
+		$image          = wfLocalFile( $title );
+		$mwProps        = new MWFileProps( MediaWiki\MediaWikiServices::getInstance()->getMimeAnalyzer() );
+		$props          = $mwProps->getPropsFromPath(
+			$filePath,
+			true
+		);
+		$flags          = 0;
 		$publishOptions = [];
-		$handler = MediaHandler::getHandler( $props['mime'] );
+		$handler        = MediaHandler::getHandler( $props['mime'] );
 		if ( $handler ) {
-			$metadata = Wikimedia\quietCall( 'unserialize', $props['metadata'] );
+			$metadata = Wikimedia\quietCall(
+				'unserialize',
+				$props['metadata']
+			);
 
 			$publishOptions['headers'] = $handler->getContentHeaders( $metadata );
 		} else {
 			$publishOptions['headers'] = [];
 		}
-		$archive = $image->publish( $filePath, $flags, $publishOptions );
+		$archive = $image->publish(
+			$filePath,
+			$flags,
+			$publishOptions
+		);
 
-		if ( !$archive->isGood() ) {
-			return $this->createMsg( $archive->getWikiText( false, false, 'en' ) );
+		if ( ! $archive->isGood() ) {
+			return $this->createMsg(
+				$archive->getWikiText(
+					false,
+					false,
+					'en'
+				)
+			);
 		}
 		$image->recordUpload2(
 			$archive->value,
@@ -105,21 +164,27 @@ class handlePostsToWiki extends Maintenance {
 			$timestamp
 		);
 		$this->refreshSMWProperties( $title );
-		return $this->createMsg('ok', true);
 
+		return $this->createMsg(
+			'ok',
+			true
+		);
 	}
 
 	/**
 	 * @param Title $title
 	 */
-	public function refreshSMWProperties( Title $title ){
+	public function refreshSMWProperties( Title $title ) {
 		sleep( 1 );
-		if ( !ExtensionRegistry::getInstance()->isLoaded( 'SemanticMediaWiki' ) ) {
+		if ( ! ExtensionRegistry::getInstance()->isLoaded( 'SemanticMediaWiki' ) ) {
 			return;
 		}
 
 		$store = StoreFactory::getStore();
-		$store->setOption( Store::OPT_CREATE_UPDATE_JOB, false );
+		$store->setOption(
+			Store::OPT_CREATE_UPDATE_JOB,
+			false
+		);
 
 		$rebuilder = new \SMW\Maintenance\DataRebuilder(
 			$store,
@@ -132,7 +197,6 @@ class handlePostsToWiki extends Maintenance {
 		);
 
 		$rebuilder->rebuild();
-
 	}
 
 
@@ -195,17 +259,18 @@ class handlePostsToWiki extends Maintenance {
 
 			$contentOfSLot = ContentHandler::getContentText( $content_object );
 
-			if( empty( $contentOfSLot ) && $slot_role !== 'main' ) continue;
+			if ( empty( $contentOfSLot ) && $slot_role !== 'main' ) {
+				continue;
+			}
 
-			$slot_contents[ $slot_role ] = ContentHandler::getContentText( $content_object );
+			$slot_contents[$slot_role] = ContentHandler::getContentText( $content_object );
 		}
 
 		return $slot_contents;
-
 	}
 
 
-	private function extensionInstalled ( $name ) {
+	private function extensionInstalled( $name ) {
 		return extensionRegistry::getInstance()->isLoaded( $name );
 	}
 
@@ -226,18 +291,18 @@ class handlePostsToWiki extends Maintenance {
 		array $text,
 		string $summary
 	) {
-		$status = true;
-		$errors = array();
+		$status              = true;
+		$errors              = array();
 		$title_object        = $wikipage_object->getTitle();
 		$page_updater        = $wikipage_object->newPageUpdater( $user );
 		$old_revision_record = $wikipage_object->getRevisionRecord();
 		$slot_role_registry  = MediaWikiServices::getInstance()->getSlotRoleRegistry();
 
 		// loop through all slots we need to edit/create
-		foreach( $text as $slot_name => $content ) {
+		foreach ( $text as $slot_name => $content ) {
 			// Make sure the slot we are editing is defined in MW else skip this slot
 			if ( ! $slot_role_registry->isDefinedRole( $slot_name ) ) {
-				$status = false;
+				$status   = false;
 				$errors[] = wfMessage(
 					"wsform-unkown-slot",
 					$slot_name
@@ -253,7 +318,8 @@ class handlePostsToWiki extends Maintenance {
 
 				// If the page exists and has this slot
 				if ( $old_revision_record !== null && $old_revision_record->hasSlot( $slot_name ) ) {
-					$model_id = $old_revision_record->getSlot( $slot_name )->getContent()->getContentHandler()->getModelID();
+					$model_id = $old_revision_record->getSlot( $slot_name )->getContent()->getContentHandler()
+													->getModelID();
 				} else {
 					$model_id = $slot_role_registry->getRoleHandler( $slot_name )->getDefaultModel( $title_object );
 				}
@@ -276,7 +342,7 @@ class handlePostsToWiki extends Maintenance {
 		}
 
 		// Are we creating a new page while filling a slot other than main?
-		if ( $old_revision_record === null && !isset( $text[SlotRecord::MAIN] ) ) {
+		if ( $old_revision_record === null && ! isset( $text[SlotRecord::MAIN] ) ) {
 			// The 'main' content slot MUST be set when creating a new page
 			$main_content = ContentHandler::makeContent(
 				"",
@@ -293,12 +359,20 @@ class handlePostsToWiki extends Maintenance {
 			$comment,
 			EDIT_INTERNAL
 		);
-		if( true === $status ) {
+		if ( ! $page_updater->isUnchanged() ) {
+			// Perform an additional null-edit to make sure all page properties are up-to-date
+			$comment      = CommentStoreComment::newUnsavedComment( "" );
+			$page_updater = $wikipage_object->newPageUpdater( $user );
+			$page_updater->saveRevision(
+				$comment,
+				EDIT_SUPPRESS_RC | EDIT_AUTOSUMMARY
+			);
+		}
+		if ( true === $status ) {
 			return true;
 		} else {
 			return $this->createMsg( $errors );
 		}
-
 	}
 
 
@@ -323,8 +397,10 @@ class handlePostsToWiki extends Maintenance {
 			try {
 				$wikiPageObject = WikiPage::factory( $pTitle );
 			} catch ( MWException $e ) {
-				return $this->createMsg( "Could not create a WikiPage Object from title " . $pTitle->getText() .
-				'. Message ' . $e->getMessage() );
+				return $this->createMsg(
+					"Could not create a WikiPage Object from title " . $pTitle->getText(
+					) . '. Message ' . $e->getMessage()
+				);
 			}
 			if ( is_null( $wikiPageObject ) ) {
 				return $this->createMsg( "Could not create a WikiPage Object from Article Id " . $pTitle );
@@ -349,29 +425,35 @@ class handlePostsToWiki extends Maintenance {
 		}
 	}
 
-	private function checkContentValue( $content ){
-		$content = base64_decode( $content );
+	private function checkContentValue( $content ) {
+		$content               = base64_decode( $content );
 		$slotKeyValueSeparator = '_-_-_';
-		$slotSeparator = '-_-_-';
-		$slots = explode( $slotSeparator, $content );
-		$data = array();
-		foreach( $slots as $slot ){
-			$xpl = explode( $slotKeyValueSeparator, $slot );
-			$k = $xpl[0];
-			$v = $xpl[1];
+		$slotSeparator         = '-_-_-';
+		$slots                 = explode(
+			$slotSeparator,
+			$content
+		);
+		$data                  = array();
+		foreach ( $slots as $slot ) {
+			$xpl      = explode(
+				$slotKeyValueSeparator,
+				$slot
+			);
+			$k        = $xpl[0];
+			$v        = $xpl[1];
 			$data[$k] = $v;
 		}
+
 		return $data;
 	}
 
 	public function savePageToWiki( $pageName, $content, $summary, $timestamp, $bot, $rc, $uname ) {
-
 		$user = $this->getUser( $uname );
-		if( $user === false ){
+		if ( $user === false ) {
 			return $this->createMsg( 'Cannot find user' );
 		}
 		$title = Title::newFromText( $pageName );
-		if ( !$title || $title->hasFragment() ) {
+		if ( ! $title || $title->hasFragment() ) {
 			return $this->createMsg( "Invalid title $pageName." );
 		}
 
@@ -379,30 +461,35 @@ class handlePostsToWiki extends Maintenance {
 		try {
 			$wikiPageObject = WikiPage::factory( $title );
 		} catch ( MWException $e ) {
-			return $this->createMsg( "Could not create a WikiPage Object from title " . $title->getText() .
-									 '. Message ' . $e->getMessage() );
+			return $this->createMsg(
+				"Could not create a WikiPage Object from title " . $title->getText() . '. Message ' . $e->getMessage()
+			);
 		}
 		if ( is_null( $wikiPageObject ) ) {
 			return $this->createMsg( "Could not create a WikiPage Object from Article Id " . $title );
 		}
 
-		$slotEditResult = $this->editSlots( $user, $wikiPageObject, $content, $summary );
-		if( true !== $slotEditResult ) {
-			return $slotEditResult;
-		} else return $this->createMsg(
-			'ok',
-			true
+		$slotEditResult = $this->editSlots(
+			$user,
+			$wikiPageObject,
+			$content,
+			$summary
 		);
-
+		if ( true !== $slotEditResult ) {
+			return $slotEditResult;
+		} else {
+			return $this->createMsg(
+				'ok',
+				true
+			);
+		}
 	}
-
-
 
 
 	public function getUser( $name ) {
 		$user = User::newFromId( $name );
 
-		if ( !$user ) {
+		if ( ! $user ) {
 			return false;
 		}
 
@@ -414,10 +501,13 @@ class handlePostsToWiki extends Maintenance {
 	}
 
 
-	public function execute(){
-
+	public function execute() {
 		if ( wfReadOnly() ) {
-			$this->returnMsg( "Wiki is in read-only mode; you'll need to disable it for import to work.", false );
+			$this->returnMsg(
+				"Wiki is in read-only mode; you'll need to disable it for import to work.",
+				false
+			);
+
 			return;
 		}
 
@@ -431,56 +521,96 @@ class handlePostsToWiki extends Maintenance {
 			$IP = __DIR__ . '/../..';
 		}
 
-		$summary = $this->getOption( 'summary', 'WSForm' );
+		$summary = $this->getOption(
+			'summary',
+			'WSForm'
+		);
 
-		if( $this->hasOption( 'user' ) ) {
+		if ( $this->hasOption( 'user' ) ) {
 			$user = $this->getOption( 'user' );
-			if( (int)$user < 1 ) {
-				$this->returnMsg( "User argument is mandatory.", false );
+			if ( (int) $user < 1 ) {
+				$this->returnMsg(
+					"User argument is mandatory.",
+					false
+				);
 			}
 		} else {
-			$this->returnMsg( "User argument is mandatory.", false );
+			$this->returnMsg(
+				"User argument is mandatory.",
+				false
+			);
+
 			return;
 		}
 
-		if( $this->hasOption( 'title' ) ) {
+		if ( $this->hasOption( 'title' ) ) {
 			$title = $this->getOption( 'title' );
 		} else {
-			$this->returnMsg( "Title argument is mandatory.", false );
+			$this->returnMsg(
+				"Title argument is mandatory.",
+				false
+			);
+
 			return;
 		}
 
-		if( $this->hasOption( 'content' ) ) {
+		if ( $this->hasOption( 'content' ) ) {
 			$content = $this->checkContentValue( $this->getOption( 'content' ) );
 		} else {
-			$this->returnMsg( "Content argument is mandatory.", false );
+			$this->returnMsg(
+				"Content argument is mandatory.",
+				false
+			);
+
 			return;
 		}
 
-		if( $this->hasOption( 'action' ) ) {
+		if ( $this->hasOption( 'action' ) ) {
 			$action = $this->getOption( 'action' );
 		} else {
-			$this->returnMsg( "Action argument is mandatory.", false );
+			$this->returnMsg(
+				"Action argument is mandatory.",
+				false
+			);
+
 			return;
 		}
 
-		$fileAndPath = $this->getOption( 'fip', false );
+		$fileAndPath = $this->getOption(
+			'fip',
+			false
+		);
 
 		$timestamp = wfTimestampNow();
 
 		$rc = $this->hasOption( 'rc' );
 
-		switch( $action ) {
+		switch ( $action ) {
 			case "addPageToWiki" :
 				//$pageName, $content, $summary, $timestamp, $bot, $rc, $uname
-				$result = $this->savePageToWiki( $title, $content, $summary, $timestamp, $bot, $rc, $user );
+				$result = $this->savePageToWiki(
+					$title,
+					$content,
+					$summary,
+					$timestamp,
+					$bot,
+					$rc,
+					$user
+				);
 				break;
 			case "uploadFileToWiki" :
-				if( $fileAndPath === false ) {
+				if ( $fileAndPath === false ) {
 					$result = $this->createMsg( 'No file and path given (fip)' );
 				} else {
 					//uploadFileToWiki( $filePath, $filename, $uname, $content, $summary, $timestamp )
-					$result = $this->uploadFileToWiki( $fileAndPath, $title, $user, $content, $summary, $timestamp );
+					$result = $this->uploadFileToWiki(
+						$fileAndPath,
+						$title,
+						$user,
+						$content,
+						$summary,
+						$timestamp
+					);
 				}
 				break;
 			default:
@@ -488,9 +618,13 @@ class handlePostsToWiki extends Maintenance {
 				break;
 		}
 
-		$this->returnMsg( $result['msg'], $result['status'] );
+		$this->returnMsg(
+			$result['msg'],
+			$result['status']
+		);
 	}
 
 }
+
 $maintClass = handlePostsToWiki::class;
 require_once RUN_MAINTENANCE_IF_MAIN;
