@@ -213,6 +213,13 @@ class SpecialWSForm extends SpecialPage {
 		return "";
 	}
 
+	private function saveConfig(){
+		$ret = '<?php' . PHP_EOL;
+		$ret .= '$config = ';
+		$ret .= var_export( $this->config, true ) . ';' . PHP_EOL;
+		file_put_contents( $this->configFile, $ret);
+	}
+
 
     private function getChangeLog( $bitbucketChangelog, $currentVersion ) {
 	    $readme = file_get_contents( $bitbucketChangelog );
@@ -391,13 +398,22 @@ class SpecialWSForm extends SpecialPage {
 
 			if ( strtolower($args[0]) == 'status' ) {
 				if( in_array( 'sysop', $wgUser->getGroups() ) ) {
+					$debugPost =  $this->getPostString( 'debugToggle' );
+					if( false !== $debugPost ) {
+						if( $debugPost === 'on' ) {
+							$this->config['debug'] = true;
+						} else $this->config['debug'] = false;
+						$this->saveConfig();
+					}
+					$debugSetting = $this->getConfigSetting('debug' );
+					if( $debugSetting === "" ) $debugSetting = false;
 					$css = $this->getDocsCSS(
 						$path,
 						$wsformpurl
 					);
 					$out->addHTML( '<style>' . $css . '</style>' );
 					//$out->addHTML('<HR><pre>');
-					$out->addHTML( $this->showStatus() );
+					$out->addHTML( $this->showStatus( $debugSetting ) );
 
 					//$out->addHTML('</pre><HR>');
 					return;
@@ -960,7 +976,7 @@ class SpecialWSForm extends SpecialPage {
 		return "[unknown]";
 	}
 
-	private function showStatus(){
+	private function showStatus( $debugSetting ){
 		$ret = '<h2>WSForm setup status</h2><p>Check WSForm <strong>docs -> wsform -> config</strong> for information</p>';
 		$ret .= "<table class='wsform-table'><thead><tr><th>Variable</th><th>Type</th><th>Value</th></tr></thead><tbody>";
 		$ret .= '<tr><td>$_SERVER[\'HTTPS\']</td><td>system</td><td>' . $_SERVER['HTTPS'] . '</td></tr>';
@@ -970,7 +986,16 @@ class SpecialWSForm extends SpecialPage {
 		foreach( $this->config as $k=>$v ){
 			$ret .= '<tr><td>' . $k . '</td><td>';
 			$ret .= $this->getValueType( $v ) . '</td><td>';
-			$ret .= $v . '</td></tr>';
+			if( $k === 'debug' ) {
+				if( false === $debugSetting ) {
+					$ret .= '<form method="post"><input type="hidden" name="debugToggle" value="on"><input type="submit" value="Turn debug on"></form>';
+				} else {
+					$ret .= '<form method="post"><input type="hidden" name="debugToggle" value="off"><input type="submit" value="Turn debug off"></form>';
+				}
+			} else {
+				$ret .= $v;
+			}
+			$ret .= '</td></tr>';
 		}
 		$ret .= '</tbody></table>';
 		return $ret;
