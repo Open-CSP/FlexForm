@@ -156,6 +156,9 @@ class handlePostsToWiki extends Maintenance {
 				)
 			);
 		}
+		if( is_array( $content ) && isset( $content['main'] ) ) {
+			$content = $content['main'];
+		} else $content = '';
 		$image->recordUpload2(
 			$archive->value,
 			$summary,
@@ -429,6 +432,9 @@ class handlePostsToWiki extends Maintenance {
 		$content               = base64_decode( $content );
 		$slotKeyValueSeparator = '_-_-_';
 		$slotSeparator         = '-_-_-';
+		if( strpos( $content, $slotKeyValueSeparator ) === false ) {
+			return $content;
+		}
 		$slots                 = explode(
 			$slotSeparator,
 			$content
@@ -439,8 +445,12 @@ class handlePostsToWiki extends Maintenance {
 				$slotKeyValueSeparator,
 				$slot
 			);
-			$k        = $xpl[0];
-			$v        = $xpl[1];
+			if( isset( $xpl[0] ) ) {
+				$k = $xpl[0];
+			} else continue;
+			if( isset( $xpl[1] ) ) {
+				$v = $xpl[1];
+			} else continue;
 			$data[$k] = $v;
 		}
 

@@ -426,6 +426,7 @@ class wbApi {
           $this->app["baseURL"] = $dir;
           $this->app["apiURL"]  = $dir . "api.php";
       } else {
+          $this->app["baseURL"] = rtrim( $config['api-url-overrule'], '/' );
           $this->app['apiURL'] = rtrim( $config['api-url-overrule'], '/' ) . '/api.php';
       }
 
@@ -860,10 +861,14 @@ class wbApi {
       }
 
     function maintenanceUploadFileToWiki( $name, $fileAndPath, $content, $summary, $uid ){
+        $slotKeyValueSeparator = '_-_-_';
+        $slotSeparator = '-_-_-';
         if(isset($_POST['mwdb'])) {
             $server = str_replace('_', '.', $_POST['mwdb'] );
         } else die('No server name found');
-        $details = base64_encode( $content );
+        $slots = array();
+        $slots[] = 'main' . $slotKeyValueSeparator . $content;
+        $details = base64_encode( implode( $slotSeparator, $slots ) );
         if( $summary === false ) {
             $summary = "Uploaded with WSForm";
         }
@@ -885,7 +890,14 @@ class wbApi {
         $cmd .= ' --summary "' . $summary . '"';
         //echo $cmd;
 
+        if( $this->isDebug() ) {
+            wsDebug::addToDebug( 'maintenance file upload command ' . microtime(), array( 'command' => $cmd, 'original content' => implode( $slotSeparator, $slots ) ) );
+        }
+
         $result = shell_exec( $cmd );
+        if( $this->isDebug() ) {
+            wsDebug::addToDebug( 'maintenance file upload result ' . microtime(), $result );
+        }
         $res = explode('|', $result);
         if($res[0] === 'ok' ) return true;
         if($res[0] === 'error' ) die($res[1]);

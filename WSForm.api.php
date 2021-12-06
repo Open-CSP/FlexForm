@@ -344,7 +344,8 @@ if( isset( $_POST['wsform_signature'] ) ) {
 if(isset($_FILES['wsformfile'])) {
 	if (file_exists($_FILES['wsformfile']['tmp_name']) || is_uploaded_file($_FILES['wsformfile']['tmp_name'])) {
 		$res = fileUpload();
-		if ($res['status'] == 'error') {
+		if( $api->isDebug() ) wsDebug::addToDebug( 'File Upload result', $res );
+		if (isset( $res['status'] ) && $res['status'] == 'error') {
 			$messages->doDie(' file : '.$res['msg']);
 			$failed = true;
 		}

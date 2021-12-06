@@ -983,10 +983,13 @@ class SpecialWSForm extends SpecialPage {
 		$ret .= '<tr><td>$_SERVER[\'SERVER_NAME\']</td><td>system</td><td>' . $_SERVER['SERVER_NAME'] . '</td></tr>';
 		$ret .= '<tr><td>$_SERVER[\'REQUEST_URI\']</td><td>system</td><td>' . $_SERVER['REQUEST_URI'] . '</td></tr>';
 
+		$debugSet = false;
 		foreach( $this->config as $k=>$v ){
+
 			$ret .= '<tr><td>' . $k . '</td><td>';
 			$ret .= $this->getValueType( $v ) . '</td><td>';
 			if( $k === 'debug' ) {
+				$debugSet = true;
 				if( false === $debugSetting ) {
 					$ret .= '<form method="post"><input type="hidden" name="debugToggle" value="on"><input type="submit" value="Turn debug on"></form>';
 				} else {
@@ -994,6 +997,15 @@ class SpecialWSForm extends SpecialPage {
 				}
 			} else {
 				$ret .= $v;
+			}
+			$ret .= '</td></tr>';
+		}
+		if( ! $debugSet ) {
+			$ret .= '<tr><td>debug</td><td>'.$this->getValueType( $debugSetting ) .'</td><td>';
+			if( false === $debugSetting ) {
+				$ret .= '<form method="post"><input type="hidden" name="debugToggle" value="on"><input type="submit" value="Turn debug on"></form>';
+			} else {
+				$ret .= '<form method="post"><input type="hidden" name="debugToggle" value="off"><input type="submit" value="Turn debug off"></form>';
 			}
 			$ret .= '</td></tr>';
 		}
