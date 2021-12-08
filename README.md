@@ -107,6 +107,7 @@ Visit : Special:WSForm/Docs
 
 
 ### Changelog
+* 0.8.0.9.9.7 : instances added default content option and options for top and bottom buttons. Changed docs and add/minus css
 * 0.8.0.9.9.6 : ShowOnSelect rendered with DOM instead of resourceloader for slot rendering
 * 0.8.0.9.9.5 : File upload debug added
 * 0.8.0.9.9.4 : Debug switch added

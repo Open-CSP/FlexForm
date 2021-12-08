@@ -24,6 +24,7 @@ class render {
 			'textarea'               => 'WSmultipleTemplateField',
 			'list'                   => 'WSmultipleTemplateList',
 			'addButtonClass'         => "WSmultipleTemplateAddAbove",
+			'addButtonTopBottomClass'=> "WSmultipleTemplateAddBelow",
 			'addButtonClassExtra'    => "wsform-instance-add-btn",
 			'removeButtonClass'      => "WSmultipleTemplateDel",
 			'removeButtonClassExtra' => "wsform-instance-delete-btn",
@@ -34,6 +35,9 @@ class render {
 			'instanceName'           => '',
 			'template'               => "",
 			'templateParent'         => "",
+			'txtareacontent'         => '',
+			'buttonTop'				 => 'Add Row',
+			'buttonBottom'			 => 'Add Row',
 			'copyExtra'              => 'wsform-instance-record'
 		);
 
@@ -51,7 +55,10 @@ class render {
 			'wrapper-main'        => 'selector',
 			'wrapper-main-extra'  => 'copyExtra',
 			'instance-storage'    => 'textarea',
-			'instance-list'       => 'list'
+			'instance-list'       => 'list',
+			'default-content'     => 'txtareacontent',
+			'add-button-on-top'   => 'buttonTop',
+			'add-button-on-bottom'=> 'buttonBottom'
 		);
 
 		foreach ( $defaultTranslator as $from => $to ) {
@@ -105,7 +112,7 @@ class render {
 		global $IP;
 		$instance       = self::instanceDefault( $args );
 		$pageWikiObject = \RequestContext::getMain()->getWikiPage();
-		$textAreaContent = '';
+		$textAreaContent = $instance['txtareacontent'];
 		if( $pageWikiObject->exists() ) {
 			$pageContent = $pageWikiObject->getContent( RevisionRecord::RAW )->getText();
 
@@ -236,11 +243,11 @@ class render {
 		}
 
 		if ( $instance['removeButtonClass'] !== 'none' ) {
-			$ret .= '<button type="button" class="' . $instance['removeButtonClass'] . ' ' . $instance['removeButtonClassExtra'] . '" role="button"><i class="fa fa-times "></i></button>';
+			$ret .= '<button type="button" class="' . $instance['removeButtonClass'] . ' ' . $instance['removeButtonClassExtra'] . '" role="button"></button>';
 		}
 
 		if ( $instance['addButtonClass'] !== 'none' ) {
-			$addBtn = '<button type="button" class="' . $instance['addButtonClass'] . ' ' . $instance['addButtonClassExtra'] . '" role="button"><i class="fa fa-plus "></i></button>';
+			$addBtn = '<button type="button" class="' . $instance['addButtonClass'] . ' ' . $instance['addButtonClassExtra'] . '" role="button"></button>';
 			$ret .= $addBtn;
 			//$addBtn = '<button type="button" class="WSShowOnSelect-New-Instance ' . $instance['addButtonClass'] . ' ' . $instance['addButtonClassExtra'] . '" role="button"><i class="fa fa-plus "></i></button>';
 		}
@@ -257,7 +264,16 @@ class render {
 			$ret .= $addBtn;
 		}
 		*/
-		$ret .= PHP_EOL . '<div class="' . $instance['list'] . '"></div>' . PHP_EOL . '</div>' . PHP_EOL;
+
+		if( $instance['buttonTop'] !== 'none' ) {
+			$ret .= PHP_EOL . '<p><button type="button" class="' . $instance['addButtonTopBottomClass'] . '" role="button">' . $instance['buttonTop'] . '</button></p>';
+		}
+		$ret .= PHP_EOL . '<div class="' . $instance['list'] . '"></div>' . PHP_EOL;
+		if( $instance['buttonBottom'] !== 'none' ) {
+			$ret .= PHP_EOL . '<p><button type="button" class="' . $instance['addButtonTopBottomClass'] . '" role="button">' . $instance['buttonBottom'] . '</button></p>';
+		}
+		$ret .= '</div>' . PHP_EOL;
+
 
 		return $ret;
 	}

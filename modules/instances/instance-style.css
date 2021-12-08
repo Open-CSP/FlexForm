@@ -9,6 +9,7 @@
     display:inline-block;
     cursor: move;
     border:1px solid black;
+    line-height:100%;
     margin-right:15px;
 
 }
@@ -19,8 +20,22 @@
     content: "\2630";
 }
 
+.WSmultipleTemplateDel:before {
+    font-size: 19px;
+    font-weight: bold;
+    content: "\2718";
+}
+
+.WSmultipleTemplateAddAbove:before {
+    font-size: 19px;
+    font-weight: bold;
+    content: "\271A";
+}
+
 .wsform-instance-add-btn, .wsform-instance-delete-btn {
     float:right;
+    line-height:100%;
+    margin:0 auto;
 
 }
 

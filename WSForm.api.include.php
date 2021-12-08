@@ -1503,7 +1503,7 @@ if ( ! $mwedit && ! $email ) {
 		foreach( $edits as $edit ) {
 			if( $edit['slot'] !== false ) {
 				$wehaveslots = true;
-				$pageTitle = $edit['title'];
+				//$pageTitle = $edit['slot'];
 
 				$content = $api->getWikiPage( $pid, $edit['slot'] );
 				if( $content['content'] == '' ) {
