@@ -107,6 +107,7 @@ Visit : Special:WSForm/Docs
 
 
 ### Changelog
+* 0.8.0.9.9.6 : ShowOnSelect rendered with DOM instead of resourceloader for slot rendering
 * 0.8.0.9.9.5 : File upload debug added
 * 0.8.0.9.9.4 : Debug switch added
 * 0.8.0.9.9.3 : When creating pages with slots, SMW force updates has been added

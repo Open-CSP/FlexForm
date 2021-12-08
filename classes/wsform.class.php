@@ -163,9 +163,10 @@ class wsform {
 			$out = \RequestContext::getMain()->getOutput();
 			$out->addJsConfigVars( array( "WSFormShowOnSelect" => true ) );
 			$js = 'wachtff( WsShowOnSelect, true );';
-			wsform::includeInlineScript( $js );
+			//wsform::includeInlineScript( $js );
 			$realUrl = str_replace( '/index.php', '', $wgScript );
 			$jsFile = '<script type="text/javascript" charset="UTF-8" src="' . $realUrl . '/extensions/WSForm/modules/showOnSelect/WSShowOnSelect.js"></script>' . "\n";
+			$jsFile .= '<script>' . $js . '</script>';
 			wsform::addAsLoaded( 'ShowOnSelect' );
 			return $jsFile;
 		} else return '';
