@@ -1,7 +1,3 @@
-.mw-WBRate-foo {
-	float: left;
-}
-body {
-	background-color:#000;
-	border:10px solid black;
+.wsform.alert-danger, .wsform.alert-success, .wsform.alert-warning, .wsform.alert-info{
+	display:none;
 }

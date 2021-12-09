@@ -36,7 +36,6 @@ class render {
 			'template'               => "",
 			'templateParent'         => "",
 			'txtareacontent'         => '',
-			'buttonTop'				 => 'Add Row',
 			'buttonBottom'			 => 'Add Row',
 			'copyExtra'              => 'wsform-instance-record'
 		);
@@ -57,7 +56,6 @@ class render {
 			'instance-storage'    => 'textarea',
 			'instance-list'       => 'list',
 			'default-content'     => 'txtareacontent',
-			'add-button-on-top'   => 'buttonTop',
 			'add-button-on-bottom'=> 'buttonBottom'
 		);
 
@@ -265,9 +263,7 @@ class render {
 		}
 		*/
 
-		if( $instance['buttonTop'] !== 'none' ) {
-			$ret .= PHP_EOL . '<p><button type="button" class="' . $instance['addButtonTopBottomClass'] . '" role="button">' . $instance['buttonTop'] . '</button></p>';
-		}
+
 		$ret .= PHP_EOL . '<div class="' . $instance['list'] . '"></div>' . PHP_EOL;
 		if( $instance['buttonBottom'] !== 'none' ) {
 			$ret .= PHP_EOL . '<p><button type="button" class="' . $instance['addButtonTopBottomClass'] . '" role="button">' . $instance['buttonBottom'] . '</button></p>';

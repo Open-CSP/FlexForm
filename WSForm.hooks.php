@@ -346,12 +346,14 @@ class WSFormHooks {
 		wsform\wsform::$msg_unverified_email = wfMessage( "wsform-unverified-email1" )->text() . wfMessage( "wsform-unverified-email2" )->text();
 		wsform\wsform::$msg_anonymous_user = wfMessage( "wsform-anonymous-user" )->text();
 
+		$parser->getOutput()->addModuleStyles( 'ext.wsForm.general.styles' );
+
 		// Do we have messages to show
 		if ( isset( $args['showmessages'] ) ) {
 
 
 			if ( isset ( $_COOKIE['wsform'] ) ) {
-				$ret = '<div class="alert alert-' . $_COOKIE['wsform']['type'] . '">' . $_COOKIE['wsform']['txt'] . '</div>';
+				$ret = '<div class="wsform alert-' . $_COOKIE['wsform']['type'] . '">' . $_COOKIE['wsform']['txt'] . '</div>';
 				setcookie( "wsform[type]", "", time() - 3600, '/' );
 				setcookie( "wsform[txt]", "", time() - 3600, '/' );
 

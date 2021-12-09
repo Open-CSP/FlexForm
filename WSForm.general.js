@@ -730,12 +730,23 @@ function checkForTinyMCE() {
     }
 }
 
+function createAlertsIfNeeded(){
+    let alert = $('[class^="wsform alert-"]');
+    if( alert !== null && alert.length > 0 ){
+        let type = alert.attr("class").split('-')[1];
+        if( type === 'danger' ) type = 'error';
+        if( type === 'warning' ) type = 'warn';
+        mw.notify( alert.text(), { autoHide: false, type: type } );
+    }
+}
+
 /**
  * Wait for jQuery to load and initialize, then go to method addTokenInfo()
  */
 wachtff(addTokenInfo);
 wachtff(initializeWSFormEditor);
 wachtff(checkForTinyMCE);
+wachtff(createAlertsIfNeeded);
 
 // tinyMCE stuff if needed
 

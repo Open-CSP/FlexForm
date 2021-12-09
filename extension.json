@@ -1,81 +1,85 @@
 {
-	"name": "WSForm",
-	"version": "0.8.0.9.9.7",
-	"author": [
-		"[https://www.wikibase-solutions.com/author/charlot Sen-Sai]"
-	],
-	"url": "https://bitbucket.org/wikibasesolutions/mw-wsform/",
-	"descriptionmsg": "wsform-desc",
-	"license-name": "GPL v2",
-	"type": "parserhook",
-	"AutoloadClasses": {
-		"WSFormHooks": "WSForm.hooks.php",
-		"SpecialWSForm": "specials/SpecialWSForm.php",
-		"ApiWSForm": "ApiWSForm.php"
-	},
-	"ExtensionMessagesFiles": {
-		"WBFormAlias": "WSForm.i18n.alias.php"
-	},
-	"APIModules": {
-		"wsform": "ApiWSForm"
-	},
-	"Hooks": {
-		"ParserFirstCallInit": [
-			"WSFormHooks::onParserFirstCallInit"
-		],
-		"AdminLinks": [
-			"WSFormHooks::addToAdminLinks"
-		]
-	},
-	"MessagesDirs": {
-		"WSForm": [
-			"i18n"
-		]
-	},
-	"ResourceFileModulePaths": {
-		"localBasePath": "",
-		"remoteExtPath": "WSForm"
-	},
-	"ResourceModules": {
-		"ext.wsForm.slim.scripts": {
-			"scripts": "modules/slim/slim/slim.kickstart.min.js",
-			"position": "bottom"
-		},
-		"ext.wsForm.ajax.scripts": {
-			"scripts": "wsform-ajax.js",
-			"position": "bottom"
-		},
-		"ext.wsForm.datePicker.scripts": {
-			"scripts": "/simplegovscripts/bootstrap-datepicker.js",
-			"position": "bottom"
-		},
-		"ext.wsForm.instance": {
-			"scripts": "modules/instances/wsInstance.js",
-			"position": "top"
-		},
-		"ext.wsForm.scripts": {
-			"scripts": "select2.js",
-			"position": "top"
-		},
-		"ext.wsForm.styles": {
-			"styles": "select2.css",
-			"position": "top"
-		},
-		"ext.wsForm.Instance.styles": {
-			"styles": "modules/instances/instance-style.css",
-			"position": "top"
-		},
-		"ext.wsForm.datePicker.styles": {
-			"styles": "/simplegovscripts/bootstrap-datepicker.css",
-			"position": "top"
-		},
-		"ext.wsForm.slim.styles": {
-			"styles": "modules/slim/slim/slim.min.css",
-			"position": "top"
-		}
-	},
-	"SpecialPages": {
-		"WSForm": "SpecialWSForm"
-	},
-	"manifest_version": 1
+  "name": "WSForm",
+  "version": "0.8.0.9.9.8",
+  "author": [
+    "[https://www.wikibase-solutions.com/author/charlot Sen-Sai]"
+  ],
+  "url": "https://bitbucket.org/wikibasesolutions/mw-wsform/",
+  "descriptionmsg": "wsform-desc",
+  "license-name": "GPL v2",
+  "type": "parserhook",
+  "AutoloadClasses": {
+    "WSFormHooks": "WSForm.hooks.php",
+    "SpecialWSForm": "specials/SpecialWSForm.php",
+    "ApiWSForm": "ApiWSForm.php"
+  },
+  "ExtensionMessagesFiles": {
+    "WBFormAlias": "WSForm.i18n.alias.php"
+  },
+  "APIModules": {
+    "wsform": "ApiWSForm"
+  },
+  "Hooks": {
+    "ParserFirstCallInit": [
+      "WSFormHooks::onParserFirstCallInit"
+    ],
+    "AdminLinks": [
+      "WSFormHooks::addToAdminLinks"
+    ]
+  },
+  "MessagesDirs": {
+    "WSForm": [
+      "i18n"
+    ]
+  },
+  "ResourceFileModulePaths": {
+    "localBasePath": "",
+    "remoteExtPath": "WSForm"
+  },
+  "ResourceModules": {
+    "ext.wsForm.slim.scripts": {
+      "scripts": "modules/slim/slim/slim.kickstart.min.js",
+      "position": "bottom"
+    },
+    "ext.wsForm.ajax.scripts": {
+      "scripts": "wsform-ajax.js",
+      "position": "bottom"
+    },
+    "ext.wsForm.datePicker.scripts": {
+      "scripts": "/simplegovscripts/bootstrap-datepicker.js",
+      "position": "bottom"
+    },
+    "ext.wsForm.instance": {
+      "scripts": "modules/instances/wsInstance.js",
+      "position": "top"
+    },
+    "ext.wsForm.scripts": {
+      "scripts": "select2.js",
+      "position": "top"
+    },
+    "ext.wsForm.styles": {
+      "styles": "select2.css",
+      "position": "top"
+    },
+    "ext.wsForm.general.styles": {
+      "styles": "/modules/ext.WSForm.css",
+      "position": "top"
+    },
+    "ext.wsForm.Instance.styles": {
+      "styles": "modules/instances/instance-style.css",
+      "position": "top"
+    },
+    "ext.wsForm.datePicker.styles": {
+      "styles": "/simplegovscripts/bootstrap-datepicker.css",
+      "position": "top"
+    },
+    "ext.wsForm.slim.styles": {
+      "styles": "modules/slim/slim/slim.min.css",
+      "position": "top"
+    }
+  },
+  "SpecialPages": {
+    "WSForm": "SpecialWSForm"
+  },
+  "manifest_version": 1
 }
