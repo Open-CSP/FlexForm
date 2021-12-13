@@ -959,6 +959,7 @@ function saveToWiki( $email=false ) {
 
 	require_once( 'WSForm.api.class.php' );
 	$api = new wbApi();
+	$api->logMeIn();
 
 	if( $summary === false ) {
 		$summary = setSummary();
@@ -1084,7 +1085,7 @@ function saveToWiki( $email=false ) {
 
 
 		//$api->usr = $etoken;
-		$api->logMeIn();
+
 		//die($wsuid);
 
 		$result = $api->savePageToWiki( $title, $ret, $summary, $slot );
