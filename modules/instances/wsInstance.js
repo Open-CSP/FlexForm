@@ -55,7 +55,6 @@ const WsInstance = function (selector, options) {
     }
 
 
-
     /**
      * get content from textarea and copy into list
      */
@@ -65,13 +64,6 @@ const WsInstance = function (selector, options) {
 
         let textarea_content = _.saveField.val();
         let textarea_items = textarea_content.split('{{').filter((v) => v);
-
-        if ( textarea_items.length === 0 ) {
-            let clone = _.getCloneInstance();
-            let el = _.getCloneElementHandled(clone);
-            _.list.append(el);
-            _.handleIntegrations(el);
-        }
 
         $.each(textarea_items, function(i, val) {
             let content_array = val.split('\n').filter((v) => v.includes('='));
@@ -96,7 +88,7 @@ const WsInstance = function (selector, options) {
         let clone = _.getCloneInstance();
 
         for ( let i = 0; i < names.length; i++ ) {
-            $(clone).find('input[name*="' + names[i] +'"]').each(function (index, input) {
+            $(clone).find('input[name*="' + names[i] + '"]').each(function (index, input) {
                 switch(input.getAttribute('type')) {
                     case 'radio':
                         input.checked = input.value === values[i];
@@ -247,6 +239,8 @@ const WsInstance = function (selector, options) {
             let valuesObj = {};
             $(instance).find('input,select,textarea').each(function (index, input) {
                 let name = input.name;
+                if ( name === '' ) name = input.getAttribute('data-name');
+
                 switch (input.type) {
                     case 'checkbox':
                         if ( input.checked ) {
@@ -265,8 +259,10 @@ const WsInstance = function (selector, options) {
                         break;
                 }
                 input.removeAttribute('name');
+                input.setAttribute('data-name', name);
             });
             saveString += createSaveStringForInstance(valuesObj);
+            alert(saveString);
         });
 
         _.saveField.val(saveString);
@@ -331,6 +327,12 @@ const WsInstance = function (selector, options) {
                 });
             });
         }
+
+        _.wrapper.find('.WSmultipleTemplateAddBelow').on('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            _.addToBottom();
+        });
 
         _.convertPredefinedToInstances();
     }

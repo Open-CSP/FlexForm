@@ -107,7 +107,8 @@ Visit : Special:WSForm/Docs
 
 
 ### Changelog
-* 0.8.1 : More status debug info
+* 0.8.11      : Instances updates
+* 0.8.1       : More status debug info
 * 0.8.0.9.9.9 : Catch API error
 * 0.8.0.9.9.8 : Styling and alert changes
 * 0.8.0.9.9.7 : instances added default content option and options for top and bottom buttons. Changed docs and add/minus css
