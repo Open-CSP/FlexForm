@@ -398,6 +398,9 @@ class SpecialWSForm extends SpecialPage {
 
 			if ( strtolower($args[0]) == 'status' ) {
 				if( in_array( 'sysop', $wgUser->getGroups() ) ) {
+
+					include __DIR__ . "/../WSForm.api.class.php";
+					$api = new wbApi();
 					$debugPost =  $this->getPostString( 'debugToggle' );
 					if( false !== $debugPost ) {
 						if( $debugPost === 'on' ) {
@@ -414,6 +417,7 @@ class SpecialWSForm extends SpecialPage {
 					$out->addHTML( '<style>' . $css . '</style>' );
 					//$out->addHTML('<HR><pre>');
 					$out->addHTML( $this->showStatus( $debugSetting ) );
+					$out->addHTML( $this->showStatus( $debugSetting, $api->app ) );
 
 					//$out->addHTML('</pre><HR>');
 					return;
@@ -973,41 +977,65 @@ class SpecialWSForm extends SpecialPage {
 		} elseif( is_string ( $v ) ) {
 			return '[string] ';
 		}
+		if( is_array( $v ) ) {
+			return '[array]';
+		}
 		return "[unknown]";
 	}
 
-	private function showStatus( $debugSetting ){
-		$ret = '<h2>WSForm setup status</h2><p>Check WSForm <strong>docs -> wsform -> config</strong> for information</p>';
+	private function showStatus( $debugSetting, $apiSettings = false ){
+		if( $apiSettings !== false ) {
+			$ret = '<h2>WSForm (calculated config)</h2>';
+		} else {
+			$ret = '<h2>WSForm config file status</h2><p>Check WSForm <strong>docs -> wsform -> config</strong> for information</p>';
+		}
+
 		$ret .= "<table class='wsform-table'><thead><tr><th>Variable</th><th>Type</th><th>Value</th></tr></thead><tbody>";
-		$ret .= '<tr><td>$_SERVER[\'HTTPS\']</td><td>system</td><td>' . $_SERVER['HTTPS'] . '</td></tr>';
-		$ret .= '<tr><td>$_SERVER[\'SERVER_NAME\']</td><td>system</td><td>' . $_SERVER['SERVER_NAME'] . '</td></tr>';
-		$ret .= '<tr><td>$_SERVER[\'REQUEST_URI\']</td><td>system</td><td>' . $_SERVER['REQUEST_URI'] . '</td></tr>';
+		if( !$apiSettings ) {
+			$ret .= '<tr><td>$_SERVER[\'HTTPS\']</td><td>system</td><td>' . $_SERVER['HTTPS'] . '</td></tr>';
+			$ret .= '<tr><td>$_SERVER[\'SERVER_NAME\']</td><td>system</td><td>' . $_SERVER['SERVER_NAME'] . '</td></tr>';
+			$ret .= '<tr><td>$_SERVER[\'REQUEST_URI\']</td><td>system</td><td>' . $_SERVER['REQUEST_URI'] . '</td></tr>';
+		}
 
 		$debugSet = false;
-		foreach( $this->config as $k=>$v ){
-
-			$ret .= '<tr><td>' . $k . '</td><td>';
-			$ret .= $this->getValueType( $v ) . '</td><td>';
-			if( $k === 'debug' ) {
-				$debugSet = true;
-				if( false === $debugSetting ) {
+		if( $apiSettings === false ) {
+			foreach ( $this->config as $k => $v ) {
+				$ret .= '<tr><td>' . $k . '</td><td>';
+				$ret .= $this->getValueType( $v ) . '</td><td>';
+				if ( $k === 'debug' ) {
+					$debugSet = true;
+					if ( false === $debugSetting ) {
+						$ret .= '<form method="post"><input type="hidden" name="debugToggle" value="on"><input type="submit" value="Turn debug on"></form>';
+					} else {
+						$ret .= '<form method="post"><input type="hidden" name="debugToggle" value="off"><input type="submit" value="Turn debug off"></form>';
+					}
+				} else {
+					$ret .= $v;
+				}
+				$ret .= '</td></tr>';
+			}
+			if ( ! $debugSet ) {
+				$ret .= '<tr><td>debug</td><td>' . $this->getValueType( $debugSetting ) . '</td><td>';
+				if ( false === $debugSetting ) {
 					$ret .= '<form method="post"><input type="hidden" name="debugToggle" value="on"><input type="submit" value="Turn debug on"></form>';
 				} else {
 					$ret .= '<form method="post"><input type="hidden" name="debugToggle" value="off"><input type="submit" value="Turn debug off"></form>';
 				}
-			} else {
-				$ret .= $v;
+				$ret .= '</td></tr>';
 			}
-			$ret .= '</td></tr>';
-		}
-		if( ! $debugSet ) {
-			$ret .= '<tr><td>debug</td><td>'.$this->getValueType( $debugSetting ) .'</td><td>';
-			if( false === $debugSetting ) {
-				$ret .= '<form method="post"><input type="hidden" name="debugToggle" value="on"><input type="submit" value="Turn debug on"></form>';
-			} else {
-				$ret .= '<form method="post"><input type="hidden" name="debugToggle" value="off"><input type="submit" value="Turn debug off"></form>';
+		} else {
+			foreach ( $apiSettings as $variable => $value ) {
+				$ret .= '<tr><td>' . $variable . '</td><td>';
+				$ret .= $this->getValueType( $value ) . '</td><td>';
+				if ( is_array( $value ) ) {
+					foreach ( $value as $subkey => $subval ) {
+						$ret .= $subkey . '=' . $subval . '<br>';
+					}
+				} else {
+					$ret .= $value;
+				}
+				$ret .= '</td></tr>';
 			}
-			$ret .= '</td></tr>';
 		}
 		$ret .= '</tbody></table>';
 		return $ret;
