@@ -708,8 +708,7 @@ class wbApi {
         if( isset( $result['received']['wsform']['error'] ) ) {
             return(array('status' => 'error', 'message' => $result['received']['wsform']['error']['message']));
         } elseif ( isset( $result['received']['error'] ) ) {
-            return(array('status' => 'error', 'message' => $result['received']['error']['code ']  .
-                                                           ": " . $result['received']['error']['info '] ));
+            return(array('status' => 'error', 'message' => print_r( $result['reveived'], true ) ) );
         } else {
             return(array('status' => 'ok', 'result' => $result['received']['wsform']['result']));
         }
