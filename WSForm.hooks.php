@@ -669,6 +669,11 @@ class WSFormHooks {
 		} else {
 			$out    .= '<input type="hidden" data-wsselect2options="select2options-' . $id . '" value="';
 		}
+
+		if( isset( $args['input-length-trigger'] ) && $args['input-length-trigger' !== '' ] ) {
+			$iLength = trim( $args['input-length-trigger'] );
+		} else $iLength = 3;
+
 		if ( isset( $args['json'] ) && isset( $args['id'] ) ) {
 			if ( strpos( $args['json'], 'semantic_ask' ) ) {
 				$json = $args['json'];
@@ -693,7 +698,7 @@ class WSFormHooks {
 
 			$out .= "\ntemplateResult: testSelect2Callback,\n";
 			$out .= "\nescapeMarkup: function (markup) { return markup; },\n";
-			$out .= "\nminimumInputLength: 3,\n";
+			$out .= "\nminimumInputLength: $iLength,\n";
 			$out .= "\najax: { url: jsonDecoded, delay:500, dataType: 'json',"."\n";
 			$out .= "\ndata: function (params) { var queryParameters = { q: params.term, mwdb: '".$mwdb."' }\n";
 			$out .= "\nreturn queryParameters; }}";
@@ -714,8 +719,8 @@ class WSFormHooks {
 				$out .= "\ntags: true";
 			}
 		}
-		if( isset( $args['allowclear'] ) ) {
-			if ( ( isset( $args['id'] ) ) || isset( $args['allowtags'] ) ) {
+		if( isset( $args['allowclear'] ) && isset( $args['placeholder'] ) ) {
+			if ( ( isset( $args['json'] ) ) || isset( $args['allowtags'] ) ) {
 				$out .= ",\nallowClear: true";
 			} else {
 				$out .= "\nallowClear: true";

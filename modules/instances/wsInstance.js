@@ -67,9 +67,8 @@ const WsInstance = function (selector, options) {
 
         $.each(textarea_items, function(i, val) {
             let content_array = val.split('\n').filter((v) => v.includes('='));
-
             $.each(content_array, function (index, item) {
-                name_array.push(item.split('=')[0].slice(1));
+                name_array.push(item.split('=')[0].split('|')[1]);
                 value_array.push(item.split('=')[1].split('}}')[0]);
             });
 
@@ -235,12 +234,22 @@ const WsInstance = function (selector, options) {
      */
     _.save = () => {
         let saveString = '';
+
+        // loop through all instances in the list
         _.list.find('.WSmultipleTemplateInstance').each(function (i, instance) {
             let valuesObj = {};
+
+            // loop through every input selectbox and textarea in this instance
             $(instance).find('input,select,textarea').each(function (index, input) {
+                // name is later in this function removed, when the save event occurs multiple times it needs to get
+                // the name in another way
                 let name = input.name;
                 if ( name === '' ) name = input.getAttribute('data-name');
 
+                // check if name is set, else return
+                if ( !name ) return;
+
+                // switch through all different types
                 switch (input.type) {
                     case 'checkbox':
                         if ( input.checked ) {
@@ -254,15 +263,19 @@ const WsInstance = function (selector, options) {
                             valuesObj[name] = input.value;
                         }
                         break;
+                    case 'hidden':
+                        return;
                     default:
                         valuesObj[name] = input.value;
                         break;
                 }
+                // remove name attr otherwise it will be send along with wsform
                 input.removeAttribute('name');
+
+                // set name in data attribute so the name is still available
                 input.setAttribute('data-name', name);
             });
             saveString += createSaveStringForInstance(valuesObj);
-            alert(saveString);
         });
 
         _.saveField.val(saveString);

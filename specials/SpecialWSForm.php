@@ -252,7 +252,7 @@ class SpecialWSForm extends SpecialPage {
 		$this->configFile = $IP . '/extensions/WSForm/config/config.php';
 
 		if ( file_exists( $IP . '/extensions/WSForm/config/config_default.php' ) ) {
-			include( $IP . '/extensions/WSForm/config/config.php' );
+			include( $IP . '/extensions/WSForm/config/config_default.php' );
 			$this->config_default = $config;
 		}
 		if ( file_exists( $this->configFile ) ) {
@@ -757,7 +757,6 @@ class SpecialWSForm extends SpecialPage {
                         $createExample = '<div class="ws-documentation-back"><a href="' . $realUrl . '/Special:WSForm/Docs/Create Example">Create a new example</a></div>';
                         $ret .= $createExample;
                     }
-					$ret .= $createExample;
 					$ret .= '</div>';
 					// End example list
 					$ret .= '</div>';
