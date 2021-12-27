@@ -18,6 +18,7 @@ class config {
 	private static $WSFormConfig;
 	private static $WSConfigStatus = false;
 
+
 	/**
 	 * setConfig
 	 *
@@ -27,6 +28,7 @@ class config {
 		$config = MediaWikiServices::getInstance()->getMainConfig();
 		if ( $config->has( 'WSFormConfig' ) ) {
 			self::$WSFormConfig = $config->get( 'WSFormConfig' );
+			self::checkConfig();
 			self::$WSConfigStatus = true;
 		} else throw new WSFormException( 'No config set', 1 );
 	}
@@ -44,10 +46,25 @@ class config {
 	 * @return mixed|null
 	 */
 	public static function getConfigVariable( string $var ) {
-		if ( isset( self::$WSFormConfig[$var] ) ) {
-			return self::$WSFormConfig[$var];
-		} else {
-			return null;
+		return self::$WSFormConfig[$var] ?? null;
+	}
+
+	/**
+	 * Add additional checks and default to loaded config
+	 */
+	private static function checkConfig(){
+		global $IP, $wgCanonicalServer;
+		$default_dir = $IP . "/extensions/WSForm/uploads/";
+		$filePathFromConfig = self::getConfigVariable( 'file_temp_path' );
+		$canonical = self::getConfigVariable( 'wgCanonicalServer' );
+		if( is_null( $filePathFromConfig ) ) {
+			if( !file_exists( $default_dir ) ) {
+				mkdir( $default_dir, 0777 );
+			}
+			self::$WSFormConfig['file_temp_path'] = rtrim( $default_dir, '/' ) . '/';
+		}
+		if( is_null( $canonical ) ) {
+			self::$WSFormConfig['wgCanonicalServer'] = rtrim( $wgCanonicalServer , '/' ) . '/';
 		}
 	}
 
