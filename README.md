@@ -107,6 +107,7 @@ Visit : Special:WSForm/Docs
 
 
 ### Changelog
+* 0.8.13      : Instance from terminal throws error for no page title fix.
 * 0.8.12      : Instances updates #2. Added input-length lookup for tokens. Fixed allowclear for tokens.
 * 0.8.11      : Instances updates
 * 0.8.1       : More status debug info

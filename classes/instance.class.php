@@ -109,6 +109,7 @@ class render {
 	public static function render_instance( $args, $innerHtml ) {
 		global $IP;
 		$instance       = self::instanceDefault( $args );
+		if( ! \RequestContext::getMain()->canUseWikiPage() ) return "";
 		$pageWikiObject = \RequestContext::getMain()->getWikiPage();
 		$textAreaContent = $instance['txtareacontent'];
 		if( $pageWikiObject->exists() ) {
