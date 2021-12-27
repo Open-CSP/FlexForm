@@ -12,134 +12,79 @@ use PPFrame;
  */
 interface Theme {
     /**
-     * Render a WSField.
+     * Get a new FieldRenderer.
      *
-     * @param string $input Parser Between beginning and end
-     * @param array $args Arguments for the field
-     * @param Parser $parser MediaWiki Parser
-     * @param PPFrame $frame MediaWiki PPFrame
-     *
-     * @return array|string
+     * @return FieldRenderer
      */
-    public function renderField( string $input, array $args, Parser $parser, PPFrame $frame );
+    public function getFieldRenderer(): FieldRenderer;
 
     /**
-     * Render a WSEdit.
+     * Get a new EditRenderer.
      *
-     * @param string $input Parser Between beginning and end
-     * @param array $args Arguments for the field
-     * @param Parser $parser MediaWiki Parser
-     * @param PPFrame $frame MediaWiki PPFrame
-     *
-     * @return array|string
+     * @return EditRenderer
      */
-    public function renderEdit( string $input, array $args, Parser $parser, PPFrame $frame );
+    public function getEditRenderer(): EditRenderer;
 
     /**
-     * Render a WSCreate.
+     * Get a new CreateRenderer.
      *
-     * @param string $input Parser Between beginning and end
-     * @param array $args Arguments for the field
-     * @param Parser $parser MediaWiki Parser
-     * @param PPFrame $frame MediaWiki PPFrame
-     *
-     * @return array|string
+     * @return CreateRenderer
      */
-    public function renderCreate( string $input, array $args, Parser $parser, PPFrame $frame );
+    public function getCreateRenderer(): CreateRenderer;
 
     /**
-     * Render a WSEmail.
+     * Get a new EmailRenderer.
      *
-     * @param string $input Parser Between beginning and end
-     * @param array $args Arguments for the field
-     * @param Parser $parser MediaWiki Parser
-     * @param PPFrame $frame MediaWiki PPFrame
-     *
-     * @return array|string
+     * @return EmailRenderer
      */
-    public function renderEmail( string $input, array $args, Parser $parser, PPFrame $frame );
+    public function getEmailRenderer(): EmailRenderer;
 
     /**
-     * Render a WSInstance.
+     * Get a new InstanceRenderer.
      *
-     * @param string $input Parser Between beginning and end
-     * @param array $args Arguments for the field
-     * @param Parser $parser MediaWiki Parser
-     * @param PPFrame $frame MediaWiki PPFrame
-     *
-     * @return array|string
+     * @return InstanceRenderer
      */
-    public function renderInstance( string $input, array $args, Parser $parser, PPFrame $frame );
+    public function getInstanceRenderer(): InstanceRenderer;
 
     /**
-     * Render a WSForm.
+     * Get a new FormRenderer.
      *
-     * @param string $input Parser Between beginning and end
-     * @param array $args Arguments for the field
-     * @param Parser $parser MediaWiki Parser
-     * @param PPFrame $frame MediaWiki PPFrame
-     *
-     * @return array|string
+     * @return FormRenderer
      */
-    public function renderForm( string $input, array $args, Parser $parser, PPFrame $frame );
+    public function getFormRenderer(): FormRenderer;
 
     /**
-     * Render a WSFieldset.
+     * Get a new FieldsetRenderer.
      *
-     * @param string $input Parser Between beginning and end
-     * @param array $args Arguments for the field
-     * @param Parser $parser MediaWiki Parser
-     * @param PPFrame $frame MediaWiki PPFrame
-     *
-     * @return array|string
+     * @return FieldsetRenderer
      */
-    public function renderFieldset( string $input, array $args, Parser $parser, PPFrame $frame );
+    public function getFieldsetRenderer(): FieldsetRenderer;
 
     /**
-     * Render a WSSelect.
+     * Get a new SelectRenderer.
      *
-     * @param string $input Parser Between beginning and end
-     * @param array $args Arguments for the field
-     * @param Parser $parser MediaWiki Parser
-     * @param PPFrame $frame MediaWiki PPFrame
-     *
-     * @return array|string
+     * @return SelectRenderer
      */
-    public function renderSelect( string $input, array $args, Parser $parser, PPFrame $frame );
+    public function getSelectRenderer(): SelectRenderer;
 
     /**
-     * Render a WSToken.
+     * Get a new TokenRenderer.
      *
-     * @param string $input Parser Between beginning and end
-     * @param array $args Arguments for the field
-     * @param Parser $parser MediaWiki Parser
-     * @param PPFrame $frame MediaWiki PPFrame
-     *
-     * @return array|string
+     * @return TokenRenderer
      */
-    public function renderToken( string $input, array $args, Parser $parser, PPFrame $frame );
+    public function getTokenRenderer(): TokenRenderer;
 
     /**
-     * Render a WSLegend.
+     * Get a new LegendRenderer.
      *
-     * @param string $input Parser Between beginning and end
-     * @param array $args Arguments for the field
-     * @param Parser $parser MediaWiki Parser
-     * @param PPFrame $frame MediaWiki PPFrame
-     *
-     * @return array|string
+     * @return LegendRenderer
      */
-    public function renderLegend( string $input, array $args, Parser $parser, PPFrame $frame );
+    public function renderLegend(): LegendRenderer;
 
     /**
-     * Render a WSLabel.
+     * Get a new LabelRenderer.
      *
-     * @param string $input Parser Between beginning and end
-     * @param array $args Arguments for the field
-     * @param Parser $parser MediaWiki Parser
-     * @param PPFrame $frame MediaWiki PPFrame
-     *
-     * @return array|string
+     * @return LabelRenderer
      */
-    public function renderLabel( string $input, array $args, Parser $parser, PPFrame $frame );
+    public function renderLabel(): LabelRenderer;
 }

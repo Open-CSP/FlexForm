@@ -10,7 +10,7 @@
 
 namespace WSForm\Render\Themes\WSForm;
 
-class Recaptcha {
+class RenderRecaptcha {
 
 
 	// TODO: Add to mwapi !!

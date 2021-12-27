@@ -3,6 +3,7 @@
 use MediaWiki\HookContainer\HookContainer;
 use WSForm\Render\Theme;
 use WSForm\Render\Themes\WSForm\WSFormTheme;
+use WSForm\WSFormException;
 
 /**
  * Class Render
@@ -41,10 +42,11 @@ class Renderer {
      *
      * @param string $theme The name of the theme
      * @return Theme
+     * @throws WSFormException
      */
     public function getTheme( string $theme ) {
         if ( !isset( $this->themes[$theme] ) ) {
-            // TODO: Throw exception
+            throw new WSFormException( 'The theme "' . $theme . '" does not exist.', 0);
         }
 
         return $this->themes[$theme];
@@ -55,6 +57,7 @@ class Renderer {
      * new form is rendered.
      *
      * @return Theme
+     * @throws WSFormException
      */
     public function getFormTheme() {
         return $this->getTheme( $this->formThemeName );

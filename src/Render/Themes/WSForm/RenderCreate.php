@@ -2,7 +2,7 @@
 
 namespace WSForm\Render\Themes\WSForm;
 
-class Create {
+class RenderCreate {
     /**
      * Render WSCreate
      *
