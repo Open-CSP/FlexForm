@@ -8,9 +8,9 @@
  * Time        : 13:01
  */
 
-namespace wsform\core;
+namespace WSForm\Core;
 
-use wsform\WSFormException;
+use WSForm\WSFormException;
 
 class protect {
 

@@ -8,12 +8,12 @@
  * Time        : 12:48
  */
 
-namespace wsform\core;
+namespace WSForm\Core;
 
 use \MediaWiki\MediaWikiServices;
-use wsform\WSFormException;
+use WSForm\WSFormException;
 
-class config {
+class Config {
 
 	private static $WSFormConfig;
 	private static $WSConfigStatus = false;

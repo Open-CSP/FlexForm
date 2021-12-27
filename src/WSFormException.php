@@ -8,7 +8,7 @@
  * Time        : 12:33
  */
 
-namespace wsform;
+namespace WSForm;
 
 class WSFormException extends \Exception {
 

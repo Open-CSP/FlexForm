@@ -8,9 +8,9 @@
  * Time        : 13:08
  */
 
-namespace wsform\core;
+namespace WSForm\Core;
 
-class handleResponse {
+class HandleResponse {
 
 	private $returnStatus = "error";
 	private $returnData = array();
