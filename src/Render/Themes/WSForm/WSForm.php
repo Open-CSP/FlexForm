@@ -167,7 +167,7 @@ class WSForm {
 			$realUrl = str_replace( '/index.php', '', $wgScript );
 			$jsFile = '<script type="text/javascript" charset="UTF-8" src="' . $realUrl . '/extensions/WSForm/modules/showOnSelect/WSShowOnSelect.js"></script>' . "\n";
 			$jsFile .= '<script>' . $js . '</script>';
-			wsform::addAsLoaded( 'ShowOnSelect' );
+			self::addAsLoaded( 'ShowOnSelect' );
 			return $jsFile;
 		} else return '';
 	}

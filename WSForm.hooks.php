@@ -123,47 +123,45 @@ class WSFormHooks {
 	}
 
 
-
-
-
-
-	/**
-	 * @brief Function to render an input field.
-	 *
-	 * This function will look for the type of input field and will call its subfunction render_<inputfield>
-	 *
-	 * @param string $input Parser Between beginning and end
-	 * @param array $args Arguments for the field
-	 * @param Parser $parser MediaWiki Parser
-	 * @param PPFrame $frame MediaWiki PPFrame
-	 *
-	 * @return array send to the MediaWiki Parser
-	 * @return string send to the MediaWiki Parser with the message not a valid function
-	 */
+    /**
+     * @brief Function to render an input field.
+     *
+     * This function will look for the type of input field and will call its subfunction render_<inputfield>
+     *
+     * @param string $input Parser Between beginning and end
+     * @param array $args Arguments for the field
+     * @param Parser $parser MediaWiki Parser
+     * @param PPFrame $frame MediaWiki PPFrame
+     *
+     * @return array send to the MediaWiki Parser
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
+     */
     public static function WSField( $input, array $args, Parser $parser, PPFrame $frame ) {
         return MediaWikiServices::getInstance()
             ->get('WSForm.Renderer')
-            ->getCurrentTheme()
+            ->getFormTheme()
             ->renderField( $input, $args, $parser, $frame );
     }
 
-	/**
-	 * @brief Function to render the Page Edit options.
-	 *
-	 * This function will call its subfunction render_edit()
-	 *
-	 * @param string $input Parser Between beginning and end
-	 * @param array $args Arguments for the field
-	 * @param Parser $parser MediaWiki Parser
-	 * @param PPFrame $frame MediaWiki PPFrame
-	 *
-	 * @return array send to the MediaWiki Parser
-	 * @return string send to the MediaWiki Parser with the message not a valid function
-	 */
+    /**
+     * @brief Function to render the Page Edit options.
+     *
+     * This function will call its subfunction render_edit()
+     *
+     * @param string $input Parser Between beginning and end
+     * @param array $args Arguments for the field
+     * @param Parser $parser MediaWiki Parser
+     * @param PPFrame $frame MediaWiki PPFrame
+     *
+     * @return array send to the MediaWiki Parser
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
+     */
 	public static function WSEdit( $input, array $args, Parser $parser, PPFrame $frame ) {
         return MediaWikiServices::getInstance()
             ->get('WSForm.Renderer')
-            ->getCurrentTheme()
+            ->getFormTheme()
             ->renderEdit( $input, $args, $parser, $frame );
 	}
 
@@ -179,15 +177,15 @@ class WSFormHooks {
      * @param PPFrame $frame MediaWiki PPFrame
      *
      * @return array send to the MediaWiki Parser
-     * @return string send to the MediaWiki Parser with the message not a valid function
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
 	public static function WSCreate( $input, array $args, Parser $parser, PPFrame $frame ) {
         return MediaWikiServices::getInstance()
             ->get('WSForm.Renderer')
-            ->getCurrentTheme()
+            ->getFormTheme()
             ->renderCreate( $input, $args, $parser, $frame );
 	}
-
 
 
     /**
@@ -201,55 +199,60 @@ class WSFormHooks {
      * @param PPFrame $frame MediaWiki PPFrame
      *
      * @return array send to the MediaWiki Parser or
-     * @return string send to the MediaWiki Parser with the message not a valid function
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
 	public static function WSEmail( $input, array $args, Parser $parser, PPFrame $frame ) {
         return MediaWikiServices::getInstance()
             ->get('WSForm.Renderer')
-            ->getCurrentTheme()
+            ->getFormTheme()
             ->renderEmail( $input, $args, $parser, $frame );
 	}
 
 	public static function WSInstance( $input, array $args, Parser $parser, PPFrame $frame ) {
         return MediaWikiServices::getInstance()
             ->get('WSForm.Renderer')
-            ->getCurrentTheme()
+            ->getFormTheme()
             ->renderInstance( $input, $args, $parser, $frame );
 	}
 
-
-
-	/**
-	 * @brief Function to render the Form itself.
-	 *
-	 * This function will call its subfunction render_form()
-	 * It will also add the JavaScript on the loadscript variable
-	 * \n Additional parameters
-	 * \li loadscript
-	 * \li showmessages
-	 * \li restrictions
-	 * \li no_submit_on_return
-	 * \li action
-	 * \li changetrigger
-	 *
-	 * @param string $input Parser Between beginning and end
-	 * @param array $args Arguments for the field
-	 * @param Parser $parser MediaWiki Parser
-	 * @param PPFrame $frame MediaWiki PPFrame
-	 *
-	 * @return array|string send to the MediaWiki Parser or send to the MediaWiki Parser with the message not a valid function
-	 */
+    /**
+     * @brief Function to render the Form itself.
+     *
+     * This function will call its subfunction render_form()
+     * It will also add the JavaScript on the loadscript variable
+     * \n Additional parameters
+     * \li loadscript
+     * \li showmessages
+     * \li restrictions
+     * \li no_submit_on_return
+     * \li action
+     * \li changetrigger
+     *
+     * @param string $input Parser Between beginning and end
+     * @param array $args Arguments for the field
+     * @param Parser $parser MediaWiki Parser
+     * @param PPFrame $frame MediaWiki PPFrame
+     *
+     * @return array|string send to the MediaWiki Parser or send to the MediaWiki Parser with the message not a valid function
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
+     */
 	public static function WSForm( $input, array $args, Parser $parser, PPFrame $frame ) {
 	    $renderer = MediaWikiServices::getInstance()->get('WSForm.Renderer');
+
+	    // Back up the previous theme
         $previousTheme = $renderer->getFormThemeName();
 
 	    try {
 	        if ( isset( $args['theme'] ) ) {
+	            // Set the new form theme
                 $renderer->setFormThemeName( $args['theme'] );
             }
 
             return $renderer->getCurrentTheme()->renderForm( $input, $args, $parser, $frame );
         } finally {
+	        // Restore the previous theme
 	        $renderer->setFormThemeName($previousTheme);
         }
 	}
@@ -263,9 +266,14 @@ class WSFormHooks {
      * @param PPFrame $frame MediaWiki pframe
      *
      * @return array with full rendered html for the parser to add
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
 	public static function WSFieldset( $input, array $args, Parser $parser, PPFrame $frame ) {
-
+        return MediaWikiServices::getInstance()
+            ->get('WSForm.Renderer')
+            ->getFormTheme()
+            ->renderFieldset( $input, $args, $parser, $frame );
 	}
 
     /**
@@ -277,27 +285,33 @@ class WSFormHooks {
      * @param PPFrame $frame MediaWiki pframe
      *
      * @return array with full rendered html for the parser to add
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
 	public static function WSSelect( $input, array $args, Parser $parser, PPFrame $frame ) {
-
-
-
-
-
+        return MediaWikiServices::getInstance()
+            ->get('WSForm.Renderer')
+            ->getFormTheme()
+            ->renderSelect( $input, $args, $parser, $frame );
 	}
 
-	/**
-	 * @brief This is the initial call from the MediaWiki parser for the WSToken
-	 *
-	 * @param $input string Received from parser from begin till end
-	 * @param array $args List of argmuments for the Fieldset
-	 * @param Parser $parser MediaWiki parser
-	 * @param PPFrame $frame MediaWiki pframe
-	 *
-	 * @return array with full rendered html for the parser to add
-	 */
+    /**
+     * @brief This is the initial call from the MediaWiki parser for the WSToken
+     *
+     * @param $input string Received from parser from begin till end
+     * @param array $args List of argmuments for the Fieldset
+     * @param Parser $parser MediaWiki parser
+     * @param PPFrame $frame MediaWiki pframe
+     *
+     * @return array with full rendered html for the parser to add
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
+     */
 	public static function WSToken( $input, array $args, Parser $parser, PPFrame $frame ) {
-
+        return MediaWikiServices::getInstance()
+            ->get('WSForm.Renderer')
+            ->getFormTheme()
+            ->renderToken( $input, $args, $parser, $frame );
 	}
 
 
@@ -310,19 +324,14 @@ class WSFormHooks {
      * @param PPFrame $frame MediaWiki pframe
      *
      * @return array with full rendered html for the parser to add
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
 	public static function WSLegend( $input, array $args, Parser $parser, PPFrame $frame ) {
-		$ret = '<legend ';
-		if ( isset( $args['class'] ) ) {
-			$ret .= ' class="' . $args['class'] . '" ';
-		}
-		if ( isset( $args['align'] ) ) {
-			$ret .= ' align="' . $args['align'] . '"';
-		}
-		$ret .= '>' . $input . '</legend>';
-		//self::addInlineJavaScriptAndCSS();
-		return array( $ret, "markerType" => 'nowiki' );
-
+        return MediaWikiServices::getInstance()
+            ->get('WSForm.Renderer')
+            ->getFormTheme()
+            ->renderLegend( $input, $args, $parser, $frame );
 	}
 
     /**
@@ -334,10 +343,14 @@ class WSFormHooks {
      * @param PPFrame $frame MediaWiki pframe
      *
      * @return array with full rendered html for the parser to add
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
 	public static function WSLabel( $input, array $args, Parser $parser, PPFrame $frame ) {
-
-
+        return MediaWikiServices::getInstance()
+            ->get('WSForm.Renderer')
+            ->getFormTheme()
+            ->renderLabel( $input, $args, $parser, $frame );
 	}
 
 

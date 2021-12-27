@@ -112,7 +112,7 @@ class WSFormTheme implements Theme {
                 $args[ $k ] = $parser->recursiveTagParse( $v, $frame );
             }
         }
-        $ret = wsform\create\render::render_create( $args );
+        $ret = Create::render_create( $args );
         //self::addInlineJavaScriptAndCSS();
         return array( $ret, 'noparse' => true, "markerType" => 'nowiki' );
     }
@@ -134,7 +134,7 @@ class WSFormTheme implements Theme {
                 $args[ $k ] = $parser->recursiveTagParse( $v, $frame );
             }
         }
-        $ret = wsform\mail\render::render_mail( $args );
+        $ret = Mail::render_mail( $args );
         //self::addInlineJavaScriptAndCSS();
         return array( $ret, 'noparse' => true, "markerType" => 'nowiki' );
     }
@@ -157,33 +157,29 @@ class WSFormTheme implements Theme {
         // Add move, delete and add button with classes
         $parser->getOutput()->addModuleStyles( 'ext.wsForm.Instance.styles' );
 
-        if( ! \wsform\wsform::isLoaded( 'wsinstance-initiated' ) ) {
-            wsform\wsform::addAsLoaded( 'wsinstance-initiated' );
+        if( ! WSForm::isLoaded( 'wsinstance-initiated' ) ) {
+            WSForm::addAsLoaded( 'wsinstance-initiated' );
         }
 
         $output = $parser->recursiveTagParse( $input, $frame );
 
-        if( ! \wsform\wsform::isLoaded( 'wsinstance-initiated' ) ) {
-            wsform\wsform::addAsLoaded( 'wsinstance-initiated' );
+        if( ! WSForm::isLoaded( 'wsinstance-initiated' ) ) {
+            WSForm::addAsLoaded( 'wsinstance-initiated' );
         }
 
-        $ret = wsform\instance\render::render_instance( $args, $output );
+        $ret = Instance::render_instance( $args, $output );
 
-        wsform\wsform::removeAsLoaded( 'wsinstance-initiated' );
+        WSForm::removeAsLoaded( 'wsinstance-initiated' );
 
-        if(! wsform\wsform::isLoaded( 'multipleinstance' ) ) {
+        if(! WSForm::isLoaded( 'multipleinstance' ) ) {
             if ( file_exists( $IP . '/extensions/WSForm/modules/instances/wsInstance.js' ) ) {
                 $ls =  $realUrl . '/extensions/WSForm/modules/instances/wsInstance.js';
                 $ret = '<script type="text/javascript" charset="UTF-8" src="' . $ls . '"></script>' . $ret ;
                 //wsform\wsform::includeInlineScript( $ls );
                 //$parser->getOutput()->addModules( ['ext.wsForm.instance'] );
-                wsform\wsform::addAsLoaded( 'multipleinstance' );
+                WSForm::addAsLoaded( 'multipleinstance' );
             }
         }
-
-
-
-
 
         return array( $ret, 'noparse' => true, "markerType" => 'nowiki' );
     }
@@ -200,14 +196,14 @@ class WSFormTheme implements Theme {
      */
     public function renderForm(string $input, array $args, Parser $parser, PPFrame $frame) {
         global $wgUser, $wgEmailConfirmToEdit, $IP, $wgScript;
-        \wsform\wsform::$chkSums = array();
+        WSForm::$chkSums = array();
         $anon = false;
         $ret = '';
-        wsform\wsform::$formId = uniqid();
+        WSForm::$formId = uniqid();
 
         // Set i18n general messages
-        wsform\wsform::$msg_unverified_email = wfMessage( "wsform-unverified-email1" )->text() . wfMessage( "wsform-unverified-email2" )->text();
-        wsform\wsform::$msg_anonymous_user = wfMessage( "wsform-anonymous-user" )->text();
+        WSForm::$msg_unverified_email = wfMessage( "wsform-unverified-email1" )->text() . wfMessage( "wsform-unverified-email2" )->text();
+        WSForm::$msg_anonymous_user = wfMessage( "wsform-anonymous-user" )->text();
 
         $parser->getOutput()->addModuleStyles( 'ext.wsForm.general.styles' );
 
@@ -237,7 +233,7 @@ class WSFormTheme implements Theme {
 
         //TODO: Will be deprecated in 1.36. As off 1.34 use isRegistered()
         if ( ! $wgUser->isLoggedIn() && $anon === false ) {
-            $ret = wsform\wsform::$msg_anonymous_user;
+            $ret = WSForm::$msg_anonymous_user;
             return $ret;
         }
 
@@ -246,7 +242,7 @@ class WSFormTheme implements Theme {
         } else $formId = false;
 
         if ( isset( $args['loadscript'] ) && $args['loadscript'] !== '' ) {
-            if(! wsform\wsform::isLoaded($args['loadscript'])) {
+            if(! WSForm::isLoaded($args['loadscript'])) {
                 if ( file_exists( $IP . '/extensions/WSForm/modules/customJS/loadScripts/' . $args['loadscript'] . '.js' ) ) {
                     $ls = file_get_contents( $IP . '/extensions/WSForm/modules/customJS/loadScripts/' . $args['loadscript'] . '.js' );
                     if ( $ls !== false ) {
@@ -255,10 +251,10 @@ class WSFormTheme implements Theme {
                         if( $formId !== false ) {
                             $k = 'wsForm_' . $args['loadscript'];
                             $v = $formId;
-                            wsform\wsform::includeJavaScriptConfig( $k, $v );
+                            WSForm::includeJavaScriptConfig( $k, $v );
                         }
-                        wsform\wsform::includeInlineScript( $ls );
-                        wsform\wsform::addAsLoaded( $args['loadscript'] );
+                        WSForm::includeInlineScript( $ls );
+                        WSForm::addAsLoaded( $args['loadscript'] );
                     }
                 }
             }
@@ -293,14 +289,14 @@ class WSFormTheme implements Theme {
               return false;
             }
           })";
-                wsform\wsform::includeInlineScript( $noEnter );
-                wsform\wsform::addAsLoaded( 'keypress' );
+                WSForm::includeInlineScript( $noEnter );
+                WSForm::addAsLoaded( 'keypress' );
             }
         }
 
         if ( isset( $args['action'] ) && $args['action'] == 'addToWiki' && $anon === false ) {
             if ( $wgEmailConfirmToEdit === true && ! $wgUser->isEmailConfirmed() ) {
-                $ret = wsform\wsform::$msg_unverified_email;
+                $ret = WSForm::$msg_unverified_email;
 
                 return $ret;
             }
@@ -310,17 +306,17 @@ class WSFormTheme implements Theme {
             $changeId = $args['id'];
             $changeCall = $args['changetrigger'];
             $onchange = "$('#" . $changeId . "').change(" . $changeCall . "(this));";
-            wsform\wsform::includeInlineScript( $onchange );
+            WSForm::includeInlineScript( $onchange );
         } else $onchange = false;
 
         if( isset( $args['messageonsuccess']) && $args['messageonsuccess'] !== '' ) {
             $msgOnSuccessJs = $js = 'var mwonsuccess = "' . $args['messageonsuccess'] . '";';
-            wsform\wsform::includeInlineScript( $msgOnSuccessJs );
+            WSForm::includeInlineScript( $msgOnSuccessJs );
         } else $msgOnSuccessJs = '';
 
         if( isset( $args['show-on-select' ] ) ) {
-            \wsform\wsform::setShowOnSelectActive();
-            $input = \wsform\wsform::checkForShowOnSelectValue( $input );
+            WSForm::setShowOnSelectActive();
+            $input = WSForm::checkForShowOnSelectValue( $input );
         }
 
         $output = $parser->recursiveTagParse( $input, $frame );
@@ -329,33 +325,33 @@ class WSFormTheme implements Theme {
                 $args[ $k ] = $parser->recursiveTagParse( $v, $frame );
             }
         }
-        if (wsform\wsform::getRun() === false) {
+        if (WSForm::getRun() === false) {
             $realUrl = str_replace( '/index.php', '', $wgScript );
             $ret = '<script type="text/javascript" charset="UTF-8" src="' . $realUrl . '/extensions/WSForm/WSForm.general.js"></script>' . "\n";
-            wsform\wsform::setRun(true);
+            WSForm::setRun(true);
         }
-        $ret .= wsform\form\render::render_form( $args, $parser->getTitle()->getLinkURL() );
+        $ret .= Form::render_form( $args, $parser->getTitle()->getLinkURL() );
 
         //Add checksum
 
-        if( \wsform\wsform::isShowOnSelectActive() ) {
-            $ret .= \wsform\wsform::createHiddenField( 'showonselect', '1' );
+        if( WSForm::isShowOnSelectActive() ) {
+            $ret .= WSForm::createHiddenField( 'showonselect', '1' );
 
         }
 
-        if( \wsform\wsform::$secure ) {
-            \wsform\protect\protect::setCrypt( \wsform\wsform::$checksumKey );
-            if( \wsform\wsform::$runAsUser ) {
-                $chcksumwuid = \wsform\protect\protect::encrypt( 'wsuid' );
-                $uid = \wsform\protect\protect::encrypt( $wgUser->getId() );
-                \wsform\wsform::addCheckSum( 'secure', $chcksumwuid, $uid, "all" );
+        if( WSForm::$secure ) {
+            Protect::setCrypt( WSForm::$checksumKey );
+            if( WSForm::$runAsUser ) {
+                $chcksumwuid = Protect::encrypt( 'wsuid' );
+                $uid = Protect::encrypt( $wgUser->getId() );
+                WSForm::addCheckSum( 'secure', $chcksumwuid, $uid, "all" );
                 $ret          .= '<input type="hidden" name="' . $chcksumwuid . '" value="' . $uid . '">';
             }
-            $chcksumName = \wsform\protect\protect::encrypt( 'checksum' );
-            if( !empty( \wsform\wsform::$chkSums ) ) {
-                $chcksumValue = \wsform\protect\protect::encrypt( serialize( \wsform\wsform::$chkSums ) );
+            $chcksumName = Protect::encrypt( 'checksum' );
+            if( !empty( WSForm::$chkSums ) ) {
+                $chcksumValue = Protect::encrypt( serialize( WSForm::$chkSums ) );
                 $ret          .= '<input type="hidden" name="' . $chcksumName . '" value="' . $chcksumValue . '">';
-                $ret          .= '<input type="hidden" name="formid" value="' . \wsform\wsform::$formId . '">';
+                $ret          .= '<input type="hidden" name="formid" value="' . WSForm::$formId . '">';
             }
 
         }

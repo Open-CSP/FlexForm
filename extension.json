@@ -35,6 +35,11 @@
   "ServiceWiringFiles": [
     "src/WSPermissions.ServiceWiring.php"
   ],
+  "config": {
+    "WSFormDefaultTheme": {
+      "value": "wsform"
+    }
+  },
   "ResourceFileModulePaths": {
     "localBasePath": "",
     "remoteExtPath": "WSForm"

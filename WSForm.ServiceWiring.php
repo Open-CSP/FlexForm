@@ -16,6 +16,9 @@ return [
      * @return Renderer The Renderer singleton
      */
     "WSForm.Renderer" => static function ( MediaWikiServices $services ): Renderer {
-        return new Renderer();
+        return new Renderer(
+            $services->getMainConfig()->get('WSFormDefaultTheme'),
+            $services->getHookContainer()
+        );
     },
 ];
