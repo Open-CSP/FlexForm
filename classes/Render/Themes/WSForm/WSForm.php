@@ -8,10 +8,10 @@
  * Time        : 21:55
  */
 
-namespace wsform;
+namespace WSForm\Render\Themes\WSForm;
 
 
-class wsform {
+class WSForm {
 
 
 	static $showOnSelectSet = false;

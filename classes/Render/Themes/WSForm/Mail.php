@@ -1,11 +1,11 @@
 <?php
 
 
-namespace wsform\mail;
+namespace WSForm\Render\Themes\WSForm;
 
 use wsform\validate\validate;
 
-class render {
+class Mail {
 
     /**
      * @brief Render Mail HTML input field

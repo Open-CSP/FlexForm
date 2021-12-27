@@ -32,6 +32,9 @@
       "i18n"
     ]
   },
+  "ServiceWiringFiles": [
+    "src/WSPermissions.ServiceWiring.php"
+  ],
   "ResourceFileModulePaths": {
     "localBasePath": "",
     "remoteExtPath": "WSForm"

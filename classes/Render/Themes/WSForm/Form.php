@@ -1,12 +1,11 @@
 <?php
 
-
-namespace wsform\form;
+namespace WSForm\Render\Themes\WSForm;
 
 use wsform\validate\validate;
 use wsform\wsform;
 
-class render {
+class Form {
 
 	/**
 	 * @brief Render begin of HTML Form

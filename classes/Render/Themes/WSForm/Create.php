@@ -1,12 +1,8 @@
 <?php
 
+namespace WSForm\Render\Themes\WSForm;
 
-namespace wsform\create;
-
-use wsform\validate\validate;
-
-class render {
-
+class Create {
     /**
      * Render WSCreate
      *

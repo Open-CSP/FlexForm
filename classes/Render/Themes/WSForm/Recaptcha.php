@@ -8,10 +8,9 @@
  * Time        : 20:54
  */
 
-namespace wsform\recaptcha;
+namespace WSForm\Render\Themes\WSForm;
 
-
-class render {
+class Recaptcha {
 
 
 	// TODO: Add to mwapi !!

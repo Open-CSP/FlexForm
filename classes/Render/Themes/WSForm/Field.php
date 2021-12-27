@@ -1,14 +1,12 @@
 <?php
 
-namespace wsform\field;
+namespace WSForm\Render\Themes\WSForm;
 
 use \wsform\validate\validate;
 use ExtensionRegistry;
 use wsform\wsform;
 
-class render {
-
-
+class Field {
 	/**
 	 * @brief Render Text Input field as HTML
 	 *
@@ -942,7 +940,7 @@ class render {
 		$cssFile = file_get_contents($IP.'/extensions/WSForm/modules/signature/css/jquery.signature.css');
 		wsform::includeInlineCSS( $cssFile );
 		$css = '<link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/south-street/jquery-ui.css" rel="stylesheet">';
-		$css .= '<script type="text/javascript" charset="UTF-8" src="/extensions/WSForm/modules/signature/js/do-signature.js"></script>'."\n";
+		$css .= '<script type="text/javascript" charset="UTF-8" src="/extensions/WSForm/modules/signature/js/do-signature.js"></script>' ."\n";
 
 
 		$js = 'function doWSformActions(){'."\n";

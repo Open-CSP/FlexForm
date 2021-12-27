@@ -8,15 +8,13 @@
  * Time        : 08:44
  */
 
-namespace wsform\instance;
+namespace WSForm\Render\Themes\WSForm;
 
 use wsform\validate\validate;
 use wsform\wsform;
 use MediaWiki\Revision\RevisionRecord;
 
-class render {
-
-
+class Instance {
 	private static function instanceDefault( $args ) {
 		$defaultInstance = array(
 			'selector'               => "WSmultipleTemplateWrapper",

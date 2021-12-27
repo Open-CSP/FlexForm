@@ -1,11 +1,8 @@
 <?php
 
+namespace WSForm\Render\Themes\WSForm;
 
-namespace wsform\edit;
-
-use wsform\validate\validate;
-
-class render {
+class Edit {
 
     /**
      * Render WSEdit

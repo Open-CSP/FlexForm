@@ -8,14 +8,9 @@
  * Time        : 21:43
  */
 
-namespace wsform\validate;
+namespace WSForm\Render;
 
-
-use wsform\wsform;
-
-class validate {
-
-
+class Validate {
 	/**
 	 * Check for valid parameters when using email
 	 *

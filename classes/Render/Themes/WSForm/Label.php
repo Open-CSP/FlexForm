@@ -1,11 +1,10 @@
 <?php
 
-
-namespace wsform\label;
+namespace WSForm\Render\Themes\WSForm;
 
 use wsform\validate\validate;
 
-class render {
+class Label {
 
     /**
      * @brief Render Label Input field as HTML

@@ -1,11 +1,11 @@
 <?php
 
 
-namespace wsform\select;
+namespace WSForm\Render\Themes\WSForm;
 
 use wsform\validate\validate;
 
-class render {
+class Select {
 
 
     /**

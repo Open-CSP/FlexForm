@@ -7,9 +7,9 @@
  * Time        : 08:15
  */
 
-namespace wsform\protect;
+namespace WSForm\Render\Themes\WSForm;
 
-class protect {
+class Protect {
 
 	protected static $method = 'aes-128-ctr'; // default cipher method if none supplied
 	private static $key;
