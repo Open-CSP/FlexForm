@@ -33,7 +33,7 @@
     ]
   },
   "ServiceWiringFiles": [
-    "src/WSPermissions.ServiceWiring.php"
+    "src/WSForm.ServiceWiring.php"
   ],
   "config": {
     "WSFormDefaultTheme": {
