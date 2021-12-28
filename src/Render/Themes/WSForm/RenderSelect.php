@@ -5,7 +5,7 @@ namespace WSForm\Render\Themes\WSForm;
 
 use wsform\validate\validate;
 
-class Select {
+class RenderSelect {
 
 
     /**

@@ -4,74 +4,24 @@ namespace WSForm\Render\Themes\WSForm;
 
 use Parser;
 use PPFrame;
+use WSForm\Render\FieldRenderer;
 use WSForm\Render\Theme;
 use WSForm\Render\Validate;
+use WSForm\WSFormException;
 
 /**
  * Class WSFormTheme
+ *
+ * This class is responsible for rendering a form in the theme "wsform".
  *
  * @package WSForm\Render
  */
 class WSFormTheme implements Theme {
     /**
-     * Render a WSField.
-     *
-     * @param string $input Parser Between beginning and end
-     * @param array $args Arguments for the field
-     * @param Parser $parser MediaWiki Parser
-     * @param PPFrame $frame MediaWiki PPFrame
-     *
-     * @return array|string
+     * @inheritDoc
      */
-    public function renderField( string $input, array $args, Parser $parser, PPFrame $frame ) {
-        if ( isset( $args['type'] ) ) {
-            $type = $args['type'];
-
-            if ( Validate::validInputTypes( $type ) ) {
-                $parsePost = false;
-                if( isset( $args['parsepost'] ) && isset( $args['name'] )) {
-                    $parsePost = true;
-                    $parseName = $args['name'];
-                    unset( $args['parsepost'] );
-                }
-                $type = "render_" . $type;
-                unset( $args['type'] );
-                $noParse = false;
-                if ( method_exists( 'wsform\field\render', $type ) ) {
-
-                    foreach ( $args as $k => $v ) {
-                        if ( ( strpos( $v, '{' ) !== false ) && ( strpos( $v, '}' ) !== false ) ) {
-                            $args[ $k ] = $parser->recursiveTagParse( $v, $frame );
-                        }
-                        if( $k === 'noparse' ) {
-                            $noParse = true;
-                        }
-                    }
-
-                    //Test to see if this gets parsed
-                    if( $noParse === false ) {
-                        $input = $parser->recursiveTagParse($input, $frame);
-                    }
-                    //End test
-                    if ( $type == 'render_option' || $type == 'render_file' || $type == 'render_submit' || $type == 'render_text' || $type == 'render_textarea') {
-                        $ret = Field::$type( $args, $input, $parser, $frame );
-                    } else {
-                        $ret = Field::$type( $args, $input );
-                    }
-                } else {
-                    $ret = $type . " is unknown";
-                }
-
-                if( $parsePost === true ) {
-                    $ret .= '<input type="hidden" name="wsparsepost[]" value="' . $parseName . "\">\n";
-                }
-                //self::addInlineJavaScriptAndCSS();
-
-                return array( $ret, "markerType" => 'nowiki');
-            } else return array( wfMessage( "wsform-field-invalid" )->text() . ": " . $type, "markerType" => 'nowiki');
-        } else {
-            return array( wfMessage( "wsform-field-invalid" )->text(), "markerType" => 'nowiki');
-        }
+    public function getFieldRenderer(): FieldRenderer {
+        return new WSFormFieldRenderer();
     }
 
     /**
@@ -91,7 +41,7 @@ class WSFormTheme implements Theme {
             }
         }
 
-        $ret = Edit::render_edit( $args );
+        $ret = RenderEdit::render_edit( $args );
         //self::addInlineJavaScriptAndCSS();
         return array( $ret, 'noparse' => true, "markerType" => 'nowiki' );
     }
@@ -112,7 +62,7 @@ class WSFormTheme implements Theme {
                 $args[ $k ] = $parser->recursiveTagParse( $v, $frame );
             }
         }
-        $ret = Create::render_create( $args );
+        $ret = RenderCreate::render_create( $args );
         //self::addInlineJavaScriptAndCSS();
         return array( $ret, 'noparse' => true, "markerType" => 'nowiki' );
     }
@@ -667,5 +617,39 @@ class WSFormTheme implements Theme {
         $ret    .= '>' . $output . '</label>';
         //self::addInlineJavaScriptAndCSS();
         return array( $ret, "markerType" => 'nowiki' );
+    }
+
+    /**
+     * Parses the given arguments.
+     *
+     * @param array $arguments
+     * @param Parser $parser
+     * @param PPFrame $frame
+     *
+     * @return array
+     */
+    private function parseArguments( array $arguments, Parser $parser, PPFrame $frame ) {
+        $result = [];
+
+        foreach ( $arguments as $name => $value ) {
+            if ( ( strpos( $value, '{' ) !== false ) && ( strpos( $value, '}' ) !== false ) ) {
+                $result[$name] = $parser->recursiveTagParse( $value, $frame );
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Parses the given input.
+     *
+     * @param string $input
+     * @param Parser $parser
+     * @param PPFrame $frame
+     *
+     * @return string
+     */
+    private function parseInput( string $input, Parser $parser, PPFrame $frame ) {
+        return $parser->recursiveTagParseFully( $input, $frame );
     }
 }

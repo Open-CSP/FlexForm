@@ -2,7 +2,7 @@
 
 namespace WSForm\Render\Themes\WSForm;
 
-class Edit {
+class RenderEdit {
 
     /**
      * Render WSEdit
