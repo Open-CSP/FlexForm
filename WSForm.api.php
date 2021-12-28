@@ -14,33 +14,34 @@
  *    Date : October 2017
  */
 //use \MediawikiApi\Api\ApiUser;
-$cookieParams = session_get_cookie_params();
-$cookieParams['samesite'] = "Lax";
-session_set_cookie_params($cookieParams);
-session_start();
+//$cookieParams = session_get_cookie_params();
+//$cookieParams['samesite'] = "Lax";
+//session_set_cookie_params($cookieParams);
+//session_start();
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
+use WSForm\Core\HandleResponse;
+use WSForm\Processors\Utilities\General;
+
 //setcookie("wsform[type]", "danger", 0, '/');
 //setcookie("wsform[txt]", "test", 0, '/');
 
-$currentHost = $_SERVER['HTTP_HOST'];
-$referrerHost = parse_url($_SERVER['HTTP_REFERER']);
-/*
-if ( strcmp($currentHost, $referrerHost['host']) !== 0)
-{
-    http_response_code(404);
-    //include('myCustom404.php'); // provide your own 404 error page
-    die('no no no sir'); // remove this if you want to execute the rest of the code inside the file before redirecting.
+// Are we inside the MediaWiki FrameWork ?
+if ( ! defined( 'MEDIAWIKI' ) ) {
+	if ( wsUtilities::getGetString(
+			'version',
+			false
+		) !== false ) {
+		echo getVersion();
+		exit();
+	}
+	die( 'no no no sir' );
 }
-*/
 
-//ERROR_REPORTING(E_ALL);
-//ini_set('display_errors', 1);
 
-require_once( 'WSForm.api.class.php' );
-require_once( 'classes/recaptcha.class.php' );
-require_once( 'modules/htmlpurifier/library/HTMLPurifier.auto.php' );
+ERROR_REPORTING(E_ALL);
+ini_set('display_errors', 1);
 
 $i18n = new wsi18n();
 $ret = false;
@@ -48,24 +49,30 @@ $failed = false;
 
 $removeList = array();
 
-$imageHandler = array();
+HandleResponse::setIdentifier( General::getPostString( "mwidentifier" ) );
+HandleResponse::setMwReturn( General::getPostString( "mwreturn" ) );
 
-$imageHandler  = [
-    IMAGETYPE_JPEG => [
-        'load' => 'imagecreatefromjpeg',
-        'save' => 'imagejpeg',
-        'quality' => 100
-    ],
-    IMAGETYPE_PNG => [
-        'load' => 'imagecreatefrompng',
-        'save' => 'imagepng',
-        'quality' => 0
-    ],
-    IMAGETYPE_GIF => [
-        'load' => 'imagecreatefromgif',
-        'save' => 'imagegif'
-    ]
-];
+//********* START Handle functions that need no further actions
+$actionGet = General::getGetString( 'action' );
+
+// Handle get requests
+if ( $actionGet !== false ) {
+	switch ( $actionGet ) {
+		case "renderWiki":
+			$render = new render();
+			$result = $render->renderWikiTxt();
+			wbHandleResponses::JSONResponse( $result );
+			break;
+		case "handleExternalRequest":
+			$result = external::handle();
+			wbHandleResponses::JSONResponse( $result );
+			break;
+		case "handleQuery":
+			$result = query::handle();
+			wbHandleResponses::JSONResponse( $result );
+			break;
+	}
+}
 
 $title = "";
 
@@ -79,14 +86,6 @@ if( $api->isDebug() ) {
 }
 
 $securedVersion = $api->isSecure();
-
-
-$IP = $api->app['IP'];
-
-if( getGetString('version', false) !== false ) {
-	echo getVersion();
-	exit();
-}
 
 if(isset( $_GET['action']) && $_GET['action'] === 'renderWiki' ) {
     $ret = renderWiki();

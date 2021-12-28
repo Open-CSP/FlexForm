@@ -12,7 +12,7 @@ namespace WSForm\Core;
 
 use WSForm\WSFormException;
 
-class protect {
+class Protect {
 
 	protected static $method = 'aes-128-ctr'; // default cipher method if none supplied
 	private static $key;

@@ -12,62 +12,55 @@ namespace WSForm\Core;
 
 class HandleResponse {
 
-	private $returnStatus = "error";
-	private $returnData = array();
-	private $mwReturn = false;
+	private static $returnStatus = "ok";
+	private static $returnData = array();
+	private static $mwReturn = false;
 
 	/**
 	 * @var bool
 	 */
-	private $apiAjax = false;
-
-	/**
-	 * @param mixed $output
-	 */
-	public function __construct( $output ) {
-		$this->setIdentifier( $output );
-	}
+	private static $apiAjax = false;
 
 	/**
 	 * @param string $status
 	 */
-	public function setReturnStatus( string $status ) {
-		$this->returnStatus = $status;
+	public static function setReturnStatus( string $status ) {
+		self::$returnStatus = $status;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getReturnStatus(): string {
-		return $this->returnStatus;
+	public static function getReturnStatus(): string {
+		return self::$returnStatus;
 	}
 
 	/**
 	 * @param string $data
 	 */
-	public function setReturnData( string $data ) {
-		$this->returnData[] = $data;
+	public static function setReturnData( string $data ) {
+		self::$returnData[] = $data;
 	}
 
 	/**
 	 * @return array
 	 */
-	public function getReturnData(): array {
-		return $this->returnData;
+	public static function getReturnData(): array {
+		return self::$returnData;
 	}
 
 	/**
 	 * @param string|bool $mwReturn
 	 */
-	public function setMwReturn( $mwReturn ) {
-		$this->mwReturn = $mwReturn;
+	public static function setMwReturn( $mwReturn ) {
+		self::$mwReturn = $mwReturn;
 	}
 
 	/**
 	 * @return string|bool
 	 */
-	public function getMwReturn() {
-		return $this->mwReturn;
+	public static function getMwReturn() {
+		return self::$mwReturn;
 	}
 
 	/**
@@ -75,39 +68,36 @@ class HandleResponse {
 	 *
 	 * @param mixed $identifier
 	 */
-	public function setIdentifier( $identifier = false ) {
+	public static function setIdentifier( $identifier = false ) {
 		if ( $identifier === 'ajax' ) {
-			$this->apiAjax = true;
+			self::$apiAjax = true;
 		}
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function isAjax() : bool {
-		return $this->apiAjax;
+	public static function isAjax() : bool {
+		return self::$apiAjax;
 	}
 
 	/**
 	 * Function called to create the final return parameters in a consistent way.
 	 *
-	 * @param string|array $msg Message to pass
-	 * @param string $status Defaults to error. "ok" to pass
-	 * @param bool|string $mwreturn url to return page
 	 * @param bool|string $type type of visual notice to show (error, warning, success, etc)
 	 *
 	 * @return array
 	 */
-	public function createMsg( $msg, string $status = "error", $mwreturn = false, $type = false ):array {
+	public static function createMsg( $type = false ):array {
 		$tmp             = array();
-		$tmp['status']   = $status;
+		$tmp['status']   = self::getReturnStatus();
 		$tmp['type']     = $type;
-		$tmp['mwreturn'] = $this->getMwReturn();
-		if ( is_array( $msg ) ) {
-			$combined   = implode( '<BR>', $msg );
+		$tmp['mwreturn'] = self::getMwReturn();
+		if ( is_array( self::getReturnData() ) ) {
+			$combined   = implode( '<BR>', self::getReturnData() );
 			$tmp['msg'] = $combined;
 		} else {
-			$tmp['msg'] = $msg;
+			$tmp['msg'] = self::getReturnData();
 		}
 
 		return $tmp;

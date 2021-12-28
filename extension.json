@@ -9,8 +9,6 @@
   "license-name": "GPL v2",
   "type": "parserhook",
   "AutoloadClasses": {
-    "WSFormHooks": "WSForm.hooks.php",
-    "SpecialWSForm": "specials/SpecialWSForm.php",
     "ApiWSForm": "ApiWSForm.php"
   },
   "ExtensionMessagesFiles": {
