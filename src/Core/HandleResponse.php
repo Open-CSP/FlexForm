@@ -12,55 +12,55 @@ namespace WSForm\Core;
 
 class HandleResponse {
 
-	private static $returnStatus = "ok";
-	private static $returnData = array();
-	private static $mwReturn = false;
+	private $returnStatus = "ok";
+	private $returnData = array();
+	private $mwReturn = false;
 
 	/**
 	 * @var bool
 	 */
-	private static $apiAjax = false;
+	private $apiAjax = false;
 
 	/**
 	 * @param string $status
 	 */
-	public static function setReturnStatus( string $status ) {
-		self::$returnStatus = $status;
+	public function setReturnStatus( string $status ) {
+		$this->returnStatus = $status;
 	}
 
 	/**
 	 * @return string
 	 */
-	public static function getReturnStatus(): string {
-		return self::$returnStatus;
+	public function getReturnStatus(): string {
+		return $this->returnStatus;
 	}
 
 	/**
 	 * @param string $data
 	 */
-	public static function setReturnData( string $data ) {
-		self::$returnData[] = $data;
+	public function setReturnData( string $data ) {
+		$this->returnData[] = $data;
 	}
 
 	/**
 	 * @return array
 	 */
-	public static function getReturnData(): array {
-		return self::$returnData;
+	public function getReturnData(): array {
+		return $this->returnData;
 	}
 
 	/**
 	 * @param string|bool $mwReturn
 	 */
-	public static function setMwReturn( $mwReturn ) {
-		self::$mwReturn = $mwReturn;
+	public function setMwReturn( $mwReturn ) {
+		$this->mwReturn = $mwReturn;
 	}
 
 	/**
 	 * @return string|bool
 	 */
-	public static function getMwReturn() {
-		return self::$mwReturn;
+	public function getMwReturn() {
+		return $this->mwReturn;
 	}
 
 	/**
@@ -68,17 +68,17 @@ class HandleResponse {
 	 *
 	 * @param mixed $identifier
 	 */
-	public static function setIdentifier( $identifier = false ) {
+	public function setIdentifier( $identifier = false ) {
 		if ( $identifier === 'ajax' ) {
-			self::$apiAjax = true;
+			$this->apiAjax = true;
 		}
 	}
 
 	/**
 	 * @return bool
 	 */
-	public static function isAjax() : bool {
-		return self::$apiAjax;
+	public function isAjax() : bool {
+		return $this->apiAjax;
 	}
 
 	/**
@@ -88,16 +88,16 @@ class HandleResponse {
 	 *
 	 * @return array
 	 */
-	public static function createMsg( $type = false ):array {
+	public function createMsg( $type = false ):array {
 		$tmp             = array();
-		$tmp['status']   = self::getReturnStatus();
+		$tmp['status']   = $this->getReturnStatus();
 		$tmp['type']     = $type;
-		$tmp['mwreturn'] = self::getMwReturn();
-		if ( is_array( self::getReturnData() ) ) {
-			$combined   = implode( '<BR>', self::getReturnData() );
+		$tmp['mwreturn'] = $this->getMwReturn();
+		if ( is_array( $this->getReturnData() ) ) {
+			$combined   = implode( '<BR>', $this->getReturnData() );
 			$tmp['msg'] = $combined;
 		} else {
-			$tmp['msg'] = self::getReturnData();
+			$tmp['msg'] = $this->getReturnData();
 		}
 
 		return $tmp;
