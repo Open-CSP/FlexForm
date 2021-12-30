@@ -10,6 +10,8 @@
 
 namespace WSForm\Processors;
 
+use WSForm\Processors\Utilities\General;
+
 class Definitions {
 
 
@@ -42,20 +44,20 @@ class Definitions {
 	 */
 	public static function createAndEditFields(): array {
 		return array(
-			'parsePost'    => wsUtilities::getPostString( 'wsparsepost' ),
-			'parseLast'    => wsUtilities::getPostString( 'mwparselast' ),
-			'etoken'       => wsUtilities::getPostString( 'wsedittoken' ),
-			'template'     => wsUtilities::getPostString( 'mwtemplate' ),
-			'writepage'    => wsUtilities::getPostString( 'mwwrite' ),
-			'option'       => wsUtilities::getPostString( 'mwoption' ),
-			'returnto'     => wsUtilities::getPostString( 'mwreturn', false ),
-			'returnfalse'  => wsUtilities::getPostString( 'mwreturnfalse' ),
-			'mwedit'       => wsUtilities::getPostArray( 'mwedit' ),
-			'writepages'   => wsUtilities::getPostArray( 'mwcreatemultiple' ),
-			'msgOnSuccess' => wsUtilities::getPostString( 'mwonsuccess' ),
-			'mwfollow'     => wsUtilities::getPostString( 'mwfollow' ),
+			'parsePost'    => General::getPostString( 'wsparsepost' ),
+			'parseLast'    => General::getPostString( 'mwparselast' ),
+			'etoken'       => General::getPostString( 'wsedittoken' ),
+			'template'     => General::getPostString( 'mwtemplate' ),
+			'writepage'    => General::getPostString( 'mwwrite' ),
+			'option'       => General::getPostString( 'mwoption' ),
+			'returnto'     => General::getPostString( 'mwreturn', false ),
+			'returnfalse'  => General::getPostString( 'mwreturnfalse' ),
+			'mwedit'       => General::getPostArray( 'mwedit' ),
+			'writepages'   => General::getPostArray( 'mwcreatemultiple' ),
+			'msgOnSuccess' => General::getPostString( 'mwonsuccess' ),
+			'mwfollow'     => General::getPostString( 'mwfollow' ),
 			'leadByZero'   => false,
-			'summary'      => wsUtilities::getPostString( 'mwwikicomment' )
+			'summary'      => General::getPostString( 'mwwikicomment' )
 		);
 	}
 
