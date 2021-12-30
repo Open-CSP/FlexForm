@@ -4,9 +4,9 @@ namespace WSForm\Render\Themes\WSForm;
 
 use Parser;
 use PPFrame;
-use WSForm\Render\FieldRenderer;
 use ExtensionRegistry;
 use WSForm\Core\Validate;
+use WSForm\Render\Themes\FieldRenderer;
 
 class WSFormFieldRenderer implements FieldRenderer {
     /**

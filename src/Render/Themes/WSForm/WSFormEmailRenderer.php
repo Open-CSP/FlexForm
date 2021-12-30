@@ -3,9 +3,9 @@
 
 namespace WSForm\Render\Themes\WSForm;
 
-use WSForm\Render\EmailRenderer;
 use Parser;
 use PPFrame;
+use WSForm\Render\Themes\EmailRenderer;
 
 class WSFormEmailRenderer implements EmailRenderer {
     /**

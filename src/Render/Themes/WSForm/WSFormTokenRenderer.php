@@ -5,7 +5,7 @@ namespace WSForm\Render\Themes\WSForm;
 
 use Parser;
 use PPFrame;
-use WSForm\Render\TokenRenderer;
+use WSForm\Render\Themes\TokenRenderer;
 
 class WSFormTokenRenderer implements TokenRenderer {
     /**

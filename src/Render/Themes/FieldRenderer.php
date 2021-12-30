@@ -14,8 +14,8 @@ interface FieldRenderer {
     /**
      * @brief Render text input field
      *
-     * @param string $input Input for the field
-     * @param array $args Arguments for the field
+     * @param string $input Input for the field (should be parsed)
+     * @param array $args Arguments for the field (should be parsed)
      * @param Parser $parser MediaWiki parser
      * @param PPFrame $frame Current PPFrame
      *
@@ -26,8 +26,8 @@ interface FieldRenderer {
     /**
      * @brief Render hidden input field
      *
-     * @param string $input Input for the field
-     * @param array $args Arguments for the field
+     * @param string $input Input for the field (should be parsed)
+     * @param array $args Arguments for the field (should be parsed)
      * @param Parser $parser MediaWiki parser
      * @param PPFrame $frame Current PPFrame
      *
@@ -38,8 +38,8 @@ interface FieldRenderer {
     /**
      * @brief Render hidden input field
      *
-     * @param string $input Input for the field
-     * @param array $args Arguments for the field
+     * @param string $input Input for the field (should be parsed)
+     * @param array $args Arguments for the field (should be parsed)
      * @param Parser $parser MediaWiki parser
      * @param PPFrame $frame Current PPFrame
      *
@@ -50,8 +50,8 @@ interface FieldRenderer {
     /**
      * @brief Render search input field
      *
-     * @param string $input Input for the field
-     * @param array $args Arguments for the field
+     * @param string $input Input for the field (should be parsed)
+     * @param array $args Arguments for the field (should be parsed)
      * @param Parser $parser MediaWiki parser
      * @param PPFrame $frame Current PPFrame
      *
@@ -62,8 +62,8 @@ interface FieldRenderer {
     /**
      * @brief Render number input field
      *
-     * @param string $input Input for the field
-     * @param array $args Arguments for the field
+     * @param string $input Input for the field (should be parsed)
+     * @param array $args Arguments for the field (should be parsed)
      * @param Parser $parser MediaWiki parser
      * @param PPFrame $frame Current PPFrame
      *
@@ -74,8 +74,8 @@ interface FieldRenderer {
     /**
      * @brief Render radio input field
      *
-     * @param string $input Input for the field
-     * @param array $args Arguments for the field
+     * @param string $input Input for the field (should be parsed)
+     * @param array $args Arguments for the field (should be parsed)
      * @param Parser $parser MediaWiki parser
      * @param PPFrame $frame Current PPFrame
      *
@@ -86,8 +86,8 @@ interface FieldRenderer {
     /**
      * @brief Render checkbox input field
      *
-     * @param string $input Input for the field
-     * @param array $args Arguments for the field
+     * @param string $input Input for the field (should be parsed)
+     * @param array $args Arguments for the field (should be parsed)
      * @param Parser $parser MediaWiki parser
      * @param PPFrame $frame Current PPFrame
      *
@@ -98,8 +98,8 @@ interface FieldRenderer {
     /**
      * @brief Render file input field
      *
-     * @param string $input Input for the field
-     * @param array $args Arguments for the field
+     * @param string $input Input for the field (should be parsed)
+     * @param array $args Arguments for the field (should be parsed)
      * @param Parser $parser MediaWiki parser
      * @param PPFrame $frame Current PPFrame
      *
@@ -110,8 +110,8 @@ interface FieldRenderer {
     /**
      * @brief Render date input field
      *
-     * @param string $input Input for the field
-     * @param array $args Arguments for the field
+     * @param string $input Input for the field (should be parsed)
+     * @param array $args Arguments for the field (should be parsed)
      * @param Parser $parser MediaWiki parser
      * @param PPFrame $frame Current PPFrame
      *
@@ -122,8 +122,8 @@ interface FieldRenderer {
     /**
      * @brief Render month input field
      *
-     * @param string $input Input for the field
-     * @param array $args Arguments for the field
+     * @param string $input Input for the field (should be parsed)
+     * @param array $args Arguments for the field (should be parsed)
      * @param Parser $parser MediaWiki parser
      * @param PPFrame $frame Current PPFrame
      *
@@ -134,8 +134,8 @@ interface FieldRenderer {
     /**
      * @brief Render week input field
      *
-     * @param string $input Input for the field
-     * @param array $args Arguments for the field
+     * @param string $input Input for the field (should be parsed)
+     * @param array $args Arguments for the field (should be parsed)
      * @param Parser $parser MediaWiki parser
      * @param PPFrame $frame Current PPFrame
      *
@@ -146,8 +146,8 @@ interface FieldRenderer {
     /**
      * @brief Render time input field
      *
-     * @param string $input Input for the field
-     * @param array $args Arguments for the field
+     * @param string $input Input for the field (should be parsed)
+     * @param array $args Arguments for the field (should be parsed)
      * @param Parser $parser MediaWiki parser
      * @param PPFrame $frame Current PPFrame
      *
@@ -158,8 +158,8 @@ interface FieldRenderer {
     /**
      * @brief Render DateTime input field
      *
-     * @param string $input Input for the field
-     * @param array $args Arguments for the field
+     * @param string $input Input for the field (should be parsed)
+     * @param array $args Arguments for the field (should be parsed)
      * @param Parser $parser MediaWiki parser
      * @param PPFrame $frame Current PPFrame
      *
@@ -170,8 +170,8 @@ interface FieldRenderer {
     /**
      * @brief Render local DateTime input field
      *
-     * @param string $input Input for the field
-     * @param array $args Arguments for the field
+     * @param string $input Input for the field (should be parsed)
+     * @param array $args Arguments for the field (should be parsed)
      * @param Parser $parser MediaWiki parser
      * @param PPFrame $frame Current PPFrame
      *
@@ -182,8 +182,8 @@ interface FieldRenderer {
     /**
      * @brief Render password input field
      *
-     * @param string $input Input for the field
-     * @param array $args Arguments for the field
+     * @param string $input Input for the field (should be parsed)
+     * @param array $args Arguments for the field (should be parsed)
      * @param Parser $parser MediaWiki parser
      * @param PPFrame $frame Current PPFrame
      *
@@ -194,8 +194,8 @@ interface FieldRenderer {
     /**
      * @brief Render email input field
      *
-     * @param string $input Input for the field
-     * @param array $args Arguments for the field
+     * @param string $input Input for the field (should be parsed)
+     * @param array $args Arguments for the field (should be parsed)
      * @param Parser $parser MediaWiki parser
      * @param PPFrame $frame Current PPFrame
      *
@@ -206,8 +206,8 @@ interface FieldRenderer {
     /**
      * @brief Render color input field
      *
-     * @param string $input Input for the field
-     * @param array $args Arguments for the field
+     * @param string $input Input for the field (should be parsed)
+     * @param array $args Arguments for the field (should be parsed)
      * @param Parser $parser MediaWiki parser
      * @param PPFrame $frame Current PPFrame
      *
@@ -218,8 +218,8 @@ interface FieldRenderer {
     /**
      * @brief Render range input field
      *
-     * @param string $input Input for the field
-     * @param array $args Arguments for the field
+     * @param string $input Input for the field (should be parsed)
+     * @param array $args Arguments for the field (should be parsed)
      * @param Parser $parser MediaWiki parser
      * @param PPFrame $frame Current PPFrame
      *
@@ -230,8 +230,8 @@ interface FieldRenderer {
     /**
      * @brief Render image input field
      *
-     * @param string $input Input for the field
-     * @param array $args Arguments for the field
+     * @param string $input Input for the field (should be parsed)
+     * @param array $args Arguments for the field (should be parsed)
      * @param Parser $parser MediaWiki parser
      * @param PPFrame $frame Current PPFrame
      *
@@ -242,8 +242,8 @@ interface FieldRenderer {
     /**
      * @brief Render URL input field
      *
-     * @param string $input Input for the field
-     * @param array $args Arguments for the field
+     * @param string $input Input for the field (should be parsed)
+     * @param array $args Arguments for the field (should be parsed)
      * @param Parser $parser MediaWiki parser
      * @param PPFrame $frame Current PPFrame
      *
@@ -254,8 +254,8 @@ interface FieldRenderer {
     /**
      * @brief Render telephone number input field
      *
-     * @param string $input Input for the field
-     * @param array $args Arguments for the field
+     * @param string $input Input for the field (should be parsed)
+     * @param array $args Arguments for the field (should be parsed)
      * @param Parser $parser MediaWiki parser
      * @param PPFrame $frame Current PPFrame
      *
@@ -266,8 +266,8 @@ interface FieldRenderer {
     /**
      * @brief Render options for select input field
      *
-     * @param string $input Input for the field
-     * @param array $args Arguments for the field
+     * @param string $input Input for the field (should be parsed)
+     * @param array $args Arguments for the field (should be parsed)
      * @param Parser $parser MediaWiki parser
      * @param PPFrame $frame Current PPFrame
      *
@@ -278,8 +278,8 @@ interface FieldRenderer {
     /**
      * @brief Render submit
      *
-     * @param string $input Input for the field
-     * @param array $args Arguments for the field
+     * @param string $input Input for the field (should be parsed)
+     * @param array $args Arguments for the field (should be parsed)
      * @param Parser $parser MediaWiki parser
      * @param PPFrame $frame Current PPFrame
      *
@@ -290,8 +290,8 @@ interface FieldRenderer {
     /**
      * @brief Render button field
      *
-     * @param string $input Input for the field
-     * @param array $args Arguments for the field
+     * @param string $input Input for the field (should be parsed)
+     * @param array $args Arguments for the field (should be parsed)
      * @param Parser $parser MediaWiki parser
      * @param PPFrame $frame Current PPFrame
      *
@@ -302,8 +302,8 @@ interface FieldRenderer {
     /**
      * @brief Render reset input field
      *
-     * @param string $input Input for the field
-     * @param array $args Arguments for the field
+     * @param string $input Input for the field (should be parsed)
+     * @param array $args Arguments for the field (should be parsed)
      * @param Parser $parser MediaWiki parser
      * @param PPFrame $frame Current PPFrame
      *
@@ -314,8 +314,8 @@ interface FieldRenderer {
     /**
      * @brief Render textarea input field
      *
-     * @param string $input Input for the field
-     * @param array $args Arguments for the field
+     * @param string $input Input for the field (should be parsed)
+     * @param array $args Arguments for the field (should be parsed)
      * @param Parser $parser MediaWiki parser
      * @param PPFrame $frame Current PPFrame
      *
@@ -326,8 +326,8 @@ interface FieldRenderer {
     /**
      * @brief Render signature input field
      *
-     * @param string $input Input for the field
-     * @param array $args Arguments for the field
+     * @param string $input Input for the field (should be parsed)
+     * @param array $args Arguments for the field (should be parsed)
      * @param Parser $parser MediaWiki parser
      * @param PPFrame $frame Current PPFrame
      *
@@ -338,8 +338,8 @@ interface FieldRenderer {
     /**
      * @brief Render mobile screenshot file input field
      *
-     * @param string $input Input for the field
-     * @param array $args Arguments for the field
+     * @param string $input Input for the field (should be parsed)
+     * @param array $args Arguments for the field (should be parsed)
      * @param Parser $parser MediaWiki parser
      * @param PPFrame $frame Current PPFrame
      *

@@ -145,7 +145,7 @@ class Core {
 
 	public static function addShowOnSelectJS(){
 		global $wgScript;
-		if( !wsform::isLoaded( 'ShowOnSelect' ) ) {
+		if( !self::isLoaded( 'ShowOnSelect' ) ) {
 			$out = \RequestContext::getMain()->getOutput();
 			$out->addJsConfigVars( array( "WSFormShowOnSelect" => true ) );
 			$js = 'wachtff( WsShowOnSelect, true );';
@@ -303,18 +303,18 @@ class Core {
 	}
 
 	public static function createHiddenField( $name, $value ) {
-		if( \wsform\wsform::$secure ) {
-			\wsform\protect\protect::setCrypt( \wsform\wsform::$checksumKey );
-			$name  = \wsform\protect\protect::encrypt( $name );
-			$value = \wsform\protect\protect::encrypt( $value );
-			\wsform\wsform::addCheckSum( 'secure', $name, $value, "all" );
+		if( self::$secure ) {
+			Protect::setCrypt( self::$checksumKey );
+			$name  = Protect::encrypt( $name );
+			$value = Protect::encrypt( $value );
+			self::addCheckSum( 'secure', $name, $value, "all" );
 		}
 		return '<input type="hidden" name="' . $name . '" value="' . $value . '">' . "\n";
 	}
 
 	public static function addCheckSum( $type, $name, $value, $allowHTML = "default" ) {
-		if ( \wsform\wsform::$secure ) {
-			$formId = \wsform\wsform::$formId;
+		if ( self::$secure ) {
+			$formId = self::$formId;
 			if( $type === 'secure' ) {
 				self::$chkSums[ $formId ][ $type ][] = array(
 					"name"  => $name,

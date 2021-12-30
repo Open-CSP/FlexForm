@@ -10,13 +10,12 @@ use PPFrame;
  *
  * @package WSForm\Render
  */
-interface TokenRenderer
-{
+interface TokenRenderer {
     /**
      * @brief Render token
      *
-     * @param string $input Input for the field
-     * @param array $args Arguments for the field
+     * @param string $input Input for the field (should be parsed)
+     * @param array $args Arguments for the field (should be parsed)
      * @param Parser $parser MediaWiki parser
      * @param PPFrame $frame Current PPFrame
      *

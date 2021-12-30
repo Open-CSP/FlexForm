@@ -2,9 +2,9 @@
 
 namespace WSForm\Render\Themes\WSForm;
 
-use WSForm\Render\EditRenderer;
 use Parser;
 use PPFrame;
+use WSForm\Render\Themes\EditRenderer;
 
 class WSFormEditRenderer implements EditRenderer {
     /**

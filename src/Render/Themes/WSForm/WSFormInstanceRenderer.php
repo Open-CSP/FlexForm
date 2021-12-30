@@ -10,10 +10,10 @@
 
 namespace WSForm\Render\Themes\WSForm;
 
-use WSForm\Render\InstanceRenderer;
 use MediaWiki\Revision\RevisionRecord;
 use Parser;
 use PPFrame;
+use WSForm\Render\Themes\InstanceRenderer;
 
 class WSFormInstanceRenderer implements InstanceRenderer {
 	private static function instanceDefault( $args ) {

@@ -2,16 +2,23 @@
 
 namespace WSForm\Render\Themes\WSForm;
 
-use Parser;
-use PPFrame;
-use WSForm\Render\LegendRenderer;
+use WSForm\Render\Themes\LegendRenderer;
 
 class WSFormLegendRenderer implements LegendRenderer {
     /**
      * @inheritDoc
      */
-    public function render_legend( string $input, array $args, Parser $parser, PPFrame $frame ): string {
-        // TODO
-    }
+    public function render_legend( string $input, string $class = '', string $align = '' ): string {
+        $ret = '<legend ';
 
+        if ( $class !== '' ) {
+            $ret .= ' class="' . htmlspecialchars( $class ) . '" ';
+        }
+
+        if ( $align !== '' ) {
+            $ret .= ' align="' . htmlspecialchars( $align ) . '"';
+        }
+
+        return $ret . '>' . $input . '</legend>';
+    }
 }

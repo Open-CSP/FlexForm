@@ -10,17 +10,15 @@ use PPFrame;
  *
  * @package WSForm\Render
  */
-interface SelectRenderer
-{
+interface SelectRenderer {
     /**
      * @brief Render select
      *
-     * @param string $input Input for the field
-     * @param array $args Arguments for the field
-     * @param Parser $parser MediaWiki parser
-     * @param PPFrame $frame Current PPFrame
+     * @param string $content Inner content of the select field (should be safe to output)
+     * @param array $args Arguments to pass to the select field
+     * @param string $placeholder Placeholder text
      *
      * @return string Rendered HTML
      */
-    public function render_select(string $input, array $args, Parser $parser, PPFrame $frame): string;
+    public function render_select( string $content, array $args, string $placeholder ): string;
 }

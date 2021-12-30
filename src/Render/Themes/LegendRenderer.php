@@ -10,17 +10,15 @@ use PPFrame;
  *
  * @package WSForm\Render
  */
-interface LegendRenderer
-{
+interface LegendRenderer {
     /**
      * @brief Render legend
      *
      * @param string $input Input for the field
-     * @param array $args Arguments for the field
-     * @param Parser $parser MediaWiki parser
-     * @param PPFrame $frame Current PPFrame
+     * @param string $class Class to add to the legend
+     * @param string $align Align to add to the legend
      *
      * @return string Rendered HTML
      */
-    public function render_legend(string $input, array $args, Parser $parser, PPFrame $frame): string;
+    public function render_legend( string $input, string $class = '', string $align = ''  ): string;
 }

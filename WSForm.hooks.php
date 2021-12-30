@@ -6,14 +6,10 @@
 # @License: Mine
 # @Copyright: 2018
 
-//error_reporting( -1 );
-//ini_set( 'display_errors', 1 );
 use MediaWiki\MediaWikiServices;
 use WSForm\Core\Core;
-use WSForm\Render\Themes\WSForm\WSFormFieldRenderer;
+use WSForm\Render\TagHooks;
 use WSForm\Render\Validate;
-use WSForm\WSFormException;
-
 
 /**
  * Class WSFormHooks
@@ -86,6 +82,7 @@ class WSFormHooks {
      */
 	public static function onParserFirstCallInit( Parser &$parser ) {
 		global $wgAbsoluteWikiPath, $IP;
+
 		if( php_sapi_name() !== 'cli' ) {
 			$serverName = strtolower( $_SERVER['SERVER_NAME'] );
 		}

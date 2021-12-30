@@ -9,7 +9,11 @@
   "license-name": "GPL v2",
   "type": "parserhook",
   "AutoloadClasses": {
-    "ApiWSForm": "ApiWSForm.php"
+    "ApiWSForm": "ApiWSForm.php",
+    "WSFormHooks": "WSForm.hooks.php"
+  },
+  "AutoloadNamespaces": {
+    "WSForm\\": "src/"
   },
   "ExtensionMessagesFiles": {
     "WBFormAlias": "WSForm.i18n.alias.php"
@@ -34,9 +38,7 @@
     "WSForm.ServiceWiring.php"
   ],
   "config": {
-    "WSFormDefaultTheme": {
-      "value": "wsform"
-    }
+    "WSFormDefaultTheme": "wsform"
   },
   "ResourceFileModulePaths": {
     "localBasePath": "",

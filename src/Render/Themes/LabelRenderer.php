@@ -14,12 +14,9 @@ interface LabelRenderer {
     /**
      * @brief Render label
      *
-     * @param string $input Input for the field
-     * @param array $args Arguments for the field
-     * @param Parser $parser MediaWiki parser
-     * @param PPFrame $frame Current PPFrame
+     * @param string $input Input for the label (should be safe to output)
      *
      * @return string Rendered HTML
      */
-    public function render_label( string $input, array $args, Parser $parser, PPFrame $frame ): string;
+    public function render_label( string $input ): string;
 }

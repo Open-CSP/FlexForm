@@ -7,6 +7,7 @@ use Parser;
 use PPFrame;
 use WSForm\Core\Core;
 use WSForm\Core\Protect;
+use WSForm\Core\Validate;
 use WSForm\Render\Themes\WSForm\Recaptcha;
 use WSForm\WSFormException;
 
@@ -105,7 +106,7 @@ class TagHooks {
             $scriptToLoad = $args['loadscript'];
 
             // Validate the file name
-            if ( preg_match( '^[a-zA-Z0-9_-]+$', $scriptToLoad ) === 1 ) {
+            if ( preg_match( '/^[a-zA-Z0-9_-]+$/', $scriptToLoad ) === 1 ) {
                 // Is this script already loaded?
                 if ( !Core::isLoaded( $scriptToLoad ) ) {
                     if ( file_exists( $IP . '/extensions/WSForm/modules/customJS/loadScripts/' . $scriptToLoad . '.js' ) ) {
@@ -157,7 +158,7 @@ class TagHooks {
             $changeId = $args['id'];
             $changeCall = $args['changetrigger'];
 
-            if ( preg_match( '^[a-zA-Z0-9_]+$', $changeId ) && preg_match( '^[a-zA-Z0-9_]+$', $changeCall) ) {
+            if ( preg_match( '/^[a-zA-Z0-9_]+$/', $changeId ) && preg_match( '/^[a-zA-Z0-9_]+$/', $changeCall) ) {
                 // FIXME: Even though the changeId and changeCall are validated, they still allow for (quite weak) XSS.
                 Core::includeInlineScript( "$('#" . $changeId . "').change(" . $changeCall . "(this));" );
             }
@@ -191,13 +192,17 @@ class TagHooks {
                 }
             }
 
-            $output = $this->parseInput( $input, $parser, $frame );
+            // Parse the input
+            $input = $this->parseValue( $input, $parser, $frame );
+
+            // Parse the arguments
             $args = $this->parseArguments( $args, $parser, $frame );
 
+            // Render the actual contents of the form
             $ret .= $this->themeStore
                 ->getFormTheme()
                 ->getFormRenderer()
-                ->render_form( $output, $args, $parser, $frame );
+                ->render_form( $input, $args, $parser, $frame );
         } finally {
             $this->themeStore->setFormThemeName( $previousTheme );
         }
@@ -208,6 +213,7 @@ class TagHooks {
 
         if ( Core::$secure ) {
             Protect::setCrypt( Core::$checksumKey );
+
             if ( Core::$runAsUser ) {
                 $checksumUidName = Protect::encrypt( 'wsuid' );
                 $uid = Protect::encrypt( $wgUser->getId() );
@@ -228,7 +234,7 @@ class TagHooks {
 
         }
 
-        $ret .= $output . '</form>';
+        $ret .= $input . '</form>';
 
         if ( isset( $args['recaptcha-v3-action'] ) && ! Core::isLoaded( 'google-captcha' ) ) {
             $tmpCap = Recaptcha::render();
@@ -283,57 +289,44 @@ class TagHooks {
      * @param PPFrame $frame MediaWiki PPFrame
      *
      * @return array send to the MediaWiki Parser
+     * @throws WSFormException
      */
     public function renderField( $input, array $args, Parser $parser, PPFrame $frame ) {
-        if ( isset( $args['type'] ) ) {
-            $type = $args['type'];
-
-            if ( wsform\validate\validate::validInputTypes( $type ) ) {
-                $parsePost = false;
-                if( isset( $args['parsepost'] ) && isset( $args['name'] )) {
-                    $parsePost = true;
-                    $parseName = $args['name'];
-                    unset( $args['parsepost'] );
-                }
-                $type = "render_" . $type;
-                unset( $args['type'] );
-                $noParse = false;
-                if ( method_exists( 'wsform\field\render', $type ) ) {
-
-                    foreach ( $args as $k => $v ) {
-                        if ( ( strpos( $v, '{' ) !== false ) && ( strpos( $v, '}' ) !== false ) ) {
-                            $args[ $k ] = $parser->recursiveTagParse( $v, $frame );
-                        }
-                        if( $k === 'noparse' ) {
-                            $noParse = true;
-                        }
-                    }
-
-                    //Test to see if this gets parsed
-                    if( $noParse === false ) {
-                        $input = $parser->recursiveTagParse($input, $frame);
-                    }
-                    //End test
-                    if ( $type == 'render_option' || $type == 'render_file' || $type == 'render_submit' || $type == 'render_text' || $type == 'render_textarea') {
-                        $ret = wsform\field\render::$type( $args, $input, $parser, $frame );
-                    } else {
-                        $ret = wsform\field\render::$type( $args, $input );
-                    }
-                } else {
-                    $ret = $type . " is unknown";
-                }
-
-                if( $parsePost === true ) {
-                    $ret .= '<input type="hidden" name="wsparsepost[]" value="' . $parseName . "\">\n";
-                }
-                //self::addInlineJavaScriptAndCSS();
-
-                return array( $ret, "markerType" => 'nowiki');
-            } else return array( wfMessage( "wsform-field-invalid" )->text() . ": " . $type, "markerType" => 'nowiki');
-        } else {
-            return array( wfMessage( "wsform-field-invalid" )->text(), "markerType" => 'nowiki');
+        if ( !isset( $args['type'] ) ) {
+            return [wfMessage("wsform-field-invalid")->parse(), "markerType" => 'nowiki'];
         }
 
+        $type = $args['type'];
+
+        if ( !Validate::validInputTypes( $type ) ) {
+            return [wfMessage("wsform-field-invalid")->parse() . ": " . $type, "markerType" => 'nowiki'];
+        }
+
+        if ( isset( $args['parsepost'] ) && isset( $args['name'] )) {
+            $parsePost = true;
+            $parseName = $args['name'];
+            unset( $args['parsepost'] );
+        } else {
+            $parsePost = false;
+        }
+
+        $renderCallable = [$this->themeStore->getFormTheme()->getFieldRenderer(), "render_" . $type];
+
+        if ( !is_callable( $renderCallable ) ) {
+            // This should not happen, since the Validate class should have caught it
+            throw new WSFormException( "Invalid field type", 0 );
+        }
+
+        $args = $this->parseArguments( $args, $parser, $frame, true );
+        $input = isset( $args['noparse'] ) ? htmlspecialchars( $input ) : $this->parseValue( $input, $parser, $frame );
+
+        $ret = $renderCallable( $input, $args, $parser, $frame );
+
+        if ( $parsePost === true && isset( $parseName ) ) {
+            $ret .= '<input type="hidden" name="wsparsepost[]" value="' . $parseName . "\">\n";
+        }
+
+        return array( $ret, "markerType" => 'nowiki');
     }
 
     /**
@@ -345,20 +338,17 @@ class TagHooks {
      * @param PPFrame $frame MediaWiki pframe
      *
      * @return array with full rendered html for the parser to add
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
+     * @throws WSFormException
      */
     public function renderFieldset( $input, array $args, Parser $parser, PPFrame $frame ) {
-        $ret = '<fieldset ';
-        foreach ( $args as $k => $v ) {
-            if ( wsform\validate\validate::validParameters( $k ) ) {
-                $ret .= $k . '="' . $v . '" ';
-            }
-        }
-        $output = $parser->recursiveTagParse( $input, $frame );
-        $ret    .= '>' . $output . '</fieldset>';
-        //self::addInlineJavaScriptAndCSS();
-        return array( $ret, "markerType" => 'nowiki' );
+        $input = $parser->recursiveTagParse( $input );
+
+        // TODO
+
+        return [
+            $this->themeStore->getFormTheme()->getFieldsetRenderer()->render_fieldset( $input, $args, $parser, $frame ),
+            'markerType' => 'nowiki'
+        ];
     }
 
     /**
@@ -370,21 +360,18 @@ class TagHooks {
      * @param PPFrame $frame MediaWiki pframe
      *
      * @return array with full rendered html for the parser to add
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
+     * @throws WSFormException
      */
     public function renderLegend( $input, array $args, Parser $parser, PPFrame $frame ) {
-        $ret = '<legend ';
-        if ( isset( $args['class'] ) ) {
-            $ret .= ' class="' . $args['class'] . '" ';
-        }
-        if ( isset( $args['align'] ) ) {
-            $ret .= ' align="' . $args['align'] . '"';
-        }
-        $ret .= '>' . $input . '</legend>';
-        //self::addInlineJavaScriptAndCSS();
-        return array( $ret, "markerType" => 'nowiki' );
+        $class = $args['class'] ?? '';
+        $align = $args['align'] ?? '';
 
+        $input = $parser->recursiveTagParseFully( $input );
+
+        return [
+            $this->themeStore->getFormTheme()->getLegendRenderer()->render_legend( $input, $class, $align ),
+            'markerType' => 'nowiki'
+        ];
     }
 
     /**
@@ -396,25 +383,16 @@ class TagHooks {
      * @param PPFrame $frame MediaWiki pframe
      *
      * @return array with full rendered html for the parser to add
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
+     * @throws WSFormException
      */
     public function renderLabel( $input, array $args, Parser $parser, PPFrame $frame ) {
-        $ret = '<label ';
-        foreach ( $args as $k => $v ) {
-            if ( wsform\validate\validate::validParameters( $k ) ) {
-                if ( ( strpos( $v, '{' ) !== false ) && ( strpos( $v, '}' ) !== false ) ) {
-                    $v = $parser->recursiveTagParse( $v, $frame );
-                }
-                $ret .= $k . '="' . $v . '" ';
-            }
-        }
+        $input = $parser->recursiveTagParseFully( $input, $frame );
+        $label = $this->themeStore
+            ->getFormTheme()
+            ->getLabelRenderer()
+            ->render_label( $input );
 
-        $output = $parser->recursiveTagParse( $input, $frame );
-        $ret    .= '>' . $output . '</label>';
-        //self::addInlineJavaScriptAndCSS();
-        return array( $ret, "markerType" => 'nowiki' );
-
+        return [$label, 'markerType' => 'nowiki'];
     }
 
     /**
@@ -426,33 +404,31 @@ class TagHooks {
      * @param PPFrame $frame MediaWiki pframe
      *
      * @return array with full rendered html for the parser to add
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
+     * @throws WSFormException
      */
     public function renderSelect( $input, array $args, Parser $parser, PPFrame $frame ) {
-        $ret = '<select ';
-
-
-        foreach ( $args as $k => $v ) {
-            if ( wsform\validate\validate::validParameters( $k ) ) {
-                if ( $k == "name" && strpos( $v, '[]' ) === false ) {
-                    $name = $v;
-                    $v    .= '[]';
-                }
-                $ret .= $k . '="' . $parser->recursiveTagParse( $v, $frame ) . '" ';
+        $selectArguments = [];
+        foreach ( $args as $name => $value ) {
+            if ( !Validate::validParameters( $value ) ) {
+                continue;
             }
+
+            if ( $name === "name" && strpos( $value, '[]' ) === false ) {
+                $value .= '[]';
+            }
+
+            $selectArguments[$name] = $parser->recursiveTagParse( $value, $frame );
         }
-        $output = $parser->recursiveTagParse( $input, $frame );
 
-        $ret .= '>';
-        if ( isset( $args['placeholder'] ) ) {
-            $ret .= '<option value="" disabled selected>' . $args['placeholder'] . '</option>';
-        }
-        $ret .=  $output . '</select>';
+        $input = $parser->recursiveTagParseFully( $input, $frame );
+        $placeholder = $args['placeholder'] ?? '';
 
-        //self::addInlineJavaScriptAndCSS();
-        return array( $ret, "markerType" => 'nowiki' );
+        $select = $this->themeStore
+            ->getFormTheme()
+            ->getSelectRenderer()
+            ->render_select( $input, $selectArguments, $placeholder );
 
+        return [$select, 'markerType' => 'nowiki'];
     }
 
     /**
@@ -738,40 +714,6 @@ class TagHooks {
 
 
         return array( $ret, 'noparse' => true, "markerType" => 'nowiki' );
-    }
-
-    /**
-     * Parses the given arguments.
-     *
-     * @param array $arguments
-     * @param Parser $parser
-     * @param PPFrame $frame
-     *
-     * @return array
-     */
-    private function parseArguments( array $arguments, Parser $parser, PPFrame $frame ) {
-        $result = [];
-
-        foreach ( $arguments as $name => $value ) {
-            if ( ( strpos( $value, '{' ) !== false ) && ( strpos( $value, '}' ) !== false ) ) {
-                $result[$name] = $parser->recursiveTagParse( $value, $frame );
-            }
-        }
-
-        return $result;
-    }
-
-    /**
-     * Parses the given input.
-     *
-     * @param string $input
-     * @param Parser $parser
-     * @param PPFrame $frame
-     *
-     * @return string
-     */
-    private function parseInput( string $input, Parser $parser, PPFrame $frame ) {
-        return $parser->recursiveTagParse( $input, $frame );
     }
 
     /**

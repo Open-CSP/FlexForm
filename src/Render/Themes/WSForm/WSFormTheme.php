@@ -2,18 +2,18 @@
 
 namespace WSForm\Render\Themes\WSForm;
 
-use WSForm\Render\CreateRenderer;
-use WSForm\Render\EditRenderer;
-use WSForm\Render\EmailRenderer;
-use WSForm\Render\FieldRenderer;
-use WSForm\Render\FieldsetRenderer;
-use WSForm\Render\FormRenderer;
-use WSForm\Render\InstanceRenderer;
-use WSForm\Render\LabelRenderer;
-use WSForm\Render\LegendRenderer;
-use WSForm\Render\SelectRenderer;
-use WSForm\Render\Theme;
-use WSForm\Render\TokenRenderer;
+use WSForm\Render\Themes\CreateRenderer;
+use WSForm\Render\Themes\EditRenderer;
+use WSForm\Render\Themes\EmailRenderer;
+use WSForm\Render\Themes\FieldRenderer;
+use WSForm\Render\Themes\FieldsetRenderer;
+use WSForm\Render\Themes\FormRenderer;
+use WSForm\Render\Themes\InstanceRenderer;
+use WSForm\Render\Themes\LabelRenderer;
+use WSForm\Render\Themes\LegendRenderer;
+use WSForm\Render\Themes\SelectRenderer;
+use WSForm\Render\Themes\Theme;
+use WSForm\Render\Themes\TokenRenderer;
 
 /**
  * Class WSFormTheme

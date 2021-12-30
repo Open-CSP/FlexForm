@@ -1,6 +1,7 @@
 <?php
 
 use MediaWiki\MediaWikiServices;
+use WSForm\Render\ThemeStore;
 
 /**
  * This file is loaded by MediaWiki\MediaWikiServices::getInstance() during the

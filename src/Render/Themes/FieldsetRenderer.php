@@ -14,12 +14,10 @@ interface FieldsetRenderer {
     /**
      * @brief Render fieldset
      *
-     * @param string $input Input for the field
-     * @param array $args Arguments for the field
-     * @param Parser $parser MediaWiki parser
-     * @param PPFrame $frame Current PPFrame
+     * @param string $content The content of the field
+     * @param array $args The arguments to the field
      *
      * @return string Rendered HTML
      */
-    public function render_fieldset( string $input, array $args, Parser $parser, PPFrame $frame ): string;
+    public function render_fieldset( string $content, array $args ): string;
 }

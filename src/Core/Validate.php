@@ -327,14 +327,14 @@ class Validate {
 		$val   = '';
 		$ret   = "";
 		$html = self::validHTML( $args );
-		$secure = \wsform\wsform::$secure;
+		$secure = Core::$secure;
 
 		foreach ( $args as $k => $v ) {
 			if ( self::validParameters( $k ) ) {
 				if ( $k == "name" ) {
 					if( $type === "secure" ) {
-						\wsform\protect\protect::setCrypt( \wsform\wsform::$checksumKey );
-						$name = \wsform\protect\protect::encrypt( $v );
+						Protect::setCrypt( Core::$checksumKey );
+						$name = Protect::encrypt( $v );
 						$v = $name; // set value to be encypted
 					} else {
 						$name = $v;
@@ -343,12 +343,12 @@ class Validate {
 				if ( $k == "value" ) {
 					$value = true;
 					if( $type === "secure" ) {
-						\wsform\protect\protect::setCrypt( \wsform\wsform::$checksumKey );
-						$val = \wsform\protect\protect::encrypt( $v );
+						Protect::setCrypt( Core::$checksumKey );
+						$val = Protect::encrypt( $v );
 						$v = $val; // set value to be encypted
 						$html = "all";
 					} else {
-						$val = \wsform\protect\protect::purify( $v, $html, $secure );
+						$val = Protect::purify( $v, $html, $secure );
 						$v = $val; // set value to be purified
 					}
 				}
@@ -363,13 +363,13 @@ class Validate {
 				$clean = true;
 			} else $clean = false;
 			//$tmp = \wsform\protect\protect::purify( \wsform\wsform::getValue( $name, $clean ), $html, $secure );
-			$tmp = \wsform\wsform::getValue( $name, $clean );
+			$tmp = Core::getValue( $name, $clean );
 
 			if ( $tmp !== "" ) {
 				$ret .= 'value = "' . $tmp . '" ';
-				\wsform\wsform::addCheckSum( $type, $name, $tmp, $html );
-			} else \wsform\wsform::addCheckSum( $type, $name, '', $html );
-		} else \wsform\wsform::addCheckSum( $type, $name, $val, $html );
+                Core::addCheckSum( $type, $name, $tmp, $html );
+			} else Core::addCheckSum( $type, $name, '', $html );
+		} else Core::addCheckSum( $type, $name, $val, $html );
 		return  $ret;
 	}
 
@@ -405,7 +405,7 @@ class Validate {
 		}
 
 		if ( $name && $value && ! $checked ) {
-			$tmp = \wsform\protect\protect::purify( \wsform\wsform::getValue( ( $name ) ),'', \wsform\wsform::$secure );
+			$tmp = Protect::purify( Core::getValue( ( $name ) ),'', Core::$secure );
 			//echo "<HR>name=$name, value=$value, get=$tmp<HR>";
 			if ( $tmp !== "" ) {
 				if ( $tmp == $value ) {
@@ -413,7 +413,8 @@ class Validate {
 				}
 			}
 		}
-		\wsform\wsform::addCheckSum( 'radio', $name, $value );
+
+        Core::addCheckSum( 'radio', $name, $value );
 		return $ret;
 	}
 
@@ -483,7 +484,7 @@ class Validate {
 			if ( strpos( $name, "[]" ) ) {
 				$name = rtrim( $name, '[]' );
 			}
-			$tmp = \wsform\protect\protect::purify( \wsform\wsform::getValue( ( $name ) ), '',  \wsform\wsform::$secure );
+			$tmp = Protect::purify( Core::getValue( ( $name ) ), '',  Core::$secure );
 			if ( $tmp !== "" ) {
 				if ( strpos( $tmp, "," ) ) {
 					$options = explode( ",", $tmp );
@@ -495,7 +496,7 @@ class Validate {
 				}
 			}
 		}
-		\wsform\wsform::addCheckSum( "checkbox", $name, $value );
+        Core::addCheckSum( "checkbox", $name, $value );
 		return $ret;
 	}
 
@@ -530,7 +531,7 @@ class Validate {
 			if ( strpos( $name, "[]" ) ) {
 				$name = rtrim( $name, '[]' );
 			}
-			$tmp = \wsform\protect\protect::purify( \wsform\wsform::getValue( ( $name ) ), '', \wsform\wsform::$secure );
+			$tmp = Protect::purify( Core::getValue( ( $name ) ), '', Core::$secure );
 
 			if ( $tmp !== "" ) {
 				if ( strpos( $tmp, "," ) ) {
@@ -543,7 +544,7 @@ class Validate {
 				}
 			}
 		}
-		\wsform\wsform::addCheckSum( "select", $name, $value );
+        Core::addCheckSum( "select", $name, $value );
 		return $ret;
 	}
 }

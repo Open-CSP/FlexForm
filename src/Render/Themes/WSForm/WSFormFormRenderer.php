@@ -2,9 +2,11 @@
 
 namespace WSForm\Render\Themes\WSForm;
 
-use WSForm\Render\FormRenderer;
 use Parser;
 use PPFrame;
+use WSForm\Core\Core;
+use WSForm\Core\Validate;
+use WSForm\Render\Themes\FormRenderer;
 
 class WSFormFormRenderer implements FormRenderer {
 	/**
@@ -13,9 +15,11 @@ class WSFormFormRenderer implements FormRenderer {
 	public function render_form( string $input, array $args, Parser $parser, PPFrame $frame ): string {
 		global $wgDBname;
 		global $wgDBprefix;
+
 		if( isset ( $wgDBprefix ) && !empty($wgDBprefix) ) {
 		    $prefix = '_' . $wgDBprefix;
         } else $prefix = '';
+
 		$ret      = '<form ';
 		$template = "";
 		$wswrite  = "";
@@ -24,35 +28,33 @@ class WSFormFormRenderer implements FormRenderer {
 		$messageonsuccess = "";
 		$mwwikicontent = "";
 		$wsextension = "";
-		$lock = false;
-		$secure = true;
-		$wslock = "";
 		$class = array( 'wsform' );
-		$ret      .= 'action="' . wsform::getAPIurl() . '" method="post" ';
+		$ret .= 'action="' . Core::getAPIurl() . '" method="post" ';
 		$js = "";
+
 		foreach ( $args as $k => $v ) {
-			if ( validate::validFormParameters( $k ) ) {
-				switch ($k) {
+			if ( Validate::validFormParameters( $k ) ) {
+				switch ( $k ) {
 					case "messageonsuccess" :
-						$messageonsuccess = \wsform\wsform::createHiddenField( 'mwonsuccess', $v );
+						$messageonsuccess = Core::createHiddenField( 'mwonsuccess', $v );
 						break;
 					case "setwikicomment":
-						$mwwikicontent = \wsform\wsform::createHiddenField( 'mwwikicomment', $v );
+						$mwwikicontent = Core::createHiddenField( 'mwwikicomment', $v );
 						break;
 					case "mwreturn":
-						$wsreturn = \wsform\wsform::createHiddenField( 'mwreturn', \wsform\wsform::getMWReturn( $v ) );
+						$wsreturn = Core::createHiddenField( 'mwreturn', Core::getMWReturn( $v ) );
 						break;
 					case "formtarget":
 						$ret = '<form action="' . $v . '" method="post" ';
 						break;
 					case "action":
-						$wsaction = \wsform\wsform::createHiddenField( 'mwaction', $v );
+						$wsaction = Core::createHiddenField( 'mwaction', $v );
 						break;
 					case "recaptcha-v3-action":
-						wsform::$reCaptcha = $v;
+                        Core::$reCaptcha = $v;
 						break;
 					case "extension":
-						$wsextension = \wsform\wsform::createHiddenField( 'mwextension', $v );
+						$wsextension = Core::createHiddenField( 'mwextension', $v );
 						break;
 					case "post-as-user" :
 						$ret .= 'data-wsform="wsform-general" ';
@@ -62,7 +64,7 @@ class WSFormFormRenderer implements FormRenderer {
 						$class[] = 'wsform-hide';
 						$style = '.wsform-hide { opacity:0; }';
 
-						wsform::includeInlineCSS( $style );
+                        Core::includeInlineCSS( $style );
 						break;
 					case "autosave" :
 						switch( $v ) {
@@ -78,18 +80,23 @@ class WSFormFormRenderer implements FormRenderer {
 								break;
 						}
 						$class[] = 'ws-autosave';
-						if( isset( \wsform\wsform::$wsConfig['autosave-interval'] ) ) {
-							$js .= 'var wsAutoSaveGlobalInterval = ' . \wsform\wsform::$wsConfig['autosave-interval'] . ';';
+
+						if( isset( Core::$wsConfig['autosave-interval'] ) ) {
+							$js .= 'var wsAutoSaveGlobalInterval = ' . Core::$wsConfig['autosave-interval'] . ';';
 						} else $js .= 'var wsAutoSaveGlobalInterval = 30000;';
-						if( isset( \wsform\wsform::$wsConfig['autosave-after-change'] ) ) {
-							$js .='var wsAutoSaveOnChangeInterval = ' . \wsform\wsform::$wsConfig['autosave-after-change'] . ';';
+
+						if( isset( Core::$wsConfig['autosave-after-change'] ) ) {
+							$js .='var wsAutoSaveOnChangeInterval = ' . Core::$wsConfig['autosave-after-change'] . ';';
 						} else $js .='var wsAutoSaveOnChangeInterval = 3000;';
-						if( isset( \wsform\wsform::$wsConfig['autosave-btn-on'] ) ) {
-							$js .= 'var wsAutoSaveButtonOn = "' . \wsform\wsform::$wsConfig['autosave-btn-on'] . '";';
+
+						if( isset( Core::$wsConfig['autosave-btn-on'] ) ) {
+							$js .= 'var wsAutoSaveButtonOn = "' . Core::$wsConfig['autosave-btn-on'] . '";';
 						} else $js .="var wsAutoSaveButtonOn = 'Autosave on';";
-						if( isset( \wsform\wsform::$wsConfig['autosave-btn-off'] ) ) {
-							$js .='var wsAutoSaveButtonOff = "' . \wsform\wsform::$wsConfig['autosave-btn-off'] . '";';
+
+						if( isset( Core::$wsConfig['autosave-btn-off'] ) ) {
+							$js .='var wsAutoSaveButtonOff = "' . Core::$wsConfig['autosave-btn-off'] . '";';
 						} else $js .="var wsAutoSaveButtonOff = \"Autosave off\";";
+
 						break;
                     case "class" :
                         $class[] = $v;
@@ -102,10 +109,9 @@ class WSFormFormRenderer implements FormRenderer {
 			}
 		}
 
-		if( $js !== "" ){
-			wsform::includeInlineScript( $js );
+		if ( $js !== "" ){
+            Core::includeInlineScript( $js );
 		}
-
 
 		$ret .= 'class = "' . implode( " ", $class ) . '" ';
 
@@ -115,12 +121,14 @@ class WSFormFormRenderer implements FormRenderer {
         } else {
             $token = base64_encode("wsform_TERMINAL_" . time());
         }
+
 		$wstoken = '<input type="hidden" name="mwtoken" value="' . $token . '">' . "\n";
+
 		if ( $wsreturn == "" ) {
-			$wsreturn = \wsform\wsform::createHiddenField( 'mwreturn', $title );
+			$wsreturn = Core::createHiddenField( 'mwreturn', $parser->getTitle()->getLinkURL() );
 		}
 
-		$db = \wsform\wsform::createHiddenField( 'mwdb', $wgDBname . $prefix );
+		$db = Core::createHiddenField( 'mwdb', $wgDBname . $prefix );
 
 		$ret .= ">\n" . $template . $wswrite . $wsreturn . $wsaction . $messageonsuccess . $mwwikicontent . $db . $wsextension . $wstoken;
 
