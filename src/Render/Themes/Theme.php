@@ -1,6 +1,6 @@
 <?php
 
-namespace WSForm\Render;
+namespace WSForm\Render\Themes;
 
 /**
  * Class Theme

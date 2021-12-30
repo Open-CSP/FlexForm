@@ -30,12 +30,6 @@ class Core {
 	 */
 	static $loadedScripts = array();
 
-	/**
-	 * @var string $msg_unverified_email
-	 * i18n Holds the text when a user has an unverified email address
-	 */
-	public static $msg_unverified_email = '';
-
 	public static $gValues = true;
 
 	/**

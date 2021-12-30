@@ -1,6 +1,14 @@
 <?php
 
+namespace WSForm\Render;
+
+use Elasticsearch\Endpoints\Exists;
+use Parser;
+use PPFrame;
 use WSForm\Core\Core;
+use WSForm\Core\Protect;
+use WSForm\Render\Themes\WSForm\Recaptcha;
+use WSForm\WSFormException;
 
 /**
  * Class TagHooks
@@ -41,15 +49,13 @@ class TagHooks {
      * @param PPFrame $frame MediaWiki PPFrame
      *
      * @return array|string send to the MediaWiki Parser or send to the MediaWiki Parser with the message not a valid function
+     * @throws WSFormException
      */
     public function renderForm( $input, array $args, Parser $parser, PPFrame $frame ) {
         global $wgUser, $wgEmailConfirmToEdit, $IP, $wgScript;
 
         Core::$chkSums = array();
         Core::$formId = uniqid();
-
-        // Set i18n general messages
-        Core::$msg_unverified_email = wfMessage( "wsform-unverified-email1" )->text() . wfMessage( "wsform-unverified-email2" )->text();
 
         $ret = '';
 
@@ -86,6 +92,12 @@ class TagHooks {
             return wfMessage( "wsform-anonymous-user" )->parse();
         }
 
+        if ( isset( $args['action'] ) && $args['action'] == 'addToWiki' ) {
+            if ( $wgEmailConfirmToEdit === true && $wgUser->isLoggedIn() && !$wgUser->isEmailConfirmed() ) {
+                return wfMessage( "wsform-unverified-email1" )->parse() . wfMessage( "wsform-unverified-email2" )->parse();
+            }
+        }
+
         $formId = isset( $args['id'] ) && $args['id'] !== '' ? $args['id'] : false;
 
         // Do we have scripts to load?
@@ -111,111 +123,127 @@ class TagHooks {
             }
         }
 
-        // TODO:
-
         if ( isset( $args['no_submit_on_return'] ) ) {
-            if(! wsform\wsform::isLoaded('keypress') ) {
-                $noEnter = "$(document).on('keyup keypress', 'form input[type=\"text\"]', function(e) {
-            if(e.keyCode == 13) {
-              e.preventDefault();
-              return false;
-            }
-          });$(document).on('keyup keypress', 'form input[type=\"search\"]', function(e) {
-            if(e.keyCode == 13) {
-              e.preventDefault();
-              return false;
-            }
-          });$(document).on('keyup keypress', 'form input[type=\"password\"]', function(e) {
-            if(e.keyCode == 13) {
-              e.preventDefault();
-              return false;
-            }
-          })";
-                wsform\wsform::includeInlineScript( $noEnter );
-                wsform\wsform::addAsLoaded( 'keypress' );
+            if ( !Core::isLoaded( 'keypress' ) ) {
+                $noEnter = <<<SCRIPT
+                $(document).on('keyup keypress', 'form input[type=\"text\"]', function(e) {
+                    if(e.keyCode == 13) {
+                      e.preventDefault();
+                      return false;
+                    }
+                });
+                
+                $(document).on('keyup keypress', 'form input[type=\"search\"]', function(e) {
+                    if(e.keyCode == 13) {
+                      e.preventDefault();
+                      return false;
+                    }
+                });
+                
+                $(document).on('keyup keypress', 'form input[type=\"password\"]', function(e) {
+                    if(e.keyCode == 13) {
+                      e.preventDefault();
+                      return false;
+                    }
+                });
+                SCRIPT;
+
+                Core::includeInlineScript( $noEnter );
+                Core::addAsLoaded( 'keypress' );
             }
         }
 
-        if ( isset( $args['action'] ) && $args['action'] == 'addToWiki' && $allowAnonymous === false ) {
-            if ( $wgEmailConfirmToEdit === true && ! $wgUser->isEmailConfirmed() ) {
-                $ret = wsform\wsform::$msg_unverified_email;
-
-                return $ret;
-            }
-        }
-        if ( isset( $args['changetrigger'] ) && $args['changetrigger'] !== '' && isset($args['id'])) {
-            $onchange = "";
+        if ( isset( $args['changetrigger'] ) && $args['changetrigger'] !== '' && isset( $args['id'] ) ) {
             $changeId = $args['id'];
             $changeCall = $args['changetrigger'];
-            $onchange = "$('#" . $changeId . "').change(" . $changeCall . "(this));";
-            wsform\wsform::includeInlineScript( $onchange );
-        } else $onchange = false;
 
-        if( isset( $args['messageonsuccess']) && $args['messageonsuccess'] !== '' ) {
-            $msgOnSuccessJs = $js = 'var mwonsuccess = "' . $args['messageonsuccess'] . '";';
-            wsform\wsform::includeInlineScript( $msgOnSuccessJs );
-        } else $msgOnSuccessJs = '';
-
-        if( isset( $args['show-on-select' ] ) ) {
-            \wsform\wsform::setShowOnSelectActive();
-            $input = \wsform\wsform::checkForShowOnSelectValue( $input );
-        }
-
-        $output = $parser->recursiveTagParse( $input, $frame );
-        foreach ( $args as $k => $v ) {
-            if ( ( strpos( $v, '{' ) !== false ) && ( strpos( $v, "}" ) !== false ) ) {
-                $args[ $k ] = $parser->recursiveTagParse( $v, $frame );
+            if ( preg_match( '^[a-zA-Z0-9_]+$', $changeId ) && preg_match( '^[a-zA-Z0-9_]+$', $changeCall) ) {
+                // FIXME: Even though the changeId and changeCall are validated, they still allow for (quite weak) XSS.
+                Core::includeInlineScript( "$('#" . $changeId . "').change(" . $changeCall . "(this));" );
             }
         }
-        if (wsform\wsform::getRun() === false) {
+
+        if ( isset( $args['messageonsuccess']) && $args['messageonsuccess'] !== '' ) {
+            Core::includeInlineScript( 'var mwonsuccess = "' . htmlspecialchars( $args['messageonsuccess'] ) . '";' );
+        }
+
+        if ( isset( $args['show-on-select'] ) ) {
+            Core::setShowOnSelectActive();
+            $input = Core::checkForShowOnSelectValue( $input );
+        }
+
+        if ( Core::getRun() === false ) {
+            // FIXME: Move to ResourceLoader
             $realUrl = str_replace( '/index.php', '', $wgScript );
             $ret = '<script type="text/javascript" charset="UTF-8" src="' . $realUrl . '/extensions/WSForm/WSForm.general.js"></script>' . "\n";
-            wsform\wsform::setRun(true);
-        }
-        $ret .= wsform\form\render::render_form( $args, $parser->getTitle()->getLinkURL() );
 
-        //Add checksum
-
-        if( \wsform\wsform::isShowOnSelectActive() ) {
-            $ret .= \wsform\wsform::createHiddenField( 'showonselect', '1' );
-
+            Core::setRun( true );
         }
 
-        if( \wsform\wsform::$secure ) {
-            \wsform\protect\protect::setCrypt( \wsform\wsform::$checksumKey );
-            if( \wsform\wsform::$runAsUser ) {
-                $chcksumwuid = \wsform\protect\protect::encrypt( 'wsuid' );
-                $uid = \wsform\protect\protect::encrypt( $wgUser->getId() );
-                \wsform\wsform::addCheckSum( 'secure', $chcksumwuid, $uid, "all" );
-                $ret          .= '<input type="hidden" name="' . $chcksumwuid . '" value="' . $uid . '">';
-            }
-            $chcksumName = \wsform\protect\protect::encrypt( 'checksum' );
-            if( !empty( \wsform\wsform::$chkSums ) ) {
-                $chcksumValue = \wsform\protect\protect::encrypt( serialize( \wsform\wsform::$chkSums ) );
-                $ret          .= '<input type="hidden" name="' . $chcksumName . '" value="' . $chcksumValue . '">';
-                $ret          .= '<input type="hidden" name="formid" value="' . \wsform\wsform::$formId . '">';
+        $previousTheme = $this->themeStore->getFormThemeName();
+
+        try {
+            if ( isset( $args['theme'] ) && $args['theme'] !== '' ) {
+                try {
+                    $this->themeStore->setFormThemeName( $args['theme'] );
+                } catch ( WSFormException $exception ) {
+                    // Silently ignore and use the default theme
+                }
             }
 
+            $output = $this->parseInput( $input, $parser, $frame );
+            $args = $this->parseArguments( $args, $parser, $frame );
+
+            $ret .= $this->themeStore
+                ->getFormTheme()
+                ->getFormRenderer()
+                ->render_form( $output, $args, $parser, $frame );
+        } finally {
+            $this->themeStore->setFormThemeName( $previousTheme );
         }
 
+        if ( Core::isShowOnSelectActive() ) {
+            $ret .= Core::createHiddenField( 'showonselect', '1' );
+        }
 
+        if ( Core::$secure ) {
+            Protect::setCrypt( Core::$checksumKey );
+            if ( Core::$runAsUser ) {
+                $checksumUidName = Protect::encrypt( 'wsuid' );
+                $uid = Protect::encrypt( $wgUser->getId() );
 
+                Core::addCheckSum( 'secure', $checksumUidName, $uid, "all" );
+
+                $ret .= '<input type="hidden" name="' . $checksumUidName . '" value="' . $uid . '">';
+            }
+
+            $chcksumName = Protect::encrypt( 'checksum' );
+
+            if ( !empty( Core::$chkSums ) ) {
+                $chcksumValue = Protect::encrypt( serialize( Core::$chkSums ) );
+
+                $ret .= '<input type="hidden" name="' . $chcksumName . '" value="' . $chcksumValue . '">';
+                $ret .= '<input type="hidden" name="formid" value="' . Core::$formId . '">';
+            }
+
+        }
 
         $ret .= $output . '</form>';
 
-        if( isset( $args['recaptcha-v3-action'] ) && ! wsform\wsform::isLoaded( 'google-captcha' ) ) {
-            $tmpCap = wsform\recaptcha\render::render_reCaptcha();
-            if( $tmpCap !== false ) {
-                wsform\wsform::addAsLoaded( 'google-captcha' );
+        if ( isset( $args['recaptcha-v3-action'] ) && ! Core::isLoaded( 'google-captcha' ) ) {
+            $tmpCap = Recaptcha::render();
+
+            if ( $tmpCap !== false ) {
+                Core::addAsLoaded( 'google-captcha' );
                 $ret = $tmpCap . $ret;
             }
         }
 
-        if( wsform\wsform::$reCaptcha !== false  ) {
-            if( !isset( $args['id']) || $args['id'] === '' ) {
-                $ret = wfMessage( "wsform-recaptcha-no-form-id" )->text();
-                return $ret;
+        if ( Core::$reCaptcha !== false  ) {
+            if ( !isset( $args['id']) || $args['id'] === '' ) {
+                return wfMessage( "wsform-recaptcha-no-form-id" )->parse();
             }
+
             if ( file_exists( $IP . '/extensions/WSForm/modules/recaptcha.js' ) ) {
                 $rcaptcha = file_get_contents( $IP . '/extensions/WSForm/modules/recaptcha.js' );
                 $replace = array(
@@ -223,31 +251,25 @@ class TagHooks {
                     '%%action%%',
                     '%%sitekey%%',
                 );
+
                 $with = array(
                     $args['id'],
-                    wsform\wsform::$reCaptcha,
-                    wsform\recaptcha\render::$rc_site_key
+                    Core::$reCaptcha,
+                    Recaptcha::$rc_site_key
                 );
+
                 $rcaptcha = str_replace( $replace, $with, $rcaptcha );
-                wsform\wsform::includeInlineScript( $rcaptcha );
-                wsform\wsform::$reCaptcha = false;
+
+                Core::includeInlineScript( $rcaptcha );
+                Core::$reCaptcha = false;
             } else {
-                $ret = wfMessage( "wsform-recaptcha-no-js" )->text();
-                return $ret;
+                return wfMessage( "wsform-recaptcha-no-js" )->parse();
             }
         }
-        //echo "<pre>";
-        // print_r( \wsform\wsform::$chkSums );
-        // echo "</pre>";
-        //print_r( \wsform\wsform::$secure );
-        //print_r( wsform\wsform::getJavaScriptConfigToBeAdded() );
 
-        //echo "<pre>";
-        //print_r( wsform\wsform::getJavaScriptConfigToBeAdded() ) ;
-        //echo "</pre>";
         self::addInlineJavaScriptAndCSS();
-        return array( $ret, "markerType" => 'nowiki' );
 
+        return array( $ret, "markerType" => 'nowiki' );
     }
 
     /**
@@ -727,7 +749,7 @@ class TagHooks {
      *
      * @return array
      */
-    private static function parseArguments( array $arguments, Parser $parser, PPFrame $frame ) {
+    private function parseArguments( array $arguments, Parser $parser, PPFrame $frame ) {
         $result = [];
 
         foreach ( $arguments as $name => $value ) {
@@ -748,8 +770,8 @@ class TagHooks {
      *
      * @return string
      */
-    private static function parseInput( string $input, Parser $parser, PPFrame $frame ) {
-        return $parser->recursiveTagParseFully( $input, $frame );
+    private function parseInput( string $input, Parser $parser, PPFrame $frame ) {
+        return $parser->recursiveTagParse( $input, $frame );
     }
 
     /**

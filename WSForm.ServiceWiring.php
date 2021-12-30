@@ -11,12 +11,12 @@ use MediaWiki\MediaWikiServices;
 
 return [
     /**
-     * Instantiator function for the Renderer singleton.
+     * Instantiator function for the ThemeStore singleton.
      *
-     * @return Renderer The Renderer singleton
+     * @return ThemeStore The ThemeStore singleton
      */
-    "WSForm.Renderer" => static function ( MediaWikiServices $services ): Renderer {
-        return new Renderer(
+    "WSForm.ThemeStore" => static function ( MediaWikiServices $services ): ThemeStore {
+        return new ThemeStore(
             $services->getMainConfig()->get('WSFormDefaultTheme'),
             $services->getHookContainer()
         );

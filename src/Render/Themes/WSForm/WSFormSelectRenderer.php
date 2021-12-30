@@ -1,6 +1,5 @@
 <?php
 
-
 namespace WSForm\Render\Themes\WSForm;
 
 use WSForm\Render\SelectRenderer;

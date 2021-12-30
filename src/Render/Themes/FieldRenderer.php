@@ -1,7 +1,6 @@
 <?php
 
-
-namespace WSForm\Render;
+namespace WSForm\Render\Themes;
 
 use Parser;
 use PPFrame;

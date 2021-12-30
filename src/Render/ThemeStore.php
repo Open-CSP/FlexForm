@@ -1,7 +1,9 @@
 <?php
 
+namespace WSForm\Render;
+
 use MediaWiki\HookContainer\HookContainer;
-use WSForm\Render\Theme;
+use WSForm\Render\Themes\Theme;
 use WSForm\Render\Themes\WSForm\WSFormTheme;
 use WSForm\WSFormException;
 
@@ -80,7 +82,7 @@ class ThemeStore {
     /**
      * Returns the name of the theme of the current form.
      *
-     * @return string|null
+     * @return string
      */
     public function getFormThemeName() {
         return $this->formThemeName;
