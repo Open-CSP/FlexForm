@@ -2,24 +2,19 @@
 
 namespace WSForm\Render\Themes\WSForm;
 
-use \wsform\validate\validate;
+use Parser;
+use PPFrame;
+use WSForm\Render\FieldRenderer;
 use ExtensionRegistry;
-use wsform\wsform;
+use WSForm\Core\Validate;
 
-class Field {
-	/**
-	 * @brief Render Text Input field as HTML
-	 *
-	 * @param  array $args Arguments for the input field
-	 * @param  boolean $input not used
-	 * @param  object $parser MediaWiki parser
-	 * @param  object $frame MediaWiki frame used for parser
-	 *
-	 * @return string Rendered HTML
-	 */
-	public static function render_text( $args, $input = false, $parser, $frame ) {
+class WSFormFieldRenderer implements FieldRenderer {
+    /**
+     * @inheritDoc
+     */
+	public function render_text( string $input, array $args, Parser $parser, PPFrame $frame ): string {
 		$ret = '<input type="text" ';
-		$ret .= validate::doSimpleParameters( $args, "text" );
+		$ret .= Validate::doSimpleParameters( $args, "text" );
 		foreach ( $args as $k => $v ) {
 			if ( $k == 'mwidentifier' && $v == 'datepicker' ) {
 				$parser->getOutput()->addModules( 'ext.wsForm.datePicker.scripts' );
@@ -31,15 +26,10 @@ class Field {
 		return $ret;
 	}
 
-	/**
-	 * @brief Render hidden Input field as HTML
-	 *
-	 * @param  array $args Arguments for the input field
-	 * @param  boolean $input not used
-	 *
-	 * @return string Rendered HTML
-	 */
-	public static function render_hidden( $args, $input = false ) {
+    /**
+     * @inheritDoc
+     */
+	public function render_hidden( string $input, array $args, Parser $parser, PPFrame $frame ): string {
 		$ret = '<input type="hidden" ';
 		$ret .= validate::doSimpleParameters( $args, "hidden" );
 		$ret .= ">\n";
@@ -47,15 +37,10 @@ class Field {
 		return $ret;
 	}
 
-	/**
-	 * @brief Render hidden Input field as HTML
-	 *
-	 * @param  array $args Arguments for the input field
-	 * @param  boolean $input not used
-	 *
-	 * @return string Rendered HTML
-	 */
-	public static function render_secure( $args, $input = false ) {
+    /**
+     * @inheritDoc
+     */
+	public function render_secure( string $input, array $args, Parser $parser, PPFrame $frame ): string {
 		if( \wsform\wsform::$secure ) {
 			$ret = '<input type="hidden" ';
 			$ret .= validate::doSimpleParameters( $args, "secure" );
@@ -65,15 +50,10 @@ class Field {
 		return $ret;
 	}
 
-	/**
-	 * @brief Render Search Input field as HTML
-	 *
-	 * @param  array $args Arguments for the input field
-	 * @param  boolean $input not used
-	 *
-	 * @return string Rendered HTML
-	 */
-	public static function render_search( $args, $input = false ) {
+    /**
+     * @inheritDoc
+     */
+	public function render_search( string $input, array $args, Parser $parser, PPFrame $frame ): string {
 		$ret = '<input type="search" ';
 		$ret .= validate::doSimpleParameters( $args, "search" );
 		$ret .= ">\n";
@@ -81,15 +61,10 @@ class Field {
 		return $ret;
 	}
 
-	/**
-	 * @brief Render number Input field as HTML
-	 *
-	 * @param  array $args Arguments for the input field
-	 * @param  boolean $input not used
-	 *
-	 * @return string Rendered HTML
-	 */
-	public static function render_number( $args, $input = false ) {
+    /**
+     * @inheritDoc
+     */
+	public function render_number( string $input, array $args, Parser $parser, PPFrame $frame ): string {
 		$ret = '<input type="number" ';
 		$ret .= validate::doSimpleParameters( $args, "number" );
 		$ret .= ">\n";
@@ -97,15 +72,10 @@ class Field {
 		return $ret;
 	}
 
-	/**
-	 * @brief Render Radio Input field as HTML
-	 *
-	 * @param  array $args Arguments for the input field
-	 * @param  boolean $input not used
-	 *
-	 * @return string Rendered HTML
-	 */
-	public static function render_radio( $args, $input = false ) {
+    /**
+     * @inheritDoc
+     */
+	public function render_radio( string $input, array $args, Parser $parser, PPFrame $frame ): string {
 		$showOnChecked = false;
 		$ret = '<input type="radio" ';
 		$ret .= validate::doRadioParameters( $args );
@@ -122,15 +92,10 @@ class Field {
 		return $ret;
 	}
 
-	/**
-	 * @brief Render checkbox Input field as HTML
-	 *
-	 * @param  array $args Arguments for the input field
-	 * @param  boolean $input not used
-	 *
-	 * @return string Rendered HTML
-	 */
-	public static function render_checkbox( $args, $input = false ) {
+    /**
+     * @inheritDoc
+     */
+	public function render_checkbox( string $input, array $args, Parser $parser, PPFrame $frame ): string {
 
 		$showOnChecked = false;
 		$showOnUnchecked = false;
@@ -175,17 +140,10 @@ class Field {
 		return $ret;
 	}
 
-	/**
-	 * @brief Render File Input field as HTML
-	 *
-	 * @param  array $args Arguments for the input field
-	 * @param  boolean $input not used
-	 * @param  object $parser MediaWiki parser
-	 * @param  object $frame MediaWiki frame used for parser
-	 *
-	 * @return string Rendered HTML
-	 */
-	public static function render_file( $args, $input = false, $parser, $frame ) {
+    /**
+     * @inheritDoc
+     */
+	public function render_file( string $input, array $args, Parser $parser, PPFrame $frame ): string {
 		$slim           = '<div class="';
 		$ret            = '<input type="file" ';
 		$br             = "\n";
@@ -368,15 +326,10 @@ class Field {
 		return $ret;
 	}
 
-	/**
-	 * @brief Render date Input field as HTML
-	 *
-	 * @param  array $args Arguments for the input field
-	 * @param  boolean $input not used
-	 *
-	 * @return string Rendered HTML
-	 */
-	public static function render_date( $args, $input = false ) {
+    /**
+     * @inheritDoc
+     */
+	public function render_date( string $input, array $args, Parser $parser, PPFrame $frame ): string {
 		$ret = '<input type="date" ';
 		$ret .= validate::doSimpleParameters( $args, "date" );
 		$ret .= ">\n";
@@ -384,15 +337,10 @@ class Field {
 		return $ret;
 	}
 
-	/**
-	 * @brief Render month Input field as HTML
-	 *
-	 * @param  array $args Arguments for the input field
-	 * @param  boolean $input not used
-	 *
-	 * @return string Rendered HTML
-	 */
-	public static function render_month( $args, $input = false ) {
+    /**
+     * @inheritDoc
+     */
+	public function render_month( string $input, array $args, Parser $parser, PPFrame $frame ): string {
 		$ret = '<input type="month" ';
 		$ret .= validate::doSimpleParameters( $args, "month" );
 		$ret .= ">\n";
@@ -400,15 +348,10 @@ class Field {
 		return $ret;
 	}
 
-	/**
-	 * @brief Render week Input field as HTML
-	 *
-	 * @param  array $args Arguments for the input field
-	 * @param  boolean $input not used
-	 *
-	 * @return string Rendered HTML
-	 */
-	public static function render_week( $args, $input = false ) {
+    /**
+     * @inheritDoc
+     */
+	public function render_week( string $input, array $args, Parser $parser, PPFrame $frame ): string {
 		$ret = '<input type="week" ';
 		$ret .= validate::doSimpleParameters( $args, "week" );
 		$ret .= ">\n";
@@ -416,15 +359,10 @@ class Field {
 		return $ret;
 	}
 
-	/**
-	 * @brief Render Time Input field as HTML
-	 *
-	 * @param  array $args Arguments for the input field
-	 * @param  boolean $input not used
-	 *
-	 * @return string Rendered HTML
-	 */
-	public static function render_time( $args, $input = false ) {
+    /**
+     * @inheritDoc
+     */
+	public function render_time( string $input, array $args, Parser $parser, PPFrame $frame ): string {
 		$ret = '<input type="time" ';
 		$ret .= validate::doSimpleParameters( $args, "time" );
 		$ret .= ">\n";
@@ -432,15 +370,10 @@ class Field {
 		return $ret;
 	}
 
-	/**
-	 * @brief Render DateTime Input field as HTML
-	 *
-	 * @param  array $args Arguments for the input field
-	 * @param  boolean $input not used
-	 *
-	 * @return string Rendered HTML
-	 */
-	public static function render_datetime( $args, $input = false ) {
+    /**
+     * @inheritDoc
+     */
+	public function render_datetime( string $input, array $args, Parser $parser, PPFrame $frame ): string {
 		$ret = '<input type="datetime" ';
 		$ret .= validate::doSimpleParameters( $args, "datetime" );
 		$ret .= ">\n";
@@ -448,15 +381,10 @@ class Field {
 		return $ret;
 	}
 
-	/**
-	 * @brief Render local DateTime Input field as HTML
-	 *
-	 * @param  array $args Arguments for the input field
-	 * @param  boolean $input not used
-	 *
-	 * @return string Rendered HTML
-	 */
-	public static function render_datetimelocal( $args, $input = false ) {
+    /**
+     * @inheritDoc
+     */
+	public function render_datetimelocal( string $input, array $args, Parser $parser, PPFrame $frame ): string {
 		$ret = '<input type="datetime-local" ';
 		$ret .= validate::doSimpleParameters( $args, "datetimelocal" );
 		$ret .= ">\n";
@@ -464,15 +392,10 @@ class Field {
 		return $ret;
 	}
 
-	/**
-	 * @brief Render Password Input field as HTML
-	 *
-	 * @param  array $args Arguments for the input field
-	 * @param  boolean $input not used
-	 *
-	 * @return string Rendered HTML
-	 */
-	public static function render_password( $args, $input = false ) {
+    /**
+     * @inheritDoc
+     */
+	public function render_password( string $input, array $args, Parser $parser, PPFrame $frame ): string {
 		$ret = '<input type="password" ';
 		$ret .= validate::doSimpleParameters( $args, "password" );
 		$ret .= ">\n";
@@ -480,15 +403,10 @@ class Field {
 		return $ret;
 	}
 
-	/**
-	 * @brief Render Email Input field as HTML
-	 *
-	 * @param  array $args Arguments for the input field
-	 * @param  boolean $input not used
-	 *
-	 * @return string Rendered HTML
-	 */
-	public static function render_email( $args, $input = false ) {
+    /**
+     * @inheritDoc
+     */
+	public function render_email( string $input, array $args, Parser $parser, PPFrame $frame ): string {
 		$ret = '<input type="email" ';
 		$ret .= validate::doSimpleParameters( $args, "email" );
 		$ret .= ">\n";
@@ -496,15 +414,10 @@ class Field {
 		return $ret;
 	}
 
-	/**
-	 * @brief Render Color Input field as HTML
-	 *
-	 * @param  array $args Arguments for the input field
-	 * @param  boolean $input not used
-	 *
-	 * @return string Rendered HTML
-	 */
-	public static function render_color( $args, $input = false ) {
+    /**
+     * @inheritDoc
+     */
+	public function render_color( string $input, array $args, Parser $parser, PPFrame $frame ): string {
 		$ret = '<input type="color" ';
 		$ret .= validate::doSimpleParameters( $args, "color" );
 		$ret .= ">\n";
@@ -512,15 +425,10 @@ class Field {
 		return $ret;
 	}
 
-	/**
-	 * @brief Render Range Input field as HTML
-	 *
-	 * @param  array $args Arguments for the input field
-	 * @param  boolean $input not used
-	 *
-	 * @return string Rendered HTML
-	 */
-	public static function render_range( $args, $input = false ) {
+    /**
+     * @inheritDoc
+     */
+	public function render_range( string $input, array $args, Parser $parser, PPFrame $frame ): string {
 		$ret = '<input type="range" ';
 		$ret .= validate::doSimpleParameters( $args, "range" );
 		$ret .= ">\n";
@@ -528,15 +436,10 @@ class Field {
 		return $ret;
 	}
 
-	/**
-	 * @brief Render Image Input field as HTML
-	 *
-	 * @param  array $args Arguments for the input field
-	 * @param  boolean $input not used
-	 *
-	 * @return string Rendered HTML
-	 */
-	public static function render_image( $args, $input = false ) {
+    /**
+     * @inheritDoc
+     */
+	public function render_image( string $input, array $args, Parser $parser, PPFrame $frame ): string {
 		$ret = '<input type="image" ';
 		foreach ( $args as $k => $v ) {
 			if ( validate::validParameters( $k ) ) {
@@ -549,15 +452,10 @@ class Field {
 		return $ret;
 	}
 
-	/**
-	 * @brief Render URL Input field as HTML
-	 *
-	 * @param  array $args Arguments for the input field
-	 * @param  boolean $input not used
-	 *
-	 * @return string Rendered HTML
-	 */
-	public static function render_url( $args, $input = false ) {
+    /**
+     * @inheritDoc
+     */
+	public function render_url( string $input, array $args, Parser $parser, PPFrame $frame ): string {
 		$ret = '<input type="url" ';
 		$ret .= validate::doSimpleParameters( $args, "url" );
 		$ret .= ">\n";
@@ -565,15 +463,10 @@ class Field {
 		return $ret;
 	}
 
-	/**
-	 * @brief Render Telephone numner Input field as HTML
-	 *
-	 * @param  array $args Arguments for the input field
-	 * @param  boolean $input not used
-	 *
-	 * @return string Rendered HTML
-	 */
-	public static function render_tel( $args, $input = false ) {
+    /**
+     * @inheritDoc
+     */
+	public function render_tel( string $input, array $args, Parser $parser, PPFrame $frame ): string {
 		$ret = '<input type="tel" ';
 		$ret .= validate::doSimpleParameters( $args, "tel" );
 		$ret .= ">\n";
@@ -581,40 +474,10 @@ class Field {
 		return $ret;
 	}
 
-	/*
-    public static function render_token($args,$input=false) {
-        $ret = '<input type="text" ';
-        foreach ($args as $k=>$v) {
-            if(validate::validParameters($k)) {
-                $ret .= $k.'="'.$v.'" ';
-            }
-        }
-        $ret .= ">\n";
-        if(isset($args['id'])) {
-            $id = $args['id'];
-        } else return "";
-        $ret .= '<script>$(document).ready(function () {'."\n";
-        $ret .= "$('#".$id."').select2({"."\n";
-        $ret .= 'autocomplete: {'."\n";
-        $ret .= 'source: '.$input.','."\n";
-        $ret .= 'delay: 100'."\n";
-        $ret .= '},'."\n";
-        $ret .= 'showAutocompleteOnFocus: true'."\n";
-        $ret .= "});\n});\n</script>\n";
-        return $ret;
-    }
-*/
-	/**
-	 * @brief Render Options for Select Input field as HTML
-	 *
-	 * @param  array $args Arguments for the input field
-	 * @param  boolean $input Everything between the start and end tags
-	 * @param  object $parser MediaWiki parser
-	 * @param  object $frame MediaWiki frame used for parser
-	 *
-	 * @return string Rendered HTML
-	 */
-	public static function render_option( $args, $input = false, $parser, $frame ) {
+    /**
+     * @inheritDoc
+     */
+	public function render_option( string $input, array $args, Parser $parser, PPFrame $frame ): string {
 		global $wgScript;
 		$jsFile = '';
 		$ret = '<option ';
@@ -679,17 +542,10 @@ class Field {
 	}
 
 
-	/**
-	 * @brief Render actual submit HTML
-
-	 * @param  array $args Arguments for the input field
-	 * @param  boolean $input not used
-	 * @param  object $parser MediaWiki parser
-	 * @param  object $frame MediaWiki frame used for parser
-	 *
-	 * @return string Rendered HTML
-	 */
-	public static function render_submit( $args, $input = false, $parser, $frame ) {
+    /**
+     * @inheritDoc
+     */
+	public function render_submit( string $input, array $args, Parser $parser, PPFrame $frame ): string {
 		global $IP, $wgOut, $wgResourceBasePath;
 		$ret = '<input type="submit" ';
 		$res = '';
@@ -743,15 +599,10 @@ class Field {
 		return $ret.$res;
 	}
 
-	/**
-	 * @brief Render Buttonfield as HTML
-	 *
-	 * @param  array $args Arguments for the input field
-	 * @param  boolean $input not used
-	 *
-	 * @return string Rendered HTML
-	 */
-	public static function render_button( $args, $input = false ) {
+    /**
+     * @inheritDoc
+     */
+	public function render_button( string $input, array $args, Parser $parser, PPFrame $frame ): string {
 		$ret = '<button ';
 		$setButtonType = "button";
 		foreach ( $args as $k => $v ) {
@@ -769,15 +620,10 @@ class Field {
 		return $ret;
 	}
 
-	/**
-	 * @brief Render Reset Input field as HTML
-	 *
-	 * @param  array $args Arguments for the input field
-	 * @param  boolean $input not used
-	 *
-	 * @return string Rendered HTML
-	 */
-	public static function render_reset( $args, $input = false ) {
+    /**
+     * @inheritDoc
+     */
+	public function render_reset( string $input, array $args, Parser $parser, PPFrame $frame ): string {
 		$ret = '<input type="reset" ';
 		foreach ( $args as $k => $v ) {
 			if ( validate::validParameters( $k ) ) {
@@ -789,15 +635,10 @@ class Field {
 		return $ret;
 	}
 
-	/**
-	 * @brief Render Text Area Input field as HTML
-	 *
-	 * @param  array $args Arguments for the input field
-	 * @param  boolean $input not used
-	 *
-	 * @return string Rendered HTML
-	 */
-	public static function render_textarea( $args, $input = false, $parser, $frame ) {
+    /**
+     * @inheritDoc
+     */
+	public function render_textarea( string $input, array $args, Parser $parser, PPFrame $frame ): string {
 		global $wgOutput;
 		$out = $parser->getOutput();
 		if( $input === '' ) $input = false;
@@ -863,14 +704,10 @@ class Field {
 		return $ret . $js;
 	}
 
-	/**
-	 * @brief Render Signature HTML input field
-	 *
-	 * @param  array $args Arguments for the input field
-	 *
-	 * @return string Rendered HTML
-	 */
-	public static function render_signature( $args) {
+    /**
+     * @inheritDoc
+     */
+	public function render_signature( string $input, array $args, Parser $parser, PPFrame $frame ): string {
 		global $IP, $wgOut;
 
 		$jsOptions = ", ";
@@ -963,14 +800,10 @@ class Field {
 		return $css.$ret;
 	}
 
-	/**
-	 * @brief Render Mobile screenshot File input field
-	 *
-	 * @param  array $args Arguments for the input field
-	 *
-	 * @return string Rendered HTML
-	 */
-	public static function render_mobilescreenshot( $args) {
+    /**
+     * @inheritDoc
+     */
+	public function render_mobilescreenshot( string $input, array $args, Parser $parser, PPFrame $frame ): string {
 		global $IP, $wgOut;
 
 		$end = "\n";

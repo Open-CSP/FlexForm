@@ -2,19 +2,15 @@
 
 namespace WSForm\Render\Themes\WSForm;
 
-use wsform\validate\validate;
+use WSForm\Render\LabelRenderer;
+use Parser;
+use PPFrame;
 
-class Label {
-
+class WSFormLabelRenderer implements LabelRenderer {
     /**
-     * @brief Render Label Input field as HTML
-     *
-     * @param  array $args Arguments for the input field
-     * @param  boolean $input not used
-     *
-     * @return string Rendered HTML
+     * @inheritDoc
      */
-    public static function render_label( $args, $input = false ) {
+    public function render_label( string $input, array $args, Parser $parser, PPFrame $frame ): string {
 
         $ret = '<label ';
         if ( isset( $args['text'] ) ) {

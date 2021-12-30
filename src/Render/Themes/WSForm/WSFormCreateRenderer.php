@@ -2,15 +2,15 @@
 
 namespace WSForm\Render\Themes\WSForm;
 
-class RenderCreate {
+use WSForm\Render\CreateRenderer;
+use Parser;
+use PPFrame;
+
+class WSFormCreateRenderer implements CreateRenderer {
     /**
-     * Render WSCreate
-     *
-     * @param $args
-     *
-     * @return string Formatted HTML
+     * @inheritDoc
      */
-    public static function render_create( $args ) {
+    public function render_create( string $input, array $args, Parser $parser, PPFrame $frame ): string {
         $template = "";
         $wswrite  = "";
         $wsoption = "";

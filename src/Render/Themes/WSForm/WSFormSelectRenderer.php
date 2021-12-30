@@ -1,22 +1,17 @@
 <?php
 
-
 namespace WSForm\Render\Themes\WSForm;
 
+use WSForm\Render\SelectRenderer;
 use wsform\validate\validate;
+use Parser;
+use PPFrame;
 
-class RenderSelect {
-
-
+class WSFormSelectRenderer implements SelectRenderer {
     /**
-     * @brief Render Select Input field as HTML
-     *
-     * @param  array $args Arguments for the input field
-     * @param  boolean $input not used
-     *
-     * @return string Rendered HTML
+     * @inheritDoc
      */
-    public static function render_select( $args, $input = false ) {
+    public function render_select( string $input, array $args, Parser $parser, PPFrame $frame ): string {
         $ret = '<select ';
         foreach ( $args as $k => $v ) {
             if ( validate::validParameters( $k ) ) {

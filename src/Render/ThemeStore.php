@@ -1,16 +1,18 @@
 <?php
 
+namespace WSForm\Render;
+
 use MediaWiki\HookContainer\HookContainer;
-use WSForm\Render\Theme;
+use WSForm\Render\Themes\Theme;
 use WSForm\Render\Themes\WSForm\WSFormTheme;
 use WSForm\WSFormException;
 
 /**
  * Class Render
  *
- * This class deals with rendering a form.
+ * This class deals with rendering a form using a theme.
  */
-class Renderer {
+class ThemeStore {
     /**
      * @var string The name of the currently set theme
      */
@@ -67,15 +69,20 @@ class Renderer {
      * Set the name of the theme to render.
      *
      * @param string $themeName
+     * @throws WSFormException
      */
     public function setFormThemeName( string $themeName ) {
+        if ( !isset( $this->themes[$themeName] ) ) {
+            throw new WSFormException( 'Invalid theme ' . $themeName, 0 );
+        }
+
         $this->formThemeName = $themeName;
     }
 
     /**
      * Returns the name of the theme of the current form.
      *
-     * @return string|null
+     * @return string
      */
     public function getFormThemeName() {
         return $this->formThemeName;

@@ -10,11 +10,12 @@
 
 namespace WSForm\Render\Themes\WSForm;
 
-use wsform\validate\validate;
-use wsform\wsform;
+use WSForm\Render\InstanceRenderer;
 use MediaWiki\Revision\RevisionRecord;
+use Parser;
+use PPFrame;
 
-class Instance {
+class WSFormInstanceRenderer implements InstanceRenderer {
 	private static function instanceDefault( $args ) {
 		$defaultInstance = array(
 			'selector'               => "WSmultipleTemplateWrapper",
@@ -97,14 +98,9 @@ class Instance {
 	}
 
 	/**
-	 * Render WSInstance
-	 *
-	 * @param $args
-	 * @param string $innerHtml
-	 *
-	 * @return string Formatted HTML
+	 * @inheritDoc
 	 */
-	public static function render_instance( $args, $innerHtml ) {
+	public function render_instance( string $input, array $args, Parser $parser, PPFrame $frame ): string {
 		global $IP;
 		$instance       = self::instanceDefault( $args );
 		if( ! \RequestContext::getMain()->canUseWikiPage() ) return "";

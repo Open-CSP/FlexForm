@@ -2,12 +2,18 @@
 
 namespace WSForm\Render\Themes\WSForm;
 
-use Parser;
-use PPFrame;
+use WSForm\Render\CreateRenderer;
+use WSForm\Render\EditRenderer;
+use WSForm\Render\EmailRenderer;
 use WSForm\Render\FieldRenderer;
+use WSForm\Render\FieldsetRenderer;
+use WSForm\Render\FormRenderer;
+use WSForm\Render\InstanceRenderer;
+use WSForm\Render\LabelRenderer;
+use WSForm\Render\LegendRenderer;
+use WSForm\Render\SelectRenderer;
 use WSForm\Render\Theme;
-use WSForm\Render\Validate;
-use WSForm\WSFormException;
+use WSForm\Render\TokenRenderer;
 
 /**
  * Class WSFormTheme
@@ -25,631 +31,72 @@ class WSFormTheme implements Theme {
     }
 
     /**
-     * Render a WSEdit.
-     *
-     * @param string $input Parser Between beginning and end
-     * @param array $args Arguments for the field
-     * @param Parser $parser MediaWiki Parser
-     * @param PPFrame $frame MediaWiki PPFrame
-     *
-     * @return array|string
+     * @inheritDoc
      */
-    public function renderEdit( string $input, array $args, Parser $parser, PPFrame $frame ) {
-        foreach ( $args as $k => $v ) {
-            if ( ( strpos( $v, '{' ) !== false ) && ( strpos( $v, "}" ) !== false ) ) {
-                $args[ $k ] = $parser->recursiveTagParse( $v, $frame );
-            }
-        }
-
-        $ret = RenderEdit::render_edit( $args );
-        //self::addInlineJavaScriptAndCSS();
-        return array( $ret, 'noparse' => true, "markerType" => 'nowiki' );
+    public function getEditRenderer(): EditRenderer {
+        return new WSFormEditRenderer();
     }
 
     /**
-     * Render a WSCreate.
-     *
-     * @param string $input Parser Between beginning and end
-     * @param array $args Arguments for the field
-     * @param Parser $parser MediaWiki Parser
-     * @param PPFrame $frame MediaWiki PPFrame
-     *
-     * @return array|string
+     * @inheritDoc
      */
-    public function renderCreate( string $input, array $args, Parser $parser, PPFrame $frame ) {
-        foreach ( $args as $k => $v ) {
-            if ( ( strpos( $v, '{' ) !== false ) && ( strpos( $v, "}" ) !== false ) ) {
-                $args[ $k ] = $parser->recursiveTagParse( $v, $frame );
-            }
-        }
-        $ret = RenderCreate::render_create( $args );
-        //self::addInlineJavaScriptAndCSS();
-        return array( $ret, 'noparse' => true, "markerType" => 'nowiki' );
+    public function getCreateRenderer(): CreateRenderer {
+        return new WSFormCreateRenderer();
     }
 
     /**
-     * Render a WSEmail.
-     *
-     * @param string $input Parser Between beginning and end
-     * @param array $args Arguments for the field
-     * @param Parser $parser MediaWiki Parser
-     * @param PPFrame $frame MediaWiki PPFrame
-     *
-     * @return array|string
+     * @inheritDoc
      */
-    public function renderEmail( string $input, array $args, Parser $parser, PPFrame $frame ) {
-        $args['content'] = base64_encode( $parser->recursiveTagParse( $input, $frame ) );
-        foreach ( $args as $k => $v ) {
-            if ( ( strpos( $v, '{' ) !== false ) && ( strpos( $v, "}" ) !== false ) ) {
-                $args[ $k ] = $parser->recursiveTagParse( $v, $frame );
-            }
-        }
-        $ret = Mail::render_mail( $args );
-        //self::addInlineJavaScriptAndCSS();
-        return array( $ret, 'noparse' => true, "markerType" => 'nowiki' );
+    public function getEmailRenderer(): EmailRenderer {
+        return new WSFormEmailRenderer();
     }
 
     /**
-     * Render a WSInstance.
-     *
-     * @param string $input Parser Between beginning and end
-     * @param array $args Arguments for the field
-     * @param Parser $parser MediaWiki Parser
-     * @param PPFrame $frame MediaWiki PPFrame
-     *
-     * @return array|string
+     * @inheritDoc
      */
-    public function renderInstance(string $input, array $args, Parser $parser, PPFrame $frame) {
-        global $IP, $wgScript;
-        $realUrl = str_replace( '/index.php', '', $wgScript );
-
-
-        // Add move, delete and add button with classes
-        $parser->getOutput()->addModuleStyles( 'ext.wsForm.Instance.styles' );
-
-        if( ! WSForm::isLoaded( 'wsinstance-initiated' ) ) {
-            WSForm::addAsLoaded( 'wsinstance-initiated' );
-        }
-
-        $output = $parser->recursiveTagParse( $input, $frame );
-
-        if( ! WSForm::isLoaded( 'wsinstance-initiated' ) ) {
-            WSForm::addAsLoaded( 'wsinstance-initiated' );
-        }
-
-        $ret = Instance::render_instance( $args, $output );
-
-        WSForm::removeAsLoaded( 'wsinstance-initiated' );
-
-        if(! WSForm::isLoaded( 'multipleinstance' ) ) {
-            if ( file_exists( $IP . '/extensions/WSForm/modules/instances/wsInstance.js' ) ) {
-                $ls =  $realUrl . '/extensions/WSForm/modules/instances/wsInstance.js';
-                $ret = '<script type="text/javascript" charset="UTF-8" src="' . $ls . '"></script>' . $ret ;
-                //wsform\wsform::includeInlineScript( $ls );
-                //$parser->getOutput()->addModules( ['ext.wsForm.instance'] );
-                WSForm::addAsLoaded( 'multipleinstance' );
-            }
-        }
-
-        return array( $ret, 'noparse' => true, "markerType" => 'nowiki' );
+    public function getInstanceRenderer(): InstanceRenderer {
+        return new WSFormInstanceRenderer();
     }
 
     /**
-     * Render a WSForm.
-     *
-     * @param string $input Parser Between beginning and end
-     * @param array $args Arguments for the field
-     * @param Parser $parser MediaWiki Parser
-     * @param PPFrame $frame MediaWiki PPFrame
-     *
-     * @return array|string
+     * @inheritDoc
      */
-    public function renderForm(string $input, array $args, Parser $parser, PPFrame $frame) {
-        global $wgUser, $wgEmailConfirmToEdit, $IP, $wgScript;
-        WSForm::$chkSums = array();
-        $anon = false;
-        $ret = '';
-        WSForm::$formId = uniqid();
-
-        // Set i18n general messages
-        WSForm::$msg_unverified_email = wfMessage( "wsform-unverified-email1" )->text() . wfMessage( "wsform-unverified-email2" )->text();
-        WSForm::$msg_anonymous_user = wfMessage( "wsform-anonymous-user" )->text();
-
-        $parser->getOutput()->addModuleStyles( 'ext.wsForm.general.styles' );
-
-        // Do we have messages to show
-        if ( isset( $args['showmessages'] ) ) {
-
-
-            if ( isset ( $_COOKIE['wsform'] ) ) {
-                $ret = '<div class="wsform alert-' . $_COOKIE['wsform']['type'] . '">' . $_COOKIE['wsform']['txt'] . '</div>';
-                setcookie( "wsform[type]", "", time() - 3600, '/' );
-                setcookie( "wsform[txt]", "", time() - 3600, '/' );
-
-                return array( $ret, 'noparse' => true, "markerType" => 'nowiki' );
-            } else {
-                return "";
-            }
-        }
-
-        if ( isset( $args['restrictions'] ) ) {
-            if ( ( strpos( $args['restrictions'], '{' ) !== false ) && ( strpos( $args['restrictions'], "}" ) !== false ) ) {
-                $args['restrictions'] = $parser->recursiveTagParse( $args['restrictions'], $frame );
-            }
-            if ( strtolower( $args['restrictions'] ) === 'lifted' ) {
-                $anon = true;
-            }
-        }
-
-        //TODO: Will be deprecated in 1.36. As off 1.34 use isRegistered()
-        if ( ! $wgUser->isLoggedIn() && $anon === false ) {
-            $ret = WSForm::$msg_anonymous_user;
-            return $ret;
-        }
-
-        if ( isset( $args['id'] ) && $args['id'] !== '' ) {
-            $formId =  $args['id'];
-        } else $formId = false;
-
-        if ( isset( $args['loadscript'] ) && $args['loadscript'] !== '' ) {
-            if(! WSForm::isLoaded($args['loadscript'])) {
-                if ( file_exists( $IP . '/extensions/WSForm/modules/customJS/loadScripts/' . $args['loadscript'] . '.js' ) ) {
-                    $ls = file_get_contents( $IP . '/extensions/WSForm/modules/customJS/loadScripts/' . $args['loadscript'] . '.js' );
-                    if ( $ls !== false ) {
-                        //$loadScript = "<script>" . $ls . "</script>\n";
-
-                        if( $formId !== false ) {
-                            $k = 'wsForm_' . $args['loadscript'];
-                            $v = $formId;
-                            WSForm::includeJavaScriptConfig( $k, $v );
-                        }
-                        WSForm::includeInlineScript( $ls );
-                        WSForm::addAsLoaded( $args['loadscript'] );
-                    }
-                }
-            }
-        } else {
-            $loadScript = false;
-        }
-
-        /* No idea why this is in here, but makes no sense.
-                if ( isset( $args['action'] ) && $args['action'] == 'get' ) {
-                    $anon = true;
-                }
-        */
-
-
-
-        $noEnter = false;
-        if ( isset( $args['no_submit_on_return'] ) ) {
-            if(! wsform\wsform::isLoaded('keypress') ) {
-                $noEnter = "$(document).on('keyup keypress', 'form input[type=\"text\"]', function(e) {
-            if(e.keyCode == 13) {
-              e.preventDefault();
-              return false;
-            }
-          });$(document).on('keyup keypress', 'form input[type=\"search\"]', function(e) {
-            if(e.keyCode == 13) {
-              e.preventDefault();
-              return false;
-            }
-          });$(document).on('keyup keypress', 'form input[type=\"password\"]', function(e) {
-            if(e.keyCode == 13) {
-              e.preventDefault();
-              return false;
-            }
-          })";
-                WSForm::includeInlineScript( $noEnter );
-                WSForm::addAsLoaded( 'keypress' );
-            }
-        }
-
-        if ( isset( $args['action'] ) && $args['action'] == 'addToWiki' && $anon === false ) {
-            if ( $wgEmailConfirmToEdit === true && ! $wgUser->isEmailConfirmed() ) {
-                $ret = WSForm::$msg_unverified_email;
-
-                return $ret;
-            }
-        }
-        if ( isset( $args['changetrigger'] ) && $args['changetrigger'] !== '' && isset($args['id'])) {
-            $onchange = "";
-            $changeId = $args['id'];
-            $changeCall = $args['changetrigger'];
-            $onchange = "$('#" . $changeId . "').change(" . $changeCall . "(this));";
-            WSForm::includeInlineScript( $onchange );
-        } else $onchange = false;
-
-        if( isset( $args['messageonsuccess']) && $args['messageonsuccess'] !== '' ) {
-            $msgOnSuccessJs = $js = 'var mwonsuccess = "' . $args['messageonsuccess'] . '";';
-            WSForm::includeInlineScript( $msgOnSuccessJs );
-        } else $msgOnSuccessJs = '';
-
-        if( isset( $args['show-on-select' ] ) ) {
-            WSForm::setShowOnSelectActive();
-            $input = WSForm::checkForShowOnSelectValue( $input );
-        }
-
-        $output = $parser->recursiveTagParse( $input, $frame );
-        foreach ( $args as $k => $v ) {
-            if ( ( strpos( $v, '{' ) !== false ) && ( strpos( $v, "}" ) !== false ) ) {
-                $args[ $k ] = $parser->recursiveTagParse( $v, $frame );
-            }
-        }
-        if (WSForm::getRun() === false) {
-            $realUrl = str_replace( '/index.php', '', $wgScript );
-            $ret = '<script type="text/javascript" charset="UTF-8" src="' . $realUrl . '/extensions/WSForm/WSForm.general.js"></script>' . "\n";
-            WSForm::setRun(true);
-        }
-        $ret .= Form::render_form( $args, $parser->getTitle()->getLinkURL() );
-
-        //Add checksum
-
-        if( WSForm::isShowOnSelectActive() ) {
-            $ret .= WSForm::createHiddenField( 'showonselect', '1' );
-
-        }
-
-        if( WSForm::$secure ) {
-            Protect::setCrypt( WSForm::$checksumKey );
-            if( WSForm::$runAsUser ) {
-                $chcksumwuid = Protect::encrypt( 'wsuid' );
-                $uid = Protect::encrypt( $wgUser->getId() );
-                WSForm::addCheckSum( 'secure', $chcksumwuid, $uid, "all" );
-                $ret          .= '<input type="hidden" name="' . $chcksumwuid . '" value="' . $uid . '">';
-            }
-            $chcksumName = Protect::encrypt( 'checksum' );
-            if( !empty( WSForm::$chkSums ) ) {
-                $chcksumValue = Protect::encrypt( serialize( WSForm::$chkSums ) );
-                $ret          .= '<input type="hidden" name="' . $chcksumName . '" value="' . $chcksumValue . '">';
-                $ret          .= '<input type="hidden" name="formid" value="' . WSForm::$formId . '">';
-            }
-
-        }
-
-
-
-
-        $ret .= $output . '</form>';
-
-        if( isset( $args['recaptcha-v3-action'] ) && ! wsform\wsform::isLoaded( 'google-captcha' ) ) {
-            $tmpCap = wsform\recaptcha\render::render_reCaptcha();
-            if( $tmpCap !== false ) {
-                wsform\wsform::addAsLoaded( 'google-captcha' );
-                $ret = $tmpCap . $ret;
-            }
-        }
-
-        if( wsform\wsform::$reCaptcha !== false  ) {
-            if( !isset( $args['id']) || $args['id'] === '' ) {
-                $ret = wfMessage( "wsform-recaptcha-no-form-id" )->text();
-                return $ret;
-            }
-            if ( file_exists( $IP . '/extensions/WSForm/modules/recaptcha.js' ) ) {
-                $rcaptcha = file_get_contents( $IP . '/extensions/WSForm/modules/recaptcha.js' );
-                $replace = array(
-                    '%%id%%',
-                    '%%action%%',
-                    '%%sitekey%%',
-                );
-                $with = array(
-                    $args['id'],
-                    wsform\wsform::$reCaptcha,
-                    wsform\recaptcha\render::$rc_site_key
-                );
-                $rcaptcha = str_replace( $replace, $with, $rcaptcha );
-                wsform\wsform::includeInlineScript( $rcaptcha );
-                wsform\wsform::$reCaptcha = false;
-            } else {
-                $ret = wfMessage( "wsform-recaptcha-no-js" )->text();
-                return $ret;
-            }
-        }
-        //echo "<pre>";
-        // print_r( \wsform\wsform::$chkSums );
-        // echo "</pre>";
-        //print_r( \wsform\wsform::$secure );
-        //print_r( wsform\wsform::getJavaScriptConfigToBeAdded() );
-
-        //echo "<pre>";
-        //print_r( wsform\wsform::getJavaScriptConfigToBeAdded() ) ;
-        //echo "</pre>";
-        self::addInlineJavaScriptAndCSS();
-        return array( $ret, "markerType" => 'nowiki' );
+    public function getFormRenderer(): FormRenderer {
+        return new WSFormFormRenderer();
     }
 
     /**
-     * Render a WSFieldset.
-     *
-     * @param string $input Parser Between beginning and end
-     * @param array $args Arguments for the field
-     * @param Parser $parser MediaWiki Parser
-     * @param PPFrame $frame MediaWiki PPFrame
-     *
-     * @return array|string
+     * @inheritDoc
      */
-    public function renderFieldset( string $input, array $args, Parser $parser, PPFrame $frame ) {
-        $ret = '<fieldset ';
-        foreach ( $args as $k => $v ) {
-            if ( wsform\validate\validate::validParameters( $k ) ) {
-                $ret .= $k . '="' . $v . '" ';
-            }
-        }
-        $output = $parser->recursiveTagParse( $input, $frame );
-        $ret    .= '>' . $output . '</fieldset>';
-        //self::addInlineJavaScriptAndCSS();
-        return array( $ret, "markerType" => 'nowiki' );
+    public function getFieldsetRenderer(): FieldsetRenderer {
+        return new WSFormFieldsetRenderer();
     }
 
     /**
-     * Render a WSSelect.
-     *
-     * @param string $input Parser Between beginning and end
-     * @param array $args Arguments for the field
-     * @param Parser $parser MediaWiki Parser
-     * @param PPFrame $frame MediaWiki PPFrame
-     *
-     * @return array|string
+     * @inheritDoc
      */
-    public function renderSelect( string $input, array $args, Parser $parser, PPFrame $frame ) {
-        $ret = '<select ';
-
-
-        foreach ( $args as $k => $v ) {
-            if ( wsform\validate\validate::validParameters( $k ) ) {
-                if ( $k == "name" && strpos( $v, '[]' ) === false ) {
-                    $name = $v;
-                    $v    .= '[]';
-                }
-                $ret .= $k . '="' . $parser->recursiveTagParse( $v, $frame ) . '" ';
-            }
-        }
-        $output = $parser->recursiveTagParse( $input, $frame );
-
-        $ret .= '>';
-        if ( isset( $args['placeholder'] ) ) {
-            $ret .= '<option value="" disabled selected>' . $args['placeholder'] . '</option>';
-        }
-        $ret .=  $output . '</select>';
-
-        //self::addInlineJavaScriptAndCSS();
-        return array( $ret, "markerType" => 'nowiki' );
+    public function getSelectRenderer(): SelectRenderer {
+        return new WSFormSelectRenderer();
     }
 
     /**
-     * Render a WSToken.
-     *
-     * @param string $input Parser Between beginning and end
-     * @param array $args Arguments for the field
-     * @param Parser $parser MediaWiki Parser
-     * @param PPFrame $frame MediaWiki PPFrame
-     *
-     * @return array|string
+     * @inheritDoc
      */
-    public function renderToken( string $input, array $args, Parser $parser, PPFrame $frame ) {
-        global $wgOut, $IP, $wgDBname, $wgDBprefix;
-
-        if( isset ( $wgDBprefix ) && !empty($wgDBprefix) ) {
-            $prefix = '_' . $wgDBprefix;
-        } else $prefix = '';
-
-        //$parser->disableCache();
-        //$parser->getOutput()->addModules( 'ext.wsForm.select2.kickstarter' );
-        $ret         = '<select data-inputtype="ws-select2"';
-        $placeholder = false;
-        $allowtags = false;
-        $onlyone = false;
-        $multiple = false;
-
-
-        foreach ( $args as $k => $v ) {
-            if ( wsform\validate\validate::validParameters( $k ) ) {
-                if ( $k == 'placeholder' ) {
-                    $placeholder = $parser->recursiveTagParse( $v, $frame );
-                } elseif( strtolower( $k ) === "multiple") {
-                    $multiple = $parser->recursiveTagParse( $v, $frame );
-                    if ( $multiple === "multiple" ) {
-                        $ret .= 'multiple="multiple" ';
-                    }
-                } elseif( strtolower( $k ) === 'id' &&  \wsform\wsform::isLoaded( 'wsinstance-initiated' ) ) {
-                    $ret .= 'data-wsselect2id="' . $v . '"';
-                } else {
-                    $ret .= $k . '="' . $parser->recursiveTagParse( $v, $frame ) . '" ';
-                }
-            }
-        }
-
-        $output = $parser->recursiveTagParse( $input );
-        $id   = $parser->recursiveTagParse( $args['id'], $frame );
-
-        $ret    .= '>';
-        if( $placeholder !== false ){
-            $ret .= '<option></option>';
-        }
-        $ret .= $output . '</select>' . "\n";
-        $out    = "";
-        if ( ! \wsform\wsform::isLoaded( 'wsinstance-initiated' ) ){
-            $out    .= '<input type="hidden" id="select2options-' . $id . '" value="';
-        } else {
-            $out    .= '<input type="hidden" data-wsselect2options="select2options-' . $id . '" value="';
-        }
-
-        if( isset( $args['input-length-trigger'] ) && $args['input-length-trigger' !== '' ] ) {
-            $iLength = trim( $args['input-length-trigger'] );
-        } else $iLength = 3;
-
-        if ( isset( $args['json'] ) && isset( $args['id'] ) ) {
-            if ( strpos( $args['json'], 'semantic_ask' ) ) {
-                $json = $args['json'];
-            } else {
-                $json = $parser->recursiveTagParse( $args['json'], $frame );
-            }
-            $out .= "var jsonDecoded = decodeURIComponent( '" . urlencode( $json ) . "' );\n";
-        }
-
-
-        $out .= "$('#" . $id . "').select2({";
-
-        $callb = '';
-
-        $mwdb = $wgDBname . $prefix;
-
-        if ( $placeholder !== false ) {
-            $out .= "placeholder: '" . $placeholder . "',";
-        }
-
-        if ( isset( $args['json'] ) && isset( $args['id'] ) ) {
-
-            $out .= "\ntemplateResult: testSelect2Callback,\n";
-            $out .= "\nescapeMarkup: function (markup) { return markup; },\n";
-            $out .= "\nminimumInputLength: $iLength,\n";
-            $out .= "\najax: { url: jsonDecoded, delay:500, dataType: 'json',"."\n";
-            $out .= "\ndata: function (params) { var queryParameters = { q: params.term, mwdb: '".$mwdb."' }\n";
-            $out .= "\nreturn queryParameters; }}";
-            $callb= '';
-            if ( isset( $args['callback'] ) ) {
-                if ( isset( $args['template'] ) ) {
-                    $templ = ", '" . $args['template'] . "'";
-                } else $templ = '';
-                $cb  = $parser->recursiveTagParse( $args['callback'], $frame );
-                $callb = "$('#" . $id . "').on('select2:select', function(e) { " . $cb . "('" . $id . "'" . $templ . ")});\n";
-                $callb .= "$('#" . $id . "').on('select2:unselect', function(e) { " . $cb . "('" . $id . "'" . $templ . ")});\n";
-            }
-        }
-        if( isset( $args['allowtags'] ) ) {
-            if ( isset( $args['json'] ) && isset( $args['id'] ) ) {
-                $out .= ",\ntags: true";
-            } else {
-                $out .= "\ntags: true";
-            }
-        }
-        if( isset( $args['allowclear'] ) && isset( $args['placeholder'] ) ) {
-            if ( ( isset( $args['json'] ) ) || isset( $args['allowtags'] ) ) {
-                $out .= ",\nallowClear: true";
-            } else {
-                $out .= "\nallowClear: true";
-            }
-        }
-
-        /*
-                if( $multiple !== false && strtolower( $multiple ) === "multiple" ) {
-
-                    if ( ( isset( $args['json'] ) && isset( $args['id'] ) ) || isset( $args['allowtags'] ) || isset( $args['allowclear'] ) ) {
-                        $out .= ",\nmultiple: true";
-                    } else {
-                        $out .= "\nmultiple: true";
-                    }
-                } else {
-                    if ( ( isset( $args['json'] ) && isset( $args['id'] ) ) || isset( $args['allowtags'] ) || isset( $args['allowclear'] ) ) {
-                        $out .= ",\nmultiple: false";
-                    } else {
-                        $out .= "\nmultiple: false";
-                    }
-                }
-        */
-        $out .= '});';
-        $callb .= "$('select').trigger('change');\"\n";
-        $out .= $callb . ' />';
-        $lcallback = '';
-        if(isset($args['loadcallback'])) {
-            if(! wsform\wsform::isLoaded($args['loadcallback'] ) ) {
-                if ( file_exists( $IP . '/extensions/WSForm/modules/customJS/wstoken/' . $args['callback'] . '.js' ) ) {
-                    $lf  = file_get_contents( $IP . '/extensions/WSForm/modules/customJS/wstoken/' . $args['callback'] . '.js' );
-                    $lcallback = "<script>$lf</script>\n";
-                    wsform\wsform::includeInlineScript( $lf );
-                    wsform\wsform::addAsLoaded( $args['loadcallback'] );
-                }
-            }
-        }
-        $attach = "<script>wachtff(attachTokens, true );</script>";
-        //wsform\wsform::includeInlineScript( 'document.addEventListener("DOMContentLoaded", function() { wachtff(attachTokens, true); }, false);' );
-        //$wgOut->addHTML( $out );
-
-        $ret = $ret . $out . $attach;
-        self::addInlineJavaScriptAndCSS();
-        return array( $ret, "markerType" => 'nowiki' );
+    public function getTokenRenderer(): TokenRenderer {
+        return new WSFormTokenRenderer();
     }
 
     /**
-     * Render a WSLegend.
-     *
-     * @param string $input Parser Between beginning and end
-     * @param array $args Arguments for the field
-     * @param Parser $parser MediaWiki Parser
-     * @param PPFrame $frame MediaWiki PPFrame
-     *
-     * @return array|string
+     * @inheritDoc
      */
-    public function renderLegend( string $input, array $args, Parser $parser, PPFrame $frame ) {
-        $ret = '<legend ';
-        if ( isset( $args['class'] ) ) {
-            $ret .= ' class="' . $args['class'] . '" ';
-        }
-        if ( isset( $args['align'] ) ) {
-            $ret .= ' align="' . $args['align'] . '"';
-        }
-        $ret .= '>' . $input . '</legend>';
-        //self::addInlineJavaScriptAndCSS();
-        return array( $ret, "markerType" => 'nowiki' );
+    public function getLegendRenderer(): LegendRenderer {
+        return new WSFormLegendRenderer();
     }
 
     /**
-     * Render a WSLabel.
-     *
-     * @param string $input Parser Between beginning and end
-     * @param array $args Arguments for the field
-     * @param Parser $parser MediaWiki Parser
-     * @param PPFrame $frame MediaWiki PPFrame
-     *
-     * @return array|string
+     * @inheritDoc
      */
-    public function renderLabel( string $input, array $args, Parser $parser, PPFrame $frame ) {
-        $ret = '<label ';
-        foreach ( $args as $k => $v ) {
-            if ( wsform\validate\validate::validParameters( $k ) ) {
-                if ( ( strpos( $v, '{' ) !== false ) && ( strpos( $v, '}' ) !== false ) ) {
-                    $v = $parser->recursiveTagParse( $v, $frame );
-                }
-                $ret .= $k . '="' . $v . '" ';
-            }
-        }
-
-        $output = $parser->recursiveTagParse( $input, $frame );
-        $ret    .= '>' . $output . '</label>';
-        //self::addInlineJavaScriptAndCSS();
-        return array( $ret, "markerType" => 'nowiki' );
-    }
-
-    /**
-     * Parses the given arguments.
-     *
-     * @param array $arguments
-     * @param Parser $parser
-     * @param PPFrame $frame
-     *
-     * @return array
-     */
-    private function parseArguments( array $arguments, Parser $parser, PPFrame $frame ) {
-        $result = [];
-
-        foreach ( $arguments as $name => $value ) {
-            if ( ( strpos( $value, '{' ) !== false ) && ( strpos( $value, '}' ) !== false ) ) {
-                $result[$name] = $parser->recursiveTagParse( $value, $frame );
-            }
-        }
-
-        return $result;
-    }
-
-    /**
-     * Parses the given input.
-     *
-     * @param string $input
-     * @param Parser $parser
-     * @param PPFrame $frame
-     *
-     * @return string
-     */
-    private function parseInput( string $input, Parser $parser, PPFrame $frame ) {
-        return $parser->recursiveTagParseFully( $input, $frame );
+    public function getLabelRenderer(): LabelRenderer {
+        return new WSFormLabelRenderer();
     }
 }

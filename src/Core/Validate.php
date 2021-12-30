@@ -8,7 +8,7 @@
  * Time        : 21:43
  */
 
-namespace WSForm\Render;
+namespace WSForm\Core;
 
 class Validate {
 	/**

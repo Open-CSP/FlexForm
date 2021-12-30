@@ -10,9 +10,8 @@
 
 namespace WSForm\Render\Themes\WSForm;
 
-class RenderRecaptcha {
-
-
+// TODO: Cleanup and move to theme
+class Recaptcha {
 	// TODO: Add to mwapi !!
 	public static $rc_site_key = '';
 	public static $rc_secret_key = '';
@@ -33,7 +32,7 @@ class RenderRecaptcha {
 	 *
 	 * @return string Rendered HTML
 	 */
-	public static function render_reCaptcha() {
+	public static function render() {
 		self::loadSettings();
 		if( self::$rc_site_key === '' || self::$rc_secret_key === false ) return false;
 		$ret = '<script src="https://www.google.com/recaptcha/api.js?render=' . self::$rc_site_key . '"></script> ';

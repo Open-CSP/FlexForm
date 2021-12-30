@@ -2,31 +2,15 @@
 
 namespace WSForm\Render\Themes\WSForm;
 
-use wsform\validate\validate;
-use wsform\wsform;
+use WSForm\Render\FormRenderer;
+use Parser;
+use PPFrame;
 
-class Form {
-
+class WSFormFormRenderer implements FormRenderer {
 	/**
-	 * @brief Render begin of HTML Form
-	 *
-	 * This function is called by WSForm()
-	 *
-	 * \n Additional parameters
-	 * \li messageonsuccess
-	 * \li setwikicomment
-	 * \li mwreturn
-	 * \li formtarget
-	 * \li action
-	 * \li extension
-	 * \li post-as-user - Not functional
-	 *
-	 * @param array $args Arguments for the form
-	 * @param bool $title Url to return to when form is submitted
-	 *
-	 * @return string Rendered HTML
+	 * @inheritDoc
 	 */
-	public static function render_form( $args, $title=false ) {
+	public function render_form( string $input, array $args, Parser $parser, PPFrame $frame ): string {
 		global $wgDBname;
 		global $wgDBprefix;
 		if( isset ( $wgDBprefix ) && !empty($wgDBprefix) ) {
