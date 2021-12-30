@@ -2,13 +2,10 @@
 
 namespace WSForm\Render;
 
-use Parser;
-use PPFrame;
-
 /**
  * Class Theme
  *
- * This class is responsible for rendering a theme.
+ * This class is responsible for providing the renderers for a specific theme.
  */
 interface Theme {
     /**
@@ -79,12 +76,12 @@ interface Theme {
      *
      * @return LegendRenderer
      */
-    public function renderLegend(): LegendRenderer;
+    public function getLegendRenderer(): LegendRenderer;
 
     /**
      * Get a new LabelRenderer.
      *
      * @return LabelRenderer
      */
-    public function renderLabel(): LabelRenderer;
+    public function getLabelRenderer(): LabelRenderer;
 }

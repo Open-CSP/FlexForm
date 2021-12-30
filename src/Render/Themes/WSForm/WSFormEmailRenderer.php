@@ -3,18 +3,15 @@
 
 namespace WSForm\Render\Themes\WSForm;
 
-use wsform\validate\validate;
+use WSForm\Render\EmailRenderer;
+use Parser;
+use PPFrame;
 
-class Mail {
-
+class WSFormEmailRenderer implements EmailRenderer {
     /**
-     * @brief Render Mail HTML input field
-     *
-     * @param  array $args Arguments for the input field
-     *
-     * @return string Rendered HTML
+     * @inheritDoc
      */
-    public static function render_mail( $args ) {
+    public function render_mail( string $input, array $args, Parser $parser, PPFrame $frame ): string {
         $t1 = '<input type="hidden" name="%s" value="%s">' . "\n";
         $template = "";
         foreach ( $args as $k => $v ) {

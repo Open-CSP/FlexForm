@@ -36,12 +36,6 @@ class Core {
 	 */
 	public static $msg_unverified_email = '';
 
-	/**
-	 * @var string $msg_anonymous_user
-	 * i18n Holds the text for anonymous users
-	 */
-	public static $msg_anonymous_user = '';
-
 	public static $gValues = true;
 
 	/**
