@@ -49,8 +49,10 @@ $failed = false;
 
 $removeList = array();
 
-HandleResponse::setIdentifier( General::getPostString( "mwidentifier" ) );
-HandleResponse::setMwReturn( General::getPostString( "mwreturn" ) );
+$responseHandler = new HandleResponse;
+
+$responseHandler->setIdentifier( General::getPostString( "mwidentifier" ) );
+$responseHandler->setMwReturn( General::getPostString( "mwreturn" ) );
 
 //********* START Handle functions that need no further actions
 $actionGet = General::getGetString( 'action' );
