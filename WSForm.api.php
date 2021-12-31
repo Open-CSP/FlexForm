@@ -22,14 +22,17 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
 use WSForm\Core\HandleResponse;
+use WSForm\Core\Config;
+use WSForm\Processors\Request\External;
 use WSForm\Processors\Utilities\General;
+use WSForm\WSFormException;
 
 //setcookie("wsform[type]", "danger", 0, '/');
 //setcookie("wsform[txt]", "test", 0, '/');
 
 // Are we inside the MediaWiki FrameWork ?
 if ( ! defined( 'MEDIAWIKI' ) ) {
-	if ( wsUtilities::getGetString(
+	if ( General::getGetString(
 			'version',
 			false
 		) !== false ) {
@@ -43,7 +46,7 @@ if ( ! defined( 'MEDIAWIKI' ) ) {
 ERROR_REPORTING(E_ALL);
 ini_set('display_errors', 1);
 
-$i18n = new wsi18n();
+
 $ret = false;
 $failed = false;
 
@@ -54,25 +57,37 @@ $responseHandler = new HandleResponse;
 $responseHandler->setIdentifier( General::getPostString( "mwidentifier" ) );
 $responseHandler->setMwReturn( General::getPostString( "mwreturn" ) );
 
+try {
+	Config::setConfigFromMW();
+} catch ( WSFormException $e ){
+	$responseHandler->setReturnData( $e->getMessage() );
+	$responseHandler->setReturnStatus( 'error' );
+};
+
 //********* START Handle functions that need no further actions
 $actionGet = General::getGetString( 'action' );
 
 // Handle get requests
 if ( $actionGet !== false ) {
-	switch ( $actionGet ) {
-		case "renderWiki":
-			$render = new render();
-			$result = $render->renderWikiTxt();
-			wbHandleResponses::JSONResponse( $result );
-			break;
-		case "handleExternalRequest":
-			$result = external::handle();
-			wbHandleResponses::JSONResponse( $result );
-			break;
-		case "handleQuery":
-			$result = query::handle();
-			wbHandleResponses::JSONResponse( $result );
-			break;
+	try {
+		switch ( $actionGet ) {
+			case "renderWiki":
+				$render = new render();
+				$result = $render->renderWikiTxt();
+				wbHandleResponses::JSONResponse( $result );
+				break;
+			case "handleExternalRequest":
+				$result = external::handle();
+				wbHandleResponses::JSONResponse( $result );
+				break;
+			case "handleQuery":
+				$result = query::handle();
+				$responseHandler->JSONResponse( $result );
+				break;
+		}
+	} catch( WSFormException $e ) {
+		$responseHandler->setReturnData( $e->getMessage() );
+		$responseHandler->setReturnStatus( 'error' );
 	}
 }
 
