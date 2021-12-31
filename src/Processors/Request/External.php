@@ -13,8 +13,8 @@ namespace WSForm\Processors\Request;
 
 use WSForm\Core\Protect;
 use WSForm\Processors\Utilities\General;
-
-
+use WSForm\Modules\Handlers\Handlers;
+use WSForm\WSFormException;
 
 /**
  * Class external
@@ -24,26 +24,17 @@ use WSForm\Processors\Utilities\General;
  */
 class External {
 
-	/**
-	 * @param $api
-	 *
-	 * @return array
-	 */
-	public static function handle(): array {
-		global $IP;
-		$i18n     = new wsi18n();
-		$message  = new wbHandleResponses( api::isAjax() );
-		$external = wsUtilities::getGetString( 'script' );
-		if ( $external !== false ) {
-			if ( file_exists( $IP . '/extensions/WSForm/modules/handlers/' . basename( $external ) . '.php' ) ) {
-				include_once( $IP . '/extensions/WSForm/modules/handlers/' . basename( $external ) . '.php' );
-			} else {
-				$ret = $message->createMsg( $i18n->wsMessage( 'wsform-external-request-not-found' ) );
-			}
+	public static function handle() {
+		$handler = new Handlers();
+		$external = General::getGetString( 'script' );
+		if ( $external !== false && $handler->handlerExist( $external ) ) {
+			$handler->handlerExecute( $external );
 		} else {
-			$ret = $message->createMsg( $i18n->wsMessage( 'wsform-external-request-not-found' ) );
+			throw new WSFormException(
+				wfMessage( 'wsform-external-request-not-found' )->text(),
+				0
+			);
 		}
-		return $ret;
 	}
 
 
