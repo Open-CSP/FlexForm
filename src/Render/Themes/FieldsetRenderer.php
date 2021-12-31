@@ -14,10 +14,10 @@ interface FieldsetRenderer {
     /**
      * @brief Render fieldset
      *
-     * @param string $content The content of the field
+     * @param string $input The content of the field
      * @param array $args The arguments to the field
      *
      * @return string Rendered HTML
      */
-    public function render_fieldset( string $content, array $args ): string;
+    public function render_fieldset( string $input, array $args ): string;
 }

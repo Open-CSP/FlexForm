@@ -14,12 +14,9 @@ interface CreateRenderer {
     /**
      * @brief Render create
      *
-     * @param string $input Input for the field (should be parsed)
-     * @param array $args Arguments for the field (should be parsed)
-     * @param Parser $parser MediaWiki parser
-     * @param PPFrame $frame Current PPFrame
+     * @param array $args Arguments for the field
      *
      * @return string Rendered HTML
      */
-    public function render_create( string $input, array $args, Parser $parser, PPFrame $frame ): string;
+    public function render_create( array $args ): string;
 }

@@ -14,11 +14,11 @@ interface SelectRenderer {
     /**
      * @brief Render select
      *
-     * @param string $content Inner content of the select field (should be safe to output)
+     * @param string $input Inner content of the select field
      * @param array $args Arguments to pass to the select field
      * @param string $placeholder Placeholder text
      *
      * @return string Rendered HTML
      */
-    public function render_select( string $content, array $args, string $placeholder ): string;
+    public function render_select( string $input, array $args, string $placeholder ): string;
 }

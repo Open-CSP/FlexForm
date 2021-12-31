@@ -2,15 +2,16 @@
 
 namespace WSForm\Render\Themes\WSForm;
 
-use Parser;
-use PPFrame;
+use WSForm\Core\Core;
 use WSForm\Render\Themes\CreateRenderer;
 
 class WSFormCreateRenderer implements CreateRenderer {
     /**
      * @inheritDoc
      */
-    public function render_create( string $input, array $args, Parser $parser, PPFrame $frame ): string {
+    public function render_create( array $args ): string {
+        $args = array_map( "htmlspecialchars", $args );
+
         $template = "";
         $wswrite  = "";
         $wsoption = "";
@@ -18,43 +19,42 @@ class WSFormCreateRenderer implements CreateRenderer {
         $wsfollow = "";
         $wsSlot   = "";
         $wsCreateId = '';
-	    $mwleadingzero = "";
 
         if(isset($args['mwfields']) && $args['mwfields'] != '') {
             $div = '-^^-';
-            foreach ( $args as $k => $v ) {
-                if ( $k == "mwtemplate" ) {
-                    $template = $v;
+            foreach ( $args as $name => $value ) {
+                if ( $name == "mwtemplate" ) {
+                    $template = $value;
                 }
 
-                if( $k == 'id' ){
-					$wsCreateId = $v;
+                if( $name == 'id' ){
+					$wsCreateId = $value;
 				}
 
-                if ( $k == "mwwrite" ) {
-                    $wswrite = $v;
+                if ( $name == "mwwrite" ) {
+                    $wswrite = $value;
                 }
 
-				if ( $k == "mwslot" ) {
-					$wsSlot = $v;
+				if ( $name == "mwslot" ) {
+					$wsSlot = $value;
 				}
 
-                if ( $k == "mwoption" ) {
-                    $wsoption = $v;
+                if ( $name == "mwoption" ) {
+                    $wsoption = $value;
                 }
 
-                if ( $k == "mwfields" ) {
-                    $wsfields = $v;
+                if ( $name == "mwfields" ) {
+                    $wsfields = $value;
                 }
-	            if ( $k === "mwfollow" ) {
+	            if ( $name === "mwfollow" ) {
 		            $fname = 'mwfollow';
 
-		            if( strlen( $v ) <= 1 ) {
+		            if( strlen( $value ) <= 1 ) {
 			            $fvalue = "true";
 		            } else {
-			            $fvalue = $v;
+			            $fvalue = $value;
 		            }
-					$wsfollow = \wsform\wsform::createHiddenField( $fname, $fvalue );
+					$wsfollow = Core::createHiddenField( $fname, $fvalue );
 	            }
 
             }
@@ -72,40 +72,38 @@ class WSFormCreateRenderer implements CreateRenderer {
 				$wsfields . $div .
 				$wsSlot . $div .
 				$wsCreateId;
-	        $def = \wsform\wsform::createHiddenField( 'mwcreatemultiple[]', $createValue );
+	        $def = Core::createHiddenField( 'mwcreatemultiple[]', $createValue );
 
             return $def.$wsfollow ;
         } else {
 
-            foreach ( $args as $k => $v ) {
-                if ( $k == "mwtemplate" ) {
-                	$template = \wsform\wsform::createHiddenField( 'mwtemplate', $v );
+            foreach ( $args as $name => $value ) {
+                if ( $name == "mwtemplate" ) {
+                	$template = Core::createHiddenField( 'mwtemplate', $value );
                 }
 
-                if ( $k == "mwwrite" ) {
-	                $wswrite = \wsform\wsform::createHiddenField( 'mwwrite', $v );
+                if ( $name == "mwwrite" ) {
+	                $wswrite = Core::createHiddenField( 'mwwrite', $value );
                 }
 
-                if ( $k == "mwoption" ) {
-	                $wsoption = \wsform\wsform::createHiddenField( 'mwoption', $v );
+                if ( $name == "mwoption" ) {
+	                $wsoption = Core::createHiddenField( 'mwoption', $value );
                 }
 
-	            if ( $k == "mwslot" ) {
-	            	//{{#set: Hello=World | Description=These properties are not visible in the content }}
-		            //mds-metadataslot als test
-		            $wsSlot = \wsform\wsform::createHiddenField( 'mwslot', $v );
+	            if ( $name == "mwslot" ) {
+		            $wsSlot = Core::createHiddenField( 'mwslot', $value );
 	            }
 
-                if ( $k === "mwfollow" ) {
-                	if( strlen( $v ) <= 1 ) {
-		                $wsfollow = \wsform\wsform::createHiddenField( 'mwfollow', 'true' );
+                if ( $name === "mwfollow" ) {
+                	if( strlen( $value ) <= 1 ) {
+		                $wsfollow = Core::createHiddenField( 'mwfollow', 'true' );
 	                } else {
-		                $wsfollow = \wsform\wsform::createHiddenField( 'mwfollow', $v );
+		                $wsfollow = Core::createHiddenField( 'mwfollow', $value );
 	                }
                 }
 
-                if ( $k == "mwleadingzero" ) {
-	                $wsleadingzero = \wsform\wsform::createHiddenField( 'mwleadingzero', 'true' );
+                if ( $name == "mwleadingzero" ) {
+	                $wsleadingzero = Core::createHiddenField( 'mwleadingzero', 'true' );
                 } else $wsleadingzero = '';
 
                 /*

@@ -8,13 +8,13 @@ class WSFormFieldsetRenderer implements FieldsetRenderer {
     /**
      * @inheritDoc
      */
-    public function render_fieldset( string $content, array $args ): string {
+    public function render_fieldset( string $input, array $args ): string {
         $ret = '<fieldset ';
 
         foreach ( $args as $name => $value ) {
             $ret .= sprintf( '%s="%s" ', htmlspecialchars( $name ), htmlspecialchars( $value ) );
         }
 
-        return $ret . '>' . htmlspecialchars( $content ) . '</fieldset>';
+        return $ret . '>' . $input . '</fieldset>';
     }
 }

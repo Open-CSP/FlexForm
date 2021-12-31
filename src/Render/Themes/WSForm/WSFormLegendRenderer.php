@@ -8,7 +8,7 @@ class WSFormLegendRenderer implements LegendRenderer {
     /**
      * @inheritDoc
      */
-    public function render_legend( string $input, string $class = '', string $align = '' ): string {
+    public function render_legend( string $input, string $class, string $align ): string {
         $ret = '<legend ';
 
         if ( $class !== '' ) {
@@ -19,6 +19,6 @@ class WSFormLegendRenderer implements LegendRenderer {
             $ret .= ' align="' . htmlspecialchars( $align ) . '"';
         }
 
-        return $ret . '>' . $input . '</legend>';
+        return $ret . '>' . htmlspecialchars( $input ) . '</legend>';
     }
 }

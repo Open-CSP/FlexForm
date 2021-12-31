@@ -14,12 +14,10 @@ interface EmailRenderer {
     /**
      * @brief Render mail
      *
-     * @param string $input Input for the field (should be parsed)
-     * @param array $args Arguments for the field (should be parsed)
-     * @param Parser $parser MediaWiki parser
-     * @param PPFrame $frame Current PPFrame
+     * @param array $mailArguments Arguments for the field
+     * @param string $base64content The content of the email as base64
      *
      * @return string Rendered HTML
      */
-    public function render_mail( string $input, array $args, Parser $parser, PPFrame $frame ): string;
+    public function render_mail( array $mailArguments, string $base64content ): string;
 }

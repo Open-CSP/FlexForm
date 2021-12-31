@@ -87,14 +87,13 @@ class TagHooks {
             $allowAnonymous = false;
         }
 
-        // TODO: Will be deprecated in 1.36. As off 1.34 use isRegistered()
         // Block the request if the user is not logged in and anonymous users are not allowed
-        if ( $allowAnonymous === false && !$wgUser->isLoggedIn() ) {
+        if ( $allowAnonymous === false && !$wgUser->isRegistered() ) {
             return wfMessage( "wsform-anonymous-user" )->parse();
         }
 
         if ( isset( $args['action'] ) && $args['action'] == 'addToWiki' ) {
-            if ( $wgEmailConfirmToEdit === true && $wgUser->isLoggedIn() && !$wgUser->isEmailConfirmed() ) {
+            if ( $wgEmailConfirmToEdit === true && $wgUser->isRegistered() && !$wgUser->isEmailConfirmed() ) {
                 return wfMessage( "wsform-unverified-email1" )->parse() . wfMessage( "wsform-unverified-email2" )->parse();
             }
         }
@@ -191,6 +190,8 @@ class TagHooks {
                     // Silently ignore and use the default theme
                 }
             }
+
+            // TODO: Fix the parsing and move some logic from render_form to here
 
             // Parse the input
             $input = $this->parseValue( $input, $parser, $frame );
@@ -310,17 +311,132 @@ class TagHooks {
             $parsePost = false;
         }
 
-        $renderCallable = [$this->themeStore->getFormTheme()->getFieldRenderer(), "render_" . $type];
-
-        if ( !is_callable( $renderCallable ) ) {
-            // This should not happen, since the Validate class should have caught it
-            throw new WSFormException( "Invalid field type", 0 );
+        // Parse the arguments
+        foreach ( $args as $name => $value ) {
+            if ( ( strpos( $value, '{' ) !== false ) && ( strpos( $value, "}" ) !== false ) ) {
+                $args[$name] = $parser->recursiveTagParse( $value, $frame );
+            }
         }
 
-        $args = $this->parseArguments( $args, $parser, $frame, true );
-        $input = isset( $args['noparse'] ) ? htmlspecialchars( $input ) : $this->parseValue( $input, $parser, $frame );
+        $input = isset( $args['noparse'] ) ?
+            $input :
+            $parser->recursiveTagParse( $input, $frame );
 
-        $ret = $renderCallable( $input, $args, $parser, $frame );
+        $renderer = $this->themeStore
+            ->getFormTheme()
+            ->getFieldRenderer();
+
+        switch ( $type ) {
+            case 'text':
+                if ( isset( $args['mwidentifier'] ) && $args['mwidentifier'] === 'datepicker' ) {
+                    $parser->getOutput()->addModules( 'ext.wsForm.datePicker.scripts' );
+                    $parser->getOutput()->addModuleStyles( 'ext.wsForm.datePicker.styles' );
+                }
+
+                $ret = $renderer->render_text( $args );
+                break;
+            case 'hidden':
+                $ret = $renderer->render_hidden( $args );
+                break;
+            case 'secure':
+                if ( !Core::$secure ) {
+                    $ret = wfMessage( 'wsform-field-secure-not-available')->parse();
+                    break;
+                }
+
+                $ret = $renderer->render_secure( $args );
+                break;
+            case 'search':
+                $ret = $renderer->render_search( $args );
+                break;
+            case 'number':
+                $ret = $renderer->render_number( $args );
+                break;
+            case 'radio':
+                $ret = $renderer->render_radio( $args, $args['show-on-checked'] ?? '' );
+                break;
+            case 'checkbox':
+                // TODO: Move most of the render_checkbox logic to here
+                $ret = $renderer->render_checkbox( $args );
+                break;
+            case 'file':
+                // TODO: Move most of the render_file logic to here
+                $ret = $renderer->render_file( $args );
+                break;
+            case 'date':
+                $ret = $renderer->render_date( $args );
+                break;
+            case 'month':
+                $ret = $renderer->render_month( $args );
+                break;
+            case 'week':
+                $ret = $renderer->render_week( $args );
+                break;
+            case 'time':
+                $ret = $renderer->render_time( $args );
+                break;
+            case 'datetime':
+                $ret = $renderer->render_datetime( $args );
+                break;
+            case 'datetimelocal':
+                $ret = $renderer->render_datetimelocal( $args );
+                break;
+            case 'password':
+                $ret = $renderer->render_password( $args );
+                break;
+            case 'email':
+                $ret = $renderer->render_email( $args );
+                break;
+            case 'color':
+                $ret = $renderer->render_color( $args );
+                break;
+            case 'range':
+                $ret = $renderer->render_range( $args );
+                break;
+            case 'image':
+                $imageArguments = [];
+                foreach ( $args as $name => $value ) {
+                    if ( Validate::validParameters( $name ) ) {
+                        continue;
+                    }
+
+                    $imageArguments[$name] = $value;
+                    Core::addCheckSum( "image", $name, $value );
+                }
+
+                $ret = $renderer->render_image( $args );
+                break;
+            case 'url':
+                $ret = $renderer->render_url( $args );
+                break;
+            case 'tel':
+                // TODO
+                break;
+            case 'option':
+                // TODO
+                break;
+            case 'submit':
+                // TODO
+                break;
+            case 'button':
+                // TODO
+                break;
+            case 'reset':
+                // TODO
+                break;
+            case 'textarea':
+                // TODO
+                break;
+            case 'signature':
+                // TODO
+                break;
+            case 'mobilescreenshot':
+                // TODO
+                break;
+            default:
+                // This should not happen, since the Validate class should have caught it
+                throw new WSFormException( "Invalid field type", 0 );
+        }
 
         if ( $parsePost === true && isset( $parseName ) ) {
             $ret .= '<input type="hidden" name="wsparsepost[]" value="' . $parseName . "\">\n";
@@ -341,12 +457,21 @@ class TagHooks {
      * @throws WSFormException
      */
     public function renderFieldset( $input, array $args, Parser $parser, PPFrame $frame ) {
-        $input = $parser->recursiveTagParse( $input );
+        $input = $parser->recursiveTagParseFully( $input, $frame );
 
-        // TODO
+        foreach ( $args as $name => $value ) {
+            if ( ( strpos( $value, '{' ) !== false ) && ( strpos( $value, "}" ) !== false ) ) {
+                $args[$name] = $parser->recursiveTagParse( $value, $frame );
+            }
+        }
+
+        $output = $this->themeStore
+            ->getFormTheme()
+            ->getFieldsetRenderer()
+            ->render_fieldset( $input, $args );
 
         return [
-            $this->themeStore->getFormTheme()->getFieldsetRenderer()->render_fieldset( $input, $args, $parser, $frame ),
+            $output,
             'markerType' => 'nowiki'
         ];
     }
@@ -363,13 +488,17 @@ class TagHooks {
      * @throws WSFormException
      */
     public function renderLegend( $input, array $args, Parser $parser, PPFrame $frame ) {
-        $class = $args['class'] ?? '';
-        $align = $args['align'] ?? '';
+        $class = $parser->recursiveTagParse( $args['class'], $frame ) ?? '';
+        $align = $parser->recursiveTagParse( $args['align'], $frame ) ?? '';
+        $input = $parser->recursiveTagParse( $input, $frame );
 
-        $input = $parser->recursiveTagParseFully( $input );
+        $output = $this->themeStore
+            ->getFormTheme()
+            ->getLegendRenderer()
+            ->render_legend( $input, $class, $align );
 
         return [
-            $this->themeStore->getFormTheme()->getLegendRenderer()->render_legend( $input, $class, $align ),
+            $output,
             'markerType' => 'nowiki'
         ];
     }
@@ -386,13 +515,14 @@ class TagHooks {
      * @throws WSFormException
      */
     public function renderLabel( $input, array $args, Parser $parser, PPFrame $frame ) {
-        $input = $parser->recursiveTagParseFully( $input, $frame );
-        $label = $this->themeStore
+        $input = $parser->recursiveTagParse( $input, $frame );
+
+        $output = $this->themeStore
             ->getFormTheme()
             ->getLabelRenderer()
             ->render_label( $input );
 
-        return [$label, 'markerType' => 'nowiki'];
+        return [$output, 'markerType' => 'nowiki'];
     }
 
     /**
@@ -408,6 +538,7 @@ class TagHooks {
      */
     public function renderSelect( $input, array $args, Parser $parser, PPFrame $frame ) {
         $selectArguments = [];
+
         foreach ( $args as $name => $value ) {
             if ( !Validate::validParameters( $value ) ) {
                 continue;
@@ -440,23 +571,18 @@ class TagHooks {
      * @param PPFrame $frame MediaWiki pframe
      *
      * @return array with full rendered html for the parser to add
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function renderToken( $input, array $args, Parser $parser, PPFrame $frame ) {
+        // TODO
+
         global $wgOut, $IP, $wgDBname, $wgDBprefix;
 
         if( isset ( $wgDBprefix ) && !empty($wgDBprefix) ) {
             $prefix = '_' . $wgDBprefix;
         } else $prefix = '';
 
-        //$parser->disableCache();
-        //$parser->getOutput()->addModules( 'ext.wsForm.select2.kickstarter' );
         $ret         = '<select data-inputtype="ws-select2"';
         $placeholder = false;
-        $allowtags = false;
-        $onlyone = false;
-        $multiple = false;
 
 
         foreach ( $args as $k => $v ) {
@@ -598,19 +724,25 @@ class TagHooks {
      * @param PPFrame $frame MediaWiki PPFrame
      *
      * @return array send to the MediaWiki Parser
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
+     * @throws WSFormException
      */
     public function renderEdit( $input, array $args, Parser $parser, PPFrame $frame ) {
-        foreach ( $args as $k => $v ) {
-            if ( ( strpos( $v, '{' ) !== false ) && ( strpos( $v, "}" ) !== false ) ) {
-                $args[ $k ] = $parser->recursiveTagParse( $v, $frame );
+        foreach ( $args as $name => $value ) {
+            if ( ( strpos( $value, '{' ) !== false ) && ( strpos( $value, "}" ) !== false ) ) {
+                $args[$name] = $parser->recursiveTagParse( $value, $frame );
             }
         }
 
-        $ret = wsform\edit\render::render_edit( $args );
-        //self::addInlineJavaScriptAndCSS();
-        return array( $ret, 'noparse' => true, "markerType" => 'nowiki' );
+        $output = $this->themeStore
+            ->getFormTheme()
+            ->getEditRenderer()
+            ->render_edit( $args );
+
+        return [
+            $output,
+            'noparse' => true,
+            "markerType" => 'nowiki'
+        ];
     }
 
     /**
@@ -624,18 +756,27 @@ class TagHooks {
      * @param PPFrame $frame MediaWiki PPFrame
      *
      * @return array send to the MediaWiki Parser
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
+     * @throws WSFormException
      */
     public function renderCreate( $input, array $args, Parser $parser, PPFrame $frame ) {
-        foreach ( $args as $k => $v ) {
-            if ( ( strpos( $v, '{' ) !== false ) && ( strpos( $v, "}" ) !== false ) ) {
-                $args[ $k ] = $parser->recursiveTagParse( $v, $frame );
+        foreach ( $args as $name => $value ) {
+            if ( ( strpos( $value, '{' ) !== false ) && ( strpos( $value, "}" ) !== false ) ) {
+                $args[$name] = $parser->recursiveTagParse( $value, $frame );
             }
         }
-        $ret = wsform\create\render::render_create( $args );
-        //self::addInlineJavaScriptAndCSS();
-        return array( $ret, 'noparse' => true, "markerType" => 'nowiki' );
+
+        // TODO
+
+        $output = $this->themeStore
+            ->getFormTheme()
+            ->getCreateRenderer()
+            ->render_create( $args );
+
+        return [
+            $output,
+            'noparse' => true,
+            "markerType" => 'nowiki'
+        ];
 
     }
 
@@ -650,19 +791,72 @@ class TagHooks {
      * @param PPFrame $frame MediaWiki PPFrame
      *
      * @return array send to the MediaWiki Parser or
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
+     * @throws WSFormException
      */
     public function renderEmail( $input, array $args, Parser $parser, PPFrame $frame ) {
-        $args['content'] = base64_encode( $parser->recursiveTagParse( $input, $frame ) );
-        foreach ( $args as $k => $v ) {
-            if ( ( strpos( $v, '{' ) !== false ) && ( strpos( $v, "}" ) !== false ) ) {
-                $args[ $k ] = $parser->recursiveTagParse( $v, $frame );
+        $mailArguments = [];
+
+        foreach ( $args as $name => $value ) {
+            switch ( $name ) {
+                case "to":
+                    $mailArguments["mwmailto"] = $parser->recursiveTagParse( $value, $frame );
+                    break;
+                case "from":
+                    $mailArguments["mwmailfrom"] = $parser->recursiveTagParse( $value, $frame );
+                    break;
+                case "cc":
+                    $mailArguments["mwmailcc"] = $parser->recursiveTagParse( $value, $frame );
+                    break;
+                case "bcc":
+                    $mailArguments["mwmailbcc"] = $parser->recursiveTagParse( $value, $frame );
+                    break;
+                case "replyto":
+                    $mailArguments["mwmailreplyto"] = $parser->recursiveTagParse( $value, $frame );
+                    break;
+                case "subject":
+                    $mailArguments["mwmailsubject"] = $parser->recursiveTagParse( $value, $frame );
+                    break;
+                case "type":
+                    $mailArguments["mwmailtype"] = $parser->recursiveTagParse( $value, $frame );
+                    break;
+                case "content":
+                    $mailArguments["mwmailcontent"] = $parser->recursiveTagParse( $value, $frame );
+                    break;
+                case "job":
+                    $mailArguments["mwmailjob"] = $parser->recursiveTagParse( $value, $frame );
+                    break;
+                case "header":
+                    $mailArguments["mwmailheader"] = $parser->recursiveTagParse( $value, $frame );
+                    break;
+                case "footer":
+                    $mailArguments["mwmailfooter"] = $parser->recursiveTagParse( $value, $frame );
+                    break;
+                case "html":
+                    $mailArguments["mwmailhtml"] = $parser->recursiveTagParse( $value, $frame );
+                    break;
+                case "attachment":
+                    $mailArguments["mwmailattachment"] = $parser->recursiveTagParse( $value, $frame );
+                    break;
+                case "template":
+                    $mailArguments["mwmailtemplate"] = $parser->recursiveTagParse( $value, $frame );
+                    break;
+                case "parselast":
+                    $mailArguments["mwparselast"] = "true";
+                    break;
             }
         }
-        $ret = wsform\mail\render::render_mail( $args );
-        //self::addInlineJavaScriptAndCSS();
-        return array( $ret, 'noparse' => true, "markerType" => 'nowiki' );
+
+        $base64content = base64_encode( $parser->recursiveTagParse( $input, $frame ) );
+        $output = $this->themeStore
+            ->getFormTheme()
+            ->getEmailRenderer()
+            ->render_mail( $mailArguments, $base64content );
+
+        return [
+            $output,
+            'noparse' => true,
+            'markerType' => 'nowiki'
+        ];
     }
 
     /**
@@ -674,10 +868,10 @@ class TagHooks {
      * @param PPFrame $frame MediaWiki PPFrame
      *
      * @return array send to the MediaWiki Parser or
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function renderInstance( $input, array $args, Parser $parser, PPFrame $frame ) {
+        // TODO
+
         global $IP, $wgScript;
         $realUrl = str_replace( '/index.php', '', $wgScript );
 
@@ -685,71 +879,45 @@ class TagHooks {
         // Add move, delete and add button with classes
         $parser->getOutput()->addModuleStyles( 'ext.wsForm.Instance.styles' );
 
-        if( ! \wsform\wsform::isLoaded( 'wsinstance-initiated' ) ) {
-            wsform\wsform::addAsLoaded( 'wsinstance-initiated' );
+        if ( !Core::isLoaded( 'wsinstance-initiated' ) ) {
+            Core::addAsLoaded( 'wsinstance-initiated' );
         }
 
         $output = $parser->recursiveTagParse( $input, $frame );
 
-        if( ! \wsform\wsform::isLoaded( 'wsinstance-initiated' ) ) {
-            wsform\wsform::addAsLoaded( 'wsinstance-initiated' );
+        if ( !Core::isLoaded( 'wsinstance-initiated' ) ) {
+            Core::addAsLoaded( 'wsinstance-initiated' );
         }
 
+        // TODO: This:
         $ret = wsform\instance\render::render_instance( $args, $output );
 
-        wsform\wsform::removeAsLoaded( 'wsinstance-initiated' );
+        Core::removeAsLoaded( 'wsinstance-initiated' );
 
-        if(! wsform\wsform::isLoaded( 'multipleinstance' ) ) {
+        if ( !Core::isLoaded( 'multipleinstance' ) ) {
             if ( file_exists( $IP . '/extensions/WSForm/modules/instances/wsInstance.js' ) ) {
                 $ls =  $realUrl . '/extensions/WSForm/modules/instances/wsInstance.js';
                 $ret = '<script type="text/javascript" charset="UTF-8" src="' . $ls . '"></script>' . $ret ;
-                //wsform\wsform::includeInlineScript( $ls );
-                //$parser->getOutput()->addModules( ['ext.wsForm.instance'] );
-                wsform\wsform::addAsLoaded( 'multipleinstance' );
+
+                Core::addAsLoaded( 'multipleinstance' );
             }
         }
-
-
-
-
 
         return array( $ret, 'noparse' => true, "markerType" => 'nowiki' );
     }
 
     /**
-     * Converts an array of values in form [0] => "name=value" into a real
-     * associative array in form [name] => value. If no = is provided,
-     * true is assumed like this: [name] => true
+     * Helper function to add the currently configured inline JavaScript and CSS to the OutputPage.
      *
-     * @param array $options
-     *
-     * @return array $results
+     * @param bool $parentConfig
      */
-    public function extractOptions( array $options ) {
-        $results = array();
-        foreach ( $options as $option ) {
-            $pair = explode( '=', $option, 2 );
-            if ( count( $pair ) === 2 ) {
-                $name             = trim( $pair[0] );
-                $value            = trim( $pair[1] );
-                $results[ $name ] = $value;
-            }
-
-            if ( count( $pair ) === 1 ) {
-                $name             = trim( $pair[0] );
-                $results[ $name ] = true;
-            }
-        }
-        return $results;
-    }
-
     private function addInlineJavaScriptAndCSS( $parentConfig = false ) {
         $scripts = array_unique( Core::getJavaScriptToBeIncluded() );
         $csss = array_unique( Core::getCSSToBeIncluded() );
         $jsconfigs = Core::getJavaScriptConfigToBeAdded();
         $out = \RequestContext::getMain()->getOutput();
 
-        if( !empty( $scripts ) ) {
+        if ( !empty( $scripts ) ) {
             foreach ( $scripts as $js ) {
                 $out->addInlineScript( $js );
             }
@@ -757,7 +925,7 @@ class TagHooks {
             Core::cleanJavaScriptList();
         }
 
-        if( !empty( $csss ) ) {
+        if ( !empty( $csss ) ) {
             foreach ( $csss as $css ) {
                 $out->addInlineStyle( $css );
             }
@@ -765,7 +933,7 @@ class TagHooks {
             Core::cleanCSSList();
         }
 
-        if( !empty( $jsconfigs ) ) {
+        if ( !empty( $jsconfigs ) ) {
             if( $parentConfig ) {
                 $out->addJsConfigVars( array( $jsconfigs ) );
             } else {

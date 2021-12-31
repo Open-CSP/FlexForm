@@ -5,6 +5,7 @@ namespace WSForm\Render\Themes\WSForm;
 use Parser;
 use PPFrame;
 use ExtensionRegistry;
+use WSForm\Core\Core;
 use WSForm\Core\Validate;
 use WSForm\Render\Themes\FieldRenderer;
 
@@ -12,15 +13,9 @@ class WSFormFieldRenderer implements FieldRenderer {
     /**
      * @inheritDoc
      */
-	public function render_text( string $input, array $args, Parser $parser, PPFrame $frame ): string {
+	public function render_text( array $args ): string {
 		$ret = '<input type="text" ';
 		$ret .= Validate::doSimpleParameters( $args, "text" );
-		foreach ( $args as $k => $v ) {
-			if ( $k == 'mwidentifier' && $v == 'datepicker' ) {
-				$parser->getOutput()->addModules( 'ext.wsForm.datePicker.scripts' );
-				$parser->getOutput()->addModuleStyles( 'ext.wsForm.datePicker.styles' );
-			}
-		}
 		$ret .= ">\n";
 
 		return $ret;
@@ -29,9 +24,9 @@ class WSFormFieldRenderer implements FieldRenderer {
     /**
      * @inheritDoc
      */
-	public function render_hidden( string $input, array $args, Parser $parser, PPFrame $frame ): string {
+	public function render_hidden( array $args ): string {
 		$ret = '<input type="hidden" ';
-		$ret .= validate::doSimpleParameters( $args, "hidden" );
+		$ret .= Validate::doSimpleParameters( $args, "hidden" );
 		$ret .= ">\n";
 
 		return $ret;
@@ -40,12 +35,10 @@ class WSFormFieldRenderer implements FieldRenderer {
     /**
      * @inheritDoc
      */
-	public function render_secure( string $input, array $args, Parser $parser, PPFrame $frame ): string {
-		if( \wsform\wsform::$secure ) {
-			$ret = '<input type="hidden" ';
-			$ret .= validate::doSimpleParameters( $args, "secure" );
-			$ret .= ">\n";
-		} else $ret = wfMessage( 'wsform-field-secure-not-available')->text();
+	public function render_secure( array $args ): string {
+        $ret = '<input type="hidden" ';
+        $ret .= validate::doSimpleParameters( $args, "secure" );
+        $ret .= ">\n";
 
 		return $ret;
 	}
@@ -53,7 +46,7 @@ class WSFormFieldRenderer implements FieldRenderer {
     /**
      * @inheritDoc
      */
-	public function render_search( string $input, array $args, Parser $parser, PPFrame $frame ): string {
+	public function render_search( array $args ): string {
 		$ret = '<input type="search" ';
 		$ret .= validate::doSimpleParameters( $args, "search" );
 		$ret .= ">\n";
@@ -64,7 +57,7 @@ class WSFormFieldRenderer implements FieldRenderer {
     /**
      * @inheritDoc
      */
-	public function render_number( string $input, array $args, Parser $parser, PPFrame $frame ): string {
+	public function render_number( array $args ): string {
 		$ret = '<input type="number" ';
 		$ret .= validate::doSimpleParameters( $args, "number" );
 		$ret .= ">\n";
@@ -75,18 +68,18 @@ class WSFormFieldRenderer implements FieldRenderer {
     /**
      * @inheritDoc
      */
-	public function render_radio( string $input, array $args, Parser $parser, PPFrame $frame ): string {
-		$showOnChecked = false;
+	public function render_radio( array $args, string $showOnChecked = '' ): string {
 		$ret = '<input type="radio" ';
 		$ret .= validate::doRadioParameters( $args );
-		if( isset( $args['show-on-checked'] ) ) {
-			$ret .= 'data-wssos-show="' . $args['show-on-checked'] . '" ';
-			$showOnChecked = true;
+
+		if ( $showOnChecked !== '' ) {
+			$ret .= 'data-wssos-show="' . htmlspecialchars( $showOnChecked ) . '" ';
 		}
+
 		$ret .= ">\n";
 
-		if( $showOnChecked ) {
-			$ret .= wsform::addShowOnSelectJS();
+		if ( $showOnChecked !== '' ) {
+			$ret .= Core::addShowOnSelectJS();
 		}
 
 		return $ret;
@@ -95,7 +88,7 @@ class WSFormFieldRenderer implements FieldRenderer {
     /**
      * @inheritDoc
      */
-	public function render_checkbox( string $input, array $args, Parser $parser, PPFrame $frame ): string {
+	public function render_checkbox( array $args ): string {
 
 		$showOnChecked = false;
 		$showOnUnchecked = false;
@@ -113,7 +106,7 @@ class WSFormFieldRenderer implements FieldRenderer {
 				}
 			}
 			if( $name !== false && $value !== false ) {
-				$ret .= \wsform\wsform::createHiddenField( $name, $value );
+				$ret .= Core::createHiddenField( $name, $value );
 			}
 		}
 		// END default checkbox
@@ -134,7 +127,7 @@ class WSFormFieldRenderer implements FieldRenderer {
 
 
 		if( $showOnChecked || $showOnUnchecked ) {
-			$ret .= wsform::addShowOnSelectJS();
+			$ret .= Core::addShowOnSelectJS();
 		}
 
 		return $ret;
@@ -143,7 +136,9 @@ class WSFormFieldRenderer implements FieldRenderer {
     /**
      * @inheritDoc
      */
-	public function render_file( string $input, array $args, Parser $parser, PPFrame $frame ): string {
+	public function render_file( array $args ): string {
+	    // FIXME: This is terrible
+
 		$slim           = '<div class="';
 		$ret            = '<input type="file" ';
 		$br             = "\n";
@@ -166,7 +161,6 @@ class WSFormFieldRenderer implements FieldRenderer {
 		foreach ( $args as $k => $v ) {
 			if ( validate::validParameters( $k ) || validate::validFileParameters( $k ) ) {
 				// going through specific extra's.
-				$v = $parser->recursiveTagParse( $v, $frame );
 				switch ( $k ) {
 					case "presentor":
 						$presentor = $v;
@@ -278,7 +272,7 @@ class WSFormFieldRenderer implements FieldRenderer {
 			$jsChange = $onChangeScript . "\n";
 			//$ret .= "<script>\n" . $onChangeScript . "\n";
 			$jsChange .= "\n" . "wachtff(WSFile".$random.");\n";
-			wsform::includeInlineScript( $jsChange );
+			Core::includeInlineScript( $jsChange );
 			//$ret     .= '<script>$( document ).ready(function() { $("#' . $random . '").on("change", function(){ wsfiles( "' . $id . '", "' . $verbose_id . '", "' . $error_id . '", "' . $use_label . '", "' . $verbose_custom . '", "' . $error_custom . '");});});</script>';
 			$css     = file_get_contents( "$IP/extensions/WSForm/WSForm_upload.css" );
 			$replace = array(
@@ -293,13 +287,13 @@ class WSFormFieldRenderer implements FieldRenderer {
 				'',
 				''
 			); //wsfiles( "file-upload2", "hiddendiv2", "error_file-upload2", "", "yes", "none");
-			$css     = str_replace( $replace, $with, $css );
-			wsform::includeInlineCSS( $css );
+			$css = str_replace( $replace, $with, $css );
+			Core::includeInlineCSS( $css );
 			//$ret     .= $css;
-			if(! \wsform\wsform::isLoaded( 'WSFORM_upload.js' ) ) {
-				\wsform\wsform::addAsLoaded( 'WSFORM_upload.js' );
+			if ( !Core::isLoaded( 'WSFORM_upload.js' ) ) {
+				Core::addAsLoaded( 'WSFORM_upload.js' );
 				$js = file_get_contents( "$IP/extensions/WSForm/WSForm_upload.js" );
-				wsform::includeInlineScript( $js );
+				Core::includeInlineScript( $js );
 			} else $js = '';
 			// As of MW 1.35+ we get errors here. It's replacing spaces with &#160; So now we put the js in the header
 			//echo "\n<script>" . $js . "</script>";
@@ -310,16 +304,20 @@ class WSFormFieldRenderer implements FieldRenderer {
 			$wsFileScript .= "}\n";
 			//$ret .= '<script>'. "\n".'wsfiles( "' . $id . '", "' . $verbose_id . '", "' . $error_id . '", "' . $use_label . '");</script>';
 
-			wsform::includeInlineScript( "\n" . $wsFileScript . "\n" . 'wachtff(wsfilesFunc'. $random .');' );
+			Core::includeInlineScript( "\n" . $wsFileScript . "\n" . 'wachtff(wsfilesFunc'. $random .');' );
 		} elseif ( $presentor == "slim" ) {
+		    /*
 			if ( $slim_image !== false ) {
 				$slim_image = '<img src="' . $slim_image . '">';
 			} else {
 				$slim_image = "";
 			}
 			$ret = $slim . $ret . $slim_image . "</div>$br";
+
+			// TODO: Move this logic to the caller
 			$parser->getOutput()->addModuleStyles( 'ext.wsForm.slim.styles' );
 			$parser->getOutput()->addModules( 'ext.wsForm.slim.scripts' );
+		    */
 		}
 
 
@@ -329,7 +327,7 @@ class WSFormFieldRenderer implements FieldRenderer {
     /**
      * @inheritDoc
      */
-	public function render_date( string $input, array $args, Parser $parser, PPFrame $frame ): string {
+	public function render_date( array $args ): string {
 		$ret = '<input type="date" ';
 		$ret .= validate::doSimpleParameters( $args, "date" );
 		$ret .= ">\n";
@@ -340,7 +338,7 @@ class WSFormFieldRenderer implements FieldRenderer {
     /**
      * @inheritDoc
      */
-	public function render_month( string $input, array $args, Parser $parser, PPFrame $frame ): string {
+	public function render_month( array $args ): string {
 		$ret = '<input type="month" ';
 		$ret .= validate::doSimpleParameters( $args, "month" );
 		$ret .= ">\n";
@@ -351,7 +349,7 @@ class WSFormFieldRenderer implements FieldRenderer {
     /**
      * @inheritDoc
      */
-	public function render_week( string $input, array $args, Parser $parser, PPFrame $frame ): string {
+	public function render_week( array $args ): string {
 		$ret = '<input type="week" ';
 		$ret .= validate::doSimpleParameters( $args, "week" );
 		$ret .= ">\n";
@@ -362,7 +360,7 @@ class WSFormFieldRenderer implements FieldRenderer {
     /**
      * @inheritDoc
      */
-	public function render_time( string $input, array $args, Parser $parser, PPFrame $frame ): string {
+	public function render_time( array $args ): string {
 		$ret = '<input type="time" ';
 		$ret .= validate::doSimpleParameters( $args, "time" );
 		$ret .= ">\n";
@@ -373,7 +371,7 @@ class WSFormFieldRenderer implements FieldRenderer {
     /**
      * @inheritDoc
      */
-	public function render_datetime( string $input, array $args, Parser $parser, PPFrame $frame ): string {
+	public function render_datetime( array $args ): string {
 		$ret = '<input type="datetime" ';
 		$ret .= validate::doSimpleParameters( $args, "datetime" );
 		$ret .= ">\n";
@@ -384,7 +382,7 @@ class WSFormFieldRenderer implements FieldRenderer {
     /**
      * @inheritDoc
      */
-	public function render_datetimelocal( string $input, array $args, Parser $parser, PPFrame $frame ): string {
+	public function render_datetimelocal( array $args ): string {
 		$ret = '<input type="datetime-local" ';
 		$ret .= validate::doSimpleParameters( $args, "datetimelocal" );
 		$ret .= ">\n";
@@ -395,7 +393,7 @@ class WSFormFieldRenderer implements FieldRenderer {
     /**
      * @inheritDoc
      */
-	public function render_password( string $input, array $args, Parser $parser, PPFrame $frame ): string {
+	public function render_password( array $args ): string {
 		$ret = '<input type="password" ';
 		$ret .= validate::doSimpleParameters( $args, "password" );
 		$ret .= ">\n";
@@ -406,7 +404,7 @@ class WSFormFieldRenderer implements FieldRenderer {
     /**
      * @inheritDoc
      */
-	public function render_email( string $input, array $args, Parser $parser, PPFrame $frame ): string {
+	public function render_email( array $args ): string {
 		$ret = '<input type="email" ';
 		$ret .= validate::doSimpleParameters( $args, "email" );
 		$ret .= ">\n";
@@ -417,7 +415,7 @@ class WSFormFieldRenderer implements FieldRenderer {
     /**
      * @inheritDoc
      */
-	public function render_color( string $input, array $args, Parser $parser, PPFrame $frame ): string {
+	public function render_color( array $args ): string {
 		$ret = '<input type="color" ';
 		$ret .= validate::doSimpleParameters( $args, "color" );
 		$ret .= ">\n";
@@ -428,7 +426,7 @@ class WSFormFieldRenderer implements FieldRenderer {
     /**
      * @inheritDoc
      */
-	public function render_range( string $input, array $args, Parser $parser, PPFrame $frame ): string {
+	public function render_range( array $args ): string {
 		$ret = '<input type="range" ';
 		$ret .= validate::doSimpleParameters( $args, "range" );
 		$ret .= ">\n";
@@ -439,14 +437,13 @@ class WSFormFieldRenderer implements FieldRenderer {
     /**
      * @inheritDoc
      */
-	public function render_image( string $input, array $args, Parser $parser, PPFrame $frame ): string {
+	public function render_image( array $args ): string {
 		$ret = '<input type="image" ';
-		foreach ( $args as $k => $v ) {
-			if ( validate::validParameters( $k ) ) {
-				$ret .= $k . '="' . $v . '" ';
-				\wsform\wsform::addCheckSum( "image", $k, $v );
-			}
+
+		foreach ( $args as $name => $value ) {
+            $ret .= htmlspecialchars( $name ) . '="' . htmlspecialchars( $value ) . '" ';
 		}
+
 		$ret .= ">\n";
 
 		return $ret;
@@ -455,7 +452,7 @@ class WSFormFieldRenderer implements FieldRenderer {
     /**
      * @inheritDoc
      */
-	public function render_url( string $input, array $args, Parser $parser, PPFrame $frame ): string {
+	public function render_url( array $args ): string {
 		$ret = '<input type="url" ';
 		$ret .= validate::doSimpleParameters( $args, "url" );
 		$ret .= ">\n";

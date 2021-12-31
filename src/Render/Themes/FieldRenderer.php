@@ -14,242 +14,183 @@ interface FieldRenderer {
     /**
      * @brief Render text input field
      *
-     * @param string $input Input for the field (should be parsed)
      * @param array $args Arguments for the field (should be parsed)
-     * @param Parser $parser MediaWiki parser
-     * @param PPFrame $frame Current PPFrame
      *
      * @return string Rendered HTML
      */
-    public function render_text( string $input, array $args, Parser $parser, PPFrame $frame ): string;
+    public function render_text( array $args ): string;
 
     /**
      * @brief Render hidden input field
      *
-     * @param string $input Input for the field (should be parsed)
-     * @param array $args Arguments for the field (should be parsed)
-     * @param Parser $parser MediaWiki parser
-     * @param PPFrame $frame Current PPFrame
+     * @param array $args Arguments for the field
      *
      * @return string Rendered HTML
      */
-    public function render_hidden( string $input, array $args, Parser $parser, PPFrame $frame ): string;
+    public function render_hidden( array $args ): string;
 
     /**
      * @brief Render hidden input field
      *
-     * @param string $input Input for the field (should be parsed)
-     * @param array $args Arguments for the field (should be parsed)
-     * @param Parser $parser MediaWiki parser
-     * @param PPFrame $frame Current PPFrame
+     * @param array $args Arguments for the field
      *
      * @return string Rendered HTML
      */
-    public function render_secure( string $input, array $args, Parser $parser, PPFrame $frame ): string;
+    public function render_secure( array $args ): string;
 
     /**
      * @brief Render search input field
      *
-     * @param string $input Input for the field (should be parsed)
-     * @param array $args Arguments for the field (should be parsed)
-     * @param Parser $parser MediaWiki parser
-     * @param PPFrame $frame Current PPFrame
+     * @param array $args Arguments for the field
      *
      * @return string Rendered HTML
      */
-    public function render_search( string $input, array $args, Parser $parser, PPFrame $frame ): string;
+    public function render_search( array $args ): string;
 
     /**
      * @brief Render number input field
      *
-     * @param string $input Input for the field (should be parsed)
-     * @param array $args Arguments for the field (should be parsed)
-     * @param Parser $parser MediaWiki parser
-     * @param PPFrame $frame Current PPFrame
+     * @param array $args Arguments for the field
      *
      * @return string Rendered HTML
      */
-    public function render_number( string $input, array $args, Parser $parser, PPFrame $frame ): string;
+    public function render_number( array $args ): string;
 
     /**
      * @brief Render radio input field
      *
-     * @param string $input Input for the field (should be parsed)
-     * @param array $args Arguments for the field (should be parsed)
-     * @param Parser $parser MediaWiki parser
-     * @param PPFrame $frame Current PPFrame
+     * @param array $args Arguments for the field
+     * @param string $showOnChecked
      *
      * @return string Rendered HTML
      */
-    public function render_radio( string $input, array $args, Parser $parser, PPFrame $frame ): string;
+    public function render_radio( array $args, string $showOnChecked = '' ): string;
 
     /**
      * @brief Render checkbox input field
      *
-     * @param string $input Input for the field (should be parsed)
-     * @param array $args Arguments for the field (should be parsed)
-     * @param Parser $parser MediaWiki parser
-     * @param PPFrame $frame Current PPFrame
+     * @param array $args Arguments for the field
      *
      * @return string Rendered HTML
      */
-    public function render_checkbox( string $input, array $args, Parser $parser, PPFrame $frame ): string;
+    public function render_checkbox( array $args ): string;
 
     /**
      * @brief Render file input field
      *
-     * @param string $input Input for the field (should be parsed)
-     * @param array $args Arguments for the field (should be parsed)
-     * @param Parser $parser MediaWiki parser
-     * @param PPFrame $frame Current PPFrame
+     * @param array $args Arguments for the field
      *
      * @return string Rendered HTML
      */
-    public function render_file( string $input, array $args, Parser $parser, PPFrame $frame ): string;
+    public function render_file( array $args ): string;
 
     /**
      * @brief Render date input field
      *
-     * @param string $input Input for the field (should be parsed)
-     * @param array $args Arguments for the field (should be parsed)
-     * @param Parser $parser MediaWiki parser
-     * @param PPFrame $frame Current PPFrame
+     * @param array $args Arguments for the field
      *
      * @return string Rendered HTML
      */
-    public function render_date( string $input, array $args, Parser $parser, PPFrame $frame ): string;
+    public function render_date( array $args ): string;
 
     /**
      * @brief Render month input field
      *
-     * @param string $input Input for the field (should be parsed)
-     * @param array $args Arguments for the field (should be parsed)
-     * @param Parser $parser MediaWiki parser
-     * @param PPFrame $frame Current PPFrame
+     * @param array $args Arguments for the field
      *
      * @return string Rendered HTML
      */
-    public function render_month( string $input, array $args, Parser $parser, PPFrame $frame ): string;
+    public function render_month(array $args ): string;
 
     /**
      * @brief Render week input field
      *
-     * @param string $input Input for the field (should be parsed)
-     * @param array $args Arguments for the field (should be parsed)
-     * @param Parser $parser MediaWiki parser
-     * @param PPFrame $frame Current PPFrame
+     * @param array $args Arguments for the field
      *
      * @return string Rendered HTML
      */
-    public function render_week( string $input, array $args, Parser $parser, PPFrame $frame ): string;
+    public function render_week( array $args ): string;
 
     /**
      * @brief Render time input field
      *
-     * @param string $input Input for the field (should be parsed)
-     * @param array $args Arguments for the field (should be parsed)
-     * @param Parser $parser MediaWiki parser
-     * @param PPFrame $frame Current PPFrame
+     * @param array $args Arguments for the field
      *
      * @return string Rendered HTML
      */
-    public function render_time( string $input, array $args, Parser $parser, PPFrame $frame ): string;
+    public function render_time( array $args ): string;
 
     /**
      * @brief Render DateTime input field
      *
-     * @param string $input Input for the field (should be parsed)
-     * @param array $args Arguments for the field (should be parsed)
-     * @param Parser $parser MediaWiki parser
-     * @param PPFrame $frame Current PPFrame
+     * @param array $args Arguments for the field
      *
      * @return string Rendered HTML
      */
-    public function render_datetime( string $input, array $args, Parser $parser, PPFrame $frame ): string;
+    public function render_datetime( array $args ): string;
 
     /**
      * @brief Render local DateTime input field
      *
-     * @param string $input Input for the field (should be parsed)
-     * @param array $args Arguments for the field (should be parsed)
-     * @param Parser $parser MediaWiki parser
-     * @param PPFrame $frame Current PPFrame
+     * @param array $args Arguments for the field
      *
      * @return string Rendered HTML
      */
-    public function render_datetimelocal( string $input, array $args, Parser $parser, PPFrame $frame ): string;
+    public function render_datetimelocal( array $args ): string;
 
     /**
      * @brief Render password input field
      *
-     * @param string $input Input for the field (should be parsed)
-     * @param array $args Arguments for the field (should be parsed)
-     * @param Parser $parser MediaWiki parser
-     * @param PPFrame $frame Current PPFrame
+     * @param array $args Arguments for the field
      *
      * @return string Rendered HTML
      */
-    public function render_password( string $input, array $args, Parser $parser, PPFrame $frame ): string;
+    public function render_password( array $args ): string;
 
     /**
      * @brief Render email input field
      *
-     * @param string $input Input for the field (should be parsed)
-     * @param array $args Arguments for the field (should be parsed)
-     * @param Parser $parser MediaWiki parser
-     * @param PPFrame $frame Current PPFrame
+     * @param array $args Arguments for the field
      *
      * @return string Rendered HTML
      */
-    public function render_email( string $input, array $args, Parser $parser, PPFrame $frame ): string;
+    public function render_email( array $args ): string;
 
     /**
      * @brief Render color input field
      *
-     * @param string $input Input for the field (should be parsed)
      * @param array $args Arguments for the field (should be parsed)
-     * @param Parser $parser MediaWiki parser
-     * @param PPFrame $frame Current PPFrame
      *
      * @return string Rendered HTML
      */
-    public function render_color( string $input, array $args, Parser $parser, PPFrame $frame ): string;
+    public function render_color( array $args ): string;
 
     /**
      * @brief Render range input field
      *
-     * @param string $input Input for the field (should be parsed)
-     * @param array $args Arguments for the field (should be parsed)
-     * @param Parser $parser MediaWiki parser
-     * @param PPFrame $frame Current PPFrame
+     * @param array $args Arguments for the field
      *
      * @return string Rendered HTML
      */
-    public function render_range( string $input, array $args, Parser $parser, PPFrame $frame ): string;
+    public function render_range( array $args ): string;
 
     /**
      * @brief Render image input field
      *
-     * @param string $input Input for the field (should be parsed)
-     * @param array $args Arguments for the field (should be parsed)
-     * @param Parser $parser MediaWiki parser
-     * @param PPFrame $frame Current PPFrame
+     * @param array $args Arguments for the field
      *
      * @return string Rendered HTML
      */
-    public function render_image( string $input, array $args, Parser $parser, PPFrame $frame ): string;
+    public function render_image( array $args ): string;
 
     /**
      * @brief Render URL input field
      *
-     * @param string $input Input for the field (should be parsed)
-     * @param array $args Arguments for the field (should be parsed)
-     * @param Parser $parser MediaWiki parser
-     * @param PPFrame $frame Current PPFrame
+     * @param array $args Arguments for the field
      *
      * @return string Rendered HTML
      */
-    public function render_url( string $input, array $args, Parser $parser, PPFrame $frame ): string;
+    public function render_url( array $args ): string;
 
     /**
      * @brief Render telephone number input field

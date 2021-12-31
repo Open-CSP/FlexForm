@@ -9,6 +9,6 @@ class WSFormLabelRenderer implements LabelRenderer {
      * @inheritDoc
      */
     public function render_label( string $input ): string {
-        return '<label>' . $input . '</label>';
+        return '<label>' . htmlspecialchars( $input ) . '</label>';
     }
 }

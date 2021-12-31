@@ -2,16 +2,15 @@
 
 namespace WSForm\Render\Themes\WSForm;
 
-use Parser;
-use PPFrame;
 use WSForm\Render\Themes\EditRenderer;
 
 class WSFormEditRenderer implements EditRenderer {
     /**
      * @inheritDoc
      */
-    public function render_edit( string $input, array $args, Parser $parser, PPFrame $frame ): string {
-		$wsSlot = false;
+    public function render_edit( array $args ): string {
+        $args = array_map( "htmlspecialchars", $args );
+
         $def = '<input type="hidden" name="mwedit[]" value="';
         $div = '-^^-';
         if ( isset( $args['target'] ) && $args['target'] != "" ) {

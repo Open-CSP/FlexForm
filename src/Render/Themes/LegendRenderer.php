@@ -20,5 +20,5 @@ interface LegendRenderer {
      *
      * @return string Rendered HTML
      */
-    public function render_legend( string $input, string $class = '', string $align = ''  ): string;
+    public function render_legend( string $input, string $class, string $align ): string;
 }
