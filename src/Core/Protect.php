@@ -24,7 +24,8 @@ class Protect {
 	/**
 	 * @throws WSFormException
 	 */
-	public static function setCrypt( $key = false, $method = false ) {
+	public static function setCrypt( $method = false ) {
+		$key = Config::getConfigVariable('sec_key') ?? false;
 		if( !$key ) {
 			$key = php_uname(); // default encryption key if none supplied
 		}

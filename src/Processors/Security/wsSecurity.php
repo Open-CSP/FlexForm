@@ -10,6 +10,7 @@
 
 namespace WSForm\Processors\Security;
 
+use WSForm\Core\Config;
 use WSForm\Core\Protect;
 use WSForm\Core\HandleResponse;
 use WSForm\Processors\Utilities\General;
@@ -37,53 +38,55 @@ class wsSecurity {
 	/**
 	 * Return decrypted form value and parameters to their original state
 	 *
-	 * @param string $checkSumKey
-	 *
-	 * @return bool
+	 * @return true
+	 * @throws WSFormException
 	 */
-	public static function resolvePosts( string $checkSumKey ) : bool {
+	public static function resolvePosts() : bool {
+		//$checkSumKey = Config::getConfigVariable( 'sec_key') === null ? false : Config::getConfigVariable( 'sec_key');
 		$crypt = new Protect();
 		try {
-			$crypt::setCrypt( $checkSumKey );
+			$crypt::setCrypt();
 		} catch( WSFormException $exception ) {
-			//HandleResponse::setReturnData( $exception->getMessage() );
-			//HandleResponse::setReturnStatus("error" );
-			throw new WSFormException( $exception->getMessage(), 1 );
+			throw new WSFormException( $exception->getMessage(), 0, $exception );
 		}
 		$checksum = false;
 		$formId   = General::getPostString( 'formid' );
 		if ( $formId !== false ) {
 			unset( $_POST['formid'] );
 		}
-		foreach ( $_POST as $k => $v ) {
-			if ( $crypt::decrypt( $k ) === 'checksum' ) {
-				$checksum = unserialize( $crypt::decrypt( $v ) );
-				unset( $_POST[$k] );
+		try {
+			foreach ( $_POST as $k => $v ) {
+				if ( $crypt::decrypt( $k ) === 'checksum' ) {
+					$checksum = unserialize( $crypt::decrypt( $v ) );
+					unset( $_POST[ $k ] );
+				}
 			}
+		} catch( WSFormException $exception ) {
+			throw new WSFormException( $exception->getMessage(), 0, $exception );
 		}
 		if ( $checksum === false && $formId !== false ) {
-			throw new WSFormException( wfMessage( 'wsform-secure-not' ), 1 );
+			throw new WSFormException( wfMessage( 'wsform-secure-not' ) );
 
 		}
 		if ( isset( $checksum[$formId]['secure'] ) ) {
 			foreach ( $checksum[$formId]['secure'] as $secure ) {
-				$tmpName = wsUtilities::getPostString(
+				$tmpName = General::getPostString(
 					$secure['name'],
 					false
 				);
 				if ( $tmpName !== false ) {
-					$newK  = $crypt::decrypt( $secure['name'] );
-					$newV  = $crypt::decrypt( $tmpName );
+					try {
+						$newK = $crypt::decrypt( $secure['name'] );
+						$newV = $crypt::decrypt( $tmpName );
+					} catch( WSFormException $exception ) {
+						throw new WSFormException( $exception->getMessage(), 0, $exception );
+					}
 					$delMe = $secure['name'];
 					unset( $_POST[$delMe] );
 					self::$removeList[] = $newK;
 					$_POST[$newK]       = $newV;
 				} else {
-					$messages->setReturnData( $i18n->wsMessage( 'wsform-secure-fields-incomplete' ) );
-					$messages->setReturnStatus( 'error' );
-
-					//$responses->doDie( $i18n->wsMessage( 'wsform-secure-fields-incomplete' ) );
-					return false;
+					throw new WSFormException( wfMessage( 'wsform-secure-fields-incomplete' ) );
 				}
 			}
 		}

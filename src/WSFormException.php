@@ -10,9 +10,11 @@
 
 namespace WSForm;
 
+use Exception;
+
 class WSFormException extends \Exception {
 
-	public function __construct( $msg, $val, Exception $old = null ){
+	public function __construct( $msg, $val = 0, Exception $old = null ){
 		parent::__construct( $msg, $val, $old );
 	}
 

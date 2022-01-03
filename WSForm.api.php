@@ -24,6 +24,7 @@ use PHPMailer\PHPMailer\SMTP;
 use WSForm\Core\HandleResponse;
 use WSForm\Core\Config;
 use WSForm\Processors\Request\External;
+use WSForm\Processors\Security\wsSecurity;
 use WSForm\Processors\Utilities\General;
 use WSForm\WSFormException;
 
@@ -60,16 +61,31 @@ $responseHandler->setMwReturn( General::getPostString( "mwreturn" ) );
 
 try {
 	Config::setConfigFromMW();
+
+	if( Config::isDebug() ) {
+		ERROR_REPORTING(E_ALL);
+		ini_set('display_errors', 1);
+		wsDebug::addToDebug( '$_POST before checks', $_POST );
+	}
+
+	$securityResult = wsSecurity::resolvePosts();
 } catch ( WSFormException $e ){
 	$responseHandler->setReturnData( $e->getMessage() );
 	$responseHandler->setReturnStatus( 'error' );
 };
 
+if( $responseHandler->getReturnStatus() === "error" ) {
+	try {
+		$responseHandler->exitResponse();
+	} catch
+
+}
+
 //********* START Handle functions that need no further actions
 $actionGet = General::getGetString( 'action' );
 
 
-/* Will be done later
+/* TODO: Will be added later
 // Handle get requests
 if ( $actionGet !== false ) {
 	try {
@@ -96,18 +112,12 @@ if ( $actionGet !== false ) {
 */
 $title = "";
 
-include_once('WSForm.api.include.php');
-$api = new wbApi();
+//include_once('WSForm.api.include.php');
+//$api = new wbApi();
 
 
-if( Config::isDebug() ) {
-	ERROR_REPORTING(E_ALL);
-	ini_set('display_errors', 1);
-	wsDebug::addToDebug( '$_POST before checks', $_POST );
-}
 
-$securedVersion = $api->isSecure();
-
+/* TODO: Add later
 if(isset( $_GET['action']) && $_GET['action'] === 'renderWiki' ) {
     $ret = renderWiki();
     header('Content-Type: application/json');
@@ -175,15 +185,15 @@ if( isset( $_GET['action'] ) && $_GET['action'] === 'handleQuery' ) {
 	echo $ret;
 	exit;
 }
+*/
 // Setup messages and responses
 
-$identifier         = getPostString( 'mwidentifier' );
-$messages           = new wbHandleResponses( $identifier );
+$pauseBeforeRefresh = General::getPostString( 'mwpause' );
 
-if( $securedVersion ) {
-	require_once( 'classes/protect.class.php' );
-	$crypt = new wsform\protect\protect();
-	$crypt::setCrypt( $api->getCheckSumKey() );
+
+if( Config::isSecure() ) {
+	$crypt = new \WSForm\Core\Protect();
+	$crypt::setCrypt();
 	$checksum = false;
 	$showOnSelect = false;
 	$formId = getPostString('formid' );
