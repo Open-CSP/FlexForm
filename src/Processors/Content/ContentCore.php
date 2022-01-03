@@ -142,7 +142,7 @@ class ContentCore {
 	/**
 	 * @return int
 	 */
-	private static function createRandom(): int {
+	public static function createRandom(): int {
 		return time();
 	}
 
@@ -171,5 +171,51 @@ class ContentCore {
 		}
 		return $title;
 	}
+
+	public static function getNextAvailable( $nameStartsWith ){
+		$render   = new Render();
+		$postdata = [
+			"action"          => "wsform",
+			"format"          => "json",
+			"what"            => "nextAvailable",
+			"titleStartsWith" => $nameStartsWith
+		];
+		$result = $render->makeRequest( $postdata );
+		if( isset( $result['received']['wsform']['error'] ) ) {
+			return(array('status' => 'error', 'message' => $result['received']['wsform']['error']['message']));
+		} elseif ( isset( $result['received']['error'] ) ) {
+			return(array('status' => 'error', 'message' => $result['received']['error']['code'] . ': ' .
+														   $result['received']['error']['info'] ) );
+		} else {
+			return(array('status' => 'ok', 'result' => $result['received']['wsform']['result']));
+		}
+		die();
+	}
+
+	/**
+	 * @param $nameStartsWith
+	 * @param $range
+	 *
+	 * @return array
+	 */
+	public static function getFromRange( $nameStartsWith, $range ){
+		$postdata = [
+			 "action" => "wsform",
+			 "format" => "json",
+			 "what" => "getRange",
+			 "titleStartsWith" => $nameStartsWith,
+			 "range" => $range
+		 ];
+		$render = new Render();
+		$result = $render->makeRequest( $postdata );
+
+		if( isset( $result['received']['wsform']['error'] ) ) {
+			return(array('status' => 'error', 'message' => $result['received']['wsform']['error']['message']));
+		} else {
+			return(array('status' => 'ok', 'result' => $result['received']['wsform']['result']));
+		}
+		die();
+	}
+
 
 }
