@@ -3,8 +3,10 @@
 namespace WSForm\Render;
 
 use Elasticsearch\Endpoints\Exists;
+use MediaWiki\Revision\RevisionRecord;
 use Parser;
 use PPFrame;
+use RequestContext;
 use WSForm\Core\Core;
 use WSForm\Core\Protect;
 use WSForm\Core\Validate;
@@ -356,11 +358,21 @@ class TagHooks {
                 $ret = $renderer->render_radio( $args, $args['show-on-checked'] ?? '' );
                 break;
             case 'checkbox':
-                // TODO: Move most of the render_checkbox logic to here
-                $ret = $renderer->render_checkbox( $args );
+                $default = $args['default'] ?? '';
+                $defaultName = isset( $args['name'] ) && $args['name'] !== '' ?
+                    sprintf( 'wsdefault_%s', $args['name'] ) : '';
+
+                $ret = $renderer->render_checkbox(
+                    $args,
+                    $args['show-on-checked'] ?? '',
+                    $args['show-on-unchecked'] ?? '',
+                    $default,
+                    $defaultName
+                );
                 break;
             case 'file':
                 // TODO: Move most of the render_file logic to here
+                // TODO: Can you do this @Charlot?
                 $ret = $renderer->render_file( $args );
                 break;
             case 'date':
@@ -395,6 +407,7 @@ class TagHooks {
                 break;
             case 'image':
                 $imageArguments = [];
+
                 foreach ( $args as $name => $value ) {
                     if ( Validate::validParameters( $name ) ) {
                         continue;
@@ -410,10 +423,10 @@ class TagHooks {
                 $ret = $renderer->render_url( $args );
                 break;
             case 'tel':
-                // TODO
+                $ret = $renderer->render_tel( $args );
                 break;
             case 'option':
-                // TODO
+
                 break;
             case 'submit':
                 // TODO
@@ -571,146 +584,123 @@ class TagHooks {
      * @param PPFrame $frame MediaWiki pframe
      *
      * @return array with full rendered html for the parser to add
+     * @throws WSFormException
      */
     public function renderToken( $input, array $args, Parser $parser, PPFrame $frame ) {
-        // TODO
+        global $wgDBname, $wgDBprefix;
 
-        global $wgOut, $IP, $wgDBname, $wgDBprefix;
+        $parsedInput = $parser->recursiveTagParseFully( $input, $frame );
+        $mwDB = $wgDBname . isset ( $wgDBprefix ) && !empty( $wgDBprefix ) ? '_' . $wgDBprefix : '';
 
-        if( isset ( $wgDBprefix ) && !empty($wgDBprefix) ) {
-            $prefix = '_' . $wgDBprefix;
-        } else $prefix = '';
-
-        $ret         = '<select data-inputtype="ws-select2"';
-        $placeholder = false;
-
-
-        foreach ( $args as $k => $v ) {
-            if ( wsform\validate\validate::validParameters( $k ) ) {
-                if ( $k == 'placeholder' ) {
-                    $placeholder = $parser->recursiveTagParse( $v, $frame );
-                } elseif( strtolower( $k ) === "multiple") {
-                    $multiple = $parser->recursiveTagParse( $v, $frame );
-                    if ( $multiple === "multiple" ) {
-                        $ret .= 'multiple="multiple" ';
-                    }
-                } elseif( strtolower( $k ) === 'id' &&  \wsform\wsform::isLoaded( 'wsinstance-initiated' ) ) {
-                    $ret .= 'data-wsselect2id="' . $v . '"';
-                } else {
-                    $ret .= $k . '="' . $parser->recursiveTagParse( $v, $frame ) . '" ';
-                }
-            }
-        }
-
-        $output = $parser->recursiveTagParse( $input );
-        $id   = $parser->recursiveTagParse( $args['id'], $frame );
-
-        $ret    .= '>';
-        if( $placeholder !== false ){
-            $ret .= '<option></option>';
-        }
-        $ret .= $output . '</select>' . "\n";
-        $out    = "";
-        if ( ! \wsform\wsform::isLoaded( 'wsinstance-initiated' ) ){
-            $out    .= '<input type="hidden" id="select2options-' . $id . '" value="';
+        if ( isset( $args['placeholder'] ) ) {
+            $placeholder = $parser->recursiveTagParse( $args['placeholder'], $frame );
+            unset( $args['placeholder'] );
         } else {
-            $out    .= '<input type="hidden" data-wsselect2options="select2options-' . $id . '" value="';
+            $placeholder = null;
         }
 
-        if( isset( $args['input-length-trigger'] ) && $args['input-length-trigger' !== '' ] ) {
-            $iLength = trim( $args['input-length-trigger'] );
-        } else $iLength = 3;
+        if ( isset( $args['multiple'] ) ) {
+            $multiple = $parser->recursiveTagParse( $args['multiple'], $frame );
+            unset( $args['multiple'] );
+        } else {
+            $multiple = null;
+        }
 
-        if ( isset( $args['json'] ) && isset( $args['id'] ) ) {
-            if ( strpos( $args['json'], 'semantic_ask' ) ) {
-                $json = $args['json'];
-            } else {
-                $json = $parser->recursiveTagParse( $args['json'], $frame );
+        if ( isset( $args['id'] ) ) {
+            $id = $parser->recursiveTagParse( $args['id'], $frame );
+
+            // Make sure ID is valid
+            if ( !preg_match( '/^[a-zA-Z0-9_]+$/', $id ) ) {
+                return ['Invalid ID as it does not match pattern [a-zA-Z0-9_]+', 'noparse' => true];
             }
-            $out .= "var jsonDecoded = decodeURIComponent( '" . urlencode( $json ) . "' );\n";
+
+            unset( $args['id'] );
+        } else {
+            return ['Missing ID.', 'noparse' => true];
         }
 
-
-        $out .= "$('#" . $id . "').select2({";
-
-        $callb = '';
-
-        $mwdb = $wgDBname . $prefix;
-
-        if ( $placeholder !== false ) {
-            $out .= "placeholder: '" . $placeholder . "',";
+        if ( isset( $args['input-length-trigger'] ) ) {
+            $inputLengthTrigger = $parser->recursiveTagParse( $args['input-length-trigger'], $frame );
+            $inputLengthTrigger = intval( trim( $inputLengthTrigger ) );
+            unset( $args['input-length-trigger'] );
+        } else {
+            $inputLengthTrigger = 3;
         }
 
-        if ( isset( $args['json'] ) && isset( $args['id'] ) ) {
+        if ( isset( $args['json'] ) ) {
+            $json = strpos( $args['json'], 'semantic_ask' ) ?
+                $args['json'] : $parser->recursiveTagParse( $args['json'], $frame );
+            unset( $json['json'] );
+        } else {
+            $json = null;
+        }
 
-            $out .= "\ntemplateResult: testSelect2Callback,\n";
-            $out .= "\nescapeMarkup: function (markup) { return markup; },\n";
-            $out .= "\nminimumInputLength: $iLength,\n";
-            $out .= "\najax: { url: jsonDecoded, delay:500, dataType: 'json',"."\n";
-            $out .= "\ndata: function (params) { var queryParameters = { q: params.term, mwdb: '".$mwdb."' }\n";
-            $out .= "\nreturn queryParameters; }}";
-            $callb= '';
-            if ( isset( $args['callback'] ) ) {
-                if ( isset( $args['template'] ) ) {
-                    $templ = ", '" . $args['template'] . "'";
-                } else $templ = '';
-                $cb  = $parser->recursiveTagParse( $args['callback'], $frame );
-                $callb = "$('#" . $id . "').on('select2:select', function(e) { " . $cb . "('" . $id . "'" . $templ . ")});\n";
-                $callb .= "$('#" . $id . "').on('select2:unselect', function(e) { " . $cb . "('" . $id . "'" . $templ . ")});\n";
+        if ( isset( $args['callback'] ) ) {
+            $callback = $parser->recursiveTagParse( $args['callback'], $frame );
+
+            // Make sure callback is valid
+            if ( !preg_match( '/^[a-zA-Z0-9_]+$/', $callback ) ) {
+                return ['Invalid callback as it does not match pattern [a-zA-Z0-9_]+', 'noparse' => true];
             }
-        }
-        if( isset( $args['allowtags'] ) ) {
-            if ( isset( $args['json'] ) && isset( $args['id'] ) ) {
-                $out .= ",\ntags: true";
-            } else {
-                $out .= "\ntags: true";
-            }
-        }
-        if( isset( $args['allowclear'] ) && isset( $args['placeholder'] ) ) {
-            if ( ( isset( $args['json'] ) ) || isset( $args['allowtags'] ) ) {
-                $out .= ",\nallowClear: true";
-            } else {
-                $out .= "\nallowClear: true";
-            }
+
+            unset( $args['callback'] );
+        } else {
+            $callback = null;
         }
 
-        /*
-                if( $multiple !== false && strtolower( $multiple ) === "multiple" ) {
+        if ( isset( $args['template'] ) ) {
+            $template = $parser->recursiveTagParse( $args['template'], $frame );
 
-                    if ( ( isset( $args['json'] ) && isset( $args['id'] ) ) || isset( $args['allowtags'] ) || isset( $args['allowclear'] ) ) {
-                        $out .= ",\nmultiple: true";
-                    } else {
-                        $out .= "\nmultiple: true";
-                    }
-                } else {
-                    if ( ( isset( $args['json'] ) && isset( $args['id'] ) ) || isset( $args['allowtags'] ) || isset( $args['allowclear'] ) ) {
-                        $out .= ",\nmultiple: false";
-                    } else {
-                        $out .= "\nmultiple: false";
-                    }
-                }
-        */
-        $out .= '});';
-        $callb .= "$('select').trigger('change');\"\n";
-        $out .= $callb . ' />';
-        $lcallback = '';
-        if(isset($args['loadcallback'])) {
-            if(! wsform\wsform::isLoaded($args['loadcallback'] ) ) {
-                if ( file_exists( $IP . '/extensions/WSForm/modules/customJS/wstoken/' . $args['callback'] . '.js' ) ) {
-                    $lf  = file_get_contents( $IP . '/extensions/WSForm/modules/customJS/wstoken/' . $args['callback'] . '.js' );
-                    $lcallback = "<script>$lf</script>\n";
-                    wsform\wsform::includeInlineScript( $lf );
-                    wsform\wsform::addAsLoaded( $args['loadcallback'] );
-                }
+            // Make sure callback is valid
+            if ( !preg_match( '/^[a-zA-Z0-9_]+$/', $template ) ) {
+                return ['Invalid template as it does not match pattern [a-zA-Z0-9_]+', 'noparse' => true];
+            }
+
+            unset( $args['template'] );
+        } else {
+            $template = null;
+        }
+
+        if ( isset( $args['allowtags'] ) ) {
+            $allowTags = true;
+            unset( $args['allowtags'] );
+        } else {
+            $allowTags = false;
+        }
+
+        if ( isset( $args['allowclear'] ) ) {
+            $allowClear = true;
+            unset( $args['allowclear'] );
+        } else {
+            $allowClear = false;
+        }
+
+        $additionalArguments = [];
+
+        foreach ( $args as $name => $value ) {
+            if ( Validate::validParameters( $name ) ) {
+                $additionalArguments[$name] = $parser->recursiveTagParse( $value );
             }
         }
-        $attach = "<script>wachtff(attachTokens, true );</script>";
-        //wsform\wsform::includeInlineScript( 'document.addEventListener("DOMContentLoaded", function() { wachtff(attachTokens, true); }, false);' );
-        //$wgOut->addHTML( $out );
 
-        $ret = $ret . $out . $attach;
+        $output = $this->themeStore->getFormTheme()->getTokenRenderer()->render_token(
+            $parsedInput,
+            $mwDB,
+            $id,
+            $inputLengthTrigger,
+            $placeholder,
+            $multiple,
+            $json,
+            $callback,
+            $template,
+            $allowTags,
+            $allowClear,
+            $additionalArguments
+        );
+
         self::addInlineJavaScriptAndCSS();
-        return array( $ret, "markerType" => 'nowiki' );
+
+        return [$output, "markerType" => 'nowiki'];
     }
 
     /**
@@ -727,21 +717,38 @@ class TagHooks {
      * @throws WSFormException
      */
     public function renderEdit( $input, array $args, Parser $parser, PPFrame $frame ) {
-        foreach ( $args as $name => $value ) {
-            if ( ( strpos( $value, '{' ) !== false ) && ( strpos( $value, "}" ) !== false ) ) {
-                $args[$name] = $parser->recursiveTagParse( $value, $frame );
-            }
+        if ( !isset( $args['target'] ) || $args['target'] === '' ) {
+            return ['No valid target for edit', 'noparse' => true];
         }
+
+        $target = $parser->recursiveTagParse( $args['target'], $frame );
+
+        if ( !isset( $args['template'] ) && !isset( $args['mwtemplate'] ) ) {
+            return ['No valid template for edit', 'noparse' => true];
+        }
+
+        $template = isset( $args['mwtemplate'] ) ? $args['mwtemplate'] : $args['template'];
+        $template = str_replace( ' ', '_', $parser->recursiveTagParse( $template, $frame ) );
+
+        if ( !isset( $args['formfield'] ) || $args['formfield'] === '' ) {
+            return ['No valid formfield for edit', 'noparse' => true];
+        }
+
+        $formfield = $parser->recursiveTagParse( $args['formfield'], $frame );
+
+        $usefield = isset( $args['usefield'] ) ? $parser->recursiveTagParse( $args['usefield'], $frame ) : '';
+        $slot = isset( $args['mwslot'] ) ? $parser->recursiveTagParse( $args['mwslot'], $frame ) : '';
+        $value = isset( $args['value'] ) ? $parser->recursiveTagParse( $args['value'], $frame ) : '';
 
         $output = $this->themeStore
             ->getFormTheme()
             ->getEditRenderer()
-            ->render_edit( $args );
+            ->render_edit( $target, $template, $formfield, $usefield, $slot, $value );
 
         return [
             $output,
             'noparse' => true,
-            "markerType" => 'nowiki'
+            'markerType' => 'nowiki'
         ];
     }
 
@@ -759,23 +766,43 @@ class TagHooks {
      * @throws WSFormException
      */
     public function renderCreate( $input, array $args, Parser $parser, PPFrame $frame ) {
-        foreach ( $args as $name => $value ) {
-            if ( ( strpos( $value, '{' ) !== false ) && ( strpos( $value, "}" ) !== false ) ) {
-                $args[$name] = $parser->recursiveTagParse( $value, $frame );
+        // FIXME: Replace empty string with "null"
+        $template = isset( $args['mwtemplate'] ) ? $parser->recursiveTagParse( $args['mwtemplate'], $frame ) : '';
+        $createId = isset( $args['id'] ) ? $parser->recursiveTagParse( $args['id'], $frame ) : '';
+        $write = isset( $args['mwwrite'] ) ? $parser->recursiveTagParse( $args['mwwrite'], $frame ) : '';
+        $slot = isset( $args['mwslot'] ) ? $parser->recursiveTagParse( $args['mwslot'], $frame ) : '';
+        $option = isset( $args['mwoption'] ) ? $parser->recursiveTagParse( $args['mwoption'], $frame ) : '';
+        $fields = isset( $args['mwfields'] ) ? $parser->recursiveTagParse( $args['mwfields'], $frame ) : '';
+
+        $leadingZero = isset( $args['mwleadingzero'] );
+
+        if ( isset( $args['mwfollow'] ) ) {
+            $follow = $parser->recursiveTagParse( $args['mwfollow'], $frame );
+
+            if ( $follow === '' || $follow === '1' || $follow === 'true' ) {
+                $follow = 'true';
             }
+        } else {
+            $follow = '';
         }
 
-        // TODO
+        if ( $fields !== '' && $template === '' ) {
+            return ['No valid template for creating a page.', 'noparse' => true];
+        }
+
+        if ( $fields !== '' && $write === '' ) {
+            return ['No valid title for creating a page.', 'noparse' => true];
+        }
 
         $output = $this->themeStore
             ->getFormTheme()
             ->getCreateRenderer()
-            ->render_create( $args );
+            ->render_create( $template, $createId, $write, $slot, $option, $follow, $fields, $leadingZero );
 
         return [
             $output,
             'noparse' => true,
-            "markerType" => 'nowiki'
+            'markerType' => 'nowiki'
         ];
 
     }
@@ -796,54 +823,64 @@ class TagHooks {
     public function renderEmail( $input, array $args, Parser $parser, PPFrame $frame ) {
         $mailArguments = [];
 
-        foreach ( $args as $name => $value ) {
-            switch ( $name ) {
-                case "to":
-                    $mailArguments["mwmailto"] = $parser->recursiveTagParse( $value, $frame );
-                    break;
-                case "from":
-                    $mailArguments["mwmailfrom"] = $parser->recursiveTagParse( $value, $frame );
-                    break;
-                case "cc":
-                    $mailArguments["mwmailcc"] = $parser->recursiveTagParse( $value, $frame );
-                    break;
-                case "bcc":
-                    $mailArguments["mwmailbcc"] = $parser->recursiveTagParse( $value, $frame );
-                    break;
-                case "replyto":
-                    $mailArguments["mwmailreplyto"] = $parser->recursiveTagParse( $value, $frame );
-                    break;
-                case "subject":
-                    $mailArguments["mwmailsubject"] = $parser->recursiveTagParse( $value, $frame );
-                    break;
-                case "type":
-                    $mailArguments["mwmailtype"] = $parser->recursiveTagParse( $value, $frame );
-                    break;
-                case "content":
-                    $mailArguments["mwmailcontent"] = $parser->recursiveTagParse( $value, $frame );
-                    break;
-                case "job":
-                    $mailArguments["mwmailjob"] = $parser->recursiveTagParse( $value, $frame );
-                    break;
-                case "header":
-                    $mailArguments["mwmailheader"] = $parser->recursiveTagParse( $value, $frame );
-                    break;
-                case "footer":
-                    $mailArguments["mwmailfooter"] = $parser->recursiveTagParse( $value, $frame );
-                    break;
-                case "html":
-                    $mailArguments["mwmailhtml"] = $parser->recursiveTagParse( $value, $frame );
-                    break;
-                case "attachment":
-                    $mailArguments["mwmailattachment"] = $parser->recursiveTagParse( $value, $frame );
-                    break;
-                case "template":
-                    $mailArguments["mwmailtemplate"] = $parser->recursiveTagParse( $value, $frame );
-                    break;
-                case "parselast":
-                    $mailArguments["mwparselast"] = "true";
-                    break;
-            }
+        if ( isset( $args['to'] ) ) {
+            $mailArguments["mwmailto"] = $parser->recursiveTagParse( $args['to'], $frame );
+        }
+
+        if ( isset( $args['from'] ) ) {
+            $mailArguments["mwmailfrom"] = $parser->recursiveTagParse( $args['from'], $frame );
+        }
+
+        if ( isset( $args['cc'] ) ) {
+            $mailArguments["mwmailcc"] = $parser->recursiveTagParse( $args['cc'], $frame );
+        }
+
+        if ( isset( $args['bcc'] ) ) {
+            $mailArguments["mwmailbcc"] = $parser->recursiveTagParse( $args['bcc'], $frame );
+        }
+
+        if ( isset( $args['replyto'] ) ) {
+            $mailArguments["mwmailreplyto"] = $parser->recursiveTagParse( $args['replyto'], $frame );
+        }
+
+        if ( isset( $args['subject'] ) ) {
+            $mailArguments["mwmailsubject"] = $parser->recursiveTagParse( $args['subject'], $frame );
+        }
+
+        if ( isset( $args['type'] ) ) {
+            $mailArguments["mwmailtype"] = $parser->recursiveTagParse( $args['type'], $frame );
+        }
+
+        if ( isset( $args['content'] ) ) {
+            $mailArguments["mwmailcontent"] = $parser->recursiveTagParse( $args['content'], $frame );
+        }
+
+        if ( isset( $args['job'] ) ) {
+            $mailArguments["mwmailjob"] = $parser->recursiveTagParse( $args['job'], $frame );
+        }
+
+        if ( isset( $args['header'] ) ) {
+            $mailArguments["mwmailheader"] = $parser->recursiveTagParse( $args['header'], $frame );
+        }
+
+        if ( isset( $args['footer'] ) ) {
+            $mailArguments["mwmailfooter"] = $parser->recursiveTagParse( $args['footer'], $frame );
+        }
+
+        if ( isset( $args['html'] ) ) {
+            $mailArguments["mwmailhtml"] = $parser->recursiveTagParse( $args['html'], $frame );
+        }
+
+        if ( isset( $args['attachment'] ) ) {
+            $mailArguments["mwmailattachment"] = $parser->recursiveTagParse( $args['attachment'], $frame );
+        }
+
+        if ( isset( $args['template'] ) ) {
+            $mailArguments["mwmailtemplate"] = $parser->recursiveTagParse( $args['template'], $frame );
+        }
+
+        if ( isset( $args['parselast'] ) ) {
+            $mailArguments["mwparselast"] = "true";
         }
 
         $base64content = base64_encode( $parser->recursiveTagParse( $input, $frame ) );
@@ -889,8 +926,8 @@ class TagHooks {
             Core::addAsLoaded( 'wsinstance-initiated' );
         }
 
-        // TODO: This:
-        $ret = wsform\instance\render::render_instance( $args, $output );
+        // TODO: This
+        $ret = $this->themeStore->getFormTheme()->getInstanceRenderer()->render_instance( $args, $output );
 
         Core::removeAsLoaded( 'wsinstance-initiated' );
 
@@ -915,7 +952,7 @@ class TagHooks {
         $scripts = array_unique( Core::getJavaScriptToBeIncluded() );
         $csss = array_unique( Core::getCSSToBeIncluded() );
         $jsconfigs = Core::getJavaScriptConfigToBeAdded();
-        $out = \RequestContext::getMain()->getOutput();
+        $out = RequestContext::getMain()->getOutput();
 
         if ( !empty( $scripts ) ) {
             foreach ( $scripts as $js ) {

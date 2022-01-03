@@ -15,11 +15,17 @@ interface TokenRenderer {
      * @brief Render token
      *
      * @param string $input Input for the field (should be parsed)
-     * @param array $args Arguments for the field (should be parsed)
-     * @param Parser $parser MediaWiki parser
-     * @param PPFrame $frame Current PPFrame
+     * @param string $mwDB
+     * @param string $id
+     * @param int $inputLengthTrigger
+     * @param string|null $placeholder
+     * @param string|null $multiple
+     * @param string|null $json
+     * @param string|null $callback
+     * @param string|null $template
+     * @param array $additionalArguments
      *
      * @return string Rendered HTML
      */
-    public function render_token(string $input, array $args, Parser $parser, PPFrame $frame): string;
+    public function render_token( string $input, string $mwDB, string $id, int $inputLengthTrigger, ?string $placeholder, ?string $multiple, ?string $json, ?string $callback, ?string $template, array $additionalArguments ): string;
 }

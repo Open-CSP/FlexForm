@@ -10,6 +10,7 @@ use MediaWiki\MediaWikiServices;
 use WSForm\Core\Core;
 use WSForm\Render\TagHooks;
 use WSForm\Render\Validate;
+use WSForm\WSFormException;
 
 /**
  * Class WSFormHooks
@@ -79,39 +80,12 @@ class WSFormHooks {
      *
      * @param Parser $parser Sets a list of all WSForm hooks
      * @throws MWException
+     * @throws WSFormException
      */
 	public static function onParserFirstCallInit( Parser &$parser ) {
-		global $wgAbsoluteWikiPath, $IP;
-
-		if( php_sapi_name() !== 'cli' ) {
-			$serverName = strtolower( $_SERVER['SERVER_NAME'] );
-		}
-
-		/*
-		 @Charlot: Do we still need this?
-
-		include_once( 'classes/loader.php' );
-		\wsform\WSClassLoader::register();
-		*/
-
-		// Load config settings
-		if ( file_exists( __DIR__ . '/config/config.php' ) ) {
-			include( __DIR__ . '/config/config.php' );
-
-			if( isset( $config['sec'] ) && $config['sec'] === true ) {
-				Core::$secure = true;
-			}
-
-			if( isset( $config['use-api-user-only'] ) && $config['use-api-user-only'] !== "yes" ) {
-                Core::$runAsUser = true;
-			}
-
-			if( isset( $config['sec-key'] ) && !empty( $config['sec-key'] ) ) {
-                Core::$checksumKey = $config['sec-key'];
-			}
-
-            Core::$wsConfig = $config;
-		}
+        if ( !\WSForm\Core\Config::getConfigStatus() ) {
+            \WSForm\Core\Config::setConfigFromMW();
+        }
 
 		$tagHooks = new TagHooks( MediaWikiServices::getInstance()->getService( 'WSForm.ThemeStore' ) );
 
