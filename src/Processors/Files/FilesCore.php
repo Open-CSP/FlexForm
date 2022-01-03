@@ -135,28 +135,7 @@ class FilesCore {
 		return false;
 	}
 
-	public function parseTitle( $title ) {
-		$tmp = General::get_all_string_between( $title, '[', ']' );
-		foreach ( $tmp as $fieldname ) {
-			if( isset( $_POST[General::makeUnderscoreFromSpace($fieldname)] ) ) {
-				$fn = $_POST[General::makeUnderscoreFromSpace($fieldname)];
-				if( is_array( $fn ) ) {
-					$imp = implode( ', ', $fn );
-					$title = str_replace('[' . $fieldname . ']', $imp, $title);
-				} elseif ( $fn !== '' ) {
-					$title = str_replace('[' . $fieldname . ']', $fn, $title);
-				} else {
-					$title = str_replace('[' . $fieldname . ']', '', $title);
-				}
-			} else {
-				$title = str_replace('[' . $fieldname . ']', '', $title);
-			}
-			if( $fieldname == 'mwrandom' ) {
-				$title = str_replace( '['.$fieldname.']', MakeTitle(), $title );
-			}
-		}
-		return $title;
-	}
+
 
 	/**
 	 * http://stackoverflow.com/a/2021729

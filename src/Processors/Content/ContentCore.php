@@ -2,6 +2,8 @@
 
 namespace WSForm\Processors\Content;
 
+use RequestContext;
+use WSForm\Core\Config;
 use WSForm\Processors\Security\wsSecurity;
 use WSForm\Processors\Definitions;
 use WSForm\Processors\Utilities\General;
@@ -10,19 +12,17 @@ use WSForm\Processors\Files\FilesCore;
 /**
  * Class core
  *
- * @package wsform\processors\content
+ * @package WSForm\Processors\Content
  */
 class ContentCore {
 
-	public $api = "";
-
-	private $fields = array();
+	private static $fields = array();
 
 	/**
 	 * @return array
 	 */
-	public function getFields(): array {
-		return $this->fields;
+	public static function getFields(): array {
+		return self::$fields;
 	}
 
 	/**
@@ -32,13 +32,12 @@ class ContentCore {
 	 * @return string
 	 */
 	private static function setSummary( bool $onlyName = false ): string {
-		//TODO: Still needs work as mwdb is not always a default
-		$dbn = General::getPostString('mwdb');
-		if( $dbn !== false && isset( $_COOKIE[$dbn.'UserName'] ) ) {
-			if($onlyName === true) {
-				return ( $_COOKIE[$dbn.'UserName'] );
+		$user = RequestContext::getMain()->getUser();
+		if( $user->isAnon() === false ) {
+			if( $onlyName === true ) {
+				return ( $user->getName() );
 			} else {
-				return ( '[[User:' . $_COOKIE[$dbn . 'UserName'] . ']]' );
+				return ( '[[User:' . $user->getName() . ']]' );
 			}
 		} else {
 			$ip = $_SERVER['REMOTE_ADDR'];
@@ -46,19 +45,21 @@ class ContentCore {
 		}
 	}
 
-	private function checkFields(){
-		if( $this->fields['summary'] === false ) {
-			$this->fields['summary'] = $this->setSummary();
+	private static function checkFields(){
+		if( self::$fields['summary'] === false ) {
+			self::$fields['summary'] = self::setSummary();
 		}
 
 		if( isset( $_POST['mwleadingzero'] ) ) {
-			$this->fields['leadByZero'] = true;
+			self::$fields['leadByZero'] = true;
 		}
 
-		if( $this->fields['parsePost'] !== false && is_array( $this->fields['parsePost'] ) ) {
-			foreach ( $this->fields['parsePost'] as $pp ) {
-				if( isset( $_POST[General::makeUnderscoreFromSpace($pp)] ) ) {
-					$_POST[General::makeUnderscoreFromSpace($pp)] = filesCore::parseTitle( $_POST[General::makeUnderscoreFromSpace($pp)] );
+		if( self::$fields['parsePost'] !== false && is_array( self::$fields['parsePost'] ) ) {
+			$filesCore = new FilesCore();
+			foreach ( self::$fields['parsePost'] as $pp ) {
+				$pp = General::makeUnderscoreFromSpace( $pp );
+				if( isset( $_POST[$pp] ) ) {
+					$_POST[$pp] = $filesCore->parseTitle( $_POST[$pp] );
 				}
 			}
 		}
@@ -67,34 +68,36 @@ class ContentCore {
 	/**
 	 * @return array
 	 */
-	public static function saveToWiki( $api ) {
-		self::$fields = definitions::createAndEditFields();
-		self::$api = $api;
+	public function saveToWiki() {
+		self::$fields = Definitions::createAndEditFields();
 		/*
-		$parsePost    = wsUtilities::getPostString( 'wsparsepost' );
-		$parseLast    = wsUtilities::getPostString( 'mwparselast' );
-		$etoken       = wsUtilities::getPostString( 'wsedittoken' );
-		$template     = wsUtilities::getPostString( 'mwtemplate' );
-		$writepage    = wsUtilities::getPostString( 'mwwrite' );
-		$option       = wsUtilities::getPostString( 'mwoption' );
-		$returnto     = wsUtilities::getPostString( 'mwreturn', false );
-		$returnfalse  = wsUtilities::getPostString( 'mwreturnfalse' );
-		$mwedit       = wsUtilities::getPostArray( 'mwedit' );
-		$writepages   = wsUtilities::getPostArray( 'mwcreatemultiple' );
-		$msgOnSuccess = wsUtilities::getPostString( 'mwonsuccess' );
-		$mwfollow     = wsUtilities::getPostString( 'mwfollow' );
-		$leadByZero   = false;
-		$summary      = wsUtilities::getPostString( 'mwwikicomment' );
+		'parsePost'    => General::getPostString( 'wsparsepost' ),
+		'parseLast'    => General::getPostString( 'mwparselast' ),
+		'etoken'       => General::getPostString( 'wsedittoken' ),
+		'template'     => General::getPostString( 'mwtemplate' ),
+		'writepage'    => General::getPostString( 'mwwrite' ),
+		'option'       => General::getPostString( 'mwoption' ),
+		'returnto'     => General::getPostString( 'mwreturn', false ),
+		'returnfalse'  => General::getPostString( 'mwreturnfalse' ),
+		'mwedit'       => General::getPostArray( 'mwedit' ),
+		'writepages'   => General::getPostArray( 'mwcreatemultiple' ),
+		'msgOnSuccess' => General::getPostString( 'mwonsuccess' ),
+		'mwfollow'     => General::getPostString( 'mwfollow' ),
+		'leadByZero'   => false,
+		'summary'      => General::getPostString( 'mwwikicomment' ),
+		'slot'		   => General::getPostString( 'mwslot' )
 		*/
 
 		self::checkFields();
 
+		/*
 		if( self::$fields['returnto'] === false && self::$fields['returnfalse'] === false ) {
 			return wbHandleResponses::createMsg('no return url defined','error', self::$fields['returnto'] );
 		}
+		*/
 
 		if ( self::$fields['template'] !== false && self::$fields['writepage'] !== false ) {
-
+			// Create one page
 		}
 
 	}
@@ -114,16 +117,16 @@ class ContentCore {
 			$ret = "{{" . self::$fields['template'] . "\n";
 		}
 		foreach ( $_POST as $k => $v ) {
-			if ( is_array( $v ) && !definitions::isWSFormSystemField($k) ) {
-				$ret .= "|" . wsUtilities::makeSpaceFromUnderscore( $k ) . "=";
+			if ( is_array( $v ) && !Definitions::isWSFormSystemField( $k ) ) {
+				$ret .= "|" . General::makeSpaceFromUnderscore( $k ) . "=";
 				foreach ( $v as $multiple ) {
 					$ret .= wsSecurity::cleanBraces( $multiple ) . ',';
 				}
 				$ret = rtrim( $ret, ',' ) . PHP_EOL;
 			} else {
-				if ( !definitions::isWSFormSystemField($k) && $v != "" ) {
+				if ( !Definitions::isWSFormSystemField( $k ) && $v != "" ) {
 					if( !$noTemplate ) {
-						$ret .= '|' . wsUtilities::makeSpaceFromUnderscore( $k ) . '=' . wsSecurity::cleanBraces( $v ) . "\n";
+						$ret .= '|' . General::makeSpaceFromUnderscore( $k ) . '=' . wsSecurity::cleanBraces( $v ) . "\n";
 					} else {
 						$ret = $v . PHP_EOL;
 					}
@@ -134,6 +137,39 @@ class ContentCore {
 			$ret .= "}}";
 		}
 		return $ret;
+	}
+
+	/**
+	 * @return int
+	 */
+	private static function createRandom(): int {
+		return time();
+	}
+
+	public static function parseTitle( $title ) {
+		$tmp = General::get_all_string_between( $title, '[', ']' );
+		foreach ( $tmp as $fieldname ) {
+			if( isset( $_POST[General::makeUnderscoreFromSpace($fieldname)] ) ) {
+				$fn = $_POST[General::makeUnderscoreFromSpace($fieldname)];
+				if( is_array( $fn ) ) {
+					$imp = implode( ', ', $fn );
+					$title = str_replace('[' . $fieldname . ']', $imp, $title);
+				} elseif ( $fn !== '' ) {
+					if( Config::getConfigVariable( 'create-seo-titles' ) === true ) {
+						$fn = $api->urlToSEO( $fn );
+					}
+					$title = str_replace('[' . $fieldname . ']', $fn, $title);
+				} else {
+					$title = str_replace('[' . $fieldname . ']', '', $title);
+				}
+			} else {
+				$title = str_replace('[' . $fieldname . ']', '', $title);
+			}
+			if( $fieldname == 'mwrandom' ) {
+				$title = str_replace( '['.$fieldname.']', MakeTitle(), $title );
+			}
+		}
+		return $title;
 	}
 
 }

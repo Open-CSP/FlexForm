@@ -8,10 +8,10 @@
  * Time        : 21:22
  */
 
-namespace wsform\processors\content;
+namespace WSForm\Processors\Content;
 
-use wsform\processors\system\definitions;
-use wsform\processors\wbHandleResponses;
+use WSForm\Processors\Definitions;
+use WSForm\Processors\Content\ContentCore;
 
 class create {
 
@@ -23,18 +23,13 @@ class create {
 
 		self::$ret = ContentCore::createContent();
 
-		if( ContentCore::$api->getStatus() === false ){
-			return wbHandleResponses::createMsg( $api->getStatus( true ), 'error', $returnto);
+		if (strpos( $fields['writepage'],'[') !== false) {
+			$fields['writepage'] = ContentCore::parseTitle( $fields['writepage'] );
 		}
 
-		if (strpos($writepage,'[') !== false) {
-			$writepage = ContentCore::parseTitle( $writepage);
-		}
+		$title = $fields['writepage'];
 
-		if ( $writepage !== false ) {
-			$title = $writepage;
-		}
-		if( $option == 'next_available' && $writepage !== false ) {
+		if( $fields['option'] == 'next_available' ) {
 			// get highest number
 			$hnr = $api->getNextAvailable( $title );
 			if( $hnr['status'] !== 'error') {

@@ -10,11 +10,14 @@
 
 namespace WSForm\Core;
 
+use WSForm\WSFormException;
+
 class HandleResponse {
 
 	private $returnStatus = "ok";
 	private $returnData = array();
 	private $mwReturn = false;
+	private $pauseBeforeRefresh = false;
 
 	/**
 	 * @var bool
@@ -64,6 +67,20 @@ class HandleResponse {
 	}
 
 	/**
+	 * @param string|bool $refresh
+	 */
+	public function setPauseBeforeRefresh( $refresh ) {
+		$this->pauseBeforeRefresh = $refresh;
+	}
+
+	/**
+	 * @return string|bool
+	 */
+	public function getPauseBeforeRefresh() {
+		return $this->pauseBeforeRefresh;
+	}
+
+	/**
 	 * Set global result handler to normal or Ajax
 	 *
 	 * @param mixed $identifier
@@ -102,4 +119,147 @@ class HandleResponse {
 
 		return $tmp;
 	}
+
+	/**
+	 * Default response handler
+	 *
+	 * @throws WSFormException
+	 */
+	public function exitResponse() {
+		$type = $this->getReturnStatus();
+		$mwReturn = $this->getMwReturn();
+		$messageData = $this->getReturnData();
+		if ( is_array( $messageData ) ) {
+			$message   = implode( '<BR>', $messageData );
+		} else {
+			$message = $messageData;
+		}
+		if ( $type === 'ok' && $this->apiAjax === false ) {
+			$this->setCookieMessage(
+				$message,
+				$type
+			); // set cookies
+		}
+
+		try {
+			if ( $type === 'ok' && $mwReturn !== false ) {
+				$this->redirect( $mwReturn );
+			}
+		} catch ( WSFormException $e ){
+			throw new WSFormException( $e->getMessage(), 0, $e );
+		}
+
+		if ( $type !== 'ok' && $mwReturn !== false ) { // Status not ok.. but we have redirect ?
+			$this->setCookieMessage( $message ); // set cookies
+			try {
+				$this->redirect( $mwReturn ); // do a redirect or json output
+			} catch ( WSFormException $e ){
+				throw new WSFormException( $e->getMessage(), 0, $e );
+			}
+		} else { // Status not ok.. and no redirect
+			$this->outputMsg( $message ); // show error on screen or do json output
+		}
+		exit();
+	}
+
+	/**
+	 * Do a final redirect
+	 *
+	 * @param string $redirect
+	 *
+	 * @throws WSFormException
+	 */
+	public function redirect() {
+		// Check if url is from same domain
+		$parsed = parse_url( $this->getMwReturn() );
+		if ( isset( $parsed['host'] ) ) {
+			if ( $parsed['host'] !== $_SERVER['HTTP_HOST'] ) {
+				throw new WSFormException( wfMessage( 'wsform-return-outside-domain' )->text() );
+			}
+		}
+		// redirect
+		if ( $this->getPauseBeforeRefresh() !== false ) {
+			sleep( $this->getPauseBeforeRefresh() );
+		}
+		if ( ! $this->apiAjax ) {
+			header( 'Location: ' . $this->getMwReturn() );
+		} else {
+			$this->outputJson(
+				'ok',
+				'ok'
+			);
+		}
+	}
+
+	/**
+	 * @param $status string : status keyword
+	 * @param $data mixed : holds the date
+	 */
+	public function outputJson( string $status, $data ) {
+		$ret            = array();
+		$ret['status']  = $status;
+		$ret['message'] = $data;
+		header( 'Content-Type: application/json' );
+		echo json_encode(
+			$ret,
+			JSON_PRETTY_PRINT
+		);
+		die();
+	}
+
+	/**
+	 * Set message for after page reload using cookies
+	 *
+	 * @param string $msg
+	 * @param string $type
+	 */
+	public function setCookieMessage( string $msg, string $type = "danger" ) {
+
+		if ( $msg !== '' ) {
+			setcookie( "wsform[type]", $type, 0, '/' );
+			if ( $type !== "danger" ) {
+				setcookie( "wsform[txt]", $msg, 0, '/' );
+			} else {
+				setcookie( "wsform[txt]", 'WSForm :: ' . $msg, 0, '/' );
+			}
+		}
+
+	}
+
+	/**
+	 * Function to output messages if multiple
+	 * Used when there is no mwreturn
+	 */
+	public function outputMsg() {
+		$numargs = func_num_args();
+		$args    = func_get_args();
+		if ( ! $this->apiAjax ) {
+			for ( $i = 0; $i < $numargs; $i++ ) {
+				if ( is_array( $args[$i] ) ) {
+					echo "<pre>";
+					print_r( $args[$i] );
+					echo "</pre>";
+				} else {
+					echo "<p>" . $args[$i] . "</p>";
+				}
+			}
+		} else {
+			$tmp = '';
+			for ( $i = 0; $i < $numargs; $i++ ) {
+				if ( is_array( $args[$i] ) ) {
+					$tmp .= implode(
+						'<BR>',
+						$args[$i]
+					);
+				} else {
+					$tmp .= "<p>" . $args[$i] . "</p>";
+				}
+			}
+			$this->outputJson(
+				'error',
+				$tmp
+			);
+		}
+	}
+
 }
