@@ -9,115 +9,50 @@ class WSFormCreateRenderer implements CreateRenderer {
     /**
      * @inheritDoc
      */
-    public function render_create( array $args ): string {
-        $args = array_map( "htmlspecialchars", $args );
+    public function render_create( string $template, string $createId, string $write, string $slot, string $option, string $follow, string $fields, bool $leadingZero ): string {
+        $template = htmlspecialchars( $template );
+        $createId = htmlspecialchars( $createId );
+        $write = htmlspecialchars( $write );
+        $slot = htmlspecialchars( $slot );
+        $option = htmlspecialchars( $option );
+        $fields = htmlspecialchars( $fields );
 
-        $template = "";
-        $wswrite  = "";
-        $wsoption = "";
-        $wsfields = "";
-        $wsfollow = "";
-        $wsSlot   = "";
-        $wsCreateId = '';
-
-        if(isset($args['mwfields']) && $args['mwfields'] != '') {
-            $div = '-^^-';
-            foreach ( $args as $name => $value ) {
-                if ( $name == "mwtemplate" ) {
-                    $template = $value;
-                }
-
-                if( $name == 'id' ){
-					$wsCreateId = $value;
-				}
-
-                if ( $name == "mwwrite" ) {
-                    $wswrite = $value;
-                }
-
-				if ( $name == "mwslot" ) {
-					$wsSlot = $value;
-				}
-
-                if ( $name == "mwoption" ) {
-                    $wsoption = $value;
-                }
-
-                if ( $name == "mwfields" ) {
-                    $wsfields = $value;
-                }
-	            if ( $name === "mwfollow" ) {
-		            $fname = 'mwfollow';
-
-		            if( strlen( $value ) <= 1 ) {
-			            $fvalue = "true";
-		            } else {
-			            $fvalue = $value;
-		            }
-					$wsfollow = Core::createHiddenField( $fname, $fvalue );
-	            }
-
-            }
-            if($template === '') {
-                return 'No valid template for creating a page.';
-            }
-            if($wswrite === '') {
-                return 'No valid title for creating a page.';
-            }
-
-            $createValue =
-				$template . $div .
-				$wswrite . $div .
-				$wsoption . $div .
-				$wsfields . $div .
-				$wsSlot . $div .
-				$wsCreateId;
-	        $def = Core::createHiddenField( 'mwcreatemultiple[]', $createValue );
-
-            return $def.$wsfollow ;
-        } else {
-
-            foreach ( $args as $name => $value ) {
-                if ( $name == "mwtemplate" ) {
-                	$template = Core::createHiddenField( 'mwtemplate', $value );
-                }
-
-                if ( $name == "mwwrite" ) {
-	                $wswrite = Core::createHiddenField( 'mwwrite', $value );
-                }
-
-                if ( $name == "mwoption" ) {
-	                $wsoption = Core::createHiddenField( 'mwoption', $value );
-                }
-
-	            if ( $name == "mwslot" ) {
-		            $wsSlot = Core::createHiddenField( 'mwslot', $value );
-	            }
-
-                if ( $name === "mwfollow" ) {
-                	if( strlen( $value ) <= 1 ) {
-		                $wsfollow = Core::createHiddenField( 'mwfollow', 'true' );
-	                } else {
-		                $wsfollow = Core::createHiddenField( 'mwfollow', $value );
-	                }
-                }
-
-                if ( $name == "mwleadingzero" ) {
-	                $wsleadingzero = Core::createHiddenField( 'mwleadingzero', 'true' );
-                } else $wsleadingzero = '';
-
-                /*
-                if ( $k == "mwfields" ) {
-                    $wsfields = '<input type="hidden" name="mwfields" value="' . $v . '">' . "\n";
-                }
-                */
-            }
+        if ( $follow !== '' ) {
+            $follow = Core::createHiddenField( 'mwfollow', htmlspecialchars( $follow ) );
         }
 
+        if ( $fields !== '' ) {
+            // TODO: Support mwleadingzero with mwcreatemultiple
+            $createValue =
+                $template . '-^^-' .
+                $write . '-^^-' .
+                $option . '-^^-' .
+                $fields . '-^^-' .
+                $slot . '-^^-' .
+                $createId;
 
-        return $template . $wswrite . $wsoption . $wsfollow. $wsleadingzero . $wsSlot;
+            return Core::createHiddenField( 'mwcreatemultiple[]', $createValue ) . $follow;
+        } else {
+            if ( $template !== '' ) {
+                $template = Core::createHiddenField( 'mwtemplate', $template );
+            }
 
+            if ( $write !== '' ) {
+                $write = Core::createHiddenField( 'mwwrite', $write );
+            }
 
+            if ( $option !== '' ) {
+                $option = Core::createHiddenField( 'mwoption', $option );
+            }
+
+            if ( $slot !== '' ) {
+                $slot = Core::createHiddenField( 'mwslot', $slot );
+            }
+
+            $leadingZero = $leadingZero ?
+                Core::createHiddenField( 'mwleadingzero', 'true' ) : '';
+
+            return $template . $write . $option . $follow . $leadingZero . $slot;
+        }
     }
-
 }

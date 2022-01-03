@@ -70,10 +70,14 @@ interface FieldRenderer {
      * @brief Render checkbox input field
      *
      * @param array $args Arguments for the field
+     * @param string $showOnChecked
+     * @param string $showOnUnchecked
+     * @param string $default
+     * @param string $defaultName
      *
      * @return string Rendered HTML
      */
-    public function render_checkbox( array $args ): string;
+    public function render_checkbox( array $args, string $showOnChecked = '', string $showOnUnchecked = '', string $default = '', string $defaultName = '' ): string;
 
     /**
      * @brief Render file input field
@@ -195,14 +199,11 @@ interface FieldRenderer {
     /**
      * @brief Render telephone number input field
      *
-     * @param string $input Input for the field (should be parsed)
-     * @param array $args Arguments for the field (should be parsed)
-     * @param Parser $parser MediaWiki parser
-     * @param PPFrame $frame Current PPFrame
+     * @param array $args Arguments for the field
      *
      * @return string Rendered HTML
      */
-    public function render_tel( string $input, array $args, Parser $parser, PPFrame $frame ): string;
+    public function render_tel( array $args ): string;
 
     /**
      * @brief Render options for select input field

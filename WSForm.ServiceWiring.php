@@ -17,8 +17,12 @@ return [
      * @return ThemeStore The ThemeStore singleton
      */
     "WSForm.ThemeStore" => static function ( MediaWikiServices $services ): ThemeStore {
+        if ( !\WSForm\Core\Config::getConfigStatus() ) {
+            \WSForm\Core\Config::setConfigFromMW();
+        }
+
         return new ThemeStore(
-            $services->getMainConfig()->get('WSFormDefaultTheme'),
+            \WSForm\Core\Config::getConfigVariable( 'WSFormDefaultTheme' ),
             $services->getHookContainer()
         );
     },

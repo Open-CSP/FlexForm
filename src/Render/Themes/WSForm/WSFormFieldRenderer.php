@@ -88,45 +88,29 @@ class WSFormFieldRenderer implements FieldRenderer {
     /**
      * @inheritDoc
      */
-	public function render_checkbox( array $args ): string {
+	public function render_checkbox( array $args, string $showOnChecked = '', string $showOnUnchecked = '', string $default = '', string $defaultName = '' ): string {
+	    $ret = '';
 
-		$showOnChecked = false;
-		$showOnUnchecked = false;
-
-		// Added in v0.8.0.9.6.2. Allowing for a default value for a checkbox
-		// for when the checkbox is not checked.
-		$ret = '';
-		if( isset( $args['default'] ) && $args['default'] !== '' ) {
-			$value = $args['default'];
-			$name = false;
-			if ( isset( $args['name'] ) ) {
-				$name = "wsdefault_" . $args['name'];
-				if ( strpos( $name, "[]" ) ) {
-					$name = rtrim( $name, '[]' );
-				}
-			}
-			if( $name !== false && $value !== false ) {
-				$ret .= Core::createHiddenField( $name, $value );
-			}
+		if ( $default !== '' && $defaultName !== '' ) {
+            // Added in v0.8.0.9.6.2. Allowing for a default value for a checkbox
+            // for when the checkbox is not checked.
+		    $ret .= Core::createHiddenField( $defaultName, $default );
 		}
-		// END default checkbox
 
 		$ret .= '<input type="checkbox" ';
 		$ret .= validate::doCheckboxParameters( $args );
 
-		if( isset( $args['show-on-checked'] ) ) {
-			$ret .= 'data-wssos-show="' . $args['show-on-checked'] . '" ';
-			$showOnChecked = true;
+		if ( $showOnChecked !== '' ) {
+			$ret .= 'data-wssos-show="' . $showOnChecked . '" ';
 		}
-		if( isset( $args['show-on-unchecked'] ) ) {
-			$ret .= 'data-wssos-show-unchecked="' . $args['show-on-unchecked'] . '" ';
-			$showOnUnchecked = true;
+
+		if ( $showOnUnchecked !== '' ) {
+			$ret .= 'data-wssos-show-unchecked="' . $showOnUnchecked . '" ';
 		}
 
 		$ret .= ">\n";
 
-
-		if( $showOnChecked || $showOnUnchecked ) {
+		if ( $showOnChecked !== '' || $showOnUnchecked !== '' ) {
 			$ret .= Core::addShowOnSelectJS();
 		}
 
@@ -463,7 +447,7 @@ class WSFormFieldRenderer implements FieldRenderer {
     /**
      * @inheritDoc
      */
-	public function render_tel( string $input, array $args, Parser $parser, PPFrame $frame ): string {
+	public function render_tel( array $args ): string {
 		$ret = '<input type="tel" ';
 		$ret .= validate::doSimpleParameters( $args, "tel" );
 		$ret .= ">\n";
@@ -475,10 +459,9 @@ class WSFormFieldRenderer implements FieldRenderer {
      * @inheritDoc
      */
 	public function render_option( string $input, array $args, Parser $parser, PPFrame $frame ): string {
-		global $wgScript;
-		$jsFile = '';
 		$ret = '<option ';
 		$showOnSelect = false;
+
 		foreach ( $args as $k => $v ) {
 			if ( validate::check_disable_readonly_required_selected( $k, $v ) ) {
 				continue;
@@ -502,23 +485,7 @@ class WSFormFieldRenderer implements FieldRenderer {
 
 
 		}
-		/*
-		if( $showOnSelect !== false && isset( $name ) ) {
-			$showOnSelectCmd = array(
-				'source' => $name,
-				'val' => $value,
-				'target' => $showOnSelect,
-			);
-			wsform::includeJavaScriptConfig( 'showOnSelect', $showOnSelectCmd );
 
-			if( !wsform::isLoaded( 'ShowOnSelect' ) ) {
-				$js = 'wachtff( wsformShowOnSelect, true );';
-				wsform::includeInlineScript( $js );
-				wsform::addAsLoaded( 'ShowOnSelect' );
-			}
-
-		}
-		*/
 		if(isset($name)) {
 			$val = \wsform\wsform::getValue( $name );
 		} else $val = "";
