@@ -38,7 +38,33 @@
     "WSForm.ServiceWiring.php"
   ],
   "config": {
-    "WSFormDefaultTheme": "wsform"
+    "WSFormConfig": {
+      "api_username": "",
+      "api_password": "",
+      "api_url_overrule": "",
+      "api_cookie_path": "",
+      "api_config_path": "",
+      "file_temp_path": "",
+      "wgCanonicalServer": "",
+      "rc_site_key": "",
+      "rc_secret_key": "",
+      "sec_key": "",
+      "auto_save_interval": 30000,
+      "auto_save_after_change": 3000,
+      "use_smtp": "no",
+      "smtp_host": "",
+      "smtp_authentication": true,
+      "smtp_username": "",
+      "smtp_password": "",
+      "smtp_secure": "TLS",
+      "smtp_port": 587,
+      "use_form_builder": true,
+      "allow_edit_docs": true,
+      "form_timeout_limit": 7200,
+      "allow_special_page_setup": true,
+      "use_api_user_only": false,
+      "WSFormDefaultTheme": "wsform"
+    }
   },
   "ResourceFileModulePaths": {
     "localBasePath": "",

@@ -17,6 +17,8 @@ class Config {
 
 	private static $WSFormConfig;
 	private static $WSConfigStatus = false;
+	private static $debug = false;
+	private static $secure = true;
 
 
 	/**
@@ -50,12 +52,28 @@ class Config {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public static function isDebug(){
+		return self::$debug;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public static function isSecure(){
+		return self::$secure;
+	}
+
+	/**
 	 * Add additional checks and default to loaded config
 	 */
 	private static function checkConfig(){
 		global $IP, $wgCanonicalServer;
 		$default_dir = $IP . "/extensions/WSForm/uploads/";
 		$filePathFromConfig = self::getConfigVariable( 'file_temp_path' );
+		if( self::getConfigVariable( 'debug' ) !== null ) self::$debug = self::getConfigVariable( 'debug' );
+		if( self::getConfigVariable( 'secure' ) !== null ) self::$debug = self::getConfigVariable( 'secure' );
 		$canonical = self::getConfigVariable( 'wgCanonicalServer' );
 		if( is_null( $filePathFromConfig ) ) {
 			if( !file_exists( $default_dir ) ) {

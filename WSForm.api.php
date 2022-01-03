@@ -52,6 +52,7 @@ $failed = false;
 
 $removeList = array();
 
+// Handle to final response
 $responseHandler = new HandleResponse;
 
 $responseHandler->setIdentifier( General::getPostString( "mwidentifier" ) );
@@ -67,6 +68,8 @@ try {
 //********* START Handle functions that need no further actions
 $actionGet = General::getGetString( 'action' );
 
+
+/* Will be done later
 // Handle get requests
 if ( $actionGet !== false ) {
 	try {
@@ -90,13 +93,14 @@ if ( $actionGet !== false ) {
 		$responseHandler->setReturnStatus( 'error' );
 	}
 }
-
+*/
 $title = "";
 
 include_once('WSForm.api.include.php');
 $api = new wbApi();
 
-if( $api->isDebug() ) {
+
+if( Config::isDebug() ) {
 	ERROR_REPORTING(E_ALL);
 	ini_set('display_errors', 1);
 	wsDebug::addToDebug( '$_POST before checks', $_POST );
