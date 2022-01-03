@@ -57,7 +57,8 @@ class Definitions {
 			'msgOnSuccess' => General::getPostString( 'mwonsuccess' ),
 			'mwfollow'     => General::getPostString( 'mwfollow' ),
 			'leadByZero'   => false,
-			'summary'      => General::getPostString( 'mwwikicomment' )
+			'summary'      => General::getPostString( 'mwwikicomment' ),
+			'slot'		   => General::getPostString( 'mwslot' )
 		);
 	}
 

@@ -11,6 +11,7 @@
 namespace WSForm\Processors\Security;
 
 use WSForm\Core\Config;
+use WSForm\Core\Core;
 use WSForm\Core\Protect;
 use WSForm\Core\HandleResponse;
 use WSForm\Processors\Utilities\General;
@@ -42,6 +43,7 @@ class wsSecurity {
 	 * @throws WSFormException
 	 */
 	public static function resolvePosts() : bool {
+
 		//$checkSumKey = Config::getConfigVariable( 'sec_key') === null ? false : Config::getConfigVariable( 'sec_key');
 		$crypt = new Protect();
 		try {
@@ -50,6 +52,7 @@ class wsSecurity {
 			throw new WSFormException( $exception->getMessage(), 0, $exception );
 		}
 		$checksum = false;
+		$showOnSelect = false;
 		$formId   = General::getPostString( 'formid' );
 		if ( $formId !== false ) {
 			unset( $_POST['formid'] );
@@ -59,6 +62,10 @@ class wsSecurity {
 				if ( $crypt::decrypt( $k ) === 'checksum' ) {
 					$checksum = unserialize( $crypt::decrypt( $v ) );
 					unset( $_POST[ $k ] );
+				}
+				if ( $crypt::decrypt( $k ) === 'showonselect' ) {
+					$showOnSelect = true;
+					unset( $_POST[$k] );
 				}
 			}
 		} catch( WSFormException $exception ) {
@@ -84,82 +91,34 @@ class wsSecurity {
 					$delMe = $secure['name'];
 					unset( $_POST[$delMe] );
 					self::$removeList[] = $newK;
-					$_POST[$newK]       = $newV;
-				} else {
+					if ( substr( $newK, - 2, 2 ) === '[]' ) {
+						//echo "okokoko";
+						$newK             = str_replace( '[]', '', $newK );
+						$_POST[ $newK ][] = $newV;
+					} else {
+						$_POST[ $newK ] = $newV;
+					}
+				} elseif( $showOnSelect ) {
+					continue;
+				}else {
 					throw new WSFormException( wfMessage( 'wsform-secure-fields-incomplete' ) );
 				}
 			}
 		}
 		self::$checksum = $checksum;
 		self::$formId   = $formId;
-
+		Core::setShowOnSelectActive();
 		return true;
 	}
 
-	/**
-	 * @param string $timeOut
-	 * @param wbHandleResponses $responses
-	 *
-	 * @return bool
-	 */
-	public static function checkDefaultInformation( string $timeOut, wbHandleResponses $responses ) : bool {
-		$i18n             = new wsi18n();
-		$error            = false;
-		$ret              = array();
-		$ret['mwhost']    = false;
-		$ret['mwtoken']   = false;
-		$ret['mwsession'] = false;
-		if ( isset( $_POST['mwtoken'] ) && $_POST['mwtoken'] !== '' ) {
-			$token = base64_decode( $_POST['mwtoken'] );
-			$explo = explode(
-				'_',
-				$token
-			);
-			if ( $explo !== false || is_array( $explo ) ) {
-				$ret['mwtoken'] = true;
-				$ttime          = $explo[2];
-				$host           = $explo[1];
-				if ( $_SERVER['HTTP_HOST'] === $host ) {
-					$ret['mwhost'] = true;
-				}
-				$ctime      = time();
-				$difference = $ctime - (int) $ttime;
-				//echo "<p>$ctime - $ttime = $difference</p>";
-				//die($token);
-				// Get config timeout
-				if ( $timeOut === '' ) {
-					$timeOut = 7200;
-				}
-				if ( $difference < (int) $timeOut ) { // 2 hrs session time
-					$ret['mwsession'] = true;
-				}
-			}
-		}
-		if ( $ret['mwtoken'] === false ) {
-			$error = $i18n->wsMessage( 'wsform-session-no-token' );
-		}
-		if ( $ret['mwsession'] === false ) {
-			$error = $i18n->wsMessage( 'wsform-session-expired' );
-		}
-		if ( $ret['mwhost'] === false ) {
-			$error = $i18n->wsMessage( 'wsform-session-no-equal-host' );
-		}
-		if ( $error !== false ) {
-			$responses->setReturnData( $error );
-			$responses->setReturnStatus( 'error' );
 
-			return false;
-		}
-
-		return true;
-	}
 
 	/**
 	 * return nothing
 	 */
 	public static function cleanPosts() {
 		foreach ( $_POST as $k => $v ) {
-			if ( ! system\definitions::isWSFormSystemField( $k ) ) {
+			if ( ! Processors\Definitions::isWSFormSystemField( $k ) ) {
 				if ( is_array( $v ) ) {
 					$newArray = array();
 					foreach ( $v as $multiple ) {

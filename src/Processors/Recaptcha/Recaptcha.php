@@ -12,6 +12,7 @@ namespace WSForm\Processors\Recaptcha;
 
 use WSForm\Core\Config;
 use WSForm\Processors\Utilities\General;
+use WSForm\WSFormException;
 
 /**
  * Class recaptcha
@@ -78,13 +79,14 @@ class Recaptcha {
 	 * @param $api
 	 *
 	 * @return bool
+	 * @throws WSFormException
 	 */
-	public static function handleRecaptcha( $api, $messages ) : bool {
-		$captchaAction = wsUtilities::getPostString(
+	public static function handleRecaptcha() : bool {
+		$captchaAction = General::getPostString(
 			'mw-captcha-action',
 			false
 		);
-		$captchaToken  = wsUtilities::getPostString(
+		$captchaToken  = General::getPostString(
 			'mw-captcha-token',
 			false
 		);
@@ -92,27 +94,18 @@ class Recaptcha {
 			return true;
 		}
 
-		$i18n     = new wsi18n();
 		if ( $captchaToken === '' || $captchaAction === '' ) {
-			$messages->setReturnData( $i18n->wsMessage( 'wsform-captcha-missing-details' ) );
-			$messages->setReturnStatus( 'error' );
-
-			return false;
+			throw new WSFormException( wfMessage( 'wsform-captcha-missing-details' )->text() );
 		}
 
-		$rc_secret_key = $api->getConfigVariable( 'rc_secret_key' );
+		$rc_secret_key = Config::getConfigVariable( 'rc_secret_key' );
 		$captchaResult = self::googleSiteVerify(
 			$rc_secret_key,
 			$captchaToken,
 			$captchaAction
 		);
 		if ( $captchaResult['status'] === false ) {
-			$messages->setReturnData(
-				$i18n->wsMessage( 'wsform-captcha-score-to-low' ) . ' : ' . $captchaResult['results']['score']
-			);
-			$messages->setReturnStatus( 'error' );
-
-			return false;
+			throw new WSFormException( wfMessage( 'wsform-captcha-score-to-low' )->text() . ' : ' . $captchaResult['results']['score'] );
 		}
 
 		return true;

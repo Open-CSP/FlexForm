@@ -23,6 +23,7 @@ use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
 use WSForm\Core\HandleResponse;
 use WSForm\Core\Config;
+use WSForm\Processors\Recaptcha\Recaptcha;
 use WSForm\Processors\Request\External;
 use WSForm\Processors\Security\wsSecurity;
 use WSForm\Processors\Utilities\General;
@@ -49,7 +50,7 @@ ini_set('display_errors', 1);
 
 
 $ret = false;
-$failed = false;
+
 
 $removeList = array();
 
@@ -58,6 +59,7 @@ $responseHandler = new HandleResponse;
 
 $responseHandler->setIdentifier( General::getPostString( "mwidentifier" ) );
 $responseHandler->setMwReturn( General::getPostString( "mwreturn" ) );
+$responseHandler->setPauseBeforeRefresh( General::getPostString( 'mwpause' ) );
 
 try {
 	Config::setConfigFromMW();
@@ -69,23 +71,30 @@ try {
 	}
 
 	$securityResult = wsSecurity::resolvePosts();
+	if( Config::isDebug() ) {
+		wsDebug::addToDebug( '$_POST after checks', $_POST );
+	}
 } catch ( WSFormException $e ){
 	$responseHandler->setReturnData( $e->getMessage() );
 	$responseHandler->setReturnStatus( 'error' );
 };
 
+// Do we have any errors so far ?
 if( $responseHandler->getReturnStatus() === "error" ) {
 	try {
 		$responseHandler->exitResponse();
-	} catch
+	}  catch ( WSFormException $e ){
+		return $e->getMessage();
+	};
 
 }
 
-//********* START Handle functions that need no further actions
-$actionGet = General::getGetString( 'action' );
+
 
 
 /* TODO: Will be added later
+//********* START Handle functions that need no further actions
+$actionGet = General::getGetString( 'action' );
 // Handle get requests
 if ( $actionGet !== false ) {
 	try {
@@ -187,182 +196,36 @@ if( isset( $_GET['action'] ) && $_GET['action'] === 'handleQuery' ) {
 }
 */
 // Setup messages and responses
+try {
+	Recaptcha::handleRecaptcha();
+} catch ( WSFormException $e ){
+	$responseHandler->setReturnData( $e->getMessage() );
+	$responseHandler->setReturnStatus( 'error' );
+	try {
+		$responseHandler->exitResponse();
+	}  catch ( WSFormException $e ){
+		return $e->getMessage();
+	};
+};
 
-$pauseBeforeRefresh = General::getPostString( 'mwpause' );
+wsSecurity::cleanPosts();
 
-
-if( Config::isSecure() ) {
-	$crypt = new \WSForm\Core\Protect();
-	$crypt::setCrypt();
-	$checksum = false;
-	$showOnSelect = false;
-	$formId = getPostString('formid' );
-	if( $formId !== false ) {
-		unset( $_POST['formid'] );
-	}
-	foreach( $_POST as $k=>$v ) {
-		if( $crypt::decrypt( $k ) === 'checksum' ) {
-			$checksum = unserialize( $crypt::decrypt( $v ) ) ;
-			unset( $_POST[$k] );
-		}
-		if( $crypt::decrypt( $k ) === 'showonselect' ) {
-			$showOnSelect = true;
-			unset( $_POST[$k] );
-		}
-	}
-	if( $checksum === false && $formId !== false ) {
-		if( $api->isDebug() ) wsDebug::addToDebug( 'Secured Version check: Checksum is false or no formid', $i18n->wsMessage( 'wsform-secure-not' ) );
-		$messages->doDie( $i18n->wsMessage( 'wsform-secure-not' ) );
-		$failed = true;
-	}
-	if( isset( $checksum[$formId]['secure'] ) ) {
-		foreach( $checksum[$formId]['secure'] as $secure ) {
-			$tmpName = getPostString( $secure['name'], false );
-			if( $tmpName !== false ) {
-				$newK  = $crypt::decrypt( $secure['name'] );
-				$newV  = $crypt::decrypt( $tmpName );
-				$delMe = $secure['name'];
-				unset( $_POST[ $delMe ] );
-				$removeList[] = $newK;
-				// Are we dealing with an array?
-				if ( substr( $newK, - 2, 2 ) === '[]' ) {
-					//echo "okokoko";
-					$newK             = str_replace( '[]', '', $newK );
-					$_POST[ $newK ][] = $newV;
-				} else {
-					$_POST[ $newK ] = $newV;
-				}
-			} elseif( $showOnSelect ) {
-				continue;
-			} else {
-				$messages->doDie( $i18n->wsMessage( 'wsform-secure-fields-incomplete' ) );
-				$failed = true;
-				if( $api->isDebug() ) wsDebug::addToDebug( 'Secured Version check: missing secured fields', $i18n->wsMessage( 'wsform-secure-fields-incomplete' ) );
-			}
-		}
-	}
+if( Config::isDebug() ) {
+	wsDebug::addToDebug( '$_POST after cleaned html', $_POST );
+}
+General::handleDefaultValues();
+if( Config::isDebug() ) {
+	wsDebug::addToDebug( '$_POST after wsdefault changes', $_POST );
 }
 
-if( $api->isDebug() ) wsDebug::addToDebug( '$_POST after secured version check', $_POST );
-
-$pauseBeforeRefresh = getPostString( 'mwpause' );
-
-if( !is_cli() ) {
-// check credentials
-	$sessInfo = checkDefaultInformation();
-
-	if ( $sessInfo['mwtoken'] === false ) {
-		$messages->doDie( $i18n->wsMessage( 'wsform-session-no-token' ) );
-		$failed = true;
-		if( $api->isDebug() ) wsDebug::addToDebug( 'checkDefaultInformation 1', $i18n->wsMessage( 'wsform-session-no-token' ) );
-		if ( isset( $_POST['mwreturn'] ) && $_POST['mwreturn'] !== "" ) {
-			$messages->redirect( $_POST['mwreturn'] );
-			die();
-		}
-	}
-	if ( $sessInfo['mwsession'] === false ) {
-		$messages->doDie( $i18n->wsMessage( 'wsform-session-expired' ) );
-		$failed = true;
-		if( $api->isDebug() ) wsDebug::addToDebug( 'checkDefaultInformation 2', $i18n->wsMessage( 'wsform-session-expired' ) );
-		if ( isset( $_POST['mwreturn'] ) && $_POST['mwreturn'] !== "" ) {
-			$messages->redirect( $_POST['mwreturn'] );
-			die();
-		}
-	}
-	if ( $sessInfo['mwhost'] === false ) {
-		$messages->doDie( $i18n->wsMessage( 'wsform-session-no-equal-host' ) );
-		$failed = true;
-		if( $api->isDebug() ) wsDebug::addToDebug( 'checkDefaultInformation 3', $i18n->wsMessage( 'wsform-session-no-equal-host' ) );
-		if ( isset( $_POST['mwreturn'] ) && $_POST['mwreturn'] !== "" ) {
-			$messages->redirect( $_POST['mwreturn'] );
-			die();
-		}
-	}
-}
-
-$captchaAction = getPostString( 'mw-captcha-action', false );
-$captchaToken = getPostString( 'mw-captcha-token', false );
-
-if( $captchaAction !== false && $captchaToken !== false ) {
-    $api = new wbApi();
-	if( $api->getStatus() === false ){
-		$arr = array();
-		$arr['msg'] = $api->getStatus( true );
-		$arr['status'] = 'error';
-		die();
-	}
-    $retCaptcha = array();
-    $returnto = getPostString('mwreturn', false );
-    $retCaptcha['mwreturn'] = $returnto;
-
-    if( $returnto === false ) {
-        $retCaptcha['msg'] = $i18n->wsMessage( 'wsform-noreturn-found' );
-        $retCaptcha['status'] = 'error';
-
-        $messages->handleResonse( $retCaptcha );
-        die();
-    }
-    if( $captchaToken === '' || $captchaAction === '' ){
-        $retCaptcha['msg'] = $i18n->wsMessage( 'wsform-captcha-missing-details' );
-        $retCaptcha['status'] = 'error';
-        $messages->handleResonse( $retCaptcha );
-        die();
-    }
-    //secret, token, action
-    $capClass = new wsform\recaptcha\render();
-    $capClass::loadSettings();
-    $captchaResult = $api->googleSiteVerify($capClass::$rc_secret_key, $captchaToken, $captchaAction );
-    if( $captchaResult['status'] === false ) {
-        $retCaptcha['msg'] = $i18n->wsMessage( 'wsform-captcha-score-to-low' ) . ' : ' . $captchaResult['results']['score'];
-        $retCaptcha['status'] = 'error';
-        $messages->handleResonse( $retCaptcha );
-        die();
-    }
-}
-
-//$wsuid = getPostString('wsuid');
-
-
-
-
-// Clean all fields
-if( $securedVersion ) {
-	foreach( $_POST as $k=>$v ){
-		if( !isWSFormSystemField( $k ) ) {
-			if ( is_array( $v ) ) {
-				$newArray = array();
-				foreach ( $v as $multiple ) {
-					$newArray[] = cleanHTML( $multiple, $k );
-				}
-				$_POST[ $k ] = $newArray;
-			} else {
-				$_POST[ $k ] = cleanHTML( $v, $k );
-			}
-		}
-	}
-}
-
-if( $api->isDebug() ) wsDebug::addToDebug( '$_POST after cleaned html', $_POST );
-
-
-$wsuid = getPostString( 'wsuid' );
-
-// Check default variables
-foreach( $_POST as $k=>$v ) {
-	if( strpos( $k, 'wsdefault_' ) !== false ) {
-		$tempVar = str_replace( 'wsdefault_', '', $k );
-		if( !isset( $_POST[$tempVar] ) ) {
-			$_POST[$tempVar] = $v;
-		}
-	}
-}
-
-if( $api->isDebug() ) wsDebug::addToDebug( '$_POST after wsdefault changes', $_POST );
+$wsuid = General::getPostString( 'wsuid' );
 
 if( $wsuid !== false ){
-	unset($_POST['wsuid']);
+	unset( $_POST['wsuid'] );
 }
 
+// TODO: Later on
+/*
 if( isset( $_POST['wsform_signature'] ) ) {
 	$res = signatureUpload();
 	if ($res['status'] == 'error') {
@@ -391,8 +254,9 @@ if( isset($_POST['wsformfile_slim']) ) {
 	}
 
 }
-if ( getPostString('mwaction') !== false && $failed === false) {
-	$action = getPostString('mwaction');
+*/
+if ( General::getPostString( 'mwaction' ) !== false ) {
+	$action = General::getPostString( 'mwaction' );
 	unset( $_POST['mwaction'] );
 
 
@@ -402,7 +266,6 @@ if ( getPostString('mwaction') !== false && $failed === false) {
 
 		case "addToWiki" :
 			$ret = saveToWiki();
-
  			break;
 
 		case "get" :
@@ -431,11 +294,12 @@ if ( getPostString('mwaction') !== false && $failed === false) {
 			break;
 	}
 } else {
-	if( $api->isDebug() ) wsDebug::addToDebug( 'running main functions fail', array('action'=>getPostString('mwaction'), 'failed'=>$failed ) );
+	if( Config::isDebug() ) wsDebug::addToDebug( 'running main functions fail', array('action'=>General::getPostString('mwaction') ) );
 }
 
 
-
+// TODO: Later on
+/*
 $extension = getPostString('mwextension' );
 
 if( $extension !== false ) {
@@ -456,30 +320,18 @@ if( $extension !== false ) {
 		}
 	}
 }
-
-if( $api->isDebug() ) {
-	if ( !$api->getStatus() ) {
-		wsDebug::addToDebug('API CLASS MESSAGES', $api->getStatus( true ) );
+*/
+if( Config::isDebug() ) {
+	if ( $responseHandler->getReturnStatus() !== "ok" ) {
+		wsDebug::addToDebug('ERROR MESSAGES', $responseHandler->getReturnData() );
 	}
 	echo wsDebug::createDebugOutput();
 	die('testing..');
 }
-//die();
-if( !$api->getStatus()) { //$msg, $status="error", $mwreturn=false, $type=false
-	if ( isset( $_POST['mwreturn'] ) && $_POST['mwreturn'] !== "" ) {
-		$ret = createMsg( $api->getStatus( true ), 'error', $_POST['mwreturn'], "danger" );
-	} else $ret = createMsg( $api->getStatus( true ), 'error', false, "danger" );
-	$messages->handleResonse( $ret );
-}
-if( $ret !== false ) {
-	$messages->handleResonse( $ret );
-} else {
-	die( $i18n->wsMessage( 'wsform-norequest-made' ) );
+
+try {
+	$responseHandler->exitResponse();
+} catch ( WSFormException $e ) {
+	return $e->getMessage();
 }
 
-if ( isset( $_POST['mwreturn'] ) && $_POST['mwreturn'] !== "" ) {
-	$messages->redirect( $_POST['mwreturn'] );
-	exit;
-} elseif($identifier !== 'ajax') {
-    $messages->outputMsg( $i18n->wsMessage( 'wsform-noreturn-found' ) );
-}
