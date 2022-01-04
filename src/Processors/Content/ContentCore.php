@@ -256,7 +256,13 @@ class ContentCore {
 		return trim( $string, '-' );
 	}
 
-	public static function getNextAvailable( $nameStartsWith ){
+	/**
+	 * @param $nameStartsWith
+	 *
+	 * @return array|string[]
+	 * @throws MWException
+	 */
+	public static function getNextAvailable( $nameStartsWith ) : array {
 		$render   = new Render();
 		$postdata = [
 			"action"          => "wsform",

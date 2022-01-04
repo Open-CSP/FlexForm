@@ -53,6 +53,7 @@ class Render {
 	 * @param array $data
 	 *
 	 * @return mixed
+	 * @throws MWException
 	 */
 	public function makeRequest( array $data ){
 		global $wgUser;

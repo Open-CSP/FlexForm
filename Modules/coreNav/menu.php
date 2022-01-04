@@ -57,7 +57,7 @@
 <script>
 
     function initializeMenu() {
-        $.getScript( '%%wsformpurl%%modules/coreNav/coreNavigation-1.1.3.js' ).done( function () {
+        $.getScript( '%%wsformpurl%%Modules/coreNav/coreNavigation-1.1.3.js' ).done( function () {
             $('#wsformdocs-menu').coreNavigation({
                 responsideSlide: false, // true or false
                 dropdownEvent: "accordion",

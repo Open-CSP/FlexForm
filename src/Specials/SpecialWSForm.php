@@ -148,7 +148,7 @@ class SpecialWSForm extends \SpecialPage {
 		//die();
 		$exampleList = glob( $examplePath . '*.json' );
 		global $IP, $wgParser;
-		$menuPath            = "$IP/extensions/WSForm/modules/coreNav/";
+		$menuPath            = "$IP/extensions/WSForm/Modules/coreNav/";
 		$data                = array();
 		$exampleData         = array();
 		$createExample       = $wgServer . '/index.php/Special:WSForm/Docs/Create Example';
@@ -187,13 +187,13 @@ class SpecialWSForm extends \SpecialPage {
 			$exampleData[$t][] = $n;
 		}
 		//Load menu JavaScript
-		//$ret = '<link rel="stylesheet" href="'.$wsformpurl.'modules/coreNav/coreNavigation-1.1.3.css">';
-		//$ret .= '<link rel="stylesheet" href="'.$wsformpurl.'modules/coreNav/assets/css/custom.css">';
+		//$ret = '<link rel="stylesheet" href="'.$wsformpurl.'Modules/coreNav/coreNavigation-1.1.3.css">';
+		//$ret .= '<link rel="stylesheet" href="'.$wsformpurl.'Modules/coreNav/assets/css/custom.css">';
 		$ret = '<style>';
 		$ret .= file_get_contents( $menuPath . 'coreNavigation-1.1.3.css' );
 		$ret .= file_get_contents( $menuPath . 'assets/css/custom.css' );
 		$ret .= '</style>';
-		//$ret .= '<script src="' . $wsformpurl . 'modules/coreNav/coreNavigation-1.1.3.js"></script>';
+		//$ret .= '<script src="' . $wsformpurl . 'Modules/coreNav/coreNavigation-1.1.3.js"></script>';
 		$ret .= '<script src="https://unpkg.com/feather-icons@4.7.3/dist/feather.min.js"></script>';
 		$nav = file_get_contents( $menuPath . 'menu.php' );
 		//%%wsformpurl%%
@@ -468,7 +468,8 @@ class SpecialWSForm extends \SpecialPage {
 				}
 			}
 		}
-
+		/*
+		$extensionFile = json_decode( file_get_contents( $IP . '/extensions/WSForm/extension.json' ), true);
 		foreach ( $wgExtensionCredits['parserhook'] as $ext ) {
 			if ( $ext['name'] == 'WSForm' ) {
 				$ver = "v<strong>" . $ext['version'] . "</strong>";
@@ -485,6 +486,7 @@ class SpecialWSForm extends \SpecialPage {
 				}
 			}
 		};
+		*/
 		$path        = "$IP/extensions/WSForm/docs/";
 		$wsformpurl  = $realUrl . "/extensions/WSForm/";
 		$examplePath = $path . 'examples/';
@@ -528,25 +530,25 @@ class SpecialWSForm extends \SpecialPage {
 			}
 
 			$loadJS = '<script src="' . $wsformpurl . 'docs/waitForJQ.js"></script>';
-			$loadJS .= '<link rel="stylesheet" href="' . $wsformpurl . 'modules/wysiwyg/ui/trumbowyg.min.css">';
-			$loadJS .= '<link rel="stylesheet" href="' . $wsformpurl . 'modules/wysiwyg/plugins/emoji/ui/trumbowyg.emoji.min.css">';
-			$loadJS .= '<link rel="stylesheet" href="' . $wsformpurl . 'modules/wysiwyg/plugins/table/ui/trumbowyg.table.min.css">';
+			$loadJS .= '<link rel="stylesheet" href="' . $wsformpurl . 'Modules/wysiwyg/ui/trumbowyg.min.css">';
+			$loadJS .= '<link rel="stylesheet" href="' . $wsformpurl . 'Modules/wysiwyg/plugins/emoji/ui/trumbowyg.emoji.min.css">';
+			$loadJS .= '<link rel="stylesheet" href="' . $wsformpurl . 'Modules/wysiwyg/plugins/table/ui/trumbowyg.table.min.css">';
 			$loadJS .= "
 <script>
     function getTrumbo() {
-	    $.getScript( '" . $wsformpurl . "modules/wysiwyg/trumbowyg.js' ).done( function () {
+	    $.getScript( '" . $wsformpurl . "Modules/wysiwyg/trumbowyg.js' ).done( function () {
 		    $.when(
-			    $.getScript( '" . $wsformpurl . "modules/wysiwyg/plugins/colors/trumbowyg.colors.min.js' ),
-			    $.getScript( '" . $wsformpurl . "modules/wysiwyg/plugins/emoji/trumbowyg.emoji.min.js' ),
-			    $.getScript( '" . $wsformpurl . "modules/wysiwyg/plugins/fontfamily/trumbowyg.fontfamily.min.js' ),
-			    $.getScript( '" . $wsformpurl . "modules/wysiwyg/plugins/fontsize/trumbowyg.fontsize.min.js' ),
-			    $.getScript( '" . $wsformpurl . "modules/wysiwyg/plugins/table/trumbowyg.table.min.js' ),
-			    //$.getScript( '" . $wsformpurl . "modules/wysiwyg/plugins/cleanpaste/trumbowyg.cleanpaste.min.js' ),
-			    $.getScript( '" . $wsformpurl . "modules/wysiwyg/plugins/preformatted/trumbowyg.preformatted.min.js' ),
-			    //$.getScript( '" . $wsformpurl . "modules/wysiwyg/plugins/wiki/trumbowyg.wiki.min.js' ),
+			    $.getScript( '" . $wsformpurl . "Modules/wysiwyg/plugins/colors/trumbowyg.colors.min.js' ),
+			    $.getScript( '" . $wsformpurl . "Modules/wysiwyg/plugins/emoji/trumbowyg.emoji.min.js' ),
+			    $.getScript( '" . $wsformpurl . "Modules/wysiwyg/plugins/fontfamily/trumbowyg.fontfamily.min.js' ),
+			    $.getScript( '" . $wsformpurl . "Modules/wysiwyg/plugins/fontsize/trumbowyg.fontsize.min.js' ),
+			    $.getScript( '" . $wsformpurl . "Modules/wysiwyg/plugins/table/trumbowyg.table.min.js' ),
+			    //$.getScript( '" . $wsformpurl . "Modules/wysiwyg/plugins/cleanpaste/trumbowyg.cleanpaste.min.js' ),
+			    $.getScript( '" . $wsformpurl . "Modules/wysiwyg/plugins/preformatted/trumbowyg.preformatted.min.js' ),
+			    //$.getScript( '" . $wsformpurl . "Modules/wysiwyg/plugins/wiki/trumbowyg.wiki.min.js' ),
 		    ).done( function () {
 			    $( 'textarea.wsdocs-wysiwyg' ).trumbowyg( {
-				    svgPath: '" . $wsformpurl . "modules/wysiwyg/ui/icons.svg', autogrow: true, removeformatPasted: false,
+				    svgPath: '" . $wsformpurl . "Modules/wysiwyg/ui/icons.svg', autogrow: true, removeformatPasted: false,
 				    btns: [['viewHTML'], ['undo', 'redo'], ['formatting'], ['strong', 'em', 'del'], ['superscript', 'subscript'], ['foreColor', 'backColor'], ['link'], ['insertImage'], ['justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'], ['unorderedList', 'orderedList'], ['horizontalRule'],['table'], ['removeformat'],['preformatted'], ['emoji'], ['fullscreen']]
 			    } )
 		    } )

@@ -72,7 +72,7 @@
   },
   "ResourceModules": {
     "ext.wsForm.slim.scripts": {
-      "scripts": "modules/slim/slim/slim.kickstart.min.js",
+      "scripts": "Modules/slim/slim/slim.kickstart.min.js",
       "position": "bottom"
     },
     "ext.wsForm.ajax.scripts": {
@@ -84,7 +84,7 @@
       "position": "bottom"
     },
     "ext.wsForm.instance": {
-      "scripts": "modules/instances/wsInstance.js",
+      "scripts": "Modules/instances/wsInstance.js",
       "position": "top"
     },
     "ext.wsForm.scripts": {
@@ -96,11 +96,11 @@
       "position": "top"
     },
     "ext.wsForm.general.styles": {
-      "styles": "/modules/ext.WSForm.css",
+      "styles": "Modules/ext.WSForm.css",
       "position": "top"
     },
     "ext.wsForm.Instance.styles": {
-      "styles": "modules/instances/instance-style.css",
+      "styles": "Modules/instances/instance-style.css",
       "position": "top"
     },
     "ext.wsForm.datePicker.styles": {
@@ -108,12 +108,12 @@
       "position": "top"
     },
     "ext.wsForm.slim.styles": {
-      "styles": "modules/slim/slim/slim.min.css",
+      "styles": "Modules/slim/slim/slim.min.css",
       "position": "top"
     }
   },
   "SpecialPages": {
-    "WSForm": "SpecialWSForm"
+    "WSForm": "\\WSForm\\Specials\\SpecialWSForm"
   },
-  "manifest_version": 2
+  "manifest_version": 1
 }
