@@ -259,7 +259,7 @@ if ( General::getPostString( 'mwaction' ) !== false ) {
 	switch ( $action ) {
 
 		case "addToWiki" :
-			$ret = saveToWiki();
+			$responseHandler = saveToWiki( $responseHandler );
  			break;
 
 		case "get" :

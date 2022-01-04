@@ -5,6 +5,7 @@ namespace WSForm\Processors\Content;
 use MWException;
 use RequestContext;
 use WSForm\Core\Config;
+use WSForm\Core\HandleResponse;
 use WSForm\Processors\Security\wsSecurity;
 use WSForm\Processors\Definitions;
 use WSForm\Processors\Utilities\General;
@@ -68,11 +69,13 @@ class ContentCore {
 	}
 
 	/**
-	 * @return string Return url
-	 * @throws WSFormException
+	 * @param HandleResponse $response_handler
+	 *
+	 * @return HandleResponse
 	 * @throws MWException
+	 * @throws WSFormException
 	 */
-	public function saveToWiki() {
+	public function saveToWiki( HandleResponse $response_handler ): HandleResponse {
 		self::$fields = Definitions::createAndEditFields();
 		/*
 		'parsePost'    => General::getPostString( 'wsparsepost' ),
@@ -109,7 +112,10 @@ class ContentCore {
 			} catch ( WSFormException $e ) {
 				throw new WSFormException( $e->getMessage(), 0, $e );
 			}
-			$result['content'] = self::createSlotArray( 'main', $result['content'] );
+			if( false === self::$fields['slot'] ) {
+				$slot = "main";
+			} else $slot = self::$fields['slot'];
+			$result['content'] = self::createSlotArray( $slot, $result['content'] );
 			$save = new Save();
 			try {
 				$save->saveToWiki(
@@ -120,25 +126,54 @@ class ContentCore {
 			} catch ( WSFormException $e ) {
 				throw new WSFormException( $e->getMessage(), 0, $e );
 			}
-			$serverUrl = wfGetServerUrl( null ) . '/' . 'index.php';
-			if( self::$fields['mwfollow'] !== false ) {
-				if( self::$fields['mwfollow'] === 'true' ) {
-
-					self::$fields['returnto'] = $serverUrl . '/' . $result['title'];
-				} else {
-					if( strpos( self::$fields['returnto'], '?' ) ) {
-						self::$fields['returnto'] = self::$fields['returnto'] . '&' . self::$fields['mwfollow'] . '=' . $result['title'];
-					} else {
-						self::$fields['returnto'] = self::$fields['returnto'] . '?' . self::$fields['mwfollow'] . '=' . $result['title'];
-					}
+			self::checkFollowPage( $result['title'] );
+			if( ! self::$fields['mwedit'] && ! self::$fields['email'] && ! self::$fields['writepages'] ) {
+				$response_handler->setMwReturn( self::$fields['returnto'] );
+				$response_handler->setReturnType( HandleResponse::TYPE_SUCCESS );
+				if( self::$fields['msgOnSuccess'] !== false ) {
+					$response_handler->setReturnData( self::$fields['msgOnSuccess'] );
 				}
+
+				return $response_handler;
 			}
-			return self::$fields['returnto'];
 		}
 
+		// We need to do multiple edits
+		if ( self::$fields['writepages'] !== false  ) {
+
+		}
+		return $response_handler;
 	}
 
-	private static function createSlotArray( $slot, $value ){
+	/**
+	 * Check if we need to change to returnto url to return to newly created page.
+	 * @param string $title
+	 *
+	 * @return void
+	 */
+	private static function checkFollowPage( $title ):void {
+		$serverUrl = wfGetServerUrl( null ) . '/' . 'index.php';
+		if( self::$fields['mwfollow'] !== false ) {
+			if( self::$fields['mwfollow'] === 'true' ) {
+
+				self::$fields['returnto'] = $serverUrl . '/' . $title;
+			} else {
+				if( strpos( self::$fields['returnto'], '?' ) ) {
+					self::$fields['returnto'] = self::$fields['returnto'] . '&' . self::$fields['mwfollow'] . '=' . $title;
+				} else {
+					self::$fields['returnto'] = self::$fields['returnto'] . '?' . self::$fields['mwfollow'] . '=' . $title;
+				}
+			}
+		}
+	}
+
+	/**
+	 * @param string $slot
+	 * @param string $value
+	 *
+	 * @return array
+	 */
+	private static function createSlotArray( string $slot, string $value ): array{
 		return array( $slot => $value );
 	}
 

@@ -10,6 +10,7 @@
 
 namespace WSForm\Processors\Content;
 
+use WSForm\Processors\Content\ContentCore;
 use WSForm\Processors\Definitions;
 use WSForm\Processors\Content\ContentCore;
 use WSForm\WSFormException;
@@ -18,6 +19,8 @@ class create {
 
 	private $content;
 	private $title;
+	private $pagesToSave;
+	private $pageData;
 
 	/**
 	 * @throws WSFormException
@@ -96,26 +99,59 @@ class create {
 		}
 		// Return the result
 		return array( 'title' => $this->title, 'content' => $this->content );
+	}
 
-		$result = $api->savePageToWiki( $title, $ret, $summary );
-		if(isset($result['received']['error'])) {
-			return wbHandleResponses::createMsg($result['received']['error'],'error',$returnto);
+	private function setPageData( $page ){
+		$exploded = explode( '-^^-', $page );
+		if( isset( $exploded[0] ) && $exploded[0] !== '' ) {
+			$this->pageData['template'] = $this->pageData[0];
+			if( strtolower( $this->pageData[0] ) === 'wsnone' ) {
+				$this->pageData['notemplate'] = true;
+			} else $this->pageData['notemplate'] = false;
+		} else {
+			$this->pageData['template'] = false;
+			$this->pageData['notemplate'] = false;
 		}
-		if( $mwfollow !== false ) {
-			if( $mwfollow === 'true' ) {
 
-				$returnto = $api->app['wgScript'] . '/' . $title;
-			} else {
-				if( strpos( $returnto, '?' ) ) {
-					$returnto = $returnto . '&' . $mwfollow . '=' . $title;
-				} else {
-					$returnto = $returnto . '?' . $mwfollow . '=' . $title;
-				}
+		if( isset( $exploded[1] ) && $exploded[1] !== '' ) {
+			$this->pageData['title'] = $this->pageData[1];
+		} else $this->pageData['title'] = false;
+
+		if( isset( $exploded[2] ) && $exploded[2] !== '' ) {
+			$this->pageData['option'] = $this->pageData[2];
+		} else $this->pageData['option'] = false;
+
+		if( isset( $exploded[3] ) && $exploded[3] !== '' ) {
+			$formFields = explode( ',', $this->pageData[3] );
+			$this->pageData['formFields'] = array_map( 'trim', $formFields );
+		} else $this->pageData['formFields'] = false;
+
+		if( isset( $exploded[4] ) && $exploded[4] !== '' ) {
+			$this->pageData['slot'] = $this->pageData[4];
+		} else $this->pageData['slot'] = false;
+
+		if( isset( $exploded[5] ) && $exploded[5] !== '' ) {
+			$this->pageData['id'] = $this->pageData[5];
+		} else $this->pageData['id'] = false;
+
+	}
+
+
+
+	public function writePages(){
+		$pageCount = 0;
+		$fields = ContentCore::getFields();
+		foreach( $fields['writepages'] as $singlePage ) {
+			$pageCount++;
+			$this->setPageData( $singlePage );
+			//If we do not have a page title or a template, then skip!
+			if( $this->pageData['template'] === false || $this->pageData['title'] === false ) {
+				continue;
+			}
+			if( !$this->pageData['notemplate'] ) {
+				$contentToBe = "{{" . $this->pageData['template'] . "\n";
 			}
 		}
-		$weHaveApi = true;
-
-
 	}
 
 
