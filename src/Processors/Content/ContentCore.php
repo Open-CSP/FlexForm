@@ -2,12 +2,14 @@
 
 namespace WSForm\Processors\Content;
 
+use MWException;
 use RequestContext;
 use WSForm\Core\Config;
 use WSForm\Processors\Security\wsSecurity;
 use WSForm\Processors\Definitions;
 use WSForm\Processors\Utilities\General;
 use WSForm\Processors\Files\FilesCore;
+use WSForm\WSFormException;
 
 /**
  * Class core
@@ -66,7 +68,9 @@ class ContentCore {
 	}
 
 	/**
-	 * @return array
+	 * @return string Return url
+	 * @throws WSFormException
+	 * @throws MWException
 	 */
 	public function saveToWiki() {
 		self::$fields = Definitions::createAndEditFields();
@@ -96,10 +100,46 @@ class ContentCore {
 		}
 		*/
 
+
+		// WSCreate single
 		if ( self::$fields['template'] !== false && self::$fields['writepage'] !== false ) {
-			// Create one page
+			$create = new create();
+			try {
+				$result = $create->writePage();
+			} catch ( WSFormException $e ) {
+				throw new WSFormException( $e->getMessage(), 0, $e );
+			}
+			$result['content'] = self::createSlotArray( 'main', $result['content'] );
+			$save = new Save();
+			try {
+				$save->saveToWiki(
+					$result['title'],
+					$result['content'],
+					self::$fields['summary']
+				);
+			} catch ( WSFormException $e ) {
+				throw new WSFormException( $e->getMessage(), 0, $e );
+			}
+			$serverUrl = wfGetServerUrl( null ) . '/' . 'index.php';
+			if( self::$fields['mwfollow'] !== false ) {
+				if( self::$fields['mwfollow'] === 'true' ) {
+
+					self::$fields['returnto'] = $serverUrl . '/' . $result['title'];
+				} else {
+					if( strpos( self::$fields['returnto'], '?' ) ) {
+						self::$fields['returnto'] = self::$fields['returnto'] . '&' . self::$fields['mwfollow'] . '=' . $result['title'];
+					} else {
+						self::$fields['returnto'] = self::$fields['returnto'] . '?' . self::$fields['mwfollow'] . '=' . $result['title'];
+					}
+				}
+			}
+			return self::$fields['returnto'];
 		}
 
+	}
+
+	private static function createSlotArray( $slot, $value ){
+		return array( $slot => $value );
 	}
 
 	/**
@@ -142,7 +182,7 @@ class ContentCore {
 	/**
 	 * @return int
 	 */
-	private static function createRandom(): int {
+	public static function createRandom(): int {
 		return time();
 	}
 
@@ -156,7 +196,7 @@ class ContentCore {
 					$title = str_replace('[' . $fieldname . ']', $imp, $title);
 				} elseif ( $fn !== '' ) {
 					if( Config::getConfigVariable( 'create-seo-titles' ) === true ) {
-						$fn = $api->urlToSEO( $fn );
+						$fn = self::urlToSEO( $fn );
 					}
 					$title = str_replace('[' . $fieldname . ']', $fn, $title);
 				} else {
@@ -171,5 +211,97 @@ class ContentCore {
 		}
 		return $title;
 	}
+
+	/**
+	 * @param $string
+	 *
+	 * @return string
+	 */
+	public static function urlToSEO( $string ) : string {
+		$separator = '-';
+		$accents_regex = '~&([a-z]{1,2})(?:acute|cedil|circ|grave|lig|orn|ring|slash|th|tilde|uml);~i';
+		$special_cases = array(
+			'&' => 'and',
+			"'" => ''
+		);
+		$string = mb_strtolower(
+			trim( $string ),
+			'UTF-8'
+		);
+		$string = str_replace(
+			array_keys( $special_cases ),
+			array_values( $special_cases ),
+			$string
+		);
+		$string = preg_replace(
+			$accents_regex,
+			'$1',
+			htmlentities(
+				$string,
+				ENT_QUOTES,
+				'UTF-8'
+			)
+		);
+		$string = preg_replace(
+			"/[^a-z0-9]/u",
+			"$separator",
+			$string
+		);
+		$string = preg_replace(
+			"/[$separator]+/u",
+			"$separator",
+			$string
+		);
+
+		return trim( $string, '-' );
+	}
+
+	public static function getNextAvailable( $nameStartsWith ){
+		$render   = new Render();
+		$postdata = [
+			"action"          => "wsform",
+			"format"          => "json",
+			"what"            => "nextAvailable",
+			"titleStartsWith" => $nameStartsWith
+		];
+		$result = $render->makeRequest( $postdata );
+		if( isset( $result['received']['wsform']['error'] ) ) {
+			return(array('status' => 'error', 'message' => $result['received']['wsform']['error']['message']));
+		} elseif ( isset( $result['received']['error'] ) ) {
+			return(array('status' => 'error', 'message' => $result['received']['error']['code'] . ': ' .
+														   $result['received']['error']['info'] ) );
+		} else {
+			return(array('status' => 'ok', 'result' => $result['received']['wsform']['result']));
+		}
+		die();
+	}
+
+	/**
+	 * @param $nameStartsWith
+	 * @param $range
+	 *
+	 * @return array
+	 */
+	public static function getFromRange( $nameStartsWith, $range ){
+		$postdata = [
+			 "action" => "wsform",
+			 "format" => "json",
+			 "what" => "getRange",
+			 "titleStartsWith" => $nameStartsWith,
+			 "range" => $range
+		 ];
+		$render = new Render();
+		$result = $render->makeRequest( $postdata );
+
+		if( isset( $result['received']['wsform']['error'] ) ) {
+			return(array('status' => 'error', 'message' => $result['received']['wsform']['error']['message']));
+		} else {
+			return(array('status' => 'ok', 'result' => $result['received']['wsform']['result']));
+		}
+		die();
+	}
+
+
+
 
 }
