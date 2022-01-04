@@ -54,16 +54,12 @@ class Core {
 
 	private static $javaScriptConfigVars = array();
 
-	/**
-	 * @return string
-	 */
+    /**
+     * @return string
+     * @throws \MWException
+     */
 	public static function getAPIurl() {
-		global $wgScript;
-		if (php_sapi_name() != "cli") {
-		    $apiUrl = rtrim( $wgScript, 'index.php' );
-			$dir = $apiUrl . 'extensions/WSForm/WSForm.api.php';
-		} else $dir='/extensions/WSForm/WSForm.api.php';
-		return $dir;
+		return \SpecialPage::getTitleFor( 'WSForm' )->getFullUrlForRedirect();
 	}
 
 	public static function setShowOnSelectActive() {

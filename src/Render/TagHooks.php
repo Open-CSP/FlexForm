@@ -587,10 +587,7 @@ class TagHooks {
      * @throws WSFormException
      */
     public function renderToken( $input, array $args, Parser $parser, PPFrame $frame ) {
-        global $wgDBname, $wgDBprefix;
-
         $parsedInput = $parser->recursiveTagParseFully( $input, $frame );
-        $mwDB = $wgDBname . isset ( $wgDBprefix ) && !empty( $wgDBprefix ) ? '_' . $wgDBprefix : '';
 
         if ( isset( $args['placeholder'] ) ) {
             $placeholder = $parser->recursiveTagParse( $args['placeholder'], $frame );
@@ -600,23 +597,28 @@ class TagHooks {
         }
 
         if ( isset( $args['multiple'] ) ) {
-            $multiple = $parser->recursiveTagParse( $args['multiple'], $frame );
+            $multiple = $parser->recursiveTagParse( $args['multiple'], $frame ) === "multiple";
             unset( $args['multiple'] );
         } else {
-            $multiple = null;
+            $multiple = false;
         }
 
         if ( isset( $args['id'] ) ) {
             $id = $parser->recursiveTagParse( $args['id'], $frame );
 
             // Make sure ID is valid
-            if ( !preg_match( '/^[a-zA-Z0-9_]+$/', $id ) ) {
-                return ['Invalid ID as it does not match pattern [a-zA-Z0-9_]+', 'noparse' => true];
+            if ( !preg_match( '/^[a-zA-Z0-9_-]+$/', $id ) ) {
+                return ['Invalid ID as it does not match pattern [a-zA-Z0-9_-]+', 'noparse' => true];
             }
 
             unset( $args['id'] );
         } else {
-            return ['Missing ID.', 'noparse' => true];
+            try {
+                // Generate a random fallback ID
+                $id = bin2hex( random_bytes( 16 ) );
+            } catch ( \Exception $exception ) {
+                return ['Could not get enough entropy to generate random ID', 'noparse' => true];
+            }
         }
 
         if ( isset( $args['input-length-trigger'] ) ) {
@@ -630,7 +632,7 @@ class TagHooks {
         if ( isset( $args['json'] ) ) {
             $json = strpos( $args['json'], 'semantic_ask' ) ?
                 $args['json'] : $parser->recursiveTagParse( $args['json'], $frame );
-            unset( $json['json'] );
+            unset( $args['json'] );
         } else {
             $json = null;
         }
@@ -652,8 +654,8 @@ class TagHooks {
             $template = $parser->recursiveTagParse( $args['template'], $frame );
 
             // Make sure callback is valid
-            if ( !preg_match( '/^[a-zA-Z0-9_]+$/', $template ) ) {
-                return ['Invalid template as it does not match pattern [a-zA-Z0-9_]+', 'noparse' => true];
+            if ( !preg_match( '/^[a-zA-Z0-9_ ]+$/', $template ) ) {
+                return ['Invalid template as it does not match pattern [a-zA-Z0-9_ ]+', 'noparse' => true];
             }
 
             unset( $args['template'] );
@@ -685,14 +687,13 @@ class TagHooks {
 
         $output = $this->themeStore->getFormTheme()->getTokenRenderer()->render_token(
             $parsedInput,
-            $mwDB,
             $id,
             $inputLengthTrigger,
             $placeholder,
-            $multiple,
             $json,
             $callback,
             $template,
+            $multiple,
             $allowTags,
             $allowClear,
             $additionalArguments
@@ -766,31 +767,21 @@ class TagHooks {
      * @throws WSFormException
      */
     public function renderCreate( $input, array $args, Parser $parser, PPFrame $frame ) {
-        // FIXME: Replace empty string with "null"
-        $template = isset( $args['mwtemplate'] ) ? $parser->recursiveTagParse( $args['mwtemplate'], $frame ) : '';
-        $createId = isset( $args['id'] ) ? $parser->recursiveTagParse( $args['id'], $frame ) : '';
-        $write = isset( $args['mwwrite'] ) ? $parser->recursiveTagParse( $args['mwwrite'], $frame ) : '';
-        $slot = isset( $args['mwslot'] ) ? $parser->recursiveTagParse( $args['mwslot'], $frame ) : '';
-        $option = isset( $args['mwoption'] ) ? $parser->recursiveTagParse( $args['mwoption'], $frame ) : '';
-        $fields = isset( $args['mwfields'] ) ? $parser->recursiveTagParse( $args['mwfields'], $frame ) : '';
+        $template = isset( $args['mwtemplate'] ) ? $parser->recursiveTagParse( $args['mwtemplate'], $frame ) : null;
+        $createId = isset( $args['id'] ) ? $parser->recursiveTagParse( $args['id'], $frame ) : null;
+        $write = isset( $args['mwwrite'] ) ? $parser->recursiveTagParse( $args['mwwrite'], $frame ) : null;
+        $slot = isset( $args['mwslot'] ) ? $parser->recursiveTagParse( $args['mwslot'], $frame ) : null;
+        $option = isset( $args['mwoption'] ) ? $parser->recursiveTagParse( $args['mwoption'], $frame ) : null;
+        $fields = isset( $args['mwfields'] ) ? $parser->recursiveTagParse( $args['mwfields'], $frame ) : null;
+        $follow = isset( $args['mwfollow'] ) ? $parser->recursiveTagParse( $args['mwfollow'], $frame ) : null;
 
         $leadingZero = isset( $args['mwleadingzero'] );
 
-        if ( isset( $args['mwfollow'] ) ) {
-            $follow = $parser->recursiveTagParse( $args['mwfollow'], $frame );
-
-            if ( $follow === '' || $follow === '1' || $follow === 'true' ) {
-                $follow = 'true';
-            }
-        } else {
-            $follow = '';
-        }
-
-        if ( $fields !== '' && $template === '' ) {
+        if ( $fields !== null && $template === null ) {
             return ['No valid template for creating a page.', 'noparse' => true];
         }
 
-        if ( $fields !== '' && $write === '' ) {
+        if ( $fields !== null && $write === null ) {
             return ['No valid title for creating a page.', 'noparse' => true];
         }
 

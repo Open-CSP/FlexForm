@@ -14,16 +14,16 @@ interface CreateRenderer {
     /**
      * @brief Render create
      *
-     * @param string $template
-     * @param string $createId
-     * @param string $write
-     * @param string $slot
-     * @param string $option
-     * @param string $follow
-     * @param string $fields
+     * @param string|null $follow
+     * @param string|null $template
+     * @param string|null $createId
+     * @param string|null $write
+     * @param string|null $slot
+     * @param string|null $option
+     * @param string|null $fields
      * @param bool $leadingZero
      *
      * @return string Rendered HTML
      */
-    public function render_create( string $template, string $createId, string $write, string $slot, string $option, string $follow, string $fields, bool $leadingZero ): string;
+    public function render_create( ?string $follow, ?string $template, ?string $createId, ?string $write, ?string $slot, ?string $option, ?string $fields, bool $leadingZero ): string;
 }

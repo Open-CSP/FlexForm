@@ -9,16 +9,22 @@ class WSFormCreateRenderer implements CreateRenderer {
     /**
      * @inheritDoc
      */
-    public function render_create( string $template, string $createId, string $write, string $slot, string $option, string $follow, string $fields, bool $leadingZero ): string {
-        $template = htmlspecialchars( $template );
-        $createId = htmlspecialchars( $createId );
-        $write = htmlspecialchars( $write );
-        $slot = htmlspecialchars( $slot );
-        $option = htmlspecialchars( $option );
-        $fields = htmlspecialchars( $fields );
+    public function render_create( ?string $follow, ?string $template, ?string $createId, ?string $write, ?string $slot, ?string $option, ?string $fields, bool $leadingZero ): string {
+        $template = $template !== null ? htmlspecialchars( $template ) : '';
+        $createId = $createId !== null ? htmlspecialchars( $createId ) : '';
+        $write = $write !== null ? htmlspecialchars( $write ) : '';
+        $slot = $slot !== null ? htmlspecialchars( $slot ) : '';
+        $option = $option !== null ? htmlspecialchars( $option ) : '';
+        $fields = $fields !== null ? htmlspecialchars( $fields ) : '';
 
-        if ( $follow !== '' ) {
-            $follow = Core::createHiddenField( 'mwfollow', htmlspecialchars( $follow ) );
+        if ( $follow !== null ) {
+            if ( $follow === '' || $follow === '1' || $follow === 'true' ) {
+                $follow = 'true';
+            } else {
+                $follow = htmlspecialchars( $follow );
+            }
+
+            $follow = Core::createHiddenField( 'mwfollow', $follow );
         }
 
         if ( $fields !== '' ) {
