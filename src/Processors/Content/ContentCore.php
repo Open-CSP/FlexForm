@@ -8,6 +8,7 @@ use WSForm\Processors\Security\wsSecurity;
 use WSForm\Processors\Definitions;
 use WSForm\Processors\Utilities\General;
 use WSForm\Processors\Files\FilesCore;
+use WSForm\WSFormException;
 
 /**
  * Class core
@@ -67,6 +68,7 @@ class ContentCore {
 
 	/**
 	 * @return array
+	 * @throws WSFormException
 	 */
 	public function saveToWiki() {
 		self::$fields = Definitions::createAndEditFields();
@@ -97,9 +99,35 @@ class ContentCore {
 		*/
 
 		if ( self::$fields['template'] !== false && self::$fields['writepage'] !== false ) {
-			// Create one page
+			$create = new create();
+			try {
+				$result = $create->writePage();
+			} catch ( WSFormException $e ) {
+				throw new WSFormException( $e->getMessage(), 0, $e );
+			}
+			$result['content'] = self::createSlotArray( 'main', $result['content'] );
+			$save = new Save();
+			$save->saveToWiki( $result['title'], $result['content'], self::$fields['summary'] );
+			$serverUrl = wfGetServerUrl( null ) . '/' . 'index.php';
+			if( self::$fields['mwfollow'] !== false ) {
+				if( self::$fields['mwfollow'] === 'true' ) {
+
+					self::$fields['returnto'] = $serverUrl . '/' . $result['title'];
+				} else {
+					if( strpos( self::$fields['returnto'], '?' ) ) {
+						self::$fields['returnto'] = self::$fields['returnto'] . '&' . self::$fields['mwfollow'] . '=' . $result['title'];
+					} else {
+						self::$fields['returnto'] = self::$fields['returnto'] . '?' . self::$fields['mwfollow'] . '=' . $result['title'];
+					}
+				}
+			}
+
 		}
 
+	}
+
+	private static function createSlotArray( $slot, $value ){
+		return array( $slot => $value );
 	}
 
 	/**
@@ -216,6 +244,8 @@ class ContentCore {
 		}
 		die();
 	}
+
+
 
 
 }

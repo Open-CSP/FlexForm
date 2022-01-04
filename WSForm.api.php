@@ -44,13 +44,7 @@ if ( ! defined( 'MEDIAWIKI' ) ) {
 	die( 'no no no sir' );
 }
 
-
-ERROR_REPORTING(E_ALL);
-ini_set('display_errors', 1);
-
-
 $ret = false;
-
 
 $removeList = array();
 

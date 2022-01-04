@@ -16,26 +16,27 @@ use WSForm\WSFormException;
 
 class create {
 
-	private static $ret;
+	private $content;
+	private $title;
 
 	/**
 	 * @throws WSFormException
 	 */
-	public static function writePage() {
+	public function writePage() {
 
 		$fields = ContentCore::getFields();
 
-		self::$ret = ContentCore::createContent();
+		$this->content = ContentCore::createContent();
 
 		if (strpos( $fields['writepage'],'[') !== false) {
 			$fields['writepage'] = ContentCore::parseTitle( $fields['writepage'] );
 		}
 
-		$title = $fields['writepage'];
+		$this->title = $fields['writepage'];
 
 		if( strtolower( $fields['option'] ) == 'next_available' ) {
 			// get highest number
-			$hnr = ContentCore::getNextAvailable( $title );
+			$hnr = ContentCore::getNextAvailable( $this->title );
 			if( $hnr['status'] !== 'error') {
 				$title = $fields['writepage'] . $hnr['result'];
 			} else {
@@ -45,7 +46,7 @@ class create {
 			//$title = $writepage . $api->getNextAvailable( $title );
 			//die( $title );
 			//$title = $writepage . $api->getWikiListNumber($title);
-			if( $title === false ) {
+			if( $this->title === false ) {
 				throw new WSFormException( wfMessage( 'wsform-mwcreate-wrong-title2' )->text() );
 				//return wbHandleResponses::createMsg($i18n->wsMessage( 'wsform-mwcreate-wrong-title2' ), 'error', $returnto);
 			}
@@ -64,13 +65,13 @@ class create {
 
 
 			//$tmp  = $api->getWikiListNumber($title, array('start' => $startRange, 'end' => $endRange) );
-			$tmp  = ContentCore::getFromRange( $title, $range );
-			if( $tmp['status'] === 'error') {
+			$rangeResult  = ContentCore::getFromRange( $this->title, $range );
+			if( $rangeResult['status'] === 'error') {
 				//echo $tmp['message'];
-				throw new WSFormException( $tmp['message'] );
+				throw new WSFormException( $rangeResult['message'] );
 				//return wbHandleResponses::createMsg( $tmp['message'], 'error', $returnto);
 			}
-			$tmp = $tmp['result'];
+			$rangeResult = $rangeResult['result'];
 			/*
 			if($tmp === false) {
 				return wbHandleResponses::createMsg($i18n->wsMessage('wsform-mwoption-out-of-range'), 'error', $returnto);
@@ -78,13 +79,13 @@ class create {
 			*/
 			if( $fields['leadByZero'] === true ) {
 				$endrangeLength = strlen($range[1]);
-				$tmp = str_pad($tmp, $endrangeLength, '0', STR_PAD_LEFT);
+				$rangeResult = str_pad( $rangeResult, $endrangeLength, '0', STR_PAD_LEFT );
 			}
-			$title = $fields['writepage'] . $tmp;
+			$this->title = $fields['writepage'] . $rangeResult;
 		}
 
 		if ( $fields['option'] == 'add_random' && $fields['writepage'] !== false ) {
-			$title = $fields['writepage'] . ContentCore::createRandom();
+			$this->title = $fields['writepage'] . ContentCore::createRandom();
 		}
 
 
@@ -93,12 +94,8 @@ class create {
 			//return wbHandleResponses::createMsg( $i18n->wsMessage( 'wsform-mwcreate-wrong-title') );
 
 		}
-		// Now add the page to the wiki
-
-
-		//$api->usr = $etoken;
-		$api->logMeIn();
-		//die($wsuid);
+		// Return the result
+		return array( 'title' => $this->title, 'content' => $this->content );
 
 		$result = $api->savePageToWiki( $title, $ret, $summary );
 		if(isset($result['received']['error'])) {
