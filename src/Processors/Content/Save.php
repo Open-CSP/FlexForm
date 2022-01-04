@@ -7,9 +7,11 @@ use ContentHandler;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
 use MWException;
+use RequestContext;
 use Title;
 use User;
 use WikiPage;
+use WSForm\Core\HandleResponse;
 use WSForm\WSFormException;
 
 class Save {
@@ -111,7 +113,7 @@ class Save {
 		if ( true === $status ) {
 			return true;
 		} else {
-			return $this->createMsg( $errors );
+			return $errors;
 		}
 	}
 
@@ -120,6 +122,7 @@ class Save {
 	 * @throws \MWException
 	 */
 	public function saveToWiki( $title, $contentArray, $summary ) {
+		$user = RequestContext::getMain()->getUser();
 		$title = Title::newFromText( $title );
 		if ( ! $title || $title->hasFragment() ) {
 			throw new WSFormException( "Invalid title $title." );
@@ -133,7 +136,7 @@ class Save {
 				"Could not create a WikiPage Object from title " . $title->getText() . '. Message ' . $e->getMessage(), 0, $e
 			);
 		}
-		$saveResult = $this->editSlots( User)
+		$saveResult = $this->editSlots( $user, $wikiPageObject, $contentArray, $summary );
 
 	}
 

@@ -2,6 +2,7 @@
 
 namespace WSForm\Processors\Content;
 
+use MWException;
 use RequestContext;
 use WSForm\Core\Config;
 use WSForm\Processors\Security\wsSecurity;
@@ -67,8 +68,9 @@ class ContentCore {
 	}
 
 	/**
-	 * @return array
+	 * @return string Return url
 	 * @throws WSFormException
+	 * @throws MWException
 	 */
 	public function saveToWiki() {
 		self::$fields = Definitions::createAndEditFields();
@@ -98,6 +100,8 @@ class ContentCore {
 		}
 		*/
 
+
+		// WSCreate single
 		if ( self::$fields['template'] !== false && self::$fields['writepage'] !== false ) {
 			$create = new create();
 			try {
@@ -107,7 +111,15 @@ class ContentCore {
 			}
 			$result['content'] = self::createSlotArray( 'main', $result['content'] );
 			$save = new Save();
-			$save->saveToWiki( $result['title'], $result['content'], self::$fields['summary'] );
+			try {
+				$save->saveToWiki(
+					$result['title'],
+					$result['content'],
+					self::$fields['summary']
+				);
+			} catch ( WSFormException $e ) {
+				throw new WSFormException( $e->getMessage(), 0, $e );
+			}
 			$serverUrl = wfGetServerUrl( null ) . '/' . 'index.php';
 			if( self::$fields['mwfollow'] !== false ) {
 				if( self::$fields['mwfollow'] === 'true' ) {
@@ -121,7 +133,7 @@ class ContentCore {
 					}
 				}
 			}
-
+			return self::$fields['returnto'];
 		}
 
 	}
@@ -184,7 +196,7 @@ class ContentCore {
 					$title = str_replace('[' . $fieldname . ']', $imp, $title);
 				} elseif ( $fn !== '' ) {
 					if( Config::getConfigVariable( 'create-seo-titles' ) === true ) {
-						$fn = $api->urlToSEO( $fn );
+						$fn = self::urlToSEO( $fn );
 					}
 					$title = str_replace('[' . $fieldname . ']', $fn, $title);
 				} else {
@@ -198,6 +210,50 @@ class ContentCore {
 			}
 		}
 		return $title;
+	}
+
+	/**
+	 * @param $string
+	 *
+	 * @return string
+	 */
+	public static function urlToSEO( $string ) : string {
+		$separator = '-';
+		$accents_regex = '~&([a-z]{1,2})(?:acute|cedil|circ|grave|lig|orn|ring|slash|th|tilde|uml);~i';
+		$special_cases = array(
+			'&' => 'and',
+			"'" => ''
+		);
+		$string = mb_strtolower(
+			trim( $string ),
+			'UTF-8'
+		);
+		$string = str_replace(
+			array_keys( $special_cases ),
+			array_values( $special_cases ),
+			$string
+		);
+		$string = preg_replace(
+			$accents_regex,
+			'$1',
+			htmlentities(
+				$string,
+				ENT_QUOTES,
+				'UTF-8'
+			)
+		);
+		$string = preg_replace(
+			"/[^a-z0-9]/u",
+			"$separator",
+			$string
+		);
+		$string = preg_replace(
+			"/[$separator]+/u",
+			"$separator",
+			$string
+		);
+
+		return trim( $string, '-' );
 	}
 
 	public static function getNextAvailable( $nameStartsWith ){
