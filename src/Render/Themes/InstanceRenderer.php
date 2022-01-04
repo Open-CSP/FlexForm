@@ -14,12 +14,10 @@ interface InstanceRenderer {
     /**
      * @brief Render instance
      *
-     * @param string $input Input for the field (should be parsed)
-     * @param array $args Arguments for the field (should be parsed)
-     * @param Parser $parser MediaWiki parser
-     * @param PPFrame $frame Current PPFrame
+     * @param string $content The innerHTML of the instance field
+     * @param array $args Arguments for the field
      *
      * @return string Rendered HTML
      */
-    public function render_instance( string $input, array $args, Parser $parser, PPFrame $frame ): string;
+    public function render_instance( string $content, array $args ): string;
 }

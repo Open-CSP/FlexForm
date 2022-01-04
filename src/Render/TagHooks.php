@@ -195,17 +195,108 @@ class TagHooks {
 
             // TODO: Fix the parsing and move some logic from render_form to here
 
-            // Parse the input
-            $input = $this->parseValue( $input, $parser, $frame );
+            if ( isset( $args['messageonsuccess'] ) ) {
+                $messageOnSuccess = $parser->recursiveTagParse( $args['messageonsuccess'], $frame);
+                unset( $args['messageonsuccess'] );
+            } else {
+                $messageOnSuccess = null;
+            }
 
-            // Parse the arguments
-            $args = $this->parseArguments( $args, $parser, $frame );
+            if ( isset( $args['setwikicomment'] ) ) {
+                $wikiComment = $parser->recursiveTagParse( $args['setwikicomment'], $frame);
+                unset( $args['setwikicomment'] );
+            } else {
+                $wikiComment = null;
+            }
+
+            if ( isset( $args['mwreturn'] ) ) {
+                $mwReturn = Core::getMWReturn( $parser->recursiveTagParse( $args['mwreturn'], $frame ) );
+                unset( $args['mwreturn'] );
+            } else {
+                $mwReturn = $parser->getTitle()->getLinkURL();
+            }
+
+            if ( isset( $args['formtarget'] ) ) {
+                $formTarget = $parser->recursiveTagParse( $args['formtarget'], $frame );
+                unset( $args['formtarget'] );
+            } else {
+                $formTarget = null;
+            }
+
+            if ( isset( $args['action'] ) ) {
+                $action = $parser->recursiveTagParse( $args['action'], $frame );
+                unset( $args['action'] );
+            } else {
+                $action = null;
+            }
+
+            if ( isset( $args['extension'] ) ) {
+                $extension = $parser->recursiveTagParse( $args['extension'], $frame );
+                unset( $args['extension'] );
+            } else {
+                $extension = null;
+            }
+
+            if ( isset( $args['autosave'] ) ) {
+                $autosaveType = $parser->recursiveTagParse( $args['autosave'], $frame );
+                unset( $args['autosave'] );
+            } else {
+                $autosaveType = null;
+            }
+
+            if ( isset( $args['class'] ) ) {
+                $additionalClass = $parser->recursiveTagParse( $args['class'], $frame );
+                unset( $args['class'] );
+            } else {
+                $additionalClass = null;
+            }
+
+            if ( isset( $args['post-as-user'] ) ) {
+                $postAsUser = true;
+                unset( $args['post-as-user'] );
+            } else {
+                $postAsUser = false;
+            }
+
+            if ( isset( $args['show-on-select'] ) ) {
+                $showOnSelect = true;
+                unset( $args['show-on-select'] );
+            } else {
+                $showOnSelect = false;
+            }
+
+            if ( isset( $args['recaptcha-v3-action'] ) ) {
+                Core::$reCaptcha = $args['recaptcha-v3-action'];
+                unset( $args['recaptcha-v3-action'] );
+            }
+
+            $additionalArgs = [];
+            foreach ( $args as $name => $argument ) {
+                if ( Validate::validParameters( $name ) ) {
+                    $additionalArgs[$name] = $parser->recursiveTagParse( $argument, $frame );
+                }
+            }
+
+            $actionUrl = $formTarget ?? Core::getAPIurl();
 
             // Render the actual contents of the form
             $ret .= $this->themeStore
                 ->getFormTheme()
                 ->getFormRenderer()
-                ->render_form( $input, $args, $parser, $frame );
+                ->render_form(
+                    $actionUrl,
+                    $mwReturn,
+                    $messageOnSuccess,
+                    $wikiComment,
+                    $formTarget,
+                    $action,
+                    $extension,
+                    $autosaveType,
+                    $additionalClass,
+                    $postAsUser,
+                    $showOnSelect,
+                    $additionalArgs
+                );
         } finally {
             $this->themeStore->setFormThemeName( $previousTheme );
         }
@@ -565,7 +656,7 @@ class TagHooks {
         }
 
         $input = $parser->recursiveTagParseFully( $input, $frame );
-        $placeholder = $args['placeholder'] ?? '';
+        $placeholder = $args['placeholder'] ?? null;
 
         $select = $this->themeStore
             ->getFormTheme()
@@ -788,7 +879,7 @@ class TagHooks {
         $output = $this->themeStore
             ->getFormTheme()
             ->getCreateRenderer()
-            ->render_create( $template, $createId, $write, $slot, $option, $follow, $fields, $leadingZero );
+            ->render_create( $follow, $template, $createId, $write, $slot, $option, $fields, $leadingZero );
 
         return [
             $output,
@@ -896,13 +987,12 @@ class TagHooks {
      * @param PPFrame $frame MediaWiki PPFrame
      *
      * @return array send to the MediaWiki Parser or
+     * @throws WSFormException
      */
     public function renderInstance( $input, array $args, Parser $parser, PPFrame $frame ) {
-        // TODO
-
         global $IP, $wgScript;
-        $realUrl = str_replace( '/index.php', '', $wgScript );
 
+        $realUrl = str_replace( '/index.php', '', $wgScript );
 
         // Add move, delete and add button with classes
         $parser->getOutput()->addModuleStyles( 'ext.wsForm.Instance.styles' );
@@ -911,27 +1001,35 @@ class TagHooks {
             Core::addAsLoaded( 'wsinstance-initiated' );
         }
 
-        $output = $parser->recursiveTagParse( $input, $frame );
-
         if ( !Core::isLoaded( 'wsinstance-initiated' ) ) {
             Core::addAsLoaded( 'wsinstance-initiated' );
         }
 
-        // TODO: This
-        $ret = $this->themeStore->getFormTheme()->getInstanceRenderer()->render_instance( $args, $output );
+        $content = $parser->recursiveTagParse( $input, $frame );
+
+        // TODO: Can you take a look at this @Charlot?
+        $ret = $this->themeStore->getFormTheme()->getInstanceRenderer()->render_instance( $content, $args );
 
         Core::removeAsLoaded( 'wsinstance-initiated' );
 
-        if ( !Core::isLoaded( 'multipleinstance' ) ) {
-            if ( file_exists( $IP . '/extensions/WSForm/modules/instances/wsInstance.js' ) ) {
-                $ls =  $realUrl . '/extensions/WSForm/modules/instances/wsInstance.js';
-                $ret = '<script type="text/javascript" charset="UTF-8" src="' . $ls . '"></script>' . $ret ;
+        if ( !Core::isLoaded( 'multipleinstance' ) && file_exists( $IP . '/extensions/WSForm/modules/instances/wsInstance.js' ) ) {
+            $scriptPath = $realUrl . '/extensions/WSForm/modules/instances/wsInstance.js';
+            $scriptTag = \Xml::tags('script', [
+                'type' => 'text/javascript',
+                'charset' => 'UTF-8',
+                'src' => $scriptPath
+            ], '');
 
-                Core::addAsLoaded( 'multipleinstance' );
-            }
+            $ret = $scriptTag . $ret ;
+
+            Core::addAsLoaded( 'multipleinstance' );
         }
 
-        return array( $ret, 'noparse' => true, "markerType" => 'nowiki' );
+        return [
+            $ret,
+            'noparse' => true,
+            'markerType' => 'nowiki'
+        ];
     }
 
     /**

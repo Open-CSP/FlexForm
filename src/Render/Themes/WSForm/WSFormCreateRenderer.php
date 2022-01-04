@@ -18,13 +18,10 @@ class WSFormCreateRenderer implements CreateRenderer {
         $fields = $fields !== null ? htmlspecialchars( $fields ) : '';
 
         if ( $follow !== null ) {
-            if ( $follow === '' || $follow === '1' || $follow === 'true' ) {
-                $follow = 'true';
-            } else {
-                $follow = htmlspecialchars( $follow );
-            }
-
+            $follow = $follow === '' || $follow === '1' ? 'true' : htmlspecialchars( $follow );
             $follow = Core::createHiddenField( 'mwfollow', $follow );
+        } else {
+            $follow = '';
         }
 
         if ( $fields !== '' ) {
@@ -55,8 +52,7 @@ class WSFormCreateRenderer implements CreateRenderer {
                 $slot = Core::createHiddenField( 'mwslot', $slot );
             }
 
-            $leadingZero = $leadingZero ?
-                Core::createHiddenField( 'mwleadingzero', 'true' ) : '';
+            $leadingZero = $leadingZero ? Core::createHiddenField( 'mwleadingzero', 'true' ) : '';
 
             return $template . $write . $option . $follow . $leadingZero . $slot;
         }

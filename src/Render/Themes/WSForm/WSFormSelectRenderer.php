@@ -8,7 +8,7 @@ class WSFormSelectRenderer implements SelectRenderer {
     /**
      * @inheritDoc
      */
-    public function render_select( string $input, array $args, string $placeholder ): string {
+    public function render_select( string $input, array $args, ?string $placeholder ): string {
         $ret = '<select ';
 
         foreach ( $args as $name => $value ) {
@@ -17,7 +17,7 @@ class WSFormSelectRenderer implements SelectRenderer {
 
         $ret .= '>';
 
-        if ( $placeholder !== '' ) {
+        if ( $placeholder !== null ) {
             $ret .= '<option value="" disabled selected>' . htmlspecialchars( $placeholder ) . '</option>';
         }
 
