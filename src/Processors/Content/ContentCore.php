@@ -75,7 +75,7 @@ class ContentCore {
 	 * @throws MWException
 	 * @throws WSFormException
 	 */
-	public function saveToWiki( HandleResponse $response_handler ): HandleResponse {
+	public static function saveToWiki( HandleResponse $response_handler ): HandleResponse {
 		self::$fields = Definitions::createAndEditFields();
 		/*
 		'parsePost'    => General::getPostString( 'wsparsepost' ),
@@ -229,6 +229,27 @@ class ContentCore {
 
 			}
 
+
+		}
+		if( self::$fields['mwedit'] !== false ) {
+			$edit = new Edit();
+			$pageContents = $edit->editPage();
+			foreach( $pageContents as $slotName => $slotContents ) {
+				//if( $slotName === 'main' ) $slotname = false;
+				try {
+					$save->saveToWiki(
+						$pTitle,
+						self::createSlotArray( $slotName, $slotContents ),
+						self::$fields['summary']
+					);
+				} catch ( WSFormException $e ) {
+					throw new WSFormException(
+						$e->getMessage(),
+						0,
+						$e
+					);
+				}
+			}
 
 		}
 		return $response_handler;

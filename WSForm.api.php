@@ -259,17 +259,34 @@ if ( General::getPostString( 'mwaction' ) !== false ) {
 	switch ( $action ) {
 
 		case "addToWiki" :
-			$responseHandler = saveToWiki( $responseHandler );
- 			break;
+			try {
+				$responseHandler = \WSForm\Processors\Content\ContentCore::saveToWiki( $responseHandler );
+			} catch ( WSFormException|MWException $e ) {
+				$responseHandler->setReturnData( $e->getMessage() );
+				$responseHandler->setReturnStatus( 'error' );
+			}
+			break;
 
 		case "get" :
-			$ret = saveToWiki('get');
+			try {
+				$ret = saveToWiki( 'get' );
+			} catch ( WSFormException $e ){
+				$responseHandler->setReturnData( $e->getMessage() );
+				$responseHandler->setReturnStatus( 'error' );
+				try {
+					$responseHandler->exitResponse();
+				}  catch ( WSFormException $e ){
+					return $e->getMessage();
+				};
+			};
+			/*
 			if( !is_array( $ret ) && $ret !== false ) {
 				$messages->redirect( $ret );
 				exit;
 			} elseif( $ret === false ) {
 				$messages->doDie( $i18n->wsMessage( 'wsform-noreturn-found' ) );
 			}
+			*/
 			//print_r($ret);
 			//die();
 			//die();

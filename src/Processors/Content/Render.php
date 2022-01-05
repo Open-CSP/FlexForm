@@ -17,8 +17,49 @@ use \ApiMain,
 	MWException,
 	RequestContext,
 	WSForm\Processors\Utilities\General;
+use ContentHandler;
+use MediaWiki\Content\ContentHandlerFactory;
+use WikiPage;
+use WSForm\WSFormException;
 
 class Render {
+
+
+	public function getSlotContent( $id, $slotName = 'main' ) {
+		$ret = array();
+		$id   = (int) ( $id );
+		$page = WikiPage::newFromId( $id );
+		$ret['content'] = '';
+		$ret['title'] = '';
+
+		if ( $page === false || $page === null ) {
+			return $ret;;
+		}
+
+		$ret['title'] = $page->getTitle()->getFullText();
+		$latest_revision = $page->getRevisionRecord();
+		if ( $latest_revision === null ) {
+			return $ret;;
+		}
+		if( $latest_revision->hasSlot( $slotName ) ) {
+			$content_object = $latest_revision->getContent( $slotName );
+			if ( $content_object === null ) {
+				return $ret;;
+			}
+
+			$content_handler = $content_object->getContentHandler( $content_object );
+			//$content_handler = ContentHandlerFactory::getContentHandler();
+
+
+			$ret['content'] =  $content_handler->serializeContent( $content_object );
+			$ret['title'] = $page->getTitle()->getFullText();
+			return $ret;
+		}
+		return $ret;;
+
+	}
+
+
 
 
 	public function parseWikiText( string $text ): string {
