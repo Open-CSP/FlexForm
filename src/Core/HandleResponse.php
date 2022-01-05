@@ -15,9 +15,15 @@ use WSForm\WSFormException;
 class HandleResponse {
 
 	private $returnStatus = "ok";
+	private $returnType = "success";
 	private $returnData = array();
 	private $mwReturn = false;
 	private $pauseBeforeRefresh = false;
+
+	const TYPE_SUCCESS = 'success';
+	const TYPE_WARNING = 'warning';
+	const TYPE_ERROR = 'error';
+	const TYPE_INFO = 'info';
 
 	/**
 	 * @var bool
@@ -36,6 +42,20 @@ class HandleResponse {
 	 */
 	public function getReturnStatus(): string {
 		return $this->returnStatus;
+	}
+
+	/**
+	 * @param string $status
+	 */
+	public function setReturnType( string $type ) {
+		$this->returnType = $type;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getReturnType(): string {
+		return $this->returnType;
 	}
 
 	/**

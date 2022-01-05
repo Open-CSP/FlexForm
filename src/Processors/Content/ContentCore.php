@@ -5,6 +5,7 @@ namespace WSForm\Processors\Content;
 use MWException;
 use RequestContext;
 use WSForm\Core\Config;
+use WSForm\Core\HandleResponse;
 use WSForm\Processors\Security\wsSecurity;
 use WSForm\Processors\Definitions;
 use WSForm\Processors\Utilities\General;
@@ -68,11 +69,13 @@ class ContentCore {
 	}
 
 	/**
-	 * @return string Return url
-	 * @throws WSFormException
+	 * @param HandleResponse $response_handler
+	 *
+	 * @return HandleResponse
 	 * @throws MWException
+	 * @throws WSFormException
 	 */
-	public function saveToWiki() {
+	public static function saveToWiki( HandleResponse $response_handler ): HandleResponse {
 		self::$fields = Definitions::createAndEditFields();
 		/*
 		'parsePost'    => General::getPostString( 'wsparsepost' ),
@@ -100,17 +103,28 @@ class ContentCore {
 		}
 		*/
 
-
 		// WSCreate single
 		if ( self::$fields['template'] !== false && self::$fields['writepage'] !== false ) {
 			$create = new create();
 			try {
 				$result = $create->writePage();
 			} catch ( WSFormException $e ) {
-				throw new WSFormException( $e->getMessage(), 0, $e );
+				throw new WSFormException(
+					$e->getMessage(),
+					0,
+					$e
+				);
 			}
-			$result['content'] = self::createSlotArray( 'main', $result['content'] );
-			$save = new Save();
+			if ( false === self::$fields['slot'] ) {
+				$slot = "main";
+			} else {
+				$slot = self::$fields['slot'];
+			}
+			$result['content'] = self::createSlotArray(
+				$slot,
+				$result['content']
+			);
+			$save              = new Save();
 			try {
 				$save->saveToWiki(
 					$result['title'],
@@ -118,27 +132,159 @@ class ContentCore {
 					self::$fields['summary']
 				);
 			} catch ( WSFormException $e ) {
-				throw new WSFormException( $e->getMessage(), 0, $e );
+				throw new WSFormException(
+					$e->getMessage(),
+					0,
+					$e
+				);
 			}
-			$serverUrl = wfGetServerUrl( null ) . '/' . 'index.php';
-			if( self::$fields['mwfollow'] !== false ) {
-				if( self::$fields['mwfollow'] === 'true' ) {
-
-					self::$fields['returnto'] = $serverUrl . '/' . $result['title'];
-				} else {
-					if( strpos( self::$fields['returnto'], '?' ) ) {
-						self::$fields['returnto'] = self::$fields['returnto'] . '&' . self::$fields['mwfollow'] . '=' . $result['title'];
-					} else {
-						self::$fields['returnto'] = self::$fields['returnto'] . '?' . self::$fields['mwfollow'] . '=' . $result['title'];
-					}
+			self::checkFollowPage( $result['title'] );
+			if ( ! self::$fields['mwedit'] && ! self::$fields['email'] && ! self::$fields['writepages'] ) {
+				$response_handler->setMwReturn( self::$fields['returnto'] );
+				$response_handler->setReturnType( HandleResponse::TYPE_SUCCESS );
+				if ( self::$fields['msgOnSuccess'] !== false ) {
+					$response_handler->setReturnData( self::$fields['msgOnSuccess'] );
 				}
+
+				return $response_handler;
 			}
-			return self::$fields['returnto'];
 		}
 
+		// We need to do multiple edits
+		if ( self::$fields['writepages'] !== false ) {
+			$create = new create();
+			try {
+				$finalPages = $create->writePages();
+			} catch ( WSFormException $e ) {
+				throw new WSFormException(
+					$e->getMessage(),
+					0,
+					$e
+				);
+			}
+
+			$save = new Save();
+			foreach ( $finalPages as $pTitle => $pContent ) {
+				$nrOfEdits = count( $pContent );
+				if ( $nrOfEdits === 1 ) {
+					$slotName = key( $pContent[0]['slot'] );
+					//var_dump( $pTitle, $pContent[0]['slot'][$slotName], $pContent[0]['summary'], $slotName );
+					//var_dump( $pContent );
+					//die();
+					try {
+						$save->saveToWiki(
+							$pTitle,
+							self::createSlotArray(
+								$slotName,
+								$pContent[0]['slot'][$slotName]
+							),
+							$pContent[0]['summary']
+						);
+					} catch ( WSFormException $e ) {
+						throw new WSFormException(
+							$e->getMessage(),
+							0,
+							$e
+						);
+					}
+					//$result = $api->savePageToWiki( $pTitle, $pContent[0]['slot'][$slotName], $pContent[0]['summary'], $slotName  );
+
+				}
+				if ( $nrOfEdits > 1 ) {
+					$slotsToSend = array();
+					foreach ( $pContent as $singleCreate ) {
+						$slotName               = key( $singleCreate['slot'] );
+						$slotValue              = $singleCreate['slot'][$slotName];
+						$slotsToSend[$slotName] = $slotValue;
+					}
+					//var_dump( $pTitle, '', $pContent[0]['summary'], $slotsToSend );
+					//die();
+					try {
+						$save->saveToWiki(
+							$pTitle,
+							$slotsToSend,
+							$pContent[0]['summary']
+						);
+					} catch ( WSFormException $e ) {
+						throw new WSFormException(
+							$e->getMessage(),
+							0,
+							$e
+						);
+					}
+					//$result = $api->savePageToWiki( $pTitle, '', $pContent[0]['summary'], $slotsToSend );
+
+				}
+			}
+
+			if ( ! self::$fields['mwedit'] && ! self::$fields['email'] ) {
+
+				$response_handler->setMwReturn( self::$fields['returnto'] );
+				$response_handler->setReturnType( HandleResponse::TYPE_SUCCESS );
+				if ( self::$fields['msgOnSuccess'] !== false ) {
+					$response_handler->setReturnData( self::$fields['msgOnSuccess'] );
+				}
+
+				return $response_handler;
+
+			}
+
+
+		}
+		if( self::$fields['mwedit'] !== false ) {
+			$edit = new Edit();
+			$pageContents = $edit->editPage();
+			foreach( $pageContents as $slotName => $slotContents ) {
+				//if( $slotName === 'main' ) $slotname = false;
+				try {
+					$save->saveToWiki(
+						$pTitle,
+						self::createSlotArray( $slotName, $slotContents ),
+						self::$fields['summary']
+					);
+				} catch ( WSFormException $e ) {
+					throw new WSFormException(
+						$e->getMessage(),
+						0,
+						$e
+					);
+				}
+			}
+
+		}
+		return $response_handler;
 	}
 
-	private static function createSlotArray( $slot, $value ){
+	/**
+	 * Check if we need to change to returnto url to return to newly created page.
+	 * @param string $title
+	 *
+	 * @return void
+	 */
+	public static function checkFollowPage( $title ):void {
+		$serverUrl = wfGetServerUrl( null ) . '/' . 'index.php';
+		if( self::$fields['mwfollow'] !== false ) {
+			if( self::$fields['mwfollow'] === 'true' ) {
+				if( strpos( $title, '--id--' ) === false && strpos( $title, '::id::' ) === false ) {
+					self::$fields['returnto'] = $serverUrl . '/' . $title;
+				}
+			} else {
+				if( strpos( self::$fields['returnto'], '?' ) ) {
+					self::$fields['returnto'] = self::$fields['returnto'] . '&' . self::$fields['mwfollow'] . '=' . $title;
+				} else {
+					self::$fields['returnto'] = self::$fields['returnto'] . '?' . self::$fields['mwfollow'] . '=' . $title;
+				}
+			}
+		}
+	}
+
+	/**
+	 * @param string $slot
+	 * @param string $value
+	 *
+	 * @return array
+	 */
+	private static function createSlotArray( string $slot, string $value ): array{
 		return array( $slot => $value );
 	}
 

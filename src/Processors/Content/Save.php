@@ -16,6 +16,10 @@ use WSForm\WSFormException;
 
 class Save {
 
+	private function removeCarriageReturnFromContent( $content ){
+		return str_replace("\r", '' , $content );
+	}
+
 	/**
 	 * @param User $user The user that performs the edit
 	 * @param WikiPage $wikipage_object The page to edit
@@ -42,6 +46,7 @@ class Save {
 
 		// loop through all slots we need to edit/create
 		foreach ( $text as $slot_name => $content ) {
+			$content = $this->removeCarriageReturnFromContent( $content );
 			// Make sure the slot we are editing is defined in MW else skip this slot
 			if ( ! $slot_role_registry->isDefinedRole( $slot_name ) ) {
 				$status   = false;
