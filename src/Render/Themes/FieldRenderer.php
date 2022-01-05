@@ -209,13 +209,13 @@ interface FieldRenderer {
      * @brief Render options for select input field
      *
      * @param string $input Input for the field (should be parsed)
-     * @param array $args Arguments for the field (should be parsed)
-     * @param Parser $parser MediaWiki parser
-     * @param PPFrame $frame Current PPFrame
-     *
+     * @param string $value
+     * @param string|null $showOnSelect
+     * @param bool $isSelected
+     * @param array $additionalArgs
      * @return string Rendered HTML
      */
-    public function render_option( string $input, array $args, Parser $parser, PPFrame $frame ): string;
+    public function render_option( string $input, string $value, ?string $showOnSelect, bool $isSelected, array $additionalArgs ): string;
 
     /**
      * @brief Render submit

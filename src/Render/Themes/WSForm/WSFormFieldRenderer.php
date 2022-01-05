@@ -458,51 +458,20 @@ class WSFormFieldRenderer implements FieldRenderer {
     /**
      * @inheritDoc
      */
-	public function render_option( string $input, array $args, Parser $parser, PPFrame $frame ): string {
-		$ret = '<option ';
-		$showOnSelect = false;
+	public function render_option( string $input, string $value, ?string $showOnSelect, bool $isSelected, array $additionalArgs ): string {
+		$optionAttributes = array_merge( [
+		    'value' => htmlspecialchars( $value )
+        ], $additionalArgs );
 
-		foreach ( $args as $k => $v ) {
-			if ( validate::check_disable_readonly_required_selected( $k, $v ) ) {
-				continue;
-			}
-			$k = $parser->recursiveTagParse( $k, $frame );
-			$v = $parser->recursiveTagParse( $v, $frame );
-			if ( validate::validParameters( $k ) ) {
-				if ( $k == "for" ) {
-					$name = $v;
-				} else {
-					if ( $k == "value" ) {
-						$value = $v;
-					}
-					$ret .= $k . '="' . $v . '" ';
-				}
-			}
-			if( $k === 'show-on-select' ) {
-				$ret .= 'data-wssos-show="' . $v . '" ';
-				$showOnSelect = true;
-			}
+		if ( $showOnSelect !== null ) {
+		    $optionAttributes['data-wssos-show'] = htmlspecialchars( $showOnSelect );
+        }
 
+		if ( $isSelected ) {
+		    $optionAttributes['selected'] = 'selected';
+        }
 
-		}
-
-		if(isset($name)) {
-			$val = \wsform\wsform::getValue( $name );
-		} else $val = "";
-		if ( $val != "" ) {
-			$values = explode( ",", $val );
-			foreach ( $values as $v ) {
-				if ( trim( $v ) == $value ) {
-					$ret .= 'selected="selected"';
-				}
-			}
-		}
-		$ret .= ">" . $input . "</option>\n";
-		//TODO: change showonselect js to check if variable is set
-		if( $showOnSelect ) {
-			$ret .= wsform::addShowOnSelectJS();
-		}
-		return $ret;
+		return \Xml::tags('option', $optionAttributes, $input );
 	}
 
 

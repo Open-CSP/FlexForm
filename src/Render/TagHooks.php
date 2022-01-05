@@ -54,7 +54,7 @@ class TagHooks {
         global $wgUser, $wgEmailConfirmToEdit, $IP, $wgScript;
 
         Core::$chkSums = array();
-        Core::$formId = uniqid();
+        Core::$securityId = uniqid();
 
         $ret = '';
 
@@ -63,14 +63,23 @@ class TagHooks {
         // Do we have some messages to show?
         if ( isset( $args['showmessages'] ) ) {
             if ( !isset ( $_COOKIE['wsform'] ) ) {
-                return "";
+                return '';
             }
 
-            $ret = '<div class="wsform alert-' . $_COOKIE['wsform']['type'] . '">' . $_COOKIE['wsform']['txt'] . '</div>';
+            $alertTag = \Xml::tags(
+                'div',
+                ['class' => 'wsform alert-' . $_COOKIE['wsform']['type']],
+                $_COOKIE['wsform']['txt']
+            );
+
             setcookie( "wsform[type]", "", time() - 3600, '/' );
             setcookie( "wsform[txt]", "", time() - 3600, '/' );
 
-            return array( $ret, 'noparse' => true, "markerType" => 'nowiki' );
+            return [
+                $alertTag,
+                'noparse' => true,
+                'markerType' => 'nowiki'
+            ];
         }
 
         if ( isset( $args['messageonsuccess'] ) ) {
@@ -150,6 +159,7 @@ class TagHooks {
 
             unset( $args['id'] );
         } else {
+            // Generate a form ID for the user to use in JavaScript snippets and such
             $formId = bin2hex(random_bytes(16));
         }
 
@@ -159,6 +169,7 @@ class TagHooks {
         }
 
         // Are there explicit 'restrictions' lifts set?
+        // TODO: Allow administrators of a wiki to configure whether lifting restrictions is allowed (useful for public wikis)
         if ( isset( $args['restrictions'] ) ) {
             // Parse the given restriction
             $restrictions = $parser->recursiveTagParse( $args['restrictions'], $frame );
@@ -188,21 +199,28 @@ class TagHooks {
             unset( $args['loadscript'] );
 
             // Validate the file name
-            if ( preg_match( '/^[a-zA-Z0-9_-]+$/', $scriptToLoad ) === 1 ) {
-                // Is this script already loaded?
-                if ( !Core::isLoaded( $scriptToLoad ) ) {
-                    if ( file_exists( $IP . '/extensions/WSForm/modules/customJS/loadScripts/' . $scriptToLoad . '.js' ) ) {
-                        $scriptContent = file_get_contents( $IP . '/extensions/WSForm/modules/customJS/loadScripts/' . $scriptToLoad . '.js' );
-                        if ( $scriptContent !== false ) {
-                            if ( $formId !== null ) {
-                                Core::includeJavaScriptConfig( 'wsForm_' . $scriptToLoad, $formId );
-                            }
+            if ( preg_match( '/^[a-zA-Z0-9_ -]+$/', $scriptToLoad ) !== 1 ) {
+                return ['The script specified in "loadscript" could not be loaded because the file name is invalid.'];
+            }
 
-                            Core::includeInlineScript( $scriptContent );
-                            Core::addAsLoaded( $scriptToLoad );
-                        }
-                    }
+            // Is this script already loaded?
+            if ( !Core::isLoaded( $scriptToLoad ) ) {
+                if ( !file_exists( $IP . '/extensions/WSForm/modules/customJS/loadScripts/' . $scriptToLoad . '.js' ) ) {
+                    return ['The script specified in "loadscript" could not be loaded because it does not exist.'];
                 }
+
+                $scriptContent = @file_get_contents( $IP . '/extensions/WSForm/modules/customJS/loadScripts/' . $scriptToLoad . '.js' );
+
+                if ( $scriptContent === false ) {
+                    return ['The script specified in "loadscript" could not be loaded because it is unreadable.'];
+                }
+
+                if ( $formId !== null ) {
+                    Core::includeJavaScriptConfig( 'wsForm_' . $scriptToLoad, $formId );
+                }
+
+                Core::includeInlineScript( $scriptContent );
+                Core::addAsLoaded( $scriptToLoad );
             }
         }
 
@@ -211,21 +229,21 @@ class TagHooks {
 
             if ( !Core::isLoaded( 'keypress' ) ) {
                 $noEnter = <<<SCRIPT
-                $(document).on('keyup keypress', 'form input[type=\"text\"]', function(e) {
+                $(document).on('keyup keypress', 'form input[type="text"]', function(e) {
                     if(e.keyCode == 13) {
                       e.preventDefault();
                       return false;
                     }
                 });
                 
-                $(document).on('keyup keypress', 'form input[type=\"search\"]', function(e) {
+                $(document).on('keyup keypress', 'form input[type="search"]', function(e) {
                     if(e.keyCode == 13) {
                       e.preventDefault();
                       return false;
                     }
                 });
                 
-                $(document).on('keyup keypress', 'form input[type=\"password\"]', function(e) {
+                $(document).on('keyup keypress', 'form input[type="password"]', function(e) {
                     if(e.keyCode == 13) {
                       e.preventDefault();
                       return false;
@@ -251,10 +269,8 @@ class TagHooks {
         }
 
         // If the action is add to wiki, make sure the user has confirmed their email address
-        if ( $action === 'addToWiki' ) {
-            if ( $wgEmailConfirmToEdit === true && $wgUser->isRegistered() && !$wgUser->isEmailConfirmed() ) {
-                return wfMessage( "wsform-unverified-email1" )->parse() . wfMessage( "wsform-unverified-email2" )->parse();
-            }
+        if ( $action === 'addToWiki' && $wgEmailConfirmToEdit === true && $wgUser->isRegistered() && !$wgUser->isEmailConfirmed() ) {
+            return wfMessage( "wsform-unverified-email1" )->parse() . wfMessage( "wsform-unverified-email2" )->parse();
         }
 
         if ( Core::getRun() === false ) {
@@ -303,7 +319,7 @@ class TagHooks {
             $this->themeStore->setFormThemeName( $previousTheme );
         }
 
-        if ( isset( $args['recaptcha-v3-action'] ) && !Core::isLoaded( 'google-captcha' ) ) {
+        if ( Core::$reCaptcha !== false && !Core::isLoaded( 'google-captcha' ) ) {
             $captcha = Recaptcha::render();
 
             if ( $captcha !== false ) {
@@ -319,6 +335,7 @@ class TagHooks {
 
             if ( file_exists( $IP . '/extensions/WSForm/modules/recaptcha.js' ) ) {
                 $rcaptcha = file_get_contents( $IP . '/extensions/WSForm/modules/recaptcha.js' );
+
                 $replace = array(
                     '%%id%%',
                     '%%action%%',
@@ -363,15 +380,17 @@ class TagHooks {
             return [wfMessage("wsform-field-invalid")->parse(), "markerType" => 'nowiki'];
         }
 
-        $type = $args['type'];
+        $fieldType = $args['type'];
 
-        if ( !Validate::validInputTypes( $type ) ) {
-            return [wfMessage("wsform-field-invalid")->parse() . ": " . $type, "markerType" => 'nowiki'];
+        if ( !Validate::validInputTypes( $fieldType ) ) {
+            return [wfMessage("wsform-field-invalid")->parse() . ": " . $fieldType, "markerType" => 'nowiki'];
         }
 
         if ( isset( $args['parsepost'] ) && isset( $args['name'] )) {
+            // FIXME: What is this, and can it be removed?
             $parsePost = true;
             $parseName = $args['name'];
+
             unset( $args['parsepost'] );
         } else {
             $parsePost = false;
@@ -379,20 +398,14 @@ class TagHooks {
 
         // Parse the arguments
         foreach ( $args as $name => $value ) {
-            if ( ( strpos( $value, '{' ) !== false ) && ( strpos( $value, "}" ) !== false ) ) {
-                $args[$name] = $parser->recursiveTagParse( $value, $frame );
-            }
+            $args[$name] = $parser->recursiveTagParse( $value, $frame );
         }
-
-        $input = isset( $args['noparse'] ) ?
-            $input :
-            $parser->recursiveTagParse( $input, $frame );
 
         $renderer = $this->themeStore
             ->getFormTheme()
             ->getFieldRenderer();
 
-        switch ( $type ) {
+        switch ( $fieldType ) {
             case 'text':
                 if ( isset( $args['mwidentifier'] ) && $args['mwidentifier'] === 'datepicker' ) {
                     $parser->getOutput()->addModules( 'ext.wsForm.datePicker.scripts' );
@@ -400,26 +413,31 @@ class TagHooks {
                 }
 
                 $ret = $renderer->render_text( $args );
+
                 break;
             case 'hidden':
                 $ret = $renderer->render_hidden( $args );
+
                 break;
             case 'secure':
                 if ( !Core::$secure ) {
-                    $ret = wfMessage( 'wsform-field-secure-not-available')->parse();
-                    break;
+                    return [wfMessage( 'wsform-field-secure-not-available')->parse()];
                 }
 
                 $ret = $renderer->render_secure( $args );
+
                 break;
             case 'search':
                 $ret = $renderer->render_search( $args );
+
                 break;
             case 'number':
                 $ret = $renderer->render_number( $args );
+
                 break;
             case 'radio':
                 $ret = $renderer->render_radio( $args, $args['show-on-checked'] ?? '' );
+
                 break;
             case 'checkbox':
                 $default = $args['default'] ?? '';
@@ -433,41 +451,53 @@ class TagHooks {
                     $default,
                     $defaultName
                 );
+
                 break;
             case 'file':
                 // TODO: Move most of the render_file logic to here
                 // TODO: Can you do this @Charlot?
                 $ret = $renderer->render_file( $args );
+
                 break;
             case 'date':
                 $ret = $renderer->render_date( $args );
+
                 break;
             case 'month':
                 $ret = $renderer->render_month( $args );
+
                 break;
             case 'week':
                 $ret = $renderer->render_week( $args );
+
                 break;
             case 'time':
                 $ret = $renderer->render_time( $args );
+
                 break;
             case 'datetime':
                 $ret = $renderer->render_datetime( $args );
+
                 break;
             case 'datetimelocal':
                 $ret = $renderer->render_datetimelocal( $args );
+
                 break;
             case 'password':
                 $ret = $renderer->render_password( $args );
+
                 break;
             case 'email':
                 $ret = $renderer->render_email( $args );
+
                 break;
             case 'color':
                 $ret = $renderer->render_color( $args );
+
                 break;
             case 'range':
                 $ret = $renderer->render_range( $args );
+
                 break;
             case 'image':
                 $imageArguments = [];
@@ -482,41 +512,83 @@ class TagHooks {
                 }
 
                 $ret = $renderer->render_image( $args );
+
                 break;
             case 'url':
                 $ret = $renderer->render_url( $args );
+
                 break;
             case 'tel':
                 $ret = $renderer->render_tel( $args );
-                break;
-            case 'option':
 
                 break;
-            case 'submit':
-                // TODO
+            case 'option':
+                $input = $parser->recursiveTagParseFully( $input, $frame );
+
+                // Get the value for the option, or give an error if no value is set
+                if ( isset( $args['value'] ) ) {
+                    $value = $args['value'];
+                    unset( $args['value'] );
+                } else {
+                    return ['Missing value attribute.'];
+                }
+
+                // Check whether show-on-select is enabled
+                if ( isset( $args['show-on-select'] ) ) {
+                    $showOnSelect = $args['show-on-select'];
+                    unset( $args['show-on-select'] );
+                } else {
+                    $showOnSelect = null;
+                }
+
+                // Check if a 'for' option is set, to determine whether the field should be rendered as 'selected'
+                if ( isset( $args['for'] ) ) {
+                    $selectedParameterName = $args['for'];
+
+                    $selectedValues = $_GET[$selectedParameterName] ?? '';
+                    $selectedValues = explode( ',', $selectedValues );
+                    $selectedValues = array_map( 'trim', $selectedValues );
+
+                    $isSelected = in_array( $value, $selectedValues );
+
+                    unset( $args['for'] );
+                } else {
+                    $isSelected = false;
+                }
+
+                $additionalArguments = [];
+                foreach ( $args as $name => $value ) {
+                    if ( !Validate::check_disable_readonly_required_selected( $name, $value ) ) {
+                        $additionalArguments[$name] = $value;
+                    }
+                }
+
+                // TODO: Test this!
+                $ret = $renderer->render_option(
+                    $input,
+                    $value,
+                    $showOnSelect,
+                    $isSelected,
+                    $additionalArguments
+                );
+
+                if ( $showOnSelect ) {
+                    $ret .= Core::addShowOnSelectJS();
+                }
+
                 break;
-            case 'button':
-                // TODO
-                break;
-            case 'reset':
-                // TODO
-                break;
-            case 'textarea':
-                // TODO
-                break;
-            case 'signature':
-                // TODO
-                break;
-            case 'mobilescreenshot':
-                // TODO
-                break;
+            case 'submit': // TODO: Implement 'submit'
+            case 'button': // TODO: Implement 'button'
+            case 'reset': // TODO: Implement 'reset'
+            case 'textarea': // TODO: Implement 'textarea'
+            case 'signature': // TODO: Implement 'signature'
+            case 'mobilescreenshot': // TODO: Implement 'mobilescreenshot'
             default:
-                // This should not happen, since the Validate class should have caught it
-                throw new WSFormException( "Invalid field type", 0 );
+                return ['The field type "' . htmlspecialchars( $fieldType ) . '" is currently not supported.'];
         }
 
         if ( $parsePost === true && isset( $parseName ) ) {
-            $ret .= '<input type="hidden" name="wsparsepost[]" value="' . $parseName . "\">\n";
+            $ret .= '<input type="hidden" name="wsparsepost[]" value="' . htmlspecialchars( $parseName ) . "\">\n";
         }
 
         return array( $ret, "markerType" => 'nowiki');

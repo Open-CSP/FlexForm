@@ -40,7 +40,7 @@ class Core {
 
 	public static $chkSums = array();
 
-	public static $formId = "";
+	public static $securityId = "";
 
 	public static $secure = false;
 
@@ -310,7 +310,7 @@ class Core {
 
 	public static function addCheckSum( $type, $name, $value, $allowHTML = "default" ) {
 		if ( self::$secure ) {
-			$formId = self::$formId;
+			$formId = self::$securityId;
 			if( $type === 'secure' ) {
 				self::$chkSums[ $formId ][ $type ][] = array(
 					"name"  => $name,
