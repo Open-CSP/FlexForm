@@ -3,18 +3,18 @@
 namespace WSForm\Render\Themes\WSForm;
 
 use WSForm\Core\Core;
-use WSForm\Core\Validate;
+use WSForm\Core\Protect;
 use WSForm\Render\Themes\FormRenderer;
 
 class WSFormFormRenderer implements FormRenderer {
 	/**
 	 * @inheritDoc
 	 */
-	public function render_form( string $actionUrl, string $mwReturn, ?string $messageOnSuccess, ?string $wikiComment, ?string $action, ?string $extension, ?string $autosaveType, ?string $additionalClass, bool $postAsUser, bool $showOnSelect, array $additionalArgs ): string {
-		$javascript = "";
-
-		$formAttributes = array_merge([
+	public function render_form( string $input, string $actionUrl, string $mwReturn, string $formId, ?string $messageOnSuccess, ?string $wikiComment, ?string $action, ?string $extension, ?string $autosaveType, ?string $additionalClass, bool $showOnSelect, array $additionalArgs ): string {
+        $javascript = '';
+	    $formAttributes = array_merge([
 		    'action' => $actionUrl,
+            'id' => $formId,
             'method' => 'post',
             'class' => 'wsform'
         ], $additionalArgs);
@@ -22,8 +22,7 @@ class WSFormFormRenderer implements FormRenderer {
 		$messageOnSuccess = $messageOnSuccess !== null ? Core::createHiddenField( 'mwonsuccess', htmlspecialchars( $messageOnSuccess ) ) : '';
 		$wikiComment = $wikiComment !== null ? Core::createHiddenField( 'mwwikicomment', htmlspecialchars( $wikiComment ) ) : '';
 		$action = $action !== null ? Core::createHiddenField( 'mwaction', htmlspecialchars( $action ) ) : '';
-		$extension = $extension !== null ? Core::createHiddenField( 'extension', htmlspecialchars( $extension ) ) : '';
-
+		$extension = $extension !== null ? Core::createHiddenField( 'mwextension', htmlspecialchars( $extension ) ) : '';
 		$mwReturn = Core::createHiddenField( 'mwreturn', urlencode( $mwReturn ) );
 
 		if ( $additionalClass !== null ) {
@@ -31,47 +30,14 @@ class WSFormFormRenderer implements FormRenderer {
         }
 
 		if ( $autosaveType !== null ) {
-            switch( $autosaveType ) {
-                case "onchange":
-                    $formAttributes['data-autosave'] = 'onchange';
-                    break;
-                case "oninterval":
-                    $formAttributes['data-autosave'] = 'oninterval';
-                    break;
-                default:
-                    $formAttributes['data-autosave'] = 'auto';
-                    break;
-            }
-
             $formAttributes['class'] .= ' ws-autosave';
+            $formAttributes['data-autosave'] = $autosaveType === "onchange" || $autosaveType === "oninterval" ?
+                $autosaveType : 'auto';
 
-            if( isset( Core::$wsConfig['autosave-interval'] ) ) {
-                $javascript .= 'var wsAutoSaveGlobalInterval = ' . Core::$wsConfig['autosave-interval'] . ';';
-            } else {
-                $javascript .= 'var wsAutoSaveGlobalInterval = 30000;';
-            }
-
-            if( isset( Core::$wsConfig['autosave-after-change'] ) ) {
-                $javascript .= 'var wsAutoSaveOnChangeInterval = ' . Core::$wsConfig['autosave-after-change'] . ';';
-            } else {
-                $javascript .= 'var wsAutoSaveOnChangeInterval = 3000;';
-            }
-
-            if( isset( Core::$wsConfig['autosave-btn-on'] ) ) {
-                $javascript .= 'var wsAutoSaveButtonOn = "' . Core::$wsConfig['autosave-btn-on'] . '";';
-            } else {
-                $javascript .= "var wsAutoSaveButtonOn = 'Autosave on';";
-            }
-
-            if( isset( Core::$wsConfig['autosave-btn-off'] ) ) {
-                $javascript .= 'var wsAutoSaveButtonOff = "' . Core::$wsConfig['autosave-btn-off'] . '";';
-            } else {
-                $javascript .= "var wsAutoSaveButtonOff = \"Autosave off\";";
-            }
-        }
-
-		if ( $postAsUser ) {
-		    $formAttributes['data-wsform'] = 'wsform-general';
+            $javascript .= sprintf( 'var wsAutoSaveGlobalInterval = %s;', htmlspecialchars( Core::$wsConfig['autosave-interval'] ?? '30000' ) );
+            $javascript .= sprintf( 'var wsAutoSaveOnChangeInterval = %s;', htmlspecialchars( Core::$wsConfig['autosave-after-change'] ?? '3000' ) );
+            $javascript .= sprintf( 'var wsAutoSaveButtonOn = \'%s\';', htmlspecialchars( Core::$wsConfig['autosave-btn-on'] ?? 'Autosave on' ) );
+            $javascript .= sprintf( 'var wsAutoSaveButtonOff = \'%s\';', htmlspecialchars( Core::$wsConfig['autosave-btn-off'] ?? 'Autosave off' ) );
         }
 
 		if ( $showOnSelect ) {
@@ -79,27 +45,35 @@ class WSFormFormRenderer implements FormRenderer {
 		    Core::includeInlineCSS( '.wsform-hide { opacity:0; }' );
         }
 
-		if ( $javascript !== '' ){
-            Core::includeInlineScript( $javascript );
-		}
+		$formContent = $mwReturn . $action . $messageOnSuccess . $wikiComment . $extension . \Xml::tags('input', [
+                'type' => 'hidden',
+                'name' => 'mwtoken',
+                'value' => isset( $_SERVER['HTTP_HOST'] ) ?
+                    base64_encode("wsform_" . $_SERVER['HTTP_HOST'] . "_" . time()) :
+                    base64_encode("wsform_TERMINAL_" . time())
+            ], '');
 
-		// Create a unique token for this form
-        if( isset( $_SERVER['HTTP_HOST'] ) ) {
-            $token = base64_encode("wsform_" . $_SERVER['HTTP_HOST'] . "_" . time());
-        } else {
-            $token = base64_encode("wsform_TERMINAL_" . time());
+        if ( Core::isShowOnSelectActive() ) {
+            $formContent .= Core::createHiddenField( 'showonselect', '1' );
         }
 
-        $tokenTag = \Xml::tags('input', [
-            'type' => 'hidden',
-            'name' => 'mwtoken',
-            'value' => $token
-        ], '');
+        if ( Core::$secure ) {
+            // FIXME: Move some of this logic to the caller
+            Protect::setCrypt( Core::$checksumKey );
+            $checksumName = Protect::encrypt( 'checksum' );
 
-        // TODO: Fix variable names, move some logic from hooks to here
+            if ( !empty( Core::$chkSums ) ) {
+                $checksumValue = Protect::encrypt( serialize( Core::$chkSums ) );
 
-		$ret .= ">\n" . $template . $wswrite . $wsreturn . $wsaction . $messageonsuccess . $mwwikicontent . $db . $wsextension . $wstoken;
+                $formContent .= \Xml::input( $checksumName, false, $checksumValue );
+                $formContent .= \Xml::input( 'formid', false, Core::$formId );
+            }
+        }
 
-		return $ret;
+        if ( $javascript !== '' ){
+            Core::includeInlineScript( $javascript );
+        }
+
+		return \Xml::tags( 'form', $formAttributes, $formContent . $input );
 	}
 }

@@ -2,15 +2,11 @@
 
 namespace WSForm\Render;
 
-use Elasticsearch\Endpoints\Exists;
-use MediaWiki\Revision\RevisionRecord;
 use Parser;
 use PPFrame;
 use RequestContext;
 use WSForm\Core\Core;
-use WSForm\Core\Protect;
 use WSForm\Core\Validate;
-use WSForm\Render\Themes\WSForm\Recaptcha;
 use WSForm\WSFormException;
 
 /**
@@ -77,6 +73,91 @@ class TagHooks {
             return array( $ret, 'noparse' => true, "markerType" => 'nowiki' );
         }
 
+        if ( isset( $args['messageonsuccess'] ) ) {
+            $messageOnSuccess = $parser->recursiveTagParse( $args['messageonsuccess'], $frame);
+            unset( $args['messageonsuccess'] );
+
+            Core::includeInlineScript( 'var mwonsuccess = "' . htmlspecialchars( $messageOnSuccess ) . '";' );
+        } else {
+            $messageOnSuccess = null;
+        }
+
+        if ( isset( $args['setwikicomment'] ) ) {
+            $wikiComment = $parser->recursiveTagParse( $args['setwikicomment'], $frame);
+            unset( $args['setwikicomment'] );
+        } else {
+            $wikiComment = null;
+        }
+
+        if ( isset( $args['mwreturn'] ) ) {
+            $mwReturn = Core::getMWReturn( $args['mwreturn'] );
+            unset( $args['mwreturn'] );
+        } else {
+            $mwReturn = $parser->getTitle()->getLinkURL();
+        }
+
+        if ( isset( $args['formtarget'] ) ) {
+            $formTarget = $args['formtarget'];
+            unset( $args['formtarget'] );
+        } else {
+            $formTarget = null;
+        }
+
+        if ( isset( $args['action'] ) ) {
+            $action = $parser->recursiveTagParse( $args['action'], $frame );
+            unset( $args['action'] );
+        } else {
+            $action = null;
+        }
+
+        if ( isset( $args['extension'] ) ) {
+            $extension = $parser->recursiveTagParse( $args['extension'], $frame );
+            unset( $args['extension'] );
+        } else {
+            $extension = null;
+        }
+
+        if ( isset( $args['autosave'] ) ) {
+            $autosaveType = $parser->recursiveTagParse( $args['autosave'], $frame );
+            unset( $args['autosave'] );
+        } else {
+            $autosaveType = null;
+        }
+
+        if ( isset( $args['class'] ) ) {
+            $additionalClass = $parser->recursiveTagParse( $args['class'], $frame );
+            unset( $args['class'] );
+        } else {
+            $additionalClass = null;
+        }
+
+        if ( isset( $args['show-on-select'] ) ) {
+            $showOnSelect = true;
+            unset( $args['show-on-select'] );
+
+            Core::setShowOnSelectActive();
+            $input = Core::checkForShowOnSelectValue( $input );
+        } else {
+            $showOnSelect = false;
+        }
+
+        if ( isset( $args['id'] ) ) {
+            $formId = $parser->recursiveTagParse( $args['id'], $frame );
+
+            if ( !preg_match( '/^[a-zA-Z0-9_]+$/', $formId ) ) {
+                return ['Invalid form ID.'];
+            }
+
+            unset( $args['id'] );
+        } else {
+            $formId = bin2hex(random_bytes(16));
+        }
+
+        if ( isset( $args['recaptcha-v3-action'] ) ) {
+            Core::$reCaptcha = $args['recaptcha-v3-action'];
+            unset( $args['recaptcha-v3-action'] );
+        }
+
         // Are there explicit 'restrictions' lifts set?
         if ( isset( $args['restrictions'] ) ) {
             // Parse the given restriction
@@ -84,27 +165,27 @@ class TagHooks {
 
             // Only allow anonymous users if the restrictions are lifted
             $allowAnonymous = strtolower( $restrictions ) === 'lifted';
+
+            unset( $args['restrictions'] );
         } else {
             // By default, deny anonymous users
             $allowAnonymous = false;
         }
 
-        // Block the request if the user is not logged in and anonymous users are not allowed
-        if ( $allowAnonymous === false && !$wgUser->isRegistered() ) {
-            return wfMessage( "wsform-anonymous-user" )->parse();
-        }
+        if ( isset( $args['changetrigger'] ) ) {
+            $changeCall = $parser->recursiveTagParse( $args['changetrigger'], $frame );
+            unset( $args['changetrigger'] );
 
-        if ( isset( $args['action'] ) && $args['action'] == 'addToWiki' ) {
-            if ( $wgEmailConfirmToEdit === true && $wgUser->isRegistered() && !$wgUser->isEmailConfirmed() ) {
-                return wfMessage( "wsform-unverified-email1" )->parse() . wfMessage( "wsform-unverified-email2" )->parse();
+            if ( preg_match( '/^[a-zA-Z0-9_]+$/', $changeCall) ) {
+                // FIXME: Even though the formId and changeCall are validated, they still allow for (quite weak) XSS.
+                Core::includeInlineScript( "$('#" . $formId . "').change(" . $changeCall . "(this));" );
             }
         }
 
-        $formId = isset( $args['id'] ) && $args['id'] !== '' ? $args['id'] : false;
-
         // Do we have scripts to load?
         if ( isset( $args['loadscript'] ) && $args['loadscript'] !== '' ) {
-            $scriptToLoad = $args['loadscript'];
+            $scriptToLoad = $parser->recursiveTagParse( $args['loadscript'], $frame );
+            unset( $args['loadscript'] );
 
             // Validate the file name
             if ( preg_match( '/^[a-zA-Z0-9_-]+$/', $scriptToLoad ) === 1 ) {
@@ -113,7 +194,7 @@ class TagHooks {
                     if ( file_exists( $IP . '/extensions/WSForm/modules/customJS/loadScripts/' . $scriptToLoad . '.js' ) ) {
                         $scriptContent = file_get_contents( $IP . '/extensions/WSForm/modules/customJS/loadScripts/' . $scriptToLoad . '.js' );
                         if ( $scriptContent !== false ) {
-                            if ( $formId !== false ) {
+                            if ( $formId !== null ) {
                                 Core::includeJavaScriptConfig( 'wsForm_' . $scriptToLoad, $formId );
                             }
 
@@ -126,6 +207,8 @@ class TagHooks {
         }
 
         if ( isset( $args['no_submit_on_return'] ) ) {
+            unset( $args['no_submit_on_return'] );
+
             if ( !Core::isLoaded( 'keypress' ) ) {
                 $noEnter = <<<SCRIPT
                 $(document).on('keyup keypress', 'form input[type=\"text\"]', function(e) {
@@ -155,23 +238,23 @@ class TagHooks {
             }
         }
 
-        if ( isset( $args['changetrigger'] ) && $args['changetrigger'] !== '' && isset( $args['id'] ) ) {
-            $changeId = $args['id'];
-            $changeCall = $args['changetrigger'];
-
-            if ( preg_match( '/^[a-zA-Z0-9_]+$/', $changeId ) && preg_match( '/^[a-zA-Z0-9_]+$/', $changeCall) ) {
-                // FIXME: Even though the changeId and changeCall are validated, they still allow for (quite weak) XSS.
-                Core::includeInlineScript( "$('#" . $changeId . "').change(" . $changeCall . "(this));" );
+        $additionalArgs = [];
+        foreach ( $args as $name => $argument ) {
+            if ( Validate::validParameters( $name ) ) {
+                $additionalArgs[$name] = $parser->recursiveTagParse( $argument, $frame );
             }
         }
 
-        if ( isset( $args['messageonsuccess']) && $args['messageonsuccess'] !== '' ) {
-            Core::includeInlineScript( 'var mwonsuccess = "' . htmlspecialchars( $args['messageonsuccess'] ) . '";' );
+        // Block the request if the user is not logged in and anonymous users are not allowed
+        if ( $allowAnonymous === false && !$wgUser->isRegistered() ) {
+            return wfMessage( "wsform-anonymous-user" )->parse();
         }
 
-        if ( isset( $args['show-on-select'] ) ) {
-            Core::setShowOnSelectActive();
-            $input = Core::checkForShowOnSelectValue( $input );
+        // If the action is add to wiki, make sure the user has confirmed their email address
+        if ( $action === 'addToWiki' ) {
+            if ( $wgEmailConfirmToEdit === true && $wgUser->isRegistered() && !$wgUser->isEmailConfirmed() ) {
+                return wfMessage( "wsform-unverified-email1" )->parse() . wfMessage( "wsform-unverified-email2" )->parse();
+            }
         }
 
         if ( Core::getRun() === false ) {
@@ -182,118 +265,37 @@ class TagHooks {
             Core::setRun( true );
         }
 
-        $previousTheme = $this->themeStore->getFormThemeName();
+        $actionUrl = $formTarget ?? Core::getAPIurl();
+        $input = $parser->recursiveTagParseFully( $input, $frame );
 
         try {
-            if ( isset( $args['theme'] ) && $args['theme'] !== '' ) {
+            $previousTheme = $this->themeStore->getFormThemeName();
+
+            if ( isset( $args['theme'] ) ) {
+                $theme = $parser->recursiveTagParse( $args['theme'], $frame );
+
                 try {
-                    $this->themeStore->setFormThemeName( $args['theme'] );
+                    $this->themeStore->setFormThemeName( $theme );
                 } catch ( WSFormException $exception ) {
                     // Silently ignore and use the default theme
                 }
             }
-
-            // TODO: Fix the parsing and move some logic from render_form to here
-
-            if ( isset( $args['messageonsuccess'] ) ) {
-                $messageOnSuccess = $parser->recursiveTagParse( $args['messageonsuccess'], $frame);
-                unset( $args['messageonsuccess'] );
-            } else {
-                $messageOnSuccess = null;
-            }
-
-            if ( isset( $args['setwikicomment'] ) ) {
-                $wikiComment = $parser->recursiveTagParse( $args['setwikicomment'], $frame);
-                unset( $args['setwikicomment'] );
-            } else {
-                $wikiComment = null;
-            }
-
-            if ( isset( $args['mwreturn'] ) ) {
-                $mwReturn = Core::getMWReturn( $parser->recursiveTagParse( $args['mwreturn'], $frame ) );
-                unset( $args['mwreturn'] );
-            } else {
-                $mwReturn = $parser->getTitle()->getLinkURL();
-            }
-
-            if ( isset( $args['formtarget'] ) ) {
-                $formTarget = $parser->recursiveTagParse( $args['formtarget'], $frame );
-                unset( $args['formtarget'] );
-            } else {
-                $formTarget = null;
-            }
-
-            if ( isset( $args['action'] ) ) {
-                $action = $parser->recursiveTagParse( $args['action'], $frame );
-                unset( $args['action'] );
-            } else {
-                $action = null;
-            }
-
-            if ( isset( $args['extension'] ) ) {
-                $extension = $parser->recursiveTagParse( $args['extension'], $frame );
-                unset( $args['extension'] );
-            } else {
-                $extension = null;
-            }
-
-            if ( isset( $args['autosave'] ) ) {
-                $autosaveType = $parser->recursiveTagParse( $args['autosave'], $frame );
-                unset( $args['autosave'] );
-            } else {
-                $autosaveType = null;
-            }
-
-            if ( isset( $args['class'] ) ) {
-                $additionalClass = $parser->recursiveTagParse( $args['class'], $frame );
-                unset( $args['class'] );
-            } else {
-                $additionalClass = null;
-            }
-
-            if ( isset( $args['post-as-user'] ) ) {
-                $postAsUser = true;
-                unset( $args['post-as-user'] );
-            } else {
-                $postAsUser = false;
-            }
-
-            if ( isset( $args['show-on-select'] ) ) {
-                $showOnSelect = true;
-                unset( $args['show-on-select'] );
-            } else {
-                $showOnSelect = false;
-            }
-
-            if ( isset( $args['recaptcha-v3-action'] ) ) {
-                Core::$reCaptcha = $args['recaptcha-v3-action'];
-                unset( $args['recaptcha-v3-action'] );
-            }
-
-            $additionalArgs = [];
-            foreach ( $args as $name => $argument ) {
-                if ( Validate::validParameters( $name ) ) {
-                    $additionalArgs[$name] = $parser->recursiveTagParse( $argument, $frame );
-                }
-            }
-
-            $actionUrl = $formTarget ?? Core::getAPIurl();
 
             // Render the actual contents of the form
             $ret .= $this->themeStore
                 ->getFormTheme()
                 ->getFormRenderer()
                 ->render_form(
+                    $input,
                     $actionUrl,
                     $mwReturn,
+                    $formId,
                     $messageOnSuccess,
                     $wikiComment,
-                    $formTarget,
                     $action,
                     $extension,
                     $autosaveType,
                     $additionalClass,
-                    $postAsUser,
                     $showOnSelect,
                     $additionalArgs
                 );
@@ -301,46 +303,17 @@ class TagHooks {
             $this->themeStore->setFormThemeName( $previousTheme );
         }
 
-        if ( Core::isShowOnSelectActive() ) {
-            $ret .= Core::createHiddenField( 'showonselect', '1' );
-        }
+        if ( isset( $args['recaptcha-v3-action'] ) && !Core::isLoaded( 'google-captcha' ) ) {
+            $captcha = Recaptcha::render();
 
-        if ( Core::$secure ) {
-            Protect::setCrypt( Core::$checksumKey );
-
-            if ( Core::$runAsUser ) {
-                $checksumUidName = Protect::encrypt( 'wsuid' );
-                $uid = Protect::encrypt( $wgUser->getId() );
-
-                Core::addCheckSum( 'secure', $checksumUidName, $uid, "all" );
-
-                $ret .= '<input type="hidden" name="' . $checksumUidName . '" value="' . $uid . '">';
-            }
-
-            $chcksumName = Protect::encrypt( 'checksum' );
-
-            if ( !empty( Core::$chkSums ) ) {
-                $chcksumValue = Protect::encrypt( serialize( Core::$chkSums ) );
-
-                $ret .= '<input type="hidden" name="' . $chcksumName . '" value="' . $chcksumValue . '">';
-                $ret .= '<input type="hidden" name="formid" value="' . Core::$formId . '">';
-            }
-
-        }
-
-        $ret .= $input . '</form>';
-
-        if ( isset( $args['recaptcha-v3-action'] ) && ! Core::isLoaded( 'google-captcha' ) ) {
-            $tmpCap = Recaptcha::render();
-
-            if ( $tmpCap !== false ) {
+            if ( $captcha !== false ) {
                 Core::addAsLoaded( 'google-captcha' );
-                $ret = $tmpCap . $ret;
+                $ret = $captcha . $ret;
             }
         }
 
         if ( Core::$reCaptcha !== false  ) {
-            if ( !isset( $args['id']) || $args['id'] === '' ) {
+            if ( $formId === null ) {
                 return wfMessage( "wsform-recaptcha-no-form-id" )->parse();
             }
 
@@ -353,7 +326,7 @@ class TagHooks {
                 );
 
                 $with = array(
-                    $args['id'],
+                    $formId,
                     Core::$reCaptcha,
                     Recaptcha::$rc_site_key
                 );
@@ -369,7 +342,7 @@ class TagHooks {
 
         self::addInlineJavaScriptAndCSS();
 
-        return array( $ret, "markerType" => 'nowiki' );
+        return [ $ret, "markerType" => 'nowiki' ];
     }
 
     /**
@@ -733,6 +706,7 @@ class TagHooks {
 
             // Make sure callback is valid
             if ( !preg_match( '/^[a-zA-Z0-9_]+$/', $callback ) ) {
+                // FIXME: Eventhough the callback is validated, it still allows for (weak) XSS
                 return ['Invalid callback as it does not match pattern [a-zA-Z0-9_]+', 'noparse' => true];
             }
 
@@ -744,7 +718,7 @@ class TagHooks {
         if ( isset( $args['template'] ) ) {
             $template = $parser->recursiveTagParse( $args['template'], $frame );
 
-            // Make sure callback is valid
+            // Make sure template is valid
             if ( !preg_match( '/^[a-zA-Z0-9_ ]+$/', $template ) ) {
                 return ['Invalid template as it does not match pattern [a-zA-Z0-9_ ]+', 'noparse' => true];
             }
