@@ -5,6 +5,7 @@ namespace WSForm\Render;
 use Parser;
 use PPFrame;
 use RequestContext;
+use WSForm\Core\Config;
 use WSForm\Core\Core;
 use WSForm\Core\Protect;
 use WSForm\Core\Validate;
@@ -422,7 +423,7 @@ class TagHooks {
 
                 break;
             case 'secure':
-                if ( !Core::$secure ) {
+                if ( !Config::isSecure() ) {
                     return [wfMessage( 'wsform-field-secure-not-available')->parse()];
                 }
 
@@ -683,10 +684,10 @@ class TagHooks {
 
                 if ( $input !== '' ) {
                     // We want to purify the input based on the form's HTML type
-                    $input = Protect::purify( $input, $htmlType, Core::$secure );
+                    $input = Protect::purify( $input, $htmlType, Config::isSecure() );
                 } elseif ( $name !== null ) {
                     // No input is given in the field, but we might have input through GET parameters
-                    $input = Protect::purify( Core::getValue( $name ), $htmlType, Core::$secure );
+                    $input = Protect::purify( Core::getValue( $name ), $htmlType, Config::isSecure() );
                 }
 
                 Core::addCheckSum( 'textarea', $name ?? '', $input, $htmlType );

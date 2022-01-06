@@ -327,7 +327,7 @@ class Validate {
 		$val   = '';
 		$ret   = "";
 		$html = self::validHTML( $args );
-		$secure = Core::$secure;
+		$secure = Config::isSecure();
 
 		foreach ( $args as $k => $v ) {
 			if ( self::validParameters( $k ) ) {
@@ -405,7 +405,7 @@ class Validate {
 		}
 
 		if ( $name && $value && ! $checked ) {
-			$tmp = Protect::purify( Core::getValue( ( $name ) ),'', Core::$secure );
+			$tmp = Protect::purify( Core::getValue( ( $name ) ),'', Config::isSecure() );
 			//echo "<HR>name=$name, value=$value, get=$tmp<HR>";
 			if ( $tmp !== "" ) {
 				if ( $tmp == $value ) {
@@ -484,7 +484,7 @@ class Validate {
 			if ( strpos( $name, "[]" ) ) {
 				$name = rtrim( $name, '[]' );
 			}
-			$tmp = Protect::purify( Core::getValue( ( $name ) ), '',  Core::$secure );
+			$tmp = Protect::purify( Core::getValue( ( $name ) ), '', Config::isSecure() );
 			if ( $tmp !== "" ) {
 				if ( strpos( $tmp, "," ) ) {
 					$options = explode( ",", $tmp );
@@ -531,7 +531,7 @@ class Validate {
 			if ( strpos( $name, "[]" ) ) {
 				$name = rtrim( $name, '[]' );
 			}
-			$tmp = Protect::purify( Core::getValue( ( $name ) ), '', Core::$secure );
+			$tmp = Protect::purify( Core::getValue( ( $name ) ), '', Config::isSecure() );
 
 			if ( $tmp !== "" ) {
 				if ( strpos( $tmp, "," ) ) {
