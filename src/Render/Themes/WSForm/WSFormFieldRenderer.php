@@ -478,58 +478,13 @@ class WSFormFieldRenderer implements FieldRenderer {
     /**
      * @inheritDoc
      */
-	public function render_submit( string $input, array $args, Parser $parser, PPFrame $frame ): string {
-		global $IP, $wgOut, $wgResourceBasePath;
+	public function render_submit( array $args, Parser $parser, PPFrame $frame ): string {
 		$ret = '<input type="submit" ';
-		$res = '';
-		$identifier = false;
-		$callback = 0;
-		$beforecallback = 0;
-		foreach ( $args as $k => $v ) {
-			if ( validate::validParameters( $k ) ) {
-				$res .= $k . '="' . $v . '" ';
-			}
-			if ( $k == 'mwidentifier' && $v == 'ajax' ) {
-
-				$ret = '<input type="hidden" name="mwidentifier" value="' . $v . '">' . "\n";
-				if (! \wsform\wsform::isLoaded( 'wsform-ajax' ) ) {
-					if(file_exists($IP.'/extensions/WSForm/wsform-ajax.js')) {
-						//$lf = htmlspecialchars_decode(file_get_contents($IP.'/extensions/WSForm/wsform-ajax.js'));
-						$ret .= '<script src="'.$wgResourceBasePath.'/extensions/WSForm/wsform-ajax.js"></script>'."\n";
-						\wsform\wsform::addAsLoaded('wsform-ajax');
-					}
-				}
-				$identifier = true;
-
-				$ret .= '<input type="button" ';
-			}
-            if ( $k == 'mwpausebeforerefresh' ) {
-                $ins = '<input type="hidden" name="mwpause" value="' . $v . '">' . "\n";
-                $ret = $ins . $ret;
-            }
-			if ( $k == 'callback' && $v != '' ) {
-				$callback = trim($v);
-			}
-			if ( $k == 'beforecallback' && $v != '' ) {
-				$beforecallback = trim($v);
-			}
+		foreach( $args as $k => $v ){
+			$ret .= $k . '="' . $v . '" ';
 		}
-
-		if ($identifier) {
-			$res .= 'onClick="wsform(this,'.$callback.','.$beforecallback.');" ';
-		}
-		$res .= ">\n";
-		if( $callback !== false && $identifier === true ) {
-			if(! \wsform\wsform::isLoaded( $callback ) ) {
-				if ( file_exists( $IP . '/extensions/WSForm/modules/customJS/' . $callback . '.js' ) ) {
-					$lf  = file_get_contents( $IP . '/extensions/WSForm/modules/customJS/' . $callback . '.js' );
-					$res .= "<script>$lf</script>\n";
-					\wsform\wsform::addAsLoaded($callback);
-				} //else die($IP.'/extensions/WSForm/modules/customJS/'.$callback.'.js');
-			}
-		}
-
-		return $ret.$res;
+		$ret .= '/>' . PHP_EOL;
+		return $ret;
 	}
 
     /**
