@@ -740,6 +740,7 @@ function createAlertsIfNeeded(){
     }
 }
 
+
 /**
  * Wait for jQuery to load and initialize, then go to method addTokenInfo()
  */

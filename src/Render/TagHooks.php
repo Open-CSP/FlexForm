@@ -6,6 +6,7 @@ use Parser;
 use PPFrame;
 use RequestContext;
 use WSForm\Core\Core;
+use WSForm\Core\Protect;
 use WSForm\Core\Validate;
 use WSForm\WSFormException;
 
@@ -376,6 +377,7 @@ class TagHooks {
      * @throws WSFormException
      */
     public function renderField( $input, array $args, Parser $parser, PPFrame $frame ) {
+		global $IP;
         if ( !isset( $args['type'] ) ) {
             return [wfMessage("wsform-field-invalid")->parse(), "markerType" => 'nowiki'];
         }
@@ -576,9 +578,72 @@ class TagHooks {
 
                 break;
             case 'submit': // TODO: Implement 'submit'
+
+				$identifier = false;
+				$callBack = 0;
+				$beforeCallBack = 0;
+				$id = uniqid();
+				$validArgs = [];
+				$additionalHtml = '';
+				foreach( $args as $k => $v ){
+
+					switch( strtolower( $k ) ) {
+						case "mwidentifier" :
+							if( strtolower( $v ) === 'ajax') {
+								$additionalHtml .= Core::createHiddenField( 'mwidentifier', $v );
+								if( ! Core::isLoaded( 'wsform-ajax') ) {
+									if(file_exists($IP.'/extensions/WSForm/wsform-ajax.js')) {
+										//$lf = htmlspecialchars_decode(file_get_contents($IP.'/extensions/WSForm/wsform-ajax.js'));
+										$additionalHtml .= '<script src="' . wfGetServerUrl( null ) . '/extensions/WSForm/wsform-ajax.js"></script>'."\n";
+										Core::addAsLoaded('wsform-ajax');
+									}
+								}
+								$identifier = true;
+							}
+							break;
+						case "mwpausebeforerefresh":
+							$additionalHtml .= '<input type="hidden" name="mwpause" value="' . $v . '">' . PHP_EOL;
+							break;
+						case "callback":
+							$callBack = trim( $v );
+							break;
+						case "beforecallback":
+							$beforeCallBack = trim( $v );
+							break;
+					}
+
+					if( Validate::validParameters( $k ) ) {
+						$validArgs[$k] = $v;
+					}
+
+				}
+				if( $callBack !== 0 && $identifier === true ) {
+					if(! Core::isLoaded( $callBack ) ) {
+						if ( file_exists( $IP . '/extensions/WSForm/modules/customJS/' . $callBack . '.js' ) ) {
+							$lf  = file_get_contents( $IP . '/extensions/WSForm/modules/customJS/' . $callBack . '.js' );
+							$additionalHtml .= "<script>$lf</script>\n";
+							Core::addAsLoaded($callBack);
+						} //else die($IP.'/extensions/WSForm/modules/customJS/'.$callback.'.js');
+					}
+				}
+				if( $identifier ) {
+					$validArgs['onclick'] = 'wsform(this,' . $callBack . ',' . $beforeCallBack.');';
+				}
+				$output = $this->themeStore
+					->getFormTheme()
+					->getFieldRenderer()
+					->render_submit( $validArgs, $parser, $frame );
+
+				return [
+					$output . $additionalHtml,
+					'markerType' => 'nowiki'
+				];
+
+				break;
             case 'button': // TODO: Implement 'button'
             case 'reset': // TODO: Implement 'reset'
             case 'textarea': // TODO: Implement 'textarea'
+
             case 'signature': // TODO: Implement 'signature'
             case 'mobilescreenshot': // TODO: Implement 'mobilescreenshot'
             default:
