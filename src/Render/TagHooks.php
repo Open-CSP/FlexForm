@@ -523,8 +523,6 @@ class TagHooks {
 
                 break;
             case 'option':
-                $input = $parser->recursiveTagParseFully( $input, $frame );
-
                 // Get the value for the option, or give an error if no value is set
                 if ( isset( $args['value'] ) ) {
                     $value = $args['value'];
@@ -565,7 +563,7 @@ class TagHooks {
 
                 // TODO: Test this!
                 $ret = $renderer->render_option(
-                    $input,
+                    $parser->recursiveTagParse( $input, $frame ),
                     $value,
                     $showOnSelect,
                     $isSelected,
@@ -686,10 +684,32 @@ class TagHooks {
      * @throws WSFormException
      */
     public function renderSelect( $input, array $args, Parser $parser, PPFrame $frame ) {
-        $selectArguments = [];
+        if ( isset( $args['placeholder'] ) ) {
+            $placeholder = $parser->recursiveTagParse( $args['placeholder'], $frame );
+            unset( $args['placeholder'] );
+        } else {
+            $placeholder = null;
+        }
 
+        if ( isset( $args['selected'] ) ) {
+            $selectedValues = explode( ',', $args['selected'] );
+            $selectedValues = array_map( 'trim', $selectedValues );
+            unset( $args['selected'] );
+        } else {
+            $selectedValues = [];
+        }
+
+        if ( isset( $args['options'] ) ) {
+            $options = explode( ',', $args['options'] );
+            $options = array_map( 'trim', $options );
+            unset( $args['options'] );
+        } else {
+            $options = [];
+        }
+
+        $additionalArgs = [];
         foreach ( $args as $name => $value ) {
-            if ( !Validate::validParameters( $value ) ) {
+            if ( !Validate::validParameters( $name ) ) {
                 continue;
             }
 
@@ -697,16 +717,14 @@ class TagHooks {
                 $value .= '[]';
             }
 
-            $selectArguments[$name] = $parser->recursiveTagParse( $value, $frame );
+            $additionalArgs[$name] = $parser->recursiveTagParse( $value, $frame );
         }
 
         $input = $parser->recursiveTagParseFully( $input, $frame );
-        $placeholder = $args['placeholder'] ?? null;
-
         $select = $this->themeStore
             ->getFormTheme()
             ->getSelectRenderer()
-            ->render_select( $input, $selectArguments, $placeholder );
+            ->render_select( $input, $placeholder, $selectedValues, $options, $additionalArgs );
 
         return [$select, 'markerType' => 'nowiki'];
     }
