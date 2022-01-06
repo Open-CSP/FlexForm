@@ -634,7 +634,7 @@ class TagHooks {
 				$output = $this->themeStore
 					->getFormTheme()
 					->getFieldRenderer()
-					->render_submit( $validArgs, $parser, $frame );
+					->render_submit( $validArgs, $identifier );
 
 				return [
 					$output . $additionalHtml,

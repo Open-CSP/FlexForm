@@ -2,6 +2,7 @@
 
 namespace WSForm\Render\Themes\WSForm;
 
+use WSForm\Core\Config;
 use WSForm\Core\Core;
 use WSForm\Core\Protect;
 use WSForm\Render\Themes\FormRenderer;
@@ -57,7 +58,7 @@ class WSFormFormRenderer implements FormRenderer {
             $formContent .= Core::createHiddenField( 'showonselect', '1' );
         }
 
-        if ( Core::$secure ) {
+        if ( Config::isSecure()) {
             // FIXME: Move some of this logic to the caller
             Protect::setCrypt( Core::$checksumKey );
             $checksumName = Protect::encrypt( 'checksum' );

@@ -42,7 +42,6 @@ class Core {
 
 	public static $securityId = "";
 
-	public static $secure = false;
 
 	public static $runAsUser = false;
 
@@ -299,7 +298,7 @@ class Core {
 	}
 
 	public static function createHiddenField( $name, $value ) {
-		if( self::$secure ) {
+		if( Config::isSecure()) {
 			Protect::setCrypt( self::$checksumKey );
 			$name  = Protect::encrypt( $name );
 			$value = Protect::encrypt( $value );
@@ -309,7 +308,7 @@ class Core {
 	}
 
 	public static function addCheckSum( $type, $name, $value, $allowHTML = "default" ) {
-		if ( self::$secure ) {
+		if ( Config::isSecure() ) {
 			$formId = self::$securityId;
 			if( $type === 'secure' ) {
 				self::$chkSums[ $formId ][ $type ][] = array(
