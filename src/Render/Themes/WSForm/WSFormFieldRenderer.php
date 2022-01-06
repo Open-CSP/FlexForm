@@ -4,7 +4,6 @@ namespace WSForm\Render\Themes\WSForm;
 
 use Parser;
 use PPFrame;
-use ExtensionRegistry;
 use WSForm\Core\Core;
 use WSForm\Core\Validate;
 use WSForm\Render\Themes\FieldRenderer;
@@ -122,7 +121,7 @@ class WSFormFieldRenderer implements FieldRenderer {
      * @inheritDoc
      */
 	public function render_file( array $args ): string {
-	    // FIXME: This is terrible
+	    // FIXME: Can you (attempt to) rewrite this @Charlot?
 
 		$slim           = '<div class="';
 		$ret            = '<input type="file" ';
@@ -520,102 +519,6 @@ class WSFormFieldRenderer implements FieldRenderer {
         }
 
 		return Xml::textarea( $name, $input, 40, 5, $textareaAttributes );
-	}
-
-    /**
-     * @inheritDoc
-     */
-	public function render_signature( string $input, array $args, Parser $parser, PPFrame $frame ): string {
-		global $IP, $wgOut;
-
-		$jsOptions = ", ";
-
-		if(!isset($args['fname'])) {
-			return 'Need target filename';
-		}
-		if(!isset($args['ftype'])) {
-			$ftype = "svg";
-		} else $ftype = $args['ftype'];
-
-		if(!isset($args['pagecontent'])) {
-			return 'Page content is missing';
-		} else $pcontent = $args['pagecontent'];
-
-		if(isset($args['class'])) {
-			$class = $args['class'];
-		} else $class = "";
-
-		if(isset($args['required']) && $args['required'] === 'required') {
-			$required = "required ";
-		} else $required = "";
-
-		if(isset($args['clearbuttonclass'])) {
-			$bclass = $args['clearbuttonclass'];
-		} else $bclass = "";
-
-		if(isset($args['clearbuttontext'])) {
-			$btxt = $args['clearbuttontext'];
-		} else $btxt = "Clear";
-
-		if(isset($args['background'])) {
-			$jsOptions .= 'background: "'.$args['background'].'", ';
-		}
-
-		if(isset($args['drawcolor'])) {
-			$jsOptions .= 'color: "'.$args['drawcolor'].'", ';
-		}
-
-		if(isset($args['thickness'])) {
-			$jsOptions .= 'thickness: "'.$args['thickness'].'", ';
-		}
-
-		if(isset($args['guideline']) && $args['guideline'] === 'true' ) {
-			$gl = true;
-			$jsOptions .= 'guideline: true, ';
-		} else $gl=false;
-
-		if( isset( $args['guidelineoffset'] ) && $gl === true) {
-			$jsOptions .= 'guidelineOffset: "'.$args['guidelineoffset'].'", ';
-		}
-
-		if( isset( $args['guidelineindent'] ) && $gl === true) {
-			$jsOptions .= 'guidelineIndent: "'.$args['guidelineindent'].'", ';
-		}
-
-		if( isset( $args['guidelinecolor'] ) && $gl === true) {
-			$jsOptions .= 'guidelineColor: "'.$args['guidelinecolor'].'", ';
-		}
-
-		if( isset( $args['notavailablemessage'] ) && $gl === true) {
-			$jsOptions .= 'notAvailable: "'.$args['notavailablemessage'].'", ';
-		}
-
-		$jsOptions = rtrim($jsOptions,', \n');
-
-		$cssFile = file_get_contents($IP.'/extensions/WSForm/modules/signature/css/jquery.signature.css');
-		wsform::includeInlineCSS( $cssFile );
-		$css = '<link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/south-street/jquery-ui.css" rel="stylesheet">';
-		$css .= '<script type="text/javascript" charset="UTF-8" src="/extensions/WSForm/modules/signature/js/do-signature.js"></script>' ."\n";
-
-
-		$js = 'function doWSformActions(){'."\n";
-		$js .= '$("#wsform-signature").signature({'."\n";
-		$js .= 'syncField: "#wsform_signature_data", syncFormat: "'.strtoupper($ftype).'"';
-		$js .= $jsOptions;
-		$js .= '} );'."\n";
-		$js .= '$("#wsform_signature_clear").click(function(){'."\n".'$("#wsform-signature").signature("clear");'."\n".'});'."\n";
-
-		$js .='};';
-		wsform::includeInlineScript( $js );
-		$ret = '<input type="hidden" name="wsform_signature_filename" value="'.$args['fname'].'" >'."\n";
-		$ret .= '<input type="hidden" name="wsform_signature_type" value="'.$ftype.'" >'."\n";
-		$ret .= '<input type="hidden" name="wsform_signature_page_content" value="'.$pcontent.'" >'."\n";
-		$ret .= '<input type="hidden" id="wsform_signature_data" name="wsform_signature" '.$required.'value="" >'."\n";
-		$ret .= '<div id="wsform-signature" class="wsform-signature '.$class.'"></div>'."\n";
-		$ret .= '<button type="button" id="wsform_signature_clear" class="wsform-signature-clear '.$bclass.'">'.$btxt.'</button>'."\n";
-		$ret .= "\n";
-
-		return $css.$ret;
 	}
 
     /**

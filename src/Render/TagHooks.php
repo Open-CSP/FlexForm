@@ -824,8 +824,10 @@ class TagHooks {
                 $ret .= \Xml::tags( 'div', ['id' => 'wsform-signature', 'class' => 'wsform-signature ' . $class ?? ''], '' );
                 $ret .= \Xml::tags( 'button', ['type' => 'button', 'id' => 'wsform_signature_clear', 'class' => 'wsform-signature-clear '. $clearButtonClass ?? ''], htmlspecialchars( $clearButtonText ) );
 
+                // TODO: Make this theme-able
+
                 break;
-            case 'mobilescreenshot': // TODO: Implement 'mobilescreenshot'
+            case 'mobilescreenshot': // TODO: Implement 'mobilescreenshot', @Charlot do we still use this anywhere?
             default:
                 return ['The field type "' . htmlspecialchars( $fieldType ) . '" is currently not supported.'];
         }
