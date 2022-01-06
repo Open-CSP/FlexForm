@@ -471,7 +471,7 @@ class WSFormFieldRenderer implements FieldRenderer {
 		    $optionAttributes['selected'] = 'selected';
         }
 
-		return \Xml::tags('option', $optionAttributes, $input );
+		return \Xml::tags('option', $optionAttributes, htmlspecialchars( $input ) );
 	}
 
 
