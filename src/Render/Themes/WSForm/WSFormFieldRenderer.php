@@ -492,37 +492,19 @@ class WSFormFieldRenderer implements FieldRenderer {
     /**
      * @inheritDoc
      */
-	public function render_button( string $input, array $args, Parser $parser, PPFrame $frame ): string {
-		$ret = '<button ';
-		$setButtonType = "button";
-		foreach ( $args as $k => $v ) {
-			if ( validate::validParameters( $k ) ) {
-				if( $k === "buttontype" ) {
-					$setButtonType = $v;
-				} else {
-					$ret .= $k . '="' . $v . '" ';
-				}
-			}
-		}
-		$ret .= 'type="' . $setButtonType . '"';
-		$ret .= ">" . $input . "</button>\n";
+	public function render_button( string $input, string $buttonType, array $additionalArguments ): string {
+		$tagAttributes = array_merge(['type' => $buttonType], $additionalArguments);
 
-		return $ret;
+		return \Xml::tags( 'button', $tagAttributes, htmlspecialchars( $input ) );
 	}
 
     /**
      * @inheritDoc
      */
-	public function render_reset( string $input, array $args, Parser $parser, PPFrame $frame ): string {
-		$ret = '<input type="reset" ';
-		foreach ( $args as $k => $v ) {
-			if ( validate::validParameters( $k ) ) {
-				$ret .= $k . '="' . $v . '" ';
-			}
-		}
-		$ret .= ">\n";
+	public function render_reset( array $additionalArgs ): string {
+	    $tagAttributes = array_merge( ['type' => 'reset'], $additionalArgs );
 
-		return $ret;
+		return \Xml::tags( 'input', $tagAttributes, '' );
 	}
 
     /**

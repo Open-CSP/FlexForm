@@ -564,7 +564,6 @@ class TagHooks {
                     }
                 }
 
-                // TODO: Test this!
                 $ret = $renderer->render_option(
                     $parser->recursiveTagParse( $input, $frame ),
                     $value,
@@ -578,7 +577,7 @@ class TagHooks {
                 }
 
                 break;
-            case 'submit': // TODO: Implement 'submit'
+            case 'submit':
 
 				$identifier = false;
 				$callBack = 0;
@@ -641,8 +640,43 @@ class TagHooks {
 				];
 
 				break;
-            case 'button': // TODO: Implement 'button'
-            case 'reset': // TODO: Implement 'reset'
+            case 'button':
+                if ( isset( $args['buttontype'] ) ) {
+                    $buttonType = $args['buttontype'];
+                    unset( $args['buttontype'] );
+                } else {
+                    $buttonType = 'button';
+                }
+
+                $additionalArguments = [];
+                foreach ( $args as $name => $value ) {
+                    if ( !Validate::validParameters( $name ) ) {
+                        continue;
+                    }
+
+                    $additionalArguments[$name] = $value;
+                }
+
+                $ret = $this->themeStore->getFormTheme()->getFieldRenderer()->render_button(
+                    $parser->recursiveTagParse( $input ),
+                    $buttonType,
+                    $additionalArguments
+                );
+
+                break;
+            case 'reset':
+                $additionalArguments = [];
+                foreach ( $args as $name => $value ) {
+                    if ( !Validate::validParameters( $name ) ) {
+                        continue;
+                    }
+
+                    $additionalArguments[$name] = $value;
+                }
+
+                $ret = $renderer->render_reset( $additionalArguments );
+
+                break;
             case 'textarea': // TODO: Implement 'textarea'
                 if ( isset( $args['value'] ) ) {
                     // Use the value attribute as the input of the tag
@@ -651,21 +685,21 @@ class TagHooks {
                 }
 
                 if ( isset( $args['name'] ) ) {
-                    $tagName = $parser->recursiveTagParse( $args['name'] );
+                    $tagName = $args['name'];
                     unset( $args['name'] );
                 } else {
                     $tagName = bin2hex( random_bytes( 16 ) );
                 }
 
                 if ( isset( $args['class'] ) ) {
-                    $class = $parser->recursiveTagParse( $args['class'] );
+                    $class = $args['class'];
                     unset( $args['class'] );
                 } else {
                     $class = null;
                 }
 
                 if ( isset( $args['editor'] ) ) {
-                    $editor = $parser->recursiveTagParse( $args['editor'] );
+                    $editor = $args['editor'];
                     unset( $args['editor'] );
                 } else {
                     $editor = null;
@@ -677,7 +711,7 @@ class TagHooks {
                         continue;
                     }
 
-                    $additionalArguments[$name] = $parser->recursiveTagParse( $value );
+                    $additionalArguments[$name] = $value;
                 }
 
                 $htmlType = Validate::validHTML( $args );
@@ -698,7 +732,108 @@ class TagHooks {
                     ->render_textarea( $input, $tagName, $class, $editor, $additionalArguments );
 
                 break;
-            case 'signature': // TODO: Implement 'signature'
+            case 'signature':
+                if ( isset( $args['fname'] ) ) {
+                    $fileName = $args['fname'];
+                } else {
+                    return ['Missing attribute "fname" for signature field.'];
+                }
+
+                if ( isset( $args['pagecontent'] ) ) {
+                    $pageContent = $args['pagecontent'];;
+                } else {
+                    return ['Missing attribute "pagecontent" for signature field.'];
+                }
+
+                $fileType = $args['ftype'] ?? 'svg';
+                $class = $args['class'] ?? null;
+                $clearButtonClass = $args['clearbuttonclass'] ?? null;
+                $clearButtonText = $args['clearbuttontext'] ?? 'Clear';
+                $required = isset( $args['required'] ) && $args['required'] === 'required';
+
+                if ( isset( $args['clearbuttontext'] ) ) {
+                    $clearButtonText = $args['clearbuttontext'];
+                    unset( $args['clearbuttontext'] );
+                } else {
+                    $clearButtonText = 'Clear';
+                }
+
+                $javascriptOptions = [
+                    'syncField: "#wsform_signature_data"',
+                    'syncFormat: "' . htmlspecialchars( strtoupper( $fileName ) ) . '"'
+                ];
+
+                if ( isset( $args['background'] ) ) {
+                    $javascriptOptions[] = sprintf('background: "%s"', htmlspecialchars( $args['background'], ENT_QUOTES ) );
+                }
+
+                if ( isset( $args['drawcolor'] ) ) {
+                    $javascriptOptions[] = sprintf('color: "%s"', htmlspecialchars( $args['drawcolor'], ENT_QUOTES ) );
+                }
+
+                if ( isset( $args['thickness'] ) ) {
+                    $javascriptOptions[] = sprintf('thickness: "%s"', htmlspecialchars( $args['thickness'], ENT_QUOTES ) );
+                }
+
+                if ( isset( $args['guideline'] ) && $args['guideline'] === 'true' ) {
+                    $javascriptOptions[] = sprintf( 'guideline: true' );
+
+                    if ( isset( $args['guidelineoffset'] ) ) {
+                        $javascriptOptions[] = sprintf('guidelineOffset: "%s"', htmlspecialchars( $args['guidelineoffset'], ENT_QUOTES ) );
+                    }
+
+                    if ( isset( $args['guidelineindent'] ) ) {
+                        $javascriptOptions[] = sprintf('guidelineIndent: "%s"', htmlspecialchars( $args['guidelineindent'], ENT_QUOTES ) );
+                    }
+
+                    if ( isset( $args['guidelinecolor'] ) ) {
+                        $javascriptOptions[] = sprintf( 'guidelineColor: "%s"', htmlspecialchars( $args['guidelinecolor'], ENT_QUOTES ) );
+                    }
+
+                    if ( isset( $args['notavailablemessage'] ) ) {
+                        $javascriptOptions[] = sprintf( 'notAvailable: "%s"', htmlspecialchars( $args['notavailablemessage'], ENT_QUOTES ) );
+                    }
+                }
+
+                $javascriptOptions = implode( ',', $javascriptOptions );
+                Core::includeInlineScript( <<<SCRIPT
+                    function doWSformActions() {
+                        $("#wsform-signature").signature({
+                            $javascriptOptions
+                        });
+                        
+                        $("#wsform_signature_clear").click(function() {
+                            $("#wsform-signature").signature("clear");
+                        });
+                    }
+                SCRIPT );
+
+                if ( !file_exists( $IP.'/extensions/WSForm/modules/signature/css/jquery.signature.css' ) ) {
+                    throw new WSFormException( 'Missing jquery.signature.css' );
+                }
+
+                Core::includeInlineCSS( file_get_contents( $IP.'/extensions/WSForm/modules/signature/css/jquery.signature.css' ) );
+
+                $ret = '<link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/south-street/jquery-ui.css" rel="stylesheet">';
+                $ret .= '<script type="text/javascript" charset="UTF-8" src="/extensions/WSForm/modules/signature/js/do-signature.js"></script>';
+                $ret .= \Xml::input('wsform_signature_filename', false, $fileName, ['type' => 'hidden'] );
+                $ret .= \Xml::input( 'wsform_signature_type', false, $fileType, ['type' => 'hidden'] );
+                $ret .= \Xml::input( 'wsform_signature_page_content', false, $pageContent, ['type' => 'hidden'] );
+
+                $signatureDataAttributes = [
+                    'id' => 'wsform_signature_data',
+                    'type' => 'hidden'
+                ];
+
+                if ( $required ) {
+                    $signatureDataAttributes['required'] = 'required';
+                }
+
+                $ret .= \Xml::input( 'wsform_signature', false, '', $signatureDataAttributes );
+                $ret .= \Xml::tags( 'div', ['id' => 'wsform-signature', 'class' => 'wsform-signature ' . $class ?? ''], '' );
+                $ret .= \Xml::tags( 'button', ['type' => 'button', 'id' => 'wsform_signature_clear', 'class' => 'wsform-signature-clear '. $clearButtonClass ?? ''], htmlspecialchars( $clearButtonText ) );
+
+                break;
             case 'mobilescreenshot': // TODO: Implement 'mobilescreenshot'
             default:
                 return ['The field type "' . htmlspecialchars( $fieldType ) . '" is currently not supported.'];
@@ -707,6 +842,8 @@ class TagHooks {
         if ( $parsePost === true && isset( $parseName ) ) {
             $ret .= '<input type="hidden" name="wsparsepost[]" value="' . htmlspecialchars( $parseName ) . "\">\n";
         }
+
+        self::addInlineJavaScriptAndCSS();
 
         return array( $ret, "markerType" => 'nowiki');
     }

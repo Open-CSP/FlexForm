@@ -213,6 +213,7 @@ interface FieldRenderer {
      * @param string|null $showOnSelect
      * @param bool $isSelected
      * @param array $additionalArgs
+     *
      * @return string Rendered HTML
      */
     public function render_option( string $input, string $value, ?string $showOnSelect, bool $isSelected, array $additionalArgs ): string;
@@ -220,10 +221,8 @@ interface FieldRenderer {
     /**
      * @brief Render submit
      *
-     * @param string $input Input for the field (should be parsed)
      * @param array $args Arguments for the field (should be parsed)
-     * @param Parser $parser MediaWiki parser
-     * @param PPFrame $frame Current PPFrame
+     * @param bool $identifier
      *
      * @return string Rendered HTML
      */
@@ -232,35 +231,32 @@ interface FieldRenderer {
     /**
      * @brief Render button field
      *
-     * @param string $input Input for the field (should be parsed)
-     * @param array $args Arguments for the field (should be parsed)
-     * @param Parser $parser MediaWiki parser
-     * @param PPFrame $frame Current PPFrame
+     * @param string $input Text displayed in the button
+     * @param string $buttonType The button type
+     * @param array $additionalArguments Any additional arguments given to the button
      *
      * @return string Rendered HTML
      */
-    public function render_button( string $input, array $args, Parser $parser, PPFrame $frame ): string;
+    public function render_button( string $input, string $buttonType, array $additionalArguments ): string;
 
     /**
      * @brief Render reset input field
      *
-     * @param string $input Input for the field (should be parsed)
-     * @param array $args Arguments for the field (should be parsed)
-     * @param Parser $parser MediaWiki parser
-     * @param PPFrame $frame Current PPFrame
+     * @param array $additionalArguments Any additional arguments given to the reset
      *
      * @return string Rendered HTML
      */
-    public function render_reset( string $input, array $args, Parser $parser, PPFrame $frame ): string;
+    public function render_reset( array $additionalArguments ): string;
 
     /**
      * @brief Render textarea input field
      *
-     * @param string $input Input for the field (should be parsed)
-     * @param string $name
-     * @param string|null $class
-     * @param string|null $editor
-     * @param array $additionalArguments
+     * @param string $input Input of the textarea
+     * @param string $name The name of the textarea
+     * @param string|null $class Optionally a class for the textarea
+     * @param string|null $editor As which editor to render the textarea
+     * @param array $additionalArguments Any additional arguments given to the textarea
+     *
      * @return string Rendered HTML
      */
     public function render_textarea( string $input, string $name, ?string $class, ?string $editor, array $additionalArguments ): string;
