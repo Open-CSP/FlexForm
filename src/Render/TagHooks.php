@@ -578,11 +578,9 @@ class TagHooks {
 
                 break;
             case 'submit':
-
 				$identifier = false;
 				$callBack = 0;
 				$beforeCallBack = 0;
-				$id = uniqid();
 				$validArgs = [];
 				$additionalHtml = '';
 				foreach( $args as $k => $v ){
@@ -750,13 +748,6 @@ class TagHooks {
                 $clearButtonClass = $args['clearbuttonclass'] ?? null;
                 $clearButtonText = $args['clearbuttontext'] ?? 'Clear';
                 $required = isset( $args['required'] ) && $args['required'] === 'required';
-
-                if ( isset( $args['clearbuttontext'] ) ) {
-                    $clearButtonText = $args['clearbuttontext'];
-                    unset( $args['clearbuttontext'] );
-                } else {
-                    $clearButtonText = 'Clear';
-                }
 
                 $javascriptOptions = [
                     'syncField: "#wsform_signature_data"',

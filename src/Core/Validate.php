@@ -321,7 +321,7 @@ class Validate {
 	 * @return string of formatted HTML
 	 */
 	public static function doSimpleParameters( $args, $type = false ) {
-
+        // TODO: Make this function more general so it works for all themes
 		$name  = false;
 		$value = false;
 		$val   = '';

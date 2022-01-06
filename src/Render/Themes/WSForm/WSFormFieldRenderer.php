@@ -8,6 +8,7 @@ use ExtensionRegistry;
 use WSForm\Core\Core;
 use WSForm\Core\Validate;
 use WSForm\Render\Themes\FieldRenderer;
+use Xml;
 
 class WSFormFieldRenderer implements FieldRenderer {
     /**
@@ -471,7 +472,7 @@ class WSFormFieldRenderer implements FieldRenderer {
 		    $optionAttributes['selected'] = 'selected';
         }
 
-		return \Xml::tags('option', $optionAttributes, htmlspecialchars( $input ) );
+		return Xml::tags('option', $optionAttributes, htmlspecialchars( $input ) );
 	}
 
 
@@ -479,14 +480,11 @@ class WSFormFieldRenderer implements FieldRenderer {
      * @inheritDoc
      */
 	public function render_submit( array $args, bool $identifier ): string {
-		if( ! $identifier ) {
-			$ret = '<input type="submit" ';
-		} else $ret = '<input type="button" ';
-		foreach( $args as $k => $v ){
-			$ret .= $k . '="' . $v . '" ';
-		}
-		$ret .= '/>' . PHP_EOL;
-		return $ret;
+	    $submitAttributes = array_merge($args, [
+	        'type' => $identifier ? 'button' : 'submit'
+        ]);
+
+		return Xml::tags( 'input', $submitAttributes, '' );
 	}
 
     /**
@@ -495,7 +493,7 @@ class WSFormFieldRenderer implements FieldRenderer {
 	public function render_button( string $input, string $buttonType, array $additionalArguments ): string {
 		$tagAttributes = array_merge(['type' => $buttonType], $additionalArguments);
 
-		return \Xml::tags( 'button', $tagAttributes, htmlspecialchars( $input ) );
+		return Xml::tags( 'button', $tagAttributes, htmlspecialchars( $input ) );
 	}
 
     /**
@@ -504,7 +502,7 @@ class WSFormFieldRenderer implements FieldRenderer {
 	public function render_reset( array $additionalArgs ): string {
 	    $tagAttributes = array_merge( ['type' => 'reset'], $additionalArgs );
 
-		return \Xml::tags( 'input', $tagAttributes, '' );
+		return Xml::tags( 'input', $tagAttributes, '' );
 	}
 
     /**
@@ -521,7 +519,7 @@ class WSFormFieldRenderer implements FieldRenderer {
 		    // TODO: Implement VisualEditor
         }
 
-		return \Xml::textarea( $name, $input, 40, 5, $textareaAttributes );
+		return Xml::textarea( $name, $input, 40, 5, $textareaAttributes );
 	}
 
     /**
