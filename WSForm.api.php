@@ -7,7 +7,6 @@
 # @Copyright: 2018
 
 
-
 /*
  *    What : WSForm api tasks
  *  Author : Sen-Sai
@@ -21,6 +20,7 @@
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
+use WSForm\Core\Debug;
 use WSForm\Core\HandleResponse;
 use WSForm\Core\Config;
 use WSForm\Processors\Recaptcha\Recaptcha;
@@ -28,6 +28,7 @@ use WSForm\Processors\Request\External;
 use WSForm\Processors\Security\wsSecurity;
 use WSForm\Processors\Utilities\General;
 use WSForm\WSFormException;
+
 
 //setcookie("wsform[type]", "danger", 0, '/');
 //setcookie("wsform[txt]", "test", 0, '/');
@@ -61,12 +62,12 @@ try {
 	if( Config::isDebug() ) {
 		ERROR_REPORTING(E_ALL);
 		ini_set('display_errors', 1);
-		wsDebug::addToDebug( '$_POST before checks', $_POST );
+		Debug::addToDebug( '$_POST before checks', $_POST );
 	}
 
 	$securityResult = wsSecurity::resolvePosts();
 	if( Config::isDebug() ) {
-		wsDebug::addToDebug( '$_POST after checks', $_POST );
+		Debug::addToDebug( '$_POST after checks', $_POST );
 	}
 } catch ( WSFormException $e ){
 	$responseHandler->setReturnData( $e->getMessage() );
@@ -205,11 +206,11 @@ try {
 wsSecurity::cleanPosts();
 
 if( Config::isDebug() ) {
-	wsDebug::addToDebug( '$_POST after cleaned html', $_POST );
+	Debug::addToDebug( '$_POST after cleaned html', $_POST );
 }
 General::handleDefaultValues();
 if( Config::isDebug() ) {
-	wsDebug::addToDebug( '$_POST after wsdefault changes', $_POST );
+	Debug::addToDebug( '$_POST after wsdefault changes', $_POST );
 }
 
 $wsuid = General::getPostString( 'wsuid' );
@@ -231,7 +232,7 @@ if( isset( $_POST['wsform_signature'] ) ) {
 if(isset($_FILES['wsformfile'])) {
 	if (file_exists($_FILES['wsformfile']['tmp_name']) || is_uploaded_file($_FILES['wsformfile']['tmp_name'])) {
 		$res = fileUpload();
-		if( $api->isDebug() ) wsDebug::addToDebug( 'File Upload result', $res );
+		if( $api->isDebug() ) Debug::addToDebug( 'File Upload result', $res );
 		if (isset( $res['status'] ) && $res['status'] == 'error') {
 			$messages->doDie(' file : '.$res['msg']);
 			$failed = true;
@@ -305,7 +306,7 @@ if ( General::getPostString( 'mwaction' ) !== false ) {
 			break;
 	}
 } else {
-	if( Config::isDebug() ) wsDebug::addToDebug( 'running main functions fail', array('action'=>General::getPostString('mwaction') ) );
+	if( Config::isDebug() ) Debug::addToDebug( 'running main functions fail', array('action'=>General::getPostString('mwaction') ) );
 }
 
 
@@ -334,9 +335,9 @@ if( $extension !== false ) {
 */
 if( Config::isDebug() ) {
 	if ( $responseHandler->getReturnStatus() !== "ok" ) {
-		wsDebug::addToDebug('ERROR MESSAGES', $responseHandler->getReturnData() );
+		Debug::addToDebug('ERROR MESSAGES', $responseHandler->getReturnData() );
 	}
-	echo wsDebug::createDebugOutput();
+	echo Debug::createDebugOutput();
 	die('testing..');
 }
 

@@ -73,7 +73,7 @@ class Config {
 		$default_dir = $IP . "/extensions/WSForm/uploads/";
 		$filePathFromConfig = self::getConfigVariable( 'file_temp_path' );
 		if( self::getConfigVariable( 'debug' ) !== null ) self::$debug = self::getConfigVariable( 'debug' );
-		if( self::getConfigVariable( 'secure' ) !== null ) self::$debug = self::getConfigVariable( 'secure' );
+		if( self::getConfigVariable( 'secure' ) !== null ) self::$secure = self::getConfigVariable( 'secure' );
 		$canonical = self::getConfigVariable( 'wgCanonicalServer' );
 		if( is_null( $filePathFromConfig ) ) {
 			if( !file_exists( $default_dir ) ) {

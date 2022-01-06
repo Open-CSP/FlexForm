@@ -10,7 +10,7 @@
 
 namespace WSForm\Processors\Content;
 
-use wsDebug;
+use Debug;
 use WSForm\Core\Config;
 use WSForm\Processors\Utilities\General;
 
@@ -301,7 +301,7 @@ class Edit {
 
 		$data = $this->createEditData();
 		if( Config::isDebug() ) {
-			wsDebug::addToDebug( 'edit data accumulation '. $this->editCount, $data );
+			Debug::addToDebug( 'edit data accumulation '. $this->editCount, $data );
 		}
 		//echo "<pre>";
 		//print_r( $data );
@@ -395,7 +395,7 @@ class Edit {
 
 			}
 			if( Config::isDebug() ) {
-				wsDebug::addToDebug( 'edit data page formation ', $pageContents );
+				Debug::addToDebug( 'edit data page formation ', $pageContents );
 			}
 			return $pageContents;
 

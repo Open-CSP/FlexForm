@@ -227,7 +227,7 @@ interface FieldRenderer {
      *
      * @return string Rendered HTML
      */
-    public function render_submit( array $args, Parser $parser, PPFrame $frame ): string;
+    public function render_submit( array $args, bool $identifier ): string;
 
     /**
      * @brief Render button field

@@ -478,8 +478,10 @@ class WSFormFieldRenderer implements FieldRenderer {
     /**
      * @inheritDoc
      */
-	public function render_submit( array $args, Parser $parser, PPFrame $frame ): string {
-		$ret = '<input type="submit" ';
+	public function render_submit( array $args, bool $identifier ): string {
+		if( ! $identifier ) {
+			$ret = '<input type="submit" ';
+		} else $ret = '<input type="button" ';
 		foreach( $args as $k => $v ){
 			$ret .= $k . '="' . $v . '" ';
 		}

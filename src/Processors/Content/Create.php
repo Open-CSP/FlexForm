@@ -10,7 +10,7 @@
 
 namespace WSForm\Processors\Content;
 
-use wsDebug;
+use Debug;
 use WSForm\Core\Config;
 use WSForm\Processors\Content\ContentCore;
 use WSForm\Processors\Definitions;
@@ -177,7 +177,7 @@ class create {
 			if ( $this->pageData['option'] == 'next_available' && $this->pageData['title'] !== false ) {
 				$hnr = ContentCore::getNextAvailable( $this->title );
 				if ( Config::isDebug() ) {
-					wsDebug::addToDebug(
+					Debug::addToDebug(
 						'next available',
 						$hnr
 					);
@@ -252,7 +252,7 @@ class create {
 		}
 
 		if ( Config::isDebug() ) {
-			wsDebug::addToDebug(
+			Debug::addToDebug(
 				'$pagesToSave',
 				$pagesToSave
 			);
@@ -261,7 +261,7 @@ class create {
 		$pagesToSave = $this->addCreateToTitle( $pagesToSave );
 		$finalPages = $this->createFinalPages( $pagesToSave );
 		if( Config::isDebug() ) {
-			wsDebug::addToDebug( '$finalPages', $finalPages );
+			Debug::addToDebug( '$finalPages', $finalPages );
 		}
 		return $finalPages;
 

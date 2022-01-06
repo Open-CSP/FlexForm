@@ -394,7 +394,7 @@ class SpecialWSForm extends \SpecialPage {
 			// We need to handle api calls here
 			//error_reporting( -1 );
 			//ini_set( 'display_errors', 1 );
-			include_once __DIR__ . "/../WSForm.api.php";
+			include_once $IP . "/extensions/WSForm/WSForm.api.php";
 
 			return true;
 		}
