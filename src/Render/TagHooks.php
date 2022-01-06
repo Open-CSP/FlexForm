@@ -643,7 +643,60 @@ class TagHooks {
             case 'button': // TODO: Implement 'button'
             case 'reset': // TODO: Implement 'reset'
             case 'textarea': // TODO: Implement 'textarea'
+                if ( isset( $args['value'] ) ) {
+                    // Use the value attribute as the input of the tag
+                    $input = $args['value'];
+                    unset( $args['value'] );
+                }
 
+                if ( isset( $args['name'] ) ) {
+                    $name = $parser->recursiveTagParse( $args['name'] );
+                    unset( $args['name'] );
+                } else {
+                    $name = null;
+                }
+
+                if ( isset( $args['class'] ) ) {
+                    $class = $parser->recursiveTagParse( $args['class'] );
+                    unset( $args['class'] );
+                } else {
+                    $class = null;
+                }
+
+                if ( isset( $args['editor'] ) ) {
+                    $editor = $parser->recursiveTagParse( $args['editor'] );
+                    unset( $args['editor'] );
+                } else {
+                    $editor = null;
+                }
+
+                $additionalArguments = [];
+                foreach ( $args as $name => $value ) {
+                    if ( !Validate::validParameters( $name ) || Validate::check_disable_readonly_required_selected( $name, $value ) ) {
+                        continue;
+                    }
+
+                    $additionalArguments[$name] = $parser->recursiveTagParse( $value );
+                }
+
+                $htmlType = Validate::validHTML( $args );
+
+                if ( $input !== '' ) {
+                    // We want to purify the input based on the form's HTML type
+                    $input = Protect::purify( $input, $htmlType, Core::$secure );
+                } elseif ( $name !== null ) {
+                    // No input is given in the field, but we might have input through GET parameters
+                    $input = Protect::purify( Core::getValue( $name ), $htmlType, Core::$secure );
+                }
+
+                Core::addCheckSum( 'textarea', $name ?? '', $input, $htmlType );
+
+                $output = $this->themeStore
+                    ->getFormTheme()
+                    ->getFieldRenderer()
+                    ->render_textarea( $validArgs, $parser, $frame );
+
+                break;
             case 'signature': // TODO: Implement 'signature'
             case 'mobilescreenshot': // TODO: Implement 'mobilescreenshot'
             default:

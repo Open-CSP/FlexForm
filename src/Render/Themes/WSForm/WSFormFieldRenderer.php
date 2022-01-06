@@ -527,7 +527,6 @@ class WSFormFieldRenderer implements FieldRenderer {
      * @inheritDoc
      */
 	public function render_textarea( string $input, array $args, Parser $parser, PPFrame $frame ): string {
-		global $wgOutput;
 		$out = $parser->getOutput();
 		if( $input === '' ) $input = false;
 		$name = '';
