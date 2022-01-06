@@ -257,13 +257,13 @@ interface FieldRenderer {
      * @brief Render textarea input field
      *
      * @param string $input Input for the field (should be parsed)
-     * @param array $args Arguments for the field (should be parsed)
-     * @param Parser $parser MediaWiki parser
-     * @param PPFrame $frame Current PPFrame
-     *
+     * @param string $name
+     * @param string|null $class
+     * @param string|null $editor
+     * @param array $additionalArguments
      * @return string Rendered HTML
      */
-    public function render_textarea( string $input, array $args, Parser $parser, PPFrame $frame ): string;
+    public function render_textarea( string $input, string $name, ?string $class, ?string $editor, array $additionalArguments ): string;
 
     /**
      * @brief Render signature input field

@@ -651,10 +651,10 @@ class TagHooks {
                 }
 
                 if ( isset( $args['name'] ) ) {
-                    $name = $parser->recursiveTagParse( $args['name'] );
+                    $tagName = $parser->recursiveTagParse( $args['name'] );
                     unset( $args['name'] );
                 } else {
-                    $name = null;
+                    $tagName = bin2hex( random_bytes( 16 ) );
                 }
 
                 if ( isset( $args['class'] ) ) {
@@ -685,17 +685,17 @@ class TagHooks {
                 if ( $input !== '' ) {
                     // We want to purify the input based on the form's HTML type
                     $input = Protect::purify( $input, $htmlType, Config::isSecure() );
-                } elseif ( $name !== null ) {
+                } else {
                     // No input is given in the field, but we might have input through GET parameters
-                    $input = Protect::purify( Core::getValue( $name ), $htmlType, Config::isSecure() );
+                    $input = Protect::purify( Core::getValue( $tagName ), $htmlType, Config::isSecure() );
                 }
 
-                Core::addCheckSum( 'textarea', $name ?? '', $input, $htmlType );
+                Core::addCheckSum( 'textarea', $tagName, $input, $htmlType );
 
-                $output = $this->themeStore
+                $ret = $this->themeStore
                     ->getFormTheme()
                     ->getFieldRenderer()
-                    ->render_textarea( $validArgs, $parser, $frame );
+                    ->render_textarea( $input, $tagName, $class, $editor, $additionalArguments );
 
                 break;
             case 'signature': // TODO: Implement 'signature'

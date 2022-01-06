@@ -528,69 +528,18 @@ class WSFormFieldRenderer implements FieldRenderer {
     /**
      * @inheritDoc
      */
-	public function render_textarea( string $input, array $args, Parser $parser, PPFrame $frame ): string {
-		$out = $parser->getOutput();
-		if( $input === '' ) $input = false;
-		$name = '';
-		$html = validate::validHTML( $args );
-		$ret = '<textarea ';
-		$editor = false;
-		$class = '';
-		$js = '';
-		foreach ( $args as $k => $v ) {
-			if( $k == 'name' ) {
-				$name = $v;
-			}
-			if( $k == 'value' ) {
-				$input = $v;
-			}
-			if ( validate::check_disable_readonly_required_selected( $k, $v ) ) {
-				continue;
-			}
-			if( $k === "class" ) {
-				$class .= $v;
-			}
-			if ( validate::validParameters( $k ) && $k !== 'value' && $k !== 'class' ) {
-				$ret .= $k . '="' . $v . '" ';
-			}
-			// Editor option
-			if( strtolower( $k )  === 'editor' && strtolower( $v ) === 've' ){
-				if ( ExtensionRegistry::getInstance()->isLoaded( 'VEForAll' ) ) {
-					$out->addModules( 'ext.veforall.main' );
-					$editor = true;
-					wsform::includeInlineScript( 'var WSFormEditor = "VE";' );
-					$cssVE = '.load-editor{ 
-								background: url("https://www.wikibase.nl/load-editor.gif") no-repeat bottom right #fff;
-								background-size: 50px; 
-							}';
-					wsform::includeInlineCSS( $cssVE );
-					$ret = '<span class="ve-area-wrapper">' . $ret;
-					$class .= ' load-editor ';
-				}
+	public function render_textarea( string $input, string $name, ?string $class, ?string $editor, array $additionalArguments ): string {
+		$textareaAttributes = $additionalArguments;
 
-			}
-		}
-		$ret .= 'class="' . $class . '">';
-		if ( $input !== false ) {
+		if ( $class !== null ) {
+		    $textareaAttributes['class'] = $class;
+        }
 
-			$input = \wsform\protect\protect::purify( $input, $html, \wsform\wsform::$secure );
+		if ( $editor === 've' ) {
+		    // TODO: Implement VisualEditor
+        }
 
-			//die();
-			$ret .= $input;
-			\wsform\wsform::addCheckSum( 'textarea', $name, $input, $html );
-		} else {
-			$tmp = \wsform\protect\protect::purify( \wsform\wsform::getValue( ( $name ) ), $html, \wsform\wsform::$secure );
-			if ( $tmp !== "" ) {
-				$ret .= $tmp;
-				\wsform\wsform::addCheckSum( 'textarea', $name, $tmp, $html );
-			} else \wsform\wsform::addCheckSum( 'textarea', $name, '', $html );
-		}
-		$ret .= "</textarea>\n";
-		if( $editor ) {
-			$ret .= '</span>' . PHP_EOL;
-		}
-
-		return $ret . $js;
+		return \Xml::textarea( $name, $input, 40, 5, $textareaAttributes );
 	}
 
     /**
