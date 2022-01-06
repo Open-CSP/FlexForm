@@ -59,6 +59,7 @@ class wsSecurity {
 		}
 		try {
 			foreach ( $_POST as $k => $v ) {
+				$v = htmlspecialchars_decode( $v );
 				if ( $crypt::decrypt( $k ) === 'checksum' ) {
 					$checksum = unserialize( $crypt::decrypt( $v ) );
 					unset( $_POST[ $k ] );
