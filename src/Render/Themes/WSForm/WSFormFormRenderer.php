@@ -66,10 +66,10 @@ class WSFormFormRenderer implements FormRenderer {
             if ( !empty( Core::$chkSums ) ) {
                 $checksumValue = Protect::encrypt( serialize( Core::$chkSums ) );
 
-                $formContent .= \Xml::input( $checksumName, false, $checksumValue );
+                $formContent .= \Xml::input( $checksumName, false, $checksumValue, ['type' => 'hidden'] );
 
                 // FIXME: Rename the field 'formid' to 'securityid'
-                $formContent .= \Xml::input( 'formid', false, Core::$securityId );
+                $formContent .= \Xml::input( 'formid', false, Core::$securityId, ['type' => 'hidden'] );
             }
         }
 
