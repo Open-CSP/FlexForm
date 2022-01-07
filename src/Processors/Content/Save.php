@@ -121,6 +121,12 @@ class Save {
 				EDIT_SUPPRESS_RC | EDIT_AUTOSUMMARY
 			);
 		}
+
+		if ( $status === true ) {
+		    // Update the status to the status of the page updater, but only if the status is not already false
+		    $status = $page_updater->getStatus()->isGood();
+        }
+
 		if ( true === $status ) {
 			return true;
 		} else {
