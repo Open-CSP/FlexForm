@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by  : Designburo.nl
+ * Created by  : Wikibase Solutions
  * Project     : MWWSForm
  * Filename    : Render.php
  * Description :
@@ -10,13 +10,7 @@
 
 namespace WSForm\Processors\Content;
 
-use \ApiMain,
-	\DerivativeContext,
-	\FauxRequest,
-	\DerivativeRequest,
-	MWException,
-	RequestContext,
-	WSForm\Processors\Utilities\General;
+use \ApiMain, \DerivativeContext, \FauxRequest, \DerivativeRequest, MWException, RequestContext, WSForm\Processors\Utilities\General;
 use ContentHandler;
 use MediaWiki\Content\ContentHandlerFactory;
 use WikiPage;
@@ -25,23 +19,29 @@ use WSForm\WSFormException;
 class Render {
 
 
-	public function getSlotContent( $id, $slotName = 'main' ) {
-		$ret = array();
-		$id   = (int) ( $id );
-		$page = WikiPage::newFromId( $id );
+	/**
+	 * @param int|string $id
+	 * @param string $slotName
+	 *
+	 * @return array
+	 */
+	public function getSlotContent( $id, string $slotName = 'main' ) : array {
+		$ret            = array();
+		$id             = (int) ( $id );
+		$page           = WikiPage::newFromId( $id );
 		$ret['content'] = '';
-		$ret['title'] = '';
+		$ret['title']   = '';
 
 		if ( $page === false || $page === null ) {
 			return $ret;;
 		}
 
-		$ret['title'] = $page->getTitle()->getFullText();
+		$ret['title']    = $page->getTitle()->getFullText();
 		$latest_revision = $page->getRevisionRecord();
 		if ( $latest_revision === null ) {
 			return $ret;;
 		}
-		if( $latest_revision->hasSlot( $slotName ) ) {
+		if ( $latest_revision->hasSlot( $slotName ) ) {
 			$content_object = $latest_revision->getContent( $slotName );
 			if ( $content_object === null ) {
 				return $ret;;
@@ -50,42 +50,13 @@ class Render {
 			$content_handler = $content_object->getContentHandler( $content_object );
 			//$content_handler = ContentHandlerFactory::getContentHandler();
 
+			$ret['content'] = $content_handler->serializeContent( $content_object );
+			$ret['title']   = $page->getTitle()->getFullText();
 
-			$ret['content'] =  $content_handler->serializeContent( $content_object );
-			$ret['title'] = $page->getTitle()->getFullText();
 			return $ret;
 		}
+
 		return $ret;;
-
-	}
-
-
-
-
-	public function parseWikiText( string $text ): string {
-		$parser = \MediaWiki\MediaWikiServices::getInstance()->getParser();
-		$parser = clone $parser;
-		$title = \Title::newMainPage();
-		$context = \RequestContext::getMain();
-		if ( $title->canExist() ) {
-			$page_object = \WikiPage::factory( $title );
-		} else {
-			$article = \Article::newFromTitle( $title, $context );
-			$page_object = $article->getPage();
-		}
-		$parser_options = $page_object->makeParserOptions( $context );
-		if ( method_exists( $parser, "setOptions" ) ) {
-			$parser->setOptions( $parser_options );
-		} else {
-			$parser->mOptions = $parser_options;
-		}
-		if ( method_exists( $parser, "setTitle" ) ) {
-			$parser->setTitle( $title );
-		} else {
-			$parser->mTitle = $title;
-		}
-		$parser->clearState();
-		return $parser->recursiveTagParseFully( $text );
 	}
 
 	/**
@@ -96,70 +67,24 @@ class Render {
 	 * @return mixed
 	 * @throws MWException
 	 */
-	public function makeRequest( array $data ){
+	public function makeRequest( array $data ) {
 		global $wgUser;
-		$apiRequest = new FauxRequest( $data, true, null );
-		$context = new DerivativeContext( new RequestContext() );
+		$apiRequest = new FauxRequest(
+			$data,
+			true,
+			null
+		);
+		$context    = new DerivativeContext( new RequestContext() );
 		$context->setRequest( $apiRequest );
 		$context->setUser( $wgUser );
-		$api = new ApiMain( $context, true );
+		$api = new ApiMain(
+			$context,
+			true
+		);
 		$api->execute();
+
 		return $api->getResult()->getResultData();
 	}
 
-	// NOT USED, ONLY FOR REFERENCE
-	public function makeRequest2( $data ){
-		global $wgUser, $wgRequest;
-
-		$api = new ApiMain(
-			new DerivativeRequest( $wgRequest,
-								   $data,
-								   true ),
-			false
-		);
-		$api->execute();
-		$data = $api->getResult()->getResultData();
-		//$data = $data['parse']['text'];
-		//$data = wsUtilities::get_string_between_until_last( $data, '<div class="mw-parser-output"><p>','</p></div>');
-
-
-
-	}
-
-	/**
-	 * @return array|false
-	 */
-	public function renderWikiTxt() {
-
-		$wikiTxt = wsUtilities::getPostString( 'wikitxt' );
-		if( $wikiTxt === false ) {
-			return false;
-		}
-		try {
-			$result =  $this->parseWikiText( $wikiTxt );
-			return trim( wsUtilities::get_string_between_until_last( $result, '<p>','</p>') );
-		} catch ( MWException $e ) {
-			return $e->getText();
-		}
-		/* OLD METHOD HERE FOR REFERENCE
-		$postdata = [
-			"action" => "parse",
-			"format" => "json",
-			"text" => $wikiTxt,
-			"contentmodel" => "wikitext",
-			"disablelimitreport" => "1"
-		];
-		$ret = array();
-		$result = $this->makeRequest( $postdata );
-		$result = wsUtilities::get_string_between_until_last( $result['parse']['text'], '<div class="mw-parser-output"><p>','</p></div>');
-		if( $result !== "" ) {
-			return wbHandleResponses::createMsg( $result, 'ok' );
-		} else {
-			$ret['status'] = 'error';
-			$ret['error'] = wfMessage( 'wsform-renderwiki-no-result' )->plain();
-		}
-		return $ret;
-		 **/
-	}
 
 }

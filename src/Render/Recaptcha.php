@@ -1,7 +1,7 @@
 <?php
 /**
- * Created by  : Designburo.nl
- * Project     : wsformWikiBaseNL
+ * Created by  : Wikibase Solutions
+ * Project     : WSForm
  * Filename    : recaptcha.class.php
  * Description :
  * Date        : 28/10/2019

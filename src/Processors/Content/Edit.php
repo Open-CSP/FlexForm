@@ -1,7 +1,7 @@
 <?php
 /**
- * Created by  : Designburo.nl
- * Project     : wsformWikiBaseNL
+ * Created by  : Wikibase Solutions
+ * Project     : WSForm
  * Filename    : edit.class.php
  * Description :
  * Date        : 19-3-2021
@@ -24,14 +24,14 @@ class Edit {
 	/**
 	 * Function used by the Edit page functions
 	 *
-	 * @param $source
-	 * @param $template
+	 * @param string $source
+	 * @param string $template
 	 * @param mixed $find
 	 * @param mixed $value
 	 *
-	 * @return bool|string
+	 * @return false|string
 	 */
-	public function getTemplate( $source, $template, $find = false, $value = false ) {
+	public function getTemplate( string $source, string $template, $find = false, $value = false ) {
 		$multiple = substr_count(
 			$source,
 			'{{' . $template
@@ -136,6 +136,11 @@ class Edit {
 		return false;
 	}
 
+	/**
+	 * @param $str
+	 *
+	 * @return array|false|string[]
+	 */
 	public static function pregExplode( $str ) {
 		return preg_split(
 			'~\|(?![^{{}}]*\}\})~',
@@ -143,8 +148,14 @@ class Edit {
 		);
 	}
 
+	/**
+	 * @param $start
+	 * @param $txt
+	 *
+	 * @return false|mixed
+	 */
 	private function getEndPos( $start, $txt ) {
-		$pos = false;
+		$pos      = false;
 		$brackets = 2;
 		for ( $i = $start; $i < strlen( $txt ) + 1; $i++ ) {
 			if ( $txt[$i] == '{' ) {
@@ -162,6 +173,12 @@ class Edit {
 		return $pos;
 	}
 
+	/**
+	 * @param $name
+	 * @param $template
+	 *
+	 * @return array
+	 */
 	private function getTemplateValueAndDelete( $name, $template ) {
 		//echo "searching for $name";
 		$regex = '#%ws_' . $name . '=(.*?)%#';
@@ -170,17 +187,13 @@ class Edit {
 			$template,
 			$tmp
 		);
-		//echo "<pre>";
-		//print_r($tmp);
-		//echo "</pre>";
+
 		if ( isset( $tmp[1] ) ) {
 			$tmp = $tmp[1];
 		} else {
 			$ret['val'] = false;
 			$ret['tpl'] = $template;
 		}
-		//$tmp = $this->get_string_between( $template, '%ws_' . $name . '=' , '%' );
-		//echo "<p>found : $tmp</p>";
 		$ret = array();
 		if ( $tmp !== "" ) {
 			$ret['val'] = $tmp;
@@ -196,7 +209,14 @@ class Edit {
 		return $ret;
 	}
 
-	private function getStartPos( $string, $start, $offset = 0 ) {
+	/**
+	 * @param string $string
+	 * @param string $start
+	 * @param int $offset
+	 *
+	 * @return false|int
+	 */
+	private function getStartPos( string $string, string $start, int $offset = 0 ) {
 		$ini = strpos(
 			$string,
 			$start,
@@ -210,6 +230,11 @@ class Edit {
 		return $ini;
 	}
 
+	/**
+	 * @param $txt
+	 *
+	 * @return array|string|string[]
+	 */
 	public function clearWhiteSpacePlusEOLs( $txt ) {
 		return str_replace(
 			array(
@@ -222,7 +247,16 @@ class Edit {
 		);
 	}
 
-	private function checkTemplateValue( $source, $start, $end, $find, $value ) {
+	/**
+	 * @param string $source
+	 * @param int $start
+	 * @param int $end
+	 * @param string $find
+	 * @param string $value
+	 *
+	 * @return bool
+	 */
+	private function checkTemplateValue( string $source, int $start, int $end, string $find, string $value ): bool {
 		if ( substr_count(
 			$source,
 			$find . '=' . $value,
@@ -238,29 +272,44 @@ class Edit {
 	/**
 	 * @return array
 	 */
-	private function createEditData(): array{
+	private function createEditData() : array {
 		//edit = [0]pid [1]template [2]Form field [3]Use field [4]Value [5]Slot
-		$data = array();
-		$t=0;
+		$data   = array();
+		$t      = 0;
 		$fields = ContentCore::getFields();
 		foreach ( $fields['mwedit'] as $edits ) {
 			$this->editCount++;
-			$edit = explode( '-^^-', $edits );
+			$edit = explode(
+				'-^^-',
+				$edits
+			);
 			if ( $edit[0] == '' || $edit[1] == '' || $edit[2] == '' ) {
 				continue;
 			}
-			$pid = $edit[0];
-			$data[$pid][$t]['template'] = General::makeSpaceFromUnderscore($edit[1]);
-			if( ( strpos($edit[1],'|') !== false ) && ( strpos($edit[1],'=') !== false ) ) {
+			$pid                        = $edit[0];
+			$data[$pid][$t]['template'] = General::makeSpaceFromUnderscore( $edit[1] );
+			if ( ( strpos(
+					   $edit[1],
+					   '|'
+				   ) !== false ) && ( strpos(
+										  $edit[1],
+										  '='
+									  ) !== false ) ) {
 				// We need to find the template with a specific argument and value
-				$line = explode('|',$data[$pid][$t]['template']);
-				$info = explode('=',$line[1]);
-				$data[$pid][$t]['find'] = $info[0];
-				$data[$pid][$t]['val'] = $info[1];
+				$line                       = explode(
+					'|',
+					$data[$pid][$t]['template']
+				);
+				$info                       = explode(
+					'=',
+					$line[1]
+				);
+				$data[$pid][$t]['find']     = $info[0];
+				$data[$pid][$t]['val']      = $info[1];
 				$data[$pid][$t]['template'] = $line[0];
 			} else {
 				$data[$pid][$t]['find'] = false;
-				$data[$pid][$t]['val'] = false;
+				$data[$pid][$t]['val']  = false;
 			}
 
 			if ( $edit[3] != '' ) {
@@ -272,9 +321,9 @@ class Edit {
 			if ( $edit[4] != '' ) {
 				$data[$pid][$t]['value'] = $edit[4];
 			} else {
-				$ff = General::makeUnderscoreFromSpace($edit[2]);
+				$ff = General::makeUnderscoreFromSpace( $edit[2] );
 				// Does this field exist in the current form that we can use ?
-				if ( ! isset( $_POST[ $ff ] ) ) {
+				if ( ! isset( $_POST[$ff] ) ) {
 					$data[$pid][$t]['value'] = '';
 				} else {
 					// The value will be grabbed from the form
@@ -301,118 +350,140 @@ class Edit {
 
 			$t++;
 		}
+
 		return $data;
 	}
 
-	public function editPage(){
-	// We have edits to make to existing pages!
-		$data = array();
-		$t=0;
+	/**
+	 * @return array|void
+	 */
+	public function editPage() {
+		// We have edits to make to existing pages!
 
 		$data = $this->createEditData();
-		if( Config::isDebug() ) {
-			Debug::addToDebug( 'edit data accumulation '. $this->editCount, $data );
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'edit data accumulation ' . $this->editCount,
+				$data
+			);
 		}
-		//echo "<pre>";
-		//print_r( $data );
-		//die();
 		// We have all the info in the data Array
 		// Now we need to grab the page and replace what needs to be replaced.
 
-
 		$pageContents = array();
-		$render = new Render();
-		foreach ($data as $pid => $edits) {
+		$render       = new Render();
+		foreach ( $data as $pid => $edits ) {
 			//setup slots if needed
 			$wehaveslots = false;
-			foreach( $edits as $edit ) {
-				if( $edit['slot'] !== false ) {
+			foreach ( $edits as $edit ) {
+				if ( $edit['slot'] !== false ) {
 					$wehaveslots = true;
 					//$pageTitle = $edit['slot'];
-					$content = $render->getSlotContent( $pid, $edit['slot'] );
-					if( Config::isDebug() ) {
-						Debug::addToDebug( 'Content for '. $pid, $content );
+					$content = $render->getSlotContent(
+						$pid,
+						$edit['slot']
+					);
+					if ( Config::isDebug() ) {
+						Debug::addToDebug(
+							'Content for ' . $pid,
+							$content
+						);
 					}
 
 					//$content = $api->getWikiPage( $pid, $edit['slot'] );
-					if( $content['content'] == '' ) {
-						$pageContents[ $edit['slot']['content'] ] = false;
+					if ( $content['content'] == '' ) {
+						$pageContents[$edit['slot']['content']] = false;
 					} else {
-						$pageContents[ $edit['slot']['content'] ] = $content['content'];
+						$pageContents[$edit['slot']['content']] = $content['content'];
 					}
 
-					$pageContents[ $edit['slot'] ]['title'] = $content['title'];
+					$pageContents[$edit['slot']]['title'] = $content['title'];
 				}
 			}
-			//print_r( "We have " . count( $pageContents ) . " pagecontents and we have " .count( $edits ). " edits" );
-			if( !$wehaveslots ) {
-				$pageContents[ 'main' ] = $render->getSlotContent( $pid );
-				if( Config::isDebug() ) {
-					Debug::addToDebug( 'Content for '. $pid, $pageContents );
+			if ( ! $wehaveslots ) {
+				$pageContents['main'] = $render->getSlotContent( $pid );
+				if ( Config::isDebug() ) {
+					Debug::addToDebug(
+						'Content for ' . $pid,
+						$pageContents
+					);
 				}
+			}
 
-			}
-			//die();
-			//$editSlot = $edits[0]['slot'];
-			//$pageContent = $api->getWikiPage( $pid, $editSlot );
 			$usedVariables = array();
 			foreach ( $edits as $edit ) {
 				$slotToEdit = $edit['slot'];
-				if( $slotToEdit === false ){
+				if ( $slotToEdit === false ) {
 					$slotToEdit = 'main';
 				}
 
-				if($edit['find'] !== false) {
-					$templateContent = $this->getTemplate( $pageContents[$slotToEdit]['content'], $edit['template'], $edit['find'], $edit['val'] );
-					if($templateContent===false) {
-						$result['received']['error'][] = 'Template: '.$edit['template'].' where variable:'.$edit['find'] . '='.$edit['val'].' not found';
+				if ( $edit['find'] !== false ) {
+					$templateContent = $this->getTemplate(
+						$pageContents[$slotToEdit]['content'],
+						$edit['template'],
+						$edit['find'],
+						$edit['val']
+					);
+					if ( $templateContent === false ) {
+						$result['received']['error'][] = 'Template: ' . $edit['template'] . ' where variable:' . $edit['find'] . '=' . $edit['val'] . ' not found';
 					}
 				} else {
-					$templateContent = $this->getTemplate( $pageContents[$slotToEdit]['content'], $edit['template'] );
+					$templateContent = $this->getTemplate(
+						$pageContents[$slotToEdit]['content'],
+						$edit['template']
+					);
 				}
-				if ($templateContent === false) {
+				if ( $templateContent === false ) {
 					//echo 'skipping ' . $edit['template'] ;
 					continue;
 				}
 
-
 				$expl = self::pregExplode( $templateContent );
 				foreach ( $expl as $k => $line ) {
-					$tmp = explode('=',$line);
-					if( trim( $tmp[0]) == $edit['variable'] ) {
-						$expl[$k] = $edit['variable'].'='.$edit['value'];
-						$usedVariables[]=$edit['variable'];
+					$tmp = explode(
+						'=',
+						$line
+					);
+					if ( trim( $tmp[0] ) == $edit['variable'] ) {
+						$expl[$k]        = $edit['variable'] . '=' . $edit['value'];
+						$usedVariables[] = $edit['variable'];
 					}
 				}
-				if(!in_array($edit['variable'],$usedVariables)) {
-					$ttemp = $edit['variable'];
-					$expl[]=$edit['variable'].'='.$edit['value'];
+				if ( ! in_array(
+					$edit['variable'],
+					$usedVariables
+				) ) {
+					$ttemp  = $edit['variable'];
+					$expl[] = $edit['variable'] . '=' . $edit['value'];
 				}
-
 
 				$newTemplateContent = '';
-				$cnt = count( $expl );
-				$t = 0;
-				foreach ($expl as $line) {
-
-					if(strlen($line) > 1) {
-						$newTemplateContent .= "\n" . '|' . trim($line) ;
+				$cnt                = count( $expl );
+				$t                  = 0;
+				foreach ( $expl as $line ) {
+					if ( strlen( $line ) > 1 ) {
+						$newTemplateContent .= "\n" . '|' . trim( $line );
 					}
 					// Is it the last one. Then {5041} put end template }} on a new line
-					if( $t === ($cnt-1) ){
+					if ( $t === ( $cnt - 1 ) ) {
 						$newTemplateContent .= "\n";
 					}
 					$t++;
-
 				}
-				$pageContents[$slotToEdit]['content'] = str_replace($templateContent,$newTemplateContent, $pageContents[$slotToEdit]['content'] );
+				$pageContents[$slotToEdit]['content'] = str_replace(
+					$templateContent,
+					$newTemplateContent,
+					$pageContents[$slotToEdit]['content']
+				);
+			}
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'edit data page formation ',
+					$pageContents
+				);
+			}
 
-			}
-			if( Config::isDebug() ) {
-				Debug::addToDebug( 'edit data page formation ', $pageContents );
-			}
 			return $pageContents;
-
 		}
 	}
 

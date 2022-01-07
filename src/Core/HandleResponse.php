@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by  : Designburo.nl
+ * Created by  : Wikibase Solutions
  * Project     : MWWSForm
  * Filename    : handleResponse.php
  * Description :
@@ -13,13 +13,16 @@ namespace WSForm\Core;
 use Database;
 use WSForm\WSFormException;
 
+/**
+ * Class to gather information down the path of form handling and create responses
+ */
 class HandleResponse {
 
-	private $returnStatus = "ok";
-	private $returnType = "success";
-	private $returnData = array();
-	private $mwReturn = false;
-	private $pauseBeforeRefresh = false;
+	private $returnStatus = "ok"; // Default return status for success is ok
+	private $returnType = "success"; // default return type is success
+	private $returnData = array(); // accumulated information on form processing
+	private $mwReturn = false; // In the end... where to we go.
+	private $pauseBeforeRefresh = false; // Sometimes needed if multiple actions are done
 
 	const TYPE_SUCCESS = 'success';
 	const TYPE_WARNING = 'warning';
@@ -27,6 +30,8 @@ class HandleResponse {
 	const TYPE_INFO = 'info';
 
 	/**
+	 * False will redirect to mwreturn, true will output json response
+	 *
 	 * @var bool
 	 */
 	private $apiAjax = false;
@@ -41,7 +46,7 @@ class HandleResponse {
 	/**
 	 * @return string
 	 */
-	public function getReturnStatus(): string {
+	public function getReturnStatus() : string {
 		return $this->returnStatus;
 	}
 
@@ -55,7 +60,7 @@ class HandleResponse {
 	/**
 	 * @return string
 	 */
-	public function getReturnType(): string {
+	public function getReturnType() : string {
 		return $this->returnType;
 	}
 
@@ -69,7 +74,7 @@ class HandleResponse {
 	/**
 	 * @return array
 	 */
-	public function getReturnData(): array {
+	public function getReturnData() : array {
 		return $this->returnData;
 	}
 
@@ -126,13 +131,16 @@ class HandleResponse {
 	 *
 	 * @return array
 	 */
-	public function createMsg( $type = false ):array {
+	public function createMsg( $type = false ) : array {
 		$tmp             = array();
 		$tmp['status']   = $this->getReturnStatus();
 		$tmp['type']     = $type;
 		$tmp['mwreturn'] = $this->getMwReturn();
 		if ( is_array( $this->getReturnData() ) ) {
-			$combined   = implode( '<BR>', $this->getReturnData() );
+			$combined   = implode(
+				'<BR>',
+				$this->getReturnData()
+			);
 			$tmp['msg'] = $combined;
 		} else {
 			$tmp['msg'] = $this->getReturnData();
@@ -142,55 +150,78 @@ class HandleResponse {
 	}
 
 	/**
-	 * Default response handler
+	 * Default final response handler
 	 *
 	 * @throws WSFormException
 	 */
 	public function exitResponse() {
-		$status = $this->getReturnStatus();
-		$type = $this->getReturnType();
-		$mwReturn = $this->getMwReturn();
+		$status      = $this->getReturnStatus();
+		$type        = $this->getReturnType();
+		$mwReturn    = $this->getMwReturn();
 		$messageData = $this->getReturnData();
-		if( Config::isDebug() ){
-			Debug::addToDebug( "exitResponse return Type", $type );
-			Debug::addToDebug( "exitResponse mwreturn", $mwReturn );
-			Debug::addToDebug( "exitResponse messagedata", $messageData );
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				"exitResponse return Type",
+				$type
+			);
+			Debug::addToDebug(
+				"exitResponse mwreturn",
+				$mwReturn
+			);
+			Debug::addToDebug(
+				"exitResponse messagedata",
+				$messageData
+			);
 			echo Debug::createDebugOutput();
-			die('!testing..');
+			die( '!testing..' );
 		}
 		if ( is_array( $messageData ) ) {
-			$message   = implode( '<BR>', $messageData );
+			$message = implode(
+				'<BR>',
+				$messageData
+			);
 		} else {
 			$message = $messageData;
 		}
 		if ( $status === 'ok' && $this->apiAjax === false ) {
-            $this->setCookieMessage(
-                $message,
-                $type
-            ); // set cookies
-        }
+			$this->setCookieMessage(
+				$message,
+				$type
+			); // set cookies
+		}
 
-        $database = wfGetDB(DB_PRIMARY);
+		$database = wfGetDB( DB_PRIMARY );
 
-        if ( $database->writesPending() ) {
-            // If there is still a database update pending, commit it here
-            $database->commit( __METHOD__, Database::FLUSHING_ALL_PEERS );
-        }
+		if ( $database->writesPending() ) {
+			// If there is still a database update pending, commit it here
+			$database->commit(
+				__METHOD__,
+				Database::FLUSHING_ALL_PEERS
+			);
+		}
 
 		try {
 			if ( $status === 'ok' && $mwReturn !== false ) {
 				$this->redirect( $mwReturn );
 			}
-		} catch ( WSFormException $e ){
-			throw new WSFormException( $e->getMessage(), 0, $e );
+		} catch ( WSFormException $e ) {
+			throw new WSFormException(
+				$e->getMessage(),
+				0,
+				$e
+			);
 		}
 
 		if ( $status !== 'ok' && $mwReturn !== false ) { // Status not ok.. but we have redirect ?
 			$this->setCookieMessage( $message ); // set cookies
 			try {
 				$this->redirect( $mwReturn ); // do a redirect or json output
-			} catch ( WSFormException $e ){
-				throw new WSFormException( $e->getMessage(), 0, $e );
+			} catch ( WSFormException $e ) {
+				throw new WSFormException(
+					$e->getMessage(),
+					0,
+					$e
+				);
 			}
 		} else { // Status not ok.. and no redirect
 			$this->outputMsg( $message ); // show error on screen or do json output
@@ -251,16 +282,29 @@ class HandleResponse {
 	 * @param string $type
 	 */
 	public function setCookieMessage( string $msg, string $type = "danger" ) {
-
 		if ( $msg !== '' ) {
-			setcookie( "wsform[type]", $type, 0, '/' );
+			setcookie(
+				"wsform[type]",
+				$type,
+				0,
+				'/'
+			);
 			if ( $type !== "danger" ) {
-				setcookie( "wsform[txt]", $msg, 0, '/' );
+				setcookie(
+					"wsform[txt]",
+					$msg,
+					0,
+					'/'
+				);
 			} else {
-				setcookie( "wsform[txt]", 'WSForm :: ' . $msg, 0, '/' );
+				setcookie(
+					"wsform[txt]",
+					'WSForm :: ' . $msg,
+					0,
+					'/'
+				);
 			}
 		}
-
 	}
 
 	/**

@@ -14,13 +14,14 @@ use WSForm\Processors\Files\FilesCore;
 use WSForm\WSFormException;
 
 /**
- * Class core
+ * Class Content core
+ * Handles content creating or editing
  *
  * @package WSForm\Processors\Content
  */
 class ContentCore {
 
-	private static $fields = array();
+	private static $fields = array(); // Post fields we get
 
 	/**
 	 * @return array
@@ -30,7 +31,7 @@ class ContentCore {
 	}
 
 	/**
-	 * Experimental function to get a username from session
+	 * Set userpage in Summary if not summary is available.
 	 *
 	 * @param bool $onlyName
 	 *
@@ -51,6 +52,11 @@ class ContentCore {
 		}
 	}
 
+	/**
+	 * Check and Set some default fields we need
+	 *
+	 * @return void
+	 */
 	private static function checkFields() {
 		if ( self::$fields['summary'] === false ) {
 			self::$fields['summary'] = self::setSummary();
@@ -75,10 +81,12 @@ class ContentCore {
 
 	/**
 	 * @param HandleResponse $response_handler
+	 * @param string|bool $email
 	 *
 	 * @return HandleResponse
 	 * @throws MWException
 	 * @throws WSFormException
+	 * @throws \MWContentSerializationException
 	 */
 	public static function saveToWiki( HandleResponse $response_handler, $email = false ) : HandleResponse {
 		self::$fields = Definitions::createAndEditFields();
@@ -88,23 +96,6 @@ class ContentCore {
 				self::$fields
 			);
 		}
-		/*
-		'parsePost'    => General::getPostString( 'wsparsepost' ),
-		'parseLast'    => General::getPostString( 'mwparselast' ),
-		'etoken'       => General::getPostString( 'wsedittoken' ),
-		'template'     => General::getPostString( 'mwtemplate' ),
-		'writepage'    => General::getPostString( 'mwwrite' ),
-		'option'       => General::getPostString( 'mwoption' ),
-		'returnto'     => General::getPostString( 'mwreturn', false ),
-		'returnfalse'  => General::getPostString( 'mwreturnfalse' ),
-		'mwedit'       => General::getPostArray( 'mwedit' ),
-		'writepages'   => General::getPostArray( 'mwcreatemultiple' ),
-		'msgOnSuccess' => General::getPostString( 'mwonsuccess' ),
-		'mwfollow'     => General::getPostString( 'mwfollow' ),
-		'leadByZero'   => false,
-		'summary'      => General::getPostString( 'mwwikicomment' ),
-		'slot'		   => General::getPostString( 'mwslot' )
-		*/
 
 		self::checkFields();
 		if ( Config::isDebug() ) {
@@ -113,12 +104,6 @@ class ContentCore {
 				self::$fields
 			);
 		}
-
-		/*
-		if( self::$fields['returnto'] === false && self::$fields['returnfalse'] === false ) {
-			return wbHandleResponses::createMsg('no return url defined','error', self::$fields['returnto'] );
-		}
-		*/
 
 		// WSCreate single
 		if ( self::$fields['template'] !== false && self::$fields['writepage'] !== false ) {
@@ -197,9 +182,6 @@ class ContentCore {
 				$nrOfEdits = count( $pContent );
 				if ( $nrOfEdits === 1 ) {
 					$slotName = key( $pContent[0]['slot'] );
-					//var_dump( $pTitle, $pContent[0]['slot'][$slotName], $pContent[0]['summary'], $slotName );
-					//var_dump( $pContent );
-					//die();
 					try {
 						$save->saveToWiki(
 							$pTitle,
@@ -216,7 +198,6 @@ class ContentCore {
 							$e
 						);
 					}
-					//$result = $api->savePageToWiki( $pTitle, $pContent[0]['slot'][$slotName], $pContent[0]['summary'], $slotName  );
 
 				}
 				if ( $nrOfEdits > 1 ) {
@@ -226,8 +207,7 @@ class ContentCore {
 						$slotValue              = $singleCreate['slot'][$slotName];
 						$slotsToSend[$slotName] = $slotValue;
 					}
-					//var_dump( $pTitle, '', $pContent[0]['summary'], $slotsToSend );
-					//die();
+
 					try {
 						$save->saveToWiki(
 							$pTitle,
@@ -241,8 +221,6 @@ class ContentCore {
 							$e
 						);
 					}
-					//$result = $api->savePageToWiki( $pTitle, '', $pContent[0]['summary'], $slotsToSend );
-
 				}
 			}
 
@@ -260,18 +238,18 @@ class ContentCore {
 			$save         = new Save();
 			$edit         = new Edit();
 			$pageContents = $edit->editPage();
-			//foreach ( $pageContents as $slotName => $slotContents ) {
-			if( Config::isDebug() ) {
-				Debug::addToDebug( 'PageContent ', $pageContents);
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'PageContent ',
+					$pageContents
+				);
 				echo Debug::createDebugOutput();
 				die();
 			}
 			foreach ( $pageContents as $slotName => $singlePage ) {
-
 				$slotContents = $singlePage['content'];
-				$pTitle = $singlePage['title'];
+				$pTitle       = $singlePage['title'];
 
-				//if( $slotName === 'main' ) $slotname = false;
 				try {
 					$save->saveToWiki(
 						$pTitle,
@@ -392,7 +370,12 @@ class ContentCore {
 		return time();
 	}
 
-	public static function parseTitle( $title ) {
+	/**
+	 * @param string $title
+	 *
+	 * @return array|mixed|string|string[]
+	 */
+	public static function parseTitle( string $title ) {
 		$tmp = General::get_all_string_between(
 			$title,
 			'[',
@@ -493,7 +476,7 @@ class ContentCore {
 		);
 	}
 
-	/**
+	/** TODO: Test this!
 	 * @param $nameStartsWith
 	 *
 	 * @return array|string[]
@@ -527,7 +510,7 @@ class ContentCore {
 		die();
 	}
 
-	/**
+	/** TODO: Test this!
 	 * @param $nameStartsWith
 	 * @param $range
 	 *

@@ -1,7 +1,7 @@
 <?php
 /**
- * Created by  : Designburo.nl
- * Project     : wsformWikiBaseNL
+ * Created by  : Wikibase Solutions
+ * Project     : WSForm
  * Filename    : create.class.php
  * Description :
  * Date        : 19-3-2021

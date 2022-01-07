@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by  : Designburo.nl
+ * Created by  : Wikibase Solutions
  * Project     : MWWSForm
  * Filename    : General.php
  * Description :
