@@ -64,7 +64,7 @@
       "form_timeout_limit": 7200,
       "allow_special_page_setup": true,
       "use_api_user_only": false,
-      "debug": true,
+      "debug": false,
       "WSFormDefaultTheme": "wsform"
     }
   },

@@ -113,10 +113,11 @@ class Save {
 			EDIT_INTERNAL
 		);
 
-        if ( !$page_updater->getStatus()->isGood() ) {
+        if ( !$page_updater->getStatus()->isOK() ) {
             // If the update failed, reflect this in the status
             $status = false;
-            $errors[] = $page_updater->getStatus()->getMessage();
+
+            $errors[] = $page_updater->getStatus()->getMessage()->toString();
         }
 
 		if ( ! $page_updater->isUnchanged() ) {
@@ -137,10 +138,16 @@ class Save {
 	}
 
 	/**
+	 * @param string $title
+	 * @param array $contentArray
+	 * @param string $summary
+	 *
+	 * @return void
+	 * @throws MWException
 	 * @throws WSFormException
-	 * @throws \MWException
+	 * @throws \MWContentSerializationException
 	 */
-	public function saveToWiki( $title, $contentArray, $summary ) {
+	public function saveToWiki( string $title, array $contentArray, string $summary ) {
 		$user = RequestContext::getMain()->getUser();
 		$titleObject = Title::newFromText( $title );
 		if ( ! $titleObject || $titleObject->hasFragment() ) {
@@ -162,7 +169,7 @@ class Save {
 			Debug::addToDebug( 'Save result', $saveResult );
 		}
 		if( $saveResult !== true ) {
-			throw new WSFormException( print_r( $saveResult ) );
+			throw new WSFormException( "Save Result error: " . print_r( $saveResult, true ) );
 		}
 
 	}

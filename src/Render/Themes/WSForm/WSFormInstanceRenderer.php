@@ -54,7 +54,7 @@ class WSFormInstanceRenderer implements InstanceRenderer {
 				$templateContent = $pageContent;
 			}
 
-			$expl = self::pregExplode( $templateContent );
+			$expl = Edit::pregExplode( $templateContent );
 
 			foreach ( $expl as $k => $variable ) {
 				$tmp = explode(
@@ -121,13 +121,6 @@ class WSFormInstanceRenderer implements InstanceRenderer {
 			$string,
 			$ini,
 			$len
-		);
-	}
-
-	private static function pregExplode( $str ) {
-		return preg_split(
-			'~\|(?![^{{}}]*\}\})~',
-			$str
 		);
 	}
 

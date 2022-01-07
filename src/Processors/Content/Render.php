@@ -121,8 +121,7 @@ class Render {
 		$data = $api->getResult()->getResultData();
 		//$data = $data['parse']['text'];
 		//$data = wsUtilities::get_string_between_until_last( $data, '<div class="mw-parser-output"><p>','</p></div>');
-		echo "<pre>";
-		var_dump($data);
+
 
 
 	}

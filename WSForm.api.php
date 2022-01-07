@@ -57,7 +57,8 @@ try {
 	Config::setConfigFromMW();
 } catch ( WSFormException $e ){
 	$responseHandler->setReturnData( $e->getMessage() );
-	$responseHandler->setReturnStatus( 'error' );
+	$responseHandler->setReturnStatus( 'setConfigError' );
+	$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
 };
 
 
@@ -76,7 +77,8 @@ try {
 	}
 } catch ( WSFormException $e ) {
 	$responseHandler->setReturnData( $e->getMessage() );
-	$responseHandler->setReturnStatus( 'error' );
+	$responseHandler->setReturnStatus( 'resolve posts error' );
+	$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
 };
 
 
@@ -85,7 +87,7 @@ $responseHandler->setMwReturn( urldecode( General::getPostString( "mwreturn" ) )
 $responseHandler->setPauseBeforeRefresh( General::getPostString( 'mwpause' ) );
 
 if( Config::isDebug() ) {
-	Debug::addToDebug( 'mwreturn', $responseHandler->getMwReturn() );
+	Debug::addToDebug( 'first set of mwreturn', $responseHandler->getMwReturn() );
 }
 
 // Do we have any errors so far ?
@@ -209,7 +211,8 @@ try {
 	Recaptcha::handleRecaptcha();
 } catch ( WSFormException $e ){
 	$responseHandler->setReturnData( $e->getMessage() );
-	$responseHandler->setReturnStatus( 'error' );
+	$responseHandler->setReturnStatus( 'recaptch error' );
+	$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
 	try {
 		$responseHandler->exitResponse();
 	}  catch ( WSFormException $e ){
@@ -278,7 +281,8 @@ if ( General::getPostString( 'mwaction' ) !== false ) {
 				$responseHandler = ContentCore::saveToWiki( $responseHandler );
 			} catch ( WSFormException|MWException $e ) {
 				$responseHandler->setReturnData( $e->getMessage() );
-				$responseHandler->setReturnStatus( 'error' );
+				$responseHandler->setReturnStatus( 'saveToWiki error' );
+				$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
 			}
 			break;
 
@@ -287,7 +291,8 @@ if ( General::getPostString( 'mwaction' ) !== false ) {
 				$responseHandler = ContentCore::saveToWiki( $responseHandler, "get" );
 			} catch ( WSFormException $e ){
 				$responseHandler->setReturnData( $e->getMessage() );
-				$responseHandler->setReturnStatus( 'error' );
+				$responseHandler->setReturnStatus( 'GET error' );
+				$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
 				try {
 					$responseHandler->exitResponse();
 				}  catch ( WSFormException $e ){
@@ -349,10 +354,9 @@ if( $extension !== false ) {
 */
 if( Config::isDebug() ) {
 	if ( $responseHandler->getReturnStatus() !== "ok" ) {
+		Debug::addToDebug('RETURN STATUS', $responseHandler->getReturnStatus() );
 		Debug::addToDebug('ERROR MESSAGES', $responseHandler->getReturnData() );
 	}
-	echo Debug::createDebugOutput();
-	die('testing..');
 }
 
 try {

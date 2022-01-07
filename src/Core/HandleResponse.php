@@ -147,22 +147,23 @@ class HandleResponse {
 	 * @throws WSFormException
 	 */
 	public function exitResponse() {
-		$type = $this->getReturnStatus();
+		$status = $this->getReturnStatus();
+		$type = $this->getReturnType();
 		$mwReturn = $this->getMwReturn();
 		$messageData = $this->getReturnData();
 		if( Config::isDebug() ){
-			Debug::addToDebug( "returnstatus", $type );
-			Debug::addToDebug( "mwreturn", $mwReturn );
-			Debug::addToDebug( "messagedata", $messageData );
+			Debug::addToDebug( "exitResponse return Type", $type );
+			Debug::addToDebug( "exitResponse mwreturn", $mwReturn );
+			Debug::addToDebug( "exitResponse messagedata", $messageData );
 			echo Debug::createDebugOutput();
-			die('testing..');
+			die('!testing..');
 		}
 		if ( is_array( $messageData ) ) {
 			$message   = implode( '<BR>', $messageData );
 		} else {
 			$message = $messageData;
 		}
-		if ( $type === 'ok' && $this->apiAjax === false ) {
+		if ( $status === 'ok' && $this->apiAjax === false ) {
             $this->setCookieMessage(
                 $message,
                 $type
@@ -177,14 +178,14 @@ class HandleResponse {
         }
 
 		try {
-			if ( $type === 'ok' && $mwReturn !== false ) {
+			if ( $status === 'ok' && $mwReturn !== false ) {
 				$this->redirect( $mwReturn );
 			}
 		} catch ( WSFormException $e ){
 			throw new WSFormException( $e->getMessage(), 0, $e );
 		}
 
-		if ( $type !== 'ok' && $mwReturn !== false ) { // Status not ok.. but we have redirect ?
+		if ( $status !== 'ok' && $mwReturn !== false ) { // Status not ok.. but we have redirect ?
 			$this->setCookieMessage( $message ); // set cookies
 			try {
 				$this->redirect( $mwReturn ); // do a redirect or json output

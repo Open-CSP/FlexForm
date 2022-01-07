@@ -10,10 +10,13 @@
 
 namespace WSForm\Processors\Content;
 
-use Debug;
 use WSForm\Core\Config;
+use WSForm\Core\Debug;
 use WSForm\Processors\Utilities\General;
 
+/**
+ * Class for editing pages
+ */
 class Edit {
 
 	private $editCount = 0;
@@ -131,6 +134,13 @@ class Edit {
 		}
 
 		return false;
+	}
+
+	public static function pregExplode( $str ) {
+		return preg_split(
+			'~\|(?![^{{}}]*\}\})~',
+			$str
+		);
 	}
 
 	private function getEndPos( $start, $txt ) {
@@ -320,22 +330,26 @@ class Edit {
 					$wehaveslots = true;
 					//$pageTitle = $edit['slot'];
 					$content = $render->getSlotContent( $pid, $edit['slot'] );
+					if( Config::isDebug() ) {
+						Debug::addToDebug( 'Content for '. $pid, $content );
+					}
 
 					//$content = $api->getWikiPage( $pid, $edit['slot'] );
 					if( $content['content'] == '' ) {
 						$pageContents[ $edit['slot']['content'] ] = false;
 					} else {
-						$pageContents[ $edit['slot'] ] = $content['content'];
+						$pageContents[ $edit['slot']['content'] ] = $content['content'];
 					}
 
-					$pageTitle = $content['title'];
+					$pageContents[ $edit['slot'] ]['title'] = $content['title'];
 				}
 			}
 			//print_r( "We have " . count( $pageContents ) . " pagecontents and we have " .count( $edits ). " edits" );
 			if( !$wehaveslots ) {
 				$pageContents[ 'main' ] = $render->getSlotContent( $pid );
-				$pageTitle = $pageContents['main']['title'];
-				$pageContents['main'] = $pageContents['main']['content'];
+				if( Config::isDebug() ) {
+					Debug::addToDebug( 'Content for '. $pid, $pageContents );
+				}
 
 			}
 			//die();
@@ -349,12 +363,12 @@ class Edit {
 				}
 
 				if($edit['find'] !== false) {
-					$templateContent = $this->getTemplate( $pageContents[$slotToEdit], $edit['template'], $edit['find'], $edit['val'] );
+					$templateContent = $this->getTemplate( $pageContents[$slotToEdit]['content'], $edit['template'], $edit['find'], $edit['val'] );
 					if($templateContent===false) {
 						$result['received']['error'][] = 'Template: '.$edit['template'].' where variable:'.$edit['find'] . '='.$edit['val'].' not found';
 					}
 				} else {
-					$templateContent = $this->getTemplate( $pageContents[$slotToEdit], $edit['template'] );
+					$templateContent = $this->getTemplate( $pageContents[$slotToEdit]['content'], $edit['template'] );
 				}
 				if ($templateContent === false) {
 					//echo 'skipping ' . $edit['template'] ;
@@ -362,7 +376,7 @@ class Edit {
 				}
 
 
-				$expl = pregExplode($templateContent);
+				$expl = self::pregExplode( $templateContent );
 				foreach ( $expl as $k => $line ) {
 					$tmp = explode('=',$line);
 					if( trim( $tmp[0]) == $edit['variable'] ) {
@@ -391,7 +405,7 @@ class Edit {
 					$t++;
 
 				}
-				$pageContents[$slotToEdit] = str_replace($templateContent,$newTemplateContent, $pageContents[$slotToEdit] );
+				$pageContents[$slotToEdit]['content'] = str_replace($templateContent,$newTemplateContent, $pageContents[$slotToEdit]['content'] );
 
 			}
 			if( Config::isDebug() ) {

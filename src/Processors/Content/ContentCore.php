@@ -25,7 +25,7 @@ class ContentCore {
 	/**
 	 * @return array
 	 */
-	public static function getFields(): array {
+	public static function getFields() : array {
 		return self::$fields;
 	}
 
@@ -33,36 +33,40 @@ class ContentCore {
 	 * Experimental function to get a username from session
 	 *
 	 * @param bool $onlyName
+	 *
 	 * @return string
 	 */
-	private static function setSummary( bool $onlyName = false ): string {
+	private static function setSummary( bool $onlyName = false ) : string {
 		$user = RequestContext::getMain()->getUser();
-		if( $user->isAnon() === false ) {
-			if( $onlyName === true ) {
+		if ( $user->isAnon() === false ) {
+			if ( $onlyName === true ) {
 				return ( $user->getName() );
 			} else {
 				return ( '[[User:' . $user->getName() . ']]' );
 			}
 		} else {
 			$ip = $_SERVER['REMOTE_ADDR'];
-			return ('Anon user: ' . $ip);
+
+			return ( 'Anon user: ' . $ip );
 		}
 	}
 
-	private static function checkFields(){
-		if( self::$fields['summary'] === false ) {
+	private static function checkFields() {
+		if ( self::$fields['summary'] === false ) {
 			self::$fields['summary'] = self::setSummary();
 		}
 
-		if( isset( $_POST['mwleadingzero'] ) ) {
+		if ( isset( $_POST['mwleadingzero'] ) ) {
 			self::$fields['leadByZero'] = true;
 		}
 
-		if( self::$fields['parsePost'] !== false && is_array( self::$fields['parsePost'] ) ) {
+		self::$fields['returnto'] = urldecode( self::$fields['returnto'] );
+
+		if ( self::$fields['parsePost'] !== false && is_array( self::$fields['parsePost'] ) ) {
 			$filesCore = new FilesCore();
 			foreach ( self::$fields['parsePost'] as $pp ) {
 				$pp = General::makeUnderscoreFromSpace( $pp );
-				if( isset( $_POST[$pp] ) ) {
+				if ( isset( $_POST[$pp] ) ) {
 					$_POST[$pp] = $filesCore->parseTitle( $_POST[$pp] );
 				}
 			}
@@ -76,10 +80,13 @@ class ContentCore {
 	 * @throws MWException
 	 * @throws WSFormException
 	 */
-	public static function saveToWiki( HandleResponse $response_handler, $email = false ): HandleResponse {
+	public static function saveToWiki( HandleResponse $response_handler, $email = false ) : HandleResponse {
 		self::$fields = Definitions::createAndEditFields();
-		if( Config::isDebug() ) {
-			Debug::addToDebug( 'createandeditfields', self::$fields );
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'createandeditfields',
+				self::$fields
+			);
 		}
 		/*
 		'parsePost'    => General::getPostString( 'wsparsepost' ),
@@ -100,8 +107,11 @@ class ContentCore {
 		*/
 
 		self::checkFields();
-		if( Config::isDebug() ) {
-			Debug::addToDebug( 'checkfields', self::$fields );
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'checkfields',
+				self::$fields
+			);
 		}
 
 		/*
@@ -115,8 +125,11 @@ class ContentCore {
 			$create = new Create();
 			try {
 				$result = $create->writePage();
-				if( Config::isDebug() ) {
-					Debug::addToDebug( 'writepage result', $result );
+				if ( Config::isDebug() ) {
+					Debug::addToDebug(
+						'writepage result',
+						$result
+					);
 				}
 			} catch ( WSFormException $e ) {
 				throw new WSFormException(
@@ -135,7 +148,6 @@ class ContentCore {
 				$result['content']
 			);
 			$save              = new Save();
-			echo "going to save";
 			try {
 				$save->saveToWiki(
 					$result['title'],
@@ -149,9 +161,14 @@ class ContentCore {
 					$e
 				);
 			}
-			echo "saving done";
 			self::checkFollowPage( $result['title'] );
 			if ( ! self::$fields['mwedit'] && ! $email && ! self::$fields['writepages'] ) {
+				if ( Config::isDebug() ) {
+					Debug::addToDebug(
+						'finished 1 wscreate value returnto is',
+						self::$fields['returnto']
+					);
+				}
 				$response_handler->setMwReturn( self::$fields['returnto'] );
 				$response_handler->setReturnType( HandleResponse::TYPE_SUCCESS );
 				if ( self::$fields['msgOnSuccess'] !== false ) {
@@ -230,7 +247,6 @@ class ContentCore {
 			}
 
 			if ( ! self::$fields['mwedit'] && ! $email ) {
-
 				$response_handler->setMwReturn( self::$fields['returnto'] );
 				$response_handler->setReturnType( HandleResponse::TYPE_SUCCESS );
 				if ( self::$fields['msgOnSuccess'] !== false ) {
@@ -238,20 +254,31 @@ class ContentCore {
 				}
 
 				return $response_handler;
-
 			}
-
-
 		}
-		if( self::$fields['mwedit'] !== false ) {
-			$edit = new Edit();
+		if ( self::$fields['mwedit'] !== false ) {
+			$save         = new Save();
+			$edit         = new Edit();
 			$pageContents = $edit->editPage();
-			foreach( $pageContents as $slotName => $slotContents ) {
+			//foreach ( $pageContents as $slotName => $slotContents ) {
+			if( Config::isDebug() ) {
+				Debug::addToDebug( 'PageContent ', $pageContents);
+				echo Debug::createDebugOutput();
+				die();
+			}
+			foreach ( $pageContents as $slotName => $singlePage ) {
+
+				$slotContents = $singlePage['content'];
+				$pTitle = $singlePage['title'];
+
 				//if( $slotName === 'main' ) $slotname = false;
 				try {
 					$save->saveToWiki(
 						$pTitle,
-						self::createSlotArray( $slotName, $slotContents ),
+						self::createSlotArray(
+							$slotName,
+							$slotContents
+						),
 						self::$fields['summary']
 					);
 				} catch ( WSFormException $e ) {
@@ -262,26 +289,40 @@ class ContentCore {
 					);
 				}
 			}
-
 		}
+
 		return $response_handler;
 	}
 
 	/**
 	 * Check if we need to change to returnto url to return to newly created page.
+	 *
 	 * @param string $title
 	 *
 	 * @return void
 	 */
-	public static function checkFollowPage( $title ):void {
+	public static function checkFollowPage( $title ) : void {
+		$title     = ltrim(
+			$title,
+			'/'
+		);
 		$serverUrl = wfGetServerUrl( null ) . '/' . 'index.php';
-		if( self::$fields['mwfollow'] !== false ) {
-			if( self::$fields['mwfollow'] === 'true' ) {
-				if( strpos( $title, '--id--' ) === false && strpos( $title, '::id::' ) === false ) {
+		if ( self::$fields['mwfollow'] !== false ) {
+			if ( self::$fields['mwfollow'] === 'true' ) {
+				if ( strpos(
+						 $title,
+						 '--id--'
+					 ) === false && strpos(
+										$title,
+										'::id::'
+									) === false ) {
 					self::$fields['returnto'] = $serverUrl . '/' . $title;
 				}
 			} else {
-				if( strpos( self::$fields['returnto'], '?' ) ) {
+				if ( strpos(
+					self::$fields['returnto'],
+					'?'
+				) ) {
 					self::$fields['returnto'] = self::$fields['returnto'] . '&' . self::$fields['mwfollow'] . '=' . $title;
 				} else {
 					self::$fields['returnto'] = self::$fields['returnto'] . '?' . self::$fields['mwfollow'] . '=' . $title;
@@ -296,77 +337,112 @@ class ContentCore {
 	 *
 	 * @return array
 	 */
-	private static function createSlotArray( string $slot, string $value ): array{
+	private static function createSlotArray( string $slot, string $value ) : array {
 		return array( $slot => $value );
 	}
 
 	/**
 	 * Create content
+	 *
 	 * @return string
 	 */
-	public static function createContent(): string {
-		$ret = '';
+	public static function createContent() : string {
+		$ret        = '';
 		$noTemplate = false;
 
-		if( self::$fields['template'] === strtolower( 'wsnone' ) ) {
+		if ( self::$fields['template'] === strtolower( 'wsnone' ) ) {
 			$noTemplate = true;
 		}
-		if( !$noTemplate ) {
+		if ( ! $noTemplate ) {
 			$ret = "{{" . self::$fields['template'] . "\n";
 		}
 		foreach ( $_POST as $k => $v ) {
-			if ( is_array( $v ) && !Definitions::isWSFormSystemField( $k ) ) {
+			if ( is_array( $v ) && ! Definitions::isWSFormSystemField( $k ) ) {
 				$ret .= "|" . General::makeSpaceFromUnderscore( $k ) . "=";
 				foreach ( $v as $multiple ) {
 					$ret .= wsSecurity::cleanBraces( $multiple ) . ',';
 				}
-				$ret = rtrim( $ret, ',' ) . PHP_EOL;
+				$ret = rtrim(
+						   $ret,
+						   ','
+					   ) . PHP_EOL;
 			} else {
-				if ( !Definitions::isWSFormSystemField( $k ) && $v != "" ) {
-					if( !$noTemplate ) {
-						$ret .= '|' . General::makeSpaceFromUnderscore( $k ) . '=' . wsSecurity::cleanBraces( $v ) . "\n";
+				if ( ! Definitions::isWSFormSystemField( $k ) && $v != "" ) {
+					if ( ! $noTemplate ) {
+						$ret .= '|' . General::makeSpaceFromUnderscore( $k ) . '=' . wsSecurity::cleanBraces(
+								$v
+							) . "\n";
 					} else {
 						$ret = $v . PHP_EOL;
 					}
 				}
 			}
 		}
-		if( !$noTemplate ) {
+		if ( ! $noTemplate ) {
 			$ret .= "}}";
 		}
+
 		return $ret;
 	}
 
 	/**
 	 * @return int
 	 */
-	public static function createRandom(): int {
+	public static function createRandom() : int {
 		return time();
 	}
 
 	public static function parseTitle( $title ) {
-		$tmp = General::get_all_string_between( $title, '[', ']' );
+		$tmp = General::get_all_string_between(
+			$title,
+			'[',
+			']'
+		);
 		foreach ( $tmp as $fieldname ) {
-			if( isset( $_POST[General::makeUnderscoreFromSpace($fieldname)] ) ) {
-				$fn = $_POST[General::makeUnderscoreFromSpace($fieldname)];
-				if( is_array( $fn ) ) {
-					$imp = implode( ', ', $fn );
-					$title = str_replace('[' . $fieldname . ']', $imp, $title);
+			if ( isset( $_POST[General::makeUnderscoreFromSpace( $fieldname )] ) ) {
+				$fn = $_POST[General::makeUnderscoreFromSpace( $fieldname )];
+				if ( is_array( $fn ) ) {
+					$imp   = implode(
+						', ',
+						$fn
+					);
+					$title = str_replace(
+						'[' . $fieldname . ']',
+						$imp,
+						$title
+					);
 				} elseif ( $fn !== '' ) {
-					if( Config::getConfigVariable( 'create-seo-titles' ) === true ) {
+					if ( Config::getConfigVariable( 'create-seo-titles' ) === true ) {
 						$fn = self::urlToSEO( $fn );
 					}
-					$title = str_replace('[' . $fieldname . ']', $fn, $title);
+					$title = str_replace(
+						'[' . $fieldname . ']',
+						$fn,
+						$title
+					);
 				} else {
-					$title = str_replace('[' . $fieldname . ']', '', $title);
+					$title = str_replace(
+						'[' . $fieldname . ']',
+						'',
+						$title
+					);
 				}
 			} else {
-				$title = str_replace('[' . $fieldname . ']', '', $title);
+				$title = str_replace(
+					'[' . $fieldname . ']',
+					'',
+					$title
+				);
 			}
-			if( $fieldname == 'mwrandom' ) {
-				$title = str_replace( '['.$fieldname.']', MakeTitle(), $title );
+			if ( $fieldname == 'mwrandom' ) {
+				$title = str_replace(
+					'[' . $fieldname . ']',
+					MakeTitle(),
+					$title
+				);
 			}
 		}
+
 		return $title;
 	}
 
@@ -376,22 +452,22 @@ class ContentCore {
 	 * @return string
 	 */
 	public static function urlToSEO( $string ) : string {
-		$separator = '-';
+		$separator     = '-';
 		$accents_regex = '~&([a-z]{1,2})(?:acute|cedil|circ|grave|lig|orn|ring|slash|th|tilde|uml);~i';
 		$special_cases = array(
 			'&' => 'and',
 			"'" => ''
 		);
-		$string = mb_strtolower(
+		$string        = mb_strtolower(
 			trim( $string ),
 			'UTF-8'
 		);
-		$string = str_replace(
+		$string        = str_replace(
 			array_keys( $special_cases ),
 			array_values( $special_cases ),
 			$string
 		);
-		$string = preg_replace(
+		$string        = preg_replace(
 			$accents_regex,
 			'$1',
 			htmlentities(
@@ -400,18 +476,21 @@ class ContentCore {
 				'UTF-8'
 			)
 		);
-		$string = preg_replace(
+		$string        = preg_replace(
 			"/[^a-z0-9]/u",
 			"$separator",
 			$string
 		);
-		$string = preg_replace(
+		$string        = preg_replace(
 			"/[$separator]+/u",
 			"$separator",
 			$string
 		);
 
-		return trim( $string, '-' );
+		return trim(
+			$string,
+			'-'
+		);
 	}
 
 	/**
@@ -428,14 +507,22 @@ class ContentCore {
 			"what"            => "nextAvailable",
 			"titleStartsWith" => $nameStartsWith
 		];
-		$result = $render->makeRequest( $postdata );
-		if( isset( $result['received']['wsform']['error'] ) ) {
-			return(array('status' => 'error', 'message' => $result['received']['wsform']['error']['message']));
+		$result   = $render->makeRequest( $postdata );
+		if ( isset( $result['received']['wsform']['error'] ) ) {
+			return ( array(
+				'status'  => 'error',
+				'message' => $result['received']['wsform']['error']['message']
+			) );
 		} elseif ( isset( $result['received']['error'] ) ) {
-			return(array('status' => 'error', 'message' => $result['received']['error']['code'] . ': ' .
-														   $result['received']['error']['info'] ) );
+			return ( array(
+				'status'  => 'error',
+				'message' => $result['received']['error']['code'] . ': ' . $result['received']['error']['info']
+			) );
 		} else {
-			return(array('status' => 'ok', 'result' => $result['received']['wsform']['result']));
+			return ( array(
+				'status' => 'ok',
+				'result' => $result['received']['wsform']['result']
+			) );
 		}
 		die();
 	}
@@ -446,26 +533,30 @@ class ContentCore {
 	 *
 	 * @return array
 	 */
-	public static function getFromRange( $nameStartsWith, $range ){
+	public static function getFromRange( $nameStartsWith, $range ) {
 		$postdata = [
-			 "action" => "wsform",
-			 "format" => "json",
-			 "what" => "getRange",
-			 "titleStartsWith" => $nameStartsWith,
-			 "range" => $range
-		 ];
-		$render = new Render();
-		$result = $render->makeRequest( $postdata );
+			"action"          => "wsform",
+			"format"          => "json",
+			"what"            => "getRange",
+			"titleStartsWith" => $nameStartsWith,
+			"range"           => $range
+		];
+		$render   = new Render();
+		$result   = $render->makeRequest( $postdata );
 
-		if( isset( $result['received']['wsform']['error'] ) ) {
-			return(array('status' => 'error', 'message' => $result['received']['wsform']['error']['message']));
+		if ( isset( $result['received']['wsform']['error'] ) ) {
+			return ( array(
+				'status'  => 'error',
+				'message' => $result['received']['wsform']['error']['message']
+			) );
 		} else {
-			return(array('status' => 'ok', 'result' => $result['received']['wsform']['result']));
+			return ( array(
+				'status' => 'ok',
+				'result' => $result['received']['wsform']['result']
+			) );
 		}
 		die();
 	}
-
-
 
 
 }
