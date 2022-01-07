@@ -24,6 +24,7 @@ use PHPMailer\PHPMailer\SMTP;
 use WSForm\Core\Debug;
 use WSForm\Core\HandleResponse;
 use WSForm\Core\Config;
+use WSForm\Processors\Content\ContentCore;
 use WSForm\Processors\Recaptcha\Recaptcha;
 use WSForm\Processors\Request\External;
 use WSForm\Processors\Security\wsSecurity;
@@ -59,6 +60,7 @@ try {
 	$responseHandler->setReturnStatus( 'error' );
 };
 
+
 if( Config::isDebug() ) {
 	ERROR_REPORTING(E_ALL);
 	ini_set('display_errors', 1);
@@ -67,20 +69,24 @@ if( Config::isDebug() ) {
 
 
 
-try{
+try {
 	$securityResult = wsSecurity::resolvePosts();
-	if( Config::isDebug() ) {
+	if ( Config::isDebug() ) {
 		Debug::addToDebug( '$_POST after checks', $_POST );
 	}
-} catch ( WSFormException $e ){
+} catch ( WSFormException $e ) {
 	$responseHandler->setReturnData( $e->getMessage() );
 	$responseHandler->setReturnStatus( 'error' );
 };
 
+
 $responseHandler->setIdentifier( General::getPostString( "mwidentifier" ) );
-$responseHandler->setMwReturn( General::getPostString( "mwreturn" ) );
+$responseHandler->setMwReturn( urldecode( General::getPostString( "mwreturn" ) ) );
 $responseHandler->setPauseBeforeRefresh( General::getPostString( 'mwpause' ) );
 
+if( Config::isDebug() ) {
+	Debug::addToDebug( 'mwreturn', $responseHandler->getMwReturn() );
+}
 
 // Do we have any errors so far ?
 if( $responseHandler->getReturnStatus() === "error" ) {
@@ -269,7 +275,7 @@ if ( General::getPostString( 'mwaction' ) !== false ) {
 
 		case "addToWiki" :
 			try {
-				$responseHandler = \WSForm\Processors\Content\ContentCore::saveToWiki( $responseHandler );
+				$responseHandler = ContentCore::saveToWiki( $responseHandler );
 			} catch ( WSFormException|MWException $e ) {
 				$responseHandler->setReturnData( $e->getMessage() );
 				$responseHandler->setReturnStatus( 'error' );
@@ -278,7 +284,7 @@ if ( General::getPostString( 'mwaction' ) !== false ) {
 
 		case "get" :
 			try {
-				$ret = saveToWiki( 'get' );
+				$responseHandler = ContentCore::saveToWiki( $responseHandler, "get" );
 			} catch ( WSFormException $e ){
 				$responseHandler->setReturnData( $e->getMessage() );
 				$responseHandler->setReturnStatus( 'error' );

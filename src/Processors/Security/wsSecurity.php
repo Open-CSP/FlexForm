@@ -57,9 +57,9 @@ class wsSecurity {
 		if ( $formId !== false ) {
 			unset( $_POST['formid'] );
 		}
+
 		try {
 			foreach ( $_POST as $k => $v ) {
-				$v = htmlspecialchars_decode( $v );
 				if ( $crypt::decrypt( $k ) === 'checksum' ) {
 					$checksum = unserialize( $crypt::decrypt( $v ) );
 					unset( $_POST[ $k ] );
@@ -72,6 +72,7 @@ class wsSecurity {
 		} catch( WSFormException $exception ) {
 			throw new WSFormException( $exception->getMessage(), 0, $exception );
 		}
+
 		if ( $checksum === false && $formId !== false ) {
 			throw new WSFormException( wfMessage( 'wsform-secure-not' ) );
 

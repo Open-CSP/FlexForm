@@ -149,6 +149,13 @@ class HandleResponse {
 		$type = $this->getReturnStatus();
 		$mwReturn = $this->getMwReturn();
 		$messageData = $this->getReturnData();
+		if( Config::isDebug() ){
+			Debug::addToDebug( "returnstatus", $type );
+			Debug::addToDebug( "mwreturn", $mwReturn );
+			Debug::addToDebug( "messagedata", $messageData );
+			echo Debug::createDebugOutput();
+			die('testing..');
+		}
 		if ( is_array( $messageData ) ) {
 			$message   = implode( '<BR>', $messageData );
 		} else {

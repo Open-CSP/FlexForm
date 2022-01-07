@@ -11,6 +11,8 @@ use RequestContext;
 use Title;
 use User;
 use WikiPage;
+use WSForm\Core\Config;
+use WSForm\Core\Debug;
 use WSForm\Core\HandleResponse;
 use WSForm\WSFormException;
 
@@ -46,6 +48,10 @@ class Save {
 
 		// loop through all slots we need to edit/create
 		foreach ( $text as $slot_name => $content ) {
+			if( Config::isDebug() ) {
+				Debug::addToDebug( 'edit slot slot name', $slot_name );
+				Debug::addToDebug( 'edit slot slot content', $content );
+			}
 			$content = $this->removeCarriageReturnFromContent( $content );
 			// Make sure the slot we are editing is defined in MW else skip this slot
 			if ( ! $slot_role_registry->isDefinedRole( $slot_name ) ) {
@@ -128,20 +134,28 @@ class Save {
 	 */
 	public function saveToWiki( $title, $contentArray, $summary ) {
 		$user = RequestContext::getMain()->getUser();
-		$title = Title::newFromText( $title );
-		if ( ! $title || $title->hasFragment() ) {
+		$titleObject = Title::newFromText( $title );
+		if ( ! $titleObject || $titleObject->hasFragment() ) {
 			throw new WSFormException( "Invalid title $title." );
 		}
-
 		// $slot is now an array as of v0.8.0.9.8.8
 		try {
-			$wikiPageObject = WikiPage::factory( $title );
+			$wikiPageObject = WikiPage::factory( $titleObject );
 		} catch ( MWException $e ) {
 			throw new WSFormException(
-				"Could not create a WikiPage Object from title " . $title->getText() . '. Message ' . $e->getMessage(), 0, $e
+				"Could not create a WikiPage Object from title " . $titleObject->getText() . '. Message ' . $e->getMessage(), 0, $e
 			);
 		}
+		if( Config::isDebug() ){
+			Debug::addToDebug( 'sending to edit slots $contentArray', $contentArray );
+		}
 		$saveResult = $this->editSlots( $user, $wikiPageObject, $contentArray, $summary );
+		if( Config::isDebug() ) {
+			Debug::addToDebug( 'Save result', $saveResult );
+		}
+		if( $saveResult !== true ) {
+			throw new WSFormException( print_r( $saveResult ) );
+		}
 
 	}
 
