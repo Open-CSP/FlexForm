@@ -112,6 +112,13 @@ class Save {
 			$comment,
 			EDIT_INTERNAL
 		);
+
+        if ( !$page_updater->getStatus()->isGood() ) {
+            // If the update failed, reflect this in the status
+            $status = false;
+            $errors[] = $page_updater->getStatus()->getMessage();
+        }
+
 		if ( ! $page_updater->isUnchanged() ) {
 			// Perform an additional null-edit to make sure all page properties are up-to-date
 			$comment      = CommentStoreComment::newUnsavedComment( "" );
@@ -121,11 +128,6 @@ class Save {
 				EDIT_SUPPRESS_RC | EDIT_AUTOSUMMARY
 			);
 		}
-
-		if ( $status === true ) {
-		    // Update the status to the status of the page updater, but only if the status is not already false
-		    $status = $page_updater->getStatus()->isGood();
-        }
 
 		if ( true === $status ) {
 			return true;
