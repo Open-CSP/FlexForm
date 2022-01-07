@@ -10,6 +10,7 @@
 
 namespace WSForm\Core;
 
+use Database;
 use WSForm\WSFormException;
 
 class HandleResponse {
@@ -162,11 +163,18 @@ class HandleResponse {
 			$message = $messageData;
 		}
 		if ( $type === 'ok' && $this->apiAjax === false ) {
-			$this->setCookieMessage(
-				$message,
-				$type
-			); // set cookies
-		}
+            $this->setCookieMessage(
+                $message,
+                $type
+            ); // set cookies
+        }
+
+        $database = wfGetDB(DB_PRIMARY);
+
+        if ( $database->writesPending() ) {
+            // If there is still a database update pending, commit it here
+            $database->commit( __METHOD__, Database::FLUSHING_ALL_PEERS );
+        }
 
 		try {
 			if ( $type === 'ok' && $mwReturn !== false ) {
@@ -186,6 +194,7 @@ class HandleResponse {
 		} else { // Status not ok.. and no redirect
 			$this->outputMsg( $message ); // show error on screen or do json output
 		}
+
 		exit();
 	}
 
