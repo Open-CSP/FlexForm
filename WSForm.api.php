@@ -17,6 +17,7 @@
 //$cookieParams['samesite'] = "Lax";
 //session_set_cookie_params($cookieParams);
 //session_start();
+use MediaWiki\MediaWikiServices;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
@@ -51,20 +52,22 @@ $removeList = array();
 
 // Handle to final response
 $responseHandler = new HandleResponse;
-
-$responseHandler->setIdentifier( General::getPostString( "mwidentifier" ) );
-$responseHandler->setMwReturn( General::getPostString( "mwreturn" ) );
-$responseHandler->setPauseBeforeRefresh( General::getPostString( 'mwpause' ) );
-
 try {
 	Config::setConfigFromMW();
+} catch ( WSFormException $e ){
+	$responseHandler->setReturnData( $e->getMessage() );
+	$responseHandler->setReturnStatus( 'error' );
+};
 
-	if( Config::isDebug() ) {
-		ERROR_REPORTING(E_ALL);
-		ini_set('display_errors', 1);
-		Debug::addToDebug( '$_POST before checks', $_POST );
-	}
+if( Config::isDebug() ) {
+	ERROR_REPORTING(E_ALL);
+	ini_set('display_errors', 1);
+	Debug::addToDebug( '$_POST before checks', $_POST );
+}
 
+
+
+try{
 	$securityResult = wsSecurity::resolvePosts();
 	if( Config::isDebug() ) {
 		Debug::addToDebug( '$_POST after checks', $_POST );
@@ -73,6 +76,11 @@ try {
 	$responseHandler->setReturnData( $e->getMessage() );
 	$responseHandler->setReturnStatus( 'error' );
 };
+
+$responseHandler->setIdentifier( General::getPostString( "mwidentifier" ) );
+$responseHandler->setMwReturn( General::getPostString( "mwreturn" ) );
+$responseHandler->setPauseBeforeRefresh( General::getPostString( 'mwpause' ) );
+
 
 // Do we have any errors so far ?
 if( $responseHandler->getReturnStatus() === "error" ) {

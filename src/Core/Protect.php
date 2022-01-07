@@ -85,7 +85,7 @@ class Protect {
 		if( $clean === "all" ) return $value;
 		if( $secure ) {
 			global $IP;
-			require_once( $IP . '/extensions/WSForm/modules/htmlpurifier/library/HTMLPurifier.auto.php' );
+			require_once( $IP . '/extensions/WSForm/Modules/htmlpurifier/library/HTMLPurifier.auto.php' );
 			$config = \HTMLPurifier_Config::createDefault();
 			//
 			switch( $clean ) {

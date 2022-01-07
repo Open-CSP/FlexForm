@@ -49,7 +49,7 @@
       "rc_site_key": "",
       "rc_secret_key": "",
       "sec_key": "",
-      "secure": true,
+      "secure": false,
       "auto_save_interval": 30000,
       "auto_save_after_change": 3000,
       "use_smtp": "no",
