@@ -10,6 +10,8 @@
 
 namespace WSForm\Core;
 
+use WSForm\WSFormException;
+
 class Validate {
 	/**
 	 * Check for valid parameters when using email
@@ -313,21 +315,23 @@ class Validate {
 
 	}
 
-	/**
-	 * General function for parameters validation
-	 *
-	 * @param array $args List of parameters
-	 *
-	 * @return string of formatted HTML
-	 */
+    /**
+     * General function for parameters validation
+     *
+     * @param array $args List of parameters
+     *
+     * @return string[] of formatted arguments
+     * @throws WSFormException
+     */
 	public static function doSimpleParameters( $args, $type = false ) {
         // TODO: Make this function return an array of key-value pairs with the parameters instead of a string
 		$name  = false;
 		$value = false;
 		$val   = '';
-		$ret   = "";
 		$html = self::validHTML( $args );
 		$secure = Config::isSecure();
+
+		$preparedArguments = [];
 
 		foreach ( $args as $k => $v ) {
 			if ( self::validParameters( $k ) ) {
@@ -355,7 +359,8 @@ class Validate {
 				if ( self::check_disable_readonly_required_selected( $k, $v ) ) {
 					continue;
 				}
-				$ret .= $k . '="' . $v . '" ';
+
+				$preparedArguments[$k] = $v;
 			}
 		}
 		if ( $name && ! $value ) {
@@ -366,11 +371,12 @@ class Validate {
 			$tmp = Core::getValue( $name, $clean );
 
 			if ( $tmp !== "" ) {
-				$ret .= 'value = "' . $tmp . '" ';
+			    $preparedArguments['value'] = $tmp;
                 Core::addCheckSum( $type, $name, $tmp, $html );
 			} else Core::addCheckSum( $type, $name, '', $html );
 		} else Core::addCheckSum( $type, $name, $val, $html );
-		return  $ret;
+
+		return $preparedArguments;
 	}
 
 	/**
@@ -450,13 +456,15 @@ class Validate {
 	 * General function for Checkbox parameters validation
 	 * @param array $args List of parameters
 	 *
-	 * @return string of formatted HTML
+	 * @return string[] of formatted HTML
 	 */
 	public static function doCheckboxParameters( $args ) {
 		$name    = false;
 		$value   = false;
 		$checked = false;
-		$ret     = "";
+
+		$preparedArguments = [];
+
 		foreach ( $args as $k => $v ) {
 			if ( self::validParameters( $k ) ) {
 				if ( $k == "name" ) {
@@ -465,19 +473,22 @@ class Validate {
 						$v .= '[]';
 					}
 				}
+
 				if ( $k == "value" ) {
 					$value = $v;
 				}
+
 				if ( $k === "checked" && $v !== "checked" ) {
 					continue;
 				} elseif ( $k === "checked" && $v === "checked" ) {
 					$checked = true;
 				}
+
 				if ( self::check_disable_readonly_required_selected( $k, $v ) ) {
 					continue;
 				}
-				$ret .= $k . '="' . $v . '" ';
 
+				$preparedArguments[$k] = $v;
 			}
 		}
 		if ( $name && $value && ! $checked ) {
@@ -489,15 +500,17 @@ class Validate {
 				if ( strpos( $tmp, "," ) ) {
 					$options = explode( ",", $tmp );
 					if ( in_array( $value, $options ) ) {
-						$ret .= 'checked="" ';
+                        $preparedArguments['checked'] = '';
 					}
 				} elseif ( $tmp == $value ) {
-					$ret .= 'checked="" ';
+                    $preparedArguments['checked'] = '';
 				}
 			}
 		}
+
         Core::addCheckSum( "checkbox", $name, $value );
-		return $ret;
+
+		return $preparedArguments;
 	}
 
 	/**

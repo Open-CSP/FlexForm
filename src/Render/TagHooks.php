@@ -415,11 +415,13 @@ class TagHooks {
                     $parser->getOutput()->addModuleStyles( 'ext.wsForm.datePicker.styles' );
                 }
 
-                $ret = $renderer->render_text( $args );
+                $preparedArguments = Validate::doSimpleParameters( $args, "text" );
+                $ret = $renderer->render_text( $preparedArguments );
 
                 break;
             case 'hidden':
-                $ret = $renderer->render_hidden( $args );
+                $preparedArguments = Validate::doSimpleParameters( $args, "hidden" );
+                $ret = $renderer->render_hidden( $preparedArguments );
 
                 break;
             case 'secure':
@@ -427,19 +429,23 @@ class TagHooks {
                     return [wfMessage( 'wsform-field-secure-not-available')->parse()];
                 }
 
-                $ret = $renderer->render_secure( $args );
+                $preparedArguments = Validate::doSimpleParameters( $args, "secure" );
+                $ret = $renderer->render_secure( $preparedArguments );
 
                 break;
             case 'search':
-                $ret = $renderer->render_search( $args );
+                $preparedArguments = Validate::doSimpleParameters( $args, "search" );
+                $ret = $renderer->render_search( $preparedArguments );
 
                 break;
             case 'number':
-                $ret = $renderer->render_number( $args );
+                $preparedArguments = Validate::doSimpleParameters( $args, "number" );
+                $ret = $renderer->render_number( $preparedArguments );
 
                 break;
             case 'radio':
-                $ret = $renderer->render_radio( $args, $args['show-on-checked'] ?? '' );
+                $preparedArguments = Validate::doSimpleParameters( $args, "radio" );
+                $ret = $renderer->render_radio( $preparedArguments, $args['show-on-checked'] ?? '' );
 
                 break;
             case 'checkbox':
@@ -447,8 +453,10 @@ class TagHooks {
                 $defaultName = isset( $args['name'] ) && $args['name'] !== '' ?
                     sprintf( 'wsdefault_%s', $args['name'] ) : '';
 
+                $preparedArguments = Validate::doCheckboxParameters( $args );
+
                 $ret = $renderer->render_checkbox(
-                    $args,
+                    $preparedArguments,
                     $args['show-on-checked'] ?? '',
                     $args['show-on-unchecked'] ?? '',
                     $default,
@@ -463,43 +471,53 @@ class TagHooks {
 
                 break;
             case 'date':
-                $ret = $renderer->render_date( $args );
+                $preparedArguments = Validate::doSimpleParameters( $args, "date" );
+                $ret = $renderer->render_date( $preparedArguments );
 
                 break;
             case 'month':
-                $ret = $renderer->render_month( $args );
+                $preparedArguments = Validate::doSimpleParameters( $args, "month" );
+                $ret = $renderer->render_month( $preparedArguments );
 
                 break;
             case 'week':
-                $ret = $renderer->render_week( $args );
+                $preparedArguments = Validate::doSimpleParameters( $args, "week" );
+                $ret = $renderer->render_week( $preparedArguments );
 
                 break;
             case 'time':
-                $ret = $renderer->render_time( $args );
+                $preparedArguments = Validate::doSimpleParameters( $args, "time" );
+                $ret = $renderer->render_time( $preparedArguments );
 
                 break;
             case 'datetime':
-                $ret = $renderer->render_datetime( $args );
+                $preparedArguments = Validate::doSimpleParameters( $args, "datetime" );
+                $ret = $renderer->render_datetime( $preparedArguments );
 
                 break;
             case 'datetimelocal':
-                $ret = $renderer->render_datetimelocal( $args );
+                $preparedArguments = Validate::doSimpleParameters( $args, "datetimelocal" );
+                $ret = $renderer->render_datetimelocal( $preparedArguments );
 
                 break;
             case 'password':
-                $ret = $renderer->render_password( $args );
+                $preparedArguments = Validate::doSimpleParameters( $args, "password" );
+                $ret = $renderer->render_password( $preparedArguments );
 
                 break;
             case 'email':
-                $ret = $renderer->render_email( $args );
+                $preparedArguments = Validate::doSimpleParameters( $args, "email" );
+                $ret = $renderer->render_email( $preparedArguments );
 
                 break;
             case 'color':
-                $ret = $renderer->render_color( $args );
+                $preparedArguments = Validate::doSimpleParameters( $args, "color" );
+                $ret = $renderer->render_color( $preparedArguments );
 
                 break;
             case 'range':
-                $ret = $renderer->render_range( $args );
+                $preparedArguments = Validate::doSimpleParameters( $args, "range" );
+                $ret = $renderer->render_range( $preparedArguments );
 
                 break;
             case 'image':
@@ -511,6 +529,7 @@ class TagHooks {
                     }
 
                     $imageArguments[$name] = $value;
+
                     Core::addCheckSum( "image", $name, $value );
                 }
 
@@ -518,11 +537,13 @@ class TagHooks {
 
                 break;
             case 'url':
-                $ret = $renderer->render_url( $args );
+                $preparedArguments = Validate::doSimpleParameters( $args, "url" );
+                $ret = $renderer->render_url( $preparedArguments );
 
                 break;
             case 'tel':
-                $ret = $renderer->render_tel( $args );
+                $preparedArguments = Validate::doSimpleParameters( $args, "tel" );
+                $ret = $renderer->render_tel( $preparedArguments );
 
                 break;
             case 'option':
@@ -584,18 +605,18 @@ class TagHooks {
 				$validArgs = [];
 				$additionalHtml = '';
 				foreach( $args as $k => $v ){
-
 					switch( strtolower( $k ) ) {
 						case "mwidentifier" :
-							if( strtolower( $v ) === 'ajax') {
+							if ( strtolower( $v ) === 'ajax') {
 								$additionalHtml .= Core::createHiddenField( 'mwidentifier', $v );
-								if( ! Core::isLoaded( 'wsform-ajax') ) {
-									if(file_exists($IP.'/extensions/WSForm/wsform-ajax.js')) {
-										//$lf = htmlspecialchars_decode(file_get_contents($IP.'/extensions/WSForm/wsform-ajax.js'));
+
+								if ( !Core::isLoaded( 'wsform-ajax') ) {
+									if ( file_exists($IP.'/extensions/WSForm/wsform-ajax.js' ) ) {
 										$additionalHtml .= '<script src="' . wfGetServerUrl( null ) . '/extensions/WSForm/wsform-ajax.js"></script>'."\n";
 										Core::addAsLoaded('wsform-ajax');
 									}
 								}
+
 								$identifier = true;
 							}
 							break;
@@ -610,23 +631,25 @@ class TagHooks {
 							break;
 					}
 
-					if( Validate::validParameters( $k ) ) {
+					if ( Validate::validParameters( $k ) ) {
 						$validArgs[$k] = $v;
 					}
 
 				}
-				if( $callBack !== 0 && $identifier === true ) {
-					if(! Core::isLoaded( $callBack ) ) {
+				if ( $callBack !== 0 && $identifier === true ) {
+					if ( !Core::isLoaded( $callBack ) ) {
 						if ( file_exists( $IP . '/extensions/WSForm/modules/customJS/' . $callBack . '.js' ) ) {
 							$lf  = file_get_contents( $IP . '/extensions/WSForm/modules/customJS/' . $callBack . '.js' );
 							$additionalHtml .= "<script>$lf</script>\n";
 							Core::addAsLoaded($callBack);
-						} //else die($IP.'/extensions/WSForm/modules/customJS/'.$callback.'.js');
+						}
 					}
 				}
-				if( $identifier ) {
+
+				if ( $identifier ) {
 					$validArgs['onclick'] = 'wsform(this,' . $callBack . ',' . $beforeCallBack.');';
 				}
+
 				$output = $this->themeStore
 					->getFormTheme()
 					->getFieldRenderer()
@@ -675,7 +698,7 @@ class TagHooks {
                 $ret = $renderer->render_reset( $additionalArguments );
 
                 break;
-            case 'textarea': // TODO: Implement 'textarea'
+            case 'textarea':
                 if ( isset( $args['value'] ) ) {
                     // Use the value attribute as the input of the tag
                     $input = $args['value'];
@@ -827,7 +850,7 @@ class TagHooks {
                 // TODO: Make this theme-able
 
                 break;
-            case 'mobilescreenshot': // TODO: Implement 'mobilescreenshot', @Charlot do we still use this anywhere?
+            case 'mobilescreenshot': // TODO: Implement 'mobilescreenshot'
             default:
                 return ['The field type "' . htmlspecialchars( $fieldType ) . '" is currently not supported.'];
         }
@@ -913,10 +936,23 @@ class TagHooks {
     public function renderLabel( $input, array $args, Parser $parser, PPFrame $frame ) {
         $input = $parser->recursiveTagParse( $input, $frame );
 
+        if ( isset( $args['for'] ) ) {
+            $for = $args['for'];
+            unset( $args['for'] );
+        } else {
+            // A label MUST have a for according to the HTML specification
+            $for = '';
+        }
+
+        $inputArguments = [];
+        foreach ( $args as $name => $value ) {
+            $inputArguments[$name] = $parser->recursiveTagParse( $value, $frame );
+        }
+
         $output = $this->themeStore
             ->getFormTheme()
             ->getLabelRenderer()
-            ->render_label( $input );
+            ->render_label( $input, $for, $inputArguments );
 
         return [$output, 'markerType' => 'nowiki'];
     }
@@ -1320,8 +1356,11 @@ class TagHooks {
 
         $content = $parser->recursiveTagParse( $input, $frame );
 
-        // TODO: Can you take a look at this @Charlot?
-        $ret = $this->themeStore->getFormTheme()->getInstanceRenderer()->render_instance( $content, $args );
+        // TODO: Move some of the logic from "render_instance" to here
+        $ret = $this->themeStore
+            ->getFormTheme()
+            ->getInstanceRenderer()
+            ->render_instance( $content, $args );
 
         Core::removeAsLoaded( 'wsinstance-initiated' );
 

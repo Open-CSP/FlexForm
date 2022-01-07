@@ -14,71 +14,52 @@ class WSFormFieldRenderer implements FieldRenderer {
      * @inheritDoc
      */
 	public function render_text( array $args ): string {
-		$ret = '<input type="text" ';
-		$ret .= Validate::doSimpleParameters( $args, "text" );
-		$ret .= ">\n";
-
-		return $ret;
+	    $args['type'] = 'text';
+		return Xml::tags('input', $args, '');
 	}
 
     /**
      * @inheritDoc
      */
 	public function render_hidden( array $args ): string {
-		$ret = '<input type="hidden" ';
-		$ret .= Validate::doSimpleParameters( $args, "hidden" );
-		$ret .= ">\n";
-
-		return $ret;
+        $args['type'] = 'hidden';
+        return Xml::tags('input', $args, '');
 	}
 
     /**
      * @inheritDoc
      */
 	public function render_secure( array $args ): string {
-        $ret = '<input type="hidden" ';
-        $ret .= validate::doSimpleParameters( $args, "secure" );
-        $ret .= ">\n";
-
-		return $ret;
+        $args['type'] = 'hidden';
+        return Xml::tags('input', $args, '');
 	}
 
     /**
      * @inheritDoc
      */
 	public function render_search( array $args ): string {
-		$ret = '<input type="search" ';
-		$ret .= validate::doSimpleParameters( $args, "search" );
-		$ret .= ">\n";
-
-		return $ret;
+        $args['type'] = 'search';
+        return Xml::tags('input', $args, '');
 	}
 
     /**
      * @inheritDoc
      */
 	public function render_number( array $args ): string {
-		$ret = '<input type="number" ';
-		$ret .= validate::doSimpleParameters( $args, "number" );
-		$ret .= ">\n";
-
-		return $ret;
+        $args['type'] = 'number';
+        return Xml::tags('input', $args, '');
 	}
 
     /**
      * @inheritDoc
      */
 	public function render_radio( array $args, string $showOnChecked = '' ): string {
-		$ret = '<input type="radio" ';
-		$ret .= validate::doRadioParameters( $args );
+	    $args['type'] = 'radio';
+	    $args['data-wssos-show'] = $showOnChecked;
 
-		if ( $showOnChecked !== '' ) {
-			$ret .= 'data-wssos-show="' . htmlspecialchars( $showOnChecked ) . '" ';
-		}
+        $ret = Xml::tags('input', $args, '');
 
-		$ret .= ">\n";
-
-		if ( $showOnChecked !== '' ) {
+        if ( $showOnChecked !== '' ) {
 			$ret .= Core::addShowOnSelectJS();
 		}
 
@@ -97,18 +78,11 @@ class WSFormFieldRenderer implements FieldRenderer {
 		    $ret .= Core::createHiddenField( $defaultName, $default );
 		}
 
-		$ret .= '<input type="checkbox" ';
-		$ret .= validate::doCheckboxParameters( $args );
+		$args['type'] = 'checkbox';
+		$args['data-wssos-show'] = $showOnChecked;
+		$args['data-wssos-show-unchecked'] = $showOnUnchecked;
 
-		if ( $showOnChecked !== '' ) {
-			$ret .= 'data-wssos-show="' . $showOnChecked . '" ';
-		}
-
-		if ( $showOnUnchecked !== '' ) {
-			$ret .= 'data-wssos-show-unchecked="' . $showOnUnchecked . '" ';
-		}
-
-		$ret .= ">\n";
+		$ret .= Xml::tags('input', $args, '');
 
 		if ( $showOnChecked !== '' || $showOnUnchecked !== '' ) {
 			$ret .= Core::addShowOnSelectJS();
@@ -312,147 +286,104 @@ class WSFormFieldRenderer implements FieldRenderer {
      * @inheritDoc
      */
 	public function render_date( array $args ): string {
-		$ret = '<input type="date" ';
-		$ret .= validate::doSimpleParameters( $args, "date" );
-		$ret .= ">\n";
-
-		return $ret;
+        $args['type'] = 'date';
+        return Xml::tags('input', $args, '');
 	}
 
     /**
      * @inheritDoc
      */
 	public function render_month( array $args ): string {
-		$ret = '<input type="month" ';
-		$ret .= validate::doSimpleParameters( $args, "month" );
-		$ret .= ">\n";
-
-		return $ret;
+        $args['type'] = 'month';
+        return Xml::tags('input', $args, '');
 	}
 
     /**
      * @inheritDoc
      */
 	public function render_week( array $args ): string {
-		$ret = '<input type="week" ';
-		$ret .= validate::doSimpleParameters( $args, "week" );
-		$ret .= ">\n";
-
-		return $ret;
+        $args['type'] = 'week';
+        return Xml::tags('input', $args, '');
 	}
 
     /**
      * @inheritDoc
      */
 	public function render_time( array $args ): string {
-		$ret = '<input type="time" ';
-		$ret .= validate::doSimpleParameters( $args, "time" );
-		$ret .= ">\n";
-
-		return $ret;
+        $args['type'] = 'time';
+        return Xml::tags('input', $args, '');
 	}
 
     /**
      * @inheritDoc
      */
 	public function render_datetime( array $args ): string {
-		$ret = '<input type="datetime" ';
-		$ret .= validate::doSimpleParameters( $args, "datetime" );
-		$ret .= ">\n";
-
-		return $ret;
+        $args['type'] = 'datetime';
+        return Xml::tags('input', $args, '');
 	}
 
     /**
      * @inheritDoc
      */
 	public function render_datetimelocal( array $args ): string {
-		$ret = '<input type="datetime-local" ';
-		$ret .= validate::doSimpleParameters( $args, "datetimelocal" );
-		$ret .= ">\n";
-
-		return $ret;
+        $args['type'] = 'datetime-local';
+        return Xml::tags('input', $args, '');
 	}
 
     /**
      * @inheritDoc
      */
 	public function render_password( array $args ): string {
-		$ret = '<input type="password" ';
-		$ret .= validate::doSimpleParameters( $args, "password" );
-		$ret .= ">\n";
-
-		return $ret;
+        $args['type'] = 'password';
+        return Xml::tags('input', $args, '');
 	}
 
     /**
      * @inheritDoc
      */
 	public function render_email( array $args ): string {
-		$ret = '<input type="email" ';
-		$ret .= validate::doSimpleParameters( $args, "email" );
-		$ret .= ">\n";
-
-		return $ret;
+        $args['type'] = 'email';
+        return Xml::tags('input', $args, '');
 	}
 
     /**
      * @inheritDoc
      */
 	public function render_color( array $args ): string {
-		$ret = '<input type="color" ';
-		$ret .= validate::doSimpleParameters( $args, "color" );
-		$ret .= ">\n";
-
-		return $ret;
+        $args['type'] = 'color';
+        return Xml::tags('input', $args, '');
 	}
 
     /**
      * @inheritDoc
      */
 	public function render_range( array $args ): string {
-		$ret = '<input type="range" ';
-		$ret .= validate::doSimpleParameters( $args, "range" );
-		$ret .= ">\n";
-
-		return $ret;
+        $args['type'] = 'range';
+        return Xml::tags('input', $args, '');
 	}
 
     /**
      * @inheritDoc
      */
 	public function render_image( array $args ): string {
-		$ret = '<input type="image" ';
-
-		foreach ( $args as $name => $value ) {
-            $ret .= htmlspecialchars( $name ) . '="' . htmlspecialchars( $value ) . '" ';
-		}
-
-		$ret .= ">\n";
-
-		return $ret;
+	    $args['type'] = 'image';
+	    return Xml::tags('input', $args, '');
 	}
 
     /**
      * @inheritDoc
      */
 	public function render_url( array $args ): string {
-		$ret = '<input type="url" ';
-		$ret .= validate::doSimpleParameters( $args, "url" );
-		$ret .= ">\n";
-
-		return $ret;
+        $args['type'] = 'url';
+        return Xml::tags('input', $args, '');
 	}
 
     /**
      * @inheritDoc
      */
 	public function render_tel( array $args ): string {
-		$ret = '<input type="tel" ';
-		$ret .= validate::doSimpleParameters( $args, "tel" );
-		$ret .= ">\n";
-
-		return $ret;
+        $args['type'] = 'tel';
+        return Xml::tags('input', $args, '');
 	}
 
     /**
@@ -525,75 +456,8 @@ class WSFormFieldRenderer implements FieldRenderer {
      * @inheritDoc
      */
 	public function render_mobilescreenshot( string $input, array $args, Parser $parser, PPFrame $frame ): string {
-		global $IP, $wgOut;
-
-		$end = "\n";
-
-		if(!isset($args['fname'])) {
-			return 'Need target filename';
-		}
-		if(!isset($args['ftype'])) {
-			$ftype = "svg";
-		} else $ftype = $args['ftype'];
-
-		if(!isset($args['pagecontent'])) {
-			return 'Page content is missing';
-		} else $pcontent = $args['pagecontent'];
-
-		if(isset($args['liveclass'])) {
-			$class = $args['liveclass'];
-		} else $class = "";
-
-		if(isset($args['previewclass'])) {
-			$pclass = $args['previewclass'];
-		} else $pclass = "";
-
-		if(isset($args['previewwidth'])) {
-			$pw = $args['previewwidth'];
-		} else $pw = "320";
-
-		if(isset($args['previewheight'])) {
-			$ph = $args['previewheight'];
-		} else $ph = "250";
-
-		if(isset($args['capturebuttontext'])) {
-			$btnTxt= $args['capturebuttontext'];
-		} else $btnTxt = "Capture";
-
-		if(isset($args['capturebuttonclass'])) {
-			$btnClass= $args['capturebuttonclass'];
-		} else $btnClass = "";
-
-
-		$html = '<video id="wsform-player" controls autoplay class="'.$class.'"></video>'.$end;
-		$html .= '<button id="wsform-capture-screenshot" type="button" class="'.$btnClass.'">'.$btnTxt.'</button>'.$end;
-		$html .= '<canvas id="wsform-screenshot-canvas" width='.$pw.' height='.$ph.'></canvas>'.$end;
-
-		$js = "const player = document.getElementById('wsform-player');".$end;
-		$js .= "const canvas = document.getElementById('wsform-screenshot-canvas');".$end;
-		$js .= "const context = canvas.getContext('2d');".$end;
-		$js .= "const captureButton = document.getElementById('wsform-capture-screenshot');".$end;
-		$js .= 'const constraints = {'.$end.'video: true,'.$end.'};'.$end;
-		$js .= "captureButton.addEventListener('click', () => {
-    context.drawImage(player, 0, 0, canvas.width, canvas.height);
-
-    // Stop all video streams.
-    player.srcObject.getVideoTracks().forEach(track => track.stop());
-  });
-
-  navigator.mediaDevices.getUserMedia(constraints)
-    .then((stream) => {
-      // Attach the video stream to the video element and autoplay.
-      player.srcObject = stream;
-    });";
-		wsform::includeInlineScript( $js );
-
-		$html .= '<input type="hidden" name="wsform_screenshot_filename" value="'.$args['fname'].'" >'."\n";
-		$html .= '<input type="hidden" name="wsform_screenshot_type" value="'.$ftype.'" >'."\n";
-		$html .= '<input type="hidden" name="wsform_screenshot_page_content" value="'.$pcontent.'" >'."\n";
-
-
-		return $html;
+	    // TODO: Implement mobilescreenshot
+		return '';
 	}
 
 }

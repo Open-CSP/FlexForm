@@ -31,7 +31,7 @@ class WSFormInstanceRenderer implements InstanceRenderer {
      * @throws MWException
      */
 	public function render_instance( string $content, array $args ): string {
-		global $IP;
+		// TODO: Move some of this logic to the caller
 
         if ( !RequestContext::getMain()->canUseWikiPage() ) {
             return "";
