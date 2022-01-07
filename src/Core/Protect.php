@@ -52,9 +52,10 @@ class Protect {
 	// decrypt encrypted string
 
 	/**
-	 * @throws WSFormException
+	 *
 	 */
 	public static function decrypt( $data )	{
+
 		$iv_strlen = 2  * self::iv_bytes();
 		if(preg_match("/^(.{" . $iv_strlen . "})(.+)$/", $data, $regs)) {
 			list(, $iv, $crypted_string) = $regs;
@@ -62,8 +63,8 @@ class Protect {
 				return openssl_decrypt( $crypted_string, self::$method, self::$key, 0, hex2bin( $iv ) );
 			}
 		}
-		throw new WSFormException( "failed to decrypt", 1 );
-		//return false; // failed to decrypt
+		//throw new WSFormException( "failed to decrypt", 1 );
+		return false; // failed to decrypt
 	}
 
 	/**

@@ -5,6 +5,7 @@ namespace WSForm\Processors\Content;
 use MWException;
 use RequestContext;
 use WSForm\Core\Config;
+use WSForm\Core\Debug;
 use WSForm\Core\HandleResponse;
 use WSForm\Processors\Security\wsSecurity;
 use WSForm\Processors\Definitions;
@@ -75,8 +76,11 @@ class ContentCore {
 	 * @throws MWException
 	 * @throws WSFormException
 	 */
-	public static function saveToWiki( HandleResponse $response_handler ): HandleResponse {
+	public static function saveToWiki( HandleResponse $response_handler, $email = false ): HandleResponse {
 		self::$fields = Definitions::createAndEditFields();
+		if( Config::isDebug() ) {
+			Debug::addToDebug( 'createandeditfields', self::$fields );
+		}
 		/*
 		'parsePost'    => General::getPostString( 'wsparsepost' ),
 		'parseLast'    => General::getPostString( 'mwparselast' ),
@@ -96,6 +100,9 @@ class ContentCore {
 		*/
 
 		self::checkFields();
+		if( Config::isDebug() ) {
+			Debug::addToDebug( 'checkfields', self::$fields );
+		}
 
 		/*
 		if( self::$fields['returnto'] === false && self::$fields['returnfalse'] === false ) {
@@ -105,9 +112,12 @@ class ContentCore {
 
 		// WSCreate single
 		if ( self::$fields['template'] !== false && self::$fields['writepage'] !== false ) {
-			$create = new create();
+			$create = new Create();
 			try {
 				$result = $create->writePage();
+				if( Config::isDebug() ) {
+					Debug::addToDebug( 'writepage result', $result );
+				}
 			} catch ( WSFormException $e ) {
 				throw new WSFormException(
 					$e->getMessage(),
@@ -125,6 +135,7 @@ class ContentCore {
 				$result['content']
 			);
 			$save              = new Save();
+			echo "going to save";
 			try {
 				$save->saveToWiki(
 					$result['title'],
@@ -138,8 +149,9 @@ class ContentCore {
 					$e
 				);
 			}
+			echo "saving done";
 			self::checkFollowPage( $result['title'] );
-			if ( ! self::$fields['mwedit'] && ! self::$fields['email'] && ! self::$fields['writepages'] ) {
+			if ( ! self::$fields['mwedit'] && ! $email && ! self::$fields['writepages'] ) {
 				$response_handler->setMwReturn( self::$fields['returnto'] );
 				$response_handler->setReturnType( HandleResponse::TYPE_SUCCESS );
 				if ( self::$fields['msgOnSuccess'] !== false ) {
@@ -217,7 +229,7 @@ class ContentCore {
 				}
 			}
 
-			if ( ! self::$fields['mwedit'] && ! self::$fields['email'] ) {
+			if ( ! self::$fields['mwedit'] && ! $email ) {
 
 				$response_handler->setMwReturn( self::$fields['returnto'] );
 				$response_handler->setReturnType( HandleResponse::TYPE_SUCCESS );
