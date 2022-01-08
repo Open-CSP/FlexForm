@@ -388,7 +388,7 @@ class SpecialWSForm extends \SpecialPage {
 	 *  [[Special:HelloWorld/subpage]].
 	 */
 	public function execute( $sub ) {
-		global $IP, $wgUser, $wgExtensionCredits, $wgScript;
+		global $IP, $wgUser, $wgExtensionCredits, $wgScript, $wgServer;
 
 		if ( $this->getPostString( 'mwaction' ) ) {
 			// We need to handle api calls here
@@ -432,8 +432,8 @@ class SpecialWSForm extends \SpecialPage {
 			$wgScript
 		);
 		$ver                = "";
-		$bitbucketSource    = 'https://api.bitbucket.org/2.0/repositories/wikibasesolutions/mw-wsform/src/master/extension.json';
-		$bitbucketChangelog = 'https://api.bitbucket.org/2.0/repositories/wikibasesolutions/mw-wsform/src/master/README.md';
+		$bitbucketSource    = 'https://gitlab.wikibase.nl/community/mw-wsform/-/raw/wsform-rewrite/extension.json';
+		$bitbucketChangelog = 'https://gitlab.wikibase.nl/community/mw-wsform/-/raw/wsform-rewrite/README.md';
 		$extJson            = file_get_contents( $bitbucketSource );
 		$sourceVersion      = false;
 		if ( $extJson !== false ) {
@@ -496,9 +496,9 @@ class SpecialWSForm extends \SpecialPage {
 		$eurl        = $realUrl . "/index.php/Special:WSForm/Docs/examples";
 		$out         = $this->getOutput();
 		$out->addHTML(
-			'<h1 class="hit-the-floor" style="text-align:center;">WSForm ' . wfMessage(
+			'<h1 style="text-align:center;"><a href="' . $wgServer . '/index.php/Special:WSForm/Docs"><img style="width:50px; margin:5px 15px;" src="'.$wgServer . "/extensions/WSForm/WSForm-logo.png".'" /></a>WSForm ' . wfMessage(
 				"wsform-docs-documentation"
-			)->text() . '</h1><hr class="brace">'
+			)->text() . '</h1>'
 		);
 		$this->renderMenu(
 			$path,

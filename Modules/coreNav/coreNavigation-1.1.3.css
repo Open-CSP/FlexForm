@@ -152,7 +152,7 @@ Core Navigation
 }
 
 .core-nav.open-dropdown {
-	z-index: 99999999;
+	z-index: 999;
 }
 
 .core-nav .nav-header {

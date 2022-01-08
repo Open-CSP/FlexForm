@@ -1,8 +1,6 @@
 <nav id="wsformdocs-menu" hidden>
     <div class="nav-header">
-        <a href="%back%" class="brand">
-            <p><img src="%url%" /><br>%version%</p>
-        </a>
+        %version%
         <button class="toggle-bar">
             <span>MENU</span>
         </button>
