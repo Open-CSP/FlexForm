@@ -1,4 +1,7 @@
 <?php
+
+use Wikimedia\ParamValidator\ParamValidator;
+
 /**
  * Created by  : Designburo.nl
  * Project     : wsformWikiBaseNL
@@ -196,18 +199,18 @@ class ApiWSForm extends ApiBase {
 	public function getAllowedParams() {
 		return array(
 			'what' => array(
-				ApiBase::PARAM_TYPE => 'string',
-				ApiBase::PARAM_REQUIRED => true
+				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_REQUIRED => true
 			),
 			'titleStartsWith' => array(
-				ApiBase::PARAM_TYPE => 'string',
-				ApiBase::PARAM_REQUIRED => true
+				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_REQUIRED => true
 			),
 			'range' => array(
-				ApiBase::PARAM_TYPE => 'string'
+				ParamValidator::PARAM_TYPE => 'string'
 			),
 			'for' => array(
-				ApiBase::PARAM_TYPE => 'string'
+				ParamValidator::PARAM_TYPE => 'string'
 			)
 		);
 	}
@@ -466,9 +469,9 @@ class ApiWSForm extends ApiBase {
 	}
 
 	/**
-	 * @see ApiBase::getExamplesMessages()
+	 * @return array
 	 */
-	protected function getExamplesMessages() {
+	protected function getExamplesMessages():array {
 		return array(
 			'action=wsform&what=getRange&titleStartsWith=Invoice/&range=0000-9999' => 'apihelp-wsform-example-1',
 			'action=wsform&what=nextAvailable&&titleStartsWith=Invoice/' => 'apihelp-wsform-example-2'
