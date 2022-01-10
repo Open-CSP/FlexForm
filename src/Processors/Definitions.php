@@ -103,7 +103,8 @@ class Definitions {
 			"wsparsepost",
 			"mwtoken",
 			"wsuid",
-			"mwwikicomment"
+			"mwwikicomment",
+			"mwleadingzero"
 		);
 		if ( in_array( strtolower( $field ), $WSFormSystemFields ) ) {
 			return true;

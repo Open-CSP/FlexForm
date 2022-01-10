@@ -107,6 +107,12 @@ class ContentCore {
 
 		// WSCreate single
 		if ( self::$fields['template'] !== false && self::$fields['writepage'] !== false ) {
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'Writing single page',
+					[]
+				);
+			}
 			$create = new Create();
 			try {
 				$result = $create->writePage();
@@ -117,6 +123,7 @@ class ContentCore {
 					);
 				}
 			} catch ( WSFormException $e ) {
+				echo "damn";
 				throw new WSFormException(
 					$e->getMessage(),
 					0,
@@ -491,20 +498,23 @@ class ContentCore {
 			"titleStartsWith" => $nameStartsWith
 		];
 		$result   = $render->makeRequest( $postdata );
-		if ( isset( $result['received']['wsform']['error'] ) ) {
+		if( Config::isDebug() ) {
+			Debug::addToDebug( 'NextAvailable result ' . time(), $result );
+		}
+		if ( isset( $result['wsform']['error'] ) ) {
 			return ( array(
 				'status'  => 'error',
-				'message' => $result['received']['wsform']['error']['message']
+				'message' => $result['wsform']['error']['message']
 			) );
-		} elseif ( isset( $result['received']['error'] ) ) {
+		} elseif ( isset( $result['error'] ) ) {
 			return ( array(
 				'status'  => 'error',
-				'message' => $result['received']['error']['code'] . ': ' . $result['received']['error']['info']
+				'message' => $result['error']['code'] . ': ' . $result['received']['error']['info']
 			) );
 		} else {
 			return ( array(
 				'status' => 'ok',
-				'result' => $result['received']['wsform']['result']
+				'result' => $result['wsform']['result']
 			) );
 		}
 		die();
@@ -527,15 +537,15 @@ class ContentCore {
 		$render   = new Render();
 		$result   = $render->makeRequest( $postdata );
 
-		if ( isset( $result['received']['wsform']['error'] ) ) {
+		if ( isset( $result['wsform']['error'] ) ) {
 			return ( array(
 				'status'  => 'error',
-				'message' => $result['received']['wsform']['error']['message']
+				'message' => $result['wsform']['error']['message']
 			) );
 		} else {
 			return ( array(
 				'status' => 'ok',
-				'result' => $result['received']['wsform']['result']
+				'result' => $result['wsform']['result']
 			) );
 		}
 		die();

@@ -13,6 +13,7 @@ namespace WSForm\Processors\Content;
 use \ApiMain, \DerivativeContext, \FauxRequest, \DerivativeRequest, MWException, RequestContext, WSForm\Processors\Utilities\General;
 use ContentHandler;
 use MediaWiki\Content\ContentHandlerFactory;
+use Title;
 use WikiPage;
 use WSForm\WSFormException;
 
@@ -27,8 +28,23 @@ class Render {
 	 */
 	public function getSlotContent( $id, string $slotName = 'main' ) : array {
 		$ret            = array();
-		$id             = (int) ( $id );
-		$page           = WikiPage::newFromId( $id );
+		if( is_integer( $id ) ) {
+			$id = (int) ( $id );
+			$page           = WikiPage::newFromId( $id );
+		} elseif ( is_string( $id ) ) {
+			$titleObject = Title::newFromText( $id );
+			try {
+				$page = WikiPage::factory( $titleObject );
+			} catch ( MWException $e ) {
+			throw new WSFormException(
+				"Could not create a WikiPage Object from title " . $titleObject->getText(
+				) . '. Message ' . $e->getMessage(),
+				0,
+				$e
+			);
+		}
+		}
+
 		$ret['content'] = '';
 		$ret['title']   = '';
 

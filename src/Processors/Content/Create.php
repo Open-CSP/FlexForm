@@ -42,7 +42,7 @@ class create {
 			// get highest number
 			$hnr = ContentCore::getNextAvailable( $this->title );
 			if( $hnr['status'] !== 'error') {
-				$title = $fields['writepage'] . $hnr['result'];
+				$this->title = $fields['writepage'] . $hnr['result'];
 			} else {
 				throw new WSFormException( $hnr['message'] );
 				//return wbHandleResponses::createMsg( $hnr['message'], 'error', $returnto);
@@ -82,8 +82,10 @@ class create {
 			}
 			*/
 			if( $fields['leadByZero'] === true ) {
-				$endrangeLength = strlen($range[1]);
+
+				$endrangeLength = strlen($rangeCheck[1]);
 				$rangeResult = str_pad( $rangeResult, $endrangeLength, '0', STR_PAD_LEFT );
+
 			}
 			$this->title = $fields['writepage'] . $rangeResult;
 		}
