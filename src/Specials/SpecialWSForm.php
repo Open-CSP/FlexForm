@@ -390,7 +390,7 @@ class SpecialWSForm extends \SpecialPage {
 	public function execute( $sub ) {
 		global $IP, $wgUser, $wgExtensionCredits, $wgScript, $wgServer;
 
-		if ( $this->getPostString( 'mwaction' ) ) {
+		if ( $this->getPostString( 'mwtoken' ) ) {
 			// We need to handle api calls here
 			//error_reporting( -1 );
 			//ini_set( 'display_errors', 1 );

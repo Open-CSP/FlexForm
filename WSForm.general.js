@@ -501,7 +501,7 @@ function wsform(btn, callback = 0, preCallback = 0) {
             u = "";
         }
 
-        $.getScript(u + '/extensions/WSForm/modules/notify.js');
+        $.getScript(u + '/extensions/WSForm/Modules/notify.js');
     }
 
     var val = $(btn).prop('value');

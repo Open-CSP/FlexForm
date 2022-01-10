@@ -250,8 +250,6 @@ class ContentCore {
 					'PageContent ',
 					$pageContents
 				);
-				echo Debug::createDebugOutput();
-				die();
 			}
 			foreach ( $pageContents as $slotName => $singlePage ) {
 				$slotContents = $singlePage['content'];
@@ -274,6 +272,11 @@ class ContentCore {
 					);
 				}
 			}
+		}
+		$response_handler->setMwReturn( self::$fields['returnto'] );
+		$response_handler->setReturnType( HandleResponse::TYPE_SUCCESS );
+		if ( self::$fields['msgOnSuccess'] !== false ) {
+			$response_handler->setReturnData( self::$fields['msgOnSuccess'] );
 		}
 
 		return $response_handler;
