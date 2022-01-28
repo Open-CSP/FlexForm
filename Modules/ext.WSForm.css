@@ -1,3 +1,6 @@
 .wsform.alert-danger, .wsform.alert-success, .wsform.alert-warning, .wsform.alert-info{
 	display:none;
 }
+.hidden {
+	display: none;
+}

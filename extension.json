@@ -1,6 +1,6 @@
 {
   "name": "WSForm",
-  "version": "1.0.0 Beta 1",
+  "version": "1.0.0 Beta 2",
   "author": [
     "[https://www.wikibase-solutions.com/author/charlot Sen-Sai]"
   ],
@@ -78,7 +78,7 @@
       "position": "bottom"
     },
     "ext.wsForm.ajax.scripts": {
-      "scripts": "wsform-ajax.js",
+      "scripts": "Modules/wsform-ajax.js",
       "position": "bottom"
     },
     "ext.wsForm.datePicker.scripts": {
@@ -90,11 +90,11 @@
       "position": "top"
     },
     "ext.wsForm.scripts": {
-      "scripts": "select2.js",
+      "scripts": "Modules/select2.js",
       "position": "top"
     },
     "ext.wsForm.styles": {
-      "styles": "select2.css",
+      "styles": "Modules/select2.css",
       "position": "top"
     },
     "ext.wsForm.general.styles": {

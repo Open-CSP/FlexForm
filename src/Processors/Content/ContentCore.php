@@ -173,7 +173,7 @@ class ContentCore {
 
 		// We need to do multiple edits
 		if ( self::$fields['writepages'] !== false ) {
-			$create = new create();
+			$create = new Create();
 			try {
 				$finalPages = $create->writePages();
 			} catch ( WSFormException $e ) {
@@ -274,6 +274,10 @@ class ContentCore {
 			}
 		}
 		$response_handler->setMwReturn( self::$fields['returnto'] );
+		if( $email === 'get' ){
+			$get = new Get();
+			$response_handler = $get->createGet( $response_handler );
+		}
 		$response_handler->setReturnType( HandleResponse::TYPE_SUCCESS );
 		if ( self::$fields['msgOnSuccess'] !== false ) {
 			$response_handler->setReturnData( self::$fields['msgOnSuccess'] );

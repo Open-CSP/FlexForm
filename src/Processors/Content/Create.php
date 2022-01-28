@@ -16,7 +16,7 @@ use WSForm\Processors\Content\ContentCore;
 use WSForm\Processors\Definitions;
 use WSForm\WSFormException;
 
-class create {
+class Create {
 
 	private $content;
 	private $title;

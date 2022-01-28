@@ -31,7 +31,7 @@ class SpecialWSForm extends \SpecialPage {
 
 
 	public $allowEditDocs = true;
-	public $showFormBuilder = true;
+	public $showFormBuilder = false;
 	public $app = array();
 	private $config = false;
 	private $configFile = '';
@@ -425,13 +425,15 @@ class SpecialWSForm extends \SpecialPage {
 		} else {
 			$this->showFormBuilder = false;
 		}
-
+		// Temporarily removing Formbuilder
+		$this->showFormBuilder = false;
 		$realUrl            = str_replace(
 			'/index.php',
 			'',
 			$wgScript
 		);
 		$ver                = "";
+		//TODO: Needs to be set to final destination
 		$bitbucketSource    = 'https://gitlab.wikibase.nl/community/mw-wsform/-/raw/wsform-rewrite/extension.json';
 		$bitbucketChangelog = 'https://gitlab.wikibase.nl/community/mw-wsform/-/raw/wsform-rewrite/README.md';
 		$extJson            = file_get_contents( $bitbucketSource );

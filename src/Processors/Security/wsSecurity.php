@@ -28,7 +28,10 @@ class wsSecurity {
 		return self::$checksum;
 	}
 
-	public static function getRemoveList() {
+	/**
+	 * @return array
+	 */
+	public static function getRemoveList(): array {
 		return self::$removeList;
 	}
 

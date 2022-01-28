@@ -56,3 +56,4 @@ Visit : Special:WSForm/Docs
 
 ### Changelog
 * 1.0.0       : Initial first public release
+* 1.0.0 Beta 2: More clean-up and added GET action. Added hidden css class.

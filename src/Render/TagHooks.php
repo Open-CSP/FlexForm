@@ -278,7 +278,7 @@ class TagHooks {
         if ( Core::getRun() === false ) {
             // FIXME: Move to ResourceLoader
             $realUrl = str_replace( '/index.php', '', $wgScript );
-            $ret = '<script type="text/javascript" charset="UTF-8" src="' . $realUrl . '/extensions/WSForm/WSForm.general.js"></script>' . "\n";
+            $ret = '<script type="text/javascript" charset="UTF-8" src="' . $realUrl . '/extensions/WSForm/Modules/WSForm.general.js"></script>' . "\n";
 
             Core::setRun( true );
         }
@@ -611,8 +611,8 @@ class TagHooks {
 								$additionalHtml .= Core::createHiddenField( 'mwidentifier', $v );
 
 								if ( !Core::isLoaded( 'wsform-ajax') ) {
-									if ( file_exists($IP.'/extensions/WSForm/wsform-ajax.js' ) ) {
-										$additionalHtml .= '<script src="' . wfGetServerUrl( null ) . '/extensions/WSForm/wsform-ajax.js"></script>'."\n";
+									if ( file_exists($IP.'/extensions/WSForm/Modules/wsform-ajax.js' ) ) {
+										$additionalHtml .= '<script src="' . wfGetServerUrl( null ) . '/extensions/WSForm/Modules/wsform-ajax.js"></script>'."\n";
 										Core::addAsLoaded('wsform-ajax');
 									}
 								}
