@@ -18,22 +18,45 @@ class Definitions {
 	/**
 	 * @return array
 	 */
-	public static function getImageHandler(): array {
-		return  [
+	public static function getImageHandler() : array {
+		return [
 			IMAGETYPE_JPEG => [
-				'load' => 'imagecreatefromjpeg',
-				'save' => 'imagejpeg',
+				'load'    => 'imagecreatefromjpeg',
+				'save'    => 'imagejpeg',
 				'quality' => 100
 			],
-			IMAGETYPE_PNG => [
-				'load' => 'imagecreatefrompng',
-				'save' => 'imagepng',
+			IMAGETYPE_PNG  => [
+				'load'    => 'imagecreatefrompng',
+				'save'    => 'imagepng',
 				'quality' => 0
 			],
-			IMAGETYPE_GIF => [
+			IMAGETYPE_GIF  => [
 				'load' => 'imagecreatefromgif',
 				'save' => 'imagegif'
 			]
+		];
+	}
+
+	/**
+	 * Return fields needed for sending emails
+	 *
+	 * @return array
+	 */
+	public static function mailFields() : array {
+		return [
+			'to'         => General::getPostString( 'mwmailto' ),
+			'from'       => General::getPostString( 'mwmailfrom' ),
+			'subject'    => General::getPostString( 'mwmailsubject' ),
+			'content'    => General::getPostString( 'mwmailcontent' ),
+			'cc'         => General::getPostString( 'mwmailcc' ),
+			'bcc'        => General::getPostString( 'mwmailbcc' ),
+			'replyto'    => General::getPostString( 'mwmailreplyto' ),
+			'header'     => General::getPostString( 'mwmailheader' ),
+			'footer'     => General::getPostString( 'mwmailfooter' ),
+			'mtemplate'  => General::getPostString( 'mwmailtemplate' ),
+			'mjob'       => General::getPostString( 'mwmailjob' ),
+			'html'       => General::getPostString( 'mwmailhtml' ),
+			'attachment' => General::getPostString( 'mwmailattachment' )
 		];
 	}
 
@@ -42,15 +65,18 @@ class Definitions {
 	 *
 	 * @return array
 	 */
-	public static function createAndEditFields(): array {
-		return array(
+	public static function createAndEditFields() : array {
+		return [
 			'parsePost'    => General::getPostString( 'wsparsepost' ),
 			'parseLast'    => General::getPostString( 'mwparselast' ),
 			'etoken'       => General::getPostString( 'wsedittoken' ),
 			'template'     => General::getPostString( 'mwtemplate' ),
 			'writepage'    => General::getPostString( 'mwwrite' ),
 			'option'       => General::getPostString( 'mwoption' ),
-			'returnto'     => General::getPostString( 'mwreturn', false ),
+			'returnto'     => General::getPostString(
+				'mwreturn',
+				false
+			),
 			'returnfalse'  => General::getPostString( 'mwreturnfalse' ),
 			'mwedit'       => General::getPostArray( 'mwedit' ),
 			'writepages'   => General::getPostArray( 'mwcreatemultiple' ),
@@ -58,20 +84,19 @@ class Definitions {
 			'mwfollow'     => General::getPostString( 'mwfollow' ),
 			'leadByZero'   => false,
 			'summary'      => General::getPostString( 'mwwikicomment' ),
-			'slot'		   => General::getPostString( 'mwslot' )
-		);
+			'slot'         => General::getPostString( 'mwslot' )
+		];
 	}
-
 
 	/**
 	 * Check to see if a variable is a WSForm variable
 	 *
-	 * @param $field string field to check
+	 * @param string $field field to check
 	 *
 	 * @return bool true or false
 	 */
-	public static function isWSFormSystemField( string $field ): bool {
-		$WSFormSystemFields = array(
+	public static function isWSFormSystemField( string $field ) : bool {
+		$WSFormSystemFields = [
 			"mwtemplate",
 			"mwoption",
 			"mwwrite",
@@ -105,8 +130,11 @@ class Definitions {
 			"wsuid",
 			"mwwikicomment",
 			"mwleadingzero"
-		);
-		if ( in_array( strtolower( $field ), $WSFormSystemFields ) ) {
+		];
+		if ( in_array(
+			strtolower( $field ),
+			$WSFormSystemFields
+		) ) {
 			return true;
 		} else {
 			return false;

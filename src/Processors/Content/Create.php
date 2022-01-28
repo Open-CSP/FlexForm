@@ -32,16 +32,16 @@ class Create {
 
 		$this->content = ContentCore::createContent();
 
-		if (strpos( $fields['writepage'],'[') !== false) {
+		if ( strpos( $fields['writepage'], '[' ) !== false ) {
 			$fields['writepage'] = ContentCore::parseTitle( $fields['writepage'] );
 		}
 
 		$this->title = $fields['writepage'];
 
-		if( strtolower( $fields['option'] ) == 'next_available' ) {
+		if ( strtolower( $fields['option'] ) == 'next_available' ) {
 			// get highest number
 			$hnr = ContentCore::getNextAvailable( $this->title );
-			if( $hnr['status'] !== 'error') {
+			if( $hnr['status'] !== 'error' ) {
 				$this->title = $fields['writepage'] . $hnr['result'];
 			} else {
 				throw new WSFormException( $hnr['message'] );

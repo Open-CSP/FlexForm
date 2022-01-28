@@ -27,40 +27,39 @@ class Render {
 	 * @return array
 	 */
 	public function getSlotContent( $id, string $slotName = 'main' ) : array {
-		$ret            = array();
-		if( is_integer( $id ) ) {
-			$id = (int) ( $id );
+		$ret = [];
+		if ( is_int( $id ) ) {
 			$page           = WikiPage::newFromId( $id );
 		} elseif ( is_string( $id ) ) {
 			$titleObject = Title::newFromText( $id );
 			try {
 				$page = WikiPage::factory( $titleObject );
 			} catch ( MWException $e ) {
-			throw new WSFormException(
-				"Could not create a WikiPage Object from title " . $titleObject->getText(
-				) . '. Message ' . $e->getMessage(),
-				0,
-				$e
-			);
-		}
+				throw new WSFormException(
+					"Could not create a WikiPage Object from title " . $titleObject->getText(
+					) . '. Message ' . $e->getMessage(),
+					0,
+					$e
+				);
+			}
 		}
 
 		$ret['content'] = '';
 		$ret['title']   = '';
 
 		if ( $page === false || $page === null ) {
-			return $ret;;
+			return $ret;
 		}
 
 		$ret['title']    = $page->getTitle()->getFullText();
 		$latest_revision = $page->getRevisionRecord();
 		if ( $latest_revision === null ) {
-			return $ret;;
+			return $ret;
 		}
 		if ( $latest_revision->hasSlot( $slotName ) ) {
 			$content_object = $latest_revision->getContent( $slotName );
 			if ( $content_object === null ) {
-				return $ret;;
+				return $ret;
 			}
 
 			$content_handler = $content_object->getContentHandler( $content_object );
