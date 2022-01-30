@@ -274,7 +274,7 @@ class ContentCore {
 			}
 		}
 		$response_handler->setMwReturn( self::$fields['returnto'] );
-		if( $email === 'get' ){
+		if ( $email === 'get' ) {
 			$get = new Get();
 			$response_handler = $get->createGet( $response_handler );
 		}

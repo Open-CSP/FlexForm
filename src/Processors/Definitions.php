@@ -45,12 +45,7 @@ class Definitions {
 	public static function mailFields() : array {
 		return [
 			'to'         => General::getPostString( 'mwmailto' ),
-			'from'       => General::getPostString( 'mwmailfrom' ),
-			'subject'    => General::getPostString( 'mwmailsubject' ),
 			'content'    => General::getPostString( 'mwmailcontent' ),
-			'cc'         => General::getPostString( 'mwmailcc' ),
-			'bcc'        => General::getPostString( 'mwmailbcc' ),
-			'replyto'    => General::getPostString( 'mwmailreplyto' ),
 			'header'     => General::getPostString( 'mwmailheader' ),
 			'footer'     => General::getPostString( 'mwmailfooter' ),
 			'mtemplate'  => General::getPostString( 'mwmailtemplate' ),
