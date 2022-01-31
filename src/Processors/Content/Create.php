@@ -10,11 +10,11 @@
 
 namespace WSForm\Processors\Content;
 
-use WSForm\Core\Debug;
 use WSForm\Core\Config;
-use WSForm\Processors\Content\ContentCore;
+use WSForm\Core\Debug;
 use WSForm\Processors\Definitions;
 use WSForm\Processors\Security\wsSecurity;
+use WSForm\Processors\Utilities\General;
 use WSForm\WSFormException;
 
 class Create {
@@ -25,7 +25,9 @@ class Create {
 	private $pageData;
 
 	/**
+	 * @return array
 	 * @throws WSFormException
+	 * @throws \MWException
 	 */
 	public function writePage() {
 		$fields = ContentCore::getFields();
@@ -72,12 +74,12 @@ class Create {
 				$range
 			);
 
-			if ( ! ctype_digit( $rangeCheck[0] ) || ! ctype_digit( $rangeCheck[1] ) ) {
+			if ( !ctype_digit( $rangeCheck[0] ) || !ctype_digit( $rangeCheck[1] ) ) {
 				throw new WSFormException( wfMessage( 'wsform-mwoption-bad-range' ) );
 				// return wbHandleResponses::createMsg($i18n->wsMessage( 'wsform-mwoption-bad-range' ), 'error', $returnto);
 			}
 
-			//$startRange = (int)$range[0];
+			// $startRange = (int)$range[0];
 			//$endRange = (int)$range[1];
 
 			//$tmp  = $api->getWikiListNumber($title, array('start' => $startRange, 'end' => $endRange) );
@@ -86,9 +88,9 @@ class Create {
 				$range
 			);
 			if ( $rangeResult['status'] === 'error' ) {
-				//echo $tmp['message'];
+				// echo $tmp['message'];
 				throw new WSFormException( $rangeResult['message'] );
-				//return wbHandleResponses::createMsg( $tmp['message'], 'error', $returnto);
+				// return wbHandleResponses::createMsg( $tmp['message'], 'error', $returnto);
 			}
 			$rangeResult = $rangeResult['result'];
 			/*
@@ -112,7 +114,7 @@ class Create {
 			$this->title = $fields['writepage'] . ContentCore::createRandom();
 		}
 
-		if ( ! $fields['writepage'] ) {
+		if ( !$fields['writepage'] ) {
 			throw new WSFormException( wfMessage( 'wsform-mwcreate-wrong-title' )->text() );
 			// return wbHandleResponses::createMsg( $i18n->wsMessage( 'wsform-mwcreate-wrong-title') );
 
@@ -138,7 +140,12 @@ class Create {
 		$this->pageData['formFields'] = false;
 	}
 
-	private function setPageDataMultiple( $page ) {
+	/**
+	 * @param string $page
+	 *
+	 * @return void
+	 */
+	private function setPageDataMultiple( string $page ) {
 		$exploded = explode(
 			'-^^-',
 			$page
@@ -193,7 +200,6 @@ class Create {
 		}
 	}
 
-
 	/**
 	 * @return array
 	 * @throws WSFormException
@@ -205,11 +211,11 @@ class Create {
 		foreach ( $fields['writepages'] as $singlePage ) {
 			$pageCount++;
 			$this->setPageDataMultiple( $singlePage );
-			//If we do not have a page title or a template, then skip!
+			// If we do not have a page title or a template, then skip!
 			if ( $this->pageData['template'] === false || $this->pageData['title'] === false ) {
 				continue;
 			}
-			if ( ! $this->pageData['notemplate'] ) {
+			if ( !$this->pageData['notemplate'] ) {
 				$this->content = "{{" . $this->pageData['template'] . "\n";
 			}
 			$this->addPostFieldsToContent();
@@ -252,18 +258,18 @@ class Create {
 					'-',
 					$range
 				);
-				if ( ! ctype_digit( $rangeCheck[0] ) || ! ctype_digit( $rangeCheck[1] ) ) {
+				if ( !ctype_digit( $rangeCheck[0] ) || !ctype_digit( $rangeCheck[1] ) ) {
 					throw new WSFormException( wfMessage( 'wsform-mwoption-bad-range' ) );
-					//return wbHandleResponses::createMsg($i18n->wsMessage( 'wsform-mwoption-bad-range' ), 'error', $returnto);
+					// return wbHandleResponses::createMsg($i18n->wsMessage( 'wsform-mwoption-bad-range' ), 'error', $returnto);
 				}
 				$rangeResult = ContentCore::getFromRange(
 					$this->pageData['title'],
 					$range
 				);
 				if ( $rangeResult['status'] === 'error' ) {
-					//echo $tmp['message'];
+					// echo $tmp['message'];
 					throw new WSFormException( $rangeResult['message'] );
-					//return wbHandleResponses::createMsg( $tmp['message'], 'error', $returnto);
+					// return wbHandleResponses::createMsg( $tmp['message'], 'error', $returnto);
 				}
 				$rangeResult = $rangeResult['result'];
 
@@ -344,7 +350,7 @@ class Create {
 	 */
 	private function addCreateToTitle( array $pagesToSave ) : array {
 		foreach ( $pagesToSave as $k => $pageToSave ) {
-			//var_dump(substr( trim( $pageToSave[0] ), 0, 6 ) );
+			// var_dump(substr( trim( $pageToSave[0] ), 0, 6 ) );
 			if ( substr(
 					 $pageToSave[0],
 					 0,
@@ -362,7 +368,7 @@ class Create {
 						6
 					)
 				);
-				//var_dump( $idTitle );
+				// var_dump( $idTitle );
 				if ( isset( $pageTitleToLinkTo[$idTitle] ) ) {
 					$pagesToSave[$k][0] = $pageTitleToLinkTo[$idTitle];
 				}
@@ -378,10 +384,10 @@ class Create {
 	private function addPostFieldsToContent() {
 		foreach ( $_POST as $k => $v ) {
 			if ( is_array( $this->pageData['formFields'] ) ) {
-				if ( ! in_array(
+				if ( !in_array(
 						General::makeSpaceFromUnderscore( $k ),
 						$this->pageData['formFields']
-					) && ! in_array(
+					) && !in_array(
 						$k,
 						$this->pageData['formFields']
 					) ) {
@@ -391,16 +397,16 @@ class Create {
 			if ( is_array( $v ) ) {
 				$this->content .= "|" . General::makeSpaceFromUnderscore( $k ) . "=";
 				foreach ( $v as $multiple ) {
-					$this->content .= cleanBraces( $multiple ) . ',';
+					$this->content .= wsSecurity::cleanBraces( $multiple ) . ',';
 				}
 				$this->content = rtrim(
 									 $this->content,
 									 ','
 								 ) . PHP_EOL;
 			} else {
-				if ( ! isWSFormSystemField( $k ) && $v != "" ) {
-					//if ( $k !== "mwtemplate" && $k !== "mwoption" && $k !== "mwwrite" && $k !== "mwreturn" && $k !== "mwedit" && $v != "" ) {
-					if ( ! $this->pageData['notemplate'] ) {
+				if ( !Definitions::isWSFormSystemField( $k ) && $v != "" ) {
+					// if ( $k !== "mwtemplate" && $k !== "mwoption" && $k !== "mwwrite" && $k !== "mwreturn" && $k !== "mwedit" && $v != "" ) {
+					if ( !$this->pageData['notemplate'] ) {
 						$this->content .= '|' . General::makeSpaceFromUnderscore( $k ) . '=' . wsSecurity::cleanBraces(
 								$v
 							) . PHP_EOL;
@@ -410,10 +416,9 @@ class Create {
 				}
 			}
 		}
-		if ( ! $this->pageData['notemplate'] ) {
+		if ( !$this->pageData['notemplate'] ) {
 			$this->content .= "}}";
 		}
 	}
-
 
 }
