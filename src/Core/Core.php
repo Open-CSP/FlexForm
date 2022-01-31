@@ -146,7 +146,7 @@ class Core {
 			$js = 'wachtff( WsShowOnSelect, true );';
 			//wsform::includeInlineScript( $js );
 			$realUrl = str_replace( '/index.php', '', $wgScript );
-			$jsFile = '<script type="text/javascript" charset="UTF-8" src="' . $realUrl . '/extensions/WSForm/modules/showOnSelect/WSShowOnSelect.js"></script>' . "\n";
+			$jsFile = '<script type="text/javascript" charset="UTF-8" src="' . $realUrl . '/extensions/WSForm/Modules/showOnSelect/WSShowOnSelect.js"></script>' . "\n";
 			$jsFile .= '<script>' . $js . '</script>';
 			self::addAsLoaded( 'ShowOnSelect' );
 			return $jsFile;

@@ -31,7 +31,7 @@ class Query {
 		$i18n     = new wsi18n();
 		$external = wsUtilities::getGetString( 'handler' );
 		if ( $external !== false ) {
-			$extensionsFolder = $IP . "/extensions/WSForm/modules/handlers/queries/";
+			$extensionsFolder = $IP . "/extensions/WSForm/Modules/handlers/queries/";
 			if ( file_exists( $extensionsFolder . $external . '/query-handler.php' ) ) {
 				include_once( $extensionsFolder . $external . '/query-handler.php' );
 			} else {

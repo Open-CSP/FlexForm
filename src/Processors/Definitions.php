@@ -124,7 +124,8 @@ class Definitions {
 			"mwtoken",
 			"wsuid",
 			"mwwikicomment",
-			"mwleadingzero"
+			"mwleadingzero",
+			"showonselect"
 		];
 		if ( in_array(
 			strtolower( $field ),

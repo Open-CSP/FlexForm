@@ -155,7 +155,7 @@ class Upload {
 
 		$upload_dir = $IP . "/extensions/WSForm/uploads/";
 
-		include_once( $IP . '/extensions/WSForm/modules/slim/server/slim.php' );
+		include_once( $IP . '/extensions/WSForm/<odules/slim/server/slim.php' );
 		// Get posted data
 		$images = Slim::getImages( 'wsformfile_slim' );
 
