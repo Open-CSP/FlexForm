@@ -425,7 +425,9 @@ class Edit {
 						$edit['val']
 					);
 					if ( $templateContent === false ) {
-						$result['received']['error'][] = 'Template: ' . $edit['template'] . ' where variable:' . $edit['find'] . '=' . $edit['val'] . ' not found';
+						$rslt = 'Template: ' . $edit['template'];
+						$rslt .= ' where variable:' . $edit['find'] . '=' . $edit['val'] . ' not found';
+						$result['received']['error'][] = $rslt;
 					}
 				} else {
 					$templateContent = $this->getTemplate(

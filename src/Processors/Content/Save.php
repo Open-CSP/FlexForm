@@ -49,7 +49,7 @@ class Save {
 		string $summary
 	) {
 		$status              = true;
-		$errors              = array();
+		$errors              = [];
 		$title_object        = $wikipage_object->getTitle();
 		$page_updater        = $wikipage_object->newPageUpdater( $user );
 		$old_revision_record = $wikipage_object->getRevisionRecord();
@@ -206,5 +206,4 @@ class Save {
 			);
 		}
 	}
-
 }

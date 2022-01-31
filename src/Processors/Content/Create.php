@@ -29,7 +29,7 @@ class Create {
 	 * @throws WSFormException
 	 * @throws \MWException
 	 */
-	public function writePage() {
+	public function writePage(): array {
 		$fields = ContentCore::getFields();
 
 		$this->content = ContentCore::createContent();
@@ -57,7 +57,6 @@ class Create {
 			//$title = $writepage . $api->getWikiListNumber($title);
 			if ( $this->title === false ) {
 				throw new WSFormException( wfMessage( 'wsform-mwcreate-wrong-title2' )->text() );
-				// return wbHandleResponses::createMsg($i18n->wsMessage( 'wsform-mwcreate-wrong-title2' ), 'error', $returnto);
 			}
 		}
 		if ( substr(
@@ -76,7 +75,6 @@ class Create {
 
 			if ( !ctype_digit( $rangeCheck[0] ) || !ctype_digit( $rangeCheck[1] ) ) {
 				throw new WSFormException( wfMessage( 'wsform-mwoption-bad-range' ) );
-				// return wbHandleResponses::createMsg($i18n->wsMessage( 'wsform-mwoption-bad-range' ), 'error', $returnto);
 			}
 
 			// $startRange = (int)$range[0];
@@ -93,11 +91,7 @@ class Create {
 				// return wbHandleResponses::createMsg( $tmp['message'], 'error', $returnto);
 			}
 			$rangeResult = $rangeResult['result'];
-			/*
-			if($tmp === false) {
-				return wbHandleResponses::createMsg($i18n->wsMessage('wsform-mwoption-out-of-range'), 'error', $returnto);
-			}
-			*/
+
 			if ( $fields['leadByZero'] === true ) {
 				$endrangeLength = strlen( $rangeCheck[1] );
 				$rangeResult    = str_pad(
@@ -127,7 +121,12 @@ class Create {
 		];
 	}
 
-	private function setPageData( $fields ) {
+	/**
+	 * @param array $fields
+	 *
+	 * @return void
+	 */
+	private function setPageData( array $fields ) {
 		$this->pageData['template'] = $fields['template'];
 		if ( strtolower( $this->pageData['template'] ) === 'wsnone' ) {
 			$this->pageData['notemplate'] = true;
@@ -242,7 +241,6 @@ class Create {
 			}
 			if ( $this->pageData['title'] === false ) {
 				throw new WSFormException( wfMessage( 'wsform-mwcreate-wrong-title2' )->text() );
-				// return wbHandleResponses::createMsg($i18n->wsMessage( 'wsform-mwcreate-wrong-title2' ), 'error', $returnto);
 			}
 
 			if ( substr(
@@ -260,7 +258,6 @@ class Create {
 				);
 				if ( !ctype_digit( $rangeCheck[0] ) || !ctype_digit( $rangeCheck[1] ) ) {
 					throw new WSFormException( wfMessage( 'wsform-mwoption-bad-range' ) );
-					// return wbHandleResponses::createMsg($i18n->wsMessage( 'wsform-mwoption-bad-range' ), 'error', $returnto);
 				}
 				$rangeResult = ContentCore::getFromRange(
 					$this->pageData['title'],
@@ -405,7 +402,8 @@ class Create {
 								 ) . PHP_EOL;
 			} else {
 				if ( !Definitions::isWSFormSystemField( $k ) && $v != "" ) {
-					// if ( $k !== "mwtemplate" && $k !== "mwoption" && $k !== "mwwrite" && $k !== "mwreturn" && $k !== "mwedit" && $v != "" ) {
+					// if ( $k !== "mwtemplate" && $k !== "mwoption" && $k !== "mwwrite" &&
+					// $k !== "mwreturn" && $k !== "mwedit" && $v != "" ) {
 					if ( !$this->pageData['notemplate'] ) {
 						$this->content .= '|' . General::makeSpaceFromUnderscore( $k ) . '=' . wsSecurity::cleanBraces(
 								$v
