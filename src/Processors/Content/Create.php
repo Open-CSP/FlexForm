@@ -10,10 +10,11 @@
 
 namespace WSForm\Processors\Content;
 
-use Debug;
+use WSForm\Core\Debug;
 use WSForm\Core\Config;
 use WSForm\Processors\Content\ContentCore;
 use WSForm\Processors\Definitions;
+use WSForm\Processors\Security\wsSecurity;
 use WSForm\WSFormException;
 
 class Create {
@@ -27,12 +28,14 @@ class Create {
 	 * @throws WSFormException
 	 */
 	public function writePage() {
-
 		$fields = ContentCore::getFields();
 
 		$this->content = ContentCore::createContent();
 
-		if ( strpos( $fields['writepage'], '[' ) !== false ) {
+		if ( strpos(
+				 $fields['writepage'],
+				 '['
+			 ) !== false ) {
 			$fields['writepage'] = ContentCore::parseTitle( $fields['writepage'] );
 		}
 
@@ -41,36 +44,48 @@ class Create {
 		if ( strtolower( $fields['option'] ) == 'next_available' ) {
 			// get highest number
 			$hnr = ContentCore::getNextAvailable( $this->title );
-			if( $hnr['status'] !== 'error' ) {
+			if ( $hnr['status'] !== 'error' ) {
 				$this->title = $fields['writepage'] . $hnr['result'];
 			} else {
 				throw new WSFormException( $hnr['message'] );
-				//return wbHandleResponses::createMsg( $hnr['message'], 'error', $returnto);
+				// return wbHandleResponses::createMsg( $hnr['message'], 'error', $returnto);
 			}
-			//$title = $writepage . $api->getNextAvailable( $title );
+			// $title = $writepage . $api->getNextAvailable( $title );
 			//die( $title );
 			//$title = $writepage . $api->getWikiListNumber($title);
-			if( $this->title === false ) {
+			if ( $this->title === false ) {
 				throw new WSFormException( wfMessage( 'wsform-mwcreate-wrong-title2' )->text() );
-				//return wbHandleResponses::createMsg($i18n->wsMessage( 'wsform-mwcreate-wrong-title2' ), 'error', $returnto);
+				// return wbHandleResponses::createMsg($i18n->wsMessage( 'wsform-mwcreate-wrong-title2' ), 'error', $returnto);
 			}
 		}
-		if ( substr( strtolower( $fields['option'] ) ,0,6 ) === 'range:' ) {
-			$range = substr( $fields['option'],6 );
-			$rangeCheck = explode('-', $range);
+		if ( substr(
+				 strtolower( $fields['option'] ),
+				 0,
+				 6
+			 ) === 'range:' ) {
+			$range      = substr(
+				$fields['option'],
+				6
+			);
+			$rangeCheck = explode(
+				'-',
+				$range
+			);
 
-			if( !ctype_digit( $rangeCheck[0] ) || !ctype_digit( $rangeCheck[1] ) ) {
+			if ( ! ctype_digit( $rangeCheck[0] ) || ! ctype_digit( $rangeCheck[1] ) ) {
 				throw new WSFormException( wfMessage( 'wsform-mwoption-bad-range' ) );
-				//return wbHandleResponses::createMsg($i18n->wsMessage( 'wsform-mwoption-bad-range' ), 'error', $returnto);
+				// return wbHandleResponses::createMsg($i18n->wsMessage( 'wsform-mwoption-bad-range' ), 'error', $returnto);
 			}
 
 			//$startRange = (int)$range[0];
 			//$endRange = (int)$range[1];
 
-
 			//$tmp  = $api->getWikiListNumber($title, array('start' => $startRange, 'end' => $endRange) );
-			$rangeResult  = ContentCore::getFromRange( $this->title, $range );
-			if( $rangeResult['status'] === 'error') {
+			$rangeResult = ContentCore::getFromRange(
+				$this->title,
+				$range
+			);
+			if ( $rangeResult['status'] === 'error' ) {
 				//echo $tmp['message'];
 				throw new WSFormException( $rangeResult['message'] );
 				//return wbHandleResponses::createMsg( $tmp['message'], 'error', $returnto);
@@ -81,11 +96,14 @@ class Create {
 				return wbHandleResponses::createMsg($i18n->wsMessage('wsform-mwoption-out-of-range'), 'error', $returnto);
 			}
 			*/
-			if( $fields['leadByZero'] === true ) {
-
-				$endrangeLength = strlen($rangeCheck[1]);
-				$rangeResult = str_pad( $rangeResult, $endrangeLength, '0', STR_PAD_LEFT );
-
+			if ( $fields['leadByZero'] === true ) {
+				$endrangeLength = strlen( $rangeCheck[1] );
+				$rangeResult    = str_pad(
+					$rangeResult,
+					$endrangeLength,
+					'0',
+					STR_PAD_LEFT
+				);
 			}
 			$this->title = $fields['writepage'] . $rangeResult;
 		}
@@ -94,60 +112,85 @@ class Create {
 			$this->title = $fields['writepage'] . ContentCore::createRandom();
 		}
 
-
 		if ( ! $fields['writepage'] ) {
-			throw new WSFormException( wfMessage( 'wsform-mwcreate-wrong-title')->text() );
-			//return wbHandleResponses::createMsg( $i18n->wsMessage( 'wsform-mwcreate-wrong-title') );
+			throw new WSFormException( wfMessage( 'wsform-mwcreate-wrong-title' )->text() );
+			// return wbHandleResponses::createMsg( $i18n->wsMessage( 'wsform-mwcreate-wrong-title') );
 
 		}
+
 		// Return the result
-		return array( 'title' => $this->title, 'content' => $this->content );
+		return [
+			'title'   => $this->title,
+			'content' => $this->content
+		];
 	}
 
-	private function setPageData( $fields ){
+	private function setPageData( $fields ) {
 		$this->pageData['template'] = $fields['template'];
-		if( strtolower( $this->pageData['template'] ) === 'wsnone' ) {
+		if ( strtolower( $this->pageData['template'] ) === 'wsnone' ) {
 			$this->pageData['notemplate'] = true;
-		} else $this->pageData['notemplate'] = false;
-		$this->pageData['title'] = $fields['writepage'];
-		$this->pageData['option'] = $fields['writepage'];
-		$this->pageData['slot'] = $fields['slot'];
+		} else {
+			$this->pageData['notemplate'] = false;
+		}
+		$this->pageData['title']      = $fields['writepage'];
+		$this->pageData['option']     = $fields['writepage'];
+		$this->pageData['slot']       = $fields['slot'];
 		$this->pageData['formFields'] = false;
 	}
 
-	private function setPageDataMultiple( $page ){
-		$exploded = explode( '-^^-', $page );
-		if( isset( $exploded[0] ) && $exploded[0] !== '' ) {
+	private function setPageDataMultiple( $page ) {
+		$exploded = explode(
+			'-^^-',
+			$page
+		);
+		if ( isset( $exploded[0] ) && $exploded[0] !== '' ) {
 			$this->pageData['template'] = $this->pageData[0];
-			if( strtolower( $this->pageData[0] ) === 'wsnone' ) {
+			if ( strtolower( $this->pageData[0] ) === 'wsnone' ) {
 				$this->pageData['notemplate'] = true;
-			} else $this->pageData['notemplate'] = false;
+			} else {
+				$this->pageData['notemplate'] = false;
+			}
 		} else {
-			$this->pageData['template'] = false;
+			$this->pageData['template']   = false;
 			$this->pageData['notemplate'] = false;
 		}
 
-		if( isset( $exploded[1] ) && $exploded[1] !== '' ) {
+		if ( isset( $exploded[1] ) && $exploded[1] !== '' ) {
 			$this->pageData['title'] = $this->pageData[1];
-		} else $this->pageData['title'] = false;
+		} else {
+			$this->pageData['title'] = false;
+		}
 
-		if( isset( $exploded[2] ) && $exploded[2] !== '' ) {
+		if ( isset( $exploded[2] ) && $exploded[2] !== '' ) {
 			$this->pageData['option'] = $this->pageData[2];
-		} else $this->pageData['option'] = false;
+		} else {
+			$this->pageData['option'] = false;
+		}
 
-		if( isset( $exploded[3] ) && $exploded[3] !== '' ) {
-			$formFields = explode( ',', $this->pageData[3] );
-			$this->pageData['formFields'] = array_map( 'trim', $formFields );
-		} else $this->pageData['formFields'] = false;
+		if ( isset( $exploded[3] ) && $exploded[3] !== '' ) {
+			$formFields                   = explode(
+				',',
+				$this->pageData[3]
+			);
+			$this->pageData['formFields'] = array_map(
+				'trim',
+				$formFields
+			);
+		} else {
+			$this->pageData['formFields'] = false;
+		}
 
-		if( isset( $exploded[4] ) && $exploded[4] !== '' ) {
+		if ( isset( $exploded[4] ) && $exploded[4] !== '' ) {
 			$this->pageData['slot'] = $this->pageData[4];
-		} else $this->pageData['slot'] = false;
+		} else {
+			$this->pageData['slot'] = false;
+		}
 
-		if( isset( $exploded[5] ) && $exploded[5] !== '' ) {
+		if ( isset( $exploded[5] ) && $exploded[5] !== '' ) {
 			$this->pageData['id'] = $this->pageData[5];
-		} else $this->pageData['id'] = false;
-
+		} else {
+			$this->pageData['id'] = false;
+		}
 	}
 
 
@@ -188,12 +231,12 @@ class Create {
 					$this->pageData['title'] = $this->pageData['title'] . $hnr['result'];
 				} else {
 					throw new WSFormException( $hnr['message'] );
-					//return wbHandleResponses::createMsg( $hnr['message'], 'error', $returnto);
+					// return wbHandleResponses::createMsg( $hnr['message'], 'error', $returnto);
 				}
 			}
 			if ( $this->pageData['title'] === false ) {
 				throw new WSFormException( wfMessage( 'wsform-mwcreate-wrong-title2' )->text() );
-				//return wbHandleResponses::createMsg($i18n->wsMessage( 'wsform-mwcreate-wrong-title2' ), 'error', $returnto);
+				// return wbHandleResponses::createMsg($i18n->wsMessage( 'wsform-mwcreate-wrong-title2' ), 'error', $returnto);
 			}
 
 			if ( substr(
@@ -245,12 +288,12 @@ class Create {
 			if ( false !== $this->pageData['id'] ) {
 				$pageTitleToLinkTo[strtolower( $this->pageData['id'] )] = $this->pageData['title'];
 			}
-			$pagesToSave[] = array(
+			$pagesToSave[] = [
 				$this->pageData['title'],
 				$this->content,
 				$fields['summary'],
 				$this->pageData['slot']
-			);
+			];
 		}
 
 		if ( Config::isDebug() ) {
@@ -261,32 +304,14 @@ class Create {
 		}
 
 		$pagesToSave = $this->addCreateToTitle( $pagesToSave );
-		$finalPages = $this->createFinalPages( $pagesToSave );
-		if( Config::isDebug() ) {
-			Debug::addToDebug( '$finalPages', $finalPages );
-		}
-		return $finalPages;
-
-	}
-
-	/**
-	 * @param array $pagesToSave
-	 *
-	 * @return array
-	 */
-	private function createFinalPages( array $pagesToSave ):array {
-		$finalPages = array();
-		foreach ( $pagesToSave as $k => $pageToSave ){
-			//print_r( $pageToSave );
-			$title = $pageToSave[0]; //$ret, $summary, $writePageSlot
-			$summary = $pageToSave[2];
-			$slot = array( $pageToSave[3] => $pageToSave[1] );
-			$pArray = array(
-				'slot' => $slot,
-				'summary' => $summary
+		$finalPages  = $this->createFinalPages( $pagesToSave );
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'$finalPages',
+				$finalPages
 			);
-			$finalPages[ $title ][] = $pArray;
 		}
+
 		return $finalPages;
 	}
 
@@ -295,50 +320,97 @@ class Create {
 	 *
 	 * @return array
 	 */
-	private function addCreateToTitle( array $pagesToSave ): array {
-		foreach( $pagesToSave as $k => $pageToSave ){
+	private function createFinalPages( array $pagesToSave ) : array {
+		$finalPages = [];
+		foreach ( $pagesToSave as $k => $pageToSave ) {
+			// print_r( $pageToSave );
+			$title                = $pageToSave[0]; // $ret, $summary, $writePageSlot
+			$summary              = $pageToSave[2];
+			$slot                 = [ $pageToSave[3] => $pageToSave[1] ];
+			$pArray               = [
+				'slot'    => $slot,
+				'summary' => $summary
+			];
+			$finalPages[$title][] = $pArray;
+		}
+
+		return $finalPages;
+	}
+
+	/**
+	 * @param array $pagesToSave
+	 *
+	 * @return array
+	 */
+	private function addCreateToTitle( array $pagesToSave ) : array {
+		foreach ( $pagesToSave as $k => $pageToSave ) {
 			//var_dump(substr( trim( $pageToSave[0] ), 0, 6 ) );
-			if( substr( $pageToSave[0], 0, 6 ) === '--id--' || substr( $pageToSave[0], 0, 6 ) === '::id::' ){
+			if ( substr(
+					 $pageToSave[0],
+					 0,
+					 6
+				 ) === '--id--' || substr(
+									   $pageToSave[0],
+									   0,
+									   6
+								   ) === '::id::' ) {
 				// We need to append a create to a title
 				//echo "ok";
-				$idTitle = strtolower( substr( $pageToSave[0], 6 ) );
+				$idTitle = strtolower(
+					substr(
+						$pageToSave[0],
+						6
+					)
+				);
 				//var_dump( $idTitle );
-				if( isset( $pageTitleToLinkTo[$idTitle] ) ) {
+				if ( isset( $pageTitleToLinkTo[$idTitle] ) ) {
 					$pagesToSave[$k][0] = $pageTitleToLinkTo[$idTitle];
 				}
 			}
-			if( $pageToSave[3] === false ) {
+			if ( $pageToSave[3] === false ) {
 				$pagesToSave[$k][3] = 'main';
 			}
 		}
+
 		return $pagesToSave;
 	}
 
-	private function addPostFieldsToContent(){
+	private function addPostFieldsToContent() {
 		foreach ( $_POST as $k => $v ) {
 			if ( is_array( $this->pageData['formFields'] ) ) {
-				if ( !in_array( makeSpaceFromUnderscore( $k ), $this->pageData['formFields'] ) && !in_array( $k, $this->pageData['formFields'] ) ) {
+				if ( ! in_array(
+						General::makeSpaceFromUnderscore( $k ),
+						$this->pageData['formFields']
+					) && ! in_array(
+						$k,
+						$this->pageData['formFields']
+					) ) {
 					continue;
 				}
 			}
 			if ( is_array( $v ) ) {
-				$this->content .= "|" . makeSpaceFromUnderscore( $k ) . "=";
+				$this->content .= "|" . General::makeSpaceFromUnderscore( $k ) . "=";
 				foreach ( $v as $multiple ) {
 					$this->content .= cleanBraces( $multiple ) . ',';
 				}
-				$this->content = rtrim( $this->content, ',' ) . PHP_EOL;
+				$this->content = rtrim(
+									 $this->content,
+									 ','
+								 ) . PHP_EOL;
 			} else {
-				if ( !isWSFormSystemField($k) && $v != "" ) {
+				if ( ! isWSFormSystemField( $k ) && $v != "" ) {
 					//if ( $k !== "mwtemplate" && $k !== "mwoption" && $k !== "mwwrite" && $k !== "mwreturn" && $k !== "mwedit" && $v != "" ) {
-					if( !$this->pageData['notemplate'] ) {
-						$this->content .= '|' . makeSpaceFromUnderscore($k) . '=' . cleanBraces( $v ) . PHP_EOL;
+					if ( ! $this->pageData['notemplate'] ) {
+						$this->content .= '|' . General::makeSpaceFromUnderscore( $k ) . '=' . wsSecurity::cleanBraces(
+								$v
+							) . PHP_EOL;
 					} else {
 						$this->content = $v;
 					}
 				}
 			}
 		}
-		if( !$this->pageData['notemplate'] ) {
+		if ( ! $this->pageData['notemplate'] ) {
 			$this->content .= "}}";
 		}
 	}
