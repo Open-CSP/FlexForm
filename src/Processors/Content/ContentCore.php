@@ -274,6 +274,23 @@ class ContentCore {
 			}
 		}
 		$response_handler->setMwReturn( self::$fields['returnto'] );
+
+		if ( $email === "yes" ) {
+			$mail = new Mail();
+			// Handling template
+			if ( $mail->getTemplate() !== false ) {
+				try {
+					$mail->handleTemplate();
+
+				} catch ( WSFormException $e ) {
+					throw new WSFormException(
+						$e->getMessage(),
+						0,
+						$e
+					);
+				}
+			}
+		}
 		if ( $email === 'get' ) {
 			$get = new Get();
 			$response_handler = $get->createGet( $response_handler );

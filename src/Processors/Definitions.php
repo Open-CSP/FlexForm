@@ -51,7 +51,12 @@ class Definitions {
 			'mtemplate'  => General::getPostString( 'mwmailtemplate' ),
 			'mjob'       => General::getPostString( 'mwmailjob' ),
 			'html'       => General::getPostString( 'mwmailhtml' ),
-			'attachment' => General::getPostString( 'mwmailattachment' )
+			'attachment' => General::getPostString( 'mwmailattachment' ),
+			'from'       => false,
+			'cc'         => false,
+			'bcc'        => false,
+			'reply-to'   => false,
+			'subject'    => false
 		];
 	}
 

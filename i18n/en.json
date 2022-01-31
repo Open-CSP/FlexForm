@@ -40,6 +40,13 @@
 	"wsform-unverified-email2" : "<p>Please do it now by clicking on <a href=\"/index.php/Special:ConfirmEmail\">this link</a></p>\n</div>",
 	"wsform-anonymous-user" : "<br><div class=\"alert alert-warning\" role=\"alert\">\n <p>Please log in first.</p></div>",
 
+	"wsform-mail-no-to" : "Cannot send message. No TO",
+	"wsform-mail-no-from" : "Cannot send message. No FROM",
+	"wsform-mail-no-subject" : "Cannot send message. No SUBJECT",
+	"wsform-mail-no-content" : "Cannot send message. No CONTENT",
+	"wsform-mail-no-phpmailer" : "Cannot find Mailing library",
+	"wsform-mail-no-smtp-library" : "Cannot find smtp mail library",
+
 	"wsform-docs-create-new-doc" : "Create new documentation",
 	"wsform-docs-create-new-example" : "Create new example",
 	"wsform-docs-information" : "Information",

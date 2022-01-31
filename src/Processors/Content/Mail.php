@@ -10,6 +10,8 @@
 
 namespace WSForm\Processors\Content;
 
+use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\PHPMailer;
 use WSForm\Core\Config;
 use WSForm\Core\Debug;
 use WSForm\Processors\Definitions;
@@ -123,7 +125,7 @@ class Mail {
 	 *
 	 * @return string
 	 */
-	private function placeValuesInTemplate( string $content ) {
+	private function placeValuesInTemplate( string $content ): string {
 		// Get all form elements and replace in Template
 		foreach ( $_POST as $k => $v ) {
 			if ( Definitions::isWSFormSystemField( $k ) ) {
@@ -142,7 +144,7 @@ class Mail {
 				} else {
 					$content = str_replace(
 						'$' . $k,
-						cleanBraces( $v ),
+						wsSecurity::cleanBraces( $v ),
 						$content
 					);
 				}
@@ -163,18 +165,7 @@ class Mail {
 	 */
 	private function getTemplateValueAndDelete( string $template ) : string {
 		// echo "searching for $name";
-		$fieldToGetAndReplace = [
-			'to',
-			'from',
-			'cc',
-			'bcc',
-			'reply-to',
-			'header',
-			'footer',
-			'html',
-			'subject',
-			'content'
-		];
+		$fieldToGetAndReplace = array_keys( $this->fields );
 		foreach ( $fieldToGetAndReplace as $field ) {
 			$regex = '#%ws_' . $field . '=(.*?)%#';
 			preg_match(
@@ -264,12 +255,154 @@ class Mail {
 			$this->fields['header'] = $header;
 		}
 		if ( $to !== false ) {
+			if ( strpos( $to, 'user:' ) ) {
+				$to = str_replace( 'user:', '', $to );
+			}
 			$this->fields['to'] = $to;
 		}
 		// END Always overrule form fields over template values
+		$this->createEmailBody();
+		if ( $this->fields['html'] === false || $this->fields['html'] === 'yes' ) {
+			$this->fields['html'] = true;
+		} else {
+			$this->fields['html'] = false;
+		}
+		$this->checkFieldsNeeded();
+	}
 
+	/**
+	 * @return void
+	 * @throws WSFormException
+	 */
+	private function sendMail(){
+		global $IP;
+		if ( file_exists( $IP . '/extensions/WSForm/Modules/pm/src/Exception.php' ) ) {
+			require_once $IP . '/extensions/WSForm/Modules/pm/src/Exception.php';
+		} else {
+			throw new WSFormException( wfMessage( 'wsform-mail-no-phpmailer' )->text(), 0 );
+		}
+		if ( file_exists( $IP . '/extensions/WSForm/Modules/pm/src/PHPMailer.php' ) ) {
+			require_once $IP . '/extensions/WSForm/Modules/pm/src/PHPMailer.php';
+		} else {
+			throw new WSFormException( wfMessage( 'wsform-mail-no-phpmailer' )->text(), 0 );
+		}
+		if ( Config::getConfigVariable( 'use_smtp' ) !== false ) {
+			if ( file_exists( $IP . '/extensions/WSForm/Modules/pm/src/SMTP.php' ) ) {
+				require_once $IP . '/extensions/WSForm/Modules/pm/src/SMTP.php';
+			} else {
+				throw new WSFormException( wfMessage( 'wsform-mail-no-smtp-library' )->text(), 0 );
+			}
+		}
+		$mail = new PHPMailer( true );
+		$this->fields['to'] = $this->createEmailArray( $this->fields['to'], $mail );
+		$this->fields['from'] = $this->createEmailArray( $this->fields['from'], $mail );
+		if ( $this->fields['reply-to'] ) {
+			$this->fields['reply-to'] = $this->createEmailArray(
+				$this->fields['reply-to'],
+				$mail
+			);
+		}
+		if ( $this->fields['cc'] ) {
+			$this->fields['cc'] = $this->createEmailArray( $this->fields['cc'], $mail );
+		}
+		if ( $this->fields['bcc'] ) {
+			$this->fields['bcc'] = $this->createEmailArray( $this->fields['bcc'], $mail );
+		}
+		try {
+			if ( Config::getConfigVariable( 'use_smtp' ) === true ) {
+				$mail->isSMTP();
+				$mail->Host = Config::getConfigVariable( 'smtp_host' );
+				$mail->SMTPAuth = Config::getConfigVariable( 'smtp_authentication' );
+				$mail->Username = Config::getConfigVariable( 'smtp_username' );
+				$mail->Password = Config::getConfigVariable( 'smtp_password' );
+				$mail->SMTPSecure = Config::getConfigVariable( 'smtp_secure' );
+				$mail->Port = Config::getConfigVariable( 'smtp_port' );
+			} else {
+				$mail->isMail();
+			}
+			$mail->CharSet = 'UTF-8';
+			foreach ( $this->fields['from'] as $single ) {
+				$mail->setFrom( $single['address'], $single['name'] );
+			}
+			foreach ( $this->fields['to'] as $single ) {
+					$mail->addAddress( $single['address'], $single['name'] );
+			}
+			if ( $this->fields['cc'] !== false ) {
+				foreach ( $this->fields['cc'] as $single ) {
+					$mail->addCC( $single['address'], $single['name'] );
+				}
+			}
+			if ( $this->fields['bcc'] !== false ) {
+				foreach ( $this->fields['bcc'] as $single ) {
+					$mail->addBCC( $single['address'], $single['name'] );
+				}
+			}
+			if ( $this->fields['reply-to'] !== false ) {
+				foreach ( $this->fields['reply-to'] as $single ) {
+					$mail->addReplyTo( $single['address'], $single['name'] );
+				}
+			}
+			$mail = $this->checkForAttachment( $mail );
+			$mail->isHTML( $this->fields['html'] );
+			$mail->Subject = $this->fields['subject'];
+			$mail->Body = $this->fields['content'];
+			$mail->send();
+		} catch ( Exception $e ) {
+			throw new WSFormException( $e->getMessage(), 0 );
+		}
+	}
 
+	/**
+	 * @param PHPMailer $mail
+	 *
+	 * @return PHPMailer
+	 * @throws Exception
+	 */
+	private function checkForAttachment( PHPMailer $mail ): PHPMailer {
+		$protocol = stripos( $_SERVER['SERVER_PROTOCOL'], 'https' ) === 0 ? 'https:' : 'http:';
+		if ( $this->fields['attachment'] !== false ) {
 
+			if ( strpos( $this->fields['attachment'], 'http' ) === false ) {
+				$fileAttachedContent = file_get_contents( $protocol . $this->fields['attachment'] );
+			} else {
+				$fileAttachedContent = file_get_contents( $this->fields['attachment'] );
+			}
+
+		} else {
+			$fileAttachedContent = false;
+		}
+		if ( $fileAttachedContent !== false ) {
+			$pInfo = pathinfo( $this->fields['attachment'] );
+			$fileAttachedName = $pInfo['basename'];
+			$mail->addStringAttachment( $fileAttachedContent, $fileAttachedName );
+		}
+		return $mail;
+	}
+
+	/**
+	 * @param string $email
+	 * @param PHPMailer $mail
+	 *
+	 * @return array
+	 */
+	private function createEmailArray( string $email, PHPMailer $mail ):array {
+		$tmp = str_replace( [ '[',']' ], [ '<','>' ], $email );
+		return $mail->parseAddresses( $tmp );
+	}
+
+	/**
+	 * @throws WSFormException
+	 */
+	private function checkFieldsNeeded() {
+		if ( $this->fields['to'] === false ) {
+			throw new WSFormException( wfMessage( 'wsform-mail-no-to' )->text(), 0 );
+		}
+		if ( $this->fields['from'] === false ) {
+			throw new WSFormException( wfMessage( 'wsform-mail-no-from' )->text(), 0 );
+		}
+		if ( $this->fields['subject'] === false ) {
+			throw new WSFormException( wfMessage( 'wsform-mail-no-subject' )->text(), 0 );
+		}
 	}
 
 	/**
