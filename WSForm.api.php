@@ -140,22 +140,26 @@ if ( General::getPostString( 'mwaction' ) !== false ) {
 
 	switch ( $action ) {
 		case "addToWiki" :
+		case "email" :
 			try {
-				$responseHandler = ContentCore::saveToWiki( $responseHandler );
-			} catch ( WSFormException|MWException $e ) {
+				if( $action === 'email' ) {
+					$responseHandler = ContentCore::saveToWiki( $responseHandler, "yes" );
+				} else {
+					$responseHandler = ContentCore::saveToWiki( $responseHandler );
+				}
+			} catch ( WSFormException | MWException $e ) {
 				$responseHandler->setReturnData( $e->getMessage() );
 				$responseHandler->setReturnStatus( 'saveToWiki error' );
 				$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
 			}
 			break;
-
 		case "get" :
 			try {
 				$responseHandler = ContentCore::saveToWiki(
 					$responseHandler,
 					"get"
 				);
-			} catch ( WSFormException|MWException $e ) {
+			} catch ( WSFormException | MWException $e ) {
 				$responseHandler->setReturnData( $e->getMessage() );
 				$responseHandler->setReturnStatus( 'GET error' );
 				$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );

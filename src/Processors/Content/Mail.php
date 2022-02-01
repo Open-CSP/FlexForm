@@ -101,7 +101,13 @@ class Mail {
 			"action"             => "parse",
 			"format"             => "json",
 			"page"               => $title,
-			"disablelimitreport" => "1"
+			"disablelimitreport" => "1",
+			"wrapoutputclass" => '',
+			"disablestylededuplication" => true,
+			"disabletoc" => true,
+
+
+
 		];
 		$result   = $render->makeRequest( $postdata );
 		if ( Config::isDebug() ) {
@@ -117,7 +123,7 @@ class Mail {
 			);
 		}
 
-		return $result['parse']['text']['*'];
+		return $result['parse']['text'];
 	}
 
 	/**
@@ -128,7 +134,7 @@ class Mail {
 	private function placeValuesInTemplate( string $content ): string {
 		// Get all form elements and replace in Template
 		foreach ( $_POST as $k => $v ) {
-			if ( Definitions::isWSFormSystemField( $k ) ) {
+			if ( ! Definitions::isWSFormSystemField( $k ) ) {
 				if ( is_array( $v ) ) {
 					$tmpArray = wsSecurity::cleanBraces(
 						implode(
@@ -166,19 +172,22 @@ class Mail {
 	private function getTemplateValueAndDelete( string $template ) : string {
 		// echo "searching for $name";
 		$fieldToGetAndReplace = array_keys( $this->fields );
+
 		foreach ( $fieldToGetAndReplace as $field ) {
+			echo "<p>$field</p>";
 			$regex = '#%ws_' . $field . '=(.*?)%#';
 			preg_match(
 				$regex,
 				$template,
-				$tmp
+				$regexResult
 			);
 			//echo "<pre>";
 			//print_r($tmp);
 			//echo "</pre>";
-			if ( isset( $tmp[1] ) ) {
-				$tmp = $tmp[1];
+			if ( isset( $regexResult[1] ) ) {
+				$tmp = $regexResult[1];
 			} else {
+				$tmp = "";
 				$this->fields[$field] = false;
 			}
 			// $tmp = $this->get_string_between( $template, '%ws_' . $name . '=' , '%' );
@@ -195,7 +204,7 @@ class Mail {
 			}
 		}
 
-		return $template;
+		return trim( $template );
 	}
 
 	/**
@@ -215,16 +224,29 @@ class Mail {
 			'attachment' => General::getPostString( 'mwmailattachment' )
 		 */
 		$fields = ContentCore::getFields();
+		if ( Config::isDebug() ) {
+			Debug::addToDebug( 'Mail start fields', $this->fields );
+		}
 		if ( $fields['parseLast'] === false ) {
 			$tpl = $this->parseWikiPageByTitle( $this->getTemplate() );
 		} else {
 			$render = new Render();
 			$tpl    = $render->getSlotContent( $this->getTemplate() );
 		}
+		if ( Config::isDebug() ) {
+			Debug::addToDebug( 'Mail start template start', $tpl );
+		}
 		$tpl = $this->placeValuesInTemplate( $tpl );
+		if ( Config::isDebug() ) {
+			Debug::addToDebug( 'Mail start template values places', $tpl );
+		}
 		if ( $fields['parseLast'] !== false ) {
 			$tpl = $this->parseWikiText( $tpl );
 		}
+		if ( Config::isDebug() ) {
+			Debug::addToDebug( 'Mail start template values places 2', $tpl );
+		}
+
 		$to      = false;
 		$header  = false;
 		$footer  = false;
@@ -241,7 +263,14 @@ class Mail {
 		if ( $this->fields['content'] !== false ) {
 			$content = $this->fields['content'];
 		}
+		if ( Config::isDebug() ) {
+			Debug::addToDebug( 'Mail start template values places 3', $tpl );
+		}
 		$tpl = $this->getTemplateValueAndDelete( $tpl );
+		if ( Config::isDebug() ) {
+			Debug::addToDebug( 'Mail start template values places 4', $tpl );
+		}
+
 		// BEGIN Always overrule form fields over template values
 		if ( $content !== false ) {
 			$this->fields['content'] = '<div class="wsform-mail-content">' . base64_decode( $content ) . '</div>';
@@ -260,6 +289,9 @@ class Mail {
 			}
 			$this->fields['to'] = $to;
 		}
+		if ( Config::isDebug() ) {
+			Debug::addToDebug( 'Mail start fields completed 1', $this->fields );
+		}
 		// END Always overrule form fields over template values
 		$this->createEmailBody();
 		if ( $this->fields['html'] === false || $this->fields['html'] === 'yes' ) {
@@ -267,7 +299,12 @@ class Mail {
 		} else {
 			$this->fields['html'] = false;
 		}
+		if ( Config::isDebug() ) {
+			Debug::addToDebug( 'Mail start template completed 2',  $this->fields );
+		}
+
 		$this->checkFieldsNeeded();
+		$this->sendMail();
 	}
 
 	/**
