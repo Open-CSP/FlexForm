@@ -486,7 +486,7 @@ function wsAutoSaveInit() {
  * @param  {Boolean or boolean} [callback=false] [either function to callback or false if none]
  * @return {[none]}                   [run given callback]
  */
-function wsform(btn, callback = 0, preCallback = 0) {
+function wsform(btn, callback = 0, preCallback = 0, showId = 0 ) {
 
     if (preCallback !== 0 && typeof preCallback !== 'undefined') {
         preCallback(btn, callback);
@@ -565,7 +565,11 @@ function wsform(btn, callback = 0, preCallback = 0) {
                     $(frm).find('input[name="mwidentifier"]')[0].remove();
                 }
                 if (result.status === 'ok') {
-                    showMessage(mwonsuccess, "success", $(btn));
+                    if( showId !== 0 ) {
+                        showMessage(mwonsuccess, "success", $('#' + showId ) );
+                    } else {
+                        showMessage(mwonsuccess, "success", $(btn));
+                    }
                     if (callback !== 0 && typeof callback !== 'undefined') {
                         callback(frm);
                     }
