@@ -1188,14 +1188,22 @@ class TagHooks {
 	 * @throws WSFormException
 	 */
 	public function renderLegend( $input, array $args, Parser $parser, PPFrame $frame ) {
-		$class = $parser->recursiveTagParse(
-				$args['class'],
-				$frame
-			) ?? '';
-		$align = $parser->recursiveTagParse(
-				$args['align'],
-				$frame
-			) ?? '';
+		if ( isset( $args['class'] ) ) {
+			$class = $parser->recursiveTagParse(
+					$args['class'],
+					$frame
+				) ?? '';
+		} else {
+			$class = '';
+		}
+		if ( isset( $args['align'] ) ) {
+			$align = $parser->recursiveTagParse(
+					$args['align'],
+					$frame
+				) ?? '';
+		} else {
+			$align = '';
+		}
 		$input = $parser->recursiveTagParse(
 			$input,
 			$frame
@@ -1349,7 +1357,7 @@ class TagHooks {
 	 * @brief This is the initial call from the MediaWiki parser for the WSToken
 	 *
 	 * @param $input string Received from parser from begin till end
-	 * @param array $args List of argmuments for the Fieldset
+	 * @param array $args List of arguments for the Fieldset
 	 * @param Parser $parser MediaWiki parser
 	 * @param PPFrame $frame MediaWiki pframe
 	 *
