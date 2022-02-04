@@ -26,15 +26,15 @@ Create a "WSForm" folder in your Wiki extensions folder and extract the files th
 
 You can tweak WSForm to an extent in your Localsettings.php
 ```php
-$WSFormConfig['secure'] = true; //( default is true ). Will render form that make no sense when inspected in the browser
-$WSFormConfig['sec_key'] = ""; // A salt key for encryption. Used together with "secure" option. Must be set when using multiple instances of a wiki
-$WSFormConfig['auto_save_interval'] = 30000; // defaults to 3 minutes.
-$WSFormConfig['auto_save_after_change'] = 3000; // defaults to 3 seconds after last change
-$WSFormConfig['WSFormDefaultTheme'] = "wsform"; // Currently the only form
-$WSFormConfig['rc_site_key'] = ""; // reCaptcha site key
-$WSFormConfig['rc_secret_key'] = ""; // reCaptcha secret key
-$WSFormConfig['file_temp_path'] = ""; // Currently not is use.
-$WSFormConfig['form_timeout_limit'] = 7200; // 7200 seconds is the default
+$wgWSFormConfig['secure'] = true; //( default is true ). Will render form that make no sense when inspected in the browser
+$wgWSFormConfig['sec_key'] = ""; // A salt key for encryption. Used together with "secure" option. Must be set when using multiple instances of a wiki
+$wgWSFormConfig['auto_save_interval'] = 30000; // defaults to 3 minutes.
+$wgWSFormConfig['auto_save_after_change'] = 3000; // defaults to 3 seconds after last change
+$wgWSFormConfig['WSFormDefaultTheme'] = "wsform"; // Currently the only form
+$wgWSFormConfig['rc_site_key'] = ""; // reCaptcha site key
+$wgWSFormConfig['rc_secret_key'] = ""; // reCaptcha secret key
+$wgWSFormConfig['file_temp_path'] = ""; // Currently not is use.
+$wgWSFormConfig['form_timeout_limit'] = 7200; // 7200 seconds is the default
 ```
 ---
 

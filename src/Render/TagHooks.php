@@ -946,7 +946,7 @@ class TagHooks {
 				}
 
 				if ( isset( $args['pagecontent'] ) ) {
-					$pageContent = $args['pagecontent'];;
+					$pageContent = $args['pagecontent'];
 				} else {
 					return [ 'Missing attribute "pagecontent" for signature field.' ];
 				}
