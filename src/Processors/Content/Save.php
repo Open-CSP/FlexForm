@@ -138,12 +138,12 @@ class Save {
 		if ( Config::isDebug() ) {
 			if ( $page_updater->isUnchanged() ) {
 				Debug::addToDebug(
-					'EDIT SLOTS PAGE SAVED IS UNCHANGED' . utime(),
+					'EDIT SLOTS PAGE SAVED IS UNCHANGED ' . time(),
 					$page_updater->isUnchanged()
 				);
 			} else {
 				Debug::addToDebug(
-					'EDIT SLOTS PAGE SAVED IS CHANGED' . utime(),
+					'EDIT SLOTS PAGE SAVED IS CHANGED ' . time(),
 					$page_updater->isUnchanged()
 				);
 			}
