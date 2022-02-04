@@ -733,12 +733,9 @@ class TagHooks {
 				}
 
 				$additionalArguments = [];
-				foreach ( $args as $name => $value ) {
-					if ( ! Validate::check_disable_readonly_required_selected(
-						$name,
-						$value
-					) ) {
-						$additionalArguments[$name] = $value;
+				foreach ( $args as $name => $v ) {
+					if ( !Validate::check_disable_readonly_required_selected( $name, $v ) ) {
+						$additionalArguments[$name] = $v;
 					}
 				}
 
