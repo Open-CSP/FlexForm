@@ -1,7 +1,9 @@
 /**
  * applying show on select on the page and make sure everyting will be handled as needed
  */
-function WsShowOnSelect() {
+async function WsShowOnSelect() {
+  await waitForJQueryIsReady();
+
   var selectArray = [];
   $('.WSShowOnSelect').find('[data-wssos-show]').each(function (index, elm) {
     if ( $(elm).is('option') ) {
@@ -26,6 +28,37 @@ function WsShowOnSelect() {
   });
 
   $('.wsform-hide').removeClass('wsform-hide');
+}
+
+/**
+ * wait function for jQuery
+ * @returns {Promise<void>}
+ */
+async function waitForJQueryIsReady() {
+  /**
+   * sleep function
+   * @param ms
+   * @returns {Promise<unknown>}
+   */
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  // counter for nr loops
+  var counter = 0;
+
+  /**
+   * checks if jQuery is ready
+   * @returns {Promise<void>}
+   */
+  async function checkForJQuery() {
+    if ( !$.isReady && counter < 20) {
+      await sleep(200);
+      await checkForJQuery();
+      counter++;
+    }
+  }
+  await checkForJQuery();
 }
 
 /**
@@ -124,16 +157,18 @@ function handleCheckbox(checkElm) {
     pre_wssos_elm.hide(0);
     // set data-name-attribute to the value of name attribute and remove the name attribute
     putAllTypesNameInData(pre_wssos_elm);
-
+    
     if ( $(checkElm).has('data-wssos-show-unchecked') ) {
       var pre_unchecked_value = $(checkElm).data('wssos-show-unchecked');
       var pre_unchecked_elm = $(pre_parent_wssos).find('[data-wssos-value="'+pre_unchecked_value+'"]');
 
-      if ( pre_unchecked_elm.length === 0 ) pre_unchecked_elm = $(pre_parent_wssos).find('#' + pre_unchecked_value);
+      if ( pre_unchecked_value && pre_unchecked_value !== '' && pre_unchecked_value !== ' ' ) {
+        if ( pre_unchecked_elm.length === 0 ) pre_unchecked_elm = $(pre_parent_wssos).find('#' + pre_unchecked_value);
 
-      $(pre_unchecked_elm).show(0);
-      // set the name attribute to the value of data-name-attribute
-      putAllTypesDataInName(pre_unchecked_elm);
+        $(pre_unchecked_elm).show(0);
+        // set the name attribute to the value of data-name-attribute
+        putAllTypesDataInName(pre_unchecked_elm);
+      }
     }
   }
 
