@@ -135,6 +135,20 @@ class Save {
 			$errors[] = $page_updater->getStatus()->getMessage()->toString();
 		}
 
+		if ( Config::isDebug() ) {
+			if ( $page_updater->isUnchanged() ) {
+				Debug::addToDebug(
+					'EDIT SLOTS PAGE SAVED IS UNCHANGED' . utime(),
+					$page_updater->isUnchanged()
+				);
+			} else {
+				Debug::addToDebug(
+					'EDIT SLOTS PAGE SAVED IS CHANGED' . utime(),
+					$page_updater->isUnchanged()
+				);
+			}
+		}
+
 		if ( ! $page_updater->isUnchanged() ) {
 			// Perform an additional null-edit to make sure all page properties are up-to-date
 			$comment      = CommentStoreComment::newUnsavedComment( "" );

@@ -150,8 +150,8 @@ class Create {
 			$page
 		);
 		if ( isset( $exploded[0] ) && $exploded[0] !== '' ) {
-			$this->pageData['template'] = $this->$exploded[0];
-			if ( strtolower( $this->$exploded[0] ) === 'wsnone' ) {
+			$this->pageData['template'] = $exploded[0];
+			if ( strtolower( $exploded[0] ) === 'wsnone' ) {
 				$this->pageData['notemplate'] = true;
 			} else {
 				$this->pageData['notemplate'] = false;
@@ -162,13 +162,13 @@ class Create {
 		}
 
 		if ( isset( $exploded[1] ) && $exploded[1] !== '' ) {
-			$this->pageData['title'] = $this->$exploded[1];
+			$this->pageData['title'] = $exploded[1];
 		} else {
 			$this->pageData['title'] = false;
 		}
 
 		if ( isset( $exploded[2] ) && $exploded[2] !== '' ) {
-			$this->pageData['option'] = $this->$exploded[2];
+			$this->pageData['option'] = $exploded[2];
 		} else {
 			$this->pageData['option'] = false;
 		}
@@ -176,7 +176,7 @@ class Create {
 		if ( isset( $exploded[3] ) && $exploded[3] !== '' ) {
 			$formFields                   = explode(
 				',',
-				$this->$exploded[3]
+				$exploded[3]
 			);
 			$this->pageData['formFields'] = array_map(
 				'trim',
@@ -187,13 +187,13 @@ class Create {
 		}
 
 		if ( isset( $exploded[4] ) && $exploded[4] !== '' ) {
-			$this->pageData['slot'] = $this->$exploded[4];
+			$this->pageData['slot'] = $exploded[4];
 		} else {
 			$this->pageData['slot'] = false;
 		}
 
 		if ( isset( $exploded[5] ) && $exploded[5] !== '' ) {
-			$this->pageData['id'] = $this->$exploded[5];
+			$this->pageData['id'] = $exploded[5];
 		} else {
 			$this->pageData['id'] = false;
 		}
