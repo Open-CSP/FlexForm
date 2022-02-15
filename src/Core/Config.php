@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by  : Wikibase Solutions
- * Project     : MWWSForm
+ * Project     : MWFlexForm
  * Filename    : config.php
  * Description :
  * Date        : 27-12-2021
@@ -11,11 +11,11 @@
 namespace FlexForm\Core;
 
 use \MediaWiki\MediaWikiServices;
-use FlexForm\WSFormException;
+use FlexForm\FlexFormException;
 
 class Config {
 
-	private static $WSFormConfig;
+	private static $FlexFormConfig;
 	private static $WSConfigStatus = false;
 	private static $debug = false;
 	private static $secure = true;
@@ -24,16 +24,16 @@ class Config {
 	/**
 	 * setConfig
 	 *
-	 * @throws WSFormException
+	 * @throws FlexFormException
 	 */
 	public static function setConfigFromMW() {
 		$config = MediaWikiServices::getInstance()->getMainConfig();
 		if ( $config->has( 'FlexFormConfig' ) ) {
-			self::$WSFormConfig = $config->get( 'FlexFormConfig' );
+			self::$FlexFormConfig = $config->get( 'FlexFormConfig' );
 			self::checkConfig();
 			self::$WSConfigStatus = true;
 		} else {
-			throw new WSFormException(
+			throw new FlexFormException(
 				'No config set',
 				1
 			);
@@ -53,7 +53,7 @@ class Config {
 	 * @return mixed|null
 	 */
 	public static function getConfigVariable( string $var ) {
-		return self::$WSFormConfig[$var] ?? null;
+		return self::$FlexFormConfig[$var] ?? null;
 	}
 
 	/**
@@ -91,13 +91,13 @@ class Config {
 					0777
 				);
 			}
-			self::$WSFormConfig['file_temp_path'] = rtrim(
+			self::$FlexFormConfig['file_temp_path'] = rtrim(
 														$default_dir,
 														'/'
 													) . '/';
 		}
 		if ( is_null( $canonical ) ) {
-			self::$WSFormConfig['wgCanonicalServer'] = rtrim(
+			self::$FlexFormConfig['wgCanonicalServer'] = rtrim(
 														   $wgCanonicalServer,
 														   '/'
 													   ) . '/';

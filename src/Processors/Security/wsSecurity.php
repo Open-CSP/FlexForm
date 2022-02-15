@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by  : Wikibase Solutions
- * Project     : MWWSForm
+ * Project     : MWFlexForm
  * Filename    : wsSecurity.php
  * Description :
  * Date        : 28-12-2021
@@ -16,7 +16,7 @@ use FlexForm\Core\Protect;
 use FlexForm\Core\HandleResponse;
 use FlexForm\Processors\Utilities\General;
 use FlexForm\Processors;
-use FlexForm\WSFormException;
+use FlexForm\FlexFormException;
 
 class wsSecurity {
 
@@ -43,7 +43,7 @@ class wsSecurity {
 	 * Return decrypted form value and parameters to their original state
 	 *
 	 * @return true
-	 * @throws WSFormException
+	 * @throws FlexFormException
 	 */
 	public static function resolvePosts() : bool {
 
@@ -51,8 +51,8 @@ class wsSecurity {
 		$crypt = new Protect();
 		try {
 			$crypt::setCrypt();
-		} catch( WSFormException $exception ) {
-			throw new WSFormException( $exception->getMessage(), 0, $exception );
+		} catch( FlexFormException $exception ) {
+			throw new FlexFormException( $exception->getMessage(), 0, $exception );
 		}
 		$checksum = false;
 		$showOnSelect = false;
@@ -72,12 +72,12 @@ class wsSecurity {
 					unset( $_POST[$k] );
 				}
 			}
-		} catch( WSFormException $exception ) {
-			throw new WSFormException( $exception->getMessage(), 0, $exception );
+		} catch( FlexFormException $exception ) {
+			throw new FlexFormException( $exception->getMessage(), 0, $exception );
 		}
 
 		if ( $checksum === false && $formId !== false ) {
-			throw new WSFormException( wfMessage( 'wsform-secure-not' ) );
+			throw new FlexFormException( wfMessage( 'flexform-secure-not' ) );
 
 		}
 		if ( isset( $checksum[$formId]['secure'] ) ) {
@@ -90,8 +90,8 @@ class wsSecurity {
 					try {
 						$newK = $crypt::decrypt( $secure['name'] );
 						$newV = $crypt::decrypt( $tmpName );
-					} catch( WSFormException $exception ) {
-						throw new WSFormException( $exception->getMessage(), 0, $exception );
+					} catch( FlexFormException $exception ) {
+						throw new FlexFormException( $exception->getMessage(), 0, $exception );
 					}
 					$delMe = $secure['name'];
 					unset( $_POST[$delMe] );
@@ -106,7 +106,7 @@ class wsSecurity {
 				} elseif( $showOnSelect ) {
 					continue;
 				}else {
-					throw new WSFormException( wfMessage( 'wsform-secure-fields-incomplete' ) );
+					throw new FlexFormException( wfMessage( 'flexform-secure-fields-incomplete' ) );
 				}
 			}
 		}
@@ -123,7 +123,7 @@ class wsSecurity {
 	 */
 	public static function cleanPosts() {
 		foreach ( $_POST as $k => $v ) {
-			if ( ! Processors\Definitions::isWSFormSystemField( $k ) ) {
+			if ( ! Processors\Definitions::isFlexFormSystemField( $k ) ) {
 				if ( is_array( $v ) ) {
 					$newArray = array();
 					foreach ( $v as $multiple ) {

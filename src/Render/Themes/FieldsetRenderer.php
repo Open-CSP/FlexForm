@@ -8,7 +8,7 @@ use PPFrame;
 /**
  * Interface for rendering fieldsets.
  *
- * @package WSForm\Render
+ * @package FlexForm\Render
  */
 interface FieldsetRenderer {
     /**

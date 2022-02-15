@@ -8,7 +8,7 @@ use PPFrame;
 /**
  * Interface for rendering select fields.
  *
- * @package WSForm\Render
+ * @package FlexForm\Render
  */
 interface SelectRenderer {
     /**

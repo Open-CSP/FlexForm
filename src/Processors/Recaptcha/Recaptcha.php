@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by  : Wikibase Solutions
- * Project     : WSForm
+ * Project     : FlexForm
  * Filename    : recaptcha.class.php
  * Description :
  * Date        : 08/02/2021
@@ -12,12 +12,12 @@ namespace FlexForm\Processors\Recaptcha;
 
 use FlexForm\Core\Config;
 use FlexForm\Processors\Utilities\General;
-use FlexForm\WSFormException;
+use FlexForm\FlexFormException;
 
 /**
  * Class recaptcha
  *
- * @package wsform\processors\recaptcha
+ * @package flexform\processors\recaptcha
  */
 class Recaptcha {
 
@@ -79,7 +79,7 @@ class Recaptcha {
 	 * @param $api
 	 *
 	 * @return bool
-	 * @throws WSFormException
+	 * @throws FlexFormException
 	 */
 	public static function handleRecaptcha() : bool {
 		$captchaAction = General::getPostString(
@@ -95,7 +95,7 @@ class Recaptcha {
 		}
 
 		if ( $captchaToken === '' || $captchaAction === '' ) {
-			throw new WSFormException( wfMessage( 'wsform-captcha-missing-details' )->text() );
+			throw new FlexFormException( wfMessage( 'flexform-captcha-missing-details' )->text() );
 		}
 
 		$rc_secret_key = Config::getConfigVariable( 'rc_secret_key' );
@@ -105,7 +105,7 @@ class Recaptcha {
 			$captchaAction
 		);
 		if ( $captchaResult['status'] === false ) {
-			throw new WSFormException( wfMessage( 'wsform-captcha-score-to-low' )->text() . ' : ' . $captchaResult['results']['score'] );
+			throw new FlexFormException( wfMessage( 'flexform-captcha-score-to-low' )->text() . ' : ' . $captchaResult['results']['score'] );
 		}
 
 		return true;

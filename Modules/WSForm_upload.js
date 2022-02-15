@@ -1,12 +1,12 @@
 /*!
- * WSForm default file handling
+ * FlexForm default file handling
  * Author : Sen-Sai
  */
 
 
 /**
  * @brief Default file handling
- * This function is used when file upload is included in WSForm
+ * This function is used when file upload is included in FlexForm
  * @param id id of the form
  * @param verbose_id id of the element where the verbose information will end up in
  * @param error_id id of the element where error will end ip in

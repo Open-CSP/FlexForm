@@ -40,7 +40,7 @@ $wgWSFormConfig['form_timeout_limit'] = 7200; // 7200 seconds is the default
 
 Finally add the following line at the end of your LocalSettings.php to enable the extension :
 ```php
-wfLoadExtension( 'WSForm' );
+wfLoadExtension( 'FlexForm' );
 ```
 
 WSForm has a notification system build in. This is used to show possible errors or success / custom  messages.

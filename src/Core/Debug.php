@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by  : Wikibase Solutions
- * Project     : MWWSForm
+ * Project     : MWFlexForm
  * Filename    : Debug.php
  * Description :
  * Date        : 6-1-2022

@@ -8,7 +8,7 @@ use PPFrame;
 /**
  * Interface for rendering tokens.
  *
- * @package WSForm\Render
+ * @package FlexForm\Render
  */
 interface TokenRenderer {
     /**

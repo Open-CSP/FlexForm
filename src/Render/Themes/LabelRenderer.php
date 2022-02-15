@@ -8,7 +8,7 @@ use PPFrame;
 /**
  * Interface for rendering labels.
  *
- * @package WSForm\Render
+ * @package FlexForm\Render
  */
 interface LabelRenderer {
     /**

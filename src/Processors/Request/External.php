@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by  : Wikibase Solutions
- * Project     : WSForm
+ * Project     : FlexForm
  * Filename    : external.class.php
  * Description :
  * Date        : 08/02/2021
@@ -14,13 +14,13 @@ namespace FlexForm\Processors\Request;
 use FlexForm\Core\Protect;
 use FlexForm\Processors\Utilities\General;
 use FlexForm\Modules\Handlers\Handlers;
-use FlexForm\WSFormException;
+use FlexForm\FlexFormException;
 
 /**
  * Class external
  * <p>Handles external request</p>
  *
- * @package wsform\processors\request
+ * @package flexform\processors\request
  */
 class External {
 
@@ -30,8 +30,8 @@ class External {
 		if ( $external !== false && $handler->handlerExist( $external ) ) {
 			$handler->handlerExecute( $external );
 		} else {
-			throw new WSFormException(
-				wfMessage( 'wsform-external-request-not-found' )->text(),
+			throw new FlexFormException(
+				wfMessage( 'flexform-external-request-not-found' )->text(),
 				0
 			);
 		}

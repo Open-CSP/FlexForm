@@ -11,13 +11,13 @@ use FlexForm\Processors\Security\wsSecurity;
 use FlexForm\Processors\Definitions;
 use FlexForm\Processors\Utilities\General;
 use FlexForm\Processors\Files\FilesCore;
-use FlexForm\WSFormException;
+use FlexForm\FlexFormException;
 
 /**
  * Class Content core
  * Handles content creating or editing
  *
- * @package WSForm\Processors\Content
+ * @package FlexForm\Processors\Content
  */
 class ContentCore {
 
@@ -85,7 +85,7 @@ class ContentCore {
 	 *
 	 * @return HandleResponse
 	 * @throws MWException
-	 * @throws WSFormException
+	 * @throws FlexFormException
 	 * @throws \MWContentSerializationException
 	 */
 	public static function saveToWiki( HandleResponse $response_handler, $email = false ) : HandleResponse {
@@ -122,9 +122,9 @@ class ContentCore {
 						$result
 					);
 				}
-			} catch ( WSFormException $e ) {
+			} catch ( FlexFormException $e ) {
 				echo "damn";
-				throw new WSFormException(
+				throw new FlexFormException(
 					$e->getMessage(),
 					0,
 					$e
@@ -146,8 +146,8 @@ class ContentCore {
 					$result['content'],
 					self::$fields['summary']
 				);
-			} catch ( WSFormException $e ) {
-				throw new WSFormException(
+			} catch ( FlexFormException $e ) {
+				throw new FlexFormException(
 					$e->getMessage(),
 					0,
 					$e
@@ -176,8 +176,8 @@ class ContentCore {
 			$create = new Create();
 			try {
 				$finalPages = $create->writePages();
-			} catch ( WSFormException $e ) {
-				throw new WSFormException(
+			} catch ( FlexFormException $e ) {
+				throw new FlexFormException(
 					$e->getMessage(),
 					0,
 					$e
@@ -198,8 +198,8 @@ class ContentCore {
 							),
 							$pContent[0]['summary']
 						);
-					} catch ( WSFormException $e ) {
-						throw new WSFormException(
+					} catch ( FlexFormException $e ) {
+						throw new FlexFormException(
 							$e->getMessage(),
 							0,
 							$e
@@ -221,8 +221,8 @@ class ContentCore {
 							$slotsToSend,
 							$pContent[0]['summary']
 						);
-					} catch ( WSFormException $e ) {
-						throw new WSFormException(
+					} catch ( FlexFormException $e ) {
+						throw new FlexFormException(
 							$e->getMessage(),
 							0,
 							$e
@@ -264,8 +264,8 @@ class ContentCore {
 						),
 						self::$fields['summary']
 					);
-				} catch ( WSFormException $e ) {
-					throw new WSFormException(
+				} catch ( FlexFormException $e ) {
+					throw new FlexFormException(
 						$e->getMessage(),
 						0,
 						$e
@@ -282,8 +282,8 @@ class ContentCore {
 				try {
 					$mail->handleTemplate();
 
-				} catch ( WSFormException $e ) {
-					throw new WSFormException(
+				} catch ( FlexFormException $e ) {
+					throw new FlexFormException(
 						$e->getMessage(),
 						0,
 						$e
@@ -366,7 +366,7 @@ class ContentCore {
 			$ret = "{{" . self::$fields['template'] . "\n";
 		}
 		foreach ( $_POST as $k => $v ) {
-			if ( is_array( $v ) && ! Definitions::isWSFormSystemField( $k ) ) {
+			if ( is_array( $v ) && ! Definitions::isFlexFormSystemField( $k ) ) {
 				$ret .= "|" . General::makeSpaceFromUnderscore( $k ) . "=";
 				foreach ( $v as $multiple ) {
 					$ret .= wsSecurity::cleanBraces( $multiple ) . ',';
@@ -376,7 +376,7 @@ class ContentCore {
 						   ','
 					   ) . PHP_EOL;
 			} else {
-				if ( ! Definitions::isWSFormSystemField( $k ) && $v != "" ) {
+				if ( ! Definitions::isFlexFormSystemField( $k ) && $v != "" ) {
 					if ( ! $noTemplate ) {
 						$ret .= '|' . General::makeSpaceFromUnderscore( $k ) . '=' . wsSecurity::cleanBraces(
 								$v
@@ -516,7 +516,7 @@ class ContentCore {
 	public static function getNextAvailable( $nameStartsWith ) : array {
 		$render   = new Render();
 		$postdata = [
-			"action"          => "wsform",
+			"action"          => "flexform",
 			"format"          => "json",
 			"what"            => "nextAvailable",
 			"titleStartsWith" => $nameStartsWith
@@ -525,10 +525,10 @@ class ContentCore {
 		if( Config::isDebug() ) {
 			Debug::addToDebug( 'NextAvailable result ' . time(), $result );
 		}
-		if ( isset( $result['wsform']['error'] ) ) {
+		if ( isset( $result['flexform']['error'] ) ) {
 			return ( array(
 				'status'  => 'error',
-				'message' => $result['wsform']['error']['message']
+				'message' => $result['flexform']['error']['message']
 			) );
 		} elseif ( isset( $result['error'] ) ) {
 			return ( array(
@@ -538,7 +538,7 @@ class ContentCore {
 		} else {
 			return ( array(
 				'status' => 'ok',
-				'result' => $result['wsform']['result']
+				'result' => $result['flexform']['result']
 			) );
 		}
 		die();
@@ -552,7 +552,7 @@ class ContentCore {
 	 */
 	public static function getFromRange( $nameStartsWith, $range ) {
 		$postdata = [
-			"action"          => "wsform",
+			"action"          => "flexform",
 			"format"          => "json",
 			"what"            => "getRange",
 			"titleStartsWith" => $nameStartsWith,
@@ -560,17 +560,20 @@ class ContentCore {
 		];
 		$render   = new Render();
 		$result   = $render->makeRequest( $postdata );
+		if( Config::isDebug() ) {
+			Debug::addToDebug( 'getFromRange result ' . time(), $result );
+		}
 
-		if ( isset( $result['wsform']['error'] ) ) {
-			return ( array(
+		if ( isset( $result['flexform']['error'] ) ) {
+			return ( [
 				'status'  => 'error',
-				'message' => $result['wsform']['error']['message']
-			) );
+				'message' => $result['flexform']['error']['message']
+			] );
 		} else {
-			return ( array(
+			return ( [
 				'status' => 'ok',
-				'result' => $result['wsform']['result']
-			) );
+				'result' => $result['flexform']['result']
+			] );
 		}
 		die();
 	}

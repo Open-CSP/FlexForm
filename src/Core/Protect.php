@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by  : Wikibase Solutions
- * Project     : MWWSForm
+ * Project     : MWFlexForm
  * Filename    : protect.php
  * Description :
  * Date        : 27-12-2021
@@ -10,7 +10,7 @@
 
 namespace FlexForm\Core;
 
-use FlexForm\WSFormException;
+use FlexForm\FlexFormException;
 
 class Protect {
 
@@ -22,7 +22,7 @@ class Protect {
 	}
 
 	/**
-	 * @throws WSFormException
+	 * @throws FlexFormException
 	 */
 	public static function setCrypt( $method = false ) {
 		$key = Config::getConfigVariable('sec_key') ?? false;
@@ -39,7 +39,7 @@ class Protect {
 			if( in_array( strtolower( $method ), openssl_get_cipher_methods() ) ) {
 				self::$method = $method;
 			} else {
-				throw new WSFormException( __METHOD__ . ": unrecognised cipher method: {$method}", 1 );
+				throw new FlexFormException( __METHOD__ . ": unrecognised cipher method: {$method}", 1 );
 			}
 		}
 	}
@@ -63,7 +63,7 @@ class Protect {
 				return openssl_decrypt( $crypted_string, self::$method, self::$key, 0, hex2bin( $iv ) );
 			}
 		}
-		//throw new WSFormException( "failed to decrypt", 1 );
+		//throw new FlexFormException( "failed to decrypt", 1 );
 		return false; // failed to decrypt
 	}
 
@@ -86,7 +86,7 @@ class Protect {
 		if( $clean === "all" ) return $value;
 		if( $secure ) {
 			global $IP;
-			require_once( $IP . '/extensions/WSForm/Modules/htmlpurifier/library/HTMLPurifier.auto.php' );
+			require_once( $IP . '/extensions/FlexForm/Modules/htmlpurifier/library/HTMLPurifier.auto.php' );
 			$config = \HTMLPurifier_Config::createDefault();
 			//
 			switch( $clean ) {

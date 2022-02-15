@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by  : Wikibase Solutions
- * Project     : WSForm
+ * Project     : FlexForm
  * Filename    : edit.class.php
  * Description :
  * Date        : 19-3-2021

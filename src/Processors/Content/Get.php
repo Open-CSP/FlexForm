@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by  : Designburo.nl
- * Project     : MWWSForm
+ * Project     : MWFlexForm
  * Filename    : Get.php
  * Description :
  * Date        : 28-1-2022
@@ -39,7 +39,7 @@ class Get {
 					$delimiter = '?';
 				}
 				if ( is_array( $v ) ) {
-					if( !Definitions::isWSFormSystemField( $k ) ) {
+					if( !Definitions::isFlexFormSystemField( $k ) ) {
 						$ret .= $delimiter . General::makeSpaceFromUnderscore( $k ) . "=";
 						foreach ( $v as $multiple ) {
 							$ret .= wsSecurity::cleanHTML( wsSecurity::cleanBraces( $multiple ) ) . ',';
@@ -52,7 +52,7 @@ class Get {
 					if ( $k !== "mwreturn" &&
 						 $v != "" &&
 						 $k !== 'mwdb' &&
-						 ( Definitions::isWSFormSystemField( $k ) === false ) &&
+						 ( Definitions::isFlexFormSystemField( $k ) === false ) &&
 						 !$resultDelete
 					) {
 

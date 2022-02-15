@@ -9,7 +9,7 @@ use FlexForm\Core\Config;
 use FlexForm\Core\Core;
 use FlexForm\Core\Protect;
 use FlexForm\Core\Validate;
-use FlexForm\WSFormException;
+use FlexForm\FlexFormException;
 
 /**
  * Class TagHooks
@@ -51,7 +51,7 @@ class TagHooks {
 	 *
 	 * @return array|string send to the MediaWiki Parser or send to the MediaWiki Parser with the message not a valid
 	 *     function
-	 * @throws WSFormException
+	 * @throws FlexFormException
 	 */
 	public function renderForm( $input, array $args, Parser $parser, PPFrame $frame ) {
 		global $wgUser, $wgEmailConfirmToEdit, $IP, $wgScript;
@@ -258,13 +258,13 @@ class TagHooks {
 			// Is this script already loaded?
 			if ( ! Core::isLoaded( $scriptToLoad ) ) {
 				if ( ! file_exists(
-					$IP . '/extensions/WSForm/Modules/customJS/loadScripts/' . $scriptToLoad . '.js'
+					$IP . '/extensions/FlexForm/Modules/customJS/loadScripts/' . $scriptToLoad . '.js'
 				) ) {
 					return [ 'The script specified in "loadscript" could not be loaded because it does not exist.' ];
 				}
 
 				$scriptContent = @file_get_contents(
-					$IP . '/extensions/WSForm/Modules/customJS/loadScripts/' . $scriptToLoad . '.js'
+					$IP . '/extensions/FlexForm/Modules/customJS/loadScripts/' . $scriptToLoad . '.js'
 				);
 
 				if ( $scriptContent === false ) {
@@ -327,13 +327,13 @@ class TagHooks {
 
 		// Block the request if the user is not logged in and anonymous users are not allowed
 		if ( $allowAnonymous === false && ! $wgUser->isRegistered() ) {
-			return wfMessage( "wsform-anonymous-user" )->parse();
+			return wfMessage( "flexform-anonymous-user" )->parse();
 		}
 
 		// If the action is add to wiki, make sure the user has confirmed their email address
 		if ( $action === 'addToWiki' && $wgEmailConfirmToEdit === true && $wgUser->isRegistered(
 			) && ! $wgUser->isEmailConfirmed() ) {
-			return wfMessage( "wsform-unverified-email1" )->parse() . wfMessage( "wsform-unverified-email2" )->parse();
+			return wfMessage( "flexform-unverified-email1" )->parse() . wfMessage( "flexform-unverified-email2" )->parse();
 		}
 
 		if ( Core::getRun() === false ) {
@@ -343,7 +343,7 @@ class TagHooks {
 				'',
 				$wgScript
 			);
-			$ret     = '<script type="text/javascript" charset="UTF-8" src="' . $realUrl . '/extensions/WSForm/Modules/WSForm.general.js"></script>' . "\n";
+			$ret     = '<script type="text/javascript" charset="UTF-8" src="' . $realUrl . '/extensions/FlexForm/Modules/FlexForm.general.js"></script>' . "\n";
 
 			Core::setRun( true );
 		}
@@ -365,7 +365,7 @@ class TagHooks {
 
 				try {
 					$this->themeStore->setFormThemeName( $theme );
-				} catch ( WSFormException $exception ) {
+				} catch ( FlexFormException $exception ) {
 					// Silently ignore and use the default theme
 				}
 			}
@@ -400,11 +400,11 @@ class TagHooks {
 
 		if ( Core::$reCaptcha !== false ) {
 			if ( $formId === null ) {
-				return wfMessage( "wsform-recaptcha-no-form-id" )->parse();
+				return wfMessage( "flexform-recaptcha-no-form-id" )->parse();
 			}
 
-			if ( file_exists( $IP . '/extensions/WSForm/Modules/recaptcha.js' ) ) {
-				$rcaptcha = file_get_contents( $IP . '/extensions/WSForm/Modules/recaptcha.js' );
+			if ( file_exists( $IP . '/extensions/FlexForm/Modules/recaptcha.js' ) ) {
+				$rcaptcha = file_get_contents( $IP . '/extensions/FlexForm/Modules/recaptcha.js' );
 
 				$replace = array(
 					'%%id%%',
@@ -427,7 +427,7 @@ class TagHooks {
 				Core::includeInlineScript( $rcaptcha );
 				Core::$reCaptcha = false;
 			} else {
-				return wfMessage( "wsform-recaptcha-no-js" )->parse();
+				return wfMessage( "flexform-recaptcha-no-js" )->parse();
 			}
 		}
 
@@ -450,13 +450,13 @@ class TagHooks {
 	 * @param PPFrame $frame MediaWiki PPFrame
 	 *
 	 * @return array send to the MediaWiki Parser
-	 * @throws WSFormException
+	 * @throws FlexFormException
 	 */
 	public function renderField( $input, array $args, Parser $parser, PPFrame $frame ) {
 		global $IP;
 		if ( ! isset( $args['type'] ) ) {
 			return [
-				wfMessage( "wsform-field-invalid" )->parse(),
+				wfMessage( "flexform-field-invalid" )->parse(),
 				"markerType" => 'nowiki'
 			];
 		}
@@ -465,7 +465,7 @@ class TagHooks {
 
 		if ( ! Validate::validInputTypes( $fieldType ) ) {
 			return [
-				wfMessage( "wsform-field-invalid" )->parse() . ": " . $fieldType,
+				wfMessage( "flexform-field-invalid" )->parse() . ": " . $fieldType,
 				"markerType" => 'nowiki'
 			];
 		}
@@ -514,7 +514,7 @@ class TagHooks {
 				break;
 			case 'secure':
 				if ( ! Config::isSecure() ) {
-					return [ wfMessage( 'wsform-field-secure-not-available' )->parse() ];
+					return [ wfMessage( 'flexform-field-secure-not-available' )->parse() ];
 				}
 
 				$preparedArguments = Validate::doSimpleParameters(
@@ -771,10 +771,10 @@ class TagHooks {
 								);
 
 								if ( ! Core::isLoaded( 'wsform-ajax' ) ) {
-									if ( file_exists( $IP . '/extensions/WSForm/Modules/wsform-ajax.js' ) ) {
+									if ( file_exists( $IP . '/extensions/FlexForm/Modules/wsform-ajax.js' ) ) {
 										$additionalHtml .= '<script src="' . wfGetServerUrl(
 												null
-											) . '/extensions/WSForm/Modules/wsform-ajax.js"></script>' . "\n";
+											) . '/extensions/FlexForm/Modules/wsform-ajax.js"></script>' . "\n";
 										Core::addAsLoaded( 'wsform-ajax' );
 									}
 								}
@@ -799,9 +799,9 @@ class TagHooks {
 				}
 				if ( $callBack !== 0 && $identifier === true ) {
 					if ( ! Core::isLoaded( $callBack ) ) {
-						if ( file_exists( $IP . '/extensions/WSForm/Modules/customJS/' . $callBack . '.js' ) ) {
+						if ( file_exists( $IP . '/extensions/FlexForm/Modules/customJS/' . $callBack . '.js' ) ) {
 							$lf             = file_get_contents(
-								$IP . '/extensions/WSForm/Modules/customJS/' . $callBack . '.js'
+								$IP . '/extensions/FlexForm/Modules/customJS/' . $callBack . '.js'
 							);
 							$additionalHtml .= "<script>$lf</script>\n";
 							Core::addAsLoaded( $callBack );
@@ -1051,16 +1051,16 @@ class TagHooks {
                 SCRIPT
 				);
 
-				if ( ! file_exists( $IP . '/extensions/WSForm/Modules/signature/css/jquery.signature.css' ) ) {
-					throw new WSFormException( 'Missing jquery.signature.css' );
+				if ( ! file_exists( $IP . '/extensions/FlexForm/Modules/signature/css/jquery.signature.css' ) ) {
+					throw new FlexFormException( 'Missing jquery.signature.css' );
 				}
 
 				Core::includeInlineCSS(
-					file_get_contents( $IP . '/extensions/WSForm/Modules/signature/css/jquery.signature.css' )
+					file_get_contents( $IP . '/extensions/FlexForm/Modules/signature/css/jquery.signature.css' )
 				);
 
 				$ret = '<link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/south-street/jquery-ui.css" rel="stylesheet">';
-				$ret .= '<script type="text/javascript" charset="UTF-8" src="/extensions/WSForm/Modules/signature/js/do-signature.js"></script>';
+				$ret .= '<script type="text/javascript" charset="UTF-8" src="/extensions/FlexForm/Modules/signature/js/do-signature.js"></script>';
 				$ret .= \Xml::input(
 					'wsform_signature_filename',
 					false,
@@ -1139,7 +1139,7 @@ class TagHooks {
 	 * @param PPFrame $frame MediaWiki pframe
 	 *
 	 * @return array with full rendered html for the parser to add
-	 * @throws WSFormException
+	 * @throws FlexFormException
 	 */
 	public function renderFieldset( $input, array $args, Parser $parser, PPFrame $frame ) {
 		$input = $parser->recursiveTagParseFully(
@@ -1182,7 +1182,7 @@ class TagHooks {
 	 * @param PPFrame $frame MediaWiki pframe
 	 *
 	 * @return array with full rendered html for the parser to add
-	 * @throws WSFormException
+	 * @throws FlexFormException
 	 */
 	public function renderLegend( $input, array $args, Parser $parser, PPFrame $frame ) {
 
@@ -1228,7 +1228,7 @@ class TagHooks {
 	 * @param PPFrame $frame MediaWiki pframe
 	 *
 	 * @return array with full rendered html for the parser to add
-	 * @throws WSFormException
+	 * @throws FlexFormException
 	 */
 	public function renderLabel( $input, array $args, Parser $parser, PPFrame $frame ) {
 		$input = $parser->recursiveTagParse(
@@ -1273,7 +1273,7 @@ class TagHooks {
 	 * @param PPFrame $frame MediaWiki pframe
 	 *
 	 * @return array with full rendered html for the parser to add
-	 * @throws WSFormException
+	 * @throws FlexFormException
 	 */
 	public function renderSelect( $input, array $args, Parser $parser, PPFrame $frame ) {
 		if ( isset( $args['placeholder'] ) ) {
@@ -1360,7 +1360,7 @@ class TagHooks {
 	 * @param PPFrame $frame MediaWiki pframe
 	 *
 	 * @return array with full rendered html for the parser to add
-	 * @throws WSFormException
+	 * @throws FlexFormException
 	 */
 	public function renderToken( $input, array $args, Parser $parser, PPFrame $frame ) {
 		$parsedInput = $parser->recursiveTagParseFully(
@@ -1542,7 +1542,7 @@ class TagHooks {
 	 * @param PPFrame $frame MediaWiki PPFrame
 	 *
 	 * @return array send to the MediaWiki Parser
-	 * @throws WSFormException
+	 * @throws FlexFormException
 	 */
 	public function renderEdit( $input, array $args, Parser $parser, PPFrame $frame ) {
 		if ( ! isset( $args['target'] ) || $args['target'] === '' ) {
@@ -1626,7 +1626,7 @@ class TagHooks {
 	 * @param PPFrame $frame MediaWiki PPFrame
 	 *
 	 * @return array send to the MediaWiki Parser
-	 * @throws WSFormException
+	 * @throws FlexFormException
 	 */
 	public function renderCreate( $input, array $args, Parser $parser, PPFrame $frame ) {
 		$template = isset( $args['mwtemplate'] ) ? $parser->recursiveTagParse(
@@ -1703,7 +1703,7 @@ class TagHooks {
 	 * @param PPFrame $frame MediaWiki PPFrame
 	 *
 	 * @return array send to the MediaWiki Parser or
-	 * @throws WSFormException
+	 * @throws FlexFormException
 	 */
 	public function renderEmail( $input, array $args, Parser $parser, PPFrame $frame ) {
 		$mailArguments = [];
@@ -1837,7 +1837,7 @@ class TagHooks {
 	 * @param PPFrame $frame MediaWiki PPFrame
 	 *
 	 * @return array send to the MediaWiki Parser or
-	 * @throws WSFormException
+	 * @throws FlexFormException
 	 */
 	public function renderInstance( $input, array $args, Parser $parser, PPFrame $frame ) {
 		global $IP, $wgScript;
@@ -1873,9 +1873,9 @@ class TagHooks {
 		Core::removeAsLoaded( 'wsinstance-initiated' );
 
 		if ( ! Core::isLoaded( 'multipleinstance' ) && file_exists(
-				$IP . '/extensions/WSForm/Modules/instances/wsInstance.js'
+				$IP . '/extensions/FlexForm/Modules/instances/wsInstance.js'
 			) ) {
-			$scriptPath = $realUrl . '/extensions/WSForm/Modules/instances/wsInstance.js';
+			$scriptPath = $realUrl . '/extensions/FlexForm/Modules/instances/wsInstance.js';
 			$scriptTag  = \Xml::tags(
 				'script',
 				[

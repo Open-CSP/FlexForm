@@ -10,7 +10,7 @@
 
 namespace FlexForm\Core;
 
-use FlexForm\WSFormException;
+use FlexForm\FlexFormException;
 
 class Validate {
 	/**
@@ -321,7 +321,7 @@ class Validate {
      * @param array $args List of parameters
      *
      * @return string[] of formatted arguments
-     * @throws WSFormException
+     * @throws FlexFormException
      */
 	public static function doSimpleParameters( $args, $type = false ) {
         // TODO: Make this function return an array of key-value pairs with the parameters instead of a string

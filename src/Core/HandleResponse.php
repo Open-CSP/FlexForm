@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by  : Wikibase Solutions
- * Project     : MWWSForm
+ * Project     : MWFlexForm
  * Filename    : handleResponse.php
  * Description :
  * Date        : 27-12-2021
@@ -11,7 +11,7 @@
 namespace FlexForm\Core;
 
 use Database;
-use FlexForm\WSFormException;
+use FlexForm\FlexFormException;
 
 /**
  * Class to gather information down the path of form handling and create responses
@@ -152,7 +152,7 @@ class HandleResponse {
 	/**
 	 * Default final response handler
 	 *
-	 * @throws WSFormException
+	 * @throws FlexFormException
 	 */
 	public function exitResponse() {
 		$status      = $this->getReturnStatus();
@@ -204,8 +204,8 @@ class HandleResponse {
 			if ( $status === 'ok' && $mwReturn !== false ) {
 				$this->redirect( $mwReturn );
 			}
-		} catch ( WSFormException $e ) {
-			throw new WSFormException(
+		} catch ( FlexFormException $e ) {
+			throw new FlexFormException(
 				$e->getMessage(),
 				0,
 				$e
@@ -216,8 +216,8 @@ class HandleResponse {
 			$this->setCookieMessage( $message ); // set cookies
 			try {
 				$this->redirect( $mwReturn ); // do a redirect or json output
-			} catch ( WSFormException $e ) {
-				throw new WSFormException(
+			} catch ( FlexFormException $e ) {
+				throw new FlexFormException(
 					$e->getMessage(),
 					0,
 					$e
@@ -235,14 +235,14 @@ class HandleResponse {
 	 *
 	 * @param string $redirect
 	 *
-	 * @throws WSFormException
+	 * @throws FlexFormException
 	 */
 	public function redirect() {
 		// Check if url is from same domain
 		$parsed = parse_url( $this->getMwReturn() );
 		if ( isset( $parsed['host'] ) ) {
 			if ( $parsed['host'] !== $_SERVER['HTTP_HOST'] ) {
-				throw new WSFormException( wfMessage( 'wsform-return-outside-domain' )->text() );
+				throw new FlexFormException( wfMessage( 'flexform-return-outside-domain' )->text() );
 			}
 		}
 		// redirect
@@ -299,7 +299,7 @@ class HandleResponse {
 			} else {
 				setcookie(
 					"wsform[txt]",
-					'WSForm :: ' . $msg,
+					'FlexForm :: ' . $msg,
 					0,
 					'/'
 				);

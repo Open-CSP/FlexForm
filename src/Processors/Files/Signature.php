@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by  : Wikibase Solutions
- * Project     : WSForm
+ * Project     : FlexForm
  * Filename    : signature.class.php
  * Description :
  * Date        : 08/02/2021
@@ -10,10 +10,10 @@
 
 namespace FlexForm\Processors\Files;
 
-use wsform\processors\api\mediawiki\render;
-use wsform\processors\api\mwApi;
+use flexform\processors\api\mediawiki\render;
+use flexform\processors\api\mwApi;
 use FlexForm\Processors\Utilities\General;
-use FlexForm\WSFormException;
+use FlexForm\FlexFormException;
 use FlexForm\Core\Config;
 use FlexForm\Processors\Files\FilesCore;
 
@@ -43,16 +43,16 @@ class Signature {
 		$pcontent = General::getPostString( 'wsform_signature_page_content' );
 
 		if ( ! $wname ) {
-			throw new WSFormException( 'No target file for signature.', 0 );
+			throw new FlexFormException( 'No target file for signature.', 0 );
 		}
 		if ( ! $pcontent ) {
-			throw new WSFormException( 'No page content found. Required.', 0 );
+			throw new FlexFormException( 'No page content found. Required.', 0 );
 		}
 		if ( ! $data ) {
-			throw new WSFormException( 'No signature file found.', 0 );
+			throw new FlexFormException( 'No signature file found.', 0 );
 		}
 		if ( ! $fileType || ! in_array( $fileType, $allowedTypes ) ) {
-			throw new WSFormException( 'No signature file type found or a not allowed filetype', 0 );
+			throw new FlexFormException( 'No signature file type found or a not allowed filetype', 0 );
 		}
 
 		$upload_dir = Config::getConfigVariable( 'file_temp_path' );
@@ -68,12 +68,12 @@ class Signature {
 		$fname = $fileCore->sanitizeFileName( $wname ) . "." . $fileType;
 		//echo $fname;
 		if ( ! file_put_contents( $upload_dir . $fname, $data ) ) {
-			throw new WSFormException( 'Could not save file.', 0 );
+			throw new FlexFormException( 'Could not save file.', 0 );
 		}
 		$fileCore = new FilesCore();
-		$url     = Config::getConfigVariable( 'wgCanonicalServer' ) . 'extensions/WSForm/uploads/' . $fname;
+		$url     = Config::getConfigVariable( 'wgCanonicalServer' ) . 'extensions/FlexForm/uploads/' . $fname;
 		$pname   = trim( $wname );
-		$comment = "Uploaded using WSForm.";
+		$comment = "Uploaded using FlexForm.";
 		$result  = $api->uploadFileToWiki( $pname, $url, $pcontent, $comment, $upload_dir . $fname );
 		unlink( $upload_dir . $fname );
 

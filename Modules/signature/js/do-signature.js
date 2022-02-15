@@ -23,8 +23,8 @@ function doSignature() {
 	).done( function () {
 		$.when(
 
-			$.getScript( path + "/extensions/WSForm/Modules/signature/js/touch-punch.js" ),
-			$.getScript( path + "/extensions/WSForm/Modules/signature/js/jquery.signature.js" )
+			$.getScript( path + "/extensions/FlexForm/Modules/signature/js/touch-punch.js" ),
+			$.getScript( path + "/extensions/FlexForm/Modules/signature/js/jquery.signature.js" )
 		).done( function () {
 			doWSformActions();
 		} )

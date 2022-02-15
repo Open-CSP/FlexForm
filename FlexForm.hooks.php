@@ -10,20 +10,20 @@ use MediaWiki\MediaWikiServices;
 use FlexForm\Core\Core;
 use FlexForm\Render\TagHooks;
 use FlexForm\Render\Validate;
-use FlexForm\WSFormException;
+use FlexForm\FlexFormException;
 
 /**
- * Class WSFormHooks
+ * Class FlexFormHooks
  *
- * Hooks for WSForm extension
+ * Hooks for FlexForm extension
  *
  * @author Sen-Sai
  */
-class WSFormHooks {
+class FlexFormHooks {
 	/**
-	 * List that returns an array of all WSForm hooks
+	 * List that returns an array of all FlexForm hooks
 	 *
-	 * @return array with all WSForm hooks
+	 * @return array with all FlexForm hooks
 	 */
 	public static function availableHooks() {
 		$data = array(
@@ -71,23 +71,24 @@ class WSFormHooks {
 		}
 
 		$realUrl = str_replace( '/index.php', '', $wgScript );
-		$extensionsRow->addItem( ALItem::newFromExternalLink( $realUrl.'/index.php/Special:WSForm/Docs', 'WSForm documentation' ) );
+		$extensionsRow->addItem( ALItem::newFromExternalLink( $realUrl.'/index.php/Special:FlexForm/Docs', 'FlexForm documentation' ) );
 		return true;
 	}
 
     /**
-     * MediaWiki hook when WSForm extension is initiated
+     * MediaWiki hook when FlexForm extension is initiated
      *
-     * @param Parser $parser Sets a list of all WSForm hooks
+     * @param Parser $parser Sets a list of all FlexForm hooks
+     *
      * @throws MWException
-     * @throws WSFormException
+     * @throws FlexFormException
      */
 	public static function onParserFirstCallInit( Parser &$parser ) {
-        if ( !\WSForm\Core\Config::getConfigStatus() ) {
-            \WSForm\Core\Config::setConfigFromMW();
+        if ( !\FlexForm\Core\Config::getConfigStatus() ) {
+            \FlexForm\Core\Config::setConfigFromMW();
         }
 
-		$tagHooks = new TagHooks( MediaWikiServices::getInstance()->getService( 'WSForm.ThemeStore' ) );
+		$tagHooks = new TagHooks( MediaWikiServices::getInstance()->getService( 'FlexForm.ThemeStore' ) );
 
 		$parser->setHook(
 			'wsform',

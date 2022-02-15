@@ -1,6 +1,6 @@
 <?php
 
-namespace wsform\processors\content;
+namespace FlexForm\Processors\Content;
 
 use CommentStoreComment;
 use ContentHandler;
@@ -14,7 +14,7 @@ use WikiPage;
 use FlexForm\Core\Config;
 use FlexForm\Core\Debug;
 use FlexForm\Core\HandleResponse;
-use FlexForm\WSFormException;
+use FlexForm\FlexFormException;
 
 class Save {
 
@@ -72,7 +72,7 @@ class Save {
 			if ( ! $slot_role_registry->isDefinedRole( $slot_name ) ) {
 				$status   = false;
 				$errors[] = wfMessage(
-					"wsform-unkown-slot",
+					"flexform-unkown-slot",
 					$slot_name
 				); // TODO: Update message name
 				unset( $text[$slot_name] );
@@ -173,20 +173,20 @@ class Save {
 	 *
 	 * @return void
 	 * @throws MWException
-	 * @throws WSFormException
+	 * @throws FlexFormException
 	 * @throws \MWContentSerializationException
 	 */
 	public function saveToWiki( string $title, array $contentArray, string $summary ) {
 		$user        = RequestContext::getMain()->getUser();
 		$titleObject = Title::newFromText( $title );
 		if ( ! $titleObject || $titleObject->hasFragment() ) {
-			throw new WSFormException( "Invalid title $title." );
+			throw new FlexFormException( "Invalid title $title." );
 		}
 		// $slot is now an array as of v0.8.0.9.8.8
 		try {
 			$wikiPageObject = WikiPage::factory( $titleObject );
 		} catch ( MWException $e ) {
-			throw new WSFormException(
+			throw new FlexFormException(
 				"Could not create a WikiPage Object from title " . $titleObject->getText(
 				) . '. Message ' . $e->getMessage(),
 				0,
@@ -212,7 +212,7 @@ class Save {
 			);
 		}
 		if ( $saveResult !== true ) {
-			throw new WSFormException(
+			throw new FlexFormException(
 				"Save Result error: " . print_r(
 					$saveResult,
 					true

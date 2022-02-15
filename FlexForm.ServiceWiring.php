@@ -16,13 +16,13 @@ return [
      *
      * @return ThemeStore The ThemeStore singleton
      */
-    "WSForm.ThemeStore" => static function ( MediaWikiServices $services ): ThemeStore {
-        if ( !\WSForm\Core\Config::getConfigStatus() ) {
-            \WSForm\Core\Config::setConfigFromMW();
+    "FlexForm.ThemeStore" => static function ( MediaWikiServices $services ): ThemeStore {
+        if ( !\FlexForm\Core\Config::getConfigStatus() ) {
+            \FlexForm\Core\Config::setConfigFromMW();
         }
 
         return new ThemeStore(
-            \WSForm\Core\Config::getConfigVariable( 'WSFormDefaultTheme' ),
+            \FlexForm\Core\Config::getConfigVariable( 'FlexFormDefaultTheme' ),
             $services->getHookContainer()
         );
     },

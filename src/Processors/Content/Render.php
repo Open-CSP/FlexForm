@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by  : Wikibase Solutions
- * Project     : MWWSForm
+ * Project     : MWFlexForm
  * Filename    : Render.php
  * Description :
  * Date        : 30-12-2021
@@ -10,12 +10,12 @@
 
 namespace FlexForm\Processors\Content;
 
-use \ApiMain, \DerivativeContext, \FauxRequest, \DerivativeRequest, MWException, RequestContext, WSForm\Processors\Utilities\General;
+use \ApiMain, \DerivativeContext, \FauxRequest, \DerivativeRequest, MWException, RequestContext, FlexForm\Processors\Utilities\General;
 use ContentHandler;
 use MediaWiki\Content\ContentHandlerFactory;
 use Title;
 use WikiPage;
-use FlexForm\WSFormException;
+use FlexForm\FlexFormException;
 
 class Render {
 
@@ -35,7 +35,7 @@ class Render {
 			try {
 				$page = WikiPage::factory( $titleObject );
 			} catch ( MWException $e ) {
-				throw new WSFormException(
+				throw new FlexFormException(
 					"Could not create a WikiPage Object from title " . $titleObject->getText(
 					) . '. Message ' . $e->getMessage(),
 					0,

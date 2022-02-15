@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by  : Wikibase Solutions
- * Project     : WSForm
+ * Project     : FlexForm
  * Filename    : create.class.php
  * Description :
  * Date        : 19-3-2021
@@ -15,7 +15,7 @@ use FlexForm\Core\Debug;
 use FlexForm\Processors\Definitions;
 use FlexForm\Processors\Security\wsSecurity;
 use FlexForm\Processors\Utilities\General;
-use FlexForm\WSFormException;
+use FlexForm\FlexFormException;
 
 class Create {
 
@@ -26,7 +26,7 @@ class Create {
 
 	/**
 	 * @return array
-	 * @throws WSFormException
+	 * @throws FlexFormException
 	 * @throws \MWException
 	 */
 	public function writePage(): array {
@@ -49,14 +49,14 @@ class Create {
 			if ( $hnr['status'] !== 'error' ) {
 				$this->title = $fields['writepage'] . $hnr['result'];
 			} else {
-				throw new WSFormException( $hnr['message'] );
+				throw new FlexFormException( $hnr['message'] );
 				// return wbHandleResponses::createMsg( $hnr['message'], 'error', $returnto);
 			}
 			// $title = $writepage . $api->getNextAvailable( $title );
 			//die( $title );
 			//$title = $writepage . $api->getWikiListNumber($title);
 			if ( $this->title === false ) {
-				throw new WSFormException( wfMessage( 'wsform-mwcreate-wrong-title2' )->text() );
+				throw new FlexFormException( wfMessage( 'flexform-mwcreate-wrong-title2' )->text() );
 			}
 		}
 		if ( substr(
@@ -74,7 +74,7 @@ class Create {
 			);
 
 			if ( !ctype_digit( $rangeCheck[0] ) || !ctype_digit( $rangeCheck[1] ) ) {
-				throw new WSFormException( wfMessage( 'wsform-mwoption-bad-range' ) );
+				throw new FlexFormException( wfMessage( 'flexform-mwoption-bad-range' ) );
 			}
 
 			// $startRange = (int)$range[0];
@@ -87,7 +87,7 @@ class Create {
 			);
 			if ( $rangeResult['status'] === 'error' ) {
 				// echo $tmp['message'];
-				throw new WSFormException( $rangeResult['message'] );
+				throw new FlexFormException( $rangeResult['message'] );
 				// return wbHandleResponses::createMsg( $tmp['message'], 'error', $returnto);
 			}
 			$rangeResult = $rangeResult['result'];
@@ -109,7 +109,7 @@ class Create {
 		}
 
 		if ( !$fields['writepage'] ) {
-			throw new WSFormException( wfMessage( 'wsform-mwcreate-wrong-title' )->text() );
+			throw new FlexFormException( wfMessage( 'flexform-mwcreate-wrong-title' )->text() );
 			// return wbHandleResponses::createMsg( $i18n->wsMessage( 'wsform-mwcreate-wrong-title') );
 
 		}
@@ -201,7 +201,7 @@ class Create {
 
 	/**
 	 * @return array
-	 * @throws WSFormException
+	 * @throws FlexFormException
 	 * @throws \MWException
 	 */
 	public function writePages() : array {
@@ -235,12 +235,12 @@ class Create {
 				if ( $hnr['status'] !== 'error' ) {
 					$this->pageData['title'] = $this->pageData['title'] . $hnr['result'];
 				} else {
-					throw new WSFormException( $hnr['message'] );
+					throw new FlexFormException( $hnr['message'] );
 					// return wbHandleResponses::createMsg( $hnr['message'], 'error', $returnto);
 				}
 			}
 			if ( $this->pageData['title'] === false ) {
-				throw new WSFormException( wfMessage( 'wsform-mwcreate-wrong-title2' )->text() );
+				throw new FlexFormException( wfMessage( 'flexform-mwcreate-wrong-title2' )->text() );
 			}
 
 			if ( substr(
@@ -257,7 +257,7 @@ class Create {
 					$range
 				);
 				if ( !ctype_digit( $rangeCheck[0] ) || !ctype_digit( $rangeCheck[1] ) ) {
-					throw new WSFormException( wfMessage( 'wsform-mwoption-bad-range' ) );
+					throw new FlexFormException( wfMessage( 'flexform-mwoption-bad-range' ) );
 				}
 				$rangeResult = ContentCore::getFromRange(
 					$this->pageData['title'],
@@ -265,7 +265,7 @@ class Create {
 				);
 				if ( $rangeResult['status'] === 'error' ) {
 					// echo $tmp['message'];
-					throw new WSFormException( $rangeResult['message'] );
+					throw new FlexFormException( $rangeResult['message'] );
 					// return wbHandleResponses::createMsg( $tmp['message'], 'error', $returnto);
 				}
 				$rangeResult = $rangeResult['result'];
@@ -401,7 +401,7 @@ class Create {
 									 ','
 								 ) . PHP_EOL;
 			} else {
-				if ( !Definitions::isWSFormSystemField( $k ) && $v != "" ) {
+				if ( !Definitions::isFlexFormSystemField( $k ) && $v != "" ) {
 					// if ( $k !== "mwtemplate" && $k !== "mwoption" && $k !== "mwwrite" &&
 					// $k !== "mwreturn" && $k !== "mwedit" && $v != "" ) {
 					if ( !$this->pageData['notemplate'] ) {

@@ -44,7 +44,7 @@
 <div id="openSearch" class="modalDialog">
     <div>	<a href="#close" title="Close" class="close">X</a>
 
-        <h2>Search WSForm documentation</h2>
+        <h2>Search FlexForm documentation</h2>
         <form class="ws-documentation" >
             <input type="text" name="searcher" id="wsform-search" placeholder="Search here.."">
         </form>

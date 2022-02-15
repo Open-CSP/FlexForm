@@ -7,7 +7,7 @@
 # @Copyright: 2018
 
 /*
- *    What : WSForm api tasks
+ *    What : FlexForm api tasks
  *  Author : Sen-Sai
  *    Date : October 2017/January 2021 (rewrite)
  */
@@ -24,7 +24,7 @@ use FlexForm\Processors\Recaptcha\Recaptcha;
 use FlexForm\Processors\Request\External;
 use FlexForm\Processors\Security\wsSecurity;
 use FlexForm\Processors\Utilities\General;
-use FlexForm\WSFormException;
+use FlexForm\FlexFormException;
 
 // Are we inside the MediaWiki FrameWork ?
 if ( ! defined( 'MEDIAWIKI' ) ) {
@@ -38,6 +38,10 @@ if ( ! defined( 'MEDIAWIKI' ) ) {
 	die( 'no no no sir' );
 }
 
+$cookieParams = session_get_cookie_params();
+$cookieParams['samesite'] = "Lax";
+session_set_cookie_params($cookieParams);
+session_start();
 $ret = false;
 
 $removeList = array();
@@ -46,7 +50,7 @@ $removeList = array();
 $responseHandler = new HandleResponse;
 try {
 	Config::setConfigFromMW();
-} catch ( WSFormException $e ) {
+} catch ( FlexFormException $e ) {
 	$responseHandler->setReturnData( $e->getMessage() );
 	$responseHandler->setReturnStatus( 'setConfigError' );
 	$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
@@ -72,7 +76,7 @@ try {
 			$_POST
 		);
 	}
-} catch ( WSFormException $e ) {
+} catch ( FlexFormException $e ) {
 	$responseHandler->setReturnData( $e->getMessage() );
 	$responseHandler->setReturnStatus( 'resolve posts error' );
 	$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
@@ -93,7 +97,7 @@ if ( Config::isDebug() ) {
 if ( $responseHandler->getReturnStatus() === "error" ) {
 	try {
 		$responseHandler->exitResponse();
-	} catch ( WSFormException $e ) {
+	} catch ( FlexFormException $e ) {
 		return $e->getMessage();
 	};
 }
@@ -101,13 +105,13 @@ if ( $responseHandler->getReturnStatus() === "error" ) {
 // Setup messages and responses
 try {
 	Recaptcha::handleRecaptcha();
-} catch ( WSFormException $e ) {
+} catch ( FlexFormException $e ) {
 	$responseHandler->setReturnData( $e->getMessage() );
 	$responseHandler->setReturnStatus( 'recaptch error' );
 	$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
 	try {
 		$responseHandler->exitResponse();
-	} catch ( WSFormException $e ) {
+	} catch ( FlexFormException $e ) {
 		return $e->getMessage();
 	};
 };
@@ -147,7 +151,7 @@ if ( General::getPostString( 'mwaction' ) !== false ) {
 				} else {
 					$responseHandler = ContentCore::saveToWiki( $responseHandler );
 				}
-			} catch ( WSFormException | MWException $e ) {
+			} catch ( FlexFormException | MWException $e ) {
 				$responseHandler->setReturnData( $e->getMessage() );
 				$responseHandler->setReturnStatus( 'saveToWiki error' );
 				$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
@@ -159,13 +163,13 @@ if ( General::getPostString( 'mwaction' ) !== false ) {
 					$responseHandler,
 					"get"
 				);
-			} catch ( WSFormException | MWException $e ) {
+			} catch ( FlexFormException | MWException $e ) {
 				$responseHandler->setReturnData( $e->getMessage() );
 				$responseHandler->setReturnStatus( 'GET error' );
 				$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
 				try {
 					$responseHandler->exitResponse();
-				} catch ( WSFormException $e ) {
+				} catch ( FlexFormException $e ) {
 					return $e->getMessage();
 				}
 			}
@@ -194,7 +198,7 @@ if ( Config::isDebug() ) {
 
 try {
 	$responseHandler->exitResponse();
-} catch ( WSFormException $e ) {
+} catch ( FlexFormException $e ) {
 	return $e->getMessage();
 }
 

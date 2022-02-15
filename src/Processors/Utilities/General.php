@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by  : Wikibase Solutions
- * Project     : MWWSForm
+ * Project     : MWFlexForm
  * Filename    : General.php
  * Description :
  * Date        : 28-12-2021
@@ -18,7 +18,7 @@ use FlexForm\Processors\Security\wsSecurity;
  * Class wsUtilities
  * <p>General manipulation functions</p>
  *
- * @package WSForm\Processors\Utilities
+ * @package FlexForm\Processors\Utilities
  */
 class General {
 

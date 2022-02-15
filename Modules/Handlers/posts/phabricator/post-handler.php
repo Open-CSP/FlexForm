@@ -1,7 +1,7 @@
 <?php
 /**
  * Example of an extension that handles posts from a form
- * This will be called at the very end, so any other WSForm command will already be processed (edit, create, mail, etc.)
+ * This will be called at the very end, so any other FlexForm command will already be processed (edit, create, mail, etc.)
  * if a page is created $title will hold the name of the new page
  * if a username is available, it will be in the $usrt variable
  * All defined fields in a form can be accessed through $wsPostFields or you can use the function "getFormValues(<variable>)"

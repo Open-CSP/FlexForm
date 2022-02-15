@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by  : Wikibase Solutions
- * Project     : MWWSForm
+ * Project     : MWFlexForm
  * Filename    : Definitions.php
  * Description :
  * Date        : 28-12-2021
@@ -89,14 +89,14 @@ class Definitions {
 	}
 
 	/**
-	 * Check to see if a variable is a WSForm variable
+	 * Check to see if a variable is a FlexForm variable
 	 *
 	 * @param string $field field to check
 	 *
 	 * @return bool true or false
 	 */
-	public static function isWSFormSystemField( string $field ) : bool {
-		$WSFormSystemFields = [
+	public static function isFlexFormSystemField( string $field ) : bool {
+		$FlexFormSystemFields = [
 			"mwtemplate",
 			"mwoption",
 			"mwwrite",
@@ -134,7 +134,7 @@ class Definitions {
 		];
 		if ( in_array(
 			strtolower( $field ),
-			$WSFormSystemFields
+			$FlexFormSystemFields
 		) ) {
 			return true;
 		} else {

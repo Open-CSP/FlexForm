@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by  : Wikibase Solutions
- * Project     : WSForm
+ * Project     : FlexForm
  * Filename    : upload.class.php
  * Description :
  * Date        : 08/02/2021
@@ -10,8 +10,8 @@
 
 namespace FlexForm\Processors\Files;
 
-use wsform\processors\utilities\wsUtilities;
-use wsform\processors\wbHandleResponses;
+use FlexForm\Processors\Utilities\Utilities;
+use FlexForm\Processors\wbHandleResponses;
 use wsform\processors\Wsi18n;
 
 class Upload {
@@ -102,7 +102,7 @@ class Upload {
 
 		// file upload is done.. Now getting it into the wiki
 
-		$url = $api->getCanonicalUrl() . 'extensions/WSForm/uploads/' . $newFile;
+		$url = $api->getCanonicalUrl() . 'extensions/FlexForm/uploads/' . $newFile;
 
 		//TODO: This is not right yet!
 		$name    = trim( $_POST['wsform_file_target'] );
@@ -110,7 +110,7 @@ class Upload {
 		if ( isset( $_POST['wsform_parse_content'] ) ) {
 			$details = FilesCore::parseTitle( $details );
 		}
-		$comment = "Uploaded using WSForm.";
+		$comment = "Uploaded using FlexForm.";
 		$result  = $api->uploadFileToWiki(
 			$name,
 			$url,
@@ -153,9 +153,9 @@ class Upload {
 			$thumbHeight = null;
 		}
 
-		$upload_dir = $IP . "/extensions/WSForm/uploads/";
+		$upload_dir = $IP . "/extensions/FlexForm/uploads/";
 
-		include_once( $IP . '/extensions/WSForm/<odules/slim/server/slim.php' );
+		include_once( $IP . '/extensions/FlexForm/<odules/slim/server/slim.php' );
 		// Get posted data
 		$images = Slim::getImages( 'wsformfile_slim' );
 
@@ -184,11 +184,11 @@ class Upload {
 			if ( $api->getStatus() === false ) {
 				return $messages->createMsg( $api->getStatus( true ) );
 			}
-			$url = $api->app['baseURL'] . 'extensions/WSForm/uploads/' . $output['name'];
+			$url = $api->app['baseURL'] . 'extensions/FlexForm/uploads/' . $output['name'];
 			$api->logMeIn();
 			$pname   = trim( $_POST['wsform_file_target'] );
 			$details = trim( $_POST['wsform_page_content'] );
-			$comment = "Uploaded using WSForm.";
+			$comment = "Uploaded using FlexForm.";
 			$result  = $api->uploadFileToWiki(
 				$pname,
 				$url,
@@ -198,7 +198,7 @@ class Upload {
 			);
 			if ( $thumbWidth !== false ) {
 				$thumbName = 'sm_' . $name;
-				$turl      = $api->app['baseURL'] . 'extensions/WSForm/uploads/' . $thumbName;
+				$turl      = $api->app['baseURL'] . 'extensions/FlexForm/uploads/' . $thumbName;
 				if ( createThumbnail(
 					$upload_dir . $name,
 					$upload_dir . $thumbName,

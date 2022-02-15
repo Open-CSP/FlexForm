@@ -8,7 +8,7 @@ use PPFrame;
 /**
  * Interface for rendering edit fields.
  *
- * @package WSForm\Render
+ * @package FlexForm\Render
  */
 interface EditRenderer {
     /**

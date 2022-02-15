@@ -1,8 +1,8 @@
 <?php
 /**
  * Created by  : Wikibase Solutions
- * Project     : MWWSForm
- * Filename    : WSFormExceptions.php
+ * Project     : MWFlexForm
+ * Filename    : FlexFormExceptions.php
  * Description :
  * Date        : 27-12-2021
  * Time        : 12:33
@@ -12,7 +12,7 @@ namespace FlexForm;
 
 use Exception;
 
-class WSFormException extends \Exception {
+class FlexFormException extends \Exception {
 
 	public function __construct( $msg, $val = 0, Exception $old = null ){
 		parent::__construct( $msg, $val, $old );

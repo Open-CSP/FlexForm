@@ -8,7 +8,7 @@ use PPFrame;
 /**
  * Interface for rendering legends.
  *
- * @package WSForm\Render
+ * @package FlexForm\Render
  */
 interface LegendRenderer {
     /**

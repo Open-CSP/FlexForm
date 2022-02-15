@@ -333,7 +333,7 @@ const WsInstance = function (selector, options) {
 
         if ( _.settings.draggable ) {
             var extensionPath = mw.config.get('wgExtensionAssetsPath');
-            $.getScript( extensionPath + '/WSForm/Modules/instances/Sortable.min.js').done(function() {
+            $.getScript( extensionPath + '/FlexForm/Modules/instances/Sortable.min.js').done(function() {
                 _.sortable = Sortable.create(_.list[0], {
                     animation: 150,
                     handle: _.settings.handleClass

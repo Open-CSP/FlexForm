@@ -3,7 +3,7 @@
 function doToken() {
 
 	$.when(
-		$.getScript( "/extensions/WSForm/Modules/Selectr/dist/selectr.min.js" )
+		$.getScript( "/extensions/FlexForm/Modules/Selectr/dist/selectr.min.js" )
 	).done( function () {
 		doTokenSetup();
 	} );

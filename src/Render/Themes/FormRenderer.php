@@ -8,7 +8,7 @@ use PPFrame;
 /**
  * Interface for rendering forms.
  *
- * @package WSForm\Render
+ * @package FlexForm\Render
  */
 interface FormRenderer {
     /**

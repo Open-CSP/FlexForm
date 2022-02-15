@@ -5,7 +5,7 @@
     "[https://www.wikibase-solutions.com/author/charlot Sen-Sai]"
   ],
   "url": "https://bitbucket.org/wikibasesolutions/mw-wsform/",
-  "descriptionmsg": "wsform-desc",
+  "descriptionmsg": "flexform-desc",
   "license-name": "GPL v2",
   "type": "parserhook",
   "AutoloadClasses": {
@@ -59,12 +59,12 @@
       "allow_special_page_setup": true,
       "use_api_user_only": false,
       "debug": false,
-      "FlexFormDefaultTheme": "plain"
+      "FlexFormDefaultTheme": "Plain"
     }
   },
   "ResourceFileModulePaths": {
     "localBasePath": "",
-    "remoteExtPath": "WSForm"
+    "remoteExtPath": "FlexForm"
   },
   "ResourceModules": {
     "ext.wsForm.slim.scripts": {

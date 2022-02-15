@@ -22,7 +22,7 @@ use function wfMessage;
 use const PHP_EOL;
 
 /**
- * Overview for the WSForm extension
+ * Overview for the FlexForm extension
  *
  * @file
  * @ingroup Extensions
@@ -38,7 +38,7 @@ class SpecialFlexForm extends \SpecialPage {
 	private $config_default = false;
 
 	public function __construct() {
-		parent::__construct( 'WSForm' );
+		parent::__construct( 'FlexForm' );
 	}
 
 
@@ -96,7 +96,7 @@ class SpecialFlexForm extends \SpecialPage {
 	}
 
 	public function is_valid_type( $type ) {
-		$formhooks = WSFormHooks::availableHooks();
+		$formhooks = FlexFormHooks::availableHooks();
 		if ( in_array(
 			$type,
 			$formhooks
@@ -117,8 +117,8 @@ class SpecialFlexForm extends \SpecialPage {
 
 
 	/**
-	 * @brief WSForm Docs menu.
-	 * Builds and renders the WSForm Docs menu
+	 * @brief FlexForm Docs menu.
+	 * Builds and renders the FlexForm Docs menu
 	 *
 	 * @param $path string Path to docs
 	 * @param $examplePath string Path to examples
@@ -126,8 +126,8 @@ class SpecialFlexForm extends \SpecialPage {
 	 * @param $eurl string uri to Examples
 	 * @param $wgServer object Wiki server information
 	 * @param $out object Wiki Out variable
-	 * @param $wsformpurl string WSForm url
-	 * @param $ver string WSForm version
+	 * @param $wsformpurl string FlexForm url
+	 * @param $ver string FlexForm version
 	 */
 	public function renderMenu(
 		$path,
@@ -148,19 +148,19 @@ class SpecialFlexForm extends \SpecialPage {
 		//die();
 		$exampleList = glob( $examplePath . '*.json' );
 		global $IP, $wgParser;
-		$menuPath            = "$IP/extensions/WSForm/Modules/coreNav/";
+		$menuPath            = "$IP/extensions/FlexForm/Modules/coreNav/";
 		$data                = array();
 		$exampleData         = array();
-		$createExample       = $wgServer . '/index.php/Special:WSForm/Docs/Create Example';
-		$createDocumentation = $wgServer . '/index.php/Special:WSForm/Docs/Create';
-		$formBuilderUrl      = $wgServer . '/index.php/Special:WSForm/Formbuilder';
+		$createExample       = $wgServer . '/index.php/Special:FlexForm/Docs/Create Example';
+		$createDocumentation = $wgServer . '/index.php/Special:FlexForm/Docs/Create';
+		$formBuilderUrl      = $wgServer . '/index.php/Special:FlexForm/Formbuilder';
 		if ( $this->showFormBuilder ) {
 			$formBuilderHTML = '<li><a href="' . $formBuilderUrl . '"> Formbuilder</a></li>';
 		} else {
 			$formBuilderHTML = '';
 		}
-		$changeLogUrl = $wgServer . '/index.php/Special:WSForm/Docs/ChangeLog';
-		$changeLogUrl = '<li><a href="' . $changeLogUrl . '"> ' . wfMessage( "wsform-docs-changelog" )->text(
+		$changeLogUrl = $wgServer . '/index.php/Special:FlexForm/Docs/ChangeLog';
+		$changeLogUrl = '<li><a href="' . $changeLogUrl . '"> ' . wfMessage( "flexform-docs-changelog" )->text(
 			) . '</a></li>';
 		$searchBtn    = '<li><a href="#openSearch">Search</a></li>';
 
@@ -221,7 +221,7 @@ class SpecialFlexForm extends \SpecialPage {
 				//$sItem .= '<li><a href="'.$purl.'/'.$k.'_'.$docname.'">'.$docname.'</a>';
 				//$sItem .= '<span>'.$docContent['doc']['synopsis'].'</span></p></li>';
 				$sItem .= '<li class="nfo"><a href="' . $purl . '/' . $k . '_' . $docname . '"><i data-feather="list"></i>' . $docname . '<br>';
-				$sItem .= '<span><strong>' . wfMessage( "wsform-docs-information" )->text(
+				$sItem .= '<span><strong>' . wfMessage( "flexform-docs-information" )->text(
 					) . ': </strong>' . $docContent['doc']['synopsis'] . '</span></a></li>';
 			}
 			$mItem = str_replace(
@@ -231,22 +231,22 @@ class SpecialFlexForm extends \SpecialPage {
 			);
 			$items .= $mItem;
 		}
-		$back = $wgServer . '/index.php/Special:WSForm/Docs';
+		$back = $wgServer . '/index.php/Special:FlexForm/Docs';
 		if ( $this->allowEditDocs ) {
-			$new = '<li><a href="' . $createDocumentation . '">' . wfMessage( "wsform-docs-create-new-doc" )->text(
+			$new = '<li><a href="' . $createDocumentation . '">' . wfMessage( "flexform-docs-create-new-doc" )->text(
 				) . '</a></li>';
-			$new .= '<li><a href="' . $createExample . '">' . wfMessage( "wsform-docs-create-new-example" )->text(
+			$new .= '<li><a href="' . $createExample . '">' . wfMessage( "flexform-docs-create-new-example" )->text(
 				) . '</a></li>';
 		} else {
-			$new = '<li>' . wfMessage( "wsform-docs-editing-disabled" )->text() . '</li>';
+			$new = '<li>' . wfMessage( "flexform-docs-editing-disabled" )->text() . '</li>';
 		}
 
 		if ( $newVersionAvailable === false ) {
 			$changeLogUrl = '';
 		}
 
-		$index      = $wgServer . '/index.php/Special:WSForm/Docs/Index';
-		$wsformpurl = $wgServer . "/extensions/WSForm/";
+		$index      = $wgServer . '/index.php/Special:FlexForm/Docs/Index';
+		$wsformpurl = $wgServer . "/extensions/FlexForm/";
 		$search     = array(
 			'%items%',
 			'%url%',
@@ -261,7 +261,7 @@ class SpecialFlexForm extends \SpecialPage {
 		);
 		$replace    = array(
 			$items,
-			$wsformpurl . "WSForm-logo.png",
+			$wsformpurl . "FlexForm-logo.png",
 			$back,
 			$ver,
 			$new,
@@ -298,7 +298,7 @@ class SpecialFlexForm extends \SpecialPage {
 					true
 				);
 				$sItem          .= '<li class="nfo"><a href="' . $eurl . '/' . $k . '_' . $exampleName . '"><i data-feather="list"></i>' . $exampleName . '<br>';
-				$sItem          .= '<span><strong>' . wfMessage( "wsform-docs-information" )->text(
+				$sItem          .= '<span><strong>' . wfMessage( "flexform-docs-information" )->text(
 					) . ': </strong>' . $exampleContent['example']['synopsis'] . '</span></a></li>';
 			}
 			$mItem  = str_replace(
@@ -394,7 +394,7 @@ class SpecialFlexForm extends \SpecialPage {
 			// We need to handle api calls here
 			//error_reporting( -1 );
 			//ini_set( 'display_errors', 1 );
-			include_once $IP . "/extensions/WSForm/FlexForm.api.php";
+			include_once $IP . "/extensions/FlexForm/FlexForm.api.php";
 
 			return true;
 		}
@@ -402,10 +402,10 @@ class SpecialFlexForm extends \SpecialPage {
 		$config_default = false;
 		$config         = false;
 
-		$this->configFile = $IP . '/extensions/WSForm/config/config.php';
+		$this->configFile = $IP . '/extensions/FlexForm/config/config.php';
 
-		if ( file_exists( $IP . '/extensions/WSForm/config/config_default.php' ) ) {
-			include( $IP . '/extensions/WSForm/config/config_default.php' );
+		if ( file_exists( $IP . '/extensions/FlexForm/config/config_default.php' ) ) {
+			include( $IP . '/extensions/FlexForm/config/config_default.php' );
 			$this->config_default = $config;
 		}
 		if ( file_exists( $this->configFile ) ) {
@@ -450,7 +450,7 @@ class SpecialFlexForm extends \SpecialPage {
 			}
 		}
 
-		$myVersionJson = "$IP/extensions/WSForm/extension.json";
+		$myVersionJson = "$IP/extensions/FlexForm/extension.json";
 		if ( file_exists( $myVersionJson ) ) {
 			$extFile = file_get_contents( $myVersionJson );
 			if ( $extFile !== false ) {
@@ -471,9 +471,9 @@ class SpecialFlexForm extends \SpecialPage {
 			}
 		}
 		/*
-		$extensionFile = json_decode( file_get_contents( $IP . '/extensions/WSForm/extension.json' ), true);
+		$extensionFile = json_decode( file_get_contents( $IP . '/extensions/FlexForm/extension.json' ), true);
 		foreach ( $wgExtensionCredits['parserhook'] as $ext ) {
-			if ( $ext['name'] == 'WSForm' ) {
+			if ( $ext['name'] == 'FlexForm' ) {
 				$ver = "v<strong>" . $ext['version'] . "</strong>";
 				if ( $sourceVersion !== false ) {
 					if ( $sourceVersion != $ext['version'] ) {
@@ -489,17 +489,17 @@ class SpecialFlexForm extends \SpecialPage {
 			}
 		};
 		*/
-		$path        = "$IP/extensions/WSForm/docs/";
-		$wsformpurl  = $realUrl . "/extensions/WSForm/";
+		$path        = "$IP/extensions/FlexForm/docs/";
+		$wsformpurl  = $realUrl . "/extensions/FlexForm/";
 		$examplePath = $path . 'examples/';
-		$purl        = $realUrl . "/index.php/Special:WSForm/Docs";
-		$setupUrl    = $realUrl . "/index.php/Special:WSForm/Setup";
-		$statusUrl   = $realUrl . "/index.php/Special:WSForm/Status";
-		$eurl        = $realUrl . "/index.php/Special:WSForm/Docs/examples";
+		$purl        = $realUrl . "/index.php/Special:FlexForm/Docs";
+		$setupUrl    = $realUrl . "/index.php/Special:FlexForm/Setup";
+		$statusUrl   = $realUrl . "/index.php/Special:FlexForm/Status";
+		$eurl        = $realUrl . "/index.php/Special:FlexForm/Docs/examples";
 		$out         = $this->getOutput();
 		$out->addHTML(
-			'<h1 style="text-align:center;"><a href="' . $wgServer . '/index.php/Special:WSForm/Docs"><img style="width:50px; margin:5px 15px;" src="'.$wgServer . "/extensions/WSForm/WSForm-logo.png".'" /></a>WSForm ' . wfMessage(
-				"wsform-docs-documentation"
+			'<h1 style="text-align:center;"><a href="' . $wgServer . '/index.php/Special:FlexForm/Docs"><img style="width:50px; margin:5px 15px;" src="'.$wgServer . "/extensions/FlexForm/FlexForm-logo.png".'" /></a>FlexForm ' . wfMessage(
+				"flexform-docs-documentation"
 			)->text() . '</h1>'
 		);
 		$this->renderMenu(
@@ -514,17 +514,17 @@ class SpecialFlexForm extends \SpecialPage {
 			$newVersionAvailable
 		);
 		if ( ! $wgUser->isLoggedIn() ) {
-			$out->addHTML( '<p>' . wfMessage( "wsform-docs-log-in" )->text() . '</p>' );
+			$out->addHTML( '<p>' . wfMessage( "flexform-docs-log-in" )->text() . '</p>' );
 
 			return;
 		}
-		$back = '<div class="ws-documentation-back"><a href="' . $realUrl . '/index.php/Special:WSForm/Docs">' . wfMessage(
-				"wsform-docs-back-documentation"
+		$back = '<div class="ws-documentation-back"><a href="' . $realUrl . '/index.php/Special:FlexForm/Docs">' . wfMessage(
+				"flexform-docs-back-documentation"
 			)->text() . '</a></div>';
 		$args = $this->getArgumentsFromSpecialPage( $sub );
 		if ( $args !== false ) {
 			if ( strtolower( $args[0] ) == 'formbuilder' ) {
-				$path = "$IP/extensions/WSForm/formbuilder/";
+				$path = "$IP/extensions/FlexForm/formbuilder/";
 				$out->addHTML( $back );
 				include( $path . 'php/formbuilder.php' );
 
@@ -565,8 +565,8 @@ class SpecialFlexForm extends \SpecialPage {
 </script>';
 			$out->addHTML( $loadJS );
 
-			$back = '<div class="ws-documentation-back"><a href="' . $realUrl . '/index.php/Special:WSForm/Docs">' . wfMessage(
-					"wsform-docs-back-documentation"
+			$back = '<div class="ws-documentation-back"><a href="' . $realUrl . '/index.php/Special:FlexForm/Docs">' . wfMessage(
+					"flexform-docs-back-documentation"
 				)->text() . '</a></div>';
 
 			if ( strtolower( $args[0] ) == 'setup' ) {
@@ -579,7 +579,7 @@ class SpecialFlexForm extends \SpecialPage {
 					$out->addHTML( '<style>' . $css . '</style>' );
 					//$out->addHTML('<HR><pre>');
 					$out->addHTML(
-						$this->setupWSForm(
+						$this->setupFlexForm(
 							$path,
 							$setupUrl
 						)
@@ -597,7 +597,7 @@ class SpecialFlexForm extends \SpecialPage {
 					'sysop',
 					$wgUser->getGroups()
 				) ) {
-					include __DIR__ . "/../WSForm.api.class.php";
+					include __DIR__ . "/../FlexForm.api.class.php";
 					$api       = new wbApi();
 					$debugPost = $this->getPostString( 'debugToggle' );
 					if ( false !== $debugPost ) {
@@ -676,7 +676,7 @@ class SpecialFlexForm extends \SpecialPage {
 							'Documentation for <strong>' . $name . '</strong> stored.',
 							'success'
 						);
-						$out->redirect( $realUrl . '/index.php/Special:WSForm/Docs' );
+						$out->redirect( $realUrl . '/index.php/Special:FlexForm/Docs' );
 					} else {
 						$out->addHTML(
 							'<p>Could NOT store documentation for <strong>' . $name . '</strong>.</p>' . $back
@@ -722,7 +722,7 @@ class SpecialFlexForm extends \SpecialPage {
 							'Example for <strong>' . $name . '</strong> stored.',
 							'success'
 						);
-						$out->redirect( $realUrl . '/index.php/Special:WSForm/Docs' );
+						$out->redirect( $realUrl . '/index.php/Special:FlexForm/Docs' );
 					} else {
 						$out->addHTML( '<p>Could NOT store example for <strong>' . $name . '</strong>.</p>' . $back );
 					}
@@ -758,7 +758,7 @@ class SpecialFlexForm extends \SpecialPage {
 							'Documentation for <strong>' . $name . '</strong> deleted.',
 							'notice'
 						);
-						$out->redirect( $realUrl . '/index.php/Special:WSForm/Docs' );
+						$out->redirect( $realUrl . '/index.php/Special:FlexForm/Docs' );
 
 						return;
 					}
@@ -779,7 +779,7 @@ class SpecialFlexForm extends \SpecialPage {
 							'Documentation for <strong>' . $name . '</strong> stored.',
 							'success'
 						);
-						$out->redirect( $realUrl . '/index.php/Special:WSForm/Docs' );
+						$out->redirect( $realUrl . '/index.php/Special:FlexForm/Docs' );
 						$out->addHTML( '<p>Documentation for <strong>' . $name . '</strong> stored.</p>' . $back );
 
 						return;
@@ -820,7 +820,7 @@ class SpecialFlexForm extends \SpecialPage {
 							'Example for <strong>' . $name . '</strong> deleted.',
 							'notice'
 						);
-						$out->redirect( $realUrl . '/index.php/Special:WSForm/Docs' );
+						$out->redirect( $realUrl . '/index.php/Special:FlexForm/Docs' );
 
 						return;
 					}
@@ -841,7 +841,7 @@ class SpecialFlexForm extends \SpecialPage {
 							'Example for <strong>' . $name . '</strong> stored.',
 							'success'
 						);
-						$out->redirect( $realUrl . '/index.php/Special:WSForm/Docs' );
+						$out->redirect( $realUrl . '/index.php/Special:FlexForm/Docs' );
 						$out->addHTML( '<p>Example for <strong>' . $name . '</strong> stored.</p>' . $back );
 
 						return;
@@ -853,8 +853,8 @@ class SpecialFlexForm extends \SpecialPage {
 				}
 				// Are we on the subpage CREATE ?
 				if ( isset( $args[1] ) && strtolower( $args[1] ) == 'create' ) {
-					$back = '<div class="ws-documentation-back"><a href="' . $realUrl . '/index.php/Special:WSForm/Docs">' . wfMessage(
-							"wsform-docs-documentation"
+					$back = '<div class="ws-documentation-back"><a href="' . $realUrl . '/index.php/Special:FlexForm/Docs">' . wfMessage(
+							"flexform-docs-documentation"
 						)->text() . '</a></div>';
 					$out->addHTML( $back );
 					$form      = file_get_contents( $path . 'create.html' );
@@ -863,7 +863,7 @@ class SpecialFlexForm extends \SpecialPage {
 						$purl,
 						$form
 					);
-					$formhooks = WSFormHooks::availableHooks();
+					$formhooks = FlexFormHooks::availableHooks();
 					$options   = "";
 					foreach ( $formhooks as $option ) {
 						$options .= '<option value="' . $option . '">' . $option . '</option>';
@@ -879,8 +879,8 @@ class SpecialFlexForm extends \SpecialPage {
 				}
 				// Are we on the subpage CREATEEXAMPLE ?
 				if ( isset( $args[1] ) && strtolower( $args[1] ) == 'create_example' ) {
-					$back = '<div class="ws-documentation-back"><a href="' . $realUrl . '/index.php/Special:WSForm/Docs">' . wfMessage(
-							"wsform-docs-documentation"
+					$back = '<div class="ws-documentation-back"><a href="' . $realUrl . '/index.php/Special:FlexForm/Docs">' . wfMessage(
+							"flexform-docs-documentation"
 						)->text() . '</a></div>';
 					$out->addHTML( $back );
 					$form   = file_get_contents( $path . 'example.html' );
@@ -913,7 +913,7 @@ class SpecialFlexForm extends \SpecialPage {
 							$form
 						);
 					}
-					$formhooks = WSFormHooks::availableHooks();
+					$formhooks = FlexFormHooks::availableHooks();
 					$options   = "";
 					foreach ( $formhooks as $option ) {
 						$options .= '<option value="' . $option . '">' . $option . '</option>';
@@ -974,7 +974,7 @@ class SpecialFlexForm extends \SpecialPage {
 						$name,
 						$form
 					);
-					$formhooks = WSFormHooks::availableHooks();
+					$formhooks = FlexFormHooks::availableHooks();
 					$options   = "";
 					$type      = explode(
 						'_',
@@ -1163,14 +1163,14 @@ class SpecialFlexForm extends \SpecialPage {
 						}
 					}
 					if ( $this->allowEditDocs ) {
-						$createExample = '<div class="ws-documentation-back"><a href="' . $realUrl . '/Special:WSForm/Docs/Create Example">Create a new example</a></div>';
+						$createExample = '<div class="ws-documentation-back"><a href="' . $realUrl . '/Special:FlexForm/Docs/Create Example">Create a new example</a></div>';
 						$ret           .= $createExample;
 					}
 					$ret .= '</div>';
 					// End example list
 					$ret .= '</div>';
 					if ( $this->allowEditDocs ) {
-						$ret .= '<div class="ws-documentation-back"><a href="' . $realUrl . '/Special:WSForm/Docs/Create">Create Documentation</a></div>';
+						$ret .= '<div class="ws-documentation-back"><a href="' . $realUrl . '/Special:FlexForm/Docs/Create">Create Documentation</a></div>';
 					}
 					$out->addHTML( $ret );
 
@@ -1301,7 +1301,7 @@ class SpecialFlexForm extends \SpecialPage {
 						$out->addHTML( $documentation );
 					}
 					$out->addHTML(
-						'<div class="ws-documentation-back"><a href="' . $realUrl . '/index.php/Special:WSForm/Docs">Back to Documentation</a></div>'
+						'<div class="ws-documentation-back"><a href="' . $realUrl . '/index.php/Special:FlexForm/Docs">Back to Documentation</a></div>'
 					);
 
 					return;
@@ -1356,16 +1356,16 @@ class SpecialFlexForm extends \SpecialPage {
 			}
 			$out->addHTML( $ret );
 		} else {
-			$out->redirect( $realUrl . '/index.php/Special:WSForm/Docs' );
+			$out->redirect( $realUrl . '/index.php/Special:FlexForm/Docs' );
 
 			return;
-			//echo $IP . '/extensions/WSForm/classes/validate.php';
+			//echo $IP . '/extensions/FlexForm/classes/validate.php';
 			error_reporting( -1 );
 			ini_set(
 				'display_errors',
 				1
 			);
-			//include_once( $IP . '/extensions/WSForm/classes/loader.php' );
+			//include_once( $IP . '/extensions/FlexForm/classes/loader.php' );
 
 			$table           = "<table class=\"table table-striped\"><tr><td class=\"center\" colspan=\"6\">Valid input types</td></tr>";
 			$table           .= "<tr><td>Formparameters</td><td>Parameters</td><td>Input types</td><td>Form Hooks</td><td>File input</td><td>Email</td></tr>";
@@ -1389,7 +1389,7 @@ class SpecialFlexForm extends \SpecialPage {
 				"",
 				true
 			);
-			$formhooks       = WSFormHooks::availableHooks();
+			$formhooks       = FlexFormHooks::availableHooks();
 			$table           .= "<tr><td><table>";
 			foreach ( $formParameters as $params ) {
 				$table .= "<tr><td>$params</td></tr>";
@@ -1471,9 +1471,9 @@ class SpecialFlexForm extends \SpecialPage {
 
 	private function showStatus( $debugSetting, $apiSettings = false ) {
 		if ( $apiSettings !== false ) {
-			$ret = '<h2>WSForm (calculated config)</h2>';
+			$ret = '<h2>FlexForm (calculated config)</h2>';
 		} else {
-			$ret = '<h2>WSForm config file status</h2><p>Check WSForm <strong>docs -> wsform -> config</strong> for information</p>';
+			$ret = '<h2>FlexForm config file status</h2><p>Check FlexForm <strong>docs -> wsform -> config</strong> for information</p>';
 		}
 
 		$ret .= "<table class='wsform-table'><thead><tr><th>Variable</th><th>Type</th><th>Value</th></tr></thead><tbody>";
@@ -1528,7 +1528,7 @@ class SpecialFlexForm extends \SpecialPage {
 		return $ret;
 	}
 
-	private function setupWSForm( $path, $purl ) {
+	private function setupFlexForm( $path, $purl ) {
 		global $wgGroupPermissions, $wgAllowCopyUploads, $wgCopyUploadsFromSpecialUpload;
 
 		$mwcheck = "<table><thead><th>MediaWiki option</th><th>status</th></thead><tbody>";
