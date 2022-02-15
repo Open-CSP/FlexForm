@@ -75,17 +75,20 @@ class TagHooks {
 				$_COOKIE['wsform']['txt']
 			);
 
-			setcookie(
+			$wR = new \WebResponse();
+			$wR->setCookie(
 				"wsform[type]",
 				"",
 				time() - 3600,
-				'/'
+				[ 'path' => '/' ,
+				  'prefix' => '' ]
 			);
-			setcookie(
+			$wR->setCookie(
 				"wsform[txt]",
 				"",
 				time() - 3600,
-				'/'
+				[ 'path' => '/' ,
+				  'prefix' => '' ]
 			);
 
 			return [

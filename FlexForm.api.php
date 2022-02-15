@@ -38,10 +38,7 @@ if ( ! defined( 'MEDIAWIKI' ) ) {
 	die( 'no no no sir' );
 }
 
-$cookieParams = session_get_cookie_params();
-$cookieParams['samesite'] = "Lax";
-session_set_cookie_params($cookieParams);
-session_start();
+
 $ret = false;
 
 $removeList = array();

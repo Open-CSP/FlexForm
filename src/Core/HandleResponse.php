@@ -282,26 +282,30 @@ class HandleResponse {
 	 * @param string $type
 	 */
 	public function setCookieMessage( string $msg, string $type = "danger" ) {
+		$wR = new \WebResponse();
 		if ( $msg !== '' ) {
-			setcookie(
+			$wR->setCookie(
 				"wsform[type]",
 				$type,
 				0,
-				'/'
+				[ 'path' => '/' ,
+				  'prefix' => '' ]
 			);
 			if ( $type !== "danger" ) {
-				setcookie(
+				$wR->setCookie(
 					"wsform[txt]",
 					$msg,
 					0,
-					'/'
+					[ 'path' => '/',
+					  'prefix' => '' ]
 				);
 			} else {
-				setcookie(
+				$wR->setCookie(
 					"wsform[txt]",
 					'FlexForm :: ' . $msg,
 					0,
-					'/'
+					[ 'path' => '/' ,
+					  'prefix' => '' ]
 				);
 			}
 		}

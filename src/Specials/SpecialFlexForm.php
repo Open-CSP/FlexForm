@@ -48,17 +48,20 @@ class SpecialFlexForm extends \SpecialPage {
 
 
 	public function makeMessage( $msg, $type = "danger" ) {
-		setcookie(
+		$wR = new \WebResponse();
+		$wR->setCookie(
 			"wsform[type]",
 			$type,
 			0,
-			'/'
+			[ 'path' => '/' ,
+			  'prefix' => '' ]
 		);
-		setcookie(
+		$wR->setCookie(
 			"wsform[txt]",
 			$msg,
 			0,
-			'/'
+			[ 'path' => '/' ,
+			  'prefix' => '' ]
 		);
 	}
 

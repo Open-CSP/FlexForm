@@ -741,7 +741,6 @@ function createAlertsIfNeeded(){
         if( type === 'danger' ) type = 'error';
         if( type === 'warning' ) type = 'warn';
         mw.notify( alert.text(), { autoHide: false, type: type } );
-        console.log( alert );
     }
 }
 
