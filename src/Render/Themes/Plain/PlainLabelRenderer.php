@@ -1,11 +1,11 @@
 <?php
 
-namespace WSForm\Render\Themes\WSForm;
+namespace FlexForm\Render\Themes\Plain;
 
-use WSForm\Render\Themes\LabelRenderer;
+use FlexForm\Render\Themes\LabelRenderer;
 use Xml;
 
-class WSFormLabelRenderer implements LabelRenderer {
+class PlainLabelRenderer implements LabelRenderer {
     /**
      * @inheritDoc
      */

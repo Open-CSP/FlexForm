@@ -8,11 +8,11 @@
  * Time        : 21:23
  */
 
-namespace WSForm\Processors\Content;
+namespace FlexForm\Processors\Content;
 
-use WSForm\Core\Config;
-use WSForm\Core\Debug;
-use WSForm\Processors\Utilities\General;
+use FlexForm\Core\Config;
+use FlexForm\Core\Debug;
+use FlexForm\Processors\Utilities\General;
 
 /**
  * Class for editing pages

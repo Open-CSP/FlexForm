@@ -9,12 +9,12 @@
  */
 
 
-namespace WSForm\Processors\Request;
+namespace FlexForm\Processors\Request;
 
-use WSForm\Core\Protect;
-use WSForm\Processors\Utilities\General;
-use WSForm\Modules\Handlers\Handlers;
-use WSForm\WSFormException;
+use FlexForm\Core\Protect;
+use FlexForm\Processors\Utilities\General;
+use FlexForm\Modules\Handlers\Handlers;
+use FlexForm\WSFormException;
 
 /**
  * Class external

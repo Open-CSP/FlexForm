@@ -8,10 +8,10 @@
  * Time        : 13:08
  */
 
-namespace WSForm\Core;
+namespace FlexForm\Core;
 
 use Database;
-use WSForm\WSFormException;
+use FlexForm\WSFormException;
 
 /**
  * Class to gather information down the path of form handling and create responses

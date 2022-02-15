@@ -9,10 +9,10 @@
  */
 
 
-namespace WSForm\Processors\Request;
+namespace FlexForm\Processors\Request;
 
-use WSForm\Core\Protect;
-use WSForm\Processors\Utilities\General;
+use FlexForm\Core\Protect;
+use FlexForm\Processors\Utilities\General;
 
 
 /**

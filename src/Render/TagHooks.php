@@ -1,15 +1,15 @@
 <?php
 
-namespace WSForm\Render;
+namespace FlexForm\Render;
 
 use Parser;
 use PPFrame;
 use RequestContext;
-use WSForm\Core\Config;
-use WSForm\Core\Core;
-use WSForm\Core\Protect;
-use WSForm\Core\Validate;
-use WSForm\WSFormException;
+use FlexForm\Core\Config;
+use FlexForm\Core\Core;
+use FlexForm\Core\Protect;
+use FlexForm\Core\Validate;
+use FlexForm\WSFormException;
 
 /**
  * Class TagHooks
@@ -1185,6 +1185,7 @@ class TagHooks {
 	 * @throws WSFormException
 	 */
 	public function renderLegend( $input, array $args, Parser $parser, PPFrame $frame ) {
+
 		if ( isset( $args['class'] ) ) {
 			$class = $parser->recursiveTagParse(
 					$args['class'],

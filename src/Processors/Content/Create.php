@@ -8,14 +8,14 @@
  * Time        : 21:22
  */
 
-namespace WSForm\Processors\Content;
+namespace FlexForm\Processors\Content;
 
-use WSForm\Core\Config;
-use WSForm\Core\Debug;
-use WSForm\Processors\Definitions;
-use WSForm\Processors\Security\wsSecurity;
-use WSForm\Processors\Utilities\General;
-use WSForm\WSFormException;
+use FlexForm\Core\Config;
+use FlexForm\Core\Debug;
+use FlexForm\Processors\Definitions;
+use FlexForm\Processors\Security\wsSecurity;
+use FlexForm\Processors\Utilities\General;
+use FlexForm\WSFormException;
 
 class Create {
 

@@ -8,14 +8,14 @@
  * Time        : 15:05
  */
 
-namespace WSForm\Processors\Files;
+namespace FlexForm\Processors\Files;
 
 use wsform\processors\api\mediawiki\render;
 use wsform\processors\api\mwApi;
-use WSForm\Processors\Utilities\General;
-use WSForm\WSFormException;
-use WSForm\Core\Config;
-use WSForm\Processors\Files\FilesCore;
+use FlexForm\Processors\Utilities\General;
+use FlexForm\WSFormException;
+use FlexForm\Core\Config;
+use FlexForm\Processors\Files\FilesCore;
 
 /**
  * Class signature

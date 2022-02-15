@@ -8,9 +8,9 @@
  * Time        : 13:01
  */
 
-namespace WSForm\Core;
+namespace FlexForm\Core;
 
-use WSForm\WSFormException;
+use FlexForm\WSFormException;
 
 class Protect {
 

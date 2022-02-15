@@ -8,7 +8,7 @@
  * Time        : 17:54
  */
 
-namespace WSForm\Processors\Files;
+namespace FlexForm\Processors\Files;
 
 use wsform\processors\utilities\wsUtilities;
 use wsform\processors\wbHandleResponses;

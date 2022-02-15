@@ -1,9 +1,9 @@
 /**
- * @brief This file holds some general JavaScript for WSForm.
+ * @brief This file holds some general JavaScript for FlexForm.
  * Currently it holds some function for select2 tokens (which will become deprecated)
  * and a function that will hold other JavaScript function until jQuery is loaded
  *
- * @file WSForm.general.js
+ * @file FlexForm.general.js
  * @author Sen-Sai
  *
  */
@@ -232,7 +232,7 @@ function waitForVE(method) {
 }
 
 /**
- * Does WSForm have the editor argument, then use it
+ * Does FlexForm have the editor argument, then use it
  */
 function initializeWSFormEditor() {
     if (typeof WSFormEditor !== 'undefined' && WSFormEditor === 'VE') {
@@ -501,7 +501,7 @@ function wsform(btn, callback = 0, preCallback = 0, showId = 0 ) {
             u = "";
         }
 
-        $.getScript(u + '/extensions/WSForm/Modules/notify.js');
+        $.getScript(u + '/extensions/FlexForm/Modules/notify.js');
     }
 
     var val = $(btn).prop('value');
@@ -574,7 +574,7 @@ function wsform(btn, callback = 0, preCallback = 0, showId = 0 ) {
                         callback(frm);
                     }
                 } else {
-                    $.notify('WSForm : ERROR: ' + result.message, "error");
+                    $.notify('FlexForm : ERROR: ' + result.message, "error");
                 }
             }
         });
@@ -619,7 +619,7 @@ function addTokenInfo() {
             e.preventDefault();
             var pform = $(this);
             if ($(this).data('wsform') && $(this).data('wsform') === 'wsform-general') {
-                // We have a WSForm form
+                // We have a FlexForm form
                 $('<input />')
                     .attr('type', 'hidden')
                     .attr('name', 'wsedittoken')
@@ -701,8 +701,8 @@ function attachTokens() {
                 scriptPath = '';
             }
             scriptPath = scriptPath.replace("/index.php", "");
-            mw.loader.load(scriptPath + '/extensions/WSForm/Modules/select2.min.css', 'text/css');
-            $.getScript(scriptPath + '/extensions/WSForm/Modules/select2.min.js').done(function () {
+            mw.loader.load(scriptPath + '/extensions/FlexForm/Modules/select2.min.css', 'text/css');
+            $.getScript(scriptPath + '/extensions/FlexForm/Modules/select2.min.js').done(function () {
                 $('select[data-inputtype="ws-select2"]').each(function () {
                     var selectid = $(this).attr('id');
                     var selectoptionsid = 'select2options-' + selectid;
@@ -741,6 +741,7 @@ function createAlertsIfNeeded(){
         if( type === 'danger' ) type = 'error';
         if( type === 'warning' ) type = 'warn';
         mw.notify( alert.text(), { autoHide: false, type: type } );
+        console.log( alert );
     }
 }
 

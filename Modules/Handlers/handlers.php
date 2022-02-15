@@ -8,4 +8,4 @@
  * Time        : 13:26
  */
 
-namespace WSForm\Processors\Utilities\General;
+namespace FlexForm\Processors\Utilities\General;

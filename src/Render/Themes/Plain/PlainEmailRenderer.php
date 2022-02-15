@@ -1,11 +1,11 @@
 <?php
 
 
-namespace WSForm\Render\Themes\WSForm;
+namespace FlexForm\Render\Themes\Plain;
 
-use WSForm\Render\Themes\EmailRenderer;
+use FlexForm\Render\Themes\EmailRenderer;
 
-class WSFormEmailRenderer implements EmailRenderer {
+class PlainEmailRenderer implements EmailRenderer {
     /**
      * @inheritDoc
      */

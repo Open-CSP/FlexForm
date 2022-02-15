@@ -8,7 +8,7 @@
  * Time        : 13:33
  */
 
-namespace WSForm\Core;
+namespace FlexForm\Core;
 
 class Debug {
 	private static $debugMessages = array();
@@ -49,7 +49,7 @@ ENDING;
 
 	public static function createDebugOutput() {
 		$ret = self::debugCSS();
-		$ret .= '<h2>WSForm Debug</h2><div class="wsform-debug">';
+		$ret .= '<h2>FlexForm Debug</h2><div class="wsform-debug">';
 		foreach( self::$debugMessages as $title=>$message ) {
 			$ret .= '<details><summary>'.$title.'</summary>';
 			$ret .= '<div>';

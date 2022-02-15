@@ -1,11 +1,11 @@
 <?php
 
-namespace WSForm\Render\Themes\WSForm;
+namespace FlexForm\Render\Themes\Plain;
 
-use WSForm\Render\Themes\SelectRenderer;
+use FlexForm\Render\Themes\SelectRenderer;
 use Xml;
 
-class WSFormSelectRenderer implements SelectRenderer {
+class PlainSelectRenderer implements SelectRenderer {
 	const OPTION_SEPARATOR = '::';
 
 	/**

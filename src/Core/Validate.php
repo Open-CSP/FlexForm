@@ -8,9 +8,9 @@
  * Time        : 21:43
  */
 
-namespace WSForm\Core;
+namespace FlexForm\Core;
 
-use WSForm\WSFormException;
+use FlexForm\WSFormException;
 
 class Validate {
 	/**

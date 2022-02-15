@@ -1,6 +1,6 @@
 <?php
 /**
- * Aliases for special pages of the WSForm extension
+ * Aliases for special pages of the FlexForm extension
  *
  * @file
  * @ingroup Extensions
@@ -10,5 +10,5 @@ $specialPageAliases = [];
 
 /** English (English) */
 $specialPageAliases['en'] = [
-	'WSForm' => [ 'WSForm' ],
+	'FlexForm' => [ 'FlexForm' ],
 ];

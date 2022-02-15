@@ -1,17 +1,17 @@
 <?php
 
-namespace WSForm\Processors\Content;
+namespace FlexForm\Processors\Content;
 
 use MWException;
 use RequestContext;
-use WSForm\Core\Config;
-use WSForm\Core\Debug;
-use WSForm\Core\HandleResponse;
-use WSForm\Processors\Security\wsSecurity;
-use WSForm\Processors\Definitions;
-use WSForm\Processors\Utilities\General;
-use WSForm\Processors\Files\FilesCore;
-use WSForm\WSFormException;
+use FlexForm\Core\Config;
+use FlexForm\Core\Debug;
+use FlexForm\Core\HandleResponse;
+use FlexForm\Processors\Security\wsSecurity;
+use FlexForm\Processors\Definitions;
+use FlexForm\Processors\Utilities\General;
+use FlexForm\Processors\Files\FilesCore;
+use FlexForm\WSFormException;
 
 /**
  * Class Content core

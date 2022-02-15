@@ -7,10 +7,10 @@
 # @Copyright: 2018
 
 use MediaWiki\MediaWikiServices;
-use WSForm\Core\Core;
-use WSForm\Render\TagHooks;
-use WSForm\Render\Validate;
-use WSForm\WSFormException;
+use FlexForm\Core\Core;
+use FlexForm\Render\TagHooks;
+use FlexForm\Render\Validate;
+use FlexForm\WSFormException;
 
 /**
  * Class WSFormHooks
@@ -89,16 +89,137 @@ class WSFormHooks {
 
 		$tagHooks = new TagHooks( MediaWikiServices::getInstance()->getService( 'WSForm.ThemeStore' ) );
 
-		$parser->setHook( 'wsform', [$tagHooks, 'renderForm'] );
-		$parser->setHook( 'wsfield', [$tagHooks, 'renderField'] );
-		$parser->setHook( 'wsfieldset', [$tagHooks, 'renderFieldset'] );
-		$parser->setHook( 'wslegend', [$tagHooks, 'renderLegend'] );
-		$parser->setHook( 'wslabel', [$tagHooks, 'renderLabel'] );
-		$parser->setHook( 'wsselect', [$tagHooks, 'renderSelect'] );
-		$parser->setHook( 'wstoken', [$tagHooks, 'renderToken'] );
-		$parser->setHook( 'wsedit', [$tagHooks, 'renderEdit'] );
-		$parser->setHook( 'wscreate', [$tagHooks, 'renderCreate'] );
-		$parser->setHook( 'wsemail', [$tagHooks, 'renderEmail'] );
-		$parser->setHook( 'wsinstance', [$tagHooks, 'renderInstance'] );
+		$parser->setHook(
+			'wsform',
+			[
+				$tagHooks,
+				'renderForm'
+			] );
+		$parser->setHook(
+			'wsfield',
+			[
+				$tagHooks,
+				'renderField'
+			] );
+		$parser->setHook(
+			'wsfieldset',
+			[
+				$tagHooks,
+				'renderFieldset'
+			] );
+		$parser->setHook(
+			'wslegend',
+			[
+				$tagHooks,
+				'renderLegend'
+			] );
+		$parser->setHook(
+			'wslabel',
+			[
+				$tagHooks,
+				'renderLabel'
+			] );
+		$parser->setHook(
+			'wsselect',
+			[
+				$tagHooks,
+				'renderSelect'
+			] );
+		$parser->setHook(
+			'wstoken',
+			[
+				$tagHooks,
+				'renderToken'
+			] );
+		$parser->setHook(
+			'wsedit',
+			[
+				$tagHooks,
+				'renderEdit'
+			] );
+		$parser->setHook(
+			'wscreate',
+			[
+				$tagHooks,
+				'renderCreate'
+			] );
+		$parser->setHook(
+			'wsemail',
+			[
+				$tagHooks,
+				'renderEmail'
+			] );
+		$parser->setHook(
+			'wsinstance',
+			[
+				$tagHooks,
+				'renderInstance'
+			] );
+		$parser->setHook(
+			'_form',
+			[
+				$tagHooks,
+				'renderForm'
+			] );
+		$parser->setHook(
+			'_input',
+			[
+				$tagHooks,
+				'renderField'
+			] );
+		$parser->setHook(
+			'_fieldset',
+			[
+				$tagHooks,
+				'renderFieldset'
+			] );
+		$parser->setHook(
+			'_legend',
+			[
+				$tagHooks,
+				'renderLegend'
+			] );
+		$parser->setHook(
+			'_label',
+			[
+				$tagHooks,
+				'renderLabel'
+			] );
+		$parser->setHook(
+			'_select',
+			[
+				$tagHooks,
+				'renderSelect'
+			] );
+		$parser->setHook(
+			'_token',
+			[
+				$tagHooks,
+				'renderToken'
+			] );
+		$parser->setHook(
+			'_edit',
+			[
+				$tagHooks,
+				'renderEdit'
+			] );
+		$parser->setHook(
+			'_create',
+			[
+				$tagHooks,
+				'renderCreate'
+			] );
+		$parser->setHook(
+			'_email',
+			[
+				$tagHooks,
+				'renderEmail'
+			] );
+		$parser->setHook(
+			'_instance',
+			[
+				$tagHooks,
+				'renderInstance'
+			] );
 	}
 }

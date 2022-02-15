@@ -8,13 +8,13 @@
 # @version : 0.6.9.3.7
 
 //namespace wsform\special;
-namespace WSForm\Specials;
+namespace FlexForm\Specials;
 
 use SpecialPage;
-use wbApi;
-use wsform;
-use wsform\validate\validate as validate;
-use WSFormHooks;
+
+use FlexForm;
+use FlexForm\validate\validate as validate;
+use FlexFormHooks;
 
 use function setcookie;
 use function wfMessage;
@@ -27,7 +27,7 @@ use const PHP_EOL;
  * @file
  * @ingroup Extensions
  */
-class SpecialWSForm extends \SpecialPage {
+class SpecialFlexForm extends \SpecialPage {
 
 
 	public $allowEditDocs = true;
@@ -394,7 +394,7 @@ class SpecialWSForm extends \SpecialPage {
 			// We need to handle api calls here
 			//error_reporting( -1 );
 			//ini_set( 'display_errors', 1 );
-			include_once $IP . "/extensions/WSForm/WSForm.api.php";
+			include_once $IP . "/extensions/WSForm/FlexForm.api.php";
 
 			return true;
 		}

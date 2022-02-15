@@ -11,10 +11,10 @@ use RequestContext;
 use Title;
 use User;
 use WikiPage;
-use WSForm\Core\Config;
-use WSForm\Core\Debug;
-use WSForm\Core\HandleResponse;
-use WSForm\WSFormException;
+use FlexForm\Core\Config;
+use FlexForm\Core\Debug;
+use FlexForm\Core\HandleResponse;
+use FlexForm\WSFormException;
 
 class Save {
 
@@ -159,7 +159,7 @@ class Save {
 			);
 		}
 
-		if ( true === $status ) {
+		if ( $status === true ) {
 			return true;
 		} else {
 			return $errors;

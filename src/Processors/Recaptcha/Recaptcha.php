@@ -8,11 +8,11 @@
  * Time        : 14:10
  */
 
-namespace WSForm\Processors\Recaptcha;
+namespace FlexForm\Processors\Recaptcha;
 
-use WSForm\Core\Config;
-use WSForm\Processors\Utilities\General;
-use WSForm\WSFormException;
+use FlexForm\Core\Config;
+use FlexForm\Processors\Utilities\General;
+use FlexForm\WSFormException;
 
 /**
  * Class recaptcha

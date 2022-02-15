@@ -8,9 +8,9 @@
  * Time        : 12:35
  */
 
-namespace WSForm\Processors;
+namespace FlexForm\Processors;
 
-use WSForm\Processors\Utilities\General;
+use FlexForm\Processors\Utilities\General;
 
 class Definitions {
 

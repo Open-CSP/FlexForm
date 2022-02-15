@@ -1,15 +1,15 @@
 <?php
 
-namespace WSForm\Render\Themes\WSForm;
+namespace FlexForm\Render\Themes\Plain;
 
 use Parser;
 use PPFrame;
-use WSForm\Core\Core;
-use WSForm\Core\Validate;
-use WSForm\Render\Themes\FieldRenderer;
+use FlexForm\Core\Core;
+use FlexForm\Core\Validate;
+use FlexForm\Render\Themes\FieldRenderer;
 use Xml;
 
-class WSFormFieldRenderer implements FieldRenderer {
+class PlainFieldRenderer implements FieldRenderer {
 	/**
 	 * @inheritDoc
 	 */
@@ -274,7 +274,7 @@ class WSFormFieldRenderer implements FieldRenderer {
 			$jsChange .= "\n" . "wachtff(WSFile" . $random . ");\n";
 			Core::includeInlineScript( $jsChange );
 			//$ret     .= '<script>$( document ).ready(function() { $("#' . $random . '").on("change", function(){ wsfiles( "' . $id . '", "' . $verbose_id . '", "' . $error_id . '", "' . $use_label . '", "' . $verbose_custom . '", "' . $error_custom . '");});});</script>';
-			$css     = file_get_contents( "$IP/extensions/WSForm/Modules/WSForm_upload.css" );
+			$css     = file_get_contents( "$IP/extensions/FlexForm/Modules/WSForm_upload.css" );
 			$replace = array(
 				'{{verboseid}}',
 				'{{errorid}}',
@@ -296,7 +296,7 @@ class WSFormFieldRenderer implements FieldRenderer {
 			//$ret     .= $css;
 			if ( ! Core::isLoaded( 'WSFORM_upload.js' ) ) {
 				Core::addAsLoaded( 'WSFORM_upload.js' );
-				$js = file_get_contents( "$IP/extensions/WSForm/Modules/WSForm_upload.js" );
+				$js = file_get_contents( "$IP/extensions/FlexForm/Modules/WSForm_upload.js" );
 				Core::includeInlineScript( $js );
 			} else {
 				$js = '';

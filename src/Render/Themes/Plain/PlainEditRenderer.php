@@ -1,10 +1,10 @@
 <?php
 
-namespace WSForm\Render\Themes\WSForm;
+namespace FlexForm\Render\Themes\Plain;
 
-use WSForm\Render\Themes\EditRenderer;
+use FlexForm\Render\Themes\EditRenderer;
 
-class WSFormEditRenderer implements EditRenderer {
+class PlainEditRenderer implements EditRenderer {
     /**
      * @inheritDoc
      */

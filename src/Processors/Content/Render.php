@@ -8,14 +8,14 @@
  * Time        : 21:29
  */
 
-namespace WSForm\Processors\Content;
+namespace FlexForm\Processors\Content;
 
 use \ApiMain, \DerivativeContext, \FauxRequest, \DerivativeRequest, MWException, RequestContext, WSForm\Processors\Utilities\General;
 use ContentHandler;
 use MediaWiki\Content\ContentHandlerFactory;
 use Title;
 use WikiPage;
-use WSForm\WSFormException;
+use FlexForm\WSFormException;
 
 class Render {
 

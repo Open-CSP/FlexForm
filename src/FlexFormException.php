@@ -8,7 +8,7 @@
  * Time        : 12:33
  */
 
-namespace WSForm;
+namespace FlexForm;
 
 use Exception;
 

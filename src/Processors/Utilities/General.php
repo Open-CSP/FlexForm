@@ -8,11 +8,11 @@
  * Time        : 12:38
  */
 
-namespace WSForm\Processors\Utilities;
+namespace FlexForm\Processors\Utilities;
 
 use HTMLPurifier;
 use HTMLPurifier_Config;
-use WSForm\Processors\Security\wsSecurity;
+use FlexForm\Processors\Security\wsSecurity;
 
 /**
  * Class wsUtilities

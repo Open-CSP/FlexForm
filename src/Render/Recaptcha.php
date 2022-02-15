@@ -8,7 +8,7 @@
  * Time        : 20:54
  */
 
-namespace WSForm\Render;
+namespace FlexForm\Render;
 
 // TODO: Cleanup and move to theme
 class Recaptcha {

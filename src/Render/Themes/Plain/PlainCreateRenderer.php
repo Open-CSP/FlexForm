@@ -1,11 +1,11 @@
 <?php
 
-namespace WSForm\Render\Themes\WSForm;
+namespace FlexForm\Render\Themes\Plain;
 
-use WSForm\Core\Core;
-use WSForm\Render\Themes\CreateRenderer;
+use FlexForm\Core\Core;
+use FlexForm\Render\Themes\CreateRenderer;
 
-class WSFormCreateRenderer implements CreateRenderer {
+class PlainCreateRenderer implements CreateRenderer {
     /**
      * @inheritDoc
      */

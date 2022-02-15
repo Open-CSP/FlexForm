@@ -1,11 +1,11 @@
 <?php
 
-namespace WSForm\Render;
+namespace FlexForm\Render;
 
 use MediaWiki\HookContainer\HookContainer;
-use WSForm\Render\Themes\Theme;
-use WSForm\Render\Themes\WSForm\WSFormTheme;
-use WSForm\WSFormException;
+use FlexForm\Render\Themes\Theme;
+use FlexForm\Render\Themes\WSForm\WSFormTheme;
+use FlexForm\WSFormException;
 
 /**
  * Class Render

@@ -1,13 +1,13 @@
 <?php
 
 
-namespace WSForm\Render\Themes\WSForm;
+namespace FlexForm\Render\Themes\Plain;
 
-use WSForm\Core\Core;
-use WSForm\Render\Themes\TokenRenderer;
+use FlexForm\Core\Core;
+use FlexForm\Render\Themes\TokenRenderer;
 use Xml;
 
-class WSFormTokenRenderer implements TokenRenderer {
+class PlainTokenRenderer implements TokenRenderer {
     /**
      * @inheritDoc
      */

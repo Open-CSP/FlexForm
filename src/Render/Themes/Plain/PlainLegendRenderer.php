@@ -1,10 +1,10 @@
 <?php
 
-namespace WSForm\Render\Themes\WSForm;
+namespace FlexForm\Render\Themes\Plain;
 
-use WSForm\Render\Themes\LegendRenderer;
+use FlexForm\Render\Themes\LegendRenderer;
 
-class WSFormLegendRenderer implements LegendRenderer {
+class PlainLegendRenderer implements LegendRenderer {
     /**
      * @inheritDoc
      */

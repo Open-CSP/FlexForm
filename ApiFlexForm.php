@@ -4,14 +4,14 @@ use Wikimedia\ParamValidator\ParamValidator;
 
 /**
  * Created by  : Designburo.nl
- * Project     : wsformWikiBaseNL
- * Filename    : ApiWSForm.php
+ * Project     : flexformWikiBaseNL
+ * Filename    : ApiFlexForm.php
  * Description :
  * Date        : 09/10/2020
  * Time        : 20:14
  */
 
-class ApiWSForm extends ApiBase {
+class ApiFlexForm extends ApiBase {
 
 	private function returnFailure( $failure ) {
 		$ret = array();
@@ -77,9 +77,9 @@ class ApiWSForm extends ApiBase {
 
 	private function searchDocs( $keyword ){
 		global $IP, $wgScript;
-		$path = $IP . '/extensions/WSForm/docs/';
+		$path = $IP . '/extensions/FlexForm/docs/';
 		$realUrl = str_replace( '/index.php', '', $wgScript );
-		$purl = $realUrl . "/index.php/Special:WSForm/Docs";
+		$purl = $realUrl . "/index.php/Special:FlexForm/Docs";
 		$fileList = glob($path.'*.json');
 		$data = [];
 
@@ -152,13 +152,13 @@ class ApiWSForm extends ApiBase {
 				$title = $params['titleStartsWith'];
 				$range = $params['range'];
 				if (!$range || $range === null) {
-					$this->returnFailure( wfMessage('wsform-api-error-parameter-range-missing')->text() );
+					$this->returnFailure( wfMessage('flexform-api-error-parameter-range-missing')->text() );
 					break;
 				}
 				$range = explode('-', $range);
 
 				if( !ctype_digit( $range[0] ) || !ctype_digit( $range[1] ) ) {
-					$this->returnFailure( wfMessage('wsform-api-error-bad-range')->text() );
+					$this->returnFailure( wfMessage('flexform-api-error-bad-range')->text() );
 					break;
 				}
 				$startRange = (int)$range[0];
@@ -172,7 +172,7 @@ class ApiWSForm extends ApiBase {
 				$output = $result['data'];
 				break;
 			default :
-				$this->returnFailure( wfMessage('wsform-api-error-unknown-what-parameter')->text() );
+				$this->returnFailure( wfMessage('flexform-api-error-unknown-what-parameter')->text() );
 				break;
 		}
 
@@ -225,12 +225,12 @@ class ApiWSForm extends ApiBase {
 			$appContinue = $this->getApiContinue( $result );
 
 			if( !isset( $result['query'] ) ) {
-				return $this->createResult('error', wfMessage('wsform-api-error-noquery-response')->text() );
+				return $this->createResult('error', wfMessage('flexform-api-error-noquery-response')->text() );
 			}
 
 			$pages = $result['query']['allpages'];
 			if( is_null( $pages ) || $pages === false ) {
-				return $this->createResult('error', wfMessage('wsform-api-error-allpages')->text() );
+				return $this->createResult('error', wfMessage('flexform-api-error-allpages')->text() );
 			}
 			if( isset( $pages['_element'] ) ) unset( $pages['_element'] );
 
@@ -323,13 +323,13 @@ class ApiWSForm extends ApiBase {
 			//var_dump( $appContinue );
 			//die();
 			if( !isset( $result['query'] ) ) {
-				return $this->createResult('error', wfMessage('wsform-api-error-noquery-response')->text());
+				return $this->createResult('error', wfMessage('flexform-api-error-noquery-response')->text());
 			}
 
 			$pages = $result['query']['allpages'];
 
 			if( is_null( $pages ) || $pages === false ) {
-				return $this->createResult('error', wfMessage('wsform-api-error-allpages')->text() );
+				return $this->createResult('error', wfMessage('flexform-api-error-allpages')->text() );
 			}
 			if( isset( $pages['_element'] ) ) unset( $pages['_element'] );
 
@@ -473,8 +473,8 @@ class ApiWSForm extends ApiBase {
 	 */
 	protected function getExamplesMessages():array {
 		return array(
-			'action=wsform&what=getRange&titleStartsWith=Invoice/&range=0000-9999' => 'apihelp-wsform-example-1',
-			'action=wsform&what=nextAvailable&&titleStartsWith=Invoice/' => 'apihelp-wsform-example-2'
+			'action=flexform&what=getRange&titleStartsWith=Invoice/&range=0000-9999' => 'apihelp-flexform-example-1',
+			'action=flexform&what=nextAvailable&&titleStartsWith=Invoice/' => 'apihelp-flexform-example-2'
 		);
 	}
 

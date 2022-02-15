@@ -1,10 +1,10 @@
 <?php
 
-namespace WSForm\Render\Themes\WSForm;
+namespace FlexForm\Render\Themes\Plain;
 
-use WSForm\Render\Themes\FieldsetRenderer;
+use FlexForm\Render\Themes\FieldsetRenderer;
 
-class WSFormFieldsetRenderer implements FieldsetRenderer {
+class PlainFieldsetRenderer implements FieldsetRenderer {
     /**
      * @inheritDoc
      */

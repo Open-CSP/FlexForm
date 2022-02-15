@@ -1,6 +1,6 @@
 {
-  "name": "WSForm",
-  "version": "1.0.0 Beta 3",
+  "name": "FlexForm",
+  "version": "1.0.0 Beta 4",
   "author": [
     "[https://www.wikibase-solutions.com/author/charlot Sen-Sai]"
   ],
@@ -9,36 +9,36 @@
   "license-name": "GPL v2",
   "type": "parserhook",
   "AutoloadClasses": {
-    "ApiWSForm": "ApiWSForm.php",
-    "WSFormHooks": "WSForm.hooks.php"
+    "ApiFlexForm": "ApiFlexForm.php",
+    "FlexFormHooks": "FlexForm.hooks.php"
   },
   "AutoloadNamespaces": {
-    "WSForm\\": "src/"
+    "FlexForm\\": "src/"
   },
   "ExtensionMessagesFiles": {
-    "WBFormAlias": "WSForm.i18n.alias.php"
+    "WBFormAlias": "FlexForm.i18n.alias.php"
   },
   "APIModules": {
-    "wsform": "ApiWSForm"
+    "flexform": "ApiFlexForm"
   },
   "Hooks": {
     "ParserFirstCallInit": [
-      "WSFormHooks::onParserFirstCallInit"
+      "FlexFormHooks::onParserFirstCallInit"
     ],
     "AdminLinks": [
-      "WSFormHooks::addToAdminLinks"
+      "FlexFormHooks::addToAdminLinks"
     ]
   },
   "MessagesDirs": {
-    "WSForm": [
+    "FlexForm": [
       "i18n"
     ]
   },
   "ServiceWiringFiles": [
-    "WSForm.ServiceWiring.php"
+    "FlexForm.ServiceWiring.php"
   ],
   "config": {
-    "WSFormConfig": {
+    "FlexFormConfig": {
       "file_temp_path": "",
       "rc_site_key": "",
       "rc_secret_key": "",
@@ -59,7 +59,7 @@
       "allow_special_page_setup": true,
       "use_api_user_only": false,
       "debug": false,
-      "WSFormDefaultTheme": "wsform"
+      "FlexFormDefaultTheme": "plain"
     }
   },
   "ResourceFileModulePaths": {
@@ -109,7 +109,7 @@
     }
   },
   "SpecialPages": {
-    "WSForm": "\\WSForm\\Specials\\SpecialWSForm"
+    "FlexForm": "\\FlexForm\\Specials\\SpecialFlexForm"
   },
   "manifest_version": 1
 }

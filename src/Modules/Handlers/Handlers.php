@@ -8,7 +8,7 @@
  * Time        : 13:26
  */
 
-namespace WSForm\Modules\Handlers;
+namespace FlexForm\Modules\Handlers;
 
 class Handlers {
 

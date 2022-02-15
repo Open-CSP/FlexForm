@@ -16,15 +16,15 @@ use MediaWiki\MediaWikiServices;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
-use WSForm\Core\Debug;
-use WSForm\Core\HandleResponse;
-use WSForm\Core\Config;
-use WSForm\Processors\Content\ContentCore;
-use WSForm\Processors\Recaptcha\Recaptcha;
-use WSForm\Processors\Request\External;
-use WSForm\Processors\Security\wsSecurity;
-use WSForm\Processors\Utilities\General;
-use WSForm\WSFormException;
+use FlexForm\Core\Debug;
+use FlexForm\Core\HandleResponse;
+use FlexForm\Core\Config;
+use FlexForm\Processors\Content\ContentCore;
+use FlexForm\Processors\Recaptcha\Recaptcha;
+use FlexForm\Processors\Request\External;
+use FlexForm\Processors\Security\wsSecurity;
+use FlexForm\Processors\Utilities\General;
+use FlexForm\WSFormException;
 
 // Are we inside the MediaWiki FrameWork ?
 if ( ! defined( 'MEDIAWIKI' ) ) {

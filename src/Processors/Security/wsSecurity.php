@@ -8,15 +8,15 @@
  * Time        : 12:41
  */
 
-namespace WSForm\Processors\Security;
+namespace FlexForm\Processors\Security;
 
-use WSForm\Core\Config;
-use WSForm\Core\Core;
-use WSForm\Core\Protect;
-use WSForm\Core\HandleResponse;
-use WSForm\Processors\Utilities\General;
-use WSForm\Processors;
-use WSForm\WSFormException;
+use FlexForm\Core\Config;
+use FlexForm\Core\Core;
+use FlexForm\Core\Protect;
+use FlexForm\Core\HandleResponse;
+use FlexForm\Processors\Utilities\General;
+use FlexForm\Processors;
+use FlexForm\WSFormException;
 
 class wsSecurity {
 

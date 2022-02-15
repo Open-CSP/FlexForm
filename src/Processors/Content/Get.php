@@ -8,13 +8,13 @@
  * Time        : 13:54
  */
 
-namespace WSForm\Processors\Content;
+namespace FlexForm\Processors\Content;
 
-use WSForm\Core\HandleResponse;
-use WSForm\Processors\Definitions;
-use WSForm\Processors\Security\wsSecurity;
-use WSForm\Processors;
-use WSForm\Processors\Utilities\General;
+use FlexForm\Core\HandleResponse;
+use FlexForm\Processors\Definitions;
+use FlexForm\Processors\Security\wsSecurity;
+use FlexForm\Processors;
+use FlexForm\Processors\Utilities\General;
 
 class Get {
 

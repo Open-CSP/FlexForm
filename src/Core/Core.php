@@ -8,7 +8,7 @@
  * Time        : 21:55
  */
 
-namespace WSForm\Core;
+namespace FlexForm\Core;
 
 
 class Core {

@@ -8,16 +8,16 @@
  * Time        : 08:44
  */
 
-namespace WSForm\Render\Themes\WSForm;
+namespace FlexForm\Render\Themes\Plain;
 
 use MediaWiki\Revision\RevisionRecord;
 use MWException;
 use RequestContext;
-use WSForm\Core\Core;
-use WSForm\Processors\Content\Edit;
-use WSForm\Render\Themes\InstanceRenderer;
+use FlexForm\Core\Core;
+use FlexForm\Processors\Content\Edit;
+use FlexForm\Render\Themes\InstanceRenderer;
 
-class WSFormInstanceRenderer implements InstanceRenderer {
+class PlainInstanceRenderer implements InstanceRenderer {
     private static function getArg( $name, $args ) {
 		if ( isset( $args[$name] ) && $args[$name] !== '' ) {
 			return $args[$name];

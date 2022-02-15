@@ -8,15 +8,15 @@
  * Time        : 20:34
  */
 
-namespace WSForm\Processors\Content;
+namespace FlexForm\Processors\Content;
 
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
-use WSForm\Core\Config;
-use WSForm\Core\Debug;
-use WSForm\Processors\Definitions;
-use WSForm\Processors\Security\wsSecurity;
-use WSForm\WSFormException;
+use FlexForm\Core\Config;
+use FlexForm\Core\Debug;
+use FlexForm\Processors\Definitions;
+use FlexForm\Processors\Security\wsSecurity;
+use FlexForm\WSFormException;
 
 /**
  * Class for mailings

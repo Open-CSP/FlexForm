@@ -1,13 +1,13 @@
 <?php
 
-namespace WSForm\Render\Themes\WSForm;
+namespace FlexForm\Render\Themes\Plain;
 
-use WSForm\Core\Config;
-use WSForm\Core\Core;
-use WSForm\Core\Protect;
-use WSForm\Render\Themes\FormRenderer;
+use FlexForm\Core\Config;
+use FlexForm\Core\Core;
+use FlexForm\Core\Protect;
+use FlexForm\Render\Themes\FormRenderer;
 
-class WSFormFormRenderer implements FormRenderer {
+class PlainFormRenderer implements FormRenderer {
 	/**
 	 * @inheritDoc
 	 */

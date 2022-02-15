@@ -1,8 +1,8 @@
 <?php
 
-namespace WSForm\Processors\Files;
+namespace FlexForm\Processors\Files;
 
-use WSForm\Processors\Utilities\General;
+use FlexForm\Processors\Utilities\General;
 
 class FilesCore {
 

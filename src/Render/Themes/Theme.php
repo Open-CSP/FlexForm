@@ -1,6 +1,6 @@
 <?php
 
-namespace WSForm\Render\Themes;
+namespace FlexForm\Render\Themes;
 
 /**
  * Class Theme

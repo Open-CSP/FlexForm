@@ -8,10 +8,10 @@
  * Time        : 12:48
  */
 
-namespace WSForm\Core;
+namespace FlexForm\Core;
 
 use \MediaWiki\MediaWikiServices;
-use WSForm\WSFormException;
+use FlexForm\WSFormException;
 
 class Config {
 
@@ -28,11 +28,16 @@ class Config {
 	 */
 	public static function setConfigFromMW() {
 		$config = MediaWikiServices::getInstance()->getMainConfig();
-		if ( $config->has( 'WSFormConfig' ) ) {
-			self::$WSFormConfig = $config->get( 'WSFormConfig' );
+		if ( $config->has( 'FlexFormConfig' ) ) {
+			self::$WSFormConfig = $config->get( 'FlexFormConfig' );
 			self::checkConfig();
 			self::$WSConfigStatus = true;
-		} else throw new WSFormException( 'No config set', 1 );
+		} else {
+			throw new WSFormException(
+				'No config set',
+				1
+			);
+		}
 	}
 
 	/**
@@ -54,35 +59,48 @@ class Config {
 	/**
 	 * @return bool
 	 */
-	public static function isDebug(){
+	public static function isDebug() {
 		return self::$debug;
 	}
 
 	/**
 	 * @return bool
 	 */
-	public static function isSecure(){
+	public static function isSecure() {
 		return self::$secure;
 	}
 
 	/**
 	 * Add additional checks and default to loaded config
 	 */
-	private static function checkConfig(){
+	private static function checkConfig() {
 		global $IP, $wgCanonicalServer;
-		$default_dir = $IP . "/extensions/WSForm/uploads/";
+		$default_dir = $IP . "/extensions/FlexForm/uploads/";
 		$filePathFromConfig = self::getConfigVariable( 'file_temp_path' );
-		if( self::getConfigVariable( 'debug' ) !== null ) self::$debug = self::getConfigVariable( 'debug' );
-		if( self::getConfigVariable( 'secure' ) !== null ) self::$secure = self::getConfigVariable( 'secure' );
-		$canonical = self::getConfigVariable( 'wgCanonicalServer' );
-		if( is_null( $filePathFromConfig ) ) {
-			if( !file_exists( $default_dir ) ) {
-				mkdir( $default_dir, 0777 );
-			}
-			self::$WSFormConfig['file_temp_path'] = rtrim( $default_dir, '/' ) . '/';
+		if ( self::getConfigVariable( 'debug' ) !== null ) {
+			self::$debug = self::getConfigVariable( 'debug' );
 		}
-		if( is_null( $canonical ) ) {
-			self::$WSFormConfig['wgCanonicalServer'] = rtrim( $wgCanonicalServer , '/' ) . '/';
+		if ( self::getConfigVariable( 'secure' ) !== null ) {
+			self::$secure = self::getConfigVariable( 'secure' );
+		}
+		$canonical = self::getConfigVariable( 'wgCanonicalServer' );
+		if ( is_null( $filePathFromConfig ) ) {
+			if ( ! file_exists( $default_dir ) ) {
+				mkdir(
+					$default_dir,
+					0777
+				);
+			}
+			self::$WSFormConfig['file_temp_path'] = rtrim(
+														$default_dir,
+														'/'
+													) . '/';
+		}
+		if ( is_null( $canonical ) ) {
+			self::$WSFormConfig['wgCanonicalServer'] = rtrim(
+														   $wgCanonicalServer,
+														   '/'
+													   ) . '/';
 		}
 	}
 
