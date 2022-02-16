@@ -60,6 +60,10 @@ class Definitions {
 		];
 	}
 
+	public static function fileUploadFields(): array {
+
+	}
+
 	/**
 	 * Get all the fields needed to edit or create a page
 	 *

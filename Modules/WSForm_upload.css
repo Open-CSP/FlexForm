@@ -21,4 +21,21 @@
   max-width:150px;
 }
 
+.wsform-dropzone {
+  min-height: 100px;
+  border:1px dotted red;
+  position: relative;
+}
+
+.wsform-dropzone:after {
+  position: absolute;
+  content:'Drop files';
+  left:0;
+  top:0;
+  width:100%;
+  text-align:center;
+  height:1.25rem;
+  color:blue;
+}
+
 </style>

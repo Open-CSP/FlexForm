@@ -75,21 +75,8 @@ class TagHooks {
 				$_COOKIE['wsform']['txt']
 			);
 
-			$wR = new \WebResponse();
-			$wR->setCookie(
-				"wsform[type]",
-				"",
-				time() - 3600,
-				[ 'path' => '/' ,
-				  'prefix' => '' ]
-			);
-			$wR->setCookie(
-				"wsform[txt]",
-				"",
-				time() - 3600,
-				[ 'path' => '/' ,
-				  'prefix' => '' ]
-			);
+			setcookie( "wsform[type]", "", time() - 3600, '/' );
+			setcookie( "wsform[txt]", "", time() - 3600, '/' );
 
 			return [
 				$alertTag,
@@ -352,8 +339,8 @@ class TagHooks {
 		}
 
 		$actionUrl = $formTarget ?? Core::getAPIurl();
-		$input     = $parser->recursiveTagParseFully(
-			$input,
+		$output     = $parser->recursiveTagParse(
+			trim( $input ),
 			$frame
 		);
 
@@ -375,7 +362,7 @@ class TagHooks {
 
 			// Render the actual contents of the form
 			$ret .= $this->themeStore->getFormTheme()->getFormRenderer()->render_form(
-					$input,
+					$output,
 					$actionUrl,
 					$mwReturn,
 					$formId,
@@ -485,10 +472,7 @@ class TagHooks {
 
 		// Parse the arguments
 		foreach ( $args as $name => $value ) {
-			$args[$name] = $parser->recursiveTagParse(
-				$value,
-				$frame
-			);
+			$args[$name] = $this->tagParseIfNeeded( $value, $parser, $frame );
 		}
 
 		$renderer = $this->themeStore->getFormTheme()->getFieldRenderer();
@@ -575,7 +559,7 @@ class TagHooks {
 			case 'file':
 				// TODO: Move most of the render_file logic to here
 				// TODO: Can you do this @Charlot?
-				$ret = $renderer->render_file( $args );
+				$ret = trim( $renderer->render_file( $this->renderFileUpload( $args ) ) );
 
 				break;
 			case 'date':
@@ -1223,6 +1207,21 @@ class TagHooks {
 	}
 
 	/**
+	 * @param string $content
+	 * @param Parser $parser
+	 * @param PPFrame $frame
+	 *
+	 * @return string
+	 */
+	private function tagParseIfNeeded( $content, Parser $parser, PPFrame $frame ) {
+		if ( ( strpos( $content, '{' ) !== false ) && ( strpos( $content, '}' ) !== false ) ) {
+			return $parser->recursiveTagParse( $content, $frame );
+		} else {
+			return $content;
+		}
+	}
+
+	/**
 	 * @brief renders the html label
 	 *
 	 * @param string $input Received from parser from begin till end
@@ -1249,10 +1248,9 @@ class TagHooks {
 
 		$inputArguments = [];
 		foreach ( $args as $name => $value ) {
-			$inputArguments[$name] = $parser->recursiveTagParse(
-				$value,
-				$frame
-			);
+			if ( Validate::validParameters( $name ) ) {
+				$inputArguments[$name] = $value;
+			}
 		}
 
 		$output = $this->themeStore->getFormTheme()->getLabelRenderer()->render_label(
@@ -1937,5 +1935,204 @@ class TagHooks {
 
 			Core::cleanJavaScriptConfigVars();
 		}
+	}
+
+	private function renderFileUpload( array $args ): array {
+		// FIXME: Can you (attempt to) rewrite this @Charlot?
+
+
+
+		$result = [];
+		$ret            = '<input type="file" ';
+		$br             = "\n";
+		$attributes     = [];
+		$hiddenFiles    = [];
+		$attributes['name'] = 'wsformfile';
+		$id             = false;
+		$target         = false;
+		$drop			= false;
+		$verbose_id     = false;
+		$error_id       = false;
+		$presentor      = false; // Holds name of external presentor, e.g. Slim
+		$pagecontent    = "";
+		$use_label      = false;
+		$force          = false;
+		$parseContent   = false;
+		foreach ( $args as $k => $v ) {
+			if ( validate::validParameters( $k ) || validate::validFileParameters( $k ) ) {
+				// going through specific extra's.
+				switch ( $k ) {
+					case "presentor":
+						$presentor = $v;
+						break;
+					case "pagecontent" :
+						$pagecontent = $v;
+						break;
+					case "parsecontent" :
+						$parseContent = true;
+						break;
+					case "dropzone" :
+						$drop = true;
+						break;
+					case "comment" :
+						$comment = $v;
+						break;
+					case "target":
+						$target = $v;
+						break;
+					case "use_label":
+						$use_label = true;
+						break;
+					case "force":
+						$force = $v;
+						break;
+					case "id":
+						$id = $v;
+						$attributes['id'] = $v;
+						break;
+					case "verbose_id":
+						$verbose_id = $v;
+						break;
+					case "error_id":
+						$error_id = $v;
+						break;
+					default:
+						$attributes[$k] = $v;
+
+				}
+			}
+		}
+		global $IP;
+		if ( ! $id ) {
+			$ret = 'You cannot upload files without adding an unique id.';
+
+			return $ret;
+		}
+		if ( ! $target ) {
+			$ret = 'You cannot upload files without a target.';
+			return $ret;
+		} else {
+			$hiddenFiles[] = '<input type="hidden" name="wsform_file_target" value="' . $target . '">';
+		}
+		if ( $pagecontent ) {
+			$hiddenFiles[] = '<input type="hidden" name="wsform_page_content" value="' . $pagecontent . '">';
+		}
+		if ( $parseContent ) {
+			$hiddenFiles[] = '<input type="hidden" name="wsform_parse_content" value="true">';
+		}
+		if ( $force ) {
+			$hiddenFiles[] = '<input type="hidden" name="wsform_image_force" value="' . $force . '">';
+		}
+
+		if ( ! $presentor ) {
+			if ( $verbose_id === false ) {
+				$verbose_id = 'verbose_' . $id;
+				$verboseDiv['id'] = $verbose_id;
+				if ( $drop && !$use_label ) {
+					$verboseDiv['class'][] = 'wsform-dropzone';
+				}
+				$verboseDiv['class'][] = 'wsform-verbose';
+				// $ret .= '<div id="' . $verbose_id . '" class="wsform-verbose"></div>';
+			} else {
+				$verbose_id = $id;
+				$verboseDiv['id'] = false;
+				$verboseDiv['class'] = false;
+			}
+
+			if ( ! $error_id ) {
+				$error_id = 'error_' . $id;
+				$errorDiv['id'] = $error_id;
+				$errorDiv['class'] = [ "wsform-error" ];
+				//$ret      .= '<div id="' . $error_id . '" class="wsform-error"></div>';
+			} else {
+				$error_id = $id;
+				$errorDiv['id'] = false;
+				$errorDiv['class'] = false;
+			}
+			$random         = round( microtime( true ) * 1000 );
+			$onChangeScript = 'function WSFile' . $random . '(){' . "\n" . '$("#' . $id . '").on("change", function(){' . "\n" . 'wsfiles( "';
+			$onChangeScript .= $id . '", "' . $verbose_id . '", "' . $error_id . '", "' . $use_label;
+			$onChangeScript .= '");' . "\n" . '});' . "\n";
+			if( $drop && !$use_label ) {
+				$onChangeScript .= "\n" . '$("#' . $verbose_id . '").on("dragover drop", function(e) { 
+				e.preventDefault();  
+			}).on("drop", function(e) {
+				$("#' . $id . '").prop("files", e.originalEvent.dataTransfer.files)
+				$("#' . $id . '").trigger("change"); 
+		});';
+			}
+			if( $drop && $use_label ) {
+				$onChangeScript .= "\n";
+				$onChangeScript .= 'var label = $("label[for=\''. $id . '\']");';
+				$onChangeScript .= "\n" . 'label.on("dragover drop", function(e) { 
+				e.preventDefault();  
+			}).on("drop", function(e) {
+				$("#' . $id . '").prop("files", e.originalEvent.dataTransfer.files)
+				$("#' . $id . '").trigger("change"); 
+		});';
+
+			}
+			$onChangeScript .= '};';
+			$jsChange       = $onChangeScript . "\n";
+			//$ret .= "<script>\n" . $onChangeScript . "\n";
+			$jsChange .= "\n" . "wachtff(WSFile" . $random . ");\n";
+			Core::includeInlineScript( $jsChange );
+			//$ret     .= '<script>$( document ).ready(function() { $("#' . $random . '").on("change", function(){ wsfiles( "' . $id . '", "' . $verbose_id . '", "' . $error_id . '", "' . $use_label . '", "' . $verbose_custom . '", "' . $error_custom . '");});});</script>';
+			$css     = file_get_contents( "$IP/extensions/FlexForm/Modules/WSForm_upload.css" );
+			$replace = array(
+				'{{verboseid}}',
+				'{{errorid}}',
+				'<style>',
+				'</style>'
+			);
+			$with    = array(
+				$verbose_id,
+				$error_id,
+				'',
+				''
+			); //wsfiles( "file-upload2", "hiddendiv2", "error_file-upload2", "", "yes", "none");
+			$css     = str_replace(
+				$replace,
+				$with,
+				$css
+			);
+			Core::includeInlineCSS( $css );
+			//$ret     .= $css;
+			if ( ! Core::isLoaded( 'WSFORM_upload.js' ) ) {
+				Core::addAsLoaded( 'WSFORM_upload.js' );
+				$js = file_get_contents( "$IP/extensions/FlexForm/Modules/WSForm_upload.js" );
+				Core::includeInlineScript( $js );
+			} else {
+				$js = '';
+			}
+			// As of MW 1.35+ we get errors here. It's replacing spaces with &#160; So now we put the js in the header
+			//echo "\n<script>" . $js . "</script>";
+
+			$js           = "";
+			$wsFileScript = "\nfunction wsfilesFunc" . $random . "(){\n";
+			$wsFileScript .= "\n" . 'wsfiles( "' . $id . '", "' . $verbose_id . '", "' . $error_id . '", "' . $use_label . '");' . "\n";
+			$wsFileScript .= "}\n";
+			//$ret .= '<script>'. "\n".'wsfiles( "' . $id . '", "' . $verbose_id . '", "' . $error_id . '", "' . $use_label . '");</script>';
+
+			Core::includeInlineScript( "\n" . $wsFileScript . "\n" . 'wachtff(wsfilesFunc' . $random . ');' );
+		} elseif ( $presentor == "slim" ) {
+			/*
+			if ( $slim_image !== false ) {
+				$slim_image = '<img src="' . $slim_image . '">';
+			} else {
+				$slim_image = "";
+			}
+			$ret = $slim . $ret . $slim_image . "</div>$br";
+
+			// TODO: Move this logic to the caller
+			$parser->getOutput()->addModuleStyles( 'ext.wsForm.slim.styles' );
+			$parser->getOutput()->addModules( 'ext.wsForm.slim.scripts' );
+			*/
+		}
+		$result['verbose_div'] = $verboseDiv;
+		$result['error_div'] = $errorDiv;
+		$result['attributes'] = $attributes;
+		$result['function_fields'] = $hiddenFiles;
+		return $result;
 	}
 }

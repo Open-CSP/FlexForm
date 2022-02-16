@@ -137,196 +137,39 @@ class PlainFieldRenderer implements FieldRenderer {
 	 * @inheritDoc
 	 */
 	public function render_file( array $args ) : string {
+
+		/*
+		 * $result['verbose_div'] = $verboseDiv;
+		$result['error_div'] = $errorDiv;
+		$result['attributes'] = $attributes;
+		$result['function_fields'] = $hiddenFiles;
+		 */
 		// FIXME: Can you (attempt to) rewrite this @Charlot?
 
-		$slim           = '<div class="';
-		$ret            = '<input type="file" ';
-		$br             = "\n";
-		$id             = false;
-		$target         = false;
-		$verbose_id     = false;
-		$error_id       = false;
-		$presentor      = false; // Holds name of external presentor, e.g. Slim
-		$pagecontent    = "";
-		$use_label      = false;
-		$verbose_custom = "none";
-		$error_custom   = "none";
-		$slim_class     = "slim ";
-		$slim_image     = false;
-		$slim_data      = "";
-		$force          = false;
-		$thumbWidth     = false;
-		$thumbHeight    = false;
-		$parseContent   = false;
-		foreach ( $args as $k => $v ) {
-			if ( validate::validParameters( $k ) || validate::validFileParameters( $k ) ) {
-				// going through specific extra's.
-				switch ( $k ) {
-					case "presentor":
-						$presentor = $v;
-						break;
-					case "slim_class":
-						$slim_class .= $v;
-						break;
-					case "pagecontent" :
-						$pagecontent = $v;
-						break;
-					case "parsecontent" :
-						$parseContent = true;
-						break;
-					case "value" :
-						$slim_image = $v;
-						break;
-					case "target":
-						$target = $v;
-						break;
-					case "use_label":
-						$use_label = true;
-						break;
-					case "force":
-						$force = $v;
-						break;
-					case "id":
-						$id  = $v;
-						$ret .= $k . '="' . $v . '" ';
-						break;
-					case "verbose_id":
-						$verbose_id = $v;
-						break;
-					case "error_id":
-						$error_id = $v;
-						break;
-					case "name":
-						$ret .= $k . '="wsformfile" ';
-						break;
-					case "slim_thumb_width":
-						$thumbWidth = $v;
-						break;
-					case "slim_thumb_height":
-						$thumbHeight = $v;
-						break;
-					default:
-						$ret .= $k . '="' . $v . '" ';
-				}
-			}
-			if ( substr(
-					 $k,
-					 0,
-					 5
-				 ) == "data-" ) {
-				$slim_data .= $k . '="' . $v . '" ';
+		$args['attributes']['type'] = 'file';
+		$ret = Xml::tags(
+			'input',
+			$args['attributes'],
+			''
+		);
+		//$neededFields = implode( PHP_EOL, $args['function_fields'] );
+		$hiddenField = '';
+		foreach ( $args['function_fields'] as $hidden ) {
+			if ( ! empty( $hidden ) ) {
+				$hiddenField .= trim( $hidden );
 			}
 		}
-		$slim .= $slim_class . '" ' . $slim_data . '>' . $br;
-		$ret  .= ">$br";
-		global $IP;
-		if ( ! $id ) {
-			$ret = 'You cannot upload files without adding an unique id.';
-
-			return $ret;
+		$ret = $hiddenField . $ret;
+		if ( $args['verbose_div']['id'] !== false ) {
+			$classes = implode( ' ', $args['verbose_div']['class'] );
+			$ret .= '<div id="' . $args['verbose_div']['id'] . '" class="' . $classes . '"></div>';
 		}
-		if ( $presentor == "slim" ) {
-			$ret .= '<input type="hidden" name="wsformfile_slim">' . "\n";
-		}
-		if ( ! $target ) {
-			$ret = 'You cannot upload files without a target.';
-
-			return $ret;
-		} else {
-			$ret .= '<input type="hidden" name="wsform_file_target" value="' . $target . '">';
-		}
-		if ( $pagecontent ) {
-			$ret .= '<input type="hidden" name="wsform_page_content" value="' . $pagecontent . '">';
-		}
-		if ( $parseContent ) {
-			$ret .= '<input type="hidden" name="wsform_parse_content" value="true">';
-		}
-		if ( $force ) {
-			$ret .= '<input type="hidden" name="wsform_image_force" value="' . $force . '">';
-		}
-		if ( $thumbWidth ) {
-			$ret .= '<input type="hidden" name="wsform_file_thumb_width" value="' . $thumbWidth . '">';
-		}
-		if ( $thumbHeight ) {
-			$ret .= '<input type="hidden" name="wsform_file_thumb_height" value="' . $thumbHeight . '">';
+		if ( $args['error_div']['id'] !== false ) {
+			$classes = implode( ' ', $args['error_div']['class'] );
+			$ret .= '<div id="' . $args['error_div']['id'] . '" class="' . $classes . '"></div>';
 		}
 
-		if ( ! $presentor ) {
-			if ( $verbose_id === false ) {
-				$verbose_id = 'verbose_' . $id;
-
-				$ret .= '<div id="' . $verbose_id . '" class="wsform-verbose"></div>';
-			} else {
-				$verbose_custom = "yes";
-			}
-			if ( ! $error_id ) {
-				$error_id = 'error_' . $id;
-				$ret      .= '<div id="' . $error_id . '" class="wsform-error"></div>';
-			} else {
-				$error_custom = "yes";
-			}
-			$random         = round( microtime( true ) * 1000 );
-			$onChangeScript = 'function WSFile' . $random . '(){' . "\n" . '$("#' . $id . '").on("change", function(){' . "\n" . 'wsfiles( "';
-			$onChangeScript .= $id . '", "' . $verbose_id . '", "' . $error_id . '", "' . $use_label;
-			$onChangeScript .= '", "' . $verbose_custom . '", "' . $error_custom . '");' . "\n" . '});' . "\n" . '};';
-			$jsChange       = $onChangeScript . "\n";
-			//$ret .= "<script>\n" . $onChangeScript . "\n";
-			$jsChange .= "\n" . "wachtff(WSFile" . $random . ");\n";
-			Core::includeInlineScript( $jsChange );
-			//$ret     .= '<script>$( document ).ready(function() { $("#' . $random . '").on("change", function(){ wsfiles( "' . $id . '", "' . $verbose_id . '", "' . $error_id . '", "' . $use_label . '", "' . $verbose_custom . '", "' . $error_custom . '");});});</script>';
-			$css     = file_get_contents( "$IP/extensions/FlexForm/Modules/WSForm_upload.css" );
-			$replace = array(
-				'{{verboseid}}',
-				'{{errorid}}',
-				'<style>',
-				'</style>'
-			);
-			$with    = array(
-				$verbose_id,
-				$error_id,
-				'',
-				''
-			); //wsfiles( "file-upload2", "hiddendiv2", "error_file-upload2", "", "yes", "none");
-			$css     = str_replace(
-				$replace,
-				$with,
-				$css
-			);
-			Core::includeInlineCSS( $css );
-			//$ret     .= $css;
-			if ( ! Core::isLoaded( 'WSFORM_upload.js' ) ) {
-				Core::addAsLoaded( 'WSFORM_upload.js' );
-				$js = file_get_contents( "$IP/extensions/FlexForm/Modules/WSForm_upload.js" );
-				Core::includeInlineScript( $js );
-			} else {
-				$js = '';
-			}
-			// As of MW 1.35+ we get errors here. It's replacing spaces with &#160; So now we put the js in the header
-			//echo "\n<script>" . $js . "</script>";
-
-			$js           = "";
-			$wsFileScript = "\nfunction wsfilesFunc" . $random . "(){\n";
-			$wsFileScript .= "\n" . 'wsfiles( "' . $id . '", "' . $verbose_id . '", "' . $error_id . '", "' . $use_label . '");' . "\n";
-			$wsFileScript .= "}\n";
-			//$ret .= '<script>'. "\n".'wsfiles( "' . $id . '", "' . $verbose_id . '", "' . $error_id . '", "' . $use_label . '");</script>';
-
-			Core::includeInlineScript( "\n" . $wsFileScript . "\n" . 'wachtff(wsfilesFunc' . $random . ');' );
-		} elseif ( $presentor == "slim" ) {
-			/*
-			if ( $slim_image !== false ) {
-				$slim_image = '<img src="' . $slim_image . '">';
-			} else {
-				$slim_image = "";
-			}
-			$ret = $slim . $ret . $slim_image . "</div>$br";
-
-			// TODO: Move this logic to the caller
-			$parser->getOutput()->addModuleStyles( 'ext.wsForm.slim.styles' );
-			$parser->getOutput()->addModules( 'ext.wsForm.slim.scripts' );
-			*/
-		}
-
-		return $ret;
+		return trim( $ret );
 	}
 
 	/**

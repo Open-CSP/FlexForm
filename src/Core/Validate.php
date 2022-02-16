@@ -250,7 +250,8 @@ class Validate {
 			"slim_class",
 			"slim_thumb_width",
 			"slim_thumb_height",
-            "parsecontent"
+            "parsecontent",
+			"dropzone"
 		);
 		if ( $ret ) {
 			return $validParameters;

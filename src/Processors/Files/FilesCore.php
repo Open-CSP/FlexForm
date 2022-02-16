@@ -7,9 +7,16 @@ use FlexForm\Processors\Utilities\General;
 class FilesCore {
 
 	public function handleFileUploads( $wsuid, $api, $messages ) {
-		$wsSignature = General::getPostString( 'wsform_signature', false );
+		$wsSignature = General::getPostString(
+			'wsform_signature',
+			false
+		);
 		if ( $wsSignature !== false ) {
-			$res = signature::upload( $wsuid, $api, $messages );
+			$res = signature::upload(
+				$wsuid,
+				$api,
+				$messages
+			);
 			if ( $res['status'] === 'error' ) {
 				$messages->doDie( ' signature : ' . $res['msg'] );
 			}
@@ -17,8 +24,13 @@ class FilesCore {
 		}
 
 		if ( isset( $_FILES['wsformfile'] ) ) {
-			if ( file_exists( $_FILES['wsformfile']['tmp_name'] ) || is_uploaded_file( $_FILES['wsformfile']['tmp_name'] ) ) {
-				$res = upload::fileUpload( $api, $messages );
+			if ( file_exists( $_FILES['wsformfile']['tmp_name'] ) || is_uploaded_file(
+					$_FILES['wsformfile']['tmp_name']
+				) ) {
+				$res = upload::fileUpload(
+					$api,
+					$messages
+				);
 				if ( $res['status'] == 'error' ) {
 					$messages->doDie( ' file : ' . $res['msg'] );
 				}
@@ -77,9 +89,12 @@ class FilesCore {
 	 *
 	 * @return string
 	 */
-	public function remove_extension_from_image( string $image ): string {
+	public function remove_extension_from_image( string $image ) : string {
 		$extension = FilesCore::getFileExtension( $image ); //get extension
-		$only_name = basename( $image, '.' . $extension ); // remove extension
+		$only_name = basename(
+			$image,
+			'.' . $extension
+		); // remove extension
 
 		return $only_name;
 	}
@@ -89,7 +104,7 @@ class FilesCore {
 	 *
 	 * @return string
 	 */
-	public function getFileExtension( string $file ): string {
+	public function getFileExtension( string $file ) : string {
 		$path_parts = pathinfo( $file );
 		$extension  = $path_parts['extension'];
 
@@ -98,44 +113,65 @@ class FilesCore {
 
 	/**
 	 * Converting image types
-	 * @param  string  $convert_type  [where to convert to. png, jpg or gif]
-	 * @param  string  $target_dir    [description]
-	 * @param  string  $target_name   [name of the target file]
-	 * @param  string  $image         [path to image]
-	 * @param  integer $image_quality [0-100]
+	 *
+	 * @param string $convert_type [where to convert to. png, jpg or gif]
+	 * @param string $target_dir [description]
+	 * @param string $target_name [name of the target file]
+	 * @param string $image [path to image]
+	 * @param integer $image_quality [0-100]
+	 *
 	 * @return string|bool                 [return path of new file or false if nothing can be worked out]
 	 */
-	public function convert_image( string $convert_type, string $target_dir, string $target_name, string $image, int $image_quality=100) {
-
+	public function convert_image(
+		string $convert_type,
+		string $target_dir,
+		string $target_name,
+		string $image,
+		int $image_quality = 100
+	) {
 		//remove extension from image;
-		$img_name = remove_extension_from_image($target_name);
+		$img_name = $this->remove_extension_from_image( $target_name );
 		//to png
-		if($convert_type == 'png'){
-			$binary = imagecreatefromstring(file_get_contents($image));
+		if ( $convert_type == 'png' ) {
+			$binary = imagecreatefromstring( file_get_contents( $image ) );
 			//third parameter for ImagePng is limited to 0 to 9
 			//0 is uncompressed, 9 is compressed
 			//so convert 100 to 2 digit number by dividing it by 10 and minus with 10
-			$image_quality = floor(10 - ($image_quality / 10));
-			ImagePNG($binary, $target_dir.$img_name.'.'.$convert_type, $image_quality);
-			return $img_name.'.'.$convert_type;
+			$image_quality = floor( 10 - ( $image_quality / 10 ) );
+			ImagePNG(
+				$binary,
+				$target_dir . $img_name . '.' . $convert_type,
+				$image_quality
+			);
+
+			return $img_name . '.' . $convert_type;
 		}
 
 		//to jpg
-		if($convert_type == 'jpg'){
-			$binary = imagecreatefromstring(file_get_contents($image));
-			imageJpeg($binary, $target_dir.$img_name.'.'.$convert_type, $image_quality);
-			return $img_name.'.'.$convert_type;
+		if ( $convert_type == 'jpg' ) {
+			$binary = imagecreatefromstring( file_get_contents( $image ) );
+			imageJpeg(
+				$binary,
+				$target_dir . $img_name . '.' . $convert_type,
+				$image_quality
+			);
+
+			return $img_name . '.' . $convert_type;
 		}
 		//to gif
-		if($convert_type == 'gif'){
-			$binary = imagecreatefromstring(file_get_contents($image));
-			imageGif($binary, $target_dir.$img_name.'.'.$convert_type, $image_quality);
-			return $img_name.'.'.$convert_type;
+		if ( $convert_type == 'gif' ) {
+			$binary = imagecreatefromstring( file_get_contents( $image ) );
+			imageGif(
+				$binary,
+				$target_dir . $img_name . '.' . $convert_type,
+				$image_quality
+			);
+
+			return $img_name . '.' . $convert_type;
 		}
+
 		return false;
 	}
-
-
 
 	/**
 	 * http://stackoverflow.com/a/2021729
@@ -143,24 +179,43 @@ class FilesCore {
 	 * or any of the following characters -_~,;[]().
 	 * If you don't need to handle multi-byte characters
 	 * you can use preg_replace rather than mb_ereg_replace
+	 *
 	 * @param $str
+	 *
 	 * @return string
 	 */
 	public function sanitizeFileName( $str ) {
 		// Basic clean up
-		$str = preg_replace('([^\w\s\d\-_~,;\[\]\(\).])', '', $str);
+		$str = preg_replace(
+			'([^\w\s\d\-_~,;\[\]\(\).])',
+			'',
+			$str
+		);
 		// Remove any runs of periods
-		$str = preg_replace('([\.]{2,})', '', $str);
+		$str = preg_replace(
+			'([\.]{2,})',
+			'',
+			$str
+		);
+
 		return $str;
 	}
 
 	/**
 	 * Strips the "data:image..." part of the base64 data string so PHP can save the string as a file
+	 *
 	 * @param $data
+	 *
 	 * @return string
 	 */
 	public function getBase64Data( $data ) {
-		return base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $data));
+		return base64_decode(
+			preg_replace(
+				'#^data:image/\w+;base64,#i',
+				'',
+				$data
+			)
+		);
 	}
 
 

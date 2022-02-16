@@ -6,10 +6,24 @@ use FlexForm\Render\Themes\LabelRenderer;
 use Xml;
 
 class PlainLabelRenderer implements LabelRenderer {
-    /**
-     * @inheritDoc
-     */
-    public function render_label( string $input, string $for, array $args ): string {
-        return Xml::label( $input, $for, $args );
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function render_label( string $input, string $for, array $args ) : string {
+		if ( isset( $args['style'] ) ) {
+			$args['for'] = $for;
+			$ret         = '<label ';
+			foreach ( $args as $k => $v ) {
+				$ret .= $k . '="' . $v . '" ';
+			}
+			$ret .= '>' . $input . '</label>';
+			return $ret;
+		} else {
+			return trim( Xml::label(
+				$input,
+				$for,
+				$args
+			) );
+		}
+	}
 }

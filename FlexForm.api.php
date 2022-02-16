@@ -12,10 +12,6 @@
  *    Date : October 2017/January 2021 (rewrite)
  */
 
-use MediaWiki\MediaWikiServices;
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-use PHPMailer\PHPMailer\SMTP;
 use FlexForm\Core\Debug;
 use FlexForm\Core\HandleResponse;
 use FlexForm\Core\Config;
