@@ -2,15 +2,34 @@
 
 namespace FlexForm\Processors\Files;
 
+use FlexForm\Core\Config;
+use FlexForm\Core\Debug;
+use FlexForm\Core\HandleResponse;
+use FlexForm\FlexFormException;
 use FlexForm\Processors\Utilities\General;
+use FlexForm\Processors\Files;
+use Symfony\Component\Security\Acl\Exception\Exception;
 
 class FilesCore {
 
-	public function handleFileUploads( $wsuid, $api, $messages ) {
+	 public const FILENAME = 'wsformfile';
+
+	/**
+	 * @return void
+	 * @throws FlexFormException
+	 */
+	public function handleFileUploads(): void {
 		$wsSignature = General::getPostString(
 			'wsform_signature',
 			false
 		);
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'File upload class',
+				['Looking for ' . self::FILENAME, $_FILES]
+			);
+		}
+		/*
 		if ( $wsSignature !== false ) {
 			$res = signature::upload(
 				$wsuid,
@@ -22,30 +41,36 @@ class FilesCore {
 			}
 			$ret = $res; // v0.7.0.3.3 added
 		}
+		*/
 
-		if ( isset( $_FILES['wsformfile'] ) ) {
-			if ( file_exists( $_FILES['wsformfile']['tmp_name'] ) || is_uploaded_file(
-					$_FILES['wsformfile']['tmp_name']
-				) ) {
-				$res = upload::fileUpload(
-					$api,
-					$messages
+		if ( isset( $_FILES[self::FILENAME] ) ) {
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'Checking for files to upload',
+					$_FILES[self::FILENAME]
 				);
-				if ( $res['status'] == 'error' ) {
-					$messages->doDie( ' file : ' . $res['msg'] );
+			}
+			if ( file_exists( $_FILES[self::FILENAME]['tmp_name'] ) || is_uploaded_file(
+					$_FILES[self::FILENAME]['tmp_name']
+				) ) {
+				$fileUpload = new Upload();
+				try {
+					$res = $fileUpload->fileUpload();
+				} catch ( FlexFormException $e ) {
+					throw new FlexFormException( $e->getMessage(), 0 );
 				}
-				$ret = $res; // v0.7.0.3.3 added
+
 			}
 		}
 
+		/*
 		if ( isset( $_POST['wsformfile_slim'] ) ) {
 			$ret = upload::fileUploadSlim( $api );
 			if ( isset( $ret['status'] ) && $ret['status'] === 'error' ) {
 				$messages->doDie( ' slim : ' . $ret['msg'] );
 			}
 		}
-
-		return $ret;
+		*/
 	}
 
 	/**
@@ -90,7 +115,7 @@ class FilesCore {
 	 * @return string
 	 */
 	public function remove_extension_from_image( string $image ) : string {
-		$extension = FilesCore::getFileExtension( $image ); //get extension
+		$extension = $this->getFileExtension( $image );
 		$only_name = basename(
 			$image,
 			'.' . $extension
@@ -171,6 +196,16 @@ class FilesCore {
 		}
 
 		return false;
+	}
+
+	/**
+	 * @param string $target
+	 * @param string $file
+	 *
+	 * @return string
+	 */
+	public function parseTarget( string $target, string $file ): string {
+		return str_replace( '[filename]', $file, $target );
 	}
 
 	/**

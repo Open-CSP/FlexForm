@@ -154,8 +154,8 @@ class Validate {
 
 
 	public static function validHTML( $args ) {
-		if( isset( $args['html'] ) ) {
-			$tmp = explode('=', $args['html'] );
+		if ( isset( $args['html'] ) ) {
+			$tmp = explode( '=', $args['html'] );
 			$html = $tmp[0];
 			$validParameters = array(
 				"default",
@@ -247,9 +247,6 @@ class Validate {
 			"pagecontent",
 			"use_label",
 			"force",
-			"slim_class",
-			"slim_thumb_width",
-			"slim_thumb_height",
             "parsecontent",
 			"dropzone"
 		);

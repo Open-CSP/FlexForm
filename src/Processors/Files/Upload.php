@@ -10,118 +10,237 @@
 
 namespace FlexForm\Processors\Files;
 
+use FlexForm\Core\Config;
+use FlexForm\Core\Debug;
+use FlexForm\FlexFormException;
+use FlexForm\Processors\Content\ContentCore;
+use FlexForm\Processors\Definitions;
+use FlexForm\Processors\Utilities\General;
 use FlexForm\Processors\Utilities\Utilities;
 use FlexForm\Processors\wbHandleResponses;
+use MediaHandler;
+use MWFileProps;
+use Title;
+use Wikimedia\AtEase\AtEase;
 use wsform\processors\Wsi18n;
+use MediaWiki\MediaWikiServices;
 
 class Upload {
 	/**
-	 * Normal HTML5 file upload handling
-	 * TODO: Add upload of multiple files, by passing file to be uploaded, instead of using $_FILES
-	 * TODO: Make i18n messages
-	 *
-	 * @param $api
-	 *
-	 * @return array|bool
+	 * @return bool
+	 * @throws FlexFormException
 	 */
-	public function fileUpload( $api, $responses ) {
-		$i18n = new wsi18n();
-		if ( ! isset( $_FILES['wsformfile'] ) ) {
-			$responses->setReturnData( 'no wsformfile file found' );
-			$responses->setReturnStatus( 'error' );
-
-			return false;
+	public function fileUpload(): bool {
+		/**
+		 * 	return [
+		'files'        => $files,
+		'pagecontent'  => General::getPostString( 'wsform_page_content' ),
+		'parsecontent' => General::getPostString( 'wsform_parse_content' ),
+		'comment'      => General::getPostString( 'wsform-upload-comment' ),
+		'returnto'     => General::getPostString(
+		'mwreturn',
+		false
+		),
+		'target'       => General::getPostString( 'wsform_file_target' ),
+		'force'        => General::getPostArray( 'wsform_image_force' )
+		];
+		 */
+		global $wgUser;
+		$fields = Definitions::fileUploadFields();
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'File upload start',
+				$fields
+			);
 		}
-		if ( $fileChk = FilesCore::checkFileUploadForError( $_FILES['wsformfile'] ) ) {
-			$responses->setReturnData( $fileChk );
-			$responses->setReturnStatus( 'error' );
-
-			return false;
+		$fileToProcess = $fields['files'];
+		$nrOfFiles = count( $fileToProcess['name'] );
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'Number of files to process',
+				$nrOfFiles
+			);
 		}
-		if ( $res = FilesCore::checkFileForErrors( $_FILES['wsformfile'] ) ) {
-			$responses->setReturnData( $res );
-			$responses->setReturnStatus( 'error' );
-
-			return false;
+		$errors = [];
+		$filesCore = new FilesCore();
+		if ( $fields['target'] === false || $fields['target'] === '' ) {
+			throw new FlexFormException( 'No target filepage.', 0 );
 		}
-		if ( ! isset( $_POST['wsform_file_target'] ) || $_POST['wsform_file_target'] == "" ) {
-			$responses->setReturnData( 'No target file.' );
-			$responses->setReturnStatus( 'error' );
-
-			return false;
+		if ( $fields['pagecontent'] === false ) {
+			$fields['pagecontent'] = '';
 		}
-		if ( ! isset( $_POST['wsform_page_content'] ) || $_POST['wsform_page_content'] == "" ) {
-			$responses->setReturnData( 'No wiki content for this file.' );
-			$responses->setReturnStatus( 'error' );
-
-			return false;
+		if ( $fields['comment'] === false ) {
+			$fields['comment'] = "Uploaded using FlexForm.";
 		}
-		if ( ! isset( $_POST['wsform_image_force'] ) || $_POST['wsform_image_force'] == "" ) {
+		if ( $fields['force'] === false || $fields['force'] === '' ) {
 			$convert = false;
 		} else {
-			if ( FilesCore::getFileExtension( $_FILES['wsformfile']['name'] ) == $_POST['wsform_image_force'] ) {
+			/*
+			if ( $filesCore->getFileExtension( $_FILES['wsformfile']['name'] ) == $_POST['wsform_image_force'] ) {
 				$convert = false;
 			} else {
 				$convert = $_POST['wsform_image_force'];
 			}
+			*/
+			$convert = $fields['force'];
 		}
+		$upload_dir = rtrim( Config::getConfigVariable( 'file_temp_path' ), '/' ) . '/';
+		for ( $i = 0; $i < $nrOfFiles; $i++ ) {
+			if ( ! file_exists( $fileToProcess['tmp_name'][$i] ) || ! is_uploaded_file(
+					$fileToProcess['tmp_name'][$i]
+				) ) {
+				throw new FlexFormException( 'Cannot find file ' . $fileToProcess['name'][$i], 0 );
+			}
+			$filename = $fileToProcess['name'][$i];
+			$status = $filesCore->checkFileForErrors( $fileToProcess['error'][$i] );
+			$tmpName = $fileToProcess['tmp_name'][$i];
 
-		$upload_dir = $api->getTempPath();
-		$targetFile = wsUtilities::makeUnderscoreFromSpace( $_FILES['wsformfile']['name'] );
-		if ( $convert ) {
-			$newFile = FilesCore::convert_image(
-				$convert,
-				$upload_dir,
-				$targetFile,
-				$_FILES['wsformfile']['tmp_name'],
-				$image_quality = 100
-			);
-			if ( $newFile === false ) {
-				$responses->setReturnData(
-					"Error while converting image from " . FilesCore::getFileExtension(
-						$_FILES['wsformfile']['name']
-					) . " to " . $convert . "."
+			if ( $status !== false ) {
+				throw new FlexFormException( $fileToProcess['name'][$i] . ': ' . $status, 0 );
+			}
+
+			$targetFile = General::makeUnderscoreFromSpace( $filename );
+			if ( $convert !== false && $filesCore->getFileExtension( $filename ) !== $convert ) {
+				$newFile = $filesCore->convert_image(
+					$convert,
+					$upload_dir,
+					$targetFile,
+					$tmpName,
+					100
 				);
-				$responses->setReturnStatus( 'error' );
-
-				return false;
-			}
-		} else {
-			if ( move_uploaded_file(
-				$_FILES['wsformfile']['tmp_name'],
-				$upload_dir . $targetFile
-			) ) {
-				$newFile = $targetFile;
+				if ( $newFile === false ) {
+					throw new FlexFormException(
+						"Error while converting image from " . $filesCore->getFileExtension(
+							$filename
+						) . " to " . $convert . ".",
+						0
+					);
+				}
 			} else {
-				$responses->setReturnData( "Error uploading file to destination (file-handling)" );
-				$responses->setReturnStatus( 'error' );
-
-				return false;
+				if ( move_uploaded_file(
+					$tmpName,
+					$upload_dir . $targetFile
+				) ) {
+					$newFile = $targetFile;
+				} else {
+					throw new FlexFormException( "Error uploading file to destination (file-handling)", 0 );
+				}
 			}
+			$name    = $filesCore->parseTarget( trim( $fields['target'] ), $filename );
+			$details = trim( $fields['pagecontent'] );
+			if ( $fields['parsecontent'] !== false ) {
+				$details = ContentCore::parseTitle( $details );
+			}
+			$name = ContentCore::parseTitle( $name );
+
+			if ( Config::isDebug() ) {
+				Debug::addToDebug( 'Preparing to upload file',
+								   [
+									   'original file name' => $filename,
+									   'new file name'      => $name
+								   ] );
+			}
+
+			$resultFileUpload = $this->uploadFileToWiki(
+				$upload_dir . $newFile,
+				$name,
+				$wgUser,
+				$details,
+				$fields['comment'],
+				wfTimestampNow()
+			);
+			if ( $resultFileUpload !== true ) {
+				throw new FlexFormException( $resultFileUpload, 0 );
+			}
+			unlink( $upload_dir . $newFile );
+		}
+		return true;
+	}
+
+	/**
+	 * @param string $filePath
+	 * @param string $filename
+	 * @param mixed $user
+	 * @param string $content
+	 * @param string $summary
+	 * @param mixed $timestamp
+	 *
+	 * @return bool|string
+	 */
+	public function uploadFileToWiki(
+		string $filePath,
+		string $filename,
+		$user,
+		string $content,
+		string $summary,
+		$timestamp
+	) {
+		global $wgUser;
+		if ( ! file_exists( $filePath ) ) {
+			return 'Cannot find file';
 		}
 
-		// file upload is done.. Now getting it into the wiki
-
-		$url = $api->getCanonicalUrl() . 'extensions/FlexForm/uploads/' . $newFile;
-
-		//TODO: This is not right yet!
-		$name    = trim( $_POST['wsform_file_target'] );
-		$details = trim( $_POST['wsform_page_content'] );
-		if ( isset( $_POST['wsform_parse_content'] ) ) {
-			$details = FilesCore::parseTitle( $details );
+		if ( $user === false ) {
+			return 'Cannot find user';
 		}
-		$comment = "Uploaded using FlexForm.";
-		$result  = $api->uploadFileToWiki(
-			$name,
-			$url,
-			$details,
-			$comment,
-			$upload_dir . $targetFile
+		$wgUser = $user;
+		$base   = \UtfNormal\Validator::cleanUp( wfBaseName( $filename ) );
+		# Validate a title
+		$title = Title::makeTitleSafe(
+			NS_FILE,
+			$base
 		);
-		unlink( $upload_dir . $targetFile );
+		if ( ! is_object( $title ) ) {
+			return "{$base} could not be imported; a valid title cannot be produced";
+		}
+
+		$fileRepo       = MediaWikiServices::getInstance()->getRepoGroup()->getLocalRepo();
+		$image          = $fileRepo->newFile( $title );
+		$mwProps        = new MWFileProps( MediaWikiServices::getInstance()->getMimeAnalyzer() );
+		$props          = $mwProps->getPropsFromPath(
+			$filePath,
+			true
+		);
+		$flags          = 0;
+		$publishOptions = [];
+		$handler        = MediaHandler::getHandler( $props['mime'] );
+		if ( $handler ) {
+			$metadata = AtEase::quietCall(
+				'unserialize',
+				$props['metadata']
+			);
+
+			$publishOptions['headers'] = $handler->getContentHeaders( $metadata );
+		} else {
+			$publishOptions['headers'] = [];
+		}
+		$archive = $image->publish(
+			$filePath,
+			$flags,
+			$publishOptions
+		);
+
+		if ( ! $archive->isGood() ) {
+			return $archive->getWikiText(
+				false,
+				false,
+				'en'
+			);
+		}
+
+		$image->recordUpload3(
+			$archive->value,
+			$summary,
+			$content,
+			$user,
+			$props,
+			$timestamp
+		);
 
 		return true;
 	}
+
+
 
 	/**
 	 * When a file is uploaded using the Slim extension, this function will take care of the saving

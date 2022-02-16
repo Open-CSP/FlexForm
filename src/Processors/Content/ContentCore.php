@@ -123,7 +123,7 @@ class ContentCore {
 					);
 				}
 			} catch ( FlexFormException $e ) {
-				echo "damn";
+				//echo "damn";
 				throw new FlexFormException(
 					$e->getMessage(),
 					0,
@@ -451,7 +451,7 @@ class ContentCore {
 			if ( $fieldname == 'mwrandom' ) {
 				$title = str_replace(
 					'[' . $fieldname . ']',
-					MakeTitle(),
+					General::MakeTitle(),
 					$title
 				);
 			}

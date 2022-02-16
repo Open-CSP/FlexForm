@@ -10,6 +10,7 @@
 
 namespace FlexForm\Processors;
 
+use FlexForm\Processors\Files\FilesCore;
 use FlexForm\Processors\Utilities\General;
 
 class Definitions {
@@ -61,7 +62,20 @@ class Definitions {
 	}
 
 	public static function fileUploadFields(): array {
+		$files = $_FILES[FilesCore::FILENAME] ?? false;
 
+		return [
+			'files'        => $files,
+			'pagecontent'  => General::getPostString( 'wsform_page_content' ),
+			'parsecontent' => General::getPostString( 'wsform_parse_content' ),
+			'comment'      => General::getPostString( 'wsform-upload-comment' ),
+			'returnto'     => General::getPostString(
+				'mwreturn',
+				false
+			),
+			'target'       => General::getPostString( 'wsform_file_target' ),
+			'force'        => General::getPostArray( 'wsform_image_force' )
+		];
 	}
 
 	/**

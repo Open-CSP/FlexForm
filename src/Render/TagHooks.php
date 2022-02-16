@@ -2,6 +2,7 @@
 
 namespace FlexForm\Render;
 
+use FlexForm\Processors\Files\FilesCore;
 use Parser;
 use PPFrame;
 use RequestContext;
@@ -1941,18 +1942,20 @@ class TagHooks {
 		// FIXME: Can you (attempt to) rewrite this @Charlot?
 
 
+		$filesCore = new FilesCore();
 
 		$result = [];
 		$ret            = '<input type="file" ';
 		$br             = "\n";
 		$attributes     = [];
 		$hiddenFiles    = [];
-		$attributes['name'] = 'wsformfile';
+		$attributes['name'] = FilesCore::FILENAME;
 		$id             = false;
 		$target         = false;
 		$drop			= false;
 		$verbose_id     = false;
 		$error_id       = false;
+		$comment        = false;
 		$presentor      = false; // Holds name of external presentor, e.g. Slim
 		$pagecontent    = "";
 		$use_label      = false;
@@ -1990,6 +1993,8 @@ class TagHooks {
 						$id = $v;
 						$attributes['id'] = $v;
 						break;
+					case "name":
+						break;
 					case "verbose_id":
 						$verbose_id = $v;
 						break;
@@ -2016,6 +2021,9 @@ class TagHooks {
 		}
 		if ( $pagecontent ) {
 			$hiddenFiles[] = '<input type="hidden" name="wsform_page_content" value="' . $pagecontent . '">';
+		}
+		if ( $comment ) {
+			$hiddenFiles[] = '<input type="hidden" name="wsform-upload-comment" value="' . $comment . '">';
 		}
 		if ( $parseContent ) {
 			$hiddenFiles[] = '<input type="hidden" name="wsform_parse_content" value="true">';

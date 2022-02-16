@@ -16,6 +16,7 @@ use FlexForm\Core\Debug;
 use FlexForm\Core\HandleResponse;
 use FlexForm\Core\Config;
 use FlexForm\Processors\Content\ContentCore;
+use FlexForm\Processors\Files\FilesCore;
 use FlexForm\Processors\Recaptcha\Recaptcha;
 use FlexForm\Processors\Request\External;
 use FlexForm\Processors\Security\wsSecurity;
@@ -92,7 +93,7 @@ if ( $responseHandler->getReturnStatus() === "error" ) {
 		$responseHandler->exitResponse();
 	} catch ( FlexFormException $e ) {
 		return $e->getMessage();
-	};
+	}
 }
 
 // Setup messages and responses
@@ -106,8 +107,8 @@ try {
 		$responseHandler->exitResponse();
 	} catch ( FlexFormException $e ) {
 		return $e->getMessage();
-	};
-};
+	}
+}
 
 wsSecurity::cleanPosts();
 
@@ -130,6 +131,20 @@ $wsuid = General::getPostString( 'wsuid' );
 if ( $wsuid !== false ) {
 	unset( $_POST['wsuid'] );
 }
+$fileHandler = new FilesCore();
+
+try {
+	$fileHandler->handleFileUploads();
+} catch ( FlexFormException $e ) {
+	$responseHandler->setReturnData( $e->getMessage() );
+	$responseHandler->setReturnStatus( 'file upload error' );
+	$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
+	try {
+		$responseHandler->exitResponse();
+	} catch ( FlexFormException $e ) {
+		die( $e->getMessage() );
+	}
+}
 
 if ( General::getPostString( 'mwaction' ) !== false ) {
 	$action = General::getPostString( 'mwaction' );
@@ -139,7 +154,7 @@ if ( General::getPostString( 'mwaction' ) !== false ) {
 		case "addToWiki" :
 		case "email" :
 			try {
-				if( $action === 'email' ) {
+				if ( $action === 'email' ) {
 					$responseHandler = ContentCore::saveToWiki( $responseHandler, "yes" );
 				} else {
 					$responseHandler = ContentCore::saveToWiki( $responseHandler );
