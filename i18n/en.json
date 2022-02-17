@@ -29,6 +29,16 @@
 	"flexform-config-not-found" : "Could not find the config file for FlexForm. Please read the manual",
 	"flexform-config-credentials-not-found" : "We need all the API user credentials",
 
+	"flexform-fileupload-file-not-found" : "Cannot find file $1",
+	"flexform-fileupload-user-unknown" : "Cannot find user to connect to file upload",
+	"flexform-fileupload-file-title-invalid" : "{$1} could not be imported; a valid title cannot be produced",
+	"flexform-fileupload-no-target" : "No FilePage Title name found (target)",
+	"flexform-fileupload-file-errors" : "We have found errors with the uploaded files : $1",
+	"flexform-fileupload-file-convert-error" : "Error while converting file from $1 to $2",
+	"flexform-fileupload-file-move-error" : "PHP move uploaded file error (file-handling)",
+
+
+
 	"flexform-norequest-made" : "No requests",
 	"flexform-noreturn-found" : "No return found",
 	"flexform-return-outside-domain" : "The return value is outside the server domain. Cancelled",

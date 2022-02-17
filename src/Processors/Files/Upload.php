@@ -10,24 +10,17 @@
 
 namespace FlexForm\Processors\Files;
 
-use FlexForm\Core\Config;
 use FlexForm\Core\Debug;
 use FlexForm\FlexFormException;
 use FlexForm\Processors\Content\ContentCore;
-use FlexForm\Processors\Content\Render;
 use FlexForm\Processors\Content\Save;
 use FlexForm\Processors\Definitions;
 use FlexForm\Processors\Utilities\General;
-use FlexForm\Processors\Utilities\Utilities;
-use FlexForm\Processors\wbHandleResponses;
 use MediaHandler;
-use MediaWiki\Session\Session;
 use MWFileProps;
-use SpecialUpload;
 use Title;
 use User;
 use Wikimedia\AtEase\AtEase;
-use wsform\processors\Wsi18n;
 use MediaWiki\MediaWikiServices;
 
 class Upload {
@@ -35,42 +28,44 @@ class Upload {
 	 * @return bool
 	 * @throws FlexFormException
 	 */
-	public function fileUpload(): bool {
+	public function fileUpload() : bool {
 		/**
-		 * 	return [
-		'files'        => $files,
-		'pagecontent'  => General::getPostString( 'wsform_page_content' ),
-		'parsecontent' => General::getPostString( 'wsform_parse_content' ),
-		'comment'      => General::getPostString( 'wsform-upload-comment' ),
-		'returnto'     => General::getPostString(
-		'mwreturn',
-		false
-		),
-		'target'       => General::getPostString( 'wsform_file_target' ),
-		'force'        => General::getPostArray( 'wsform_image_force' )
-		];
-		 */
-		global $wgUser;
+		 *    return [
+		 * 'files'        => $files,
+		 * 'pagecontent'  => General::getPostString( 'wsform_page_content' ),
+		 * 'parsecontent' => General::getPostString( 'wsform_parse_content' ),
+		 * 'comment'      => General::getPostString( 'wsform-upload-comment' ),
+		 * 'returnto'     => General::getPostString(
+		 * 'mwreturn',
+		 * false
+		 * ),
+		 * 'target'       => General::getPostString( 'wsform_file_target' ),
+		 * 'force'        => General::getPostArray( 'wsform_image_force' )
+		 * ];
+		 */ global $wgUser;
 		$fields = Definitions::fileUploadFields();
 		if ( Config::isDebug() ) {
-			Debug::addToDebug(
-				'File upload start',
-				[ 'fields' => $fields,
-				   'post' => $_POST ]
-			);
+			Debug::addToDebug( 'File upload start',
+							   [
+								   'fields' => $fields,
+								   'post'   => $_POST
+							   ] );
 		}
 		$fileToProcess = $fields['files'];
-		$nrOfFiles = count( $fileToProcess['name'] );
+		$nrOfFiles     = count( $fileToProcess['name'] );
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
 				'Number of files to process',
 				$nrOfFiles
 			);
 		}
-		$errors = [];
+		$errors    = [];
 		$filesCore = new FilesCore();
 		if ( $fields['target'] === false || $fields['target'] === '' ) {
-			throw new FlexFormException( 'No target filepage.', 0 );
+			throw new FlexFormException(
+				wfMessage( 'flexform-fileupload-no-target' )->text(),
+				0
+			);
 		}
 		if ( $fields['pagecontent'] === false ) {
 			$fields['pagecontent'] = '';
@@ -90,7 +85,10 @@ class Upload {
 			*/
 			$convert = $fields['force'];
 		}
-		$upload_dir = rtrim( Config::getConfigVariable( 'file_temp_path' ), '/' ) . '/';
+		$upload_dir = rtrim(
+						  Config::getConfigVariable( 'file_temp_path' ),
+						  '/'
+					  ) . '/';
 		for ( $i = 0; $i < $nrOfFiles; $i++ ) {
 			if ( Config::isDebug() ) {
 				if ( is_uploaded_file( $fileToProcess['tmp_name'][$i] ) ) {
@@ -104,45 +102,55 @@ class Upload {
 					$exists = "no";
 				}
 
-				Debug::addToDebug(
-					'File #' . $i,
-					[ 'tmp_name' => $fileToProcess['tmp_name'][$i],
-					  'name' => $fileToProcess['name'][$i],
-					  'is_uploaded' => $uploaded,
-					  'exists' => $exists,
-						'error' => $fileToProcess['error'][$i] ]
-				);
+				Debug::addToDebug( 'File #' . $i,
+								   [
+									   'tmp_name'    => $fileToProcess['tmp_name'][$i],
+									   'name'        => $fileToProcess['name'][$i],
+									   'is_uploaded' => $uploaded,
+									   'exists'      => $exists,
+									   'error'       => $fileToProcess['error'][$i]
+								   ] );
 			}
 			if ( ! file_exists( $fileToProcess['tmp_name'][$i] ) || ! is_uploaded_file(
 					$fileToProcess['tmp_name'][$i]
 				) ) {
-				throw new FlexFormException( 'Cannot find file ' . $fileToProcess['name'][$i], 0 );
+				throw new FlexFormException(
+					wfMessage(
+						'flexform-fileupload-file-not-found',
+						$fileToProcess['name'][$i]
+					)->text(),
+					0
+				);
 			}
 			$filename = $fileToProcess['name'][$i];
-			$status = $filesCore->checkFileForErrors( $fileToProcess['error'][$i] );
-			$tmpName = $fileToProcess['tmp_name'][$i];
+			$status   = $filesCore->checkFileForErrors( $fileToProcess['error'][$i] );
+			$tmpName  = $fileToProcess['tmp_name'][$i];
 
 			if ( $status !== false ) {
-				throw new FlexFormException( $fileToProcess['name'][$i] . ': ' . $status, 0 );
+				throw new FlexFormException(
+					wfMessage(
+						'flexform-fileupload-file-errors',
+						$status
+					)->text(),
+					0
+				);
 			}
 
 			$targetFile = General::makeUnderscoreFromSpace( $filename );
 
 			if ( Config::isDebug() ) {
-				Debug::addToDebug(
-					'File #' . $i . ' passed error checks',
-					[ 'targetFile' => $targetFile,
-					  'upload dir' => $upload_dir,
-					  'convert' => $convert,
-						'current file extension' => $filesCore->getFileExtension( $filename ) ]
-				);
+				Debug::addToDebug( 'File #' . $i . ' passed error checks',
+								   [
+									   'targetFile'             => $targetFile,
+									   'upload dir'             => $upload_dir,
+									   'convert'                => $convert,
+									   'current file extension' => $filesCore->getFileExtension( $filename )
+								   ] );
 			}
 			if ( $convert !== false && $filesCore->getFileExtension( $filename ) !== $convert ) {
 				if ( Config::isDebug() ) {
-					Debug::addToDebug(
-						'Converting File #' . $i .' to ' . $convert,
-						[]
-					);
+					Debug::addToDebug( 'Converting File #' . $i . ' to ' . $convert,
+									   [] );
 				}
 				$newFile = $filesCore->convert_image(
 					$convert,
@@ -153,9 +161,13 @@ class Upload {
 				);
 				if ( $newFile === false ) {
 					throw new FlexFormException(
-						"Error while converting image from " . $filesCore->getFileExtension(
-							$filename
-						) . " to " . $convert . ".",
+						wfMessage(
+							'flexform-fileupload-file-convert-error',
+							$filesCore->getFileExtension(
+								$filename
+							),
+							$convert
+						)->text(),
 						0
 					);
 				}
@@ -166,10 +178,16 @@ class Upload {
 				) ) {
 					$newFile = $targetFile;
 				} else {
-					throw new FlexFormException( "Error uploading file to destination (file-handling)", 0 );
+					throw new FlexFormException(
+						wfMessage( 'flexform-fileupload-filemove-error' )->text(),
+						0
+					);
 				}
 			}
-			$name    = $filesCore->parseTarget( trim( $fields['target'] ), $newFile );
+			$name    = $filesCore->parseTarget(
+				trim( $fields['target'] ),
+				$newFile
+			);
 			$details = trim( $fields['pagecontent'] );
 			if ( $fields['parsecontent'] !== false ) {
 				$details = ContentCore::parseTitle( $details );
@@ -181,8 +199,8 @@ class Upload {
 								   [
 									   'original file name' => $filename,
 									   'new file name'      => $name,
-									   'details'      => $details,
-									   'comment'      => $fields['comment']
+									   'details'            => $details,
+									   'comment'            => $fields['comment']
 								   ] );
 			}
 
@@ -196,13 +214,16 @@ class Upload {
 				$wgUser
 			);
 			if ( $resultFileUpload !== true ) {
-				throw new FlexFormException( $resultFileUpload, 0 );
+				throw new FlexFormException(
+					$resultFileUpload,
+					0
+				);
 			}
 			unlink( $upload_dir . $newFile );
 		}
+
 		return true;
 	}
-
 
 
 	/**
@@ -226,23 +247,37 @@ class Upload {
 		string $summary,
 		$timestamp
 	) {
-		global $wgUser;
 		if ( ! file_exists( $filePath ) ) {
-			return 'Cannot find file';
+			throw new FlexFormException(
+				wfMessage(
+					'flexform-fileupload-file-not-found',
+					$filePath
+				)->text(),
+				0
+			);
 		}
 
 		if ( $user === false ) {
-			return 'Cannot find user';
+			throw new FlexFormException(
+				wfMessage( 'flexform-fileupload-user-unknown' )->text(),
+				0
+			);
 		}
-		$wgUser = $user;
-		$base   = \UtfNormal\Validator::cleanUp( wfBaseName( $filename ) );
+
+		$base = \UtfNormal\Validator::cleanUp( wfBaseName( $filename ) );
 		# Validate a title
 		$title = Title::makeTitleSafe(
 			NS_FILE,
 			$base
 		);
 		if ( ! is_object( $title ) ) {
-			return "{$base} could not be imported; a valid title cannot be produced";
+			throw new FlexFormException(
+				wfMessage(
+					'flexform-fileupload-user-unknown',
+					$base
+				)->text(),
+				0
+			);
 		}
 
 		$fileRepo       = MediaWikiServices::getInstance()->getRepoGroup()->getLocalRepo();
@@ -272,19 +307,26 @@ class Upload {
 		);
 
 		if ( ! $archive->isGood() ) {
-			throw new FlexFormException( $archive->getWikiText( false, false, 'en' ), 0 );
+			throw new FlexFormException(
+				$archive->getWikiText(
+					false,
+					false,
+					'en'
+				),
+				0
+			);
 		}
 		$commentText = $content;
 		if ( Config::isDebug() ) {
-			Debug::addToDebug(
-				'Uploading ' . $filename,
-				[ 'archive value' => $archive->value,
-				  'summary' => $summary,
-				  'content' => $content,
-				'props' => $props,
-					'base' => $base,
-					'commentText' => $commentText ]
-			);
+			Debug::addToDebug( 'Uploading ' . $filename,
+							   [
+								   'archive value' => $archive->value,
+								   'summary'       => $summary,
+								   'content'       => $content,
+								   'props'         => $props,
+								   'base'          => $base,
+								   'commentText'   => $commentText
+							   ] );
 		}
 
 		$state = $image->recordUpload3(
@@ -300,13 +342,17 @@ class Upload {
 		/**
 		 *
 		 */
-		$save = new Save();
-		$save->saveToWiki( "File:" . $filename, $content, $summary );
-		if ( Config::isDebug() ) {
-			Debug::addToDebug(
-				'Uploading state for ' . $filename,
-				[ 'state' => $state]
+		if ( $state->isOK() ) {
+			$save = new Save();
+			$save->saveToWiki(
+				"File:" . $filename,
+				$content,
+				$summary
 			);
+			if ( Config::isDebug() ) {
+				Debug::addToDebug( 'Uploading state for ' . $filename,
+								   [ 'state' => $state ] );
+			}
 		}
 
 		return true;
