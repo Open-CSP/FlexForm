@@ -84,7 +84,7 @@ class Config {
 			self::$secure = self::getConfigVariable( 'secure' );
 		}
 		$canonical = self::getConfigVariable( 'wgCanonicalServer' );
-		if ( is_null( $filePathFromConfig ) ) {
+		if ( is_null( $filePathFromConfig ) || $filePathFromConfig === '' ) {
 			if ( ! file_exists( $default_dir ) ) {
 				mkdir(
 					$default_dir,

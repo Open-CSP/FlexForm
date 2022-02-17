@@ -413,7 +413,13 @@ class ContentCore {
 			']'
 		);
 		foreach ( $tmp as $fieldname ) {
-			if ( isset( $_POST[General::makeUnderscoreFromSpace( $fieldname )] ) ) {
+			if ( $fieldname == 'mwrandom' ) {
+				$title = str_replace(
+					'[' . $fieldname . ']',
+					General::MakeTitle(),
+					$title
+				);
+			} elseif ( isset( $_POST[General::makeUnderscoreFromSpace( $fieldname )] ) ) {
 				$fn = $_POST[General::makeUnderscoreFromSpace( $fieldname )];
 				if ( is_array( $fn ) ) {
 					$imp   = implode(
@@ -448,13 +454,7 @@ class ContentCore {
 					$title
 				);
 			}
-			if ( $fieldname == 'mwrandom' ) {
-				$title = str_replace(
-					'[' . $fieldname . ']',
-					General::MakeTitle(),
-					$title
-				);
-			}
+
 		}
 
 		return $title;

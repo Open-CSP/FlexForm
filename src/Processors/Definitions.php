@@ -66,7 +66,7 @@ class Definitions {
 
 		return [
 			'files'        => $files,
-			'pagecontent'  => General::getPostString( 'wsform_page_content' ),
+			'pagecontent'  => General::getPostString( 'wsform_page_content', false ),
 			'parsecontent' => General::getPostString( 'wsform_parse_content' ),
 			'comment'      => General::getPostString( 'wsform-upload-comment' ),
 			'returnto'     => General::getPostString(
@@ -74,7 +74,7 @@ class Definitions {
 				false
 			),
 			'target'       => General::getPostString( 'wsform_file_target' ),
-			'force'        => General::getPostArray( 'wsform_image_force' )
+			'force'        => General::getPostString( 'wsform_image_force' )
 		];
 	}
 

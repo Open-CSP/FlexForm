@@ -50,9 +50,7 @@ class FilesCore {
 					$_FILES[self::FILENAME]
 				);
 			}
-			if ( file_exists( $_FILES[self::FILENAME]['tmp_name'] ) || is_uploaded_file(
-					$_FILES[self::FILENAME]['tmp_name']
-				) ) {
+			if ( file_exists( $_FILES[self::FILENAME]['tmp_name'][0] ) ) {
 				$fileUpload = new Upload();
 				try {
 					$res = $fileUpload->fileUpload();
@@ -96,7 +94,7 @@ class FilesCore {
 	 * @return bool|string
 	 */
 	public function checkFileForErrors( $file ) {
-		switch ( $file['error'] ) {
+		switch ( $file ) {
 			case UPLOAD_ERR_OK:
 				return false;
 			case UPLOAD_ERR_NO_FILE :
@@ -156,6 +154,16 @@ class FilesCore {
 	) {
 		//remove extension from image;
 		$img_name = $this->remove_extension_from_image( $target_name );
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'Converting ' . $target_name,
+				[ 'image' => $image,
+				  'target_name' => $target_name,
+				  'target_dir' => $target_dir,
+				  'convert_type' => $convert_type,
+					'img_name' => $img_name]
+			);
+		}
 		//to png
 		if ( $convert_type == 'png' ) {
 			$binary = imagecreatefromstring( file_get_contents( $image ) );
@@ -163,11 +171,22 @@ class FilesCore {
 			//0 is uncompressed, 9 is compressed
 			//so convert 100 to 2 digit number by dividing it by 10 and minus with 10
 			$image_quality = floor( 10 - ( $image_quality / 10 ) );
-			ImagePNG(
+			$result = ImagePNG(
 				$binary,
 				$target_dir . $img_name . '.' . $convert_type,
 				$image_quality
 			);
+			if ( Config::isDebug() ) {
+				if ( $result === false ) {
+					$res = 'png conversion failed';
+				} else {
+					$res = 'png conversion success';
+				}
+				Debug::addToDebug(
+					'png convert ' . $target_name,
+					$res
+				);
+			}
 
 			return $img_name . '.' . $convert_type;
 		}
