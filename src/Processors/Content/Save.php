@@ -4,6 +4,7 @@ namespace FlexForm\Processors\Content;
 
 use CommentStoreComment;
 use ContentHandler;
+use ExtensionRegistry;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
 use MWException;
@@ -15,6 +16,10 @@ use FlexForm\Core\Config;
 use FlexForm\Core\Debug;
 use FlexForm\Core\HandleResponse;
 use FlexForm\FlexFormException;
+use SMW\ApplicationFactory;
+use SMW\Options;
+use SMW\Store;
+use SMW\StoreFactory;
 
 class Save {
 
@@ -150,6 +155,9 @@ class Save {
 		}
 
 		if ( ! $page_updater->isUnchanged() ) {
+			$title = $wikipage_object->getTitle();
+			$this->refreshSMWProperties( $title );
+			/*
 			// Perform an additional null-edit to make sure all page properties are up-to-date
 			$comment      = CommentStoreComment::newUnsavedComment( "" );
 			$page_updater = $wikipage_object->newPageUpdater( $user );
@@ -157,6 +165,7 @@ class Save {
 				$comment,
 				EDIT_SUPPRESS_RC | EDIT_AUTOSUMMARY
 			);
+			*/
 		}
 
 		if ( $status === true ) {
@@ -164,6 +173,34 @@ class Save {
 		} else {
 			return $errors;
 		}
+	}
+
+	/**
+	 * @param Title $title
+	 */
+	private function refreshSMWProperties( Title $title ) {
+		sleep( 1 );
+		if ( ! ExtensionRegistry::getInstance()->isLoaded( 'SemanticMediaWiki' ) ) {
+			return;
+		}
+
+		$store = StoreFactory::getStore();
+		$store->setOption(
+			Store::OPT_CREATE_UPDATE_JOB,
+			false
+		);
+
+		$rebuilder = new \SMW\Maintenance\DataRebuilder(
+			$store,
+			ApplicationFactory::getInstance()->newTitleFactory()
+		);
+
+		$rebuilder->setOptions(
+		// Tell SMW to only rebuild the current page
+			new Options( [ 'page' => $title ] )
+		);
+
+		$rebuilder->rebuild();
 	}
 
 	/**
