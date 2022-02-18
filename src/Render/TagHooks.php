@@ -474,9 +474,10 @@ class TagHooks {
 		// Parse the arguments
 		/* TODO: This is not a good solution. Sometimes arguments need to be parsed but not always.
 		   TODO: Like you want to have {{Template:test}} inside the content of a page!
+		*/
 		foreach ( $args as $name => $value ) {
 			$args[$name] = $this->tagParseIfNeeded( $value, $parser, $frame );
-		}*/
+		}
 
 		$renderer = $this->themeStore->getFormTheme()->getFieldRenderer();
 
