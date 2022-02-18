@@ -61,10 +61,12 @@ if ( Config::isDebug() ) {
 	);
 }
 
-$getAction = General::getGetString( 'action' );
+$getAction = General::getGetString( 'action', true, false );
+
 if ( $getAction === 'handleExternalRequest' ) {
 	try {
-		External::handle();
+
+		External::handle( $responseHandler );
 	} catch ( FlexFormException $e ) {
 		$responseHandler->setReturnData( $e->getMessage() );
 		$responseHandler->setReturnStatus( 'external request error' );

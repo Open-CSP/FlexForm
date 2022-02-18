@@ -131,7 +131,7 @@ class PlainTokenRenderer implements TokenRenderer {
 		}
 		if ( $smwQuery !== null ) {
 			$smwQueryUrl .= '?action=handleExternalRequest';
-			$smwQueryUrl .= '&script=semantic_ask';
+			$smwQueryUrl .= '&script=SemanticAsk';
 			$smwQueryUrl .= '&query=' . $smwQuery;
 		} else {
 			$smwQueryUrl = null;

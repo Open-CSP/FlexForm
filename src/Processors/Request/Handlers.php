@@ -8,7 +8,9 @@
  * Time        : 13:26
  */
 
-namespace FlexForm\Processors\Request\Handlers;
+namespace FlexForm\Processors\Request;
+
+use FlexForm\Core\HandleResponse;
 
 class Handlers {
 
@@ -43,14 +45,16 @@ class Handlers {
 
 	/**
 	 * @param string $name
+	 * @param HandleResponse $responseHandler
 	 *
 	 * @return void
 	 */
-	public function handlerExecute( string $name ) {
+	public function handlerExecute( string $name, HandleResponse $responseHandler ) {
 		if ( $this->handlerExist( $name ) ) {
-			include $this->handlersList[$name];
+			$class = 'FlexForm\\Processors\\Request\\Handlers\\' . $name;
+			$handler = new $class;
+			$handler->execute( $responseHandler );
 		}
 	}
-
 
 }

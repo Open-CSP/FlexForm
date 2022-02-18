@@ -12,6 +12,8 @@ namespace FlexForm\Processors\Content;
 
 use \ApiMain, \DerivativeContext, \FauxRequest, \DerivativeRequest, MWException, RequestContext, FlexForm\Processors\Utilities\General;
 use ContentHandler;
+use FlexForm\Core\Config;
+use FlexForm\Core\Debug;
 use MediaWiki\Content\ContentHandlerFactory;
 use Title;
 use WikiPage;
@@ -98,8 +100,13 @@ class Render {
 		);
 		$api->execute();
 
-		return $api->getResult()->getResultData();
+		$result = $api->getResult()->getResultData();
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'FauxRequest ' . time(),
+				$result
+			);
+		}
+		return $result;
 	}
-
-
 }

@@ -10,9 +10,9 @@
 
 namespace FlexForm\Processors\Utilities;
 
+use FlexForm\Processors\Security\wsSecurity;
 use HTMLPurifier;
 use HTMLPurifier_Config;
-use FlexForm\Processors\Security\wsSecurity;
 
 /**
  * Class wsUtilities
@@ -84,25 +84,27 @@ class General {
 	public static function getGetString( string $var, bool $check = true, bool $clean = true ) {
 		if ( $check ) {
 			if ( isset( $_GET[$var] ) && $_GET[$var] !== "" ) {
-				$template = $_GET[$var];
+				$value = $_GET[$var];
 			} else {
-				$template = false;
+				$value = false;
 			}
 		} else {
 			if ( isset( $_GET[$var] ) ) {
-				$template = $_GET[$var];
+				$value = $_GET[$var];
 			} else {
-				$template = false;
+				$value = false;
 			}
 		}
-		if ( $clean === true && $template !== false ) {
+		global $IP;
+		require_once $IP . '/extensions/FlexForm/Modules/htmlpurifier/library/HTMLPurifier.auto.php';
+		if ( $clean === true && $value !== false ) {
 			$config     = HTMLPurifier_Config::createDefault();
 			$purifier   = new HTMLPurifier( $config );
-			$clean_html = $purifier->purify( $template );
-			$template   = wsSecurity::cleanBraces( $clean_html );
+			$clean_html = $purifier->purify( $value );
+			$value   = wsSecurity::cleanBraces( $clean_html );
 		}
 
-		return $template;
+		return $value;
 	}
 
 	/**
