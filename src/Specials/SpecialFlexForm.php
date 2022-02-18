@@ -393,7 +393,8 @@ class SpecialFlexForm extends \SpecialPage {
 	public function execute( $sub ) {
 		global $IP, $wgUser, $wgExtensionCredits, $wgScript, $wgServer;
 
-		if ( $this->getPostString( 'mwtoken' ) ) {
+		if ( $this->getPostString( 'mwtoken' )
+			 || ( isset ( $_GET['action'] ) && $_GET['action'] === 'handleExternalRequest' ) ) {
 			// We need to handle api calls here
 			//error_reporting( -1 );
 			//ini_set( 'display_errors', 1 );

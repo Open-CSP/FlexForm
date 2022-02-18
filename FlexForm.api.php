@@ -29,16 +29,15 @@ if ( ! defined( 'MEDIAWIKI' ) ) {
 			'version',
 			false
 		) !== false ) {
-		echo getVersion();
+		//echo getVersion();
 		exit();
 	}
 	die( 'no no no sir' );
 }
 
-
 $ret = false;
 
-$removeList = array();
+$removeList = [];
 
 // Handle to final response
 $responseHandler = new HandleResponse;
@@ -48,7 +47,7 @@ try {
 	$responseHandler->setReturnData( $e->getMessage() );
 	$responseHandler->setReturnStatus( 'setConfigError' );
 	$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
-};
+}
 
 if ( Config::isDebug() ) {
 	ERROR_REPORTING( E_ALL );
@@ -60,6 +59,23 @@ if ( Config::isDebug() ) {
 		'$_POST before checks',
 		$_POST
 	);
+}
+
+$getAction = General::getGetString( 'action' );
+if ( $getAction === 'handleExternalRequest' ) {
+	try {
+		External::handle();
+	} catch ( FlexFormException $e ) {
+		$responseHandler->setReturnData( $e->getMessage() );
+		$responseHandler->setReturnStatus( 'external request error' );
+		$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
+		$responseHandler->setIdentifier( 'ajax' );
+		try {
+			$responseHandler->exitResponse();
+		} catch ( FlexFormException $e ) {
+			die( $e->getMessage() );
+		}
+	}
 }
 
 try {

@@ -178,10 +178,7 @@ class TagHooks {
 				$frame
 			);
 
-			if ( ! preg_match(
-				'/^[a-zA-Z0-9_]+$/',
-				$formId
-			) ) {
+			if ( ! $this->checkValidInput( $formId ) ) {
 				return [ 'Invalid form ID.' ];
 			}
 
@@ -221,11 +218,7 @@ class TagHooks {
 			);
 			unset( $args['changetrigger'] );
 
-			if ( preg_match(
-				'/^[a-zA-Z0-9_]+$/',
-				$changeCall
-			) ) {
-				// FIXME: Even though the formId and changeCall are validated, they still allow for (quite weak) XSS.
+			if ( $this->checkValidInput( $changeCall ) ) {
 				Core::includeInlineScript( "$('#" . $formId . "').change(" . $changeCall . "(this));" );
 			}
 		}
@@ -239,11 +232,11 @@ class TagHooks {
 			unset( $args['loadscript'] );
 
 			// Validate the file name
-			if ( preg_match(
-					 '/^[a-zA-Z0-9_ -]+$/',
-					 $scriptToLoad
-				 ) !== 1 ) {
-				return [ 'The script specified in "loadscript" could not be loaded because the file name is invalid.' ];
+			if ( ! $this->checkValidInput( $scriptToLoad ) ) {
+				return [
+					'The script specified in "loadscript" could not be loaded because the file name is invalid.',
+					'noparse' => true
+				];
 			}
 
 			// Is this script already loaded?
@@ -1400,12 +1393,9 @@ class TagHooks {
 			);
 
 			// Make sure ID is valid
-			if ( ! preg_match(
-				'/^[a-zA-Z0-9_-]+$/',
-				$id
-			) ) {
+			if ( ! $this->checkValidInput( $id ) ) {
 				return [
-					'Invalid ID as it does not match pattern [a-zA-Z0-9_-]+',
+					'Invalid ID as it does not match pattern',
 					'noparse' => true
 				];
 			}
@@ -1434,6 +1424,13 @@ class TagHooks {
 			$inputLengthTrigger = 3;
 		}
 
+		if ( isset( $args['query'] ) ) {
+			$smwQuery = $args['query'];
+			unset( $args['query'] );
+		} else {
+			$smwQuery = null;
+		}
+
 		if ( isset( $args['json'] ) ) {
 			$json = strpos(
 				$args['json'],
@@ -1454,11 +1451,7 @@ class TagHooks {
 			);
 
 			// Make sure callback is valid
-			if ( ! preg_match(
-				'/^[a-zA-Z0-9_]+$/',
-				$callback
-			) ) {
-				// FIXME: Eventhough the callback is validated, it still allows for (weak) XSS
+			if ( ! $this->checkValidInput( $callback ) ) {
 				return [
 					'Invalid callback as it does not match pattern [a-zA-Z0-9_]+',
 					'noparse' => true
@@ -1477,10 +1470,7 @@ class TagHooks {
 			);
 
 			// Make sure template is valid
-			if ( ! preg_match(
-				'/^[a-zA-Z0-9_ ]+$/',
-				$template
-			) ) {
+			if ( ! $this->checkValidInput( $template ) ) {
 				return [
 					'Invalid template as it does not match pattern [a-zA-Z0-9_ ]+',
 					'noparse' => true
@@ -1519,6 +1509,7 @@ class TagHooks {
 			$id,
 			$inputLengthTrigger,
 			$placeholder,
+			$smwQuery,
 			$json,
 			$callback,
 			$template,
@@ -1534,6 +1525,22 @@ class TagHooks {
 			$output,
 			"markerType" => 'nowiki'
 		];
+	}
+
+	/**
+	 * @param string $input
+	 *
+	 * @return bool
+	 */
+	private function checkValidInput( string $input ): bool {
+		if ( ! preg_match(
+			'/^[A-Za-z]+[\w\-\:\.]*$/',
+			$input
+		) ) {
+			return false;
+		} else {
+			return true;
+		}
 	}
 
 	/**

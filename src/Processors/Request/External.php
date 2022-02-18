@@ -8,12 +8,11 @@
  * Time        : 13:21
  */
 
-
 namespace FlexForm\Processors\Request;
 
 use FlexForm\Core\Protect;
+use FlexForm\Processors\Request\Handlers\Handlers;
 use FlexForm\Processors\Utilities\General;
-use FlexForm\Modules\Handlers\Handlers;
 use FlexForm\FlexFormException;
 
 /**
@@ -24,6 +23,10 @@ use FlexForm\FlexFormException;
  */
 class External {
 
+	/**
+	 * @return void
+	 * @throws FlexFormException
+	 */
 	public static function handle() {
 		$handler = new Handlers();
 		$external = General::getGetString( 'script' );

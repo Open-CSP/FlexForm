@@ -10,6 +10,7 @@
 
 namespace FlexForm\Processors\Files;
 
+use FlexForm\Core\Config;
 use FlexForm\Core\Debug;
 use FlexForm\FlexFormException;
 use FlexForm\Processors\Content\ContentCore;
