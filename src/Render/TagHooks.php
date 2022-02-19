@@ -1948,9 +1948,13 @@ class TagHooks {
 		}
 	}
 
-	private function renderFileUpload( array $args ): array {
+	/**
+	 * @param array $args
+	 *
+	 * @return array|string
+	 */
+	private function renderFileUpload( array $args ) {
 		// FIXME: Can you (attempt to) rewrite this @Charlot?
-
 
 		$filesCore = new FilesCore();
 
