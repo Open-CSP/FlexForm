@@ -252,6 +252,7 @@ class ContentCore {
 				);
 			}
 			foreach ( $pageContents as $slotName => $singlePage ) {
+
 				$slotContents = $singlePage['content'];
 				$pTitle       = $singlePage['title'];
 

@@ -392,9 +392,9 @@ class Edit {
 
 					//$content = $api->getWikiPage( $pid, $edit['slot'] );
 					if ( $content['content'] == '' ) {
-						$pageContents[$edit['slot']['content']] = false;
+						$pageContents[$edit['slot']]['content'] = false;
 					} else {
-						$pageContents[$edit['slot']['content']] = $content['content'];
+						$pageContents[$edit['slot']]['content'] = $content['content'];
 					}
 
 					$pageContents[$edit['slot']]['title'] = $content['title'];
