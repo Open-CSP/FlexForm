@@ -33,7 +33,7 @@ $wgFlexFormConfig['auto_save_after_change'] = 3000; // defaults to 3 seconds aft
 $wgFlexFormConfig['FlexFormDefaultTheme'] = "Plain"; // Currently the only form
 $wgFlexFormConfig['rc_site_key'] = ""; // reCaptcha site key
 $wgFlexFormConfig['rc_secret_key'] = ""; // reCaptcha secret key
-$wgFlexFormConfig['file_temp_path'] = ""; // Currently not is use.
+$wgFlexFormConfig['file_temp_path'] = ""; // When using image upload conversion, we need a place to temporarily store images.
 $wgFlexFormConfig['form_timeout_limit'] = 7200; // 7200 seconds is the default
 ```
 ---

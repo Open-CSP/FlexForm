@@ -11,6 +11,7 @@ use FlexForm\Core\Core;
 use FlexForm\Render\TagHooks;
 use FlexForm\Render\Validate;
 use FlexForm\FlexFormException;
+use Wikimedia\Services\NoSuchServiceException;
 
 /**
  * Class FlexFormHooks
@@ -82,13 +83,16 @@ class FlexFormHooks {
      *
      * @throws MWException
      * @throws FlexFormException
+     * @throws NoSuchServiceException
      */
 	public static function onParserFirstCallInit( Parser &$parser ) {
         if ( !\FlexForm\Core\Config::getConfigStatus() ) {
             \FlexForm\Core\Config::setConfigFromMW();
         }
 
+
 		$tagHooks = new TagHooks( MediaWikiServices::getInstance()->getService( 'FlexForm.ThemeStore' ) );
+
 
 		$parser->setHook(
 			'wsform',

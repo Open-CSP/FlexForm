@@ -30,6 +30,7 @@ class ThemeStore {
 	 * @param HookContainer $hookContainer
 	 */
 	public function __construct( string $defaultTheme, HookContainer $hookContainer ) {
+		$defaultTheme = 'Plain'; // TODO: Remove when we have more themes. This whole Structure looks weird! @Marijn
 		$this->formThemeName = $defaultTheme;
 		$this->themes        = [
 			'Plain' => new PlainTheme()
