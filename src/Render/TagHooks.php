@@ -852,11 +852,13 @@ class TagHooks {
 					unset( $args['value'] );
 				}
 
+				//FIXME: Where comes this from @Marijn?
 				if ( isset( $args['name'] ) ) {
 					$tagName = $args['name'];
 					unset( $args['name'] );
 				} else {
-					$tagName = bin2hex( random_bytes( 16 ) );
+					//$tagName = bin2hex( random_bytes( 16 ) );
+					$tagName = "";
 				}
 
 				if ( isset( $args['class'] ) ) {
