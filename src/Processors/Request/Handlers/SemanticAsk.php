@@ -13,7 +13,7 @@ class SemanticAsk {
 	 * @throws \MWException
 	 */
 	public function execute( HandleResponse $responseHandler ) {
-		$query          = General::getGetString( 'query', true, false );
+		$query          = base64_decode( General::getGetString( 'query', true, false ) );
 		$q              = General::getGetString( 'q', true, false );
 		$returnId       = General::getGetString( 'returnid', true, false );
 		$returnText     = General::getGetString( 'returntext', true, false );
@@ -26,7 +26,6 @@ class SemanticAsk {
 			// test query :  $query = "[[Class::Organization]] [[Name::~*ik*]]|?Name |format=json |limit=99999"
 			// ik kan dat q worden voor select2 door !!! in te vullen in de query, deze wordt dan vervangen.
 
-			$query = html_entity_decode( urldecode( $query ) );
 			if ( $q !== false ) {
 				$q2    = ucwords( $q );
 				$q3    = strtoupper( $q );
@@ -63,7 +62,7 @@ class SemanticAsk {
 			$postdata = [
 				"action" => "ask",
 				"format" => "json",
-				"query"  => $query
+				"query"  =>  $query
 			];
 			$mRequest = new \FlexForm\Processors\Content\Render();
 			$data     = $mRequest->makeRequest( $postdata );

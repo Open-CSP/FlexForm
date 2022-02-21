@@ -125,20 +125,20 @@ class PlainTokenRenderer implements TokenRenderer {
 
 		global $wgScriptPath, $wgServer;
 		if ( $wgScriptPath !== "" ) {
-			$smwQueryUrl = $wgServer . "/" . $wgScriptPath . '/index.php/Special:FlexForm';
+			$smwQueryUrl =  "/" . $wgScriptPath . '/index.php/Special:FlexForm';
 		} else {
-			$smwQueryUrl = $wgServer . '/index.php/Special:FlexForm';
+			$smwQueryUrl =  '/index.php/Special:FlexForm';
 		}
 		if ( $smwQuery !== null ) {
 			$smwQueryUrl .= '?action=handleExternalRequest';
-			$smwQueryUrl .= '&script=SemanticAsk';
-			$smwQueryUrl .= '&query=' . $smwQuery;
+			$smwQueryUrl .= '&script=SemanticAsk&query=';
+			$smwQueryUrlQ = base64_encode( $smwQuery );
 		} else {
 			$smwQueryUrl = null;
 		}
 
 		if ( $smwQueryUrl !== null ) {
-			$javascript .= "var jsonDecoded = decodeURIComponent( '" . urlencode( $smwQueryUrl ) . "' );\n";
+			$javascript .= "var jsonDecoded = '" . $smwQueryUrl . $smwQueryUrlQ . "';\n";
 		}
 
 		$javascript .= "$('#" . $id . "').select2({";
