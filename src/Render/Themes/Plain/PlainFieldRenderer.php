@@ -136,7 +136,7 @@ class PlainFieldRenderer implements FieldRenderer {
 	/**
 	 * @inheritDoc
 	 */
-	public function render_file( array $args ) : string {
+	public function render_file( $args ) : string {
 
 		/*
 		 * $result['verbose_div'] = $verboseDiv;
@@ -145,6 +145,8 @@ class PlainFieldRenderer implements FieldRenderer {
 		$result['function_fields'] = $hiddenFiles;
 		 */
 		// FIXME: Can you (attempt to) rewrite this @Charlot?
+
+		if ( ! is_array ( $args ) ) return trim( $args );
 
 		$args['attributes']['type'] = 'file';
 		$ret = Xml::tags(

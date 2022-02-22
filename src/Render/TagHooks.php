@@ -338,6 +338,7 @@ class TagHooks {
 			$frame
 		);
 
+
 		try {
 			$previousTheme = $this->themeStore->getFormThemeName();
 
@@ -438,6 +439,7 @@ class TagHooks {
 	 */
 	public function renderField( $input, array $args, Parser $parser, PPFrame $frame ) {
 		global $IP;
+
 		if ( ! isset( $args['type'] ) ) {
 			return [
 				wfMessage( "flexform-field-invalid" )->parse(),
@@ -473,8 +475,8 @@ class TagHooks {
 		}
 
 		$renderer = $this->themeStore->getFormTheme()->getFieldRenderer();
-
 		switch ( $fieldType ) {
+
 			case 'text':
 				if ( isset( $args['mwidentifier'] ) && $args['mwidentifier'] === 'datepicker' ) {
 					$parser->getOutput()->addModules( 'ext.wsForm.datePicker.scripts' );

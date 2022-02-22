@@ -88,11 +88,11 @@ interface FieldRenderer {
 	/**
 	 * @brief Render file input field
 	 *
-	 * @param array $args Arguments for the field
+	 * @param array|string $args Arguments for the field
 	 *
 	 * @return string Rendered HTML
 	 */
-	public function render_file( array $args ) : string;
+	public function render_file( $args ) : string;
 
 	/**
 	 * @brief Render date input field
