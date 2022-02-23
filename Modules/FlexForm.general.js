@@ -484,6 +484,10 @@ function wsAutoSaveInit() {
  * WSform Ajax handler
  * @param  {[object]}  btn              [btn that was clicked]
  * @param  {Boolean or boolean} [callback=false] [either function to callback or false if none]
+ * @param preCallback
+ * @param showId
+ * @param preCallback
+ * @param showId
  * @return {[none]}                   [run given callback]
  */
 function wsform(btn, callback = 0, preCallback = 0, showId = 0 ) {
@@ -614,7 +618,7 @@ function addTokenInfo() {
             wachtff(wsAutoSaveInit);
         }
 
-        $("form.wsform").one('submit', function (e) {
+        $("form.flex-form").one('submit', function (e) {
             // Check for Visual editor
             e.preventDefault();
             var pform = $(this);
@@ -680,6 +684,11 @@ function addTokenInfo() {
 
                 });
             } else {
+                var btn = $(this).find(':submit');
+                var spinner = $(this).find('.flex-form-spinner');
+                $(spinner).addClass('active');
+                $(btn).addClass("flexform-disabled");
+                $(btn).prop('disabled', true);
                 pform.submit();
             }
         });

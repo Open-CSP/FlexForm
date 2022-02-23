@@ -27,7 +27,7 @@ async function WsShowOnSelect() {
     }
   });
 
-  $('.wsform-hide').removeClass('wsform-hide');
+  $('.flex-form-hide').removeClass('flex-form-hide');
 }
 
 /**

@@ -17,7 +17,7 @@ class PlainFormRenderer implements FormRenderer {
 		    'action' => $actionUrl,
             'id' => $formId,
             'method' => 'post',
-            'class' => 'wsform'
+            'class' => 'flex-form'
         ], $additionalArgs);
 
 		$messageOnSuccess = $messageOnSuccess !== null ? Core::createHiddenField( 'mwonsuccess', htmlspecialchars( $messageOnSuccess ) ) : '';
@@ -42,8 +42,8 @@ class PlainFormRenderer implements FormRenderer {
         }
 
 		if ( $showOnSelect ) {
-		    $formAttributes['class'] .= ' WSShowOnSelect wsform-hide';
-		    Core::includeInlineCSS( '.wsform-hide { opacity:0; }' );
+		    $formAttributes['class'] .= ' WSShowOnSelect flex-form-hide';
+		    Core::includeInlineCSS( '.flex-form-hide { opacity:0; }' );
         }
 
 		$formContent = $mwReturn . $action . $messageOnSuccess . $wikiComment . $extension . \Xml::tags('input', [

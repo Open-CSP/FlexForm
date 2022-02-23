@@ -386,12 +386,19 @@ class PlainFieldRenderer implements FieldRenderer {
 				'type' => $identifier ? 'button' : 'submit'
 			]
 		);
-
-		return Xml::tags(
+		$result = Xml::tags(
 			'input',
 			$submitAttributes,
 			''
 		);
+		// Add spinner span :
+		$result .= Xml::tags(
+			'span',
+			[ 'class' => 'flex-form-spinner' ],
+			''
+		);
+		return $result;
+
 	}
 
 	/**
