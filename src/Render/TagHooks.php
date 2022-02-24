@@ -830,12 +830,15 @@ class TagHooks {
 					if ( ! Validate::validParameters( $name ) ) {
 						continue;
 					}
+					if ( ! Validate::validButtonParameters( $name ) ) {
+						continue;
+					}
 
 					$additionalArguments[$name] = $value;
 				}
 
 				$ret = $this->themeStore->getFormTheme()->getFieldRenderer()->render_button(
-					$parser->recursiveTagParse( $input ),
+					$input,
 					$buttonType,
 					$additionalArguments
 				);

@@ -137,7 +137,6 @@ class PlainFieldRenderer implements FieldRenderer {
 	 * @inheritDoc
 	 */
 	public function render_file( $args ) : string {
-
 		/*
 		 * $result['verbose_div'] = $verboseDiv;
 		$result['error_div'] = $errorDiv;
@@ -146,10 +145,12 @@ class PlainFieldRenderer implements FieldRenderer {
 		 */
 		// FIXME: Can you (attempt to) rewrite this @Charlot?
 
-		if ( ! is_array ( $args ) ) return trim( $args );
+		if ( ! is_array( $args ) ) {
+			return trim( $args );
+		}
 
 		$args['attributes']['type'] = 'file';
-		$ret = Xml::tags(
+		$ret                        = Xml::tags(
 			'input',
 			$args['attributes'],
 			''
@@ -163,12 +164,18 @@ class PlainFieldRenderer implements FieldRenderer {
 		}
 		$ret = $hiddenField . $ret;
 		if ( $args['verbose_div']['id'] !== false ) {
-			$classes = implode( ' ', $args['verbose_div']['class'] );
-			$ret .= '<div id="' . $args['verbose_div']['id'] . '" class="' . $classes . '"></div>';
+			$classes = implode(
+				' ',
+				$args['verbose_div']['class']
+			);
+			$ret     .= '<div id="' . $args['verbose_div']['id'] . '" class="' . $classes . '"></div>';
 		}
 		if ( $args['error_div']['id'] !== false ) {
-			$classes = implode( ' ', $args['error_div']['class'] );
-			$ret .= '<div id="' . $args['error_div']['id'] . '" class="' . $classes . '"></div>';
+			$classes = implode(
+				' ',
+				$args['error_div']['class']
+			);
+			$ret     .= '<div id="' . $args['error_div']['id'] . '" class="' . $classes . '"></div>';
 		}
 
 		return trim( $ret );
@@ -380,13 +387,11 @@ class PlainFieldRenderer implements FieldRenderer {
 	 * @inheritDoc
 	 */
 	public function render_submit( array $args, bool $identifier ) : string {
-		$submitAttributes = array_merge(
-			$args,
-			[
-				'type' => $identifier ? 'button' : 'submit'
-			]
-		);
-		$result = Xml::tags(
+		$submitAttributes = array_merge( $args,
+										 [
+											 'type' => $identifier ? 'button' : 'submit'
+										 ] );
+		$result           = Xml::tags(
 			'input',
 			$submitAttributes,
 			''
@@ -397,8 +402,8 @@ class PlainFieldRenderer implements FieldRenderer {
 			[ 'class' => 'flex-form-spinner' ],
 			''
 		);
-		return $result;
 
+		return $result;
 	}
 
 	/**
@@ -413,7 +418,7 @@ class PlainFieldRenderer implements FieldRenderer {
 		return Xml::tags(
 			'button',
 			$tagAttributes,
-			htmlspecialchars( $input )
+			$input
 		);
 	}
 

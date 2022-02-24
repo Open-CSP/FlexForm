@@ -199,6 +199,7 @@ class Validate {
 			"required",
 			"for",
 			"novalidate",
+			"autofocus",
 			"pattern",
 			"readonly",
 			"size",
@@ -232,12 +233,40 @@ class Validate {
 	/**
 	 * Check for valid parameters when using file
 	 *
-	 * @param $check string Holds parameter to check
-	 * @param bool $ret If set to true it will not check the "check" parameter but rather returns an array of valid parameters
+	 * @param string $check Holds parameter to check
+	 * @param bool $ret If set to true it will not check the "check" parameter,
+	 * but rather returns an array of valid parameters
 	 *
 	 * @return array|bool List of valid parameters, bool true when "$check" is valid, false if not
 	 */
-	public static function validFileParameters( $check, $ret = false ) {
+	public static function validButtonParameters( string $check, bool $ret = false ) {
+		$validParameters = [
+			"formnovalidate",
+			"formaction",
+			"formenctype",
+			"form",
+			"formtarget"
+		];
+		if ( $ret ) {
+			return $validParameters;
+		}
+		if ( in_array( $check, $validParameters ) ) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Check for valid parameters when using file
+	 *
+	 * @param string $check Holds parameter to check
+	 * @param bool $ret If set to true it will not check the "check" parameter,
+	 * but rather returns an array of valid parameters
+	 *
+	 * @return array|bool List of valid parameters, bool true when "$check" is valid, false if not
+	 */
+	public static function validFileParameters( string $check, bool $ret = false ) {
 		$validParameters = array(
 			"target",
 			"accept",
@@ -247,7 +276,7 @@ class Validate {
 			"pagecontent",
 			"use_label",
 			"force",
-            "parsecontent",
+			"parsecontent",
 			"dropzone"
 		);
 		if ( $ret ) {
