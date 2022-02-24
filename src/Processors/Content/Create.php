@@ -31,6 +31,9 @@ class Create {
 	 */
 	public function writePage(): array {
 		$fields = ContentCore::getFields();
+		if( Config::isDebug() ) {
+			Debug::addToDebug( 'Write page activated ' . time(), $fields );
+		}
 
 		$this->content = ContentCore::createContent();
 
@@ -207,9 +210,19 @@ class Create {
 	public function writePages() : array {
 		$pageCount = 0;
 		$fields    = ContentCore::getFields();
+		if( Config::isDebug() ) {
+			Debug::addToDebug( 'Write several page activated ' . time(), $fields );
+		}
 		foreach ( $fields['writepages'] as $singlePage ) {
 			$pageCount++;
 			$this->setPageDataMultiple( $singlePage );
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'Working on page ' . $pageCount,
+					[ 'pageinfo' => $singlePage,
+						'after setpageDataMultiple' => $this->pageData ]
+				);
+			}
 			// If we do not have a page title or a template, then skip!
 			if ( $this->pageData['template'] === false || $this->pageData['title'] === false ) {
 				continue;
@@ -217,7 +230,19 @@ class Create {
 			if ( !$this->pageData['notemplate'] ) {
 				$this->content = "{{" . $this->pageData['template'] . "\n";
 			}
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'Content original ' . $pageCount,
+					$this->content
+				);
+			}
 			$this->addPostFieldsToContent();
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'Content after adding form fields ' . $pageCount,
+					$this->content
+				);
+			}
 			if ( strpos(
 					 $this->pageData['title'],
 					 '['
@@ -225,7 +250,8 @@ class Create {
 				$this->pageData['title'] = ContentCore::parseTitle( $this->pageData['title'] );
 			}
 			if ( $this->pageData['option'] == 'next_available' && $this->pageData['title'] !== false ) {
-				$hnr = ContentCore::getNextAvailable( $this->title );
+
+				$hnr = ContentCore::getNextAvailable( $this->pageData['title'] );
 				if ( Config::isDebug() ) {
 					Debug::addToDebug(
 						'next available',
@@ -259,6 +285,7 @@ class Create {
 				if ( !ctype_digit( $rangeCheck[0] ) || !ctype_digit( $rangeCheck[1] ) ) {
 					throw new FlexFormException( wfMessage( 'flexform-mwoption-bad-range' ) );
 				}
+
 				$rangeResult = ContentCore::getFromRange(
 					$this->pageData['title'],
 					$range
@@ -299,14 +326,20 @@ class Create {
 			];
 		}
 
+
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
 				'$pagesToSave',
 				$pagesToSave
 			);
 		}
-
+		if( Config::isDebug() ) {
+			Debug::addToDebug( 'Pages to save before addCreatToTile ' . time(), $pagesToSave );
+		}
 		$pagesToSave = $this->addCreateToTitle( $pagesToSave );
+		if( Config::isDebug() ) {
+			Debug::addToDebug( 'Pages to save after addCreatToTile ' . time(), $pagesToSave );
+		}
 		$finalPages  = $this->createFinalPages( $pagesToSave );
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
