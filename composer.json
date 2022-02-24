@@ -1,0 +1,34 @@
+{
+  "name": "wikibase-solutions/f-lexf-orm",
+  "type": "mediawiki-extension",
+  "description": "HTML5 Form renderer",
+  "keywords": [
+    "mediawiki",
+    "flexform",
+    "extension",
+    "form"
+  ],
+  "license": "GPL-2.0-or-later",
+  "require": {
+    "php": "^7.3.19",
+    "ext-json": "*",
+    "ext-exif": "*"
+  },
+  "require-dev": {
+    "mediawiki/mediawiki-codesniffer": "34.0.0",
+    "mediawiki/minus-x": "1.1.0",
+    "php-parallel-lint/php-console-highlighter": "0.5.0",
+    "php-parallel-lint/php-parallel-lint": "1.2.0"
+  },
+  "scripts": {
+    "test": [
+      "parallel-lint . --exclude vendor --exclude node_modules",
+      "phpcs -p -s --ignore=*/vendor/*",
+      "minus-x check ."
+    ],
+    "fix": [
+      "minus-x fix .",
+      "phpcbf"
+    ]
+  }
+}

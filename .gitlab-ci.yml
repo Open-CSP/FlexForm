@@ -1,0 +1,23 @@
+include:
+  - template: Composer.gitlab-ci.yml
+
+stages:
+  - test
+  - build
+
+publish:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+
+composer_test:
+  cache:
+  - key: composer-dev
+    paths:
+      - vendor/
+  image: composer:2
+  stage: test
+  before_script:
+    - composer install --ignore-platform-reqs
+  script:
+    - composer test
+  allow_failure: true

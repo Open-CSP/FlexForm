@@ -148,11 +148,16 @@ class Upload {
 									   'current file extension' => $filesCore->getFileExtension( $filename )
 								   ] );
 			}
-			if ( $convert !== false && $filesCore->getFileExtension( $filename ) !== $convert ) {
+			$filesSupported = Definitions::getImageHandler();
+			$fileType = exif_imagetype( $filename );
+			if ( $convert !== false &&
+				 $filesCore->getFileExtension( $filename ) !== $convert &&
+				 isset( $filesSupported[$fileType] ) ) {
 				if ( Config::isDebug() ) {
 					Debug::addToDebug( 'Converting File #' . $i . ' to ' . $convert,
 									   [] );
 				}
+
 				$newFile = $filesCore->convert_image(
 					$convert,
 					$upload_dir,
