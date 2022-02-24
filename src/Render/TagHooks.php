@@ -458,12 +458,19 @@ class TagHooks {
 
 		if ( isset( $args['parsepost'] ) && isset( $args['name'] ) ) {
 			// FIXME: What is this, and can it be removed?
+			// CC: No it cannot!
 			$parsePost = true;
 			$parseName = $args['name'];
 
 			unset( $args['parsepost'] );
 		} else {
 			$parsePost = false;
+		}
+
+		// We always parse the input, unless noparse is set.
+		if ( !isset( $args['noparse'] ) ) {
+			$input = $parser->recursiveTagParse( $input, $frame );
+			unset( $args['noparse'] );
 		}
 
 		// Parse the arguments
