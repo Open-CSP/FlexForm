@@ -162,7 +162,7 @@ class TagHooks {
 			$additionalClass = null;
 		}
 
-		if ( isset( $args['show-on-select'] ) ) {
+		if ( isset( $args['show-on-select'] ) && strtolower( $args['show-on-select'] ) === 'show-on-select' ) {
 			$showOnSelect = true;
 			unset( $args['show-on-select'] );
 
