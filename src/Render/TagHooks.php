@@ -76,8 +76,18 @@ class TagHooks {
 				$_COOKIE['wsform']['txt']
 			);
 
-			setcookie( "wsform[type]", "", time() - 3600, '/' );
-			setcookie( "wsform[txt]", "", time() - 3600, '/' );
+			setcookie(
+				"wsform[type]",
+				"",
+				time() - 3600,
+				'/'
+			);
+			setcookie(
+				"wsform[txt]",
+				"",
+				time() - 3600,
+				'/'
+			);
 
 			return [
 				$alertTag,
@@ -162,7 +172,12 @@ class TagHooks {
 			$additionalClass = null;
 		}
 
-		if ( isset( $args['show-on-select'] ) && strtolower( $args['show-on-select'] ) === 'show-on-select' ) {
+		if ( isset( $args['show-on-select'] ) && strtolower(
+													 $parser->recursiveTagParse(
+														 $args['show-on-select'],
+														 $frame
+													 )
+												 ) === 'show-on-select' ) {
 			$showOnSelect = true;
 			unset( $args['show-on-select'] );
 
@@ -317,7 +332,9 @@ class TagHooks {
 		// If the action is add to wiki, make sure the user has confirmed their email address
 		if ( $action === 'addToWiki' && $wgEmailConfirmToEdit === true && $wgUser->isRegistered(
 			) && ! $wgUser->isEmailConfirmed() ) {
-			return wfMessage( "flexform-unverified-email1" )->parse() . wfMessage( "flexform-unverified-email2" )->parse();
+			return wfMessage( "flexform-unverified-email1" )->parse() . wfMessage(
+					"flexform-unverified-email2"
+				)->parse();
 		}
 
 		if ( Core::getRun() === false ) {
@@ -333,11 +350,10 @@ class TagHooks {
 		}
 
 		$actionUrl = $formTarget ?? Core::getAPIurl();
-		$output     = $parser->recursiveTagParse(
+		$output    = $parser->recursiveTagParse(
 			trim( $input ),
 			$frame
 		);
-
 
 		try {
 			$previousTheme = $this->themeStore->getFormThemeName();
@@ -357,19 +373,19 @@ class TagHooks {
 
 			// Render the actual contents of the form
 			$ret .= $this->themeStore->getFormTheme()->getFormRenderer()->render_form(
-					$output,
-					$actionUrl,
-					$mwReturn,
-					$formId,
-					$messageOnSuccess,
-					$wikiComment,
-					$action,
-					$extension,
-					$autosaveType,
-					$additionalClass,
-					$showOnSelect,
-					$additionalArgs
-				);
+				$output,
+				$actionUrl,
+				$mwReturn,
+				$formId,
+				$messageOnSuccess,
+				$wikiComment,
+				$action,
+				$extension,
+				$autosaveType,
+				$additionalClass,
+				$showOnSelect,
+				$additionalArgs
+			);
 		} finally {
 			$this->themeStore->setFormThemeName( $previousTheme );
 		}
@@ -468,8 +484,11 @@ class TagHooks {
 		}
 
 		// We always parse the input, unless noparse is set.
-		if ( !isset( $args['noparse'] ) ) {
-			$input = $parser->recursiveTagParse( $input, $frame );
+		if ( ! isset( $args['noparse'] ) ) {
+			$input = $parser->recursiveTagParse(
+				$input,
+				$frame
+			);
 			unset( $args['noparse'] );
 		}
 
@@ -478,12 +497,15 @@ class TagHooks {
 		   TODO: Like you want to have {{Template:test}} inside the content of a page!
 		*/
 		foreach ( $args as $name => $value ) {
-			$args[$name] = $this->tagParseIfNeeded( $value, $parser, $frame );
+			$args[$name] = $this->tagParseIfNeeded(
+				$value,
+				$parser,
+				$frame
+			);
 		}
 
 		$renderer = $this->themeStore->getFormTheme()->getFieldRenderer();
 		switch ( $fieldType ) {
-
 			case 'text':
 				if ( isset( $args['mwidentifier'] ) && $args['mwidentifier'] === 'datepicker' ) {
 					$parser->getOutput()->addModules( 'ext.wsForm.datePicker.scripts' );
@@ -727,7 +749,10 @@ class TagHooks {
 
 				$additionalArguments = [];
 				foreach ( $args as $name => $v ) {
-					if ( !Validate::check_disable_readonly_required_selected( $name, $v ) || !Validate::validParameters( $name ) ) {
+					if ( ! Validate::check_disable_readonly_required_selected(
+							$name,
+							$v
+						) || ! Validate::validParameters( $name ) ) {
 						$additionalArguments[$name] = $v;
 					}
 				}
@@ -807,9 +832,9 @@ class TagHooks {
 				}
 
 				$output = $this->themeStore->getFormTheme()->getFieldRenderer()->render_submit(
-						$validArgs,
-						$identifier
-					);
+					$validArgs,
+					$identifier
+				);
 
 				return [
 					$output . $additionalHtml,
@@ -925,12 +950,12 @@ class TagHooks {
 				);
 
 				$ret = $this->themeStore->getFormTheme()->getFieldRenderer()->render_textarea(
-						$input,
-						$tagName,
-						$class,
-						$editor,
-						$additionalArguments
-					);
+					$input,
+					$tagName,
+					$class,
+					$editor,
+					$additionalArguments
+				);
 
 				break;
 			case 'signature':
@@ -1059,21 +1084,18 @@ class TagHooks {
 
 				$ret = '<link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/south-street/jquery-ui.css" rel="stylesheet">';
 				$ret .= '<script type="text/javascript" charset="UTF-8" src="/extensions/FlexForm/Modules/signature/js/do-signature.js"></script>';
-				$ret .= \Xml::input(
-					'wsform_signature_filename',
-					false,
-					$fileName,
-					[ 'type' => 'hidden' ] );
-				$ret .= \Xml::input(
-					'wsform_signature_type',
-					false,
-					$fileType,
-					[ 'type' => 'hidden' ] );
-				$ret .= \Xml::input(
-					'wsform_signature_page_content',
-					false,
-					$pageContent,
-					[ 'type' => 'hidden' ] );
+				$ret .= \Xml::input( 'wsform_signature_filename',
+									 false,
+									 $fileName,
+									 [ 'type' => 'hidden' ] );
+				$ret .= \Xml::input( 'wsform_signature_type',
+									 false,
+									 $fileType,
+									 [ 'type' => 'hidden' ] );
+				$ret .= \Xml::input( 'wsform_signature_page_content',
+									 false,
+									 $pageContent,
+									 [ 'type' => 'hidden' ] );
 
 				$signatureDataAttributes = [
 					'id'   => 'wsform_signature_data',
@@ -1161,9 +1183,9 @@ class TagHooks {
 		}
 
 		$output = $this->themeStore->getFormTheme()->getFieldsetRenderer()->render_fieldset(
-				$input,
-				$args
-			);
+			$input,
+			$args
+		);
 
 		return [
 			$output,
@@ -1183,7 +1205,6 @@ class TagHooks {
 	 * @throws FlexFormException
 	 */
 	public function renderLegend( $input, array $args, Parser $parser, PPFrame $frame ) {
-
 		if ( isset( $args['class'] ) ) {
 			$class = $parser->recursiveTagParse(
 					$args['class'],
@@ -1206,10 +1227,10 @@ class TagHooks {
 		);
 
 		$output = $this->themeStore->getFormTheme()->getLegendRenderer()->render_legend(
-				$input,
-				$class,
-				$align
-			);
+			$input,
+			$class,
+			$align
+		);
 
 		return [
 			$output,
@@ -1225,8 +1246,17 @@ class TagHooks {
 	 * @return string
 	 */
 	private function tagParseIfNeeded( $content, Parser $parser, PPFrame $frame ) {
-		if ( ( strpos( $content, '{' ) !== false ) && ( strpos( $content, '}' ) !== false ) ) {
-			return $parser->recursiveTagParse( $content, $frame );
+		if ( ( strpos(
+				   $content,
+				   '{'
+			   ) !== false ) && ( strpos(
+									  $content,
+									  '}'
+								  ) !== false ) ) {
+			return $parser->recursiveTagParse(
+				$content,
+				$frame
+			);
 		} else {
 			return $content;
 		}
@@ -1265,10 +1295,10 @@ class TagHooks {
 		}
 
 		$output = $this->themeStore->getFormTheme()->getLabelRenderer()->render_label(
-				$input,
-				$for,
-				$inputArguments
-			);
+			$input,
+			$for,
+			$inputArguments
+		);
 
 		return [
 			$output,
@@ -1350,12 +1380,12 @@ class TagHooks {
 			$frame
 		);
 		$select = $this->themeStore->getFormTheme()->getSelectRenderer()->render_select(
-				$input,
-				$placeholder,
-				$selectedValues,
-				$options,
-				$additionalArgs
-			);
+			$input,
+			$placeholder,
+			$selectedValues,
+			$options,
+			$additionalArgs
+		);
 
 		return [
 			$select,
@@ -1546,7 +1576,7 @@ class TagHooks {
 	 *
 	 * @return bool
 	 */
-	private function checkValidInput( string $input ): bool {
+	private function checkValidInput( string $input ) : bool {
 		if ( ! preg_match(
 			'/^[A-Za-z]+[\w\-\:\.]*$/',
 			$input
@@ -1626,13 +1656,13 @@ class TagHooks {
 		) : '';
 
 		$output = $this->themeStore->getFormTheme()->getEditRenderer()->render_edit(
-				$target,
-				$template,
-				$formfield,
-				$usefield,
-				$slot,
-				$value
-			);
+			$target,
+			$template,
+			$formfield,
+			$usefield,
+			$slot,
+			$value
+		);
 
 		return [
 			$output,
@@ -1701,15 +1731,15 @@ class TagHooks {
 		}
 
 		$output = $this->themeStore->getFormTheme()->getCreateRenderer()->render_create(
-				$follow,
-				$template,
-				$createId,
-				$write,
-				$slot,
-				$option,
-				$fields,
-				$leadingZero
-			);
+			$follow,
+			$template,
+			$createId,
+			$write,
+			$slot,
+			$option,
+			$fields,
+			$leadingZero
+		);
 
 		return [
 			$output,
@@ -1843,9 +1873,9 @@ class TagHooks {
 			)
 		);
 		$output        = $this->themeStore->getFormTheme()->getEmailRenderer()->render_mail(
-				$mailArguments,
-				$base64content
-			);
+			$mailArguments,
+			$base64content
+		);
 
 		return [
 			$output,
@@ -1892,9 +1922,9 @@ class TagHooks {
 
 		// TODO: Move some of the logic from "render_instance" to here
 		$ret = $this->themeStore->getFormTheme()->getInstanceRenderer()->render_instance(
-				$content,
-				$args
-			);
+			$content,
+			$args
+		);
 
 		Core::removeAsLoaded( 'wsinstance-initiated' );
 
@@ -1972,23 +2002,23 @@ class TagHooks {
 
 		$filesCore = new FilesCore();
 
-		$result = [];
-		$ret            = '<input type="file" ';
-		$br             = "\n";
-		$attributes     = [];
-		$hiddenFiles    = [];
+		$result             = [];
+		$ret                = '<input type="file" ';
+		$br                 = "\n";
+		$attributes         = [];
+		$hiddenFiles        = [];
 		$attributes['name'] = FilesCore::FILENAME . '[]';
-		$id             = false;
-		$target         = false;
-		$drop			= false;
-		$verbose_id     = false;
-		$error_id       = false;
-		$comment        = false;
-		$presentor      = false; // Holds name of external presentor, e.g. Slim
-		$pagecontent    = "";
-		$use_label      = false;
-		$force          = false;
-		$parseContent   = false;
+		$id                 = false;
+		$target             = false;
+		$drop               = false;
+		$verbose_id         = false;
+		$error_id           = false;
+		$comment            = false;
+		$presentor          = false; // Holds name of external presentor, e.g. Slim
+		$pagecontent        = "";
+		$use_label          = false;
+		$force              = false;
+		$parseContent       = false;
 		foreach ( $args as $k => $v ) {
 			if ( validate::validParameters( $k ) || validate::validFileParameters( $k ) ) {
 				// going through specific extra's.
@@ -2018,7 +2048,7 @@ class TagHooks {
 						$force = $v;
 						break;
 					case "id":
-						$id = $v;
+						$id               = $v;
 						$attributes['id'] = $v;
 						break;
 					case "name":
@@ -2031,7 +2061,6 @@ class TagHooks {
 						break;
 					default:
 						$attributes[$k] = $v;
-
 				}
 			}
 		}
@@ -2043,6 +2072,7 @@ class TagHooks {
 		}
 		if ( ! $target ) {
 			$ret = 'You cannot upload files without a target.';
+
 			return $ret;
 		} else {
 			$hiddenFiles[] = '<input type="hidden" name="wsform_file_target" value="' . $target . '">';
@@ -2062,34 +2092,34 @@ class TagHooks {
 
 		if ( ! $presentor ) {
 			if ( $verbose_id === false ) {
-				$verbose_id = 'verbose_' . $id;
+				$verbose_id       = 'verbose_' . $id;
 				$verboseDiv['id'] = $verbose_id;
-				if ( $drop && !$use_label ) {
+				if ( $drop && ! $use_label ) {
 					$verboseDiv['class'][] = 'wsform-dropzone';
 				}
 				$verboseDiv['class'][] = 'wsform-verbose';
 				// $ret .= '<div id="' . $verbose_id . '" class="wsform-verbose"></div>';
 			} else {
-				$verbose_id = $id;
-				$verboseDiv['id'] = false;
+				$verbose_id          = $id;
+				$verboseDiv['id']    = false;
 				$verboseDiv['class'] = false;
 			}
 
 			if ( ! $error_id ) {
-				$error_id = 'error_' . $id;
-				$errorDiv['id'] = $error_id;
+				$error_id          = 'error_' . $id;
+				$errorDiv['id']    = $error_id;
 				$errorDiv['class'] = [ "wsform-error" ];
 				//$ret      .= '<div id="' . $error_id . '" class="wsform-error"></div>';
 			} else {
-				$error_id = $id;
-				$errorDiv['id'] = false;
+				$error_id          = $id;
+				$errorDiv['id']    = false;
 				$errorDiv['class'] = false;
 			}
 			$random         = round( microtime( true ) * 1000 );
 			$onChangeScript = 'function WSFile' . $random . '(){' . "\n" . '$("#' . $id . '").on("change", function(){' . "\n" . 'wsfiles( "';
 			$onChangeScript .= $id . '", "' . $verbose_id . '", "' . $error_id . '", "' . $use_label;
 			$onChangeScript .= '");' . "\n" . '});' . "\n";
-			if( $drop && !$use_label ) {
+			if ( $drop && ! $use_label ) {
 				$onChangeScript .= "\n" . '$("#' . $verbose_id . '").on("dragover drop", function(e) { 
 				e.preventDefault();  
 			}).on("drop", function(e) {
@@ -2097,16 +2127,15 @@ class TagHooks {
 				$("#' . $id . '").trigger("change"); 
 		});';
 			}
-			if( $drop && $use_label ) {
+			if ( $drop && $use_label ) {
 				$onChangeScript .= "\n";
-				$onChangeScript .= 'var label = $("label[for=\''. $id . '\']");';
+				$onChangeScript .= 'var label = $("label[for=\'' . $id . '\']");';
 				$onChangeScript .= "\n" . 'label.on("dragover drop", function(e) { 
 				e.preventDefault();  
 			}).on("drop", function(e) {
 				$("#' . $id . '").prop("files", e.originalEvent.dataTransfer.files)
 				$("#' . $id . '").trigger("change"); 
 		});';
-
 			}
 			$onChangeScript .= '};';
 			$jsChange       = $onChangeScript . "\n";
@@ -2165,10 +2194,11 @@ class TagHooks {
 			$parser->getOutput()->addModules( 'ext.wsForm.slim.scripts' );
 			*/
 		}
-		$result['verbose_div'] = $verboseDiv;
-		$result['error_div'] = $errorDiv;
-		$result['attributes'] = $attributes;
+		$result['verbose_div']     = $verboseDiv;
+		$result['error_div']       = $errorDiv;
+		$result['attributes']      = $attributes;
 		$result['function_fields'] = $hiddenFiles;
+
 		return $result;
 	}
 }
