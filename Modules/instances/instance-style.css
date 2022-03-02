@@ -26,11 +26,13 @@
     content: "\2718";
 }
 
-.WSmultipleTemplateAddAbove:before {
+.WSmultipleTemplateAddAbove:before, .WSmultipleTemplateAddBelow:before {
     font-size: 19px;
     font-weight: bold;
     content: "\271A";
 }
+
+
 
 .wsform-instance-add-btn, .wsform-instance-delete-btn {
     float:right;

@@ -195,7 +195,7 @@ class PlainInstanceRenderer implements InstanceRenderer {
             'textarea'               => 'WSmultipleTemplateField',
             'list'                   => 'WSmultipleTemplateList',
             'addButtonClass'         => "WSmultipleTemplateAddAbove",
-            'addButtonTopBottomClass'=> "WSmultipleTemplateAddAbove",
+            'addButtonTopBottomClass'=> "WSmultipleTemplateAddBelow",
             'addButtonClassExtra'    => "wsform-instance-add-btn",
             'removeButtonClass'      => "WSmultipleTemplateDel",
             'removeButtonClassExtra' => "wsform-instance-delete-btn",

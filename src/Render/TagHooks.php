@@ -390,6 +390,10 @@ class TagHooks {
 			$this->themeStore->setFormThemeName( $previousTheme );
 		}
 
+		if ( Core::isShowOnSelectActive() ) {
+			$ret .= Core::addShowOnSelectJS();
+		}
+
 		if ( Core::$reCaptcha !== false && ! Core::isLoaded( 'google-captcha' ) ) {
 			$captcha = Recaptcha::render();
 
@@ -767,10 +771,6 @@ class TagHooks {
 					$isSelected,
 					$additionalArguments
 				);
-
-				if ( $showOnSelect ) {
-					$ret .= Core::addShowOnSelectJS();
-				}
 
 				break;
 			case 'submit':

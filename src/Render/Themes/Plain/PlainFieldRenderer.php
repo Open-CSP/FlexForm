@@ -88,10 +88,6 @@ class PlainFieldRenderer implements FieldRenderer {
 			''
 		);
 
-		if ( $showOnChecked !== '' ) {
-			$ret .= Core::addShowOnSelectJS();
-		}
-
 		return $ret;
 	}
 
@@ -125,10 +121,6 @@ class PlainFieldRenderer implements FieldRenderer {
 			$args,
 			''
 		);
-
-		if ( $showOnChecked !== '' || $showOnUnchecked !== '' ) {
-			$ret .= Core::addShowOnSelectJS();
-		}
 
 		return $ret;
 	}
