@@ -1,7 +1,6 @@
 
 # <img alt="FlexForm" width="200" src="FlexForm-logo.png">
 
----
 
 FlexForm is an enhanced HTML5 rendering engine.
 
