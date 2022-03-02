@@ -1,5 +1,5 @@
 
-# <img alt="FlexForm" width="50" src="https://gitlab.wikibase.nl/uploads/-/system/project/avatar/137/FlexForm-logo.png"> FlexForm
+# <img alt="FlexForm" width="200" src="FlexForm-logo.png">
 
 ---
 
