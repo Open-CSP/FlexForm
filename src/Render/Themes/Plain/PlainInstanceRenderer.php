@@ -18,11 +18,19 @@ use FlexForm\Processors\Content\Edit;
 use FlexForm\Render\Themes\InstanceRenderer;
 
 class PlainInstanceRenderer implements InstanceRenderer {
-    private static function getArg( $name, $args ) {
-		if ( isset( $args[$name] ) && $args[$name] !== '' ) {
-			return $args[$name];
+    private static function getArg( $name, $args, $checkEmpty = true ) {
+		if( $checkEmpty ) {
+			if ( isset( $args[ $name ] ) && $args[ $name ] !== '' ) {
+				return $args[ $name ];
+			} else {
+				return false;
+			}
 		} else {
-			return false;
+			if ( isset( $args[ $name ] ) ) {
+				return "";
+			} else {
+				return false;
+			}
 		}
 	}
 
@@ -40,6 +48,7 @@ class PlainInstanceRenderer implements InstanceRenderer {
 		$instance = self::instanceDefault( $args );
 		$pageWikiObject = RequestContext::getMain()->getWikiPage();
 		$textAreaContent = $instance['txtareacontent'];
+		$newTextAreaContent = '';
 
 		if ( $pageWikiObject->exists() ) {
 			$pageContent = $pageWikiObject->getContent( RevisionRecord::RAW )->getText();
@@ -63,13 +72,17 @@ class PlainInstanceRenderer implements InstanceRenderer {
 				);
 
 				if ( trim( $tmp[0] ) === trim( $instance['instanceName'] ) ) {
-					$textAreaContent .= '{{' . $instance['template'] . self::get_string_between(
+					$newTextAreaContent .= '{{' . $instance['template'] . self::get_string_between(
 							$expl[ $k ],
 							'{{' . $instance['template'],
 							'}}'
 						) . '}}';
 				}
 			}
+		}
+
+		if( !empty( $newTextAreaContent ) ) {
+			$textAreaContent = $newTextAreaContent;
 		}
 
 		$ret = self::renderInstanceHtml(
@@ -182,7 +195,7 @@ class PlainInstanceRenderer implements InstanceRenderer {
             'textarea'               => 'WSmultipleTemplateField',
             'list'                   => 'WSmultipleTemplateList',
             'addButtonClass'         => "WSmultipleTemplateAddAbove",
-            'addButtonTopBottomClass'=> "WSmultipleTemplateAddBelow",
+            'addButtonTopBottomClass'=> "WSmultipleTemplateAddAbove",
             'addButtonClassExtra'    => "wsform-instance-add-btn",
             'removeButtonClass'      => "WSmultipleTemplateDel",
             'removeButtonClassExtra' => "wsform-instance-delete-btn",
@@ -194,39 +207,48 @@ class PlainInstanceRenderer implements InstanceRenderer {
             'template'               => "",
             'templateParent'         => "",
             'txtareacontent'         => '',
-            'buttonBottom'			 => 'Add Row',
+            'buttonBottom'			 => '',
             'copyExtra'              => 'wsform-instance-record'
         );
 
-        $defaultTranslator = array(
-            'template'            => 'template',
-            'template-parent'     => 'templateParent',
-            'name'                => 'instanceName',
-            'button-add'          => 'addButtonClass',
-            'button-remove'       => 'removeButtonClass',
-            'button-move'         => 'handleClass',
-            'button-add-extra'    => 'addButtonClassExtra',
-            'button-remove-extra' => 'removeButtonClassExtra',
-            'button-move-extra'   => 'handleClassExtra',
-            'wrapper-instance'    => 'copy',
-            'wrapper-main'        => 'selector',
-            'wrapper-main-extra'  => 'copyExtra',
-            'instance-storage'    => 'textarea',
-            'instance-list'       => 'list',
-            'default-content'     => 'txtareacontent',
-            'add-button-on-bottom'=> 'buttonBottom'
-        );
+	    $defaultTranslator = array(
+		    'template'                => 'template',
+		    'template-parent'         => 'templateParent',
+		    'name'                    => 'instanceName',
+		    'button-add'              => 'addButtonClass',
+		    'button-remove'           => 'removeButtonClass',
+		    'button-move'             => 'handleClass',
+		    'button-add-extra'        => 'addButtonClassExtra',
+		    'button-remove-extra'     => 'removeButtonClassExtra',
+		    'button-move-extra'       => 'handleClassExtra',
+		    'wrapper-instance'        => 'copy',
+		    'wrapper-main'            => 'selector',
+		    'wrapper-main-extra'      => 'copyExtra',
+		    'instance-storage'        => 'textarea',
+		    'instance-list'           => 'list',
+		    'default-content'         => 'txtareacontent',
+		    'add-button-on-bottom'    => 'buttonBottom',
+		    'button-on-bottom-class' => 'addButtonTopBottomClass'
+	    );
 
         foreach ( $defaultTranslator as $from => $to ) {
+			if( $from === 'add-button-on-bottom' ) {
+				$checkIfEmpty = false;
+			} else {
+				$checkIfEmpty = true;
+			}
             $val = self::getArg(
                 $from,
-                $args
+                $args,
+	            $checkIfEmpty
             );
             if ( $val !== false ) {
                 switch ( $from ) {
                     case "button-move":
                         if( strtolower( $val ) === "none" ) {
                             $defaultInstance['draggable'] = false;
+                        } else {
+	                        $defaultInstance['draggable'] = true;
                         }
 
                         break;

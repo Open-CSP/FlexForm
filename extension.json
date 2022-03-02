@@ -95,7 +95,7 @@
       "styles": "Modules/ext.WSForm.css",
       "position": "top"
     },
-    "ext.wsForm.Instance.styles": {
+    "ext.FlexForm.Instance.styles": {
       "styles": "Modules/instances/instance-style.css",
       "position": "top"
     },

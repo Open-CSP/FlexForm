@@ -1905,11 +1905,7 @@ class TagHooks {
 		);
 
 		// Add move, delete and add button with classes
-		$parser->getOutput()->addModuleStyles( 'ext.wsForm.Instance.styles' );
-
-		if ( ! Core::isLoaded( 'wsinstance-initiated' ) ) {
-			Core::addAsLoaded( 'wsinstance-initiated' );
-		}
+		$parser->getOutput()->addModuleStyles( 'ext.FlexForm.Instance.styles' );
 
 		if ( ! Core::isLoaded( 'wsinstance-initiated' ) ) {
 			Core::addAsLoaded( 'wsinstance-initiated' );
@@ -1919,6 +1915,13 @@ class TagHooks {
 			$input,
 			$frame
 		);
+
+		if( isset( $args['default-content'] ) ) {
+			$args['default-content'] = $parser->recursiveTagParse(
+				$args['default-content'],
+				$frame
+			);
+		}
 
 		// TODO: Move some of the logic from "render_instance" to here
 		$ret = $this->themeStore->getFormTheme()->getInstanceRenderer()->render_instance(
