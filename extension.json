@@ -1,6 +1,6 @@
 {
   "name": "FlexForm",
-  "version": "1.0.0 Beta 8",
+  "version": "1.0.0 Beta 9",
   "author": [
     "[https://www.wikibase-solutions.com/author/charlot Sen-Sai]"
   ],
@@ -80,7 +80,10 @@
       "position": "bottom"
     },
     "ext.wsForm.instance": {
-      "scripts": "Modules/instances/wsInstance.js",
+      "scripts": [
+        "Modules/instances/wsInstance.js",
+        "Modules/instances/Sortable.min.js"
+      ],
       "position": "top"
     },
     "ext.wsForm.scripts": {

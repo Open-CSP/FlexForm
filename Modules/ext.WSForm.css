@@ -5,6 +5,10 @@
 	display: none;
 }
 
+.flex-form-hide {
+	opacity:.5;
+}
+
 .flexform-disabled {
 	cursor:progress !important;
 	background: #cccccc !important;

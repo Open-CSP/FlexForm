@@ -85,7 +85,6 @@ class PlainFormRenderer implements FormRenderer {
 
 		if ( $showOnSelect ) {
 			$formAttributes['class'] .= ' WSShowOnSelect flex-form-hide';
-			Core::includeInlineCSS( '.flex-form-hide { opacity:0; }' );
 		}
 
 		$formContent = $mwReturn . $action . $messageOnSuccess . $wikiComment . $extension . \Xml::tags(

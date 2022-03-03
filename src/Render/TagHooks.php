@@ -1959,7 +1959,18 @@ class TagHooks {
 				''
 			);
 
-			$ret = $csstTag . $scriptTag . $ret;
+			$sortPath = $realUrl . '/extensions/FlexForm/Modules/instances/Sortable.min.js';
+			$sortTag  = \Xml::tags(
+				'script',
+				[
+					'type'    => 'text/javascript',
+					'charset' => 'UTF-8',
+					'src'     => $sortPath
+				],
+				''
+			);
+
+			$ret = $csstTag . $sortTag . $scriptTag . $ret;
 
 			Core::addAsLoaded( 'multipleinstance' );
 		}
