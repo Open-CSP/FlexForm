@@ -450,7 +450,7 @@ class TagHooks {
 			}
 		}
 
-		$ret .= self::addInlineJavaScriptAndCSStoDOM();
+		$ret .= '<!--BEGIN FLEXFORM INLCUDES-->' . self::addInlineJavaScriptAndCSStoDOM() . '<!--END FLEXFORM INLCUDES-->';
 
 		return [
 			$ret,
@@ -1156,7 +1156,7 @@ class TagHooks {
 			$ret .= '<input type="hidden" name="wsparsepost[]" value="' . htmlspecialchars( $parseName ) . "\">\n";
 		}
 
-		self::addInlineJavaScriptAndCSStoDOM();
+		//self::addInlineJavaScriptAndCSStoDOM();
 
 		return array(
 			$ret,
@@ -1577,7 +1577,7 @@ class TagHooks {
 			$additionalArguments
 		);
 
-		self::addInlineJavaScriptAndCSStoDOM();
+		//self::addInlineJavaScriptAndCSStoDOM();
 
 		return [
 			$output,
@@ -1991,10 +1991,15 @@ class TagHooks {
 	}
 
 	private function addInlineJavaScriptAndCSStoDOM( $parentConfig = true ) {
-		$scripts   = array_unique( Core::getJavaScriptToBeIncluded() );
-		$csss      = array_unique( Core::getCSSToBeIncluded() );
+		//$scripts   = array_unique( Core::getJavaScriptToBeIncluded() );
+		//$csss      = array_unique( Core::getCSSToBeIncluded() );
+		$scripts   = Core::getJavaScriptToBeIncluded();
+		$csss      = Core::getCSSToBeIncluded();
 		$jsconfigs = Core::getJavaScriptConfigToBeAdded();
 
+		//echo "<pre>";
+		//var_dump( "SCRIPTS : " . count( $scripts ), "CSS: " . count( $csss ), "JSCONFIG: " . count( $jsconfigs ) );
+		//echo "</pre>";
 		$variablesInline = '';
 		$cssInline = '';
 		if ( ! empty( $scripts ) ) {
@@ -2011,7 +2016,7 @@ class TagHooks {
 				"\n",
 				$csss
 			);
-			//Core::cleanCSSList();
+			Core::cleanCSSList();
 		}
 
 		if ( ! empty( $jsconfigs ) ) {
@@ -2026,10 +2031,12 @@ class TagHooks {
 			Core::cleanJavaScriptConfigVars();
 		}
 		if ( !empty ( $variablesInline ) ) {
-			$variablesInline = '<script>' . $variablesInline . '</script>';
+			$variablesInline = '<!-- BEGIN INCLUDED JS FLEXFORM --><script>' . $variablesInline;
+			$variablesInline .= '</script><!-- END INCLUDED JS FLEXFORM -->';
 		}
 		if ( !empty ( $cssInline ) ) {
-			$cssInline = '<style>' . $cssInline . '</style>';
+			$cssInline = '<!-- BEGIN INCLUDED CSS FLEXFORM --><style>' . $cssInline;
+			$cssInline .= '</style><!-- END INCLUDED CSS FLEXFORM -->';
 		}
 		//echo "<pre>";
 		//var_dump( $cssInline );
@@ -2083,6 +2090,7 @@ class TagHooks {
 	private function renderFileUpload( array $args ) {
 		// FIXME: Can you (attempt to) rewrite this @Charlot?
 
+		global $wgScript;
 		$filesCore = new FilesCore();
 
 		$result             = [];
@@ -2246,10 +2254,24 @@ class TagHooks {
 			);
 			Core::includeInlineCSS( $css );
 			//$ret     .= $css;
+			$uploadScriptTag = '';
 			if ( ! Core::isLoaded( 'WSFORM_upload.js' ) ) {
 				Core::addAsLoaded( 'WSFORM_upload.js' );
-				$js = file_get_contents( "$IP/extensions/FlexForm/Modules/WSForm_upload.js" );
-				Core::includeInlineScript( $js );
+				$realUrl = str_replace(
+					'/index.php',
+					'',
+					$wgScript
+				);
+				$uploadScriptPath = $realUrl . '/extensions/FlexForm/Modules/WSForm_upload.js';
+				$uploadScriptTag  = \Xml::tags(
+					'script',
+					[
+						'type'    => 'text/javascript',
+						'charset' => 'UTF-8',
+						'src'     => $uploadScriptPath
+					],
+					''
+				);
 			} else {
 				$js = '';
 			}
@@ -2277,6 +2299,7 @@ class TagHooks {
 			$parser->getOutput()->addModules( 'ext.wsForm.slim.scripts' );
 			*/
 		}
+		$result['javascript']      = $uploadScriptTag;
 		$result['verbose_div']     = $verboseDiv;
 		$result['error_div']       = $errorDiv;
 		$result['attributes']      = $attributes;
