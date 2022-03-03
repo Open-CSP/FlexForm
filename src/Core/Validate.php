@@ -311,7 +311,7 @@ class Validate {
 			"week",
 			"time",
 			"datetime",
-			"datetimelocal",
+			"datetime-local",
 			"color",
 			"text",
 			"password",

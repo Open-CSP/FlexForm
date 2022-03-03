@@ -634,10 +634,10 @@ class TagHooks {
 				$ret               = $renderer->render_datetime( $preparedArguments );
 
 				break;
-			case 'datetimelocal':
+			case 'datetime-local':
 				$preparedArguments = Validate::doSimpleParameters(
 					$args,
-					"datetimelocal"
+					"datetime-local"
 				);
 				$ret               = $renderer->render_datetimelocal( $preparedArguments );
 
