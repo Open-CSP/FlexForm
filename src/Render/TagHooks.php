@@ -56,13 +56,19 @@ class TagHooks {
 	 */
 	public function renderForm( $input, array $args, Parser $parser, PPFrame $frame ) {
 		global $wgUser, $wgEmailConfirmToEdit, $IP, $wgScript;
-
+		$realUrl = str_replace(
+			'/index.php',
+			'',
+			$wgScript
+		);
 		Core::$chkSums    = array();
 		Core::$securityId = uniqid();
 
 		$ret = '';
-
-		$parser->getOutput()->addModuleStyles( 'ext.wsForm.general.styles' );
+		$cssPath = $IP . '/extensions/FlexForm/Modules/ext.WSForm.css';
+		$css = file_get_contents( $cssPath );
+		Core::includeInlineCSS( $css );
+		//$parser->getOutput()->addModuleStyles( 'ext.wsForm.general.styles' );
 
 		// Do we have some messages to show?
 		if ( isset( $args['showmessages'] ) ) {
@@ -393,12 +399,14 @@ class TagHooks {
 		if ( Core::isShowOnSelectActive() ) {
 			$ret .= Core::addShowOnSelectJS();
 		}
+		/*
 		$jsConfig = Core::getJavaScriptConfigToBeAdded();
 		if( isset( $jsConfig['wsinstance'] ) ) {
 			$ret .= '<script>';
 			$ret .= 'var wsInstanceSettings = ' . json_encode( $jsConfig['wsinstance'] );
 			$ret .= '</script>';
 		}
+		*/
 
 		if ( Core::$reCaptcha !== false && ! Core::isLoaded( 'google-captcha' ) ) {
 			$captcha = Recaptcha::render();
@@ -442,7 +450,7 @@ class TagHooks {
 			}
 		}
 
-		self::addInlineJavaScriptAndCSS();
+		$ret .= self::addInlineJavaScriptAndCSStoDOM();
 
 		return [
 			$ret,
@@ -1148,7 +1156,7 @@ class TagHooks {
 			$ret .= '<input type="hidden" name="wsparsepost[]" value="' . htmlspecialchars( $parseName ) . "\">\n";
 		}
 
-		self::addInlineJavaScriptAndCSS();
+		self::addInlineJavaScriptAndCSStoDOM();
 
 		return array(
 			$ret,
@@ -1569,7 +1577,7 @@ class TagHooks {
 			$additionalArguments
 		);
 
-		self::addInlineJavaScriptAndCSS();
+		self::addInlineJavaScriptAndCSStoDOM();
 
 		return [
 			$output,
@@ -1980,6 +1988,53 @@ class TagHooks {
 			'noparse'    => true,
 			'markerType' => 'nowiki'
 		];
+	}
+
+	private function addInlineJavaScriptAndCSStoDOM( $parentConfig = true ) {
+		$scripts   = array_unique( Core::getJavaScriptToBeIncluded() );
+		$csss      = array_unique( Core::getCSSToBeIncluded() );
+		$jsconfigs = Core::getJavaScriptConfigToBeAdded();
+
+		$variablesInline = '';
+		$cssInline = '';
+		if ( ! empty( $scripts ) ) {
+			$variablesInline .= implode(
+				"\n",
+				$scripts
+			);
+
+			Core::cleanJavaScriptList();
+		}
+
+		if ( ! empty( $csss ) ) {
+			$cssInline .= implode(
+				"\n",
+				$csss
+			);
+			//Core::cleanCSSList();
+		}
+
+		if ( ! empty( $jsconfigs ) ) {
+			if ( $parentConfig ) {
+				foreach ( $jsconfigs as $jsName => $singleConfig ) {
+					$variablesInline .= 'var ' . $jsName . ' = ' . json_encode( $singleConfig );
+				}
+			} else {
+				$variablesInline .= 'var wsformConfigVars = ' . json_encode( $jsconfigs );
+			}
+
+			Core::cleanJavaScriptConfigVars();
+		}
+		if ( !empty ( $variablesInline ) ) {
+			$variablesInline = '<script>' . $variablesInline . '</script>';
+		}
+		if ( !empty ( $cssInline ) ) {
+			$cssInline = '<style>' . $cssInline . '</style>';
+		}
+		//echo "<pre>";
+		//var_dump( $cssInline );
+		//echo "</pre>";
+		return $cssInline . $variablesInline;
 	}
 
 	/**

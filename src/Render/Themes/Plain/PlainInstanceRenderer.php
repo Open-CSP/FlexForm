@@ -103,7 +103,7 @@ class PlainInstanceRenderer implements InstanceRenderer {
 		);
 
 		$out = RequestContext::getMain()->getOutput();
-		Core::includeJavaScriptConfig( 'wsinstance', $instanceSettings );
+		Core::includeJavaScriptConfig( 'wsInstanceSettings', $instanceSettings );
 		//$out->addJsConfigVars( array( "wsinstance" => $instanceSettings ) );
 
 		if ( ! Core::isLoaded( 'wsinstance' ) ) {
