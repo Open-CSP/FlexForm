@@ -33,7 +33,13 @@ async function WsShowOnSelect () {
 			handleButton(elm)
 		}
 	})
+	$('form.WSShowOnSelect').each( function(){
+		if( $( this ).hasClass( 'flex-form-hide' ) ) {
+			weAreDoneWorking( this );
+		}
+	});
 	$('.flex-form-hide').removeClass('flex-form-hide');
+
 }
 
 /**

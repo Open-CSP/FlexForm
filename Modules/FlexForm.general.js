@@ -695,6 +695,14 @@ function showWeAreWorking( form ) {
   $(btn).prop('disabled', true)
 }
 
+function weAreDoneWorking( form ) {
+  var btn = $(form).find(':submit')
+  var spinner = $(form).find('.flex-form-spinner')
+  $(spinner).removeClass('active')
+  $(btn).removeClass('flexform-disabled')
+  $(btn).prop('disabled', false)
+}
+
 function replacePipes (text) {
   return text.replace(/(\|)|({{[^|]+\|[^}]+}})/gm, function ($0, $1) {
     return $1 ? '{{!}}' : $0
