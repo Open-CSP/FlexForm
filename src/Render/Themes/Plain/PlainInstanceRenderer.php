@@ -103,15 +103,33 @@ class PlainInstanceRenderer implements InstanceRenderer {
 		);
 
 		$out = RequestContext::getMain()->getOutput();
-		$out->addJsConfigVars( array( "wsinstance" => $instanceSettings ) );
+		Core::includeJavaScriptConfig( 'wsinstance', $instanceSettings );
+		//$out->addJsConfigVars( array( "wsinstance" => $instanceSettings ) );
 
 		if ( ! Core::isLoaded( 'wsinstance' ) ) {
-			$js = 'wachtff( startInstance, true );';
-            Core::includeInlineScript( $js );
+			//$js = 'wachtff( startInstance, true );';
+            //Core::includeInlineScript( $js );
+			$ret .= self::loadJSinDOM();
             Core::addAsLoaded( 'wsinstance' );
 		}
 
 		return $ret;
+	}
+
+	/**
+	 * Since using the resource loader in Chameleon components is not working,
+	 * we need a fix and include the JS inline.
+	 * @return string
+	 */
+	private static function loadJSinDOM(): string {
+		if ( ! Core::isLoaded( 'wsinstance' ) ) {
+
+			$js = '<script>';
+			$js .= 'wachtff( startInstance, true );';
+			$js .= '</script>';
+			return $js;
+		}
+		return "";
 	}
 
 	private static function get_string_between( $string, $start, $end ) {

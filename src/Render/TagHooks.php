@@ -393,6 +393,12 @@ class TagHooks {
 		if ( Core::isShowOnSelectActive() ) {
 			$ret .= Core::addShowOnSelectJS();
 		}
+		$jsConfig = Core::getJavaScriptConfigToBeAdded();
+		if( isset( $jsConfig['wsinstance'] ) ) {
+			$ret .= '<script>';
+			$ret .= 'var wsInstanceSettings = ' . json_encode( $jsConfig['wsinstance'] );
+			$ret .= '</script>';
+		}
 
 		if ( Core::$reCaptcha !== false && ! Core::isLoaded( 'google-captcha' ) ) {
 			$captcha = Recaptcha::render();
@@ -1903,9 +1909,17 @@ class TagHooks {
 			'',
 			$wgScript
 		);
-
 		// Add move, delete and add button with classes
 		$parser->getOutput()->addModuleStyles( 'ext.FlexForm.Instance.styles' );
+		$cssPath = $realUrl . '/extensions/FlexForm/Modules/instances/instance-style.css';
+		$csstTag  = \Xml::tags(
+			'link',
+			[
+				'rel'    => 'stylesheet',
+				'href'     => $cssPath
+			],
+			''
+		);
 
 		if ( ! Core::isLoaded( 'wsinstance-initiated' ) ) {
 			Core::addAsLoaded( 'wsinstance-initiated' );
@@ -1945,7 +1959,7 @@ class TagHooks {
 				''
 			);
 
-			$ret = $scriptTag . $ret;
+			$ret = $csstTag . $scriptTag . $ret;
 
 			Core::addAsLoaded( 'multipleinstance' );
 		}
