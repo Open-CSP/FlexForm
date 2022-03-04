@@ -450,7 +450,7 @@ class TagHooks {
 			}
 		}
 
-		$ret .= '<!--BEGIN FLEXFORM INLCUDES-->' . self::addInlineJavaScriptAndCSStoDOM() . '<!--END FLEXFORM INLCUDES-->';
+		$ret .= '<!--BEGIN FLEXFORM INLCUDES-->' . self::addInlineJavaScriptAndCSS() . '<!--END FLEXFORM INLCUDES-->';
 
 		return [
 			$ret,
