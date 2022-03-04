@@ -54,10 +54,6 @@ Visit : Special:FlexForm/Docs
 
 
 ### Changelog
-* 1.0.0 Beta 11: fixes for dropping resourceloader
-* 1.0.0 Beta 10: dropped all resourceloader support
-* 1.0.0 Beta 9: Sortable loaded in PHP, not js
-* 1.0.0 Beta 8: Various adjustments. Work-around Chameleon bug.
 * 1.0.0 Beta 3: More clean-up render Select fixed and show-on-select fix.
 * 1.0.0 Beta 2: More clean-up and added GET action. Added hidden css class.
 * 1.0.0       : Initial first public release

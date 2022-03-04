@@ -169,7 +169,6 @@ class PlainFieldRenderer implements FieldRenderer {
 			);
 			$ret     .= '<div id="' . $args['error_div']['id'] . '" class="' . $classes . '"></div>';
 		}
-		$ret .= $args['javascript'];
 
 		return trim( $ret );
 	}
