@@ -51,14 +51,18 @@ class FlexFormHooks {
 	 * Implements AdminLinks hook from Extension:Admin_Links.
 	 *
 	 * @param ALTree &$adminLinksTree
+	 *
 	 * @return bool
 	 */
 	public static function addToAdminLinks( ALTree &$adminLinksTree ) {
-        global $wgScript;
+		global $wgScript;
 		$wsSection = $adminLinksTree->getSection( 'WikiBase Solutions' );
 		if ( is_null( $wsSection ) ) {
 			$section = new ALSection( 'WikiBase Solutions' );
-			$adminLinksTree->addSection( $section, wfMessage( 'adminlinks_general' )->text() );
+			$adminLinksTree->addSection(
+				$section,
+				wfMessage( 'adminlinks_general' )->text()
+			);
 			$wsSection = $adminLinksTree->getSection( 'WikiBase Solutions' );
 			$extensionsRow = new ALRow( 'extensions' );
 			$wsSection->addRow( $extensionsRow );
@@ -66,165 +70,162 @@ class FlexFormHooks {
 
 		$extensionsRow = $wsSection->getRow( 'extensions' );
 
-		if ( is_null( $extensionsRow) ) {
+		if ( is_null( $extensionsRow ) ) {
 			$extensionsRow = new ALRow( 'extensions' );
 			$wsSection->addRow( $extensionsRow );
 		}
 
-		$realUrl = str_replace( '/index.php', '', $wgScript );
-		$extensionsRow->addItem( ALItem::newFromExternalLink( $realUrl.'/index.php/Special:FlexForm/Docs', 'FlexForm documentation' ) );
+		$realUrl = str_replace(
+			'/index.php',
+			'',
+			$wgScript
+		);
+		$extensionsRow->addItem(
+			ALItem::newFromExternalLink(
+				$realUrl . '/index.php/Special:FlexForm/Docs',
+				'FlexForm documentation'
+			)
+		);
+
 		return true;
 	}
 
-    /**
-     * MediaWiki hook when FlexForm extension is initiated
-     *
-     * @param Parser $parser Sets a list of all FlexForm hooks
-     *
-     * @throws MWException
-     * @throws FlexFormException
-     * @throws NoSuchServiceException
-     */
-	public static function onParserFirstCallInit( Parser &$parser ) {
-        if ( !\FlexForm\Core\Config::getConfigStatus() ) {
-            \FlexForm\Core\Config::setConfigFromMW();
-        }
+	/**
+	 * @param OutputPage $out
+	 * @param Skin $skin
+	 *
+	 * @return void
+	 */
+	public static function onBeforePageDisplay( OutputPage $out, Skin $skin ) {
+		$out->addModules( [ 'ext.FlexForm.showOnSelect.script', 'ext.wsForm.ajax.scripts' ] );
+		$out->addModuleStyles( [ 'ext.FlexForm.Instance.styles', 'ext.wsForm.general.styles' ] );
+	}
 
+	/**
+	 * MediaWiki hook when FlexForm extension is initiated
+	 *
+	 * @param Parser $parser Sets a list of all FlexForm hooks
+	 *
+	 * @throws MWException
+	 * @throws FlexFormException
+	 * @throws NoSuchServiceException
+	 */
+	public static function onParserFirstCallInit( Parser &$parser ) {
+		if ( ! \FlexForm\Core\Config::getConfigStatus() ) {
+			\FlexForm\Core\Config::setConfigFromMW();
+		}
 
 		$tagHooks = new TagHooks( MediaWikiServices::getInstance()->getService( 'FlexForm.ThemeStore' ) );
 
-
-		$parser->setHook(
-			'wsform',
-			[
-				$tagHooks,
-				'renderForm'
-			] );
-		$parser->setHook(
-			'wsfield',
-			[
-				$tagHooks,
-				'renderField'
-			] );
-		$parser->setHook(
-			'wsfieldset',
-			[
-				$tagHooks,
-				'renderFieldset'
-			] );
-		$parser->setHook(
-			'wslegend',
-			[
-				$tagHooks,
-				'renderLegend'
-			] );
-		$parser->setHook(
-			'wslabel',
-			[
-				$tagHooks,
-				'renderLabel'
-			] );
-		$parser->setHook(
-			'wsselect',
-			[
-				$tagHooks,
-				'renderSelect'
-			] );
-		$parser->setHook(
-			'wstoken',
-			[
-				$tagHooks,
-				'renderToken'
-			] );
-		$parser->setHook(
-			'wsedit',
-			[
-				$tagHooks,
-				'renderEdit'
-			] );
-		$parser->setHook(
-			'wscreate',
-			[
-				$tagHooks,
-				'renderCreate'
-			] );
-		$parser->setHook(
-			'wsemail',
-			[
-				$tagHooks,
-				'renderEmail'
-			] );
-		$parser->setHook(
-			'wsinstance',
-			[
-				$tagHooks,
-				'renderInstance'
-			] );
-		$parser->setHook(
-			'_form',
-			[
-				$tagHooks,
-				'renderForm'
-			] );
-		$parser->setHook(
-			'_input',
-			[
-				$tagHooks,
-				'renderField'
-			] );
-		$parser->setHook(
-			'_fieldset',
-			[
-				$tagHooks,
-				'renderFieldset'
-			] );
-		$parser->setHook(
-			'_legend',
-			[
-				$tagHooks,
-				'renderLegend'
-			] );
-		$parser->setHook(
-			'_label',
-			[
-				$tagHooks,
-				'renderLabel'
-			] );
-		$parser->setHook(
-			'_select',
-			[
-				$tagHooks,
-				'renderSelect'
-			] );
-		$parser->setHook(
-			'_token',
-			[
-				$tagHooks,
-				'renderToken'
-			] );
-		$parser->setHook(
-			'_edit',
-			[
-				$tagHooks,
-				'renderEdit'
-			] );
-		$parser->setHook(
-			'_create',
-			[
-				$tagHooks,
-				'renderCreate'
-			] );
-		$parser->setHook(
-			'_email',
-			[
-				$tagHooks,
-				'renderEmail'
-			] );
-		$parser->setHook(
-			'_instance',
-			[
-				$tagHooks,
-				'renderInstance'
-			] );
+		$parser->setHook( 'wsform',
+						  [
+							  $tagHooks,
+							  'renderForm'
+						  ] );
+		$parser->setHook( 'wsfield',
+						  [
+							  $tagHooks,
+							  'renderField'
+						  ] );
+		$parser->setHook( 'wsfieldset',
+						  [
+							  $tagHooks,
+							  'renderFieldset'
+						  ] );
+		$parser->setHook( 'wslegend',
+						  [
+							  $tagHooks,
+							  'renderLegend'
+						  ] );
+		$parser->setHook( 'wslabel',
+						  [
+							  $tagHooks,
+							  'renderLabel'
+						  ] );
+		$parser->setHook( 'wsselect',
+						  [
+							  $tagHooks,
+							  'renderSelect'
+						  ] );
+		$parser->setHook( 'wstoken',
+						  [
+							  $tagHooks,
+							  'renderToken'
+						  ] );
+		$parser->setHook( 'wsedit',
+						  [
+							  $tagHooks,
+							  'renderEdit'
+						  ] );
+		$parser->setHook( 'wscreate',
+						  [
+							  $tagHooks,
+							  'renderCreate'
+						  ] );
+		$parser->setHook( 'wsemail',
+						  [
+							  $tagHooks,
+							  'renderEmail'
+						  ] );
+		$parser->setHook( 'wsinstance',
+						  [
+							  $tagHooks,
+							  'renderInstance'
+						  ] );
+		$parser->setHook( '_form',
+						  [
+							  $tagHooks,
+							  'renderForm'
+						  ] );
+		$parser->setHook( '_input',
+						  [
+							  $tagHooks,
+							  'renderField'
+						  ] );
+		$parser->setHook( '_fieldset',
+						  [
+							  $tagHooks,
+							  'renderFieldset'
+						  ] );
+		$parser->setHook( '_legend',
+						  [
+							  $tagHooks,
+							  'renderLegend'
+						  ] );
+		$parser->setHook( '_label',
+						  [
+							  $tagHooks,
+							  'renderLabel'
+						  ] );
+		$parser->setHook( '_select',
+						  [
+							  $tagHooks,
+							  'renderSelect'
+						  ] );
+		$parser->setHook( '_token',
+						  [
+							  $tagHooks,
+							  'renderToken'
+						  ] );
+		$parser->setHook( '_edit',
+						  [
+							  $tagHooks,
+							  'renderEdit'
+						  ] );
+		$parser->setHook( '_create',
+						  [
+							  $tagHooks,
+							  'renderCreate'
+						  ] );
+		$parser->setHook( '_email',
+						  [
+							  $tagHooks,
+							  'renderEmail'
+						  ] );
+		$parser->setHook( '_instance',
+						  [
+							  $tagHooks,
+							  'renderInstance'
+						  ] );
 	}
 }

@@ -63,48 +63,43 @@
     }
   },
   "ResourceFileModulePaths": {
-    "localBasePath": "",
-    "remoteExtPath": "FlexForm"
+    "localBasePath": "Modules",
+    "remoteExtPath": "FlexForm/Modules"
   },
   "ResourceModules": {
     "ext.wsForm.slim.scripts": {
-      "scripts": "Modules/slim/slim/slim.kickstart.min.js",
+      "scripts": "slim/slim/slim.kickstart.min.js",
       "position": "bottom"
     },
     "ext.wsForm.ajax.scripts": {
-      "scripts": "Modules/wsform-ajax.js",
-      "position": "bottom"
-    },
-    "ext.wsForm.datePicker.scripts": {
-      "scripts": "/simplegovscripts/bootstrap-datepicker.js",
+      "scripts": "wsform-ajax.js",
       "position": "bottom"
     },
     "ext.wsForm.instance": {
-      "scripts": "Modules/instances/wsInstance.js",
+      "scripts": "instances/wsInstance.js",
       "position": "top"
     },
     "ext.wsForm.scripts": {
-      "scripts": "Modules/select2.js",
+      "scripts": "select2.js",
       "position": "top"
     },
     "ext.wsForm.styles": {
-      "styles": "Modules/select2.css",
+      "styles": "select2.css",
       "position": "top"
     },
     "ext.wsForm.general.styles": {
-      "styles": "Modules/ext.WSForm.css",
+      "styles": "ext.WSForm.css",
       "position": "top"
     },
     "ext.FlexForm.Instance.styles": {
-      "styles": "Modules/instances/instance-style.css",
+      "styles": "instances/instance-style.css",
       "position": "top"
     },
-    "ext.wsForm.datePicker.styles": {
-      "styles": "/simplegovscripts/bootstrap-datepicker.css",
-      "position": "top"
+    "ext.FlexForm.showOnSelect.script": {
+      "styles": "showOnSelect/WSShowOnSelect.js"
     },
     "ext.wsForm.slim.styles": {
-      "styles": "Modules/slim/slim/slim.min.css",
+      "styles": "slim/slim/slim.min.css",
       "position": "top"
     }
   },
