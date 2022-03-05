@@ -114,6 +114,11 @@ class FlexFormHooks {
 		if ( ! \FlexForm\Core\Config::getConfigStatus() ) {
 			\FlexForm\Core\Config::setConfigFromMW();
 		}
+		global $wgFlexFormConfig;
+		$wgFlexFormConfig['loaders'] = [];
+		$wgFlexFormConfig['loaders']['css'] = [];
+		$wgFlexFormConfig['loaders']['javascript'] = [];
+		$wgFlexFormConfig['loaders']['jsconfigvars'] = [];
 
 		$tagHooks = new TagHooks( MediaWikiServices::getInstance()->getService( 'FlexForm.ThemeStore' ) );
 

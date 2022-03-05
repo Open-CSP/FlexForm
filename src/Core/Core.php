@@ -215,7 +215,9 @@ class Core {
 	 * @param $src string JavaScript source (without <script>)
 	 */
 	public static function includeInlineScript( $src ) {
-		self::$javaScript[] = $src;
+		global $wgFlexFormConfig;
+		$wgFlexFormConfig['loaders']['javascript'][] = $src;
+		//self::$javaScript[] = $src;
 	}
 
 	/**
@@ -224,7 +226,8 @@ class Core {
 	 * @return array
 	 */
 	public static function getJavaScriptToBeIncluded() {
-		return self::$javaScript;
+		global $wgFlexFormConfig;
+		return $wgFlexFormConfig['loaders']['javascript'];
 	}
 
 	/**
@@ -233,21 +236,26 @@ class Core {
 	 * @return array
 	 */
 	public static function getCSSToBeIncluded() {
-		return self::$cssStyles;
+		global $wgFlexFormConfig;
+		return $wgFlexFormConfig['loaders']['css'];
 	}
 
 	/**
 	 * Clear CSS list to be loaded inline
 	 */
 	public static function cleanCSSList() {
-		self::$cssStyles = array();
+		global $wgFlexFormConfig;
+		$wgFlexFormConfig['loaders']['css'] = [];
+		//self::$cssStyles = array();
 	}
 
 	/**
 	 * Clear JavaScript list to be loaded inline
 	 */
 	public static function cleanJavaScriptList() {
-		self::$javaScript = array();
+		global $wgFlexFormConfig;
+		$wgFlexFormConfig['loaders']['javascript'] = [];
+		//self::$javaScript = array();
 	}
 
 	/**
@@ -256,26 +264,29 @@ class Core {
 	 * @param $src string CSS source (without <style>)
 	 */
 	public static function includeInlineCSS( $src ) {
-		self::$cssStyles[] = $src;
+		global $wgFlexFormConfig;
+		$wgFlexFormConfig['loaders']['css'][] = $src;
+		//self::$cssStyles[] = $src;
 	}
 
 	/**
 	 * @brief Add javascript config variables included
 	 *
-	 * @param $k string JavaScript source name (without <script>)
+	 * @param string $k JavaScript source name (without <script>)
 	 * @param mixed $v value
 	 */
 	public static function includeJavaScriptConfig( string $k, $v ) {
-		if ( isset( self::$javaScriptConfigVars[$k] ) ) {
-			if ( is_array( self::$javaScriptConfigVars[$k] ) ) {
-				self::$javaScriptConfigVars[$k][] = $v;
+		global $wgFlexFormConfig;
+		if ( isset( $wgFlexFormConfig['loaders']['jsconfigvars'][$k] ) ) {
+			if ( is_array( $wgFlexFormConfig['loaders']['jsconfigvars'][$k] ) ) {
+				$wgFlexFormConfig['loaders']['jsconfigvars'][$k][] = $v;
 			} else {
-				$tmpValue                         = self::$javaScriptConfigVars[$k];
-				self::$javaScriptConfigVars[$k][] = $tmpValue;
-				self::$javaScriptConfigVars[$k][] = $v;
+				$tmpValue                                          = $wgFlexFormConfig['loaders']['jsconfigvars'][$k];
+				$wgFlexFormConfig['loaders']['jsconfigvars'][$k][] = $tmpValue;
+				$wgFlexFormConfig['loaders']['jsconfigvars'][$k][] = $v;
 			}
 		} else {
-			self::$javaScriptConfigVars[$k][] = $v;
+			$wgFlexFormConfig['loaders']['jsconfigvars'][$k][] = $v;
 		}
 	}
 
@@ -285,14 +296,17 @@ class Core {
 	 * @return array
 	 */
 	public static function getJavaScriptConfigToBeAdded() : array {
-		return self::$javaScriptConfigVars;
+		global $wgFlexFormConfig;
+		return $wgFlexFormConfig['loaders']['jsconfigvars'];
+		//return self::$javaScriptConfigVars;
 	}
 
 	/**
 	 * Clear JavaScript config vars list to be loaded inline
 	 */
 	public static function cleanJavaScriptConfigVars() {
-		self::$javaScriptConfigVars = array();
+		global $wgFlexFormConfig;
+		$wgFlexFormConfig['loaders']['jsconfigvars'] = [];
 	}
 
 	/**
