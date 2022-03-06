@@ -216,6 +216,7 @@ class Core {
 	 */
 	public static function includeInlineScript( $src ) {
 		global $wgFlexFormConfig;
+		//echo round( microtime( true ) * 1000 ) . "_add <pre>$src</pre>";
 		$wgFlexFormConfig['loaders']['javascript'][] = $src;
 		//self::$javaScript[] = $src;
 	}

@@ -1963,6 +1963,7 @@ class TagHooks {
 	 * @param bool $parentConfig
 	 */
 	private function addInlineJavaScriptAndCSS( $parentConfig = false ) {
+		return;
 		$scripts   = array_unique( Core::getJavaScriptToBeIncluded() );
 		$csss      = array_unique( Core::getCSSToBeIncluded() );
 		$jsconfigs = Core::getJavaScriptConfigToBeAdded();

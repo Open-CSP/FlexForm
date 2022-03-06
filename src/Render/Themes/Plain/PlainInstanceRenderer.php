@@ -103,7 +103,7 @@ class PlainInstanceRenderer implements InstanceRenderer {
 		);
 
 		$out = RequestContext::getMain()->getOutput();
-		$out->addJsConfigVars( array( "wsinstance" => $instanceSettings ) );
+		Core::includeJavaScriptConfig(  "wgInstance", $instanceSettings );
 
 		if ( ! Core::isLoaded( 'wsinstance' ) ) {
 			$js = 'wachtff( startInstance, true );';

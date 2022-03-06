@@ -27,6 +27,12 @@
     ],
     "AdminLinks": [
       "FlexFormHooks::addToAdminLinks"
+    ],
+    "AfterFinalPageOutput": [
+      "FlexFormHooks::onAfterFinalPageOutput"
+    ],
+    "BeforePageOutput": [
+      "FlexFormHooks::onBeforePageOutput"
     ]
   },
   "MessagesDirs": {
@@ -61,6 +67,7 @@
       "debug": false,
       "FlexFormDefaultTheme": "Plain"
     }
+
   },
   "ResourceFileModulePaths": {
     "localBasePath": "Modules",

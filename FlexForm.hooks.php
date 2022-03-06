@@ -63,7 +63,7 @@ class FlexFormHooks {
 				$section,
 				wfMessage( 'adminlinks_general' )->text()
 			);
-			$wsSection = $adminLinksTree->getSection( 'WikiBase Solutions' );
+			$wsSection     = $adminLinksTree->getSection( 'WikiBase Solutions' );
 			$extensionsRow = new ALRow( 'extensions' );
 			$wsSection->addRow( $extensionsRow );
 		}
@@ -96,9 +96,70 @@ class FlexFormHooks {
 	 *
 	 * @return void
 	 */
-	public static function onBeforePageDisplay( OutputPage $out, Skin $skin ) {
-		$out->addModules( [ 'ext.FlexForm.showOnSelect.script', 'ext.wsForm.ajax.scripts' ] );
-		$out->addModuleStyles( [ 'ext.FlexForm.Instance.styles', 'ext.wsForm.general.styles' ] );
+	public static function onBeforePageOutput( OutputPage $out, Skin $skin ) {
+		$out->addModules( [
+							  'ext.FlexForm.showOnSelect.script',
+							  'ext.wsForm.ajax.scripts'
+						  ] );
+		$out->addModuleStyles( [
+								   'ext.FlexForm.Instance.styles',
+								   'ext.wsForm.general.styles'
+							   ] );
+	}
+
+	/**
+	 * @param $out
+	 *
+	 * @return true
+	 */
+	public static function onAfterFinalPageOutput( $out ) {
+		global $wgFlexFormConfig;
+		//echo "<pre>OnBeforePageDisplay:" . round( microtime( true ) * 1000 );
+		//var_dump( $wgFlexFormConfig );
+		$scripts   = array_unique( Core::getJavaScriptToBeIncluded() );
+		$csss      = array_unique( Core::getCSSToBeIncluded() );
+		$jsconfigs = Core::getJavaScriptConfigToBeAdded();
+
+		//var_dump( $scripts, $csss, $jsconfigs );
+		//echo "</pre>";
+		$jsOut = '';
+		$csOut = '';
+
+		if ( ! empty( $scripts ) ) {
+			foreach ( $scripts as $js ) {
+				$jsOut .= $js . "\n";
+			}
+
+			Core::cleanJavaScriptList();
+		}
+
+		if ( ! empty( $csss ) ) {
+			foreach ( $csss as $css ) {
+				$csOut .= $css . "\n";
+			}
+
+			Core::cleanCSSList();
+		}
+		if ( ! empty( $jsconfigs ) ) {
+
+			foreach ( $jsconfigs as $name => $jsConfig ) {
+				$jsOut .= 'var ' . $name . ' = ' . json_encode( $jsConfig ) . "\n";
+			}
+			//$out->addJsConfigVars(["test"=>true]);
+			Core::cleanJavaScriptConfigVars();
+		}
+		$out = ob_get_clean();
+		if ( !empty( $csOut ) ) {
+			$out .= "<style>\n" . $csOut . "\n</style>\n";
+		}
+		if ( !empty( $jsOut ) ) {
+			$out .= "<script>\n" . $jsOut . "\n</script>\n";
+		}
+		ob_start();
+		echo $out;
+		return true;
+
+
 	}
 
 	/**
@@ -115,9 +176,9 @@ class FlexFormHooks {
 			\FlexForm\Core\Config::setConfigFromMW();
 		}
 		global $wgFlexFormConfig;
-		$wgFlexFormConfig['loaders'] = [];
-		$wgFlexFormConfig['loaders']['css'] = [];
-		$wgFlexFormConfig['loaders']['javascript'] = [];
+		$wgFlexFormConfig['loaders']                 = [];
+		$wgFlexFormConfig['loaders']['css']          = [];
+		$wgFlexFormConfig['loaders']['javascript']   = [];
 		$wgFlexFormConfig['loaders']['jsconfigvars'] = [];
 
 		$tagHooks = new TagHooks( MediaWikiServices::getInstance()->getService( 'FlexForm.ThemeStore' ) );
