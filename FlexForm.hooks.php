@@ -116,14 +116,50 @@ class FlexFormHooks {
 		global $wgFlexFormConfig;
 		//echo "<pre>OnBeforePageDisplay:" . round( microtime( true ) * 1000 );
 		//var_dump( $wgFlexFormConfig );
+
 		$scripts   = array_unique( Core::getJavaScriptToBeIncluded() );
+		$scriptTags   = array_unique( Core::getJavaScriptTagsToBeIncluded() );
 		$csss      = array_unique( Core::getCSSToBeIncluded() );
+		$cssTags      = array_unique( Core::getCSSTagsToBeIncluded() );
 		$jsconfigs = Core::getJavaScriptConfigToBeAdded();
+		$jsTags = '';
+		$cssTagsOut = '';
+		$jsOut = '';
+		$csOut = '';
+		if ( ! empty( $scriptTags ) ) {
+			foreach ( $scriptTags as $scriptTag ) {
+				$jsTags .= \Xml::tags(
+					'script',
+					[
+						'type'    => 'text/javascript',
+						'charset' => 'UTF-8',
+						'src'     => $scriptTag
+					],
+					''
+				) . "\n";
+			}
+
+			Core::cleanJavaScriptTagsList();
+		}
+
+		if ( ! empty( $cssTags ) ) {
+			foreach ( $cssTags as $cssTag ) {
+				$cssTagsOut .= \Xml::tags(
+						'link',
+						[
+							'rel'    => 'stylesheet',
+							'href'     => $cssTag
+						],
+						''
+					) . "\n";
+			}
+
+			Core::cleanJavaScriptTagsList();
+		}
 
 		//var_dump( $scripts, $csss, $jsconfigs );
 		//echo "</pre>";
-		$jsOut = '';
-		$csOut = '';
+
 
 		if ( ! empty( $scripts ) ) {
 			foreach ( $scripts as $js ) {
@@ -149,6 +185,7 @@ class FlexFormHooks {
 			Core::cleanJavaScriptConfigVars();
 		}
 		$out = ob_get_clean();
+		$out .= $cssTagsOut . $jsTags;
 		if ( !empty( $csOut ) ) {
 			$out .= "<style>\n" . $csOut . "\n</style>\n";
 		}

@@ -165,18 +165,12 @@ class Core {
 	}
 
 	public static function addShowOnSelectJS() {
-		global $wgScript;
 		if ( ! self::isLoaded( 'ShowOnSelect' ) ) {
 			$out = \RequestContext::getMain()->getOutput();
 			$out->addJsConfigVars( array( "WSFormShowOnSelect" => true ) );
 			$js = 'wachtff( WsShowOnSelect, true );';
 			//wsform::includeInlineScript( $js );
-			$realUrl = str_replace(
-				'/index.php',
-				'',
-				$wgScript
-			);
-			$jsFile  = '<script type="text/javascript" charset="UTF-8" src="' . $realUrl . '/extensions/FlexForm/Modules/showOnSelect/WSShowOnSelect.js"></script>' . "\n";
+			$jsFile  = '<script type="text/javascript" charset="UTF-8" src="' . Core::getRealUrl() . '/Modules/showOnSelect/WSShowOnSelect.js"></script>' . "\n";
 			$jsFile  .= '<script>' . $js . '</script>';
 			self::addAsLoaded( 'ShowOnSelect' );
 
@@ -222,6 +216,30 @@ class Core {
 	}
 
 	/**
+	 * @brief Add JavaScript tags to be included
+	 *
+	 * @param $src string JavaScript source url
+	 */
+	public static function includeTagsScript( $src ) {
+		global $wgFlexFormConfig;
+		//echo round( microtime( true ) * 1000 ) . "_add <pre>$src</pre>";
+		$wgFlexFormConfig['loaders']['javascripttag'][] = $src;
+		//self::$javaScript[] = $src;
+	}
+
+	/**
+	 * @brief Add CSS tags to be included
+	 *
+	 * @param $src string CSS source url
+	 */
+	public static function includeTagsCSS( $src ) {
+		global $wgFlexFormConfig;
+		//echo round( microtime( true ) * 1000 ) . "_add <pre>$src</pre>";
+		$wgFlexFormConfig['loaders']['csstag'][] = $src;
+		//self::$javaScript[] = $src;
+	}
+
+	/**
 	 * Retrieve list of JavaScript to be loaded inline
 	 *
 	 * @return array
@@ -229,6 +247,26 @@ class Core {
 	public static function getJavaScriptToBeIncluded() {
 		global $wgFlexFormConfig;
 		return $wgFlexFormConfig['loaders']['javascript'];
+	}
+
+	/**
+	 * Retrieve list of JavaScript to be loaded as script tags
+	 *
+	 * @return array
+	 */
+	public static function getJavaScriptTagsToBeIncluded() {
+		global $wgFlexFormConfig;
+		return $wgFlexFormConfig['loaders']['javascripttag'];
+	}
+
+	/**
+	 * Retrieve list of JavaScript to be loaded as script tags
+	 *
+	 * @return array
+	 */
+	public static function getCSSTagsToBeIncluded() {
+		global $wgFlexFormConfig;
+		return $wgFlexFormConfig['loaders']['csstag'];
 	}
 
 	/**
@@ -251,11 +289,29 @@ class Core {
 	}
 
 	/**
+	 * Clear CSS tags list to be loaded
+	 */
+	public static function cleanCSSTagsList() {
+		global $wgFlexFormConfig;
+		$wgFlexFormConfig['loaders']['csstag'] = [];
+		//self::$cssStyles = array();
+	}
+
+	/**
 	 * Clear JavaScript list to be loaded inline
 	 */
 	public static function cleanJavaScriptList() {
 		global $wgFlexFormConfig;
 		$wgFlexFormConfig['loaders']['javascript'] = [];
+		//self::$javaScript = array();
+	}
+
+	/**
+	 * Clear JavaScript tags list to be loaded
+	 */
+	public static function cleanJavaScriptTagsList() {
+		global $wgFlexFormConfig;
+		$wgFlexFormConfig['loaders']['javascripttag'] = [];
 		//self::$javaScript = array();
 	}
 
@@ -300,6 +356,20 @@ class Core {
 		global $wgFlexFormConfig;
 		return $wgFlexFormConfig['loaders']['jsconfigvars'];
 		//return self::$javaScriptConfigVars;
+	}
+
+	public static function getRealUrl(){
+		global $wgScript;
+		$uri = wfGetServerUrl( null ) . '/extensions/FlexForm';
+		/*
+		$uri = str_replace(
+			'/index.php',
+			'',
+			$wgScript
+		);
+		*/
+		//var_dump( $uri );
+		return $uri;
 	}
 
 	/**

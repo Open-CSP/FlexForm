@@ -62,7 +62,8 @@ class TagHooks {
 
 		$ret = '';
 
-		$parser->getOutput()->addModuleStyles( 'ext.wsForm.general.styles' );
+		Core::includeTagsCSS( Core::getRealUrl() . '/Modules/ext.WSForm.css' );
+		//$parser->getOutput()->addModuleStyles( 'ext.wsForm.general.styles' );
 
 		// Do we have some messages to show?
 		if ( isset( $args['showmessages'] ) ) {
@@ -339,12 +340,8 @@ class TagHooks {
 
 		if ( Core::getRun() === false ) {
 			// FIXME: Move to ResourceLoader
-			$realUrl = str_replace(
-				'/index.php',
-				'',
-				$wgScript
-			);
-			$ret     = '<script type="text/javascript" charset="UTF-8" src="' . $realUrl . '/extensions/FlexForm/Modules/FlexForm.general.js"></script>' . "\n";
+			Core::includeTagsScript( Core::getRealUrl() . '/Modules/FlexForm.general.js' );
+			//$ret     = '<script type="text/javascript" charset="UTF-8" src="' . $realUrl . '/extensions/FlexForm/Modules/FlexForm.general.js"></script>' . "\n";
 
 			Core::setRun( true );
 		}
@@ -787,12 +784,14 @@ class TagHooks {
 									'mwidentifier',
 									$v
 								);
-
 								if ( ! Core::isLoaded( 'wsform-ajax' ) ) {
 									if ( file_exists( $IP . '/extensions/FlexForm/Modules/wsform-ajax.js' ) ) {
+										Core::includeTagsScript( Core::getRealUrl() . '/Modules/wsform-ajax.js' );
+										/*
 										$additionalHtml .= '<script src="' . wfGetServerUrl(
 												null
 											) . '/extensions/FlexForm/Modules/wsform-ajax.js"></script>' . "\n";
+										*/
 										Core::addAsLoaded( 'wsform-ajax' );
 									}
 								}
@@ -1898,14 +1897,9 @@ class TagHooks {
 	public function renderInstance( $input, array $args, Parser $parser, PPFrame $frame ) {
 		global $IP, $wgScript;
 
-		$realUrl = str_replace(
-			'/index.php',
-			'',
-			$wgScript
-		);
-
 		// Add move, delete and add button with classes
-		$parser->getOutput()->addModuleStyles( 'ext.FlexForm.Instance.styles' );
+		//$parser->getOutput()->addModuleStyles( 'ext.FlexForm.Instance.styles' );
+		Core::includeTagsCSS( Core::getRealUrl() . '/Modules/instances/instance-style.css' );
 
 		if ( ! Core::isLoaded( 'wsinstance-initiated' ) ) {
 			Core::addAsLoaded( 'wsinstance-initiated' );
@@ -1934,6 +1928,8 @@ class TagHooks {
 		if ( ! Core::isLoaded( 'multipleinstance' ) && file_exists(
 				$IP . '/extensions/FlexForm/Modules/instances/wsInstance.js'
 			) ) {
+			Core::includeTagsScript( Core::getRealUrl() . '/Modules/instances/wsInstance.js' );
+			/*
 			$scriptPath = $realUrl . '/extensions/FlexForm/Modules/instances/wsInstance.js';
 			$scriptTag  = \Xml::tags(
 				'script',
@@ -1944,8 +1940,9 @@ class TagHooks {
 				],
 				''
 			);
+			*/
 
-			$ret = $scriptTag . $ret;
+			//$ret = $scriptTag . $ret;
 
 			Core::addAsLoaded( 'multipleinstance' );
 		}
@@ -2169,8 +2166,10 @@ class TagHooks {
 			//$ret     .= $css;
 			if ( ! Core::isLoaded( 'WSFORM_upload.js' ) ) {
 				Core::addAsLoaded( 'WSFORM_upload.js' );
-				$js = file_get_contents( "$IP/extensions/FlexForm/Modules/WSForm_upload.js" );
-				Core::includeInlineScript( $js );
+				Core::includeTagsScript( Core::getRealUrl() . '/Modules/WSForm_upload.js' );
+				//$js = file_get_contents( "$IP/extensions/FlexForm/Modules/WSForm_upload.js" );
+				$js = '';
+				//Core::includeInlineScript( $js );
 			} else {
 				$js = '';
 			}
