@@ -518,6 +518,7 @@ class Validate {
 				$preparedArguments[$k] = $v;
 			}
 		}
+
 		if ( $name && $value && ! $checked ) {
 			if ( strpos( $name, "[]" ) ) {
 				$name = rtrim( $name, '[]' );

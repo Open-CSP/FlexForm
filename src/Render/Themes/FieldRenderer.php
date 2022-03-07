@@ -81,8 +81,8 @@ interface FieldRenderer {
 		array $args,
 		string $showOnChecked = '',
 		string $showOnUnchecked = '',
-		string $default = '',
-		string $defaultName = ''
+		$default = false,
+		$defaultName = false
 	) : string;
 
 	/**

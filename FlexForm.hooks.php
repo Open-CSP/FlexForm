@@ -157,6 +157,15 @@ class FlexFormHooks {
 			Core::cleanJavaScriptTagsList();
 		}
 
+		if ( ! empty( $jsconfigs ) ) {
+
+			foreach ( $jsconfigs as $name => $jsConfig ) {
+				$jsOut .= 'var ' . $name . ' = ' . json_encode( $jsConfig ) . "\n";
+			}
+			//$out->addJsConfigVars(["test"=>true]);
+			Core::cleanJavaScriptConfigVars();
+		}
+
 		//var_dump( $scripts, $csss, $jsconfigs );
 		//echo "</pre>";
 
@@ -176,14 +185,7 @@ class FlexFormHooks {
 
 			Core::cleanCSSList();
 		}
-		if ( ! empty( $jsconfigs ) ) {
 
-			foreach ( $jsconfigs as $name => $jsConfig ) {
-				$jsOut .= 'var ' . $name . ' = ' . json_encode( $jsConfig ) . "\n";
-			}
-			//$out->addJsConfigVars(["test"=>true]);
-			Core::cleanJavaScriptConfigVars();
-		}
 		$out = ob_get_clean();
 		$out .= $cssTagsOut . $jsTags;
 		if ( !empty( $csOut ) ) {
@@ -217,6 +219,8 @@ class FlexFormHooks {
 		$wgFlexFormConfig['loaders']['css']          = [];
 		$wgFlexFormConfig['loaders']['javascript']   = [];
 		$wgFlexFormConfig['loaders']['jsconfigvars'] = [];
+		$wgFlexFormConfig['loaders']['javascripttag']   = [];
+		$wgFlexFormConfig['loaders']['csstag'] = [];
 
 		$tagHooks = new TagHooks( MediaWikiServices::getInstance()->getService( 'FlexForm.ThemeStore' ) );
 

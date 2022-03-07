@@ -18,15 +18,15 @@ use FlexForm\Processors\Content\Edit;
 use FlexForm\Render\Themes\InstanceRenderer;
 
 class PlainInstanceRenderer implements InstanceRenderer {
-    private static function getArg( $name, $args, $checkEmpty = true ) {
-		if( $checkEmpty ) {
-			if ( isset( $args[ $name ] ) && $args[ $name ] !== '' ) {
-				return $args[ $name ];
+	private static function getArg( $name, $args, $checkEmpty = true ) {
+		if ( $checkEmpty ) {
+			if ( isset( $args[$name] ) && $args[$name] !== '' ) {
+				return $args[$name];
 			} else {
 				return false;
 			}
 		} else {
-			if ( isset( $args[ $name ] ) ) {
+			if ( isset( $args[$name] ) ) {
 				return "";
 			} else {
 				return false;
@@ -34,25 +34,25 @@ class PlainInstanceRenderer implements InstanceRenderer {
 		}
 	}
 
-    /**
-     * @inheritDoc
-     * @throws MWException
-     */
-	public function render_instance( string $content, array $args ): string {
+	/**
+	 * @inheritDoc
+	 * @throws MWException
+	 */
+	public function render_instance( string $content, array $args ) : string {
 		// TODO: Move some of this logic to the caller
 
-        if ( !RequestContext::getMain()->canUseWikiPage() ) {
-            return "";
-        }
+		if ( ! RequestContext::getMain()->canUseWikiPage() ) {
+			return "";
+		}
 
-		$instance = self::instanceDefault( $args );
-		$pageWikiObject = RequestContext::getMain()->getWikiPage();
-		$textAreaContent = $instance['txtareacontent'];
+		$instance           = self::instanceDefault( $args );
+		$pageWikiObject     = RequestContext::getMain()->getWikiPage();
+		$textAreaContent    = $instance['txtareacontent'];
 		$newTextAreaContent = '';
 
 		if ( $pageWikiObject->exists() ) {
 			$pageContent = $pageWikiObject->getContent( RevisionRecord::RAW )->getText();
-			$edit = new Edit();
+			$edit        = new Edit();
 
 			if ( $instance['templateParent'] !== 'none' ) {
 				$templateContent = $edit->getTemplate(
@@ -73,7 +73,7 @@ class PlainInstanceRenderer implements InstanceRenderer {
 
 				if ( trim( $tmp[0] ) === trim( $instance['instanceName'] ) ) {
 					$newTextAreaContent .= '{{' . $instance['template'] . self::get_string_between(
-							$expl[ $k ],
+							$expl[$k],
 							'{{' . $instance['template'],
 							'}}'
 						) . '}}';
@@ -81,7 +81,7 @@ class PlainInstanceRenderer implements InstanceRenderer {
 			}
 		}
 
-		if( !empty( $newTextAreaContent ) ) {
+		if ( ! empty( $newTextAreaContent ) ) {
 			$textAreaContent = $newTextAreaContent;
 		}
 
@@ -103,12 +103,15 @@ class PlainInstanceRenderer implements InstanceRenderer {
 		);
 
 		$out = RequestContext::getMain()->getOutput();
-		Core::includeJavaScriptConfig(  "wgInstance", $instanceSettings );
+		Core::includeJavaScriptConfig(
+			"wgInstance",
+			$instanceSettings
+		);
 
 		if ( ! Core::isLoaded( 'wsinstance' ) ) {
 			$js = 'wachtff( startInstance, true );';
-            Core::includeInlineScript( $js );
-            Core::addAsLoaded( 'wsinstance' );
+			Core::includeInlineScript( $js );
+			Core::addAsLoaded( 'wsinstance' );
 		}
 
 		return $ret;
@@ -141,7 +144,7 @@ class PlainInstanceRenderer implements InstanceRenderer {
 		$ret = '<div class="' . $instance['selector'] . '">' . PHP_EOL;
 		$ret .= '<div class="hidden">' . PHP_EOL;
 		$ret .= '<textarea rows="10" name="' . $instance['instanceName'] . '"  class="hidden ' . $instance['textarea'] . '" data-template="' . $instance['template'] . '">' . $textAreaContent . '</textarea>' . PHP_EOL;
-
+		//$ret .= "</div>" . PHP_EOL;
 		if ( Core::isShowOnSelectActive() ) {
 			$ret .= '<div class="' . $instance['copy'] . ' ' . $instance['copyExtra'] . ' WSShowOnSelect">' . PHP_EOL;
 		} else {
@@ -170,7 +173,7 @@ class PlainInstanceRenderer implements InstanceRenderer {
 
 		if ( $instance['addButtonClass'] !== 'none' ) {
 			$addBtn = '<button type="button" class="' . $instance['addButtonClass'] . ' ' . $instance['addButtonClassExtra'] . '" role="button"></button>';
-			$ret .= $addBtn;
+			$ret    .= $addBtn;
 		}
 
 		$ret .= $innerHtml;
@@ -179,7 +182,7 @@ class PlainInstanceRenderer implements InstanceRenderer {
 
 		$ret .= PHP_EOL . '<div class="' . $instance['list'] . '"></div>' . PHP_EOL;
 
-		if( $instance['buttonBottom'] !== 'none' ) {
+		if ( $instance['buttonBottom'] !== 'none' ) {
 			$ret .= PHP_EOL . '<p><button type="button" class="' . $instance['addButtonTopBottomClass'] . '" role="button">' . $instance['buttonBottom'] . '</button></p>';
 		}
 
@@ -188,85 +191,85 @@ class PlainInstanceRenderer implements InstanceRenderer {
 		return $ret;
 	}
 
-    private static function instanceDefault( $args ) {
-        $defaultInstance = array(
-            'selector'               => "WSmultipleTemplateWrapper",
-            'copy'                   => "WSmultipleTemplateMain",
-            'textarea'               => 'WSmultipleTemplateField',
-            'list'                   => 'WSmultipleTemplateList',
-            'addButtonClass'         => "WSmultipleTemplateAddAbove",
-            'addButtonTopBottomClass'=> "WSmultipleTemplateAddBelow",
-            'addButtonClassExtra'    => "wsform-instance-add-btn",
-            'removeButtonClass'      => "WSmultipleTemplateDel",
-            'removeButtonClassExtra' => "wsform-instance-delete-btn",
-            'handleClass'            => 'ws-sortable-handle',
-            'handleClassExtra'       => 'wsform-instance-move-handle',
-            'instanceMoveClass'      => 'ws-formgroup-sortable',
-            'draggable'              => false,
-            'instanceName'           => '',
-            'template'               => "",
-            'templateParent'         => "",
-            'txtareacontent'         => '',
-            'buttonBottom'			 => '',
-            'copyExtra'              => 'wsform-instance-record'
-        );
+	private static function instanceDefault( $args ) {
+		$defaultInstance = array(
+			'selector'                => "WSmultipleTemplateWrapper",
+			'copy'                    => "WSmultipleTemplateMain",
+			'textarea'                => 'WSmultipleTemplateField',
+			'list'                    => 'WSmultipleTemplateList',
+			'addButtonClass'          => "WSmultipleTemplateAddAbove",
+			'addButtonTopBottomClass' => "WSmultipleTemplateAddBelow",
+			'addButtonClassExtra'     => "wsform-instance-add-btn",
+			'removeButtonClass'       => "WSmultipleTemplateDel",
+			'removeButtonClassExtra'  => "wsform-instance-delete-btn",
+			'handleClass'             => 'ws-sortable-handle',
+			'handleClassExtra'        => 'wsform-instance-move-handle',
+			'instanceMoveClass'       => 'ws-formgroup-sortable',
+			'draggable'               => false,
+			'instanceName'            => '',
+			'template'                => "",
+			'templateParent'          => "",
+			'txtareacontent'          => '',
+			'buttonBottom'            => '',
+			'copyExtra'               => 'wsform-instance-record'
+		);
 
-	    $defaultTranslator = array(
-		    'template'                => 'template',
-		    'template-parent'         => 'templateParent',
-		    'name'                    => 'instanceName',
-		    'button-add'              => 'addButtonClass',
-		    'button-remove'           => 'removeButtonClass',
-		    'button-move'             => 'handleClass',
-		    'button-add-extra'        => 'addButtonClassExtra',
-		    'button-remove-extra'     => 'removeButtonClassExtra',
-		    'button-move-extra'       => 'handleClassExtra',
-		    'wrapper-instance'        => 'copy',
-		    'wrapper-main'            => 'selector',
-		    'wrapper-main-extra'      => 'copyExtra',
-		    'instance-storage'        => 'textarea',
-		    'instance-list'           => 'list',
-		    'default-content'         => 'txtareacontent',
-		    'add-button-on-bottom'    => 'buttonBottom',
-		    'button-on-bottom-class' => 'addButtonTopBottomClass'
-	    );
+		$defaultTranslator = array(
+			'template'               => 'template',
+			'template-parent'        => 'templateParent',
+			'name'                   => 'instanceName',
+			'button-add'             => 'addButtonClass',
+			'button-remove'          => 'removeButtonClass',
+			'button-move'            => 'handleClass',
+			'button-add-extra'       => 'addButtonClassExtra',
+			'button-remove-extra'    => 'removeButtonClassExtra',
+			'button-move-extra'      => 'handleClassExtra',
+			'wrapper-instance'       => 'copy',
+			'wrapper-main'           => 'selector',
+			'wrapper-main-extra'     => 'copyExtra',
+			'instance-storage'       => 'textarea',
+			'instance-list'          => 'list',
+			'default-content'        => 'txtareacontent',
+			'add-button-on-bottom'   => 'buttonBottom',
+			'button-on-bottom-class' => 'addButtonTopBottomClass'
+		);
 
-        foreach ( $defaultTranslator as $from => $to ) {
-			if( $from === 'add-button-on-bottom' ) {
+		foreach ( $defaultTranslator as $from => $to ) {
+			if ( $from === 'add-button-on-bottom' ) {
 				$checkIfEmpty = false;
 			} else {
 				$checkIfEmpty = true;
 			}
-            $val = self::getArg(
-                $from,
-                $args,
-	            $checkIfEmpty
-            );
-            if ( $val !== false ) {
-                switch ( $from ) {
-                    case "button-move":
-                        if( strtolower( $val ) === "none" ) {
-                            $defaultInstance['draggable'] = false;
-                        } else {
-	                        $defaultInstance['draggable'] = true;
-                        }
+			$val = self::getArg(
+				$from,
+				$args,
+				$checkIfEmpty
+			);
+			if ( $val !== false ) {
+				switch ( $from ) {
+					case "button-move":
+						if ( strtolower( $val ) === "none" ) {
+							$defaultInstance['draggable'] = false;
+						} else {
+							$defaultInstance['draggable'] = true;
+						}
 
-                        break;
-                }
-                $defaultInstance[$to] = $val;
-            } else {
-                switch ( $from ) {
-                    case "button-move":
-                        $defaultInstance['draggable'] = true;
-                        break;
+						break;
+				}
+				$defaultInstance[$to] = $val;
+			} else {
+				switch ( $from ) {
+					case "button-move":
+						$defaultInstance['draggable'] = true;
+						break;
 
-                    case "templateParent":
-                        $defaultInstance[$to] = "none";
-                        break;
-                }
-            }
-        }
+					case "templateParent":
+						$defaultInstance[$to] = "none";
+						break;
+				}
+			}
+		}
 
-        return $defaultInstance;
-    }
+		return $defaultInstance;
+	}
 }

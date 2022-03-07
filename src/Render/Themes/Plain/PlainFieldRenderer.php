@@ -98,12 +98,12 @@ class PlainFieldRenderer implements FieldRenderer {
 		array $args,
 		string $showOnChecked = '',
 		string $showOnUnchecked = '',
-		string $default = '',
-		string $defaultName = ''
+		$default = false,
+		$defaultName = false
 	) : string {
 		$ret = '';
 
-		if ( $default !== '' && $defaultName !== '' ) {
+		if ( $default !== false && $defaultName !== false ) {
 			// Added in v0.8.0.9.6.2. Allowing for a default value for a checkbox
 			// for when the checkbox is not checked.
 			$ret .= Core::createHiddenField(

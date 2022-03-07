@@ -340,8 +340,8 @@ class TagHooks {
 
 		if ( Core::getRun() === false ) {
 			// FIXME: Move to ResourceLoader
-			Core::includeTagsScript( Core::getRealUrl() . '/Modules/FlexForm.general.js' );
-			//$ret     = '<script type="text/javascript" charset="UTF-8" src="' . $realUrl . '/extensions/FlexForm/Modules/FlexForm.general.js"></script>' . "\n";
+			//Core::includeTagsScript( Core::getRealUrl() . '/Modules/FlexForm.general.js' );
+			$ret     = '<script type="text/javascript" charset="UTF-8" src="' . Core::getRealUrl() . '/Modules/FlexForm.general.js"></script>' . "\n";
 
 			Core::setRun( true );
 		}
@@ -568,11 +568,22 @@ class TagHooks {
 
 				break;
 			case 'checkbox':
-				$default     = $args['default'] ?? '';
-				$defaultName = isset( $args['name'] ) && $args['name'] !== '' ? sprintf(
-					'wsdefault_%s',
-					$args['name']
-				) : '';
+
+				// Added in v0.8.0.9.6.2. Allowing for a default value for a checkbox
+				// for when the checkbox is not checked.
+				$default = false;
+				$defaultName = false;
+				if ( isset( $args['default'] ) && $args['default'] !== '' ) {
+					$default = $args['default'];
+					$defaultName = false;
+					if ( isset( $args['name'] ) ) {
+						$defaultName = "wsdefault_" . $args['name'];
+						if ( strpos( $defaultName, "[]" ) ) {
+							$defaultName = rtrim( $defaultName, '[]' );
+						}
+					}
+				}
+				// END default checkbox
 
 				$preparedArguments = Validate::doCheckboxParameters( $args );
 
@@ -1905,12 +1916,13 @@ class TagHooks {
 			Core::addAsLoaded( 'wsinstance-initiated' );
 		}
 
-		$content = $parser->recursiveTagParse(
+		$content = $parser->recursiveTagParseFully(
 			$input,
 			$frame
 		);
 
 		if( isset( $args['default-content'] ) ) {
+			//var_dump( "parsing content", $args['default-content'] );
 			$args['default-content'] = $parser->recursiveTagParse(
 				$args['default-content'],
 				$frame
