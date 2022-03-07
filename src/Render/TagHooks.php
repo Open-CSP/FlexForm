@@ -2133,9 +2133,15 @@ class TagHooks {
 			$onChangeScript .= $id . '", "' . $verbose_id . '", "' . $error_id . '", "' . $use_label;
 			$onChangeScript .= '");' . "\n" . '});' . "\n";
 			if ( $drop && ! $use_label ) {
+				$onChangeScript .= "\n" . '$("#' . $verbose_id . '").on("dragleave", function(e) {
+				event.preventDefault();
+    			$(".br_dropzone").removeClass("dragover");
+    			})';
 				$onChangeScript .= "\n" . '$("#' . $verbose_id . '").on("dragover drop", function(e) { 
 				e.preventDefault();  
+				$("#' . $verbose_id . '").addClass("dragover")
 			}).on("drop", function(e) {
+				
 				$("#' . $id . '").prop("files", e.originalEvent.dataTransfer.files)
 				$("#' . $id . '").trigger("change"); 
 		});';
@@ -2145,7 +2151,9 @@ class TagHooks {
 				$onChangeScript .= 'var label = $("label[for=\'' . $id . '\']");';
 				$onChangeScript .= "\n" . 'label.on("dragover drop", function(e) { 
 				e.preventDefault();  
+				$("#' . $id . '").addClass("dragover")
 			}).on("drop", function(e) {
+				
 				$("#' . $id . '").prop("files", e.originalEvent.dataTransfer.files)
 				$("#' . $id . '").trigger("change"); 
 		});';
