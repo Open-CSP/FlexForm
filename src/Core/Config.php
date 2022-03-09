@@ -32,6 +32,8 @@ class Config {
 			self::$FlexFormConfig = $config->get( 'FlexFormConfig' );
 			self::checkConfig();
 			self::$WSConfigStatus = true;
+			Core::$chkSums    = [];
+			Core::$securityId = uniqid();
 		} else {
 			throw new FlexFormException(
 				'No config set',

@@ -113,7 +113,6 @@ class PlainFormRenderer implements FormRenderer {
 			// FIXME: Move some of this logic to the caller
 			Protect::setCrypt( Core::$checksumKey );
 			$checksumName = Protect::encrypt( 'checksum' );
-
 			if ( ! empty( Core::$chkSums ) ) {
 				$checksumValue = Protect::encrypt( serialize( Core::$chkSums ) );
 

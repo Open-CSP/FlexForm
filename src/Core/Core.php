@@ -434,6 +434,7 @@ class Core {
 
 	public static function createHiddenField( $name, $value ) {
 		if ( Config::isSecure() ) {
+
 			Protect::setCrypt( self::$checksumKey );
 			$name  = Protect::encrypt( $name );
 			$value = Protect::encrypt( $value );

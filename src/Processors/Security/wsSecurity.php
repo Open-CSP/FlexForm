@@ -12,6 +12,7 @@ namespace FlexForm\Processors\Security;
 
 use FlexForm\Core\Config;
 use FlexForm\Core\Core;
+use FlexForm\Core\Debug;
 use FlexForm\Core\Protect;
 use FlexForm\Core\HandleResponse;
 use FlexForm\Processors\Utilities\General;
@@ -74,6 +75,13 @@ class wsSecurity {
 			}
 		} catch( FlexFormException $exception ) {
 			throw new FlexFormException( $exception->getMessage(), 0, $exception );
+		}
+
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'Decrypt checksum' . time(),
+				$checksum
+			);
 		}
 
 		if ( $checksum === false && $formId !== false ) {

@@ -56,10 +56,6 @@ class TagHooks {
 	 */
 	public function renderForm( $input, array $args, Parser $parser, PPFrame $frame ) {
 		global $wgUser, $wgEmailConfirmToEdit, $IP, $wgScript;
-
-		Core::$chkSums    = array();
-		Core::$securityId = uniqid();
-
 		$ret = '';
 
 		Core::includeTagsCSS( Core::getRealUrl() . '/Modules/ext.WSForm.css' );
