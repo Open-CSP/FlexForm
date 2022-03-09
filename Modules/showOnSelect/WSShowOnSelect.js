@@ -2,7 +2,7 @@
  * applying show on select on the page and make sure everyting will be handled as needed
  */
 async function WsShowOnSelect () {
-	await waitForJQueryIsReady()
+	await waitForJQueryIsReady();
 	var divWait = document.querySelector('form')
   $('form.WSShowOnSelect').each( function(){
     if( $( this ).hasClass( 'flex-form-hide' ) ) {
@@ -163,6 +163,8 @@ function handleCheckbox (checkElm) {
 			var pre_unchecked_elm = $(pre_parent_wssos).find('[data-wssos-value="' + pre_unchecked_value + '"]')
 
 			if (pre_unchecked_elm.length === 0) pre_unchecked_elm = $(pre_parent_wssos).find('#' + pre_unchecked_value)
+
+			pre_unchecked_elm.hide(0)
 
 			putAllTypesNameInData(pre_unchecked_elm)
 		}
