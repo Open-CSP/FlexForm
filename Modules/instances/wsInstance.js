@@ -289,14 +289,12 @@ const WsInstance = function (selector, options) {
 	 * @returns {string}
 	 */
 	const removeBracketsAtEnd = (str) => {
-		/*
 		if (str.length > 2) {
 			if (str[str.length - 2] === '[' && str[str.length - 1]) {
-				str = str.substring(1, str.length - 2)
+				str = str.substring(0, str.length - 2)
 			}
-		}*/
-		return str.replace( '[]', '' );
-		//return str
+		}
+		return str
 	}
 
 	/**
