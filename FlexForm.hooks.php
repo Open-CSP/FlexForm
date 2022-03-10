@@ -114,29 +114,26 @@ class FlexFormHooks {
 	 */
 	public static function onAfterFinalPageOutput( $out ) {
 		global $wgFlexFormConfig;
-		//echo "<pre>OnBeforePageDisplay:" . round( microtime( true ) * 1000 );
-		//var_dump( $wgFlexFormConfig );
-
-		$scripts   = array_unique( Core::getJavaScriptToBeIncluded() );
-		$scriptTags   = array_unique( Core::getJavaScriptTagsToBeIncluded() );
-		$csss      = array_unique( Core::getCSSToBeIncluded() );
-		$cssTags      = array_unique( Core::getCSSTagsToBeIncluded() );
-		$jsconfigs = Core::getJavaScriptConfigToBeAdded();
-		$jsTags = '';
+		$scripts    = array_unique( Core::getJavaScriptToBeIncluded() );
+		$scriptTags = array_unique( Core::getJavaScriptTagsToBeIncluded() );
+		$csss       = array_unique( Core::getCSSToBeIncluded() );
+		$cssTags    = array_unique( Core::getCSSTagsToBeIncluded() );
+		$jsconfigs  = Core::getJavaScriptConfigToBeAdded();
+		$jsTags     = '';
 		$cssTagsOut = '';
-		$jsOut = '';
-		$csOut = '';
+		$jsOut      = '';
+		$csOut      = '';
 		if ( ! empty( $scriptTags ) ) {
 			foreach ( $scriptTags as $scriptTag ) {
 				$jsTags .= \Xml::tags(
-					'script',
-					[
-						'type'    => 'text/javascript',
-						'charset' => 'UTF-8',
-						'src'     => $scriptTag
-					],
-					''
-				) . "\n";
+						'script',
+						[
+							'type'    => 'text/javascript',
+							'charset' => 'UTF-8',
+							'src'     => $scriptTag
+						],
+						''
+					) . "\n";
 			}
 
 			Core::cleanJavaScriptTagsList();
@@ -147,8 +144,8 @@ class FlexFormHooks {
 				$cssTagsOut .= \Xml::tags(
 						'link',
 						[
-							'rel'    => 'stylesheet',
-							'href'     => $cssTag
+							'rel'  => 'stylesheet',
+							'href' => $cssTag
 						],
 						''
 					) . "\n";
@@ -158,17 +155,12 @@ class FlexFormHooks {
 		}
 
 		if ( ! empty( $jsconfigs ) ) {
-
 			foreach ( $jsconfigs as $name => $jsConfig ) {
 				$jsOut .= 'var ' . $name . ' = ' . json_encode( $jsConfig ) . "\n";
 			}
-			//$out->addJsConfigVars(["test"=>true]);
+
 			Core::cleanJavaScriptConfigVars();
 		}
-
-		//var_dump( $scripts, $csss, $jsconfigs );
-		//echo "</pre>";
-
 
 		if ( ! empty( $scripts ) ) {
 			foreach ( $scripts as $js ) {
@@ -188,17 +180,16 @@ class FlexFormHooks {
 
 		$out = ob_get_clean();
 		$out .= $cssTagsOut . $jsTags;
-		if ( !empty( $csOut ) ) {
+		if ( ! empty( $csOut ) ) {
 			$out .= "<style>\n" . $csOut . "\n</style>\n";
 		}
-		if ( !empty( $jsOut ) ) {
+		if ( ! empty( $jsOut ) ) {
 			$out .= "<script>\n" . $jsOut . "\n</script>\n";
 		}
 		ob_start();
 		echo $out;
+
 		return true;
-
-
 	}
 
 	/**
@@ -215,12 +206,12 @@ class FlexFormHooks {
 			\FlexForm\Core\Config::setConfigFromMW();
 		}
 		global $wgFlexFormConfig;
-		$wgFlexFormConfig['loaders']                 = [];
-		$wgFlexFormConfig['loaders']['css']          = [];
-		$wgFlexFormConfig['loaders']['javascript']   = [];
-		$wgFlexFormConfig['loaders']['jsconfigvars'] = [];
-		$wgFlexFormConfig['loaders']['javascripttag']   = [];
-		$wgFlexFormConfig['loaders']['csstag'] = [];
+		$wgFlexFormConfig['loaders']                  = [];
+		$wgFlexFormConfig['loaders']['css']           = [];
+		$wgFlexFormConfig['loaders']['javascript']    = [];
+		$wgFlexFormConfig['loaders']['jsconfigvars']  = [];
+		$wgFlexFormConfig['loaders']['javascripttag'] = [];
+		$wgFlexFormConfig['loaders']['csstag']        = [];
 
 		$tagHooks = new TagHooks( MediaWikiServices::getInstance()->getService( 'FlexForm.ThemeStore' ) );
 
