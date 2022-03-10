@@ -2,7 +2,8 @@
   "name": "FlexForm",
   "version": "1.0.0",
   "author": [
-    "[https://www.wikibase-solutions.com/author/charlot Sen-Sai]"
+    "[https://www.wikibase-solutions.com/author/charlot Sen-Sai]",
+    "[https://www.wikibase-solutions.com/author/marijn Marijn]"
   ],
   "url": "https://www.mediawiki.org/wiki/Extension:FlexForm",
   "descriptionmsg": "flexform-desc",
