@@ -1,5 +1,5 @@
 {
-  "name": "wikibase-solutions/f-lexf-orm",
+  "name": "wikibase-solutions/flex-form",
   "type": "mediawiki-extension",
   "description": "HTML5 Form renderer",
   "keywords": [
