@@ -102,10 +102,10 @@ class Core {
 	 * This will store session information for the next time a page is reloaded.
 	 * It well then show a message from the session on screen
 	 *
-	 * @param $type string with what kind of message (danger, success, etcc)
-	 * @param $msg the Actual message to sow
+	 * @param string $type with what kind of message (danger, success, etcc)
+	 * @param string $msg Actual message to sow
 	 */
-	public static function makeMessage( $type, $msg ) {
+	public static function makeMessage( string $type, string $msg ) {
 		$_SESSION['wsform']['messages'][]['type'] = $type;
 		$_SESSION['wsform']['messages'][]['txt']  = $msg;
 	}
@@ -113,11 +113,11 @@ class Core {
 	/**
 	 * Gets parser value for a key
 	 *
-	 * @param $k string key name
+	 * @param string $k key name
 	 *
 	 * @return string either the value of the key or an empty string
 	 */
-	public static function getValue( $k, $apo = false ) {
+	public static function getValue( $k, $apo = false ): string {
 		if ( ! self::$gValues ) {
 			return "";
 		}
@@ -149,7 +149,12 @@ class Core {
 		}
 	}
 
-	public static function checkForShowOnSelectValue( $input ) {
+	/**
+	 * @param string $input
+	 *
+	 * @return string
+	 */
+	public static function checkForShowOnSelectValue( string $input ): string {
 		if ( strpos(
 			$input,
 			'show-on-select-trigger='
@@ -164,7 +169,10 @@ class Core {
 		}
 	}
 
-	public static function addShowOnSelectJS() {
+	/**
+	 * @return string
+	 */
+	public static function addShowOnSelectJS(): string {
 		if ( ! self::isLoaded( 'ShowOnSelect' ) ) {
 			$out = \RequestContext::getMain()->getOutput();
 			$out->addJsConfigVars( array( "WSFormShowOnSelect" => true ) );
@@ -183,16 +191,16 @@ class Core {
 	/**
 	 * @brief Add script to list of loaded script
 	 *
-	 * @param $name string JavaScript filename
+	 * @param string $name JavaScript filename
 	 */
-	public static function addAsLoaded( $name ) {
+	public static function addAsLoaded( string $name ) {
 		self::$loadedScripts[] = $name;
 	}
 
 	/**
 	 * @brief Add script to list of loaded script
 	 *
-	 * @param $name string JavaScript filename
+	 * @param string $name JavaScript filename
 	 */
 	public static function removeAsLoaded( string $name ) {
 		if ( $key = array_search(
@@ -206,9 +214,9 @@ class Core {
 	/**
 	 * @brief Add script to be included
 	 *
-	 * @param $src string JavaScript source (without <script>)
+	 * @param string $src JavaScript source (without <script>)
 	 */
-	public static function includeInlineScript( $src ) {
+	public static function includeInlineScript( string $src ) {
 		global $wgFlexFormConfig;
 		//echo round( microtime( true ) * 1000 ) . "_add <pre>$src</pre>";
 		$wgFlexFormConfig['loaders']['javascript'][] = $src;
@@ -218,9 +226,9 @@ class Core {
 	/**
 	 * @brief Add JavaScript tags to be included
 	 *
-	 * @param $src string JavaScript source url
+	 * @param string $src JavaScript source url
 	 */
-	public static function includeTagsScript( $src ) {
+	public static function includeTagsScript( string $src ) {
 		global $wgFlexFormConfig;
 		//echo round( microtime( true ) * 1000 ) . "_add <pre>$src</pre>";
 		$wgFlexFormConfig['loaders']['javascripttag'][] = $src;
@@ -230,9 +238,9 @@ class Core {
 	/**
 	 * @brief Add CSS tags to be included
 	 *
-	 * @param $src string CSS source url
+	 * @param string $src CSS source url
 	 */
-	public static function includeTagsCSS( $src ) {
+	public static function includeTagsCSS( string $src ) {
 		global $wgFlexFormConfig;
 		//echo round( microtime( true ) * 1000 ) . "_add <pre>$src</pre>";
 		$wgFlexFormConfig['loaders']['csstag'][] = $src;
@@ -244,7 +252,7 @@ class Core {
 	 *
 	 * @return array
 	 */
-	public static function getJavaScriptToBeIncluded() {
+	public static function getJavaScriptToBeIncluded(): array {
 		global $wgFlexFormConfig;
 		return $wgFlexFormConfig['loaders']['javascript'];
 	}
@@ -254,7 +262,7 @@ class Core {
 	 *
 	 * @return array
 	 */
-	public static function getJavaScriptTagsToBeIncluded() {
+	public static function getJavaScriptTagsToBeIncluded():array {
 		global $wgFlexFormConfig;
 		return $wgFlexFormConfig['loaders']['javascripttag'];
 	}
@@ -264,7 +272,7 @@ class Core {
 	 *
 	 * @return array
 	 */
-	public static function getCSSTagsToBeIncluded() {
+	public static function getCSSTagsToBeIncluded():array {
 		global $wgFlexFormConfig;
 		return $wgFlexFormConfig['loaders']['csstag'];
 	}
@@ -274,7 +282,7 @@ class Core {
 	 *
 	 * @return array
 	 */
-	public static function getCSSToBeIncluded() {
+	public static function getCSSToBeIncluded():array {
 		global $wgFlexFormConfig;
 		return $wgFlexFormConfig['loaders']['css'];
 	}
@@ -318,9 +326,9 @@ class Core {
 	/**
 	 * @brief Add css to be included
 	 *
-	 * @param $src string CSS source (without <style>)
+	 * @param string $src CSS source (without <style>)
 	 */
-	public static function includeInlineCSS( $src ) {
+	public static function includeInlineCSS( string $src ) {
 		global $wgFlexFormConfig;
 		$wgFlexFormConfig['loaders']['css'][] = $src;
 		//self::$cssStyles[] = $src;
@@ -358,7 +366,10 @@ class Core {
 		//return self::$javaScriptConfigVars;
 	}
 
-	public static function getRealUrl(){
+	/**
+	 * @return string
+	 */
+	public static function getRealUrl(): string {
 		global $wgScript;
 		$uri = wfGetServerUrl( null ) . '/extensions/FlexForm';
 		/*
@@ -383,11 +394,11 @@ class Core {
 	/**
 	 * @brief Check if a JavaScript is already loaded
 	 *
-	 * @param $name string Name of JavaScript file
+	 * @param string $name Name of JavaScript file
 	 *
 	 * @return bool true or false
 	 */
-	public static function isLoaded( $name ) {
+	public static function isLoaded( string $name ): bool {
 		if ( in_array(
 			$name,
 			self::$loadedScripts
@@ -415,8 +426,12 @@ class Core {
 		return self::$haveIBeenRun;
 	}
 
-
-	public static function getMWReturn( $url ) {
+	/**
+	 * @param string $url
+	 *
+	 * @return mixed|\SimpleXMLElement
+	 */
+	public static function getMWReturn( string $url ) {
 		if ( strpos(
 				 $url,
 				 'http'
@@ -437,7 +452,14 @@ class Core {
 		}
 	}
 
-	public static function createHiddenField( $name, $value ) {
+	/**
+	 * @param string $name
+	 * @param mixed $value
+	 *
+	 * @return string
+	 * @throws \FlexForm\FlexFormException
+	 */
+	public static function createHiddenField( string $name, $value ): string {
 		if ( Config::isSecure() ) {
 
 			Protect::setCrypt( self::$checksumKey );
@@ -454,21 +476,29 @@ class Core {
 		return '<input type="hidden" name="' . $name . '" value="' . $value . '">' . "\n";
 	}
 
-	public static function addCheckSum( $type, $name, $value, $allowHTML = "default" ) {
+	/**
+	 * @param string $type
+	 * @param string $name
+	 * @param mixed $value
+	 * @param string $allowHTML
+	 *
+	 * @return void
+	 */
+	public static function addCheckSum( string $type, string $name, $value, string $allowHTML = "default" ) {
 		if ( Config::isSecure() ) {
 			$formId = self::$securityId;
 			if ( $type === 'secure' ) {
-				self::$chkSums[$formId][$type][] = array(
+				self::$chkSums[$formId][$type][] = [
 					"name"  => $name,
 					"value" => $value,
 					"html"  => $allowHTML
-				);
+				];
 			} else {
-				self::$chkSums[$formId][$name] = array(
+				self::$chkSums[$formId][$name] = [
 					"type"  => $type,
 					"value" => $value,
 					"html"  => $allowHTML
-				);
+				];
 			}
 		}
 	}
