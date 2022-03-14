@@ -2,6 +2,7 @@
 
 namespace FlexForm\Processors\Request\Handlers;
 
+use FlexForm\Core\Core;
 use FlexForm\Core\HandleResponse;
 use FlexForm\Processors\Utilities\General;
 
@@ -25,7 +26,32 @@ class SemanticAsk {
 			//$ret = createMsg('No query found.');
 			// test query :  $query = "[[Class::Organization]] [[Name::~*ik*]]|?Name |format=json |limit=99999"
 			// ik kan dat q worden voor select2 door !!! in te vullen in de query, deze wordt dan vervangen.
-
+			if ( strpos( $query, '(' ) !== false && strpos( $query, ')' ) !== false ) {
+				if ( strpos( $query, '(returntext=' ) !== false ) {
+					$returnText = Core::get_string_between( $query, '(returntext=', ')' );
+					$query = str_replace(
+						'(returntext=' . $returnText . ')',
+						'',
+						$query
+					);
+				}
+				if ( strpos( $query, '(returnid=' ) !== false ) {
+					$returnId = Core::get_string_between( $query, '(returnid=', ')' );
+					$query = str_replace(
+						'(returnid=' . $returnId . ')',
+						'',
+						$query
+					);
+				}
+				if ( strpos( $query, '(limit=' ) !== false ) {
+					$limit = Core::get_string_between( $query, '(limit=', ')' );
+					$query = str_replace(
+						'(limit=' . $limit . ')',
+						'',
+						$query
+					);
+				}
+			}
 			if ( $q !== false ) {
 				$q2    = ucwords( $q );
 				$q3    = strtoupper( $q );
@@ -67,6 +93,8 @@ class SemanticAsk {
 			$mRequest = new \FlexForm\Processors\Content\Render();
 			$data     = $mRequest->makeRequest( $postdata );
 
+			//var_dump( $postdata, $returnText, $returnId);
+			//print_r($data);
 			if ( isset( $data['query']['results'] ) && ! empty( $data['query']['results'] ) ) {
 				$data = $data['query']['results'];
 
@@ -74,8 +102,8 @@ class SemanticAsk {
 				foreach ( $data as $k => $val ) {
 					if ( $returnText === false ) {
 						$ret['results'][$t]['text'] = htmlentities( $val['displaytitle'] );
-					} elseif ( isset( $val['printouts'][$returnText][0] ) ) {
-						$ret['results'][$t]['text'] = htmlentities( $val['printouts'][$returnText][0] );
+					} elseif ( isset( $val['printouts'][$returnText][0]['fulltext'] ) ) {
+						$ret['results'][$t]['text'] = htmlentities( $val['printouts'][$returnText][0]['fulltext'] );
 					} else {
 						$ret['results'][$t]['text'] = 'Not found';
 					}
