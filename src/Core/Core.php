@@ -415,6 +415,7 @@ class Core {
 		return self::$haveIBeenRun;
 	}
 
+
 	public static function getMWReturn( $url ) {
 		if ( strpos(
 				 $url,
@@ -423,7 +424,11 @@ class Core {
 			return $url;
 		}
 		libxml_use_internal_errors( true );
-		$xml = new \SimpleXMLElement( $url );
+		try {
+			$xml = new \SimpleXMLElement( $url );
+		} catch ( \Exception $exception ) {
+			return $url;
+		}
 
 		if ( isset( $xml['href'] ) ) {
 			return $xml['href'];
