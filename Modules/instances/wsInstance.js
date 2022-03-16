@@ -182,7 +182,23 @@ const WsInstance = function (selector, options) {
 	 * @returns {HTMLElement }
 	 */
 	_.getCloneInstance = () => {
-		return _.clone.clone().removeClass('WSmultipleTemplateMain').addClass('WSmultipleTemplateInstance')
+		const clone = _.clone.clone().removeClass('WSmultipleTemplateMain').addClass('WSmultipleTemplateInstance')
+
+		// loop through all input, textarea and select types to handle duplicated ids
+		clone.find('input,textarea,select').each(function (i, input) {
+			if (!$(input).attr('id')) return
+
+			const id = $(input).attr('id')
+			$(input).attr('id', id + '_' + idUnifier)
+			clone.find(`label[for="${id}"]`).attr('for', id + '_' + idUnifier)
+		})
+
+		// handle radio button names
+		clone.find('input[type="radio"]').each(function(i, radio) {
+			radio.name += '___' + idUnifier
+		})
+
+		return clone
 	}
 
 	_.handleIntegrations = (element) => {
@@ -232,7 +248,7 @@ const WsInstance = function (selector, options) {
 	 */
 	_.save = () => {
 		let saveString = ''
-
+		
 		// loop through all instances in the list
 		_.list.find('.WSmultipleTemplateInstance').each(function (i, instance) {
 			let valuesObj = {}
@@ -250,6 +266,7 @@ const WsInstance = function (selector, options) {
 				// remove brackets at the end
 				name = removeBracketsAtEnd(name)
 
+
 				// switch through all different types
 				switch (input.type) {
 					case 'checkbox':
@@ -261,6 +278,8 @@ const WsInstance = function (selector, options) {
 						break
 					case 'radio':
 						if (input.checked) {
+							// remove added unique name attribute
+							name = name.substring(0, name.indexOf('___'))
 							valuesObj[name] = input.value
 						}
 						break

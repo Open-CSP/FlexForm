@@ -182,20 +182,22 @@ function startInstance () {
 	}
 
 	// form event
-	$(temp_selector).closest('form').on('submit', saveAllInstancesInForm)
+	// $(temp_selector).closest('form').on('submit', saveAllInstancesInForm)
 
 	// submit input event
 	$(temp_selector).closest('form').find('input[type="submit"]').on('click', saveAllInstancesInForm)
 
-	var submit_btn = $(temp_selector).closest('form').find('input[type="button"][onclick^="wsform"]')
-	if (submit_btn.length === 0) return
+	if ($(temp_selector).closest('form').find('input[type="submit"]').length === 0) {
+		var submit_btn = $(temp_selector).closest('form').find('input[type="button"][onclick^="wsform"]')
+		if (submit_btn.length === 0) return
 
-	var onclick_func = submit_btn[0].onclick
+		var onclick_func = submit_btn[0].onclick
 
-	$(submit_btn).removeAttr('onclick')
-	$(submit_btn).off('click')
-	$(submit_btn).on('click', saveAllInstancesInForm)
-	$(submit_btn).on('click', onclick_func)
+		$(submit_btn).removeAttr('onclick')
+		$(submit_btn).off('click')
+		$(submit_btn).on('click', saveAllInstancesInForm)
+		$(submit_btn).on('click', onclick_func)
+	}
 
 }
 

@@ -486,6 +486,7 @@ class TagHooks {
 				$input,
 				$frame
 			);
+		} else {
 			unset( $args['noparse'] );
 		}
 
@@ -933,6 +934,10 @@ class TagHooks {
 				$htmlType = Validate::validHTML( $args );
 
 				if ( $input !== '' ) {
+					$input = $parser->recursiveTagParseFully(
+						$input,
+						$frame
+					);
 					// We want to purify the input based on the form's HTML type
 					$input = Protect::purify(
 						$input,
