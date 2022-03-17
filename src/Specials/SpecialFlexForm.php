@@ -504,7 +504,7 @@ class SpecialFlexForm extends \SpecialPage {
 		$out         = $this->getOutput();
 		$out->addHTML(
 			'<img style="width:150px; margin:5px 15px;" src="' .
-			$wgServer . "/extensions/FlexForm/FlexForm-logo.png" . '" />'
+			$wgServer . "/extensions/FlexForm/FlexForm-logo.png" . '" /><br>v' . $currentVersion
 		);
 
 		if ( ! $wgUser->isLoggedIn() ) {
