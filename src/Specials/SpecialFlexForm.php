@@ -49,20 +49,20 @@ class SpecialFlexForm extends \SpecialPage {
 
 	public function makeMessage( $msg, $type = "danger" ) {
 		$wR = new \WebResponse();
-		$wR->setCookie(
-			"wsform[type]",
-			$type,
-			0,
-			[ 'path' => '/' ,
-			  'prefix' => '' ]
-		);
-		$wR->setCookie(
-			"wsform[txt]",
-			$msg,
-			0,
-			[ 'path' => '/' ,
-			  'prefix' => '' ]
-		);
+		$wR->setCookie( "wsform[type]",
+						$type,
+						0,
+						[
+							'path'   => '/',
+							'prefix' => ''
+						] );
+		$wR->setCookie( "wsform[txt]",
+						$msg,
+						0,
+						[
+							'path'   => '/',
+							'prefix' => ''
+						] );
 	}
 
 	public function MakeTitle() {
@@ -503,8 +503,7 @@ class SpecialFlexForm extends \SpecialPage {
 		$eurl        = $realUrl . "/index.php/Special:FlexForm/Docs/examples";
 		$out         = $this->getOutput();
 		$out->addHTML(
-			'<img style="width:150px; margin:5px 15px;" src="' .
-			$wgServer . "/extensions/FlexForm/FlexForm-logo.png" . '" /><br>v' . $currentVersion
+			'<img style="width:150px; margin:5px 15px;" src="' . $wgServer . "/extensions/FlexForm/FlexForm-logo.png" . '" /><br>v' . $currentVersion
 		);
 
 		if ( ! $wgUser->isLoggedIn() ) {
@@ -522,7 +521,7 @@ class SpecialFlexForm extends \SpecialPage {
 				return true;
 			}
 		} else {
-		if ( $sourceVersion !== $currentVersion ) {
+			if ( $sourceVersion !== $currentVersion ) {
 				$changeLogText   = wfMessage( "flexform-docs-new-version-notice" )->text();
 				$tableHead       = wfMessage( "flexform-docs-new-version-table" )->text();
 				$changelogDetail = $this->getChangeLog(
@@ -558,118 +557,11 @@ class SpecialFlexForm extends \SpecialPage {
 					$changeLogTemplate
 				)
 			);
-			return;
+
+			return true;
 		}
 
-		if ( isset( $_POST['wstemplate'] ) && $_POST['wstemplate'] !== "" ) {
-			$template = $_POST['wstemplate'];
-		} else {
-			$template = false;
-		}
-
-		if ( isset( $_POST['wswrite'] ) && $_POST['wswrite'] !== "" ) {
-			$writepage = $_POST['wswrite'];
-		} else {
-			$writepage = false;
-		}
-
-		if ( isset( $_POST['wsaction'] ) && $_POST['wsaction'] !== "" ) {
-			$action = $_POST['wsaction'];
-		} else {
-			$action = false;
-		}
-
-		if ( $template ) {
-			$ret = "{{" . $_POST['wstemplate'] . "<BR>";
-			$out->setPageTitle( "We got posts" );
-			$out->addHTML( "<h2>Example of sourcecode written</h2>" );
-			foreach ( $_POST as $k => $v ) {
-				if ( is_array( $v ) ) {
-					$ret .= "|" . $k . "=";
-					foreach ( $v as $multiple ) {
-						$ret .= $multiple . ',';
-					}
-					$ret = rtrim(
-							   $ret,
-							   ','
-						   ) . "<BR>";
-				} else {
-					if ( $k !== "wstemplate" && $k !== "wsaction" && $k !== "wswrite" && $k !== "wsreturn" ) {
-						$ret .= '|' . $k . '=' . $v . '<BR>';
-					}
-				}
-			}
-			$ret .= "}}";
-			if ( $action == 'add_random' && $writepage ) {
-				$title = $writepage . $this->MakeTitle();
-				$out->addHTML( 'The new file to be written will be : ' . $title . "<BR>" );
-			}
-			$out->addHTML( $ret );
-		} else {
-			$out->redirect( $realUrl . '/index.php/Special:FlexForm/Docs' );
-
-			return;
-			//echo $IP . '/extensions/FlexForm/classes/validate.php';
-			error_reporting( -1 );
-			ini_set(
-				'display_errors',
-				1
-			);
-			//include_once( $IP . '/extensions/FlexForm/classes/loader.php' );
-
-			$table           = "<table class=\"table table-striped\"><tr><td class=\"center\" colspan=\"6\">Valid input types</td></tr>";
-			$table           .= "<tr><td>Formparameters</td><td>Parameters</td><td>Input types</td><td>Form Hooks</td><td>File input</td><td>Email</td></tr>";
-			$formParameters  = validate::validFormParameters(
-				"",
-				true
-			);
-			$emailParameters = wsform\validate\validate::validEmailParameters(
-				"",
-				true
-			);
-			$parameters      = validate::validParameters(
-				"",
-				true
-			);
-			$inputTypes      = validate::validInputTypes(
-				"",
-				true
-			);
-			$fInputTypes     = validate::validFileParameters(
-				"",
-				true
-			);
-			$formhooks       = FlexFormHooks::availableHooks();
-			$table           .= "<tr><td><table>";
-			foreach ( $formParameters as $params ) {
-				$table .= "<tr><td>$params</td></tr>";
-			}
-			$table .= "</table></td><td><table>";
-			foreach ( $parameters as $params ) {
-				$table .= "<tr><td>$params</td></tr>";
-			}
-			$table .= "</table></td><td><table>";
-			foreach ( $inputTypes as $params ) {
-				$table .= "<tr><td>$params</td></tr>";
-			}
-			$table .= "</table></td><td><table>";
-			foreach ( $formhooks as $params ) {
-				$table .= "<tr><td>$params</td></tr>";
-			}
-			$table .= "</table></td><td><table>";
-			foreach ( $fInputTypes as $params ) {
-				$table .= "<tr><td>$params</td></tr>";
-			}
-			$table .= "</table></td><td><table>";
-			foreach ( $emailParameters as $params ) {
-				$table .= "<tr><td>$params</td></tr>";
-			}
-			$table .= "</table></td></tr></table>";
-			//$out->addHTML("<p>Move along.. nothing to see here..</p>");
-			$out->addHTML( $table );
-		}
-
-		return;
+		return true;
 	}
 
 	public function getArgumentsFromSpecialPage( $sub ) {

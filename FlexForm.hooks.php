@@ -82,8 +82,8 @@ class FlexFormHooks {
 		);
 		$extensionsRow->addItem(
 			ALItem::newFromExternalLink(
-				$realUrl . '/index.php/Special:FlexForm/Docs',
-				'FlexForm documentation'
+				$realUrl . '/index.php/Special:FlexForm',
+				'FlexForm'
 			)
 		);
 
