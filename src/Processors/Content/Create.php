@@ -148,6 +148,7 @@ class Create {
 	 * @return void
 	 */
 	private function setPageDataMultiple( string $page ) {
+		$this->pageData = [];
 		$exploded = explode(
 			'-^^-',
 			$page
@@ -215,6 +216,7 @@ class Create {
 		}
 		foreach ( $fields['writepages'] as $singlePage ) {
 			$pageCount++;
+			$this->content = '';
 			$this->setPageDataMultiple( $singlePage );
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
