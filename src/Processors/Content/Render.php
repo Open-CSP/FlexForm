@@ -29,6 +29,13 @@ class Render {
 	 * @return array
 	 */
 	public function getSlotContent( $id, string $slotName = 'main' ) : array {
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'Getting Content for ' . time(),
+				[ 'id' => $id,
+					'slotname' => $slotName ]
+			);
+		}
 		$ret = [];
 		if ( is_int( $id ) ) {
 			$page           = WikiPage::newFromId( $id );

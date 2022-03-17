@@ -177,7 +177,7 @@ if ( General::getPostString( 'mwaction' ) !== false ) {
 				} else {
 					$responseHandler = ContentCore::saveToWiki( $responseHandler );
 				}
-			} catch ( FlexFormException | MWException $e ) {
+			} catch ( FlexFormException | MWException | Exception $e ) {
 				$responseHandler->setReturnData( $e->getMessage() );
 				$responseHandler->setReturnStatus( 'saveToWiki error' );
 				$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );

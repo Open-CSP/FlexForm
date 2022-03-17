@@ -376,7 +376,7 @@ class Edit {
 			//setup slots if needed
 			$wehaveslots = false;
 			foreach ( $edits as $edit ) {
-				if ( $edit['slot'] !== false ) {
+				if ( $edit['slot'] !== false && !isset( $pageContents[$edit['slot']]['content'] ) ) {
 					$wehaveslots = true;
 					//$pageTitle = $edit['slot'];
 					$content = $render->getSlotContent(
@@ -398,15 +398,14 @@ class Edit {
 					}
 
 					$pageContents[$edit['slot']]['title'] = $content['title'];
-				}
-			}
-			if ( ! $wehaveslots ) {
-				$pageContents['main'] = $render->getSlotContent( $pid );
-				if ( Config::isDebug() ) {
-					Debug::addToDebug(
-						'Content for ' . $pid,
-						$pageContents
-					);
+				} elseif ( !isset( $pageContents['main'] ) ) {
+					$pageContents['main'] = $render->getSlotContent( $pid );
+					if ( Config::isDebug() ) {
+						Debug::addToDebug(
+							'Content for ' . $pid,
+							$pageContents
+						);
+					}
 				}
 			}
 
