@@ -338,7 +338,7 @@ class Create {
 		if( Config::isDebug() ) {
 			Debug::addToDebug( 'Pages to save before addCreatToTile ' . time(), $pagesToSave );
 		}
-		$pagesToSave = $this->addCreateToTitle( $pagesToSave );
+		$pagesToSave = $this->addCreateToTitle( $pagesToSave, $pageTitleToLinkTo );
 		if( Config::isDebug() ) {
 			Debug::addToDebug( 'Pages to save after addCreatToTile ' . time(), $pagesToSave );
 		}
@@ -377,10 +377,11 @@ class Create {
 
 	/**
 	 * @param array $pagesToSave
+	 * @param array $pageTitleToLinkTo
 	 *
 	 * @return array
 	 */
-	private function addCreateToTitle( array $pagesToSave ) : array {
+	private function addCreateToTitle( array $pagesToSave, array &$pageTitleToLinkTo ) : array {
 		foreach ( $pagesToSave as $k => $pageToSave ) {
 			// var_dump(substr( trim( $pageToSave[0] ), 0, 6 ) );
 			if ( substr(

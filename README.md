@@ -54,7 +54,7 @@ Visit : Special:FlexForm/Docs
 
 
 ### Changelog
-* 1.0.0 Release
+* 1.0.0 Release Candidate 1 : id fixes on create
 * 1.0.0 Beta 10: instances and security changes
 * 1.0.0 Beta 8: resource loading changed in regards to working with slots.
 * 1.0.0 Beta 3: More clean-up render Select fixed and show-on-select fix.
