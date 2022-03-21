@@ -211,6 +211,7 @@ class Create {
 	public function writePages() : array {
 		$pageCount = 0;
 		$fields    = ContentCore::getFields();
+		$pageTitleToLinkTo = [];
 		if( Config::isDebug() ) {
 			Debug::addToDebug( 'Write several page activated ' . time(), $fields );
 		}
