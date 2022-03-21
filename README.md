@@ -54,6 +54,7 @@ Visit : Special:FlexForm/Docs
 
 
 ### Changelog
+* 1.0.0 Release Candidate 2 : smwquery result fix
 * 1.0.0 Release Candidate 1 : id fixes on create
 * 1.0.0 Beta 10: instances and security changes
 * 1.0.0 Beta 8: resource loading changed in regards to working with slots.

@@ -93,8 +93,6 @@ class SemanticAsk {
 			$mRequest = new \FlexForm\Processors\Content\Render();
 			$data     = $mRequest->makeRequest( $postdata );
 
-			//var_dump( $postdata, $returnText, $returnId);
-			//print_r($data);
 			if ( isset( $data['query']['results'] ) && ! empty( $data['query']['results'] ) ) {
 				$data = $data['query']['results'];
 
@@ -102,8 +100,8 @@ class SemanticAsk {
 				foreach ( $data as $k => $val ) {
 					if ( $returnText === false ) {
 						$ret['results'][$t]['text'] = htmlentities( $val['displaytitle'] );
-					} elseif ( isset( $val['printouts'][$returnText][0]['fulltext'] ) ) {
-						$ret['results'][$t]['text'] = htmlentities( $val['printouts'][$returnText][0]['fulltext'] );
+					} elseif ( isset( $val['printouts'][$returnText][0] ) ) {
+						$ret['results'][$t]['text'] = htmlentities( $val['printouts'][$returnText][0] );
 					} else {
 						$ret['results'][$t]['text'] = 'Not found';
 					}
