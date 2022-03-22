@@ -139,17 +139,22 @@ class Upload {
 
 			$targetFile = General::makeUnderscoreFromSpace( $filename );
 
+			$fileNameExtension = $filesCore->getFileExtension( $filename );
+			$originalFileNameExtension = $fileNameExtension;
+			$fileNameBase = $filesCore->remove_extension_from_image( $targetFile );
+
 			if ( Config::isDebug() ) {
 				Debug::addToDebug( 'File #' . $i . ' passed error checks',
 								   [
 									   'targetFile'             => $targetFile,
 									   'upload dir'             => $upload_dir,
 									   'convert'                => $convert,
-									   'current file extension' => $filesCore->getFileExtension( $filename )
+									   'current file extension' => $fileNameExtension,
+									   'current file basename'  => $fileNameBase
 								   ] );
 			}
 			$filesSupported = Definitions::getImageHandler();
-			$fileType = exif_imagetype( $filename );
+			$fileType = exif_imagetype( $tmpName );
 			if ( $convert !== false &&
 				 $filesCore->getFileExtension( $filename ) !== $convert &&
 				 isset( $filesSupported[$fileType] ) ) {
@@ -177,6 +182,7 @@ class Upload {
 						0
 					);
 				}
+				$fileNameExtension = $filesCore->getFileExtension( $newFile );
 			} else {
 				if ( move_uploaded_file(
 					$tmpName,
@@ -190,28 +196,39 @@ class Upload {
 					);
 				}
 			}
+			// find [filename] and replace
+			$storedFile = $newFile;
+			$newFile = $filesCore->remove_extension_from_image( $newFile );
 			$name    = $filesCore->parseTarget(
 				trim( $fields['target'] ),
-				$newFile
+				$targetFile
 			);
+
 			$details = trim( $fields['pagecontent'] );
 			if ( $fields['parsecontent'] !== false ) {
 				$details = ContentCore::parseTitle( $details );
 			}
+
+			// find any other form fields and put them into the title
 			$name = ContentCore::parseTitle( $name );
+
+
+			$name = $this->finalNameCleanUp( $name, [ $fileNameExtension, $originalFileNameExtension ] );
+			$name .= "." . $fileNameExtension;
 
 			if ( Config::isDebug() ) {
 				Debug::addToDebug( 'Preparing to upload file',
 								   [
 									   'original file name' => $filename,
 									   'new file name'      => $name,
+									   'stored file'        => $storedFile,
 									   'details'            => $details,
 									   'comment'            => $fields['comment']
 								   ] );
 			}
 
 			$resultFileUpload = $this->uploadFileToWiki(
-				$upload_dir . $newFile,
+				$upload_dir . $storedFile,
 				$name,
 				$wgUser,
 				$details,
@@ -225,12 +242,33 @@ class Upload {
 					0
 				);
 			}
-			unlink( $upload_dir . $newFile );
+			unlink( $upload_dir . $storedFile );
 		}
 
 		return true;
 	}
 
+	/**
+	 * @param string $name
+	 * @param array $extensions
+	 *
+	 * @return string
+	 */
+	private function finalNameCleanUp( string $name, array $extensions ): string {
+		if ( Config::isDebug() ) {
+			Debug::addToDebug( 'finalNameCleanup',
+				[
+					'name' => $name,
+					'extensions to remove'      => $extensions
+				] );
+		}
+		foreach( $extensions as $extension ) {
+			if( strpos( $name, '.' . $extension ) !== false ) {
+				$name = str_replace( '.' . $extension, '', $name );
+			}
+		}
+		return $name;
+	}
 
 	/**
 	 * @param string $filePath
