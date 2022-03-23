@@ -1593,7 +1593,7 @@ class TagHooks {
 	 */
 	private function checkValidInput( string $input ) : bool {
 		if ( ! preg_match(
-			'/^[A-Za-z]+[\w\-\:\.]*$/',
+			'/[\w\-\:\.]+$/',
 			$input
 		) ) {
 			return false;
