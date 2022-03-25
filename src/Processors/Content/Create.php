@@ -201,6 +201,12 @@ class Create {
 		} else {
 			$this->pageData['id'] = false;
 		}
+
+		if ( isset( $exploded[6] ) && $exploded[6] === 'true' ) {
+			$this->pageData['leadByZero'] = true;
+		} else {
+			$this->pageData['leadByZero'] = false;
+		}
 	}
 
 	/**
@@ -299,15 +305,25 @@ class Create {
 					// return wbHandleResponses::createMsg( $tmp['message'], 'error', $returnto);
 				}
 				$rangeResult = $rangeResult['result'];
+				if( $rangeResult === '' ) $rangeResult = "0";
 
-				if ( $fields['leadByZero'] === true ) {
-					$endrangeLength = strlen( $range[1] );
+				if ( $this->pageData['leadByZero'] === true ) {
+					$endrangeLength = strlen( $rangeCheck[1] );
 					$rangeResult    = str_pad(
 						$rangeResult,
 						$endrangeLength,
 						'0',
 						STR_PAD_LEFT
 					);
+					if ( Config::isDebug() ) {
+						Debug::addToDebug(
+							'lead by zero active ' . time(),
+							[ 	'rangeCheck' => $rangeCheck,
+								'endrangeLenth' => $endrangeLength,
+								'rangeResult' => $rangeResult ]
+						);
+					}
+
 				}
 				$this->pageData['title'] = $this->pageData['title'] . $rangeResult;
 			}

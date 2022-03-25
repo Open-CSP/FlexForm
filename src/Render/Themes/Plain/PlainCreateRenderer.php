@@ -25,6 +25,12 @@ class PlainCreateRenderer implements CreateRenderer {
 		$slot     = $slot !== null ? htmlspecialchars( $slot ) : '';
 		$option   = $option !== null ? htmlspecialchars( $option ) : '';
 		$fields   = $fields !== null ? htmlspecialchars( $fields ) : '';
+		if( $leadingZero ) {
+			$leadingZero  = "true";
+		} else {
+			$leadingZero = "false";
+		}
+
 
 		if ( $follow !== null ) {
 			$follow = $follow === '' || $follow === '1' ? 'true' : htmlspecialchars( $follow );
@@ -38,7 +44,8 @@ class PlainCreateRenderer implements CreateRenderer {
 
 		if ( $fields !== '' ) {
 			// TODO: Support mwleadingzero with mwcreatemultiple
-			$createValue = $template . '-^^-' . $write . '-^^-' . $option . '-^^-' . $fields . '-^^-' . $slot . '-^^-' . $createId;
+			$createValue = $template . '-^^-' . $write . '-^^-' . $option . '-^^-' . $fields . '-^^-' . $slot;
+			$createValue .= '-^^-' . $createId . '-^^-' . $leadingZero;
 
 			return Core::createHiddenField(
 					'mwcreatemultiple[]',
