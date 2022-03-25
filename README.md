@@ -54,6 +54,7 @@ Visit : Special:FlexForm/Docs
 
 
 ### Changelog
+* 1.0.0 Release Candidate 5 : leadingZero With Multiple Creates
 * 1.0.0 Release Candidate 4 : id regex validation changed to allow just HTML5
 * 1.0.0 Release Candidate 3 : File upload naming convention changed
 * 1.0.0 Release Candidate 2 : smwquery result fix
