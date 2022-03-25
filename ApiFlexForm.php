@@ -265,11 +265,15 @@ class ApiFlexForm extends ApiBase {
 												   'start' => $startRange,
 												   'end'   => $endRange
 											   ) );
-				if ( $result['status'] === "error" ) {
+				if ( isset( $result['status'] ) && $result['status'] === "error" ) {
 					$this->returnFailure( $result['data'] );
 					break;
 				}
-				$output = $result['data'];
+				if ( isset( $result['data'] ) ) {
+					$output = $result['data'];
+				} else {
+					$output = '';
+				}
 				break;
 			default :
 				$this->returnFailure( wfMessage( 'flexform-api-error-unknown-what-parameter' )->text() );
@@ -406,7 +410,7 @@ class ApiFlexForm extends ApiBase {
 		foreach ( $lst as $nameSpace ) {
 			if ( isset( $nameSpace['canonical'] ) ) {
 				$can   = strtolower( $nameSpace['canonical'] );
-				$alias = strtolower( $nameSpace['*'] );
+				$alias = strtolower( $nameSpace['name'] );
 				if ( $can === $ns || $alias === $ns ) {
 					$id = $nameSpace['id'];
 					break;
