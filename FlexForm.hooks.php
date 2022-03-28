@@ -98,13 +98,13 @@ class FlexFormHooks {
 	 */
 	public static function onBeforePageOutput( OutputPage $out, Skin $skin ) {
 		$out->addModules( [
-							  'ext.FlexForm.showOnSelect.script',
-							  'ext.wsForm.ajax.scripts'
-						  ] );
+			'ext.FlexForm.showOnSelect.script',
+			'ext.wsForm.ajax.scripts'
+		] );
 		$out->addModuleStyles( [
-								   'ext.FlexForm.Instance.styles',
-								   'ext.wsForm.general.styles'
-							   ] );
+			'ext.FlexForm.Instance.styles',
+			'ext.wsForm.general.styles'
+		] );
 	}
 
 	/**
@@ -216,114 +216,119 @@ class FlexFormHooks {
 		$tagHooks = new TagHooks( MediaWikiServices::getInstance()->getService( 'FlexForm.ThemeStore' ) );
 
 		$parser->setHook( 'wsform',
-						  [
-							  $tagHooks,
-							  'renderForm'
-						  ] );
+			[
+				$tagHooks,
+				'renderForm'
+			] );
 		$parser->setHook( 'wsfield',
-						  [
-							  $tagHooks,
-							  'renderField'
-						  ] );
+			[
+				$tagHooks,
+				'renderField'
+			] );
 		$parser->setHook( 'wsfieldset',
-						  [
-							  $tagHooks,
-							  'renderFieldset'
-						  ] );
+			[
+				$tagHooks,
+				'renderFieldset'
+			] );
 		$parser->setHook( 'wslegend',
-						  [
-							  $tagHooks,
-							  'renderLegend'
-						  ] );
+			[
+				$tagHooks,
+				'renderLegend'
+			] );
 		$parser->setHook( 'wslabel',
-						  [
-							  $tagHooks,
-							  'renderLabel'
-						  ] );
+			[
+				$tagHooks,
+				'renderLabel'
+			] );
 		$parser->setHook( 'wsselect',
-						  [
-							  $tagHooks,
-							  'renderSelect'
-						  ] );
+			[
+				$tagHooks,
+				'renderSelect'
+			] );
 		$parser->setHook( 'wstoken',
-						  [
-							  $tagHooks,
-							  'renderToken'
-						  ] );
+			[
+				$tagHooks,
+				'renderToken'
+			] );
 		$parser->setHook( 'wsedit',
-						  [
-							  $tagHooks,
-							  'renderEdit'
-						  ] );
+			[
+				$tagHooks,
+				'renderEdit'
+			] );
 		$parser->setHook( 'wscreate',
-						  [
-							  $tagHooks,
-							  'renderCreate'
-						  ] );
+			[
+				$tagHooks,
+				'renderCreate'
+			] );
 		$parser->setHook( 'wsemail',
-						  [
-							  $tagHooks,
-							  'renderEmail'
-						  ] );
+			[
+				$tagHooks,
+				'renderEmail'
+			] );
 		$parser->setHook( 'wsinstance',
-						  [
-							  $tagHooks,
-							  'renderInstance'
-						  ] );
+			[
+				$tagHooks,
+				'renderInstance'
+			] );
 		$parser->setHook( '_form',
-						  [
-							  $tagHooks,
-							  'renderForm'
-						  ] );
+			[
+				$tagHooks,
+				'renderForm'
+			] );
 		$parser->setHook( '_input',
-						  [
-							  $tagHooks,
-							  'renderField'
-						  ] );
+			[
+				$tagHooks,
+				'renderField'
+			] );
 		$parser->setHook( '_fieldset',
-						  [
-							  $tagHooks,
-							  'renderFieldset'
-						  ] );
+			[
+				$tagHooks,
+				'renderFieldset'
+			] );
 		$parser->setHook( '_legend',
-						  [
-							  $tagHooks,
-							  'renderLegend'
-						  ] );
+			[
+				$tagHooks,
+				'renderLegend'
+			] );
 		$parser->setHook( '_label',
-						  [
-							  $tagHooks,
-							  'renderLabel'
-						  ] );
+			[
+				$tagHooks,
+				'renderLabel'
+			] );
 		$parser->setHook( '_select',
-						  [
-							  $tagHooks,
-							  'renderSelect'
-						  ] );
+			[
+				$tagHooks,
+				'renderSelect'
+			] );
 		$parser->setHook( '_token',
-						  [
-							  $tagHooks,
-							  'renderToken'
-						  ] );
+			[
+				$tagHooks,
+				'renderToken'
+			] );
 		$parser->setHook( '_edit',
-						  [
-							  $tagHooks,
-							  'renderEdit'
-						  ] );
+			[
+				$tagHooks,
+				'renderEdit'
+			] );
 		$parser->setHook( '_create',
-						  [
-							  $tagHooks,
-							  'renderCreate'
-						  ] );
+			[
+				$tagHooks,
+				'renderCreate'
+			] );
+		$parser->setHook( '_createuser',
+			[
+				$tagHooks,
+				'renderCreateUser'
+			] );
 		$parser->setHook( '_email',
-						  [
-							  $tagHooks,
-							  'renderEmail'
-						  ] );
+			[
+				$tagHooks,
+				'renderEmail'
+			] );
 		$parser->setHook( '_instance',
-						  [
-							  $tagHooks,
-							  'renderInstance'
-						  ] );
+			[
+				$tagHooks,
+				'renderInstance'
+			] );
 	}
 }

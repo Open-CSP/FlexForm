@@ -3,6 +3,7 @@
 namespace FlexForm\Render;
 
 use FlexForm\Processors\Files\FilesCore;
+use MediaWiki\MediaWikiServices;
 use Parser;
 use PPFrame;
 use RequestContext;
@@ -11,6 +12,7 @@ use FlexForm\Core\Core;
 use FlexForm\Core\Protect;
 use FlexForm\Core\Validate;
 use FlexForm\FlexFormException;
+use User;
 
 /**
  * Class TagHooks
@@ -1754,6 +1756,55 @@ class TagHooks {
 			$option,
 			$fields,
 			$leadingZero
+		);
+
+		return [
+			$output,
+			'noparse'    => true,
+			'markerType' => 'nowiki'
+		];
+	}
+
+	/**
+	 * @brief Function to render the Page Create options.
+	 *
+	 * This function will call its subfunction render_create()
+	 *
+	 * @param string $input Parser Between beginning and end
+	 * @param array $args Arguments for the field
+	 * @param Parser $parser MediaWiki Parser
+	 * @param PPFrame $frame MediaWiki PPFrame
+	 *
+	 * @return array send to the MediaWiki Parser
+	 * @throws FlexFormException
+	 */
+	public function renderCreateUser( $input, array $args, Parser $parser, PPFrame $frame ) {
+		$username = isset( $args['username'] ) ? $parser->recursiveTagParse(
+			$args['username'],
+			$frame
+		) : null;
+		$emailAddress = isset( $args['email'] ) ? $parser->recursiveTagParse(
+			$args['email'],
+			$frame
+		) : null;
+
+		if ( $username === null || $emailAddress === null ) {
+			return [
+				'No username or email address',
+				'noparse' => true
+			];
+		}
+
+		if ( ! MediaWikiServices::getInstance()->getUserNameUtils()->isValid( $username ) ) {
+			return [
+				'Not a valid username according to MediaWiki',
+				'noparse' => true
+			];
+		}
+
+		$output = $this->themeStore->getFormTheme()->getCreateUserRenderer()->render_createUser(
+			$username,
+			$emailAddress
 		);
 
 		return [
