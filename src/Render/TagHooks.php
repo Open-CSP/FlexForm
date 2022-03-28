@@ -1787,6 +1787,11 @@ class TagHooks {
 			$args['email'],
 			$frame
 		) : null;
+		$formFields = isset( $args['formFields'] ) ? $parser->recursiveTagParse(
+			$args['email'],
+			$frame
+		) : null;
+		//formFields
 
 		if ( $username === null || $emailAddress === null ) {
 			return [

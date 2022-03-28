@@ -105,6 +105,11 @@ class ContentCore {
 			);
 		}
 
+		// mwcreateuser
+		if ( self::$fields['createuser'] !== false && self::$fields['createuser'] !== '' ) {
+			$createUser = new CreateUser( self::$fields );
+		}
+
 		// WSCreate single
 		if ( self::$fields['template'] !== false && self::$fields['writepage'] !== false ) {
 			if ( Config::isDebug() ) {
