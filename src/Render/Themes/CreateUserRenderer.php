@@ -9,12 +9,11 @@ namespace FlexForm\Render\Themes;
  */
 interface CreateUserRenderer {
 	/**
-	 * @brief render user create
-	 *
 	 * @param string $userName
 	 * @param string $email
+	 * @param string|null $realName
 	 *
 	 * @return string
 	 */
-	public function render_createUser( string $userName, string $email ): string;
+	public function render_createUser( string $userName, string $email, ?string $realName ): string;
 }

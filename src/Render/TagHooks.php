@@ -1787,8 +1787,8 @@ class TagHooks {
 			$args['email'],
 			$frame
 		) : null;
-		$formFields = isset( $args['formFields'] ) ? $parser->recursiveTagParse(
-			$args['email'],
+		$realName = isset( $args['realname'] ) ? $parser->recursiveTagParse(
+			$args['realname'],
 			$frame
 		) : null;
 		//formFields
@@ -1809,7 +1809,8 @@ class TagHooks {
 
 		$output = $this->themeStore->getFormTheme()->getCreateUserRenderer()->render_createUser(
 			$username,
-			$emailAddress
+			$emailAddress,
+			$realName
 		);
 
 		return [

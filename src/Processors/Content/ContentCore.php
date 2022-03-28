@@ -12,6 +12,7 @@ use FlexForm\Processors\Definitions;
 use FlexForm\Processors\Utilities\General;
 use FlexForm\Processors\Files\FilesCore;
 use FlexForm\FlexFormException;
+use User;
 
 /**
  * Class Content core
@@ -107,7 +108,9 @@ class ContentCore {
 
 		// mwcreateuser
 		if ( self::$fields['createuser'] !== false && self::$fields['createuser'] !== '' ) {
-			$createUser = new CreateUser( self::$fields );
+			$createUser = new CreateUser();
+			$user = $createUser->addUser();
+			$createUser->sendPassWordAndConfirmationLink( $user );
 		}
 
 		// WSCreate single

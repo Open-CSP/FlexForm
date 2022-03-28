@@ -44,8 +44,9 @@ class PlainCreateRenderer implements CreateRenderer {
 
 		if ( $fields !== '' ) {
 			// TODO: Support mwleadingzero with mwcreatemultiple
-			$createValue = $template . '-^^-' . $write . '-^^-' . $option . '-^^-' . $fields . '-^^-' . $slot;
-			$createValue .= '-^^-' . $createId . '-^^-' . $leadingZero;
+			$createValue = $template . Core::DIVIDER . $write . Core::DIVIDER;
+			$createValue .= $option . Core::DIVIDER . $fields . Core::DIVIDER . $slot;
+			$createValue .= Core::DIVIDER . $createId . Core::DIVIDER . $leadingZero;
 
 			return Core::createHiddenField(
 					'mwcreatemultiple[]',

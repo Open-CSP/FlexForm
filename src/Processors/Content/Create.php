@@ -11,6 +11,7 @@
 namespace FlexForm\Processors\Content;
 
 use FlexForm\Core\Config;
+use FlexForm\Core\Core;
 use FlexForm\Core\Debug;
 use FlexForm\Processors\Definitions;
 use FlexForm\Processors\Security\wsSecurity;
@@ -150,7 +151,7 @@ class Create {
 	private function setPageDataMultiple( string $page ) {
 		$this->pageData = [];
 		$exploded = explode(
-			'-^^-',
+			Core::DIVIDER,
 			$page
 		);
 		if ( isset( $exploded[0] ) && $exploded[0] !== '' ) {

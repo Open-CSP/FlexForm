@@ -11,6 +11,9 @@
 namespace FlexForm\Core;
 
 class Core {
+
+	public const DIVIDER = '-^^-';
+
 	static $showOnSelectSet = false;
 
 	/**
