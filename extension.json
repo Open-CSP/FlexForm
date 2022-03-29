@@ -53,6 +53,8 @@
       "secure": false,
       "auto_save_interval": 30000,
       "auto_save_after_change": 3000,
+      "auto_save_btn_on": "Autosave On",
+      "auto_save_btn_off": "Autosave Off",
       "use_smtp": false,
       "smtp_host": "",
       "smtp_authentication": true,

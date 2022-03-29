@@ -734,6 +734,29 @@ function attachTokens () {
 	})
 }
 
+function noReturnOnEnter () {
+	$(document).on('keyup keypress', 'form input[type="text"]', function (e) {
+		if (e.keyCode == 13) {
+			e.preventDefault()
+			return false
+		}
+	})
+
+	$(document).on('keyup keypress', 'form input[type="search"]', function (e) {
+		if (e.keyCode == 13) {
+			e.preventDefault()
+			return false
+		}
+	})
+
+	$(document).on('keyup keypress', 'form input[type="password"]', function (e) {
+		if (e.keyCode == 13) {
+			e.preventDefault()
+			return false
+		}
+	})
+}
+
 function wsInitTinyMCE () {
 	for (id in window.tinymce.editors) {
 		if (id.trim()) {

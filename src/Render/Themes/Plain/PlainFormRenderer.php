@@ -67,19 +67,19 @@ class PlainFormRenderer implements FormRenderer {
 
 			$javascript .= sprintf(
 				'var wsAutoSaveGlobalInterval = %s;',
-				htmlspecialchars( Core::$wsConfig['autosave-interval'] ?? '30000' )
+				htmlspecialchars( Config::getConfigVariable( 'auto_save_interval' ) ?? '30000' )
 			);
 			$javascript .= sprintf(
 				'var wsAutoSaveOnChangeInterval = %s;',
-				htmlspecialchars( Core::$wsConfig['autosave-after-change'] ?? '3000' )
+				htmlspecialchars( Config::getConfigVariable( 'auto_save_after_change' ) ?? '3000' )
 			);
 			$javascript .= sprintf(
 				'var wsAutoSaveButtonOn = \'%s\';',
-				htmlspecialchars( Core::$wsConfig['autosave-btn-on'] ?? 'Autosave on' )
+				htmlspecialchars( Config::getConfigVariable( 'auto_save_btn_on' ) ?? 'Autosave on' )
 			);
 			$javascript .= sprintf(
 				'var wsAutoSaveButtonOff = \'%s\';',
-				htmlspecialchars( Core::$wsConfig['autosave-btn-off'] ?? 'Autosave off' )
+				htmlspecialchars( Config::getConfigVariable( 'auto_save_btn_off' ) ?? 'Autosave off' )
 			);
 		}
 

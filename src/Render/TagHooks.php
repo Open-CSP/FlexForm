@@ -284,28 +284,9 @@ class TagHooks {
 		if ( isset( $args['no_submit_on_return'] ) ) {
 			unset( $args['no_submit_on_return'] );
 
-			if ( ! Core::isLoaded( 'keypress' ) ) {
+			if ( !Core::isLoaded( 'keypress' ) ) {
 				$noEnter = <<<SCRIPT
-                $(document).on('keyup keypress', 'form input[type="text"]', function(e) {
-                    if(e.keyCode == 13) {
-                      e.preventDefault();
-                      return false;
-                    }
-                });
-                
-                $(document).on('keyup keypress', 'form input[type="search"]', function(e) {
-                    if(e.keyCode == 13) {
-                      e.preventDefault();
-                      return false;
-                    }
-                });
-                
-                $(document).on('keyup keypress', 'form input[type="password"]', function(e) {
-                    if(e.keyCode == 13) {
-                      e.preventDefault();
-                      return false;
-                    }
-                });
+                wachtff( noReturnOnEnter ); 
                 SCRIPT;
 
 				Core::includeInlineScript( $noEnter );
@@ -324,7 +305,7 @@ class TagHooks {
 		}
 
 		// Block the request if the user is not logged in and anonymous users are not allowed
-		if ( $allowAnonymous === false && ! $wgUser->isRegistered() ) {
+		if ( $allowAnonymous === false && !$wgUser->isRegistered() ) {
 			return wfMessage( "flexform-anonymous-user" )->parse();
 		}
 
