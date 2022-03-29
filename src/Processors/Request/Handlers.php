@@ -16,6 +16,8 @@ class Handlers {
 
 	private const HANDLER_PATH = __DIR__ . '/Handlers/';
 
+	private $isPostHandler;
+
 	private $handlersList = [];
 
 	public function __construct() {
@@ -29,6 +31,10 @@ class Handlers {
 			$this->handlersList[$bName] = $fileHandle;
 		}
 		unset( $this->handlersList['Handlers'] );
+	}
+
+	public function setPostHandler( bool $postHandler ) {
+		$this->isPostHandler = $postHandler;
 	}
 
 	/**

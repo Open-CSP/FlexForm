@@ -92,7 +92,7 @@ try {
 	$responseHandler->setReturnData( $e->getMessage() );
 	$responseHandler->setReturnStatus( 'resolve posts error' );
 	$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
-};
+}
 
 $responseHandler->setIdentifier( General::getPostString( "mwidentifier" ) );
 $responseHandler->setMwReturn( urldecode( General::getPostString( "mwreturn" ) ) );
@@ -207,6 +207,11 @@ if ( General::getPostString( 'mwaction' ) !== false ) {
 		Debug::addToDebug( 'running main functions fail',
 						   array( 'action' => General::getPostString( 'mwaction' ) ) );
 	}
+}
+
+// Handle extensions
+if ( General::getPostString( 'mwextension' ) !== false ) {
+
 }
 
 if ( Config::isDebug() ) {

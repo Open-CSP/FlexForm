@@ -20,7 +20,6 @@ class Config {
 	private static $debug = false;
 	private static $secure = true;
 
-
 	/**
 	 * setConfig
 	 *
