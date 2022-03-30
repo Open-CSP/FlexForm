@@ -64,6 +64,11 @@ class External {
 					$external,
 					$responseHandler
 				);
+			} else {
+				throw new FlexFormException(
+					wfMessage( 'flexform-external-request-not-found' )->text(),
+					0
+				);
 			}
 		} else {
 			if ( $postHandler ) {

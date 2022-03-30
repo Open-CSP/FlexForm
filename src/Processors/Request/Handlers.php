@@ -10,6 +10,8 @@
 
 namespace FlexForm\Processors\Request;
 
+use FlexForm\Core\Config;
+use FlexForm\Core\Debug;
 use FlexForm\Core\HandleResponse;
 use FlexForm\Processors\Definitions;
 use FlexForm\Processors\Utilities\General;
@@ -17,7 +19,7 @@ use FlexForm\Processors\Utilities\General;
 class Handlers {
 
 	private const HANDLER_PATH = __DIR__ . '/Handlers/';
-	private const EXTENSION_PATH = __DIR__ . '../../Modules/Handlers/';
+	private const EXTENSION_PATH = __DIR__ . '/../../Modules/Handlers/';
 
 	/**
 	 * @var mixed
@@ -92,7 +94,13 @@ class Handlers {
 	 * @return bool
 	 */
 	public function postHandlerExists( string $name ): bool {
-		if ( file_exists( self::EXTENSION_PATH . $name . '/post-handler.php' ) ) {
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'Extension to check',
+				self::EXTENSION_PATH . $name . '/PostHandler.php'
+			);
+		}
+		if ( file_exists( self::EXTENSION_PATH . $name . '/PostHandler.php' ) ) {
 			return true;
 		} else {
 			return false;
@@ -112,8 +120,22 @@ class Handlers {
 			} else {
 				$class = 'FlexForm\\Processors\\Request\\Handlers\\' . $name;
 			}
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'Extension class to run ',
+					$class
+				);
+			}
+			//echo Debug::createDebugOutput();
+			//die();
 			$handler = new $class;
-			$handler->execute( $responseHandler );
+			if ( $this->isPostHandler === true ) {
+				$handler->execute( $this->setFFPostFields() );
+			} else {
+				$handler->execute( $responseHandler );
+			}
+		} else {
+
 		}
 	}
 

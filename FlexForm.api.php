@@ -211,6 +211,12 @@ if ( General::getPostString( 'mwaction' ) !== false ) {
 
 // Handle extensions
 if ( General::getPostString( 'mwextension' ) !== false ) {
+	if ( Config::isDebug() ) {
+		Debug::addToDebug(
+			'We have an extension to run',
+			General::getPostString( 'mwextension' )
+		);
+	}
 	try {
 		External::handlePost( $responseHandler );
 	} catch ( FlexFormException $e ) {

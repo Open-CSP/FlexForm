@@ -10,7 +10,9 @@ class PostHandler implements HandlerInterface {
 	 */
 	public function execute( array $flexFormFields ) {
 		// TODO: Implement execute() method.
+		echo "<h2>Logging</h2>";
 		print_r( $flexFormFields );
+		//die();
 	}
 
 }
