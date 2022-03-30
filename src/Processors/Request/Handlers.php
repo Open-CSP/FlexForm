@@ -11,15 +11,27 @@
 namespace FlexForm\Processors\Request;
 
 use FlexForm\Core\HandleResponse;
+use FlexForm\Processors\Definitions;
+use FlexForm\Processors\Utilities\General;
 
 class Handlers {
 
 	private const HANDLER_PATH = __DIR__ . '/Handlers/';
+	private const EXTENSION_PATH = __DIR__ . '../../Modules/Handlers/';
 
+	/**
+	 * @var mixed
+	 */
 	private $isPostHandler;
 
-	private $handlersList = [];
+	/**
+	 * @var array
+	 */
+	private array $handlersList = [];
 
+	/**
+	 * Constructor
+	 */
 	public function __construct() {
 		$fileList = glob( self::HANDLER_PATH . '*.php' );
 		foreach ( $fileList as $fileHandle ) {
@@ -33,6 +45,11 @@ class Handlers {
 		unset( $this->handlersList['Handlers'] );
 	}
 
+	/**
+	 * @param bool $postHandler
+	 *
+	 * @return void
+	 */
 	public function setPostHandler( bool $postHandler ) {
 		$this->isPostHandler = $postHandler;
 	}
@@ -43,10 +60,43 @@ class Handlers {
 	 * @return bool
 	 */
 	public function handlerExist( string $name ) : bool {
+		if ( $this->isPostHandler === true ) {
+			return self::postHandlerExists( $name );
+		}
 		return array_key_exists(
 			$name,
 			$this->handlersList
 		);
+	}
+
+	/**
+	 * Function to create submitted postfields to pass on to WSForm extensions
+	 *
+	 * @return mixed
+	 */
+	private function setFFPostFields() {
+		foreach ( $_POST as $k => $v ) {
+			if ( Definitions::isFlexFormSystemField( $k ) ) {
+				unset( $_POST[$k] );
+			}
+		}
+		$wsPostFields = $_POST;
+		unset( $_POST );
+
+		return $wsPostFields;
+	}
+
+	/**
+	 * @param string $name
+	 *
+	 * @return bool
+	 */
+	public function postHandlerExists( string $name ): bool {
+		if ( file_exists( self::EXTENSION_PATH . $name . '/post-handler.php' ) ) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -57,7 +107,11 @@ class Handlers {
 	 */
 	public function handlerExecute( string $name, HandleResponse $responseHandler ) {
 		if ( $this->handlerExist( $name ) ) {
-			$class = 'FlexForm\\Processors\\Request\\Handlers\\' . $name;
+			if ( $this->isPostHandler === true ) {
+				$class = 'FlexForm\\Modules\\Handlers\\' . $name . '\\' . 'PostHandler';
+			} else {
+				$class = 'FlexForm\\Processors\\Request\\Handlers\\' . $name;
+			}
 			$handler = new $class;
 			$handler->execute( $responseHandler );
 		}

@@ -211,7 +211,18 @@ if ( General::getPostString( 'mwaction' ) !== false ) {
 
 // Handle extensions
 if ( General::getPostString( 'mwextension' ) !== false ) {
-
+	try {
+		External::handlePost( $responseHandler );
+	} catch ( FlexFormException $e ) {
+		$responseHandler->setReturnData( $e->getMessage() );
+		$responseHandler->setReturnStatus( 'GET error' );
+		$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
+		try {
+			$responseHandler->exitResponse();
+		} catch ( FlexFormException $e ) {
+			die( $e->getMessage() );
+		}
+	}
 }
 
 if ( Config::isDebug() ) {

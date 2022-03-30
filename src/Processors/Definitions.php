@@ -151,7 +151,8 @@ class Definitions {
 			"mwwikicomment",
 			"mwleadingzero",
 			"showonselect",
-			"mwcreateuser"
+			"mwcreateuser",
+			"mwnooverwrite"
 		];
 		if ( in_array(
 			strtolower( $field ),

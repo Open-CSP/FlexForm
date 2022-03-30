@@ -47,12 +47,11 @@ class wsSecurity {
 	 * @throws FlexFormException
 	 */
 	public static function resolvePosts() : bool {
-
 		//$checkSumKey = Config::getConfigVariable( 'sec_key') === null ? false : Config::getConfigVariable( 'sec_key');
 		$crypt = new Protect();
 		try {
 			$crypt::setCrypt();
-		} catch( FlexFormException $exception ) {
+		} catch ( FlexFormException $exception ) {
 			throw new FlexFormException( $exception->getMessage(), 0, $exception );
 		}
 		$checksum = false;
