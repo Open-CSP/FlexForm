@@ -13,6 +13,7 @@
 	"flexform-mwoption-out-of-range" : "No page title could be made (out of range)",
 	"flexform-mwcreate-wrong-title" : "No page title could be made (parser responded as not possible)",
 	"flexform-mwcreate-wrong-title2" : "No page title could be made (parser responded as not possible)",
+	"flexform-mwcreate-page-exists" : "Page create failed. Page already exists",
 
 
 	"apihelp-flexform-summary" : "Range and next available queries",

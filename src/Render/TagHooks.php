@@ -3,6 +3,7 @@
 namespace FlexForm\Render;
 
 use FlexForm\Processors\Files\FilesCore;
+use FlexForm\Processors\Utilities\General;
 use MediaWiki\MediaWikiServices;
 use Parser;
 use PPFrame;
@@ -1714,6 +1715,8 @@ class TagHooks {
 
 		$leadingZero = isset( $args['mwleadingzero'] );
 
+		$noOverWrite = isset( $args['nooverwrite'] );
+
 		if ( $fields !== null && $template === null ) {
 			return [
 				'No valid template for creating a page.',
@@ -1736,7 +1739,8 @@ class TagHooks {
 			$slot,
 			$option,
 			$fields,
-			$leadingZero
+			$leadingZero,
+			$noOverWrite
 		);
 
 		return [

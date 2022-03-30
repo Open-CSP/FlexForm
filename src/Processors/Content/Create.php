@@ -208,6 +208,12 @@ class Create {
 		} else {
 			$this->pageData['leadByZero'] = false;
 		}
+
+		if ( isset( $exploded[7] ) && $exploded[7] === 'true' ) {
+			$this->pageData['overwrite'] = true;
+		} else {
+			$this->pageData['overwrite'] = false;
+		}
 	}
 
 	/**
@@ -306,7 +312,7 @@ class Create {
 					// return wbHandleResponses::createMsg( $tmp['message'], 'error', $returnto);
 				}
 				$rangeResult = $rangeResult['result'];
-				if( $rangeResult === '' ) $rangeResult = "0";
+				if ( $rangeResult === '' ) $rangeResult = "0";
 
 				if ( $this->pageData['leadByZero'] === true ) {
 					$endrangeLength = strlen( $rangeCheck[1] );
@@ -342,7 +348,8 @@ class Create {
 				$this->pageData['title'],
 				$this->content,
 				$fields['summary'],
-				$this->pageData['slot']
+				$this->pageData['slot'],
+				$this->pageData['overwrite']
 			];
 		}
 
@@ -385,7 +392,8 @@ class Create {
 			$slot                 = [ $pageToSave[3] => $pageToSave[1] ];
 			$pArray               = [
 				'slot'    => $slot,
-				'summary' => $summary
+				'summary' => $summary,
+				'overwrite' => $pageToSave[4]
 			];
 			$finalPages[$title][] = $pArray;
 		}

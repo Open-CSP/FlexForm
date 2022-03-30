@@ -103,7 +103,8 @@ class Definitions {
 			'leadByZero'   => false,
 			'summary'      => General::getPostString( 'mwwikicomment' ),
 			'slot'         => General::getPostString( 'mwslot' ),
-			'createuser'   => General::getPostString( 'mwcreateuser' )
+			'createuser'   => General::getPostString( 'mwcreateuser' ),
+			'nooverwrite'    => General::getPostString( 'mwnooverwrite' )
 		];
 	}
 
