@@ -11,6 +11,7 @@
 namespace FlexForm\Processors\Content;
 
 use FlexForm\Core\Config;
+use FlexForm\Core\Core;
 use FlexForm\Core\Debug;
 use FlexForm\Processors\Definitions;
 use FlexForm\Processors\Security\wsSecurity;
@@ -150,7 +151,7 @@ class Create {
 	private function setPageDataMultiple( string $page ) {
 		$this->pageData = [];
 		$exploded = explode(
-			'-^^-',
+			Core::DIVIDER,
 			$page
 		);
 		if ( isset( $exploded[0] ) && $exploded[0] !== '' ) {
@@ -206,6 +207,12 @@ class Create {
 			$this->pageData['leadByZero'] = true;
 		} else {
 			$this->pageData['leadByZero'] = false;
+		}
+
+		if ( isset( $exploded[7] ) && $exploded[7] === 'true' ) {
+			$this->pageData['overwrite'] = true;
+		} else {
+			$this->pageData['overwrite'] = false;
 		}
 	}
 
@@ -305,7 +312,7 @@ class Create {
 					// return wbHandleResponses::createMsg( $tmp['message'], 'error', $returnto);
 				}
 				$rangeResult = $rangeResult['result'];
-				if( $rangeResult === '' ) $rangeResult = "0";
+				if ( $rangeResult === '' ) $rangeResult = "0";
 
 				if ( $this->pageData['leadByZero'] === true ) {
 					$endrangeLength = strlen( $rangeCheck[1] );
@@ -341,7 +348,8 @@ class Create {
 				$this->pageData['title'],
 				$this->content,
 				$fields['summary'],
-				$this->pageData['slot']
+				$this->pageData['slot'],
+				$this->pageData['overwrite']
 			];
 		}
 
@@ -384,7 +392,8 @@ class Create {
 			$slot                 = [ $pageToSave[3] => $pageToSave[1] ];
 			$pArray               = [
 				'slot'    => $slot,
-				'summary' => $summary
+				'summary' => $summary,
+				'overwrite' => $pageToSave[4]
 			];
 			$finalPages[$title][] = $pArray;
 		}

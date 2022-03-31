@@ -11,6 +11,7 @@
 namespace FlexForm\Processors\Content;
 
 use FlexForm\Core\Config;
+use FlexForm\Core\Core;
 use FlexForm\Core\Debug;
 use FlexForm\Processors\Utilities\General;
 
@@ -280,7 +281,7 @@ class Edit {
 		foreach ( $fields['mwedit'] as $edits ) {
 			$this->editCount++;
 			$edit = explode(
-				'-^^-',
+				Core::DIVIDER,
 				$edits
 			);
 			if ( $edit[0] == '' || $edit[1] == '' || $edit[2] == '' ) {

@@ -12,6 +12,7 @@ use FlexForm\Processors\Definitions;
 use FlexForm\Processors\Utilities\General;
 use FlexForm\Processors\Files\FilesCore;
 use FlexForm\FlexFormException;
+use User;
 
 /**
  * Class Content core
@@ -62,6 +63,12 @@ class ContentCore {
 			self::$fields['summary'] = self::setSummary();
 		}
 
+		if ( self::$fields['nooverwrite'] === false ) {
+			self::$fields['overwrite'] = true;
+		} else {
+			self::$fields['overwrite'] = false;
+		}
+
 		if ( isset( $_POST['mwleadingzero'] ) ) {
 			self::$fields['leadByZero'] = true;
 		}
@@ -105,6 +112,13 @@ class ContentCore {
 			);
 		}
 
+		// mwcreateuser
+		if ( self::$fields['createuser'] !== false && self::$fields['createuser'] !== '' ) {
+			$createUser = new CreateUser();
+			$user = $createUser->addUser();
+			$createUser->sendPassWordAndConfirmationLink( $user );
+		}
+
 		// WSCreate single
 		if ( self::$fields['template'] !== false && self::$fields['writepage'] !== false ) {
 			if ( Config::isDebug() ) {
@@ -144,7 +158,8 @@ class ContentCore {
 				$save->saveToWiki(
 					$result['title'],
 					$result['content'],
-					self::$fields['summary']
+					self::$fields['summary'],
+					self::$fields['overwrite']
 				);
 			} catch ( FlexFormException $e ) {
 				throw new FlexFormException(
@@ -196,7 +211,8 @@ class ContentCore {
 								$slotName,
 								$pContent[0]['slot'][ $slotName ]
 							),
-							$pContent[0]['summary']
+							$pContent[0]['summary'],
+							$pContent[0]['overwrite']
 						);
 					} catch ( FlexFormException $e ) {
 						throw new FlexFormException(
@@ -209,17 +225,22 @@ class ContentCore {
 				}
 				if ( $nrOfEdits > 1 ) {
 					$slotsToSend = array();
+					$overWrite = true;
 					foreach ( $pContent as $singleCreate ) {
 						$slotName                 = key( $singleCreate['slot'] );
 						$slotValue                = $singleCreate['slot'][ $slotName ];
 						$slotsToSend[ $slotName ] = $slotValue;
+						if ( $singleCreate['overwrite'] === false ) {
+							$overWrite = false;
+						}
 					}
 
 					try {
 						$save->saveToWiki(
 							$pTitle,
 							$slotsToSend,
-							$pContent[0]['summary']
+							$pContent[0]['summary'],
+							$overWrite
 						);
 					} catch ( FlexFormException $e ) {
 						throw new FlexFormException(
@@ -363,11 +384,11 @@ class ContentCore {
 		if ( self::$fields['template'] === strtolower( 'wsnone' ) ) {
 			$noTemplate = true;
 		}
-		if ( ! $noTemplate ) {
+		if ( !$noTemplate ) {
 			$ret = "{{" . self::$fields['template'] . "\n";
 		}
 		foreach ( $_POST as $k => $v ) {
-			if ( is_array( $v ) && ! Definitions::isFlexFormSystemField( $k ) ) {
+			if ( is_array( $v ) && !Definitions::isFlexFormSystemField( $k ) ) {
 				$ret .= "|" . General::makeSpaceFromUnderscore( $k ) . "=";
 				foreach ( $v as $multiple ) {
 					$ret .= wsSecurity::cleanBraces( $multiple ) . ',';

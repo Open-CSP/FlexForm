@@ -10,14 +10,30 @@
 
 namespace FlexForm\Processors\Request;
 
+use FlexForm\Core\Config;
+use FlexForm\Core\Debug;
 use FlexForm\Core\HandleResponse;
+use FlexForm\Processors\Definitions;
+use FlexForm\Processors\Utilities\General;
 
 class Handlers {
 
 	private const HANDLER_PATH = __DIR__ . '/Handlers/';
+	private const EXTENSION_PATH = __DIR__ . '/../../Modules/Handlers/';
 
-	private $handlersList = [];
+	/**
+	 * @var mixed
+	 */
+	private $isPostHandler;
 
+	/**
+	 * @var array
+	 */
+	private array $handlersList = [];
+
+	/**
+	 * Constructor
+	 */
 	public function __construct() {
 		$fileList = glob( self::HANDLER_PATH . '*.php' );
 		foreach ( $fileList as $fileHandle ) {
@@ -32,15 +48,63 @@ class Handlers {
 	}
 
 	/**
+	 * @param bool $postHandler
+	 *
+	 * @return void
+	 */
+	public function setPostHandler( bool $postHandler ) {
+		$this->isPostHandler = $postHandler;
+	}
+
+	/**
 	 * @param string $name
 	 *
 	 * @return bool
 	 */
 	public function handlerExist( string $name ) : bool {
+		if ( $this->isPostHandler === true ) {
+			return self::postHandlerExists( $name );
+		}
 		return array_key_exists(
 			$name,
 			$this->handlersList
 		);
+	}
+
+	/**
+	 * Function to create submitted postfields to pass on to WSForm extensions
+	 *
+	 * @return mixed
+	 */
+	private function setFFPostFields() {
+		foreach ( $_POST as $k => $v ) {
+			if ( Definitions::isFlexFormSystemField( $k ) ) {
+				unset( $_POST[$k] );
+			}
+		}
+		$wsPostFields = $_POST;
+		unset( $_POST );
+
+		return $wsPostFields;
+	}
+
+	/**
+	 * @param string $name
+	 *
+	 * @return bool
+	 */
+	public function postHandlerExists( string $name ): bool {
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'Extension to check',
+				self::EXTENSION_PATH . $name . '/PostHandler.php'
+			);
+		}
+		if ( file_exists( self::EXTENSION_PATH . $name . '/PostHandler.php' ) ) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -51,9 +115,27 @@ class Handlers {
 	 */
 	public function handlerExecute( string $name, HandleResponse $responseHandler ) {
 		if ( $this->handlerExist( $name ) ) {
-			$class = 'FlexForm\\Processors\\Request\\Handlers\\' . $name;
+			if ( $this->isPostHandler === true ) {
+				$class = 'FlexForm\\Modules\\Handlers\\' . $name . '\\' . 'PostHandler';
+			} else {
+				$class = 'FlexForm\\Processors\\Request\\Handlers\\' . $name;
+			}
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'Extension class to run ',
+					$class
+				);
+			}
+			//echo Debug::createDebugOutput();
+			//die();
 			$handler = new $class;
-			$handler->execute( $responseHandler );
+			if ( $this->isPostHandler === true ) {
+				$handler->execute( $this->setFFPostFields() );
+			} else {
+				$handler->execute( $responseHandler );
+			}
+		} else {
+
 		}
 	}
 

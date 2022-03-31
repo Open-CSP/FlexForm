@@ -3,6 +3,8 @@
 namespace FlexForm\Render;
 
 use FlexForm\Processors\Files\FilesCore;
+use FlexForm\Processors\Utilities\General;
+use MediaWiki\MediaWikiServices;
 use Parser;
 use PPFrame;
 use RequestContext;
@@ -11,6 +13,7 @@ use FlexForm\Core\Core;
 use FlexForm\Core\Protect;
 use FlexForm\Core\Validate;
 use FlexForm\FlexFormException;
+use User;
 
 /**
  * Class TagHooks
@@ -282,28 +285,9 @@ class TagHooks {
 		if ( isset( $args['no_submit_on_return'] ) ) {
 			unset( $args['no_submit_on_return'] );
 
-			if ( ! Core::isLoaded( 'keypress' ) ) {
+			if ( !Core::isLoaded( 'keypress' ) ) {
 				$noEnter = <<<SCRIPT
-                $(document).on('keyup keypress', 'form input[type="text"]', function(e) {
-                    if(e.keyCode == 13) {
-                      e.preventDefault();
-                      return false;
-                    }
-                });
-                
-                $(document).on('keyup keypress', 'form input[type="search"]', function(e) {
-                    if(e.keyCode == 13) {
-                      e.preventDefault();
-                      return false;
-                    }
-                });
-                
-                $(document).on('keyup keypress', 'form input[type="password"]', function(e) {
-                    if(e.keyCode == 13) {
-                      e.preventDefault();
-                      return false;
-                    }
-                });
+                wachtff( noReturnOnEnter ); 
                 SCRIPT;
 
 				Core::includeInlineScript( $noEnter );
@@ -322,7 +306,7 @@ class TagHooks {
 		}
 
 		// Block the request if the user is not logged in and anonymous users are not allowed
-		if ( $allowAnonymous === false && ! $wgUser->isRegistered() ) {
+		if ( $allowAnonymous === false && !$wgUser->isRegistered() ) {
 			return wfMessage( "flexform-anonymous-user" )->parse();
 		}
 
@@ -1731,6 +1715,8 @@ class TagHooks {
 
 		$leadingZero = isset( $args['mwleadingzero'] );
 
+		$noOverWrite = isset( $args['nooverwrite'] );
+
 		if ( $fields !== null && $template === null ) {
 			return [
 				'No valid template for creating a page.',
@@ -1753,7 +1739,63 @@ class TagHooks {
 			$slot,
 			$option,
 			$fields,
-			$leadingZero
+			$leadingZero,
+			$noOverWrite
+		);
+
+		return [
+			$output,
+			'noparse'    => true,
+			'markerType' => 'nowiki'
+		];
+	}
+
+	/**
+	 * @brief Function to render the Page Create options.
+	 *
+	 * This function will call its subfunction render_create()
+	 *
+	 * @param string $input Parser Between beginning and end
+	 * @param array $args Arguments for the field
+	 * @param Parser $parser MediaWiki Parser
+	 * @param PPFrame $frame MediaWiki PPFrame
+	 *
+	 * @return array send to the MediaWiki Parser
+	 * @throws FlexFormException
+	 */
+	public function renderCreateUser( $input, array $args, Parser $parser, PPFrame $frame ) {
+		$username = isset( $args['username'] ) ? $parser->recursiveTagParse(
+			$args['username'],
+			$frame
+		) : null;
+		$emailAddress = isset( $args['email'] ) ? $parser->recursiveTagParse(
+			$args['email'],
+			$frame
+		) : null;
+		$realName = isset( $args['realname'] ) ? $parser->recursiveTagParse(
+			$args['realname'],
+			$frame
+		) : null;
+		//formFields
+
+		if ( $username === null || $emailAddress === null ) {
+			return [
+				'No username or email address',
+				'noparse' => true
+			];
+		}
+
+		if ( ! MediaWikiServices::getInstance()->getUserNameUtils()->isValid( $username ) ) {
+			return [
+				'Not a valid username according to MediaWiki',
+				'noparse' => true
+			];
+		}
+
+		$output = $this->themeStore->getFormTheme()->getCreateUserRenderer()->render_createUser(
+			$username,
+			$emailAddress,
+			$realName
 		);
 
 		return [

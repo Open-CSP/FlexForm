@@ -16,7 +16,7 @@ Documentation will be added soon.
 
 ## Installation
 
-Grab in instance from https://gitlab.wikibase.nl/community/mw-wsform.
+Grab in instance from https://github.com/WikibaseSolutions/FlexForm.
 Create a "FlexForm" folder in your Wiki extensions folder and extract the files there.
 
 ---
@@ -50,10 +50,12 @@ To enable this.. add to your header page :
 ```
 
 ## Docs
-Visit : Special:FlexForm/Docs
+Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 
 ### Changelog
+* 1.0.0 : Release
+* 1.0.0 Release Candidate 6 : CreateUser, extensions support
 * 1.0.0 Release Candidate 5 : leadingZero With Multiple Creates
 * 1.0.0 Release Candidate 4 : id regex validation changed to allow just HTML5
 * 1.0.0 Release Candidate 3 : File upload naming convention changed

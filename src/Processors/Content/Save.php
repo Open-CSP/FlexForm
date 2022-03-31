@@ -207,17 +207,21 @@ class Save {
 	 * @param string $title
 	 * @param array $contentArray
 	 * @param string $summary
+	 * @param string $overWrite
 	 *
 	 * @return void
 	 * @throws MWException
 	 * @throws FlexFormException
 	 * @throws \MWContentSerializationException
 	 */
-	public function saveToWiki( string $title, array $contentArray, string $summary ) {
+	public function saveToWiki( string $title, array $contentArray, string $summary, bool $overWrite = true ) {
 		$user        = RequestContext::getMain()->getUser();
 		$titleObject = Title::newFromText( $title );
-		if ( ! $titleObject || $titleObject->hasFragment() ) {
+		if ( !$titleObject || $titleObject->hasFragment() ) {
 			throw new FlexFormException( "Invalid title $title." );
+		}
+		if ( !$overWrite ) {
+			throw new FlexFormException( wfMessage( 'flexform-mwcreate-page-exists' )->text() . ' : ' . $title );
 		}
 		// $slot is now an array as of v0.8.0.9.8.8
 		try {

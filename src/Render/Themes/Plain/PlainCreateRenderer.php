@@ -17,7 +17,8 @@ class PlainCreateRenderer implements CreateRenderer {
 		?string $slot,
 		?string $option,
 		?string $fields,
-		bool $leadingZero
+		bool $leadingZero,
+		bool $noOverWrite
 	) : string {
 		$template = $template !== null ? htmlspecialchars( $template ) : '';
 		$createId = $createId !== null ? htmlspecialchars( $createId ) : '';
@@ -25,10 +26,17 @@ class PlainCreateRenderer implements CreateRenderer {
 		$slot     = $slot !== null ? htmlspecialchars( $slot ) : '';
 		$option   = $option !== null ? htmlspecialchars( $option ) : '';
 		$fields   = $fields !== null ? htmlspecialchars( $fields ) : '';
-		if( $leadingZero ) {
+		if ( $leadingZero ) {
 			$leadingZero  = "true";
 		} else {
 			$leadingZero = "false";
+		}
+
+		if ( $noOverWrite ) {
+			$noOverWrite  = "true";
+			$override = "false";
+		} else {
+			$override = "true";
 		}
 
 
@@ -44,8 +52,10 @@ class PlainCreateRenderer implements CreateRenderer {
 
 		if ( $fields !== '' ) {
 			// TODO: Support mwleadingzero with mwcreatemultiple
-			$createValue = $template . '-^^-' . $write . '-^^-' . $option . '-^^-' . $fields . '-^^-' . $slot;
-			$createValue .= '-^^-' . $createId . '-^^-' . $leadingZero;
+			$createValue = $template . Core::DIVIDER . $write . Core::DIVIDER;
+			$createValue .= $option . Core::DIVIDER . $fields . Core::DIVIDER . $slot;
+			$createValue .= Core::DIVIDER . $createId . Core::DIVIDER . $leadingZero;
+			$createValue .= Core::DIVIDER . $override;
 
 			return Core::createHiddenField(
 					'mwcreatemultiple[]',
@@ -85,7 +95,12 @@ class PlainCreateRenderer implements CreateRenderer {
 				'true'
 			) : '';
 
-			return $template . $write . $option . $follow . $leadingZero . $slot;
+			$noOverWrite = $noOverWrite ? Core::createHiddenField(
+				'mwnooverwrite',
+				'true'
+			) : '';
+
+			return $template . $write . $option . $follow . $leadingZero . $slot . $noOverWrite;
 		}
 	}
 }

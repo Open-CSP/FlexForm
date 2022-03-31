@@ -92,7 +92,7 @@ try {
 	$responseHandler->setReturnData( $e->getMessage() );
 	$responseHandler->setReturnStatus( 'resolve posts error' );
 	$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
-};
+}
 
 $responseHandler->setIdentifier( General::getPostString( "mwidentifier" ) );
 $responseHandler->setMwReturn( urldecode( General::getPostString( "mwreturn" ) ) );
@@ -206,6 +206,28 @@ if ( General::getPostString( 'mwaction' ) !== false ) {
 	if ( Config::isDebug() ) {
 		Debug::addToDebug( 'running main functions fail',
 						   array( 'action' => General::getPostString( 'mwaction' ) ) );
+	}
+}
+
+// Handle extensions
+if ( General::getPostString( 'mwextension' ) !== false ) {
+	if ( Config::isDebug() ) {
+		Debug::addToDebug(
+			'We have an extension to run',
+			General::getPostString( 'mwextension' )
+		);
+	}
+	try {
+		External::handlePost( $responseHandler );
+	} catch ( FlexFormException $e ) {
+		$responseHandler->setReturnData( $e->getMessage() );
+		$responseHandler->setReturnStatus( 'GET error' );
+		$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
+		try {
+			$responseHandler->exitResponse();
+		} catch ( FlexFormException $e ) {
+			die( $e->getMessage() );
+		}
 	}
 }
 

@@ -17,13 +17,18 @@ class PlainEditRenderer implements EditRenderer {
 		string $slot,
 		string $value
 	) : string {
-		$tagValue = htmlspecialchars( $target ) . '-^^-' . htmlspecialchars( $template ) . '-^^-' . htmlspecialchars(
-				$formfield
-			) . '-^^-' . htmlspecialchars( $usefield ) . '-^^-' . htmlspecialchars(
+		$tagValue = htmlspecialchars( $target ) . Core::DIVIDER . htmlspecialchars(
+				$template
+			) . Core::DIVIDER . htmlspecialchars(
+						$formfield
+					) . Core::DIVIDER . htmlspecialchars( $usefield ) . Core::DIVIDER . htmlspecialchars(
 						$value
-					) . '-^^-' . htmlspecialchars( $slot );
+					) . Core::DIVIDER . htmlspecialchars( $slot );
 
-		return Core::createHiddenField( 'mwedit[]', $tagValue );
+		return Core::createHiddenField(
+			'mwedit[]',
+			$tagValue
+		);
 		/*
 		return sprintf(
 			'<input type="hidden" name="mwedit[]" value="%s">' . PHP_EOL,

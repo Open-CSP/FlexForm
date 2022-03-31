@@ -30,6 +30,13 @@ interface Theme {
 	public function getCreateRenderer() : CreateRenderer;
 
 	/**
+	 * Get a new CreateUserRenderer.
+	 *
+	 * @return CreateUserRenderer
+	 */
+	public function getCreateUserRenderer() : CreateUserRenderer;
+
+	/**
 	 * Get a new EmailRenderer.
 	 *
 	 * @return EmailRenderer

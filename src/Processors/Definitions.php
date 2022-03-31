@@ -102,7 +102,9 @@ class Definitions {
 			'mwfollow'     => General::getPostString( 'mwfollow' ),
 			'leadByZero'   => false,
 			'summary'      => General::getPostString( 'mwwikicomment' ),
-			'slot'         => General::getPostString( 'mwslot' )
+			'slot'         => General::getPostString( 'mwslot' ),
+			'createuser'   => General::getPostString( 'mwcreateuser' ),
+			'nooverwrite'    => General::getPostString( 'mwnooverwrite' )
 		];
 	}
 
@@ -148,7 +150,9 @@ class Definitions {
 			"wsuid",
 			"mwwikicomment",
 			"mwleadingzero",
-			"showonselect"
+			"showonselect",
+			"mwcreateuser",
+			"mwnooverwrite"
 		];
 		if ( in_array(
 			strtolower( $field ),

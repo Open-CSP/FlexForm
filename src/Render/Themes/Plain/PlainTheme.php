@@ -3,6 +3,7 @@
 namespace FlexForm\Render\Themes\Plain;
 
 use FlexForm\Render\Themes\CreateRenderer;
+use FlexForm\Render\Themes\CreateUserRenderer;
 use FlexForm\Render\Themes\EditRenderer;
 use FlexForm\Render\Themes\EmailRenderer;
 use FlexForm\Render\Themes\FieldRenderer;
@@ -42,6 +43,13 @@ class PlainTheme implements Theme {
 	 */
 	public function getCreateRenderer() : CreateRenderer {
 		return new PlainCreateRenderer();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getCreateUserRenderer() : CreateUserRenderer {
+		return new PlainCreateUserRenderer();
 	}
 
 	/**

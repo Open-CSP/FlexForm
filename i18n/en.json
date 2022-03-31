@@ -13,6 +13,7 @@
 	"flexform-mwoption-out-of-range" : "No page title could be made (out of range)",
 	"flexform-mwcreate-wrong-title" : "No page title could be made (parser responded as not possible)",
 	"flexform-mwcreate-wrong-title2" : "No page title could be made (parser responded as not possible)",
+	"flexform-mwcreate-page-exists" : "Page create failed. Page already exists",
 
 
 	"apihelp-flexform-summary" : "Range and next available queries",
@@ -26,6 +27,7 @@
 
 	"flexform-external-request-not-found" : "External dependency not found.",
 	"flexform-query-handler-not-found" : "External handler not found.",
+	"flexform-extension-not-found" : "External Extension handler not found.",
 	"flexform-config-not-found" : "Could not find the config file for FlexForm. Please read the manual",
 	"flexform-config-credentials-not-found" : "We need all the API user credentials",
 
@@ -37,7 +39,8 @@
 	"flexform-fileupload-file-convert-error" : "Error while converting file from $1 to $2",
 	"flexform-fileupload-file-move-error" : "PHP move uploaded file error (file-handling)",
 
-
+	"flexform-createuser-invalid-name" : "Invalid username",
+	"flexform-createuser-username-exists" : "Account for $1 already exists",
 
 	"flexform-norequest-made" : "No requests",
 	"flexform-noreturn-found" : "No return found",

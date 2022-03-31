@@ -515,8 +515,9 @@ class SpecialFlexForm extends \SpecialPage {
 		$args = $this->getArgumentsFromSpecialPage( $sub );
 		if ( $args !== false ) {
 			if ( strtolower( $args[0] ) == 'survey' ) {
-				$path = "$IP/extensions/FlexForm/formbuilder/";
-				$out->addHTML( '<div class="survey-app"></div>' );
+                $path = "$IP/extensions/FlexForm/Modules/surveyBuilder";
+                $ret = file_get_contents($path . "/dist/index.html");
+                $out->addHTML($ret);
 
 				return true;
 			}
