@@ -16,7 +16,7 @@ Documentation will be added soon.
 
 ## Installation
 
-Grab in instance from https://gitlab.wikibase.nl/community/mw-wsform.
+Grab in instance from https://github.com/WikibaseSolutions/FlexForm.
 Create a "FlexForm" folder in your Wiki extensions folder and extract the files there.
 
 ---
@@ -50,7 +50,7 @@ To enable this.. add to your header page :
 ```
 
 ## Docs
-Visit : Special:FlexForm/Docs
+Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 
 ### Changelog
