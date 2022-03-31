@@ -62,13 +62,9 @@
       "smtp_password": "",
       "smtp_secure": "TLS",
       "smtp_port": 587,
-      "use_form_builder": true,
-      "allow_edit_docs": true,
-      "form_timeout_limit": 7200,
-      "allow_special_page_setup": true,
-      "use_api_user_only": false,
       "debug": false,
-      "FlexFormDefaultTheme": "Plain"
+      "FlexFormDefaultTheme": "Plain",
+      "can_create_user": false
     }
 
   },

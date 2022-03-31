@@ -752,11 +752,20 @@ class TagHooks {
 					}
 				}
 
+				/* Input is already parse
 				$ret = $renderer->render_option(
 					$parser->recursiveTagParse(
 						$input,
 						$frame
 					),
+					$value,
+					$showOnSelect,
+					$isSelected,
+					$additionalArguments
+				);
+				*/
+				$ret = $renderer->render_option(
+					$input,
 					$value,
 					$showOnSelect,
 					$isSelected,
@@ -920,12 +929,14 @@ class TagHooks {
 				$htmlType = Validate::validHTML( $args );
 
 				if ( $input !== '' ) {
+					/*
 					if ( $noParse === false ) {
-						$input = $parser->recursiveTagParseFully(
+						$input = $parser->recursiveTagParse(
 							$input,
 							$frame
 						);
 					}
+					*/
 					// We want to purify the input based on the form's HTML type
 					$input = Protect::purify(
 						$input,
@@ -1764,6 +1775,13 @@ class TagHooks {
 	 * @throws FlexFormException
 	 */
 	public function renderCreateUser( $input, array $args, Parser $parser, PPFrame $frame ) {
+		$canWedCreateUser = Config::getConfigVariable( 'can_create_user' );
+		if ( $canWedCreateUser === false ) {
+			return [
+				wfMessage( 'flexform-createuser-disabled' )->text(),
+				'noparse' => true
+			];
+		}
 		$username = isset( $args['username'] ) ? $parser->recursiveTagParse(
 			$args['username'],
 			$frame
@@ -1785,7 +1803,7 @@ class TagHooks {
 			];
 		}
 
-		if ( ! MediaWikiServices::getInstance()->getUserNameUtils()->isValid( $username ) ) {
+		if ( !MediaWikiServices::getInstance()->getUserNameUtils()->isValid( $username ) ) {
 			return [
 				'Not a valid username according to MediaWiki',
 				'noparse' => true

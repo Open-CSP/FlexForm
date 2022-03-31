@@ -40,6 +40,7 @@
 	"flexform-fileupload-file-move-error" : "PHP move uploaded file error (file-handling)",
 
 	"flexform-createuser-invalid-name" : "Invalid username",
+	"flexform-createuser-disabled" : "FlexForm user creation is disabled in LocalSettings",
 	"flexform-createuser-username-exists" : "Account for $1 already exists",
 
 	"flexform-norequest-made" : "No requests",

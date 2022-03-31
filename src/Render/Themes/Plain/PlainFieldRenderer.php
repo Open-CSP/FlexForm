@@ -450,6 +450,7 @@ class PlainFieldRenderer implements FieldRenderer {
 			// TODO: Implement VisualEditor
 		}
 
+
 		return Xml::textarea(
 			$name,
 			$input,
