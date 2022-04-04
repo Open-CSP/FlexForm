@@ -182,7 +182,7 @@ class Mail {
 		$fieldToGetAndReplace = array_keys( $this->fields );
 
 		foreach ( $fieldToGetAndReplace as $field ) {
-			echo "<p>$field</p>";
+			//echo "<p>$field</p>";
 			$regex = '#%_' . $field . '=(.*?)%#';
 			preg_match(
 				$regex,

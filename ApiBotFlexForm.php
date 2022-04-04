@@ -15,12 +15,39 @@ use Wikimedia\ParamValidator\ParamValidator;
 class ApiBotFlexForm extends ApiBase {
 
 	/**
+	 * @var
+	 */
+	private $trigger;
+
+	/**
+	 * @var
+	 */
+	private $data;
+
+	/**
+	 * @var
+	 */
+	private $title;
+
+
+	/**
+	 * @return array
+	 */
+	private function getRequestData(): array {
+		$ret = [];
+		$ret['request']['trigger'] = $this->trigger;
+		$ret['request']['title']   = $this->title;
+		$ret['request']['data']    = $this->data;
+		return $ret;
+	}
+
+	/**
 	 * @param mixed $failure
 	 *
 	 * @return void
 	 */
 	private function returnFailure( $failure ) {
-		$ret            = [];
+		$ret            = $this->getRequestData();
 		$ret['message'] = $failure;
 		$this->getResult()->addValue( null,
 									  $this->getModuleName(),
@@ -28,16 +55,16 @@ class ApiBotFlexForm extends ApiBase {
 	}
 
 	/**
-	 * @param mixed $content
+	 * @param mixed $status
 	 *
 	 * @return void
 	 */
-	private function returnResult( $content ): array {
-		$ret            = [];
-		$ret['message'] = $content;
+	private function returnResult( $status ) {
+		$ret            = $this->getRequestData();
+		$ret['message'] = $status;
 		$this->getResult()->addValue( null,
-			$this->getModuleName(),
-			[ 'result' => $ret ] );
+									  $this->getModuleName(),
+									  [ 'result' => $ret ] );
 	}
 
 	/**
@@ -50,6 +77,7 @@ class ApiBotFlexForm extends ApiBase {
 		if ( !$action || $action === null ) {
 			$this->returnFailure( $this->msg( 'flexform-bot-api-error-unknown-trigger-parameter' )->text() );
 		}
+		$this->trigger = $action;
 		switch ( $action ) {
 			case "email":
 				$template = $params['title'];
@@ -57,12 +85,13 @@ class ApiBotFlexForm extends ApiBase {
 					$this->returnFailure( $this->msg( 'flexform-bot-api-error-unknown-title-parameter' )->text() );
 					break;
 				}
+				$this->title = $template;
 				$mail = new Mail( $template );
 
 				if ( $mail->getTemplate() !== false ) {
 					try {
 						$mail->handleTemplate();
-						$output = "success";
+						$this->returnResult( 'success' );
 					} catch ( FlexFormException | MWException $e ) {
 						$this->returnFailure( $e->getMessage() );
 					}
@@ -74,18 +103,12 @@ class ApiBotFlexForm extends ApiBase {
 				$this->returnFailure( $this->msg( 'flexform-bot-api-error-unknown-trigger-parameter' )->text() );
 				break;
 		}
-
-		if ( $output !== null ) {
-			$this->getResult()->addValue( null,
-				$this->getModuleName(),
-				[ 'result' => $output ] );
-		}
-
 		return true;
 	}
 
 	public function needsToken() {
 		return "csrf";
+		//return false;
 	}
 
 	public function isWriteMode() {
