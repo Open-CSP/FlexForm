@@ -33,7 +33,16 @@ $wgFlexFormConfig['FlexFormDefaultTheme'] = "Plain"; // Currently the only form
 $wgFlexFormConfig['rc_site_key'] = ""; // reCaptcha site key
 $wgFlexFormConfig['rc_secret_key'] = ""; // reCaptcha secret key
 $wgFlexFormConfig['file_temp_path'] = ""; // When using image upload conversion, we need a place to temporarily store images.
-$wgFlexFormConfig['form_timeout_limit'] = 7200; // 7200 seconds is the default
+$wgFlexFormConfig['can_create_user'] = false; // If FlexForm is allowed to create users functions
+$wgFlexFormConfig['auto_save_btn_on'] = "Autosave On";
+$wgFlexFormConfig['auto_save_btn_off'] = "Autosave Off";
+$wgFlexFormConfig['use_smtp'] = false; // when sending email, should we use separate smtp ?
+$wgFlexFormConfig['smtp_host'] = "";
+$wgFlexFormConfig['smtp_authentication'] = true;
+$wgFlexFormConfig['smtp_username'] = "";
+$wgFlexFormConfig['smtp_password'] = "";
+$wgFlexFormConfig['smtp_secure'] = "TLS";
+$wgFlexFormConfig['smtp_port'] = 587;
 ```
 ---
 
