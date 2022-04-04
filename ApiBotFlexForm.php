@@ -52,9 +52,9 @@ class ApiBotFlexForm extends ApiBase {
 		}
 		switch ( $action ) {
 			case "email":
-				$template = $params['data'];
+				$template = $params['title'];
 				if ( $template === null || !$template ) {
-					$this->returnFailure( wfMessage( 'flexform-bot-api-error-unknown-data-parameter' )->text() );
+					$this->returnFailure( wfMessage( 'flexform-bot-api-error-unknown-title-parameter' )->text() );
 					break;
 				}
 				$mail = new Mail( $template );
@@ -102,6 +102,10 @@ class ApiBotFlexForm extends ApiBase {
 			'data' => [
 				ParamValidator::PARAM_TYPE     => 'string'
 			]
+			,
+			'title' => [
+				ParamValidator::PARAM_TYPE     => 'string'
+			]
 		];
 	}
 
@@ -110,8 +114,7 @@ class ApiBotFlexForm extends ApiBase {
 	 */
 	protected function getExamplesMessages() : array {
 		return array(
-			'action=flexform&what=getRange&titleStartsWith=Invoice/&range=0000-9999' => 'apihelp-flexform-example-1',
-			'action=flexform&what=nextAvailable&&titleStartsWith=Invoice/'           => 'apihelp-flexform-example-2'
+			'action=FlexFormBot&trigger=email&title=Email template page' => 'apihelp-flexform-bot-example-1'
 		);
 	}
 
