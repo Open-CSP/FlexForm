@@ -54,6 +54,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 
 ### Changelog
+* 1.0.1 : Email bot api support, create user support
 * 1.0.0 : Release
 * 1.0.0 Release Candidate 6 : CreateUser, extensions support
 * 1.0.0 Release Candidate 5 : leadingZero With Multiple Creates
