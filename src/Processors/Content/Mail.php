@@ -44,15 +44,25 @@ class Mail {
 	private $template = false;
 
 	/**
+	 * @var bool
+	 */
+	private $isBot = false;
+
+	/**
 	 * @return false|mixed|string
 	 */
 	public function getTemplate() {
 		return $this->template;
 	}
 
-	public function __construct() {
-		$this->fields   = Definitions::mailFields();
+	public function __construct( $template = false ) {
+		$this->fields = Definitions::mailFields();
 		$this->template = $this->fields['mtemplate'];
+		if( $template !== false ) {
+			$this->isBot = true;
+			$this->template = $template;
+		}
+
 	}
 
 	/**
@@ -221,18 +231,23 @@ class Mail {
 			'html'       => General::getPostString( 'mwmailhtml' ),
 			'attachment' => General::getPostString( 'mwmailattachment' )
 		 */
-		$fields = ContentCore::getFields();
-		if ( Config::isDebug() ) {
-			Debug::addToDebug(
-				'Mail start fields',
-				$this->fields
-			);
+		if( ! $this->isBot ) {
+			$fields = ContentCore::getFields();
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'Mail start fields',
+					$this->fields
+				);
+			}
+		} else {
+			$fields['parseLast'] = false;
 		}
 		if ( $fields['parseLast'] === false ) {
 			$tpl = $this->parseWikiPageByTitle( $this->getTemplate() );
 		} else {
 			$render = new Render();
 			$tpl    = $render->getSlotContent( $this->getTemplate() );
+			$tpl    =  $tpl['content'];
 		}
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
@@ -240,6 +255,7 @@ class Mail {
 				$tpl
 			);
 		}
+
 		$tpl = $this->placeValuesInTemplate( $tpl );
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(

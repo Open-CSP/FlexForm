@@ -11,6 +11,7 @@
   "type": "parserhook",
   "AutoloadClasses": {
     "ApiFlexForm": "ApiFlexForm.php",
+    "ApiBotFlexForm": "ApiBotFlexForm.php",
     "FlexFormHooks": "FlexForm.hooks.php"
   },
   "AutoloadNamespaces": {
@@ -20,7 +21,8 @@
     "WBFormAlias": "FlexForm.i18n.alias.php"
   },
   "APIModules": {
-    "flexform": "ApiFlexForm"
+    "flexform": "ApiFlexForm",
+    "FlexFormBot": "ApiBotFlexForm"
   },
   "Hooks": {
     "ParserFirstCallInit": [
