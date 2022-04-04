@@ -1776,7 +1776,7 @@ class TagHooks {
 	 */
 	public function renderCreateUser( $input, array $args, Parser $parser, PPFrame $frame ) {
 		$canWedCreateUser = Config::getConfigVariable( 'can_create_user' );
-		if ( $canWedCreateUser === false ) {
+		if ( $canWedCreateUser !== true ) {
 			return [
 				wfMessage( 'flexform-createuser-disabled' )->text(),
 				'noparse' => true
