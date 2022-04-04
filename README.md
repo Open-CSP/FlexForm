@@ -25,24 +25,24 @@ Create a "FlexForm" folder in your Wiki extensions folder and extract the files 
 
 You can tweak FlexForm to an extent in your Localsettings.php
 ```php
-$wgFlexFormConfig['secure'] = true; //( default is true ). Will render form that make no sense when inspected in the browser
-$wgFlexFormConfig['sec_key'] = ""; // A salt key for encryption. Used together with "secure" option. Must be set when using multiple instances of a wiki
-$wgFlexFormConfig['auto_save_interval'] = 30000; // defaults to 3 minutes.
+$wgFlexFormConfig['secure']                 = true; //( default is true ). Will render form that make no sense when inspected in the browser
+$wgFlexFormConfig['sec_key']                = ""; // A salt key for encryption. Used together with "secure" option. Must be set when using multiple instances of a wiki
+$wgFlexFormConfig['auto_save_interval']     = 30000; // defaults to 3 minutes.
 $wgFlexFormConfig['auto_save_after_change'] = 3000; // defaults to 3 seconds after last change
-$wgFlexFormConfig['FlexFormDefaultTheme'] = "Plain"; // Currently the only form
-$wgFlexFormConfig['rc_site_key'] = ""; // reCaptcha site key
-$wgFlexFormConfig['rc_secret_key'] = ""; // reCaptcha secret key
-$wgFlexFormConfig['file_temp_path'] = ""; // When using image upload conversion, we need a place to temporarily store images.
-$wgFlexFormConfig['can_create_user'] = false; // If FlexForm is allowed to create users functions
-$wgFlexFormConfig['auto_save_btn_on'] = "Autosave On";
-$wgFlexFormConfig['auto_save_btn_off'] = "Autosave Off";
-$wgFlexFormConfig['use_smtp'] = false; // when sending email, should we use separate smtp ?
-$wgFlexFormConfig['smtp_host'] = "";
-$wgFlexFormConfig['smtp_authentication'] = true;
-$wgFlexFormConfig['smtp_username'] = "";
-$wgFlexFormConfig['smtp_password'] = "";
-$wgFlexFormConfig['smtp_secure'] = "TLS";
-$wgFlexFormConfig['smtp_port'] = 587;
+$wgFlexFormConfig['FlexFormDefaultTheme']   = "Plain"; // Currently the only form
+$wgFlexFormConfig['rc_site_key']            = ""; // reCaptcha site key
+$wgFlexFormConfig['rc_secret_key']          = ""; // reCaptcha secret key
+$wgFlexFormConfig['file_temp_path']         = ""; // When using image upload conversion, we need a place to temporarily store images.
+$wgFlexFormConfig['can_create_user']        = false; // If FlexForm is allowed to create users functions
+$wgFlexFormConfig['auto_save_btn_on']       = "Autosave On";
+$wgFlexFormConfig['auto_save_btn_off']      = "Autosave Off";
+$wgFlexFormConfig['use_smtp']               = false; // when sending email, should we use separate smtp ?
+$wgFlexFormConfig['smtp_host']              = "";
+$wgFlexFormConfig['smtp_authentication']    = true;
+$wgFlexFormConfig['smtp_username']          = "";
+$wgFlexFormConfig['smtp_password']          = "";
+$wgFlexFormConfig['smtp_secure']            = "TLS";
+$wgFlexFormConfig['smtp_port']              = 587;
 ```
 ---
 
