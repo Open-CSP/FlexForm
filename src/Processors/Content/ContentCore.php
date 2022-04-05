@@ -158,7 +158,7 @@ class ContentCore {
 				$save->saveToWiki(
 					$result['title'],
 					$result['content'],
-					self::$fields['summary'],
+					self::parseTitle( self::$fields['summary'] ),
 					self::$fields['overwrite']
 				);
 			} catch ( FlexFormException $e ) {
@@ -284,7 +284,7 @@ class ContentCore {
 							$slotName,
 							$slotContents
 						),
-						self::$fields['summary']
+						self::parseTitle( self::$fields['summary'] )
 					);
 				} catch ( FlexFormException $e ) {
 					throw new FlexFormException(

@@ -347,7 +347,7 @@ class Create {
 			$pagesToSave[] = [
 				$this->pageData['title'],
 				$this->content,
-				$fields['summary'],
+				ContentCore::parseTitle( $fields['summary'] ),
 				$this->pageData['slot'],
 				$this->pageData['overwrite']
 			];
@@ -360,14 +360,14 @@ class Create {
 				$pagesToSave
 			);
 		}
-		if( Config::isDebug() ) {
+		if ( Config::isDebug() ) {
 			Debug::addToDebug( 'Pages to save before addCreatToTile ' . time(), $pagesToSave );
 		}
 		$pagesToSave = $this->addCreateToTitle( $pagesToSave, $pageTitleToLinkTo );
-		if( Config::isDebug() ) {
+		if ( Config::isDebug() ) {
 			Debug::addToDebug( 'Pages to save after addCreatToTile ' . time(), $pagesToSave );
 		}
-		$finalPages  = $this->createFinalPages( $pagesToSave );
+		$finalPages = $this->createFinalPages( $pagesToSave );
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
 				'$finalPages',
