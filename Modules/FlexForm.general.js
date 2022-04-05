@@ -510,6 +510,7 @@ function wsform (btn, callback = 0, preCallback = 0, showId = 0) {
 	var val = $(btn).prop('value')
 	var frm = $(btn).closest('form')
 	frm.addClass('wsform-submitting')
+	showWeAreWorking(frm);
 
 	if (typeof WSFormEditor !== 'undefined' && WSFormEditor === 'VE' && WSFormEditorsUpdates === false) {
 		updateVE(btn, callback, preCallback, frm)
@@ -553,34 +554,35 @@ function wsform (btn, callback = 0, preCallback = 0, showId = 0) {
 		var content = frm.contents()
 		var dat = frm.serialize()
 		var target = frm.attr('action')
-
 		$.ajax({
 			url: target,
 			type: 'POST',
 			data: dat,
-			dataType: 'json',
-			success: function (result) {
-				$(btn).removeClass('disabled')
-				frm.removeClass('wsform-submitting')
-				frm.addClass('wsform-submitted')
-				//alert(result);
-				if (window.wsAjax === false) {
-					$(frm).find('input[name="mwidentifier"]')[0].remove()
-				}
-				if (result.status === 'ok') {
-					if (showId !== 0) {
-						showMessage(mwonsuccess, 'success', $('#' + showId))
-					} else {
-						showMessage(mwonsuccess, 'success', $(btn))
-					}
-					if (callback !== 0 && typeof callback !== 'undefined') {
-						callback(frm)
-					}
-				} else {
-					$.notify('FlexForm : ERROR: ' + result.message, 'error')
-				}
+			dataType: 'json'
+		}).done(function (result) {
+			$(btn).removeClass('disabled')
+			frm.removeClass('wsform-submitting')
+			frm.addClass('wsform-submitted')
+			weAreDoneWorking(frm);
+			//alert(result);
+			if (window.wsAjax === false) {
+				$(frm).find('input[name="mwidentifier"]')[0].remove()
 			}
-		})
+			if (result.status === 'ok') {
+				if (showId !== 0) {
+					showMessage(mwonsuccess, 'success', $('#' + showId))
+				} else {
+					showMessage(mwonsuccess, 'success', $(btn))
+				}
+				if (callback !== 0 && typeof callback !== 'undefined') {
+					callback(frm)
+				}
+			} else {
+				$.notify('FlexForm : ERROR: ' + result.message, 'error')
+			}
+		}).fail( function( xhr, textStatus, errorThrown ) {
+			console.log( xhr, textStatus, errorThrown );
+		});
 		if (typeof WSFormEditor !== 'undefined' && WSFormEditor === 'VE') {
 			WSFormEditorsUpdates = false
 		}

@@ -12,6 +12,9 @@ namespace FlexForm\Core;
 
 use Database;
 use FlexForm\FlexFormException;
+use Wikimedia\Rdbms\DBError;
+use Wikimedia\Rdbms\DBUnexpectedError;
+use Wikimedia\Rdbms\IDatabase;
 
 /**
  * Class to gather information down the path of form handling and create responses
@@ -193,13 +196,21 @@ class HandleResponse {
 		$database = wfGetDB( DB_PRIMARY );
 
 		if ( $database->writesPending() ) {
-			// If there is still a database update pending, commit it here
-			$database->commit(
-				__METHOD__,
-				Database::FLUSHING_ALL_PEERS
-			);
-		}
 
+			// If there is still a database update pending, commit it here
+			try {
+				$database->commit(
+					__METHOD__,
+					IDatabase::FLUSHING_INTERNAL
+				);
+			} catch ( DBError | DBUnexpectedError $e ) {
+				throw new FlexFormException(
+					$e->getMessage(),
+					0,
+					$e
+				);
+			}
+		}
 		try {
 			if ( $status === 'ok' && $mwReturn !== false ) {
 				$this->redirect( $mwReturn );
@@ -249,6 +260,7 @@ class HandleResponse {
 		if ( $this->getPauseBeforeRefresh() !== false ) {
 			sleep( $this->getPauseBeforeRefresh() );
 		}
+
 		if ( ! $this->apiAjax ) {
 			header( 'Location: ' . $this->getMwReturn() );
 		} else {
