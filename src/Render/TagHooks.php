@@ -989,7 +989,7 @@ class TagHooks {
 
 				$javascriptOptions = [
 					'syncField: "#wsform_signature_data"',
-					'syncFormat: "' . htmlspecialchars( strtoupper( $fileName ) ) . '"'
+					'syncFormat: "' . htmlspecialchars( strtoupper( $fileType ) ) . '"'
 				];
 
 				if ( isset( $args['background'] ) ) {

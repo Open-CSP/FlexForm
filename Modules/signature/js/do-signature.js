@@ -2,9 +2,9 @@
 
 
 function wachtff(method) {
-	console.log('wacht ff op jQuery..');
+	//console.log('wacht ff op jQuery..');
 	if (window.jQuery) {
-		console.log('ok JQuery active.. lets go!');
+		//console.log('ok JQuery active.. lets go!');
 		method();
 	} else {
 		setTimeout(function() { wachtff(method) }, 50);

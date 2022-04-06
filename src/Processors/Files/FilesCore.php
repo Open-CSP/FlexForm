@@ -13,6 +13,7 @@ use Symfony\Component\Security\Acl\Exception\Exception;
 class FilesCore {
 
 	 public const FILENAME = 'wsformfile';
+	 public const SIGNATURE_FILENAME = 'wsform_signature';
 
 	/**
 	 * @return void
@@ -20,29 +21,21 @@ class FilesCore {
 	 */
 	public function handleFileUploads(): void {
 		$wsSignature = General::getPostString(
-			'wsform_signature',
+			self::SIGNATURE_FILENAME,
 			false
 		);
+
+
+		if ( $wsSignature !== false ) {
+			$res = Signature::upload();
+		}
+
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
 				'File upload class',
 				['Looking for ' . self::FILENAME, $_FILES]
 			);
 		}
-		/*
-		if ( $wsSignature !== false ) {
-			$res = signature::upload(
-				$wsuid,
-				$api,
-				$messages
-			);
-			if ( $res['status'] === 'error' ) {
-				$messages->doDie( ' signature : ' . $res['msg'] );
-			}
-			$ret = $res; // v0.7.0.3.3 added
-		}
-		*/
-
 		if ( isset( $_FILES[self::FILENAME] ) ) {
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(

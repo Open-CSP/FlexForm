@@ -61,6 +61,8 @@ class ContentCore {
 	private static function checkFields() {
 		if ( self::$fields['summary'] === false ) {
 			self::$fields['summary'] = self::setSummary();
+		} else {
+			self::$fields['summary'] = self::parseTitle( self::$fields['summary'] );
 		}
 
 		if ( self::$fields['nooverwrite'] === false ) {
@@ -80,7 +82,7 @@ class ContentCore {
 			foreach ( self::$fields['parsePost'] as $pp ) {
 				$pp = General::makeUnderscoreFromSpace( $pp );
 				if ( isset( $_POST[ $pp ] ) ) {
-					$_POST[ $pp ] = $filesCore->parseTitle( $_POST[ $pp ] );
+					$_POST[ $pp ] = self::parseTitle( $_POST[ $pp ] );
 				}
 			}
 		}
@@ -158,7 +160,7 @@ class ContentCore {
 				$save->saveToWiki(
 					$result['title'],
 					$result['content'],
-					self::parseTitle( self::$fields['summary'] ),
+					self::$fields['summary'],
 					self::$fields['overwrite']
 				);
 			} catch ( FlexFormException $e ) {
@@ -284,7 +286,7 @@ class ContentCore {
 							$slotName,
 							$slotContents
 						),
-						self::parseTitle( self::$fields['summary'] )
+						self::$fields['summary']
 					);
 				} catch ( FlexFormException $e ) {
 					throw new FlexFormException(

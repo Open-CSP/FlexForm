@@ -12,6 +12,7 @@ namespace FlexForm\Processors\Files;
 
 use flexform\processors\api\mediawiki\render;
 use flexform\processors\api\mwApi;
+use FlexForm\Processors\Content\ContentCore;
 use FlexForm\Processors\Utilities\General;
 use FlexForm\FlexFormException;
 use FlexForm\Core\Config;
@@ -23,14 +24,27 @@ use FlexForm\Processors\Files\FilesCore;
  */
 class Signature {
 
+
+	/**
+	 * @return string
+	 */
+	private static function getSummary(): string {
+		$summary = General::getPostString( 'mwwikicomment' );
+		if ( $summary === false ) {
+			return "Uploaded using FlexForm.";
+		} else {
+			return ContentCore::parseTitle( $summary );
+		}
+	}
+
 	/**
 	 * Takes care of uploading a signature file
 	 * @param $wsuid
 	 *
 	 * @return string|bool Either true on success or false
 	 */
-	public static function upload( $wsuid ) {
-		global $IP;
+	public static function upload() {
+		global $IP, $wgUser;
 		$allowedTypes = array(
 			'png',
 			'jpg',
@@ -73,10 +87,26 @@ class Signature {
 		$fileCore = new FilesCore();
 		$url     = Config::getConfigVariable( 'wgCanonicalServer' ) . 'extensions/FlexForm/uploads/' . $fname;
 		$pname   = trim( $wname );
-		$comment = "Uploaded using FlexForm.";
-		$result  = $api->uploadFileToWiki( $pname, $url, $pcontent, $comment, $upload_dir . $fname );
+		$comment = self::getSummary();
+		//$result  = $api->uploadFileToWiki( $pname, $url, $pcontent, $comment, $upload_dir . $fname );
+		$uploadFile = new Upload();
+		$resultFileUpload = $uploadFile->uploadFileToWiki(
+			$upload_dir . $fname,
+			$pname,
+			$wgUser,
+			$pcontent,
+			$comment,
+			wfTimestampNow()
+		);
+		if ( $resultFileUpload !== true ) {
+			throw new FlexFormException(
+				$resultFileUpload,
+				0
+			);
+		}
+
 		unlink( $upload_dir . $fname );
 
-		return $result;
+		return true;
 	}
 }
