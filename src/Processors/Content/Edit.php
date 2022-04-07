@@ -435,12 +435,24 @@ class Edit {
 						$edit['template']
 					);
 				}
-				if ( $templateContent === false ) {
+				if ( Config::isDebug() ) {
+					Debug::addToDebug(
+						'Template content for ' . $pid,
+						$templateContent
+					);
+				}
+				if ( $templateContent === false || empty( trim( $templateContent ) ) ) {
 					//echo 'skipping ' . $edit['template'] ;
 					continue;
 				}
 
 				$expl = self::pregExplode( $templateContent );
+				if ( $expl === false ) {
+					// There's nothing to explode lets add the new argument
+					$expl = [];
+					$expl[] = $edit['variable'] . '=' . $edit['value'];
+					$usedVariables[] = $edit['variable'];
+				}
 				foreach ( $expl as $k => $line ) {
 					$tmp = explode(
 						'=',
@@ -462,6 +474,15 @@ class Edit {
 				$newTemplateContent = '';
 				$cnt                = count( $expl );
 				$t                  = 0;
+				if ( Config::isDebug() ) {
+					Debug::addToDebug(
+						'Creating new template content for ' . $pid,
+						[ 'cnt expl' => $cnt,
+						  'expl' => $expl,
+						  'cnt usedvariables' => count( $usedVariables),
+						  'Edit' => $edit ]
+					);
+				}
 				foreach ( $expl as $line ) {
 					if ( strlen( $line ) > 1 ) {
 						$newTemplateContent .= "\n" . '|' . trim( $line );
@@ -481,7 +502,9 @@ class Edit {
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
 					'edit data page formation ',
-					$pageContents
+					['old Template content' => $templateContent,
+						'new Template Content' => $newTemplateContent,
+						'pagecontents' => $pageContents ]
 				);
 			}
 
