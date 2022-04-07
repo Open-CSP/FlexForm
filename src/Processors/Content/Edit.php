@@ -502,9 +502,7 @@ class Edit {
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
 					'edit data page formation ',
-					['old Template content' => $templateContent,
-						'new Template Content' => $newTemplateContent,
-						'pagecontents' => $pageContents ]
+					[ 'pagecontents' => $pageContents ]
 				);
 			}
 
