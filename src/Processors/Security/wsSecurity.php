@@ -110,9 +110,9 @@ class wsSecurity {
 					} else {
 						$_POST[ $newK ] = $newV;
 					}
-				} elseif( $showOnSelect ) {
+				} elseif ( $showOnSelect ) {
 					continue;
-				}else {
+				} else {
 					throw new FlexFormException( wfMessage( 'flexform-secure-fields-incomplete' ) );
 				}
 			}
