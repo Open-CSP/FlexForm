@@ -4,6 +4,7 @@ namespace FlexForm\Processors\Content;
 
 use CommentStoreComment;
 use ContentHandler;
+use DeferredUpdates;
 use ExtensionRegistry;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
@@ -60,6 +61,7 @@ class Save {
 		$old_revision_record = $wikipage_object->getRevisionRecord();
 		$slot_role_registry  = MediaWikiServices::getInstance()->getSlotRoleRegistry();
 
+
 		// loop through all slots we need to edit/create
 		foreach ( $text as $slot_name => $content ) {
 			if ( Config::isDebug() ) {
@@ -74,7 +76,7 @@ class Save {
 			}
 			$content = $this->removeCarriageReturnFromContent( $content );
 			// Make sure the slot we are editing is defined in MW else skip this slot
-			if ( ! $slot_role_registry->isDefinedRole( $slot_name ) ) {
+			if ( !$slot_role_registry->isDefinedRole( $slot_name ) ) {
 				$status   = false;
 				$errors[] = wfMessage(
 					"flexform-unkown-slot",
@@ -130,8 +132,10 @@ class Save {
 		$comment = CommentStoreComment::newUnsavedComment( $summary );
 		$page_updater->saveRevision(
 			$comment,
-			EDIT_INTERNAL
+			EDIT_INTERNAL | EDIT_SUPPRESS_RC | EDIT_UPDATE
 		);
+
+
 
 		if ( ! $page_updater->getStatus()->isOK() ) {
 			// If the update failed, reflect this in the status
@@ -153,19 +157,35 @@ class Save {
 				);
 			}
 		}
+		/*
+		$wikipage_object->setTimestamp( wfTimestampNow() );
+		$wikipage_object->updateParserCache( [
+												 'causeAction' => 'api-purge',
+												 'causeAgent' => $user->getName(),
+											 ] );
+		$wikipage_object->doSecondaryDataUpdates( [
+													  'recursive' => true,
+													  'causeAction' => 'api-purge',
+													  'causeAgent' => $user->getName(),
+													  'defer' => DeferredUpdates::PRESEND,
+												  ] );
+		$wikipage_object->doPurge();
+*/
 
 		if ( ! $page_updater->isUnchanged() ) {
 			$title = $wikipage_object->getTitle();
+
 			$this->refreshSMWProperties( $title );
-			/*
+
 			// Perform an additional null-edit to make sure all page properties are up-to-date
 			$comment      = CommentStoreComment::newUnsavedComment( "" );
 			$page_updater = $wikipage_object->newPageUpdater( $user );
-			$page_updater->saveRevision(
+			$result = $page_updater->saveRevision(
 				$comment,
-				EDIT_SUPPRESS_RC | EDIT_AUTOSUMMARY
+				EDIT_SUPPRESS_RC | EDIT_AUTOSUMMARY | EDIT_UPDATE
 			);
-			*/
+
+
 		}
 
 		if ( $status === true ) {
