@@ -119,6 +119,12 @@ class Save {
 		// Are we creating a new page while filling a slot other than main?
 		if ( $old_revision_record === null && ! isset( $text[SlotRecord::MAIN] ) ) {
 			// The 'main' content slot MUST be set when creating a new page
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'We only have a slot to write, we need to create main as well! -- ' . time(),
+					$slot_name
+				);
+			}
 			$main_content = ContentHandler::makeContent(
 				"",
 				$title_object
@@ -130,10 +136,19 @@ class Save {
 		}
 
 		$comment = CommentStoreComment::newUnsavedComment( $summary );
-		$page_updater->saveRevision(
+		$result = $page_updater->saveRevision(
 			$comment,
-			EDIT_INTERNAL | EDIT_SUPPRESS_RC | EDIT_UPDATE
+			EDIT_INTERNAL | EDIT_SUPPRESS_RC
 		);
+
+		if ( Config::isDebug() ) {
+			$res = "true";
+			if( $result === false ) $res = "false";
+			Debug::addToDebug(
+				'SaveRevision result -- ' . time(),
+				[ 'true or false' => $res ]
+			);
+		}
 
 
 
@@ -173,6 +188,12 @@ class Save {
 */
 
 		if ( ! $page_updater->isUnchanged() ) {
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'Page has changed, lets do a null edit! ' . time(),
+					"no further info"
+				);
+			}
 			$title = $wikipage_object->getTitle();
 
 			$this->refreshSMWProperties( $title );
@@ -182,8 +203,16 @@ class Save {
 			$page_updater = $wikipage_object->newPageUpdater( $user );
 			$result = $page_updater->saveRevision(
 				$comment,
-				EDIT_SUPPRESS_RC | EDIT_AUTOSUMMARY | EDIT_UPDATE
+				EDIT_SUPPRESS_RC | EDIT_AUTOSUMMARY
 			);
+			if ( Config::isDebug() ) {
+				$res = "success";
+				if( $result === false ) $res = "error";
+				Debug::addToDebug(
+					'Null edit result -- ' . time(),
+					$res
+				);
+			}
 
 
 		}
@@ -200,7 +229,7 @@ class Save {
 	 */
 	private function refreshSMWProperties( Title $title ) {
 		sleep( 1 );
-		if ( ! ExtensionRegistry::getInstance()->isLoaded( 'SemanticMediaWiki' ) ) {
+		if ( !ExtensionRegistry::getInstance()->isLoaded( 'SemanticMediaWiki' ) ) {
 			return;
 		}
 
