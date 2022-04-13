@@ -4,10 +4,10 @@ namespace FlexForm\Processors\Content;
 
 use CommentStoreComment;
 use ContentHandler;
-use DeferredUpdates;
 use ExtensionRegistry;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
+use MWContentSerializationException;
 use MWException;
 use RequestContext;
 use Title;
@@ -38,6 +38,8 @@ class Save {
 	}
 
 	/**
+	 * This function will save a page to the Wiki and all slots in one go.
+	 *
 	 * @param User $user The user that performs the edit
 	 * @param WikiPage $wikipage_object The page to edit
 	 * @param array $text $key is slotname and value is the text to insert
@@ -45,8 +47,8 @@ class Save {
 	 *
 	 * @return true|array True on success, and an error message with an error code otherwise
 	 *
-	 * @throws \MWContentSerializationException Should not happen
-	 * @throws \MWException Should not happen
+	 * @throws MWContentSerializationException Should not happen
+	 * @throws MWException Should not happen
 	 */
 	private function editSlots(
 		User $user,
@@ -60,7 +62,7 @@ class Save {
 		$page_updater        = $wikipage_object->newPageUpdater( $user );
 		$old_revision_record = $wikipage_object->getRevisionRecord();
 		$slot_role_registry  = MediaWikiServices::getInstance()->getSlotRoleRegistry();
-
+		$mainContentText     = '';
 
 		// loop through all slots we need to edit/create
 		foreach ( $text as $slot_name => $content ) {
@@ -81,7 +83,7 @@ class Save {
 				$errors[] = wfMessage(
 					"flexform-unkown-slot",
 					$slot_name
-				); // TODO: Update message name
+				);
 				unset( $text[$slot_name] );
 				continue;
 			}
@@ -98,6 +100,9 @@ class Save {
 				} else {
 					$model_id = $slot_role_registry->getRoleHandler( $slot_name )->getDefaultModel( $title_object );
 				}
+				if ( $slot_name === SlotRecord::MAIN ) {
+					$mainContentText = $content;
+				}
 
 				$slot_content = ContentHandler::makeContent(
 					$content,
@@ -110,14 +115,14 @@ class Save {
 				);
 				/*
 				if ( $slot_name !== SlotRecord::MAIN ) {
-					$page_updater->addTag( 'wsslots-slot-edit' ); // TODO: Update message name
+					$page_updater->addTag( 'wsslots-slot-edit' ); // TODO: Update message name and if tags are needed
 				}
 				*/
 			}
 		}
 
 		// Are we creating a new page while filling a slot other than main?
-		if ( $old_revision_record === null && ! isset( $text[SlotRecord::MAIN] ) ) {
+		if ( $old_revision_record === null && !isset( $text[SlotRecord::MAIN] ) ) {
 			// The 'main' content slot MUST be set when creating a new page
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
@@ -125,6 +130,7 @@ class Save {
 					$slot_name
 				);
 			}
+			$mainContentText = '';
 			$main_content = ContentHandler::makeContent(
 				"",
 				$title_object
@@ -138,24 +144,24 @@ class Save {
 		$comment = CommentStoreComment::newUnsavedComment( $summary );
 		$result = $page_updater->saveRevision(
 			$comment,
-			EDIT_INTERNAL | EDIT_SUPPRESS_RC
+			EDIT_SUPPRESS_RC | EDIT_INTERNAL
 		);
+
 
 		if ( Config::isDebug() ) {
 			$res = "true";
-			if( $result === false ) $res = "false";
+			if ( $result === false ) {
+				$res = "false";
+			}
 			Debug::addToDebug(
 				'SaveRevision result -- ' . time(),
 				[ 'true or false' => $res ]
 			);
 		}
 
-
-
-		if ( ! $page_updater->getStatus()->isOK() ) {
+		if ( !$page_updater->getStatus()->isOK() ) {
 			// If the update failed, reflect this in the status
 			$status = false;
-
 			$errors[] = $page_updater->getStatus()->getMessage()->toString();
 		}
 
@@ -173,6 +179,8 @@ class Save {
 			}
 		}
 		/*
+		 * Some testing to see if any of these functions trigger DisplayTitle property update
+		 *
 		$wikipage_object->setTimestamp( wfTimestampNow() );
 		$wikipage_object->updateParserCache( [
 												 'causeAction' => 'api-purge',
@@ -187,7 +195,7 @@ class Save {
 		$wikipage_object->doPurge();
 */
 
-		if ( ! $page_updater->isUnchanged() ) {
+		if ( !$page_updater->isUnchanged() ) {
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
 					'Page has changed, lets do a null edit! ' . time(),
@@ -196,31 +204,72 @@ class Save {
 			}
 			$title = $wikipage_object->getTitle();
 
+			// Refresh SMW properties if applicable
 			$this->refreshSMWProperties( $title );
 
 			// Perform an additional null-edit to make sure all page properties are up-to-date
-			$comment      = CommentStoreComment::newUnsavedComment( "" );
-			$page_updater = $wikipage_object->newPageUpdater( $user );
-			$result = $page_updater->saveRevision(
-				$comment,
-				EDIT_SUPPRESS_RC | EDIT_AUTOSUMMARY
-			);
-			if ( Config::isDebug() ) {
-				$res = "success";
-				if( $result === false ) $res = "error";
-				Debug::addToDebug(
-					'Null edit result -- ' . time(),
-					$res
-				);
-			}
-
-
+			$this->doNullEdit( $user, $wikipage_object, $mainContentText );
 		}
 
 		if ( $status === true ) {
 			return true;
 		} else {
 			return $errors;
+		}
+	}
+
+	/**
+	 * @param User $user
+	 * @param WikiPage $wikiPageObject
+	 *
+	 * @return void
+	 * @throws MWException
+	 */
+	private function doNullEdit( User $user, WikiPage $wikiPageObject, $content ) {
+		$title = $wikiPageObject->getTitle()->getFullText();
+		$titleObject = Title::newFromText( $title );
+		$wikiPageObject = WikiPage::factory( $titleObject );
+		//https://nw-wsform.wikibase.nl/api.php?action=edit&format=json&title=Displaytitle_test&appendtext=%20ola&token=4eed6b0237ae86236a9640a795bb52bb6256cbbe%2B%5C
+		/*
+		$content = rtrim( $content, " " );
+		$render   = new Render();
+		$csrf = $user->getEditToken();
+		if ( Config::isDebug() ) {
+			Debug::addToDebug( 'Get CSRF token ' . time(), $csrf );
+		}
+		$postdata = [
+			"action"     => "edit",
+			"format"     => "json",
+			"title"      => $wikiPageObject->getTitle()->getFullText(),
+			"text" 		 => $content . " ",
+			"token"      => $csrf
+		];
+		if ( Config::isDebug() ) {
+			Debug::addToDebug( 'Space Edit request data ' . time(), $postdata );
+		}
+		$result = $render->makeRequest( $postdata );
+		if ( Config::isDebug() ) {
+			Debug::addToDebug( 'Space Edit request ' . time(), $result );
+		}
+
+		*/
+		$comment = CommentStoreComment::newUnsavedComment( "" );
+		$wikiPageObject->doPurge();
+		$page_updater = $wikiPageObject->newPageUpdater( $user );
+
+		$result = $page_updater->saveRevision(
+			$comment,
+			EDIT_SUPPRESS_RC | EDIT_AUTOSUMMARY
+		);
+		if ( Config::isDebug() ) {
+			$res = "success";
+			if ( $result === false ) {
+				$res = "error";
+			}
+			Debug::addToDebug(
+				'Null edit result -- ' . time(),
+				$res
+			);
 		}
 	}
 
@@ -261,7 +310,7 @@ class Save {
 	 * @return void
 	 * @throws MWException
 	 * @throws FlexFormException
-	 * @throws \MWContentSerializationException
+	 * @throws MWContentSerializationException
 	 */
 	public function saveToWiki( string $title, array $contentArray, string $summary, bool $overWrite = true ) {
 		$user        = RequestContext::getMain()->getUser();

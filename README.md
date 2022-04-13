@@ -33,7 +33,7 @@ $wgFlexFormConfig['FlexFormDefaultTheme']   = "Plain"; // Currently the only for
 $wgFlexFormConfig['rc_site_key']            = ""; // reCaptcha site key
 $wgFlexFormConfig['rc_secret_key']          = ""; // reCaptcha secret key
 $wgFlexFormConfig['file_temp_path']         = ""; // When using image upload conversion, we need a place to temporarily store images.
-$wgFlexFormConfig['can_create_user']        = false; // If FlexForm is allowed to create users functions
+$wgFlexFormConfig['can_create_user']        = false; // If FlexForm is allowed to create new users
 $wgFlexFormConfig['auto_save_btn_on']       = "Autosave On";
 $wgFlexFormConfig['auto_save_btn_off']      = "Autosave Off";
 $wgFlexFormConfig['use_smtp']               = false; // when sending email, should we use separate smtp ?
@@ -63,7 +63,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 
 ### Changelog
-* 1.1.0 : Email bot api support, create user support, various fixed after refactoring
+* 1.1.0 : Email bot api support, create user support, various fixes after refactoring
 * 1.0.0 : Release
 * 1.0.0 Release Candidate 6 : CreateUser, extensions support
 * 1.0.0 Release Candidate 5 : leadingZero With Multiple Creates

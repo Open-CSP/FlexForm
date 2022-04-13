@@ -211,9 +211,10 @@ class HandleResponse {
 				);
 			}
 		}
+
 		try {
 			if ( $status === 'ok' && $mwReturn !== false ) {
-				$this->redirect( $mwReturn );
+				$this->redirect();
 			}
 		} catch ( FlexFormException $e ) {
 			throw new FlexFormException(
@@ -226,7 +227,7 @@ class HandleResponse {
 		if ( $status !== 'ok' && $mwReturn !== false ) { // Status not ok.. but we have redirect ?
 			$this->setCookieMessage( $message ); // set cookies
 			try {
-				$this->redirect( $mwReturn ); // do a redirect or json output
+				$this->redirect(); // do a redirect or json output
 			} catch ( FlexFormException $e ) {
 				throw new FlexFormException(
 					$e->getMessage(),
@@ -237,8 +238,6 @@ class HandleResponse {
 		} else { // Status not ok.. and no redirect
 			$this->outputMsg( $message ); // show error on screen or do json output
 		}
-
-		exit();
 	}
 
 	/**
@@ -261,7 +260,7 @@ class HandleResponse {
 			sleep( $this->getPauseBeforeRefresh() );
 		}
 
-		if ( ! $this->apiAjax ) {
+		if ( !$this->apiAjax ) {
 			header( 'Location: ' . $this->getMwReturn() );
 		} else {
 			$this->outputJson(
