@@ -1287,9 +1287,13 @@ class TagHooks {
 	 * @return array
 	 */
 	private function filterInputTags( array $tags ): array {
+		$skipped = [
+			'src',
+			'value'
+		];
 		if ( Config::isFilterTags() ) {
 			foreach ( $tags as $k => $v ) {
-				if ( $k !== 'value' ) {
+				if ( !in_array( $k, $skipped ) && ( substr( $k, 0, 4 ) !== 'data' ) ) {
 					$k        = Protect::purify(
 						$k,
 						'nohtml',
