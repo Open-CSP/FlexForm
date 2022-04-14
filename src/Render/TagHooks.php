@@ -1284,10 +1284,6 @@ class TagHooks {
 	 * @throws FlexFormException
 	 */
 	public function renderLabel( $input, array $args, Parser $parser, PPFrame $frame ) {
-		$input = $parser->recursiveTagParse(
-			$input,
-			$frame
-		);
 
 		if ( isset( $args['for'] ) ) {
 			$for = $args['for'];
@@ -1302,6 +1298,29 @@ class TagHooks {
 			if ( Validate::validParameters( $name ) ) {
 				$inputArguments[$name] = $value;
 			}
+		}
+
+		// We always parse the input, unless noparse is set.
+		if ( ! isset( $args['noparse'] ) ) {
+			$noParse = false;
+			$input = $parser->recursiveTagParse(
+				$input,
+				$frame
+			);
+		} else {
+			unset( $args['noparse'] );
+			$noParse = true;
+		}
+
+		$htmlType = Validate::validHTML( $args );
+
+		if ( $input !== '' ) {
+			// We want to purify the input based on the form's HTML type
+			$input = Protect::purify(
+				$input,
+				$htmlType,
+				Config::isSecure()
+			);
 		}
 
 		$output = $this->themeStore->getFormTheme()->getLabelRenderer()->render_label(
