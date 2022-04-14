@@ -14,65 +14,35 @@ class PlainFieldRenderer implements FieldRenderer {
 	 * @inheritDoc
 	 */
 	public function render_text( array $args ) : string {
-		$args['type'] = 'text';
-
-		return Xml::tags(
-			'input',
-			$args,
-			''
-		);
+		return $this->renderSimpelInput( 'text', $args );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function render_hidden( array $args ) : string {
-		$args['type'] = 'hidden';
-
-		return Xml::tags(
-			'input',
-			$args,
-			''
-		);
+		return $this->renderSimpelInput( 'hidden', $args );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function render_secure( array $args ) : string {
-		$args['type'] = 'hidden';
-
-		return Xml::tags(
-			'input',
-			$args,
-			''
-		);
+		return $this->renderSimpelInput( 'hidden', $args );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function render_search( array $args ) : string {
-		$args['type'] = 'search';
-
-		return Xml::tags(
-			'input',
-			$args,
-			''
-		);
+		return $this->renderSimpelInput( 'search', $args );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function render_number( array $args ) : string {
-		$args['type'] = 'number';
-
-		return Xml::tags(
-			'input',
-			$args,
-			''
-		);
+		return $this->renderSimpelInput( 'number', $args );
 	}
 
 	/**
@@ -177,143 +147,77 @@ class PlainFieldRenderer implements FieldRenderer {
 	 * @inheritDoc
 	 */
 	public function render_date( array $args ) : string {
-		$args['type'] = 'date';
-
-		return Xml::tags(
-			'input',
-			$args,
-			''
-		);
+		return $this->renderSimpelInput( 'date', $args );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function render_month( array $args ) : string {
-		$args['type'] = 'month';
-
-		return Xml::tags(
-			'input',
-			$args,
-			''
-		);
+		return $this->renderSimpelInput( 'month', $args );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function render_week( array $args ) : string {
-		$args['type'] = 'week';
-
-		return Xml::tags(
-			'input',
-			$args,
-			''
-		);
+		return $this->renderSimpelInput( 'week', $args );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function render_time( array $args ) : string {
-		$args['type'] = 'time';
-
-		return Xml::tags(
-			'input',
-			$args,
-			''
-		);
+		return $this->renderSimpelInput( 'time', $args );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function render_datetime( array $args ) : string {
-		$args['type'] = 'datetime';
-
-		return Xml::tags(
-			'input',
-			$args,
-			''
-		);
+		return $this->renderSimpelInput( 'datetime', $args );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function render_datetimelocal( array $args ) : string {
-		$args['type'] = 'datetime-local';
-
-		return Xml::tags(
-			'input',
-			$args,
-			''
-		);
+		return $this->renderSimpelInput( 'datetime-local', $args );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function render_password( array $args ) : string {
-		$args['type'] = 'password';
-
-		return Xml::tags(
-			'input',
-			$args,
-			''
-		);
+		return $this->renderSimpelInput( 'password', $args );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function render_email( array $args ) : string {
-		$args['type'] = 'email';
-
-		return Xml::tags(
-			'input',
-			$args,
-			''
-		);
+		return $this->renderSimpelInput( 'email', $args );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function render_color( array $args ) : string {
-		$args['type'] = 'color';
-
-		return Xml::tags(
-			'input',
-			$args,
-			''
-		);
+		return $this->renderSimpelInput( 'color', $args );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function render_range( array $args ) : string {
-		$args['type'] = 'range';
-
-		return Xml::tags(
-			'input',
-			$args,
-			''
-		);
+		return $this->renderSimpelInput( 'range', $args );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function render_image( array $args ) : string {
-		$args['type'] = 'image';
-
-		return Xml::tags(
-			'input',
-			$args,
-			''
-		);
+		return $this->renderSimpelInput( 'image', $args );
 	}
 
 	/**
@@ -463,6 +367,25 @@ class PlainFieldRenderer implements FieldRenderer {
 	public function render_mobilescreenshot( string $input, array $args, Parser $parser, PPFrame $frame ) : string {
 		// TODO: Implement mobilescreenshot
 		return '';
+	}
+
+	/**
+	 * @param string $type
+	 * @param array $args
+	 * @param mixed $input
+	 *
+	 * @return string
+	 */
+	private function renderSimpelInput( string $type, array $args, $input = false ) {
+		$ret = '<input type="' . $type . '"';
+		foreach ( $args as $k => $v ) {
+			$ret .= ' ' . $k . '="' . $v . '"';
+		}
+		$ret .= '>';
+		if ( $input !== false ) {
+			$ret .= $input . '</' . $type . '>';
+		}
+		return $ret;
 	}
 
 }
