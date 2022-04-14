@@ -441,7 +441,6 @@ class PlainFieldRenderer implements FieldRenderer {
 		array $additionalArguments
 	) : string {
 		$textareaAttributes = $additionalArguments;
-
 		if ( $class !== null ) {
 			$textareaAttributes['class'] = $class;
 		}
@@ -449,15 +448,13 @@ class PlainFieldRenderer implements FieldRenderer {
 		if ( $editor === 've' ) {
 			// TODO: Implement VisualEditor
 		}
+		$ret = '<textarea name="' . $name . '"';
+		foreach ( $textareaAttributes as $k => $v ) {
+			$ret .= ' ' . $k . '="' . $v . '"';
+		}
+		$ret .= ">" . $input . "</textarea>";
+		return $ret;
 
-
-		return Xml::textarea(
-			$name,
-			$input,
-			40,
-			5,
-			$textareaAttributes
-		);
 	}
 
 	/**

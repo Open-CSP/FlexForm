@@ -66,7 +66,8 @@
       "smtp_port": 587,
       "debug": false,
       "FlexFormDefaultTheme": "Plain",
-      "can_create_user": false
+      "can_create_user": false,
+      "filter_input_tags" : true
     }
 
   },

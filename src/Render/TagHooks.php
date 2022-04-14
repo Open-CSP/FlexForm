@@ -437,7 +437,9 @@ class TagHooks {
 	public function renderField( $input, array $args, Parser $parser, PPFrame $frame ) {
 		global $IP;
 
-		if ( ! isset( $args['type'] ) ) {
+		$args = $this->filterInputTags( $args );
+
+		if ( !isset( $args['type'] ) ) {
 			return [
 				wfMessage( "flexform-field-invalid" )->parse(),
 				"markerType" => 'nowiki'
@@ -446,7 +448,7 @@ class TagHooks {
 
 		$fieldType = $args['type'];
 
-		if ( ! Validate::validInputTypes( $fieldType ) ) {
+		if ( !Validate::validInputTypes( $fieldType ) ) {
 			return [
 				wfMessage( "flexform-field-invalid" )->parse() . ": " . $fieldType,
 				"markerType" => 'nowiki'
@@ -548,7 +550,6 @@ class TagHooks {
 					$preparedArguments,
 					$args['show-on-checked'] ?? ''
 				);
-
 				break;
 			case 'checkbox':
 
@@ -929,6 +930,7 @@ class TagHooks {
 				$htmlType = Validate::validHTML( $args );
 
 				if ( $input !== '' ) {
+
 					/*
 					if ( $noParse === false ) {
 						$input = $parser->recursiveTagParse(
@@ -938,12 +940,16 @@ class TagHooks {
 					}
 					*/
 					// We want to purify the input based on the form's HTML type
+					//echo "<pre>";
+					//var_dump( $input );
 					$input = Protect::purify(
 						$input,
 						$htmlType,
 						Config::isSecure()
 					);
-				} else {
+					//var_dump( $input );
+					//echo "</pre>";
+				} elseif ( Core::getValue( $tagName ) !== '' ) {
 					// No input is given in the field, but we might have input through GET parameters
 					$input = Protect::purify(
 						Core::getValue( $tagName ),
@@ -964,8 +970,10 @@ class TagHooks {
 					$tagName,
 					$class,
 					$editor,
-					$additionalArguments
+					$additionalArguments,
+					$htmlType
 				);
+
 
 				break;
 			case 'signature':
@@ -1176,6 +1184,7 @@ class TagHooks {
 			$input,
 			$frame
 		);
+		$args = $this->filterInputTags( $args );
 
 		foreach ( $args as $name => $value ) {
 			if ( ( strpos(
@@ -1273,6 +1282,32 @@ class TagHooks {
 	}
 
 	/**
+	 * @param $tags
+	 *
+	 * @return array
+	 */
+	private function filterInputTags( array $tags ): array {
+		if ( Config::isFilterTags() ) {
+			foreach ( $tags as $k => $v ) {
+				if ( $k !== 'value' ) {
+					$k        = Protect::purify(
+						$k,
+						'nohtml',
+						true
+					);
+					$v        = Protect::purify(
+						$v,
+						'nohtml',
+						true
+					);
+					$tags[$k] = $v;
+				}
+			}
+		}
+		return $tags;
+	}
+
+	/**
 	 * @brief renders the html label
 	 *
 	 * @param string $input Received from parser from begin till end
@@ -1284,7 +1319,7 @@ class TagHooks {
 	 * @throws FlexFormException
 	 */
 	public function renderLabel( $input, array $args, Parser $parser, PPFrame $frame ) {
-
+		$args = $this->filterInputTags( $args );
 		if ( isset( $args['for'] ) ) {
 			$for = $args['for'];
 			unset( $args['for'] );
