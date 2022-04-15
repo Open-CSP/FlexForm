@@ -484,11 +484,16 @@ class TagHooks {
 		   TODO: Like you want to have {{Template:test}} inside the content of a page!
 		*/
 		foreach ( $args as $name => $value ) {
-			$args[$name] = $this->tagParseIfNeeded(
+			$tempValue = $this->tagParseIfNeeded(
 				$value,
 				$parser,
 				$frame
 			);
+			if ( $tempValue !== $value ) {
+				// If we have had to parse the content, then make sure HTMLPurifier leaves it alone
+				$args['html'] = 'all';
+			}
+			$args[$name] = $tempValue;
 		}
 
 		$renderer = $this->themeStore->getFormTheme()->getFieldRenderer();
