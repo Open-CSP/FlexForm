@@ -119,7 +119,8 @@ class TagHooks {
 		}
 
 		if ( isset( $args['mwreturn'] ) ) {
-			$mwReturn = Core::getMWReturn( $args['mwreturn'] );
+			$mwReturn = self::tagParseIfNeeded( $args['mwreturn'], $parser, $frame );
+			$mwReturn = Core::getMWReturn( $mwReturn );
 			unset( $args['mwreturn'] );
 		} else {
 			$mwReturn = $parser->getTitle()->getLinkURL();
