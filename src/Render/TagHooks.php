@@ -1357,17 +1357,6 @@ class TagHooks {
 			$noParse = true;
 		}
 
-		$htmlType = Validate::validHTML( $args );
-
-		if ( $input !== '' ) {
-			// We want to purify the input based on the form's HTML type
-			$input = Protect::purify(
-				$input,
-				$htmlType,
-				Config::isSecure()
-			);
-		}
-
 		$output = $this->themeStore->getFormTheme()->getLabelRenderer()->render_label(
 			$input,
 			$for,
