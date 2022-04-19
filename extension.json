@@ -36,6 +36,9 @@
     ],
     "BeforePageOutput": [
       "FlexFormHooks::onBeforePageOutput"
+    ],
+    "SkinTemplateNavigation": [
+      "FlexForm\\Core\\Rights::hideSource"
     ]
   },
   "MessagesDirs": {
@@ -67,7 +70,10 @@
       "debug": false,
       "FlexFormDefaultTheme": "Plain",
       "can_create_user": false,
-      "filter_input_tags" : true
+      "filter_input_tags" : true,
+      "allowedCreateAndEdit" : [
+        "sysop"
+      ]
     }
 
   },
