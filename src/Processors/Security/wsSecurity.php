@@ -220,6 +220,7 @@ class wsSecurity {
 	 * @return string cleaned text
 	 */
 	public static function cleanBraces( string $value ) : string {
+		return $value;
 		global $wsuid;
 		if ( $wsuid !== false && ! is_null( $wsuid ) ) {
 			return $value;
