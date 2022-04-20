@@ -39,6 +39,9 @@
     ],
     "SkinTemplateNavigation": [
       "FlexForm\\Core\\Rights::hideSource"
+    ],
+    "getUserPermissionsErrors": [
+      "FlexForm\\Core\\Rights::disableActions"
     ]
   },
   "MessagesDirs": {
@@ -71,9 +74,10 @@
       "FlexFormDefaultTheme": "Plain",
       "can_create_user": false,
       "filter_input_tags" : true,
-      "allowedCreateAndEdit" : [
-        "sysop"
-      ]
+      "CreateAndEditForms" : {
+        "allowedGroups" : [ "sysop" ],
+        "hideEdit" : true
+      }
     }
 
   },

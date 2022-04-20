@@ -16,13 +16,16 @@ use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionRecord;
 use RequestContext;
 use SkinTemplate;
+use Title;
+use User;
+use WikiPage;
 
 class Rights {
 
 	/**
 	 * @var bool
 	 */
-	private static bool $allowed = true;
+	private static $allowed = true;
 
 	// Dive into the skin. Check is a user may edit. If not, remove tabs.
 	//*
@@ -35,14 +38,53 @@ class Rights {
 	 */
 	private static function getConfigVariable( string $name ) {
 		$config = MediaWikiServices::getInstance()->getMainConfig();
+		//var_dump( $config );
 		if ( $config->has( 'FlexFormConfig' ) ) {
 			$ffConfig = $config->get( 'FlexFormConfig' );
+			$ffConfig = $ffConfig['CreateAndEditForms'];
 			return $ffConfig[$name] ?? false;
 		} else {
 			throw new FlexFormException(
 				'No config set',
 				1
 			);
+		}
+	}
+
+	/**
+	 * @param WikiPage $wikipageObject
+	 * @param User $user
+	 *
+	 * @return bool
+	 */
+	private static function doesPageContentFlexForm( WikiPage $wikiPageObject, User $user ) {
+		$content = $wikiPageObject->getContent(
+			RevisionRecord::FOR_THIS_USER,
+			$user
+		)->getWikitextForTransclusion();
+		if ( strpos( $content, '<_form' ) !== false ) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * @param User|null $user
+	 *
+	 * @return bool
+	 * @throws FlexFormException
+	 */
+	private static function isUserAllowedToEditorCreateForms( User $user = null ) {
+		if ( $user === null ) {
+			$user = RequestContext::getMain()->getUser();
+		}
+		$userGroups = MediaWikiServices::getInstance()->getUserGroupManager()->getUserGroups( $user );
+		$allowedUserGroups = self::getConfigVariable( 'allowedGroups' );
+		if ( array_intersect( $allowedUserGroups, $userGroups ) ) {
+			return true;
+		} else {
+			return false;
 		}
 	}
 
@@ -55,27 +97,21 @@ class Rights {
 	 */
 	public static function hideSource( SkinTemplate &$sktemplate, array &$links ) : bool {
 		// always remove viewsource tab
-		$user     = RequestContext::getMain()->getUser();
-		$content = $sktemplate->getWikiPage()->getContent(
-			RevisionRecord::FOR_THIS_USER,
-			$user
-		)->getWikitextForTransclusion();
+		if ( self::getConfigVariable( 'hideEdit' ) !== true ) {
+			return true;
+		}
+		$user = RequestContext::getMain()->getUser();
 		// grab user permissions
-		$userGroups = MediaWikiServices::getInstance()->getUserGroupManager()->getUserGroups( $user );
-		if ( strpos(
-			$content,
-			'<_form'
-		) ) {
-			$allowedUserGroups = self::getConfigVariable( 'allowedCreateAndEdit' );
-
-			if ( !in_array(
-				$allowedUserGroups,
-				$userGroups
-			) ) {
+		if ( self::doesPageContentFlexForm( $sktemplate->getWikiPage(), $user ) ) {
+			self::$allowed = self::isUserAllowedToEditorCreateForms();
+			/*
+			if ( self::isUserAllowedToEditorCreateForms() === false ) {
 				self::$allowed = false;
 			}
+			*/
 		}
 		if ( self::$allowed === false ) {
+			echo "hiding source";
 			// User is not allowed to edit or create a form
 			$removeUs = [ 'edit', 'form_edit', 'history' ];
 			//echo "<pre>";
@@ -93,10 +129,19 @@ class Rights {
 
 	// If a user has no edit rights, then make sure it is hard for him to view
 	// the source of a document
-	public static function disableActions( &$title, &$wgUser, $action, &$result ) {
+	public static function disableActions( Title $title, User $user, $action, &$result ) {
+		if ( $title->isSpecialPage() ) {
+			return true;
+		}
+		$wikipage = WikiPage::newFromID( $title->getArticleID() );
+		$content = $wikipage->getContent(
+			RevisionRecord::FOR_THIS_USER,
+			$user
+		)->getWikitextForTransclusion();
+		$allowedUserGroups = self::getConfigVariable( 'allowedCreateAndEdit' );
 		if ( in_array(
 			'edit',
-			$wgUser->getRights(),
+			$user->getRights(),
 			true
 		) ) {
 			return true;
