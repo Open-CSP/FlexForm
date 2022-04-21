@@ -115,7 +115,6 @@ class PlainFormRenderer implements FormRenderer {
 			$checksumName = Protect::encrypt( 'checksum' );
 			if ( ! empty( Core::$chkSums ) ) {
 				$checksumValue = Protect::encrypt( serialize( Core::$chkSums ) );
-
 				$formContent .= \Xml::input(
 					$checksumName,
 					false,
