@@ -371,13 +371,14 @@ class Edit {
 		// We have all the info in the data Array
 		// Now we need to grab the page and replace what needs to be replaced.
 
-		$pageContents = array();
+		$pageContents = [];
 		$render       = new Render();
+		// Loop through all edits
 		foreach ( $data as $pid => $edits ) {
 			//setup slots if needed
 			$wehaveslots = false;
 			foreach ( $edits as $edit ) {
-				if ( $edit['slot'] !== false && !isset( $pageContents[$edit['slot']]['content'] ) ) {
+				if ( $edit['slot'] !== false && !isset( $pageContents[$pid][$edit['slot']]['content'] ) ) {
 					$wehaveslots = true;
 					//$pageTitle = $edit['slot'];
 					$content = $render->getSlotContent(
@@ -393,14 +394,14 @@ class Edit {
 
 					//$content = $api->getWikiPage( $pid, $edit['slot'] );
 					if ( $content['content'] == '' ) {
-						$pageContents[$edit['slot']]['content'] = false;
+						$pageContents[$pid][$edit['slot']]['content'] = false;
 					} else {
-						$pageContents[$edit['slot']]['content'] = $content['content'];
+						$pageContents[$pid][$edit['slot']]['content'] = $content['content'];
 					}
 
-					$pageContents[$edit['slot']]['title'] = $content['title'];
-				} elseif ( !isset( $pageContents['main'] ) ) {
-					$pageContents['main'] = $render->getSlotContent( $pid );
+					$pageContents[$pid][$edit['slot']]['title'] = $content['title'];
+				} elseif ( !isset( $pageContents[$pid]['main'] ) ) {
+					$pageContents[$pid]['main'] = $render->getSlotContent( $pid );
 					if ( Config::isDebug() ) {
 						Debug::addToDebug(
 							'Content for ' . $pid,
@@ -419,7 +420,7 @@ class Edit {
 
 				if ( $edit['find'] !== false ) {
 					$templateContent = $this->getTemplate(
-						$pageContents[$slotToEdit]['content'],
+						$pageContents[$pid][$slotToEdit]['content'],
 						$edit['template'],
 						$edit['find'],
 						$edit['val']
@@ -431,7 +432,7 @@ class Edit {
 					}
 				} else {
 					$templateContent = $this->getTemplate(
-						$pageContents[$slotToEdit]['content'],
+						$pageContents[$pid][$slotToEdit]['content'],
 						$edit['template']
 					);
 				}
@@ -493,10 +494,10 @@ class Edit {
 					}
 					$t++;
 				}
-				$pageContents[$slotToEdit]['content'] = str_replace(
+				$pageContents[$pid][$slotToEdit]['content'] = str_replace(
 					$templateContent,
 					$newTemplateContent,
-					$pageContents[$slotToEdit]['content']
+					$pageContents[$pid][$slotToEdit]['content']
 				);
 			}
 			if ( Config::isDebug() ) {
