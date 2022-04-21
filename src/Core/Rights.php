@@ -42,6 +42,7 @@ class Rights {
 		if ( $config->has( 'FlexFormConfig' ) ) {
 			$ffConfig = $config->get( 'FlexFormConfig' );
 			$ffConfig = $ffConfig['CreateAndEditForms'];
+
 			return $ffConfig[$name] ?? false;
 		} else {
 			throw new FlexFormException(
@@ -62,7 +63,10 @@ class Rights {
 			RevisionRecord::FOR_THIS_USER,
 			$user
 		)->getWikitextForTransclusion();
-		if ( strpos( $content, '<_form' ) !== false ) {
+		if ( strpos(
+				 $content,
+				 '<_form'
+			 ) !== false ) {
 			return true;
 		} else {
 			return false;
@@ -81,7 +85,10 @@ class Rights {
 		}
 		$userGroups = MediaWikiServices::getInstance()->getUserGroupManager()->getUserGroups( $user );
 		$allowedUserGroups = self::getConfigVariable( 'allowedGroups' );
-		if ( array_intersect( $allowedUserGroups, $userGroups ) ) {
+		if ( array_intersect(
+			$allowedUserGroups,
+			$userGroups
+		) ) {
 			return true;
 		} else {
 			return false;
@@ -97,6 +104,7 @@ class Rights {
 	 */
 	public static function hideSource( SkinTemplate &$sktemplate, array &$links ) : bool {
 		// always remove viewsource tab
+
 		if ( self::getConfigVariable( 'hideEdit' ) !== true ) {
 			return true;
 		}
@@ -106,7 +114,10 @@ class Rights {
 		}
 		$user = RequestContext::getMain()->getUser();
 		// grab user permissions
-		if ( self::doesPageContentFlexForm( $sktemplate->getWikiPage(), $user ) ) {
+		if ( self::doesPageContentFlexForm(
+			$sktemplate->getWikiPage(),
+			$user
+		) ) {
 			self::$allowed = self::isUserAllowedToEditorCreateForms();
 			/*
 			if ( self::isUserAllowedToEditorCreateForms() === false ) {
@@ -115,9 +126,12 @@ class Rights {
 			*/
 		}
 		if ( self::$allowed === false ) {
-			echo "hiding source";
 			// User is not allowed to edit or create a form
-			$removeUs = [ 'edit', 'form_edit', 'history' ];
+			$removeUs = [
+				'edit',
+				'form_edit',
+				'history'
+			];
 			//echo "<pre>";
 			//var_dump( $links['views'] );
 			//echo "</pre>";
@@ -134,25 +148,20 @@ class Rights {
 	// If a user has no edit rights, then make sure it is hard for him to view
 	// the source of a document
 	public static function disableActions( Title $title, User $user, $action, &$result ) {
-
 		if ( $title->isSpecialPage() || ! $title->exists() ) {
 			return true;
 		}
+
 		$wikipage = WikiPage::newFromID( $title->getArticleID() );
-		$content = $wikipage->getContent(
-			RevisionRecord::FOR_THIS_USER,
+
+		if ( self::doesPageContentFlexForm(
+			$wikipage,
 			$user
-		)->getWikitextForTransclusion();
-		$allowedUserGroups = self::getConfigVariable( 'allowedCreateAndEdit' );
-		if ( in_array(
-			'edit',
-			$user->getRights(),
-			true
 		) ) {
-			return true;
-		} else {
-			// define the actions to be blocked
-			$actionNotAllowed = array(
+			if ( self::isUserAllowedToEditorCreateForms( $user ) ) {
+				return true;
+			}
+			$actionNotAllowed = [
 				'edit',
 				'move',
 				'history',
@@ -163,9 +172,16 @@ class Rights {
 				'revisiondelete',
 				'rollback',
 				'markpatrolled'
-			);
+			];
 			// Also disable the version difference options
 			if ( isset( $_GET['diff'] ) ) {
+				$result = "flexform-rights-not";
+
+				return false;
+			}
+			if ( isset( $_GET['veaction'] ) ) {
+				$result = "flexform-rights-not";
+
 				return false;
 			}
 			if ( isset( $_GET['action'] ) ) {
@@ -174,13 +190,14 @@ class Rights {
 					$actie,
 					$actionNotAllowed
 				) ) {
+					$result = "flexform-rights-not";
+
 					return false;
 				}
 			}
-
-			// Any other action is fine
-			return true;
 		}
+
+		return true;
 	}
 
 	// prevent ShowReadOnly form to be shown
