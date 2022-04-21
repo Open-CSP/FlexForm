@@ -505,9 +505,8 @@ class Edit {
 					[ 'pagecontents' => $pageContents ]
 				);
 			}
-
-			return $pageContents;
 		}
+		return $pageContents;
 	}
 
 }

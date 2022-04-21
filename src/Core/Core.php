@@ -489,9 +489,6 @@ class Core {
 	 */
 	public static function addCheckSum( string $type, string $name, $value, string $allowHTML = "default" ) {
 		if ( Config::isSecure() ) {
-			echo "<pre>";
-			var_dump( self::$securityId, Protect::decrypt( $name ) );
-			echo "</pre>";
 			$formId = self::$securityId;
 			if ( $type === 'secure' ) {
 				self::$chkSums[$formId][$type][] = [
