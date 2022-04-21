@@ -162,16 +162,7 @@ class Rights {
 				return true;
 			}
 			$actionNotAllowed = [
-				'edit',
-				'move',
-				'history',
-				'info',
-				'raw',
-				'delete',
-				'revert',
-				'revisiondelete',
-				'rollback',
-				'markpatrolled'
+				'edit'
 			];
 			// Also disable the version difference options
 			if ( isset( $_GET['diff'] ) ) {

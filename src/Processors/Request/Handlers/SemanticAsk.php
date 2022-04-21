@@ -85,15 +85,18 @@ class SemanticAsk {
 					);
 				}
 			}
-
+			//echo $q;
 			if ( $q !== false ) {
 				// Are there spaces in the query?
-				if ( strpos( $q, ' ' ) ) {
+				if ( strpos( $q, ' ' ) !== false ) {
 					$mainQuery = $this->getMainQuery( $query );
 					$explodedQuery = explode( ' ', $q );
 					$newQuery = '';
+//
 					foreach ( $explodedQuery as $seperated ) {
-						$newQuery .= '[[' . $mainQuery . '::' . $this->createNewQuery( $seperated ) . ']]';
+						if ( !empty( $seperated ) ) {
+							$newQuery .= '[[' . $mainQuery . '::' . $this->createNewQuery( $seperated ) . ']]';
+						}
 					}
 					$query = str_replace(
 						'[[' . $mainQuery . '::!!!]]',
@@ -130,7 +133,7 @@ class SemanticAsk {
 
 			//[[Class::Organization]][[Name::~*ik*]]|?Name|?Contact|limit=99999
 			//Process~*hallo*|?Name|?Name|limit=50
-			//echo $query."<pre>";
+			//echo $query;
 
 			$postdata = [
 				"action" => "ask",

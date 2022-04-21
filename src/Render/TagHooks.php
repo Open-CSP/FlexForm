@@ -183,7 +183,7 @@ class TagHooks {
 			unset( $args['show-on-select'] );
 
 			Core::setShowOnSelectActive();
-			$input = Core::checkForShowOnSelectValue( $input );
+			$input = Core::checkForShowOnSelectValueAndType( $input );
 		} else {
 			$showOnSelect = false;
 		}
