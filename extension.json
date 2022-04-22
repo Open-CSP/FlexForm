@@ -1,6 +1,6 @@
 {
   "name": "FlexForm",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": [
     "[https://www.wikibase-solutions.com/author/charlot Sen-Sai]",
     "[https://www.wikibase-solutions.com/author/marijn Marijn]"
@@ -11,6 +11,7 @@
   "type": "parserhook",
   "AutoloadClasses": {
     "ApiFlexForm": "ApiFlexForm.php",
+    "ApiBotFlexForm": "ApiBotFlexForm.php",
     "FlexFormHooks": "FlexForm.hooks.php"
   },
   "AutoloadNamespaces": {
@@ -20,7 +21,8 @@
     "WBFormAlias": "FlexForm.i18n.alias.php"
   },
   "APIModules": {
-    "flexform": "ApiFlexForm"
+    "flexform": "ApiFlexForm",
+    "FlexFormBot": "ApiBotFlexForm"
   },
   "Hooks": {
     "ParserFirstCallInit": [
@@ -34,6 +36,12 @@
     ],
     "BeforePageOutput": [
       "FlexFormHooks::onBeforePageOutput"
+    ],
+    "SkinTemplateNavigation": [
+      "FlexForm\\Core\\Rights::hideSource"
+    ],
+    "getUserPermissionsErrors": [
+      "FlexForm\\Core\\Rights::disableActions"
     ]
   },
   "MessagesDirs": {
@@ -62,13 +70,14 @@
       "smtp_password": "",
       "smtp_secure": "TLS",
       "smtp_port": 587,
-      "use_form_builder": true,
-      "allow_edit_docs": true,
-      "form_timeout_limit": 7200,
-      "allow_special_page_setup": true,
-      "use_api_user_only": false,
       "debug": false,
-      "FlexFormDefaultTheme": "Plain"
+      "FlexFormDefaultTheme": "Plain",
+      "can_create_user": false,
+      "filter_input_tags" : false,
+      "CreateAndEditForms" : {
+        "allowedGroups" : [ "sysop" ],
+        "hideEdit" : true
+      }
     }
 
   },

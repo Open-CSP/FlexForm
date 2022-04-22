@@ -2,14 +2,7 @@
 
 use Wikimedia\ParamValidator\ParamValidator;
 
-/**
- * Created by  : Designburo.nl
- * Project     : flexformWikiBaseNL
- * Filename    : ApiFlexForm.php
- * Description :
- * Date        : 09/10/2020
- * Time        : 20:14
- */
+
 class ApiFlexForm extends ApiBase {
 
 	private function returnFailure( $failure ) {

@@ -182,6 +182,12 @@ class Validate {
 	 * @return array|bool List of valid parameters,  bool true when "$check" is valid, false if not
 	 */
 	public static function validParameters( $check, $ret = false ) {
+
+		$unsafeParameters = [
+			"onfocus",
+			"onclick"
+		];
+
 		$validParameters = array(
 			"alt",
 			"class",
@@ -218,10 +224,15 @@ class Validate {
 			"multiple",
 			"onfocus",
 			"onclick",
-			"buttontype"
+			"buttontype",
+			"show-on-select-trigger",
+			"show-on-select-type"
 		);
 		if ( $ret ) {
 			return $validParameters;
+		}
+		if ( Config::isFilterTags() ) {
+			$validParameters = array_diff( $validParameters, $unsafeParameters );
 		}
 		if ( in_array( $check, $validParameters ) ) {
 			return true;
@@ -373,7 +384,7 @@ class Validate {
 				}
 				if ( $k == "value" ) {
 					$value = true;
-					if( $type === "secure" ) {
+					if ( $type === "secure" ) {
 						Protect::setCrypt( Core::$checksumKey );
 						$val = Protect::encrypt( $v );
 						$v = $val; // set value to be encypted
@@ -391,7 +402,7 @@ class Validate {
 			}
 		}
 		if ( $name && ! $value ) {
-			if( $html === "nohtml" ) {
+			if ( $html === "nohtml" ) {
 				$clean = true;
 			} else $clean = false;
 			//$tmp = \wsform\protect\protect::purify( \wsform\wsform::getValue( $name, $clean ), $html, $secure );

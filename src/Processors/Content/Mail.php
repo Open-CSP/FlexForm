@@ -44,15 +44,25 @@ class Mail {
 	private $template = false;
 
 	/**
+	 * @var bool
+	 */
+	private $isBot = false;
+
+	/**
 	 * @return false|mixed|string
 	 */
 	public function getTemplate() {
 		return $this->template;
 	}
 
-	public function __construct() {
-		$this->fields   = Definitions::mailFields();
+	public function __construct( $template = false ) {
+		$this->fields = Definitions::mailFields();
 		$this->template = $this->fields['mtemplate'];
+		if( $template !== false ) {
+			$this->isBot = true;
+			$this->template = $template;
+		}
+
 	}
 
 	/**
@@ -170,9 +180,8 @@ class Mail {
 	private function getTemplateValueAndDelete( string $template ) : string {
 		// echo "searching for $name";
 		$fieldToGetAndReplace = array_keys( $this->fields );
-
 		foreach ( $fieldToGetAndReplace as $field ) {
-			echo "<p>$field</p>";
+			//echo "<p>$field</p>";
 			$regex = '#%_' . $field . '=(.*?)%#';
 			preg_match(
 				$regex,
@@ -210,7 +219,7 @@ class Mail {
 	 * @throws FlexFormException
 	 * @throws \MWException
 	 */
-	public function handleTemplate() {
+	public function handleTemplate( $additonalFields = [] ) {
 		/*
 		 *  'to'         => General::getPostString( 'mwmailto' ),
 			'content'    => General::getPostString( 'mwmailcontent' ),
@@ -221,18 +230,24 @@ class Mail {
 			'html'       => General::getPostString( 'mwmailhtml' ),
 			'attachment' => General::getPostString( 'mwmailattachment' )
 		 */
-		$fields = ContentCore::getFields();
-		if ( Config::isDebug() ) {
-			Debug::addToDebug(
-				'Mail start fields',
-				$this->fields
-			);
+		if( ! $this->isBot ) {
+			$fields = ContentCore::getFields();
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'Mail start fields',
+					$this->fields
+				);
+			}
+		} else {
+			$fields['parseLast'] = false;
 		}
+
 		if ( $fields['parseLast'] === false ) {
 			$tpl = $this->parseWikiPageByTitle( $this->getTemplate() );
 		} else {
 			$render = new Render();
 			$tpl    = $render->getSlotContent( $this->getTemplate() );
+			$tpl    =  $tpl['content'];
 		}
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
@@ -240,6 +255,7 @@ class Mail {
 				$tpl
 			);
 		}
+
 		$tpl = $this->placeValuesInTemplate( $tpl );
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
@@ -279,12 +295,20 @@ class Mail {
 				$tpl
 			);
 		}
+
 		$tpl = $this->getTemplateValueAndDelete( $tpl );
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
 				'Mail start template values places 4',
 				$tpl
 			);
+		}
+		if( $this->isBot ) {
+			if ( ! empty( $additonalFields ) ) {
+				foreach ( $additonalFields as $key => $value ) {
+					$this->fields[ $key ] = $value;
+				}
+			}
 		}
 
 		// BEGIN Always overrule form fields over template values
@@ -319,6 +343,7 @@ class Mail {
 			);
 		}
 		// END Always overrule form fields over template values
+
 		$this->createEmailBody();
 		if ( $this->fields['html'] === false || $this->fields['html'] === 'yes' ) {
 			$this->fields['html'] = true;
@@ -368,6 +393,7 @@ class Mail {
 				);
 			}
 		}
+
 		$mail                 = new PHPMailer( true );
 		$this->fields['to']   = $this->createEmailArray(
 			$this->fields['to'],

@@ -233,8 +233,7 @@ class Upload {
 				$wgUser,
 				$details,
 				$fields['comment'],
-				wfTimestampNow(),
-				$wgUser
+				wfTimestampNow()
 			);
 			if ( $resultFileUpload !== true ) {
 				throw new FlexFormException(

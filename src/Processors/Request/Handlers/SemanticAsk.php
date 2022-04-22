@@ -7,6 +7,39 @@ use FlexForm\Core\HandleResponse;
 use FlexForm\Processors\Utilities\General;
 
 class SemanticAsk {
+
+	/**
+	 * @param string $query
+	 *
+	 * @return string
+	 */
+	private function getMainQuery( string $query ): string {
+		$matches = [];
+		$mainQuery = '';
+		preg_match_all( '/\[\[(.*?)\]\]/', $query, $matches );
+		foreach ( $matches[1] as $key => $match ) {
+			// Looking for the actual query
+			if ( strpos( $match, '!!!' ) ) {
+				$matchExploded = explode( '::', $match );
+				$mainQuery = $matchExploded[0];
+				break;
+			}
+		}
+		return $mainQuery;
+	}
+
+	/**
+	 * Take a search string or part and add Uppercase first letter and all uppercase to them
+	 * @param string $searchPart
+	 *
+	 * @return string
+	 */
+	private function createNewQuery( string $searchPart ): string {
+		$q2    = ucwords( $searchPart );
+		$q3    = strtoupper( $searchPart );
+		return '~*' . $searchPart . '*||~*' . $q2 . '*||~*' . $q3 . '*';
+	}
+
 	/**
 	 * @param HandleResponse $responseHandler
 	 *
@@ -21,9 +54,9 @@ class SemanticAsk {
 		$limit          = General::getGetString( 'limit', true, false );
 		$ret            = [];
 		$ret['results'] = [];
-//if( strlen( $q ) < 3 ) return $ret;
+		// if( strlen( $q ) < 3 ) return $ret;
 		if ( $query !== false ) {
-			//$ret = createMsg('No query found.');
+			// $ret = createMsg('No query found.');
 			// test query :  $query = "[[Class::Organization]] [[Name::~*ik*]]|?Name |format=json |limit=99999"
 			// ik kan dat q worden voor select2 door !!! in te vullen in de query, deze wordt dan vervangen.
 			if ( strpos( $query, '(' ) !== false && strpos( $query, ')' ) !== false ) {
@@ -52,14 +85,31 @@ class SemanticAsk {
 					);
 				}
 			}
+			//echo $q;
 			if ( $q !== false ) {
-				$q2    = ucwords( $q );
-				$q3    = strtoupper( $q );
-				$query = str_replace(
-					'!!!',
-					'~*' . $q . '*||~*' . $q2 . '*||~*' . $q3 . '*',
-					$query
-				);
+				// Are there spaces in the query?
+				if ( strpos( $q, ' ' ) !== false ) {
+					$mainQuery = $this->getMainQuery( $query );
+					$explodedQuery = explode( ' ', $q );
+					$newQuery = '';
+//
+					foreach ( $explodedQuery as $seperated ) {
+						if ( !empty( $seperated ) ) {
+							$newQuery .= '[[' . $mainQuery . '::' . $this->createNewQuery( $seperated ) . ']]';
+						}
+					}
+					$query = str_replace(
+						'[[' . $mainQuery . '::!!!]]',
+						$newQuery,
+						$query
+					);
+				} else {
+					$query = str_replace(
+						'!!!',
+						$this->createNewQuery( $q ),
+						$query
+					);
+				}
 			} else {
 				$query = str_replace(
 					'!!!',
@@ -79,21 +129,21 @@ class SemanticAsk {
 				$query .= '|limit=50';
 			}
 
-			//echo $query."<BR>";
+			// echo $query."<BR>";
 
 			//[[Class::Organization]][[Name::~*ik*]]|?Name|?Contact|limit=99999
 			//Process~*hallo*|?Name|?Name|limit=50
-			//echo $query."<pre>";
+			//echo $query;
 
 			$postdata = [
 				"action" => "ask",
 				"format" => "json",
-				"query"  =>  $query
+				"query"  => $query
 			];
 			$mRequest = new \FlexForm\Processors\Content\Render();
 			$data     = $mRequest->makeRequest( $postdata );
 
-			if ( isset( $data['query']['results'] ) && ! empty( $data['query']['results'] ) ) {
+			if ( isset( $data['query']['results'] ) && !empty( $data['query']['results'] ) ) {
 				$data = $data['query']['results'];
 
 				$t = 0;

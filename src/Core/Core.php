@@ -157,19 +157,38 @@ class Core {
 	 *
 	 * @return string
 	 */
-	public static function checkForShowOnSelectValue( string $input ): string {
+	public static function checkForShowOnSelectValueAndType( string $input ): string {
 		if ( strpos(
 			$input,
 			'show-on-select-trigger='
 		) ) {
-			return str_replace(
+			$input = str_replace(
 				'show-on-select-trigger=',
 				'data-wssos-value=',
 				$input
 			);
-		} else {
-			return $input;
 		}
+		if ( strpos(
+			$input,
+			'show-on-select-type='
+		) ) {
+			$input = str_replace(
+				'show-on-select-type=',
+				'data-wssos-type=',
+				$input
+			);
+		}
+		if ( strpos(
+			$input,
+			'show-on-select='
+		) ) {
+			$input = str_replace(
+				'show-on-select=',
+				'data-wssos-show=',
+				$input
+			);
+		}
+		return $input;
 	}
 
 	/**

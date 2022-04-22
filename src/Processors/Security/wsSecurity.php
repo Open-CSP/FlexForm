@@ -32,7 +32,7 @@ class wsSecurity {
 	/**
 	 * @return array
 	 */
-	public static function getRemoveList(): array {
+	public static function getRemoveList() : array {
 		return self::$removeList;
 	}
 
@@ -52,11 +52,15 @@ class wsSecurity {
 		try {
 			$crypt::setCrypt();
 		} catch ( FlexFormException $exception ) {
-			throw new FlexFormException( $exception->getMessage(), 0, $exception );
+			throw new FlexFormException(
+				$exception->getMessage(),
+				0,
+				$exception
+			);
 		}
-		$checksum = false;
+		$checksum     = false;
 		$showOnSelect = false;
-		$formId   = General::getPostString( 'formid' );
+		$formId       = General::getPostString( 'formid' );
 		if ( $formId !== false ) {
 			unset( $_POST['formid'] );
 		}
@@ -65,15 +69,19 @@ class wsSecurity {
 			foreach ( $_POST as $k => $v ) {
 				if ( $crypt::decrypt( $k ) === 'checksum' ) {
 					$checksum = unserialize( $crypt::decrypt( $v ) );
-					unset( $_POST[ $k ] );
+					unset( $_POST[$k] );
 				}
 				if ( $crypt::decrypt( $k ) === 'showonselect' ) {
 					$showOnSelect = true;
 					unset( $_POST[$k] );
 				}
 			}
-		} catch( FlexFormException $exception ) {
-			throw new FlexFormException( $exception->getMessage(), 0, $exception );
+		} catch ( FlexFormException $exception ) {
+			throw new FlexFormException(
+				$exception->getMessage(),
+				0,
+				$exception
+			);
 		}
 
 		if ( Config::isDebug() ) {
@@ -85,7 +93,6 @@ class wsSecurity {
 
 		if ( $checksum === false && $formId !== false ) {
 			throw new FlexFormException( wfMessage( 'flexform-secure-not' ) );
-
 		}
 		if ( isset( $checksum[$formId]['secure'] ) ) {
 			foreach ( $checksum[$formId]['secure'] as $secure ) {
@@ -97,22 +104,34 @@ class wsSecurity {
 					try {
 						$newK = $crypt::decrypt( $secure['name'] );
 						$newV = $crypt::decrypt( $tmpName );
-					} catch( FlexFormException $exception ) {
-						throw new FlexFormException( $exception->getMessage(), 0, $exception );
+					} catch ( FlexFormException $exception ) {
+						throw new FlexFormException(
+							$exception->getMessage(),
+							0,
+							$exception
+						);
 					}
 					$delMe = $secure['name'];
 					unset( $_POST[$delMe] );
 					self::$removeList[] = $newK;
-					if ( substr( $newK, - 2, 2 ) === '[]' ) {
+					if ( substr(
+							 $newK,
+							 -2,
+							 2
+						 ) === '[]' ) {
 						//echo "okokoko";
-						$newK             = str_replace( '[]', '', $newK );
-						$_POST[ $newK ][] = $newV;
+						$newK           = str_replace(
+							'[]',
+							'',
+							$newK
+						);
+						$_POST[$newK][] = $newV;
 					} else {
-						$_POST[ $newK ] = $newV;
+						$_POST[$newK] = $newV;
 					}
-				} elseif( $showOnSelect ) {
+				} elseif ( $showOnSelect ) {
 					continue;
-				}else {
+				} else {
 					throw new FlexFormException( wfMessage( 'flexform-secure-fields-incomplete' ) );
 				}
 			}
@@ -120,9 +139,9 @@ class wsSecurity {
 		self::$checksum = $checksum;
 		self::$formId   = $formId;
 		Core::setShowOnSelectActive();
+
 		return true;
 	}
-
 
 
 	/**
@@ -201,6 +220,7 @@ class wsSecurity {
 	 * @return string cleaned text
 	 */
 	public static function cleanBraces( string $value ) : string {
+		return $value;
 		global $wsuid;
 		if ( $wsuid !== false && ! is_null( $wsuid ) ) {
 			return $value;

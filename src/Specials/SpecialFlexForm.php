@@ -401,7 +401,7 @@ class SpecialFlexForm extends \SpecialPage {
 			//ini_set( 'display_errors', 1 );
 			include_once $IP . "/extensions/FlexForm/FlexForm.api.php";
 
-			return true;
+			return;
 		}
 
 		$config_default = false;

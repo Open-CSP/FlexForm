@@ -12,6 +12,9 @@ namespace FlexForm\Core;
 
 use Database;
 use FlexForm\FlexFormException;
+use Wikimedia\Rdbms\DBError;
+use Wikimedia\Rdbms\DBUnexpectedError;
+use Wikimedia\Rdbms\IDatabase;
 
 /**
  * Class to gather information down the path of form handling and create responses
@@ -193,16 +196,25 @@ class HandleResponse {
 		$database = wfGetDB( DB_PRIMARY );
 
 		if ( $database->writesPending() ) {
+
 			// If there is still a database update pending, commit it here
-			$database->commit(
-				__METHOD__,
-				Database::FLUSHING_ALL_PEERS
-			);
+			try {
+				$database->commit(
+					__METHOD__,
+					IDatabase::FLUSHING_INTERNAL
+				);
+			} catch ( DBError | DBUnexpectedError $e ) {
+				throw new FlexFormException(
+					$e->getMessage(),
+					0,
+					$e
+				);
+			}
 		}
 
 		try {
 			if ( $status === 'ok' && $mwReturn !== false ) {
-				$this->redirect( $mwReturn );
+				$this->redirect();
 			}
 		} catch ( FlexFormException $e ) {
 			throw new FlexFormException(
@@ -215,7 +227,7 @@ class HandleResponse {
 		if ( $status !== 'ok' && $mwReturn !== false ) { // Status not ok.. but we have redirect ?
 			$this->setCookieMessage( $message ); // set cookies
 			try {
-				$this->redirect( $mwReturn ); // do a redirect or json output
+				$this->redirect(); // do a redirect or json output
 			} catch ( FlexFormException $e ) {
 				throw new FlexFormException(
 					$e->getMessage(),
@@ -226,8 +238,6 @@ class HandleResponse {
 		} else { // Status not ok.. and no redirect
 			$this->outputMsg( $message ); // show error on screen or do json output
 		}
-
-		exit();
 	}
 
 	/**
@@ -249,7 +259,8 @@ class HandleResponse {
 		if ( $this->getPauseBeforeRefresh() !== false ) {
 			sleep( $this->getPauseBeforeRefresh() );
 		}
-		if ( ! $this->apiAjax ) {
+
+		if ( !$this->apiAjax ) {
 			header( 'Location: ' . $this->getMwReturn() );
 		} else {
 			$this->outputJson(

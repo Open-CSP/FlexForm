@@ -85,7 +85,7 @@ class Definitions {
 	 */
 	public static function createAndEditFields() : array {
 		return [
-			'parsePost'    => General::getPostString( 'wsparsepost' ),
+			'parsePost'    => General::getPostArray( 'wsparsepost' ),
 			'parseLast'    => General::getPostString( 'mwparselast' ),
 			'etoken'       => General::getPostString( 'wsedittoken' ),
 			'template'     => General::getPostString( 'mwtemplate' ),

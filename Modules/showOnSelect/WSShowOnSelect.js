@@ -3,7 +3,7 @@
  */
 async function WsShowOnSelect () {
 	await waitForJQueryIsReady();
-	var divWait = document.querySelector('form')
+	let divWait = document.querySelector('form')
   $('form.WSShowOnSelect').each( function(){
     if( $( this ).hasClass( 'flex-form-hide' ) ) {
       showWeAreWorking( this );
@@ -11,12 +11,12 @@ async function WsShowOnSelect () {
   });
 
 
-	var selectArray = []
+	let selectArray = []
 	$('.WSShowOnSelect').find('[data-wssos-show]').each(function (index, elm) {
 		if ($(elm).is('option')) {
-			var isInArray = false
-			var selectParent = $(elm).parent()[0]
-			for (var i = 0; i < selectArray.length; i++) {
+			let isInArray = false
+			let selectParent = $(elm).parent()[0]
+			for (let i = 0; i < selectArray.length; i++) {
 				if ($(selectParent).is($(selectArray[i]))) {
 					isInArray = true
 				}
@@ -31,6 +31,8 @@ async function WsShowOnSelect () {
 			handleCheckbox(elm)
 		} else if ($(elm).is('button')) {
 			handleButton(elm)
+		} else if ($(elm).is('input') || $(elm).is('textarea')) {
+			handleInput(elm);
 		}
 	})
 	$('form.WSShowOnSelect').each( function(){
@@ -57,7 +59,7 @@ async function waitForJQueryIsReady () {
 	}
 
 	// counter for nr loops
-	var counter = 0
+	let counter = 0
 
 	/**
 	 * checks if jQuery is ready
@@ -79,58 +81,98 @@ async function waitForJQueryIsReady () {
  * @param radioElm
  */
 function handleRadio (radioElm) {
-	var pre_wssos_value = $(radioElm).data('wssos-show')
-	var pre_parent_wssos = $(radioElm).parentsUntil('.WSShowOnSelect').parent()[0]
-	var pre_wssos_elm = $(pre_parent_wssos).find('[data-wssos-value="' + pre_wssos_value + '"]')
+	let wssos_value = $(radioElm).data('wssos-show')
+	let parent_wssos = $(radioElm).parentsUntil('.WSShowOnSelect').parent()[0]
+	let wssos_elm = $(parent_wssos).find('[data-wssos-value*="' + wssos_value + '"]')
 
 	if ($(radioElm).parent().hasClass('WSShowOnSelect')) {
-		pre_parent_wssos = $(radioElm).parent()[0]
-		pre_wssos_elm = $(pre_parent_wssos).find('[data-wssos-value="' + pre_wssos_value + '"]')
+		parent_wssos = $(radioElm).parent()[0]
+		wssos_elm = $(parent_wssos).find('[data-wssos-value*="' + wssos_value + '"]')
 	}
 
-	if (pre_wssos_elm.length === 0) {
-		pre_wssos_elm = $(pre_parent_wssos).find('#' + pre_wssos_value)
+	// if no elements are found, first look up id
+	if (wssos_elm.length === 0) wssos_elm = $(parent_wssos).find('#' + wssos_value)
+
+	let radio = radioElm;
+
+	/**
+	 * Callback for the loop function
+	 * @param index {number}
+	 * @param element {HTMLInputElement}
+	 */
+	const radioElementCb = (index, element) => {
+		element = $(element);
+		let needToShow = false;
+		let element_wssos_value = element.data('wssos-value');
+
+		// are there multiple tags that need to be handled as OR
+		if (element_wssos_value.split('||').length > 1) {
+			needToShow = handleMultipleTags(element_wssos_value.split('||'), parent_wssos, false, element);
+		}
+		// are there multiple tags that need to be handled as AND
+		else if (element_wssos_value.split('&&').length > 1) { // AND
+			needToShow = handleMultipleTags(element_wssos_value.split('&&'), parent_wssos, true, element);
+		}
+		// there are no multiple tags
+		else {
+			if (element_wssos_value !== wssos_value) return;
+			needToShow = radio.checked;
+		}
+
+		if (needToShow) {
+			element.show(0);
+			putAllTypesDataInName(element);
+		} else {
+			element.hide(0);
+			putAllTypesNameInData(element);
+		}
 	}
 
-	if (radioElm.checked) {
-		$(pre_wssos_elm).show(0)
-		putAllTypesDataInName(pre_wssos_elm)
-	} else {
-		$(pre_wssos_elm).hide(0)
-		putAllTypesNameInData(pre_wssos_elm)
-	}
+	$.each(pre_wssos_elm, (index, element) => radioElementCb(index, element));
+
 	$(radioElm).off('change')
 	$(radioElm).on('change', function () {
-		var wssos_value = $(this).data('wssos-show')
-		var parent_wssos = $(this).parentsUntil('.WSShowOnSelect').parent()[0]
-		var wssos_elm = $(parent_wssos).find('[data-wssos-value="' + wssos_value + '"]')
+		wssos_value = $(this).data('wssos-show')
+		parent_wssos = $(this).parentsUntil('.WSShowOnSelect').parent()[0]
+		wssos_elm = $(parent_wssos).find('[data-wssos-value*="' + wssos_value + '"]')
 
 		if ($(this).parent().hasClass('WSShowOnSelect')) {
 			parent_wssos = $(this).parent()[0]
-			wssos_elm = $(parent_wssos).find('[data-wssos-value="' + wssos_value + '"]')
+			wssos_elm = $(parent_wssos).find('[data-wssos-value*="' + wssos_value + '"]')
 		}
 
-		if (wssos_elm.length === 0) {
-			wssos_elm = $(parent_wssos).find('#' + wssos_value)
-		}
+		// if no elements are found, first look up id, then elements that include the tag
+		if (wssos_elm.length === 0) wssos_elm = $(parent_wssos).find('#' + wssos_value)
 
+		// loop through the radio button groep and hide others
 		$(parent_wssos).find('input[name="' + this.name + '"][type="radio"]').each(function (index, radiobtn) {
-			var radio_hide_data_attr = $(radiobtn).data('wssos-show')
-			var radio_hide_elm = $(parent_wssos).find('[data-wssos-value="' + radio_hide_data_attr + '"]')
+			let radio_hide_data_attr = $(radiobtn).data('wssos-show')
+			let radio_hide_elm = $(parent_wssos).find('[data-wssos-value="' + radio_hide_data_attr + '"]')
 
 			if (radio_hide_elm.length === 0) radio_hide_elm = $(parent_wssos).find('#' + radio_hide_data_attr)
+			if (radio_hide_elm.length === 0) radio_hide_elm = $(parent_wssos).find('[data-wssos-value*="' + radio_hide_data_attr + '"]')
 
-			radio_hide_elm.hide(0)
-			putAllTypesNameInData(radio_hide_elm)
+			$.each(radio_hide_elm, (index, element) => {
+				element = $(element);
+				let needToShow = false;
+				let element_wssos_value = element.data('wssos-value');
+
+				if (element_wssos_value.split('||').length > 1) {
+					needToShow = handleMultipleTags(element_wssos_value.split('||'), parent_wssos, false, element);
+				}
+
+				if (needToShow) {
+					element.show(0);
+					putAllTypesDataInName(element);
+				} else {
+					element.hide(0);
+					putAllTypesNameInData(element);
+				}
+			});
 		})
 
-		if (this.checked) {
-			wssos_elm.show(0)
-			putAllTypesDataInName(wssos_elm)
-		} else {
-			wssos_elm.hide(0)
-			putAllTypesNameInData(wssos_elm)
-		}
+		radio = this;
+		$.each(wssos_elm, (index, element) => radioElementCb(index, element));
 	})
 }
 
@@ -139,81 +181,105 @@ function handleRadio (radioElm) {
  * @param checkElm
  */
 function handleCheckbox (checkElm) {
-	var pre_wssos_value = $(checkElm).data('wssos-show')
-	var pre_parent_wssos = $(checkElm).parentsUntil('.WSShowOnSelect').parent()[0]
-	var pre_wssos_elm = $(pre_parent_wssos).find('[data-wssos-value="' + pre_wssos_value + '"]')
+	let wssos_value = $(checkElm).data('wssos-show')
+	let parent_wssos = $(checkElm).parentsUntil('.WSShowOnSelect').parent()[0]
+	let wssos_elm = $(parent_wssos).find('[data-wssos-value*="' + wssos_value + '"]')
 
 	if ($(checkElm).parent().hasClass('WSShowOnSelect')) {
-		pre_parent_wssos = $(checkElm).parent()[0]
-		pre_wssos_elm = $(pre_parent_wssos).find('[data-wssos-value="' + pre_wssos_value + '"]')
+		parent_wssos = $(checkElm).parent()[0]
+		wssos_elm = $(parent_wssos).find('[data-wssos-value="' + wssos_value + '"]')
 	}
 
-	if (pre_wssos_elm.length === 0) {
-		pre_wssos_elm = $(pre_parent_wssos).find('#' + pre_wssos_value)
-	}
+	// if no elements are found, first look up id, then elements that include the tag
+	if (wssos_elm.length === 0) wssos_elm = $(parent_wssos).find('#' + wssos_value)
+	if (wssos_elm.length === 0) wssos_elm = $(parent_wssos).find('[data-wssos-value*="' + wssos_value + '"]')
 
-	if (checkElm.checked) {
-		pre_wssos_elm.show(0)
-		// set the dataset value of data-name-attribute back in the name attribute
-		putAllTypesDataInName(pre_wssos_elm)
 
-		// set the name value of the unchecked element in the value of data-name-attribute and remove the name attribute
-		if ($(checkElm).has('data-wssos-show-unchecked')) {
-			var pre_unchecked_value = $(checkElm).data('wssos-show-unchecked')
-			var pre_unchecked_elm = $(pre_parent_wssos).find('[data-wssos-value="' + pre_unchecked_value + '"]')
+	let check = checkElm;
 
-			if (pre_unchecked_elm.length === 0) pre_unchecked_elm = $(pre_parent_wssos).find('#' + pre_unchecked_value)
+	/**
+	 * check elements cb
+	 * @param index {number}
+	 * @param element {HTMLInputElement}
+	 */
+	const checkElementCb = (index, element) => {
+		element = $(element);
+		let needToShow = false;
+		let element_wssos_value = element.data('wssos-value');
 
-			pre_unchecked_elm.hide(0)
-
-			putAllTypesNameInData(pre_unchecked_elm)
+		// are there multiple tags that need to be handled as OR
+		if (element_wssos_value.split('||').length > 1) {
+			needToShow = handleMultipleTags(element_wssos_value.split('||'), parent_wssos, false, element);
 		}
-	} else {
-		pre_wssos_elm.hide(0)
-		// set data-name-attribute to the value of name attribute and remove the name attribute
-		putAllTypesNameInData(pre_wssos_elm)
+		// are there multiple tags that need to be handled as AND
+		else if (element_wssos_value.split('&&').length > 1) {
+			needToShow = handleMultipleTags(element_wssos_value.split('&&'), parent_wssos, true, element);
+		}
+		// there are no multiple tags
+		else {
+			if (element_wssos_value !== wssos_value) return;
+			needToShow = check.checked;
+		}
 
-		if ($(checkElm).has('data-wssos-show-unchecked')) {
-			var pre_unchecked_value = $(checkElm).data('wssos-show-unchecked')
-			var pre_unchecked_elm = $(pre_parent_wssos).find('[data-wssos-value="' + pre_unchecked_value + '"]')
+		if (needToShow) {
+			element.show(0);
+			putAllTypesDataInName(element);
+		} else {
+			element.hide(0);
+			putAllTypesNameInData(element);
+		}
 
-			if (pre_unchecked_value && pre_unchecked_value !== '' && pre_unchecked_value !== ' ') {
-				if (pre_unchecked_elm.length === 0) pre_unchecked_elm = $(pre_parent_wssos).find('#' + pre_unchecked_value)
+	};
 
+	$.each(wssos_elm, (index, element) => checkElementCb(index, element));
+
+	// look for unchecked data attributes and handle them
+	if ($(checkElm).has('data-wssos-show-unchecked')) {
+		let pre_unchecked_value = $(checkElm).data('wssos-show-unchecked')
+		let pre_unchecked_elm = $(parent_wssos).find('[data-wssos-value="' + pre_unchecked_value + '"]')
+
+		if (pre_unchecked_value && pre_unchecked_value !== '' && pre_unchecked_value !== ' ') {
+			if (pre_unchecked_elm.length === 0) pre_unchecked_elm = $(parent_wssos).find('#' + pre_unchecked_value)
+			if (pre_unchecked_elm.length === 0) pre_unchecked_elm = $(parent_wssos).find('[data-wssos-value=*"' + pre_unchecked_value + '"]')
+
+			if (!checkElm.checked) {
 				$(pre_unchecked_elm).show(0)
 				// set the name attribute to the value of data-name-attribute
 				putAllTypesDataInName(pre_unchecked_elm)
+			} else {
+				$(pre_unchecked_elm).hide(0);
+				putAllTypesNameInData(pre_unchecked_elm);
 			}
+
 		}
 	}
 
 	$(checkElm).off('change')
 	$(checkElm).on('change', function (e) {
 		e.stopPropagation()
-		var wssos_value = $(this).data('wssos-show')
-		var parent_wssos = $(this).parentsUntil('.WSShowOnSelect').parent()[0]
-		var wssos_elm = $(parent_wssos).find('[data-wssos-value="' + wssos_value + '"]')
+		wssos_value = $(this).data('wssos-show')
+		parent_wssos = $(this).parentsUntil('.WSShowOnSelect').parent()[0]
+		wssos_elm = $(parent_wssos).find('[data-wssos-value*="' + wssos_value + '"]')
 
 		if ($(this).parent().hasClass('WSShowOnSelect')) {
 			parent_wssos = $(this).parent()[0]
-			wssos_elm = $(parent_wssos).find('[data-wssos-value="' + wssos_value + '"]')
+			wssos_elm = $(parent_wssos).find('[data-wssos-value*="' + wssos_value + '"]')
 		}
 
 		if (wssos_elm.length === 0) wssos_elm = $(parent_wssos).find('#' + wssos_value)
+		if (wssos_elm.length === 0) wssos_elm = $(parent_wssos).find('[data-wssos-value*="' + wssos_value + '"]')
 
-		if (this.checked) {
-			wssos_elm.show(0)
-			putAllTypesDataInName(wssos_elm)
-		} else {
-			wssos_elm.hide(0)
-			putAllTypesNameInData(wssos_elm)
-		}
+
+		check = this;
+
+		$.each(wssos_elm, (index, element) => checkElementCb(index, element));
 
 		if ($(this).has('data-wssos-show-unchecked')) {
-			var wssos_unchecked_value = $(this).data('wssos-show-unchecked')
-			var wssos_unchecked_elm = $(parent_wssos).find('[data-wssos-value="' + wssos_unchecked_value + '"]')
+			let wssos_unchecked_value = $(this).data('wssos-show-unchecked')
+			let wssos_unchecked_elm = $(parent_wssos).find('[data-wssos-value="' + wssos_unchecked_value + '"]')
 
 			if (wssos_unchecked_elm.length === 0) wssos_unchecked_elm = $(parent_wssos).find('#' + wssos_unchecked_value)
+			if (wssos_unchecked_elm.length === 0) wssos_unchecked_elm = $(parent_wssos).find('[data-wssos-value*="' + wssos_unchecked_value + '"]')
 
 			if (this.checked) {
 				wssos_unchecked_elm.hide(0)
@@ -231,39 +297,81 @@ function handleCheckbox (checkElm) {
  * @param selectElm
  */
 function handleSelect (selectElm) {
-	var selectVal = $(selectElm).val()
-	$(selectElm).children().each(function (index, option) {
-		var wssos_value = $(option).data('wssos-show')
-		var parent_wssos = $(option).parentsUntil('.WSShowOnSelect').parent()[0]
-		var wssos_elm = $(parent_wssos).find('[data-wssos-value="' + wssos_value + '"]')
+	let selectVal = '',
+		optionElm = '',
+		wssos_value = '',
+		parent_wssos = '',
+		wssos_elm = '',
+		wssos_show_elm = null;
 
+	/**
+	 * option element cb
+	 * @param index {number}
+	 * @param element {HTMLInputElement}
+	 */
+	const optionElementCb = (index, element) => {
+		element = $(element);
+		let needToShow = false;
+		let element_wssos_value = element.data('wssos-value');
+
+		// are there multiple tags that need to be handled as OR
+		if (element_wssos_value.split('||').length > 1) {
+			needToShow = handleMultipleTags(element_wssos_value.split('||'), parent_wssos, false, element);
+		}
+
+		// are there multiple tags that need to be handled as AND
+		else if (element_wssos_value.split('&&').length > 1) { // AND
+			needToShow = handleMultipleTags(element_wssos_value.split('&&'), parent_wssos, true, element);
+		}
+
+		// there are no multiple tags
+		else {
+			if (element_wssos_value !== wssos_value) return;
+			needToShow = (optionElm.selected || $(optionElm).val() === selectVal);
+		}
+
+		if (needToShow) {
+			element.show(0);
+			putAllTypesDataInName(element);
+			wssos_show_elm = element;
+		} else {
+			element.hide(0);
+			putAllTypesNameInData(element);
+		}
+	}
+
+	// loop through all options
+	$(selectElm).children().each(function (index, option) {
+		wssos_value = $(option).data('wssos-show')
+		parent_wssos = $(option).parentsUntil('.WSShowOnSelect').parent()[0]
+		wssos_elm = $(parent_wssos).find('[data-wssos-value*="' + wssos_value + '"]')
+
+		// if no elements are found, first look for id else look for elements that include the tag
 		if (wssos_elm.length === 0) wssos_elm = $(parent_wssos).find('#' + wssos_value)
 
-		if (option.selected || $(option).val() === selectVal) {
-			wssos_elm.show(0)
-			putAllTypesDataInName(wssos_elm)
-		} else {
-			wssos_elm.hide(0)
-			putAllTypesNameInData(wssos_elm)
-		}
+		optionElm = option;
+		selectVal = $(option).parent().val()
+
+		$.each(wssos_elm, (index, element) => optionElementCb(index, element));
 	})
 
 	$(selectElm).off('change')
 	$(selectElm).on('change', function () {
-		var wssos_show_elm = null
-		$(this).children().each(function (index, option) {
-			var wssos_value = $(option).data('wssos-show')
-			var parent_wssos = $(this).parentsUntil('.WSShowOnSelect').parent()[0]
-			var wssos_elm = $(parent_wssos).find('[data-wssos-value="' + wssos_value + '"]')
+		wssos_show_elm = null
 
+		// loop through all options
+		$(this).children().each(function (index, option) {
+			wssos_value = $(option).data('wssos-show')
+			parent_wssos = $(this).parentsUntil('.WSShowOnSelect').parent()[0]
+			wssos_elm = $(parent_wssos).find('[data-wssos-value*="' + wssos_value + '"]')
+
+			// if no elements are found, first look for id else look for elements that include tag
 			if (wssos_elm.length === 0) wssos_elm = $(parent_wssos).find('#' + wssos_value)
 
-			if (option.selected) {
-				wssos_show_elm = wssos_elm
-			} else {
-				wssos_elm.hide(0)
-				putAllTypesNameInData(wssos_elm)
-			}
+			optionElm = option;
+			selectVal = $(option).parent().val();
+
+			$.each(wssos_elm, (index, element) => optionElementCb(index, element));
 		})
 
 		if (wssos_show_elm === null) return
@@ -274,9 +382,9 @@ function handleSelect (selectElm) {
 }
 
 function handleButton (btnElm) {
-	var pre_wssos_value = $(this).data('wssos-show')
-	var pre_parent_wssos = $(this).parentsUntil('.WSShowOnSelect').parent()[0]
-	var pre_wssos_elm = $(pre_parent_wssos).find('[data-wssos-value="' + pre_wssos_value + '"]')
+	let pre_wssos_value = $(this).data('wssos-show')
+	let pre_parent_wssos = $(this).parentsUntil('.WSShowOnSelect').parent()[0]
+	let pre_wssos_elm = $(pre_parent_wssos).find('[data-wssos-value="' + pre_wssos_value + '"]')
 
 	if (pre_wssos_elm.length === 0) pre_wssos_elm = $(pre_parent_wssos).find('#' + pre_wssos_value)
 
@@ -287,9 +395,9 @@ function handleButton (btnElm) {
 	$(btnElm).off('click')
 	// add on click listener to the button
 	$(btnElm).on('click', function (e) {
-		var wssos_value = $(this).data('wssos-show')
-		var parent_wssos = $(this).parentsUntil('.WSShowOnSelect').parent()[0]
-		var wssos_elm = $(parent_wssos).find('[data-wssos-value="' + wssos_value + '"]')
+		let wssos_value = $(this).data('wssos-show')
+		let parent_wssos = $(this).parentsUntil('.WSShowOnSelect').parent()[0]
+		let wssos_elm = $(parent_wssos).find('[data-wssos-value="' + wssos_value + '"]')
 
 		if (wssos_elm.length === 0) wssos_elm = $(parent_wssos).find('#' + wssos_value)
 
@@ -302,6 +410,135 @@ function handleButton (btnElm) {
 			putAllTypesDataInName(wssos_elm)
 		}
 	})
+}
+
+/**
+ * Handles the input
+ * @param input {HTMLInputElement}
+ */
+function handleInput(input) {
+	let wssos_value = $(input).data('wssos-show');
+	let parent = $(input).parentsUntil('.WSShowOnSelect').parent()[0];
+	let elements = $(parent).find('[data-wssos-value*="' + wssos_value + '"]');
+
+	if ($(input).parent().hasClass('WSShowOnSelect')) {
+		parent = $(input).parent()[0];
+		elements = $(parent).find('[data-wssos-value*="' + wssos_value + '"]');
+	}
+
+	if (elements.length === 0) elements = $(parent).find('#' + wssos_value);
+
+	if (!elements) return;
+	if (!$(elements).data('wssos-type')) return;
+
+
+	/**
+	 * Handles the different show on select types, CONTAINS or EQUALS
+	 * @param t {string[]} type array
+	 * @param val {string}
+	 * @returns {boolean|*}
+	 */
+	const handleTypes = (t, val) => {
+		switch (t[0]) {
+			case 'contains':
+				return val.includes(t[1]);
+			case 'equals':
+				return val === t[1];
+			default:
+				return false;
+		}
+	}
+
+	let inputElm = input;
+
+	/**
+	 * input element cb
+	 * @param index
+	 * @param element
+	 */
+	const inputElementCb = (index, element) => {
+		element = $(element);
+		let needToShow = false;
+		let type = $(element).data('wssos-type').split('::');
+		let element_wssos_value = $(element).data('wssos-value');
+
+		// are there multiple tags that need to be handled as OR
+		if (element_wssos_value.split('||').length > 1) {
+			needToShow = handleMultipleTags(element_wssos_value.split('||'), parent, false, element);
+		}
+		// are there multiple tags that need to be handled as AND
+		else if (element_wssos_value.split('&&').length > 1) { // AND
+			needToShow = handleMultipleTags(element_wssos_value.split('&&'), parent, true, element);
+		}
+		// There are no multiple tags
+		else {
+			if (element_wssos_value !== wssos_value) return;
+			needToShow = handleTypes(type, inputElm.value);
+		}
+
+		if (needToShow) {
+			element.show(0);
+			putAllTypesDataInName(element);
+		} else {
+			element.hide(0);
+			putAllTypesNameInData(element);
+		}
+	}
+
+	$.each(elements, (index, element) => inputElementCb(index, element));
+
+
+	$(input).off('input');
+	$(input).on('input', function(e) {
+		wssos_value = $(this).data('wssos-show');
+		parent = $(this).parentsUntil('.WSShowOnSelect').parent()[0];
+		elements = $(parent).find('[data-wssos-value*="' + wssos_value + '"]');
+
+		if ($(this).parent().hasClass('WSShowOnSelect')) {
+			parent = $(this).parent()[0];
+			elements = $(parent).find('[data-wssos-value*="' + wssos_value + '"]');
+		}
+
+		if (elements.length === 0) elements = $(parent).find('#' + wssos_value);
+
+		inputElm = this;
+
+		$.each(elements, (index, element) => inputElementCb(index, element));
+	});
+}
+
+/**
+ * handle multiple tags
+ * @param tags {array}
+ * @param parent {HTMLElement}
+ * @param isAnd {boolean}
+ * @param element {HTMLElement}
+ * @returns {boolean}
+ */
+function handleMultipleTags(tags, parent, isAnd, element) {
+	let boolArray = [];
+	$.each(tags, (index, tag) => {
+		let input = $(parent).find('[data-wssos-show="' + tag + '"]');
+		if ( input.is('input[type=checkbox]') || input.is('input[type=radio]')) {
+			boolArray.push(input[0].checked);
+		} else if (input.is('option')) {
+			let sel = input.parent();
+			boolArray.push((input[0].selected || sel.value === input[0].value));
+		} else {
+			let value = input[0].value;
+			let type = $(element).data('wssos-type').split('::');
+			if (type[0] === 'contains') {
+				boolArray.push(value.includes(type[1]));
+			} else if (type[0] === 'equals') {
+				boolArray.push(value === type[1]);
+			}
+		}
+	});
+
+	if (isAnd) {
+		return !boolArray.includes(false);
+	}
+	return boolArray.includes(true);
 }
 
 /**
@@ -334,12 +571,12 @@ function putAllTypesDataInName (elm) {
 
 /**
  * set the name attribute value to the dataset data-name-attribute, remove the name attribute
- * @param elm
+ * @param $elm
  */
 function putNameAttrValueInDataset ($elm) {
 	$.each($elm, function (index, elm) {
 		if ($(elm).attr('name') !== '') {
-			var name = $(elm).attr('name')
+			let name = $(elm).attr('name')
 			if (name) {
 				$(elm).attr('data-name-attribute', name)
 				$(elm).removeAttr('name')
@@ -350,12 +587,12 @@ function putNameAttrValueInDataset ($elm) {
 
 /**
  * set the name attribute to the value of the data-name-attribute
- * @param elm
+ * @param $elm
  */
 function putDatasetValueBackInName ($elm) {
 	$.each($elm, function (index, elm) {
 		if ($(elm).attr('data-name-attribute') !== '') {
-			var datasetName = $(elm).data('name-attribute')
+			let datasetName = $(elm).data('name-attribute')
 			if (datasetName) {
 				$(elm).attr('name', datasetName)
 			}

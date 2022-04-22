@@ -60,7 +60,7 @@ class TagHooks {
 	public function renderForm( $input, array $args, Parser $parser, PPFrame $frame ) {
 		global $wgUser, $wgEmailConfirmToEdit, $IP, $wgScript;
 		$ret = '';
-
+		//Core::$securityId = uniqid();
 		Core::includeTagsCSS( Core::getRealUrl() . '/Modules/ext.WSForm.css' );
 		//$parser->getOutput()->addModuleStyles( 'ext.wsForm.general.styles' );
 
@@ -119,7 +119,8 @@ class TagHooks {
 		}
 
 		if ( isset( $args['mwreturn'] ) ) {
-			$mwReturn = Core::getMWReturn( $args['mwreturn'] );
+			$mwReturn = self::tagParseIfNeeded( $args['mwreturn'], $parser, $frame );
+			$mwReturn = Core::getMWReturn( $mwReturn );
 			unset( $args['mwreturn'] );
 		} else {
 			$mwReturn = $parser->getTitle()->getLinkURL();
@@ -182,7 +183,7 @@ class TagHooks {
 			unset( $args['show-on-select'] );
 
 			Core::setShowOnSelectActive();
-			$input = Core::checkForShowOnSelectValue( $input );
+			$input = Core::checkForShowOnSelectValueAndType( $input );
 		} else {
 			$showOnSelect = false;
 		}
@@ -437,7 +438,9 @@ class TagHooks {
 	public function renderField( $input, array $args, Parser $parser, PPFrame $frame ) {
 		global $IP;
 
-		if ( ! isset( $args['type'] ) ) {
+		$args = $this->filterInputTags( $args );
+
+		if ( !isset( $args['type'] ) ) {
 			return [
 				wfMessage( "flexform-field-invalid" )->parse(),
 				"markerType" => 'nowiki'
@@ -446,7 +449,7 @@ class TagHooks {
 
 		$fieldType = $args['type'];
 
-		if ( ! Validate::validInputTypes( $fieldType ) ) {
+		if ( !Validate::validInputTypes( $fieldType ) ) {
 			return [
 				wfMessage( "flexform-field-invalid" )->parse() . ": " . $fieldType,
 				"markerType" => 'nowiki'
@@ -481,11 +484,16 @@ class TagHooks {
 		   TODO: Like you want to have {{Template:test}} inside the content of a page!
 		*/
 		foreach ( $args as $name => $value ) {
-			$args[$name] = $this->tagParseIfNeeded(
+			$tempValue = $this->tagParseIfNeeded(
 				$value,
 				$parser,
 				$frame
 			);
+			if ( $tempValue !== $value ) {
+				// If we have had to parse the content, then make sure HTMLPurifier leaves it alone
+				$args['html'] = 'all';
+			}
+			$args[$name] = $tempValue;
 		}
 
 		$renderer = $this->themeStore->getFormTheme()->getFieldRenderer();
@@ -548,7 +556,6 @@ class TagHooks {
 					$preparedArguments,
 					$args['show-on-checked'] ?? ''
 				);
-
 				break;
 			case 'checkbox':
 
@@ -752,11 +759,20 @@ class TagHooks {
 					}
 				}
 
+				/* Input is already parse
 				$ret = $renderer->render_option(
 					$parser->recursiveTagParse(
 						$input,
 						$frame
 					),
+					$value,
+					$showOnSelect,
+					$isSelected,
+					$additionalArguments
+				);
+				*/
+				$ret = $renderer->render_option(
+					$input,
 					$value,
 					$showOnSelect,
 					$isSelected,
@@ -845,13 +861,9 @@ class TagHooks {
 
 				$additionalArguments = [];
 				foreach ( $args as $name => $value ) {
-					if ( ! Validate::validParameters( $name ) ) {
+					if ( ! Validate::validButtonParameters( $name ) && ! Validate::validParameters( $name ) ) {
 						continue;
 					}
-					if ( ! Validate::validButtonParameters( $name ) ) {
-						continue;
-					}
-
 					$additionalArguments[$name] = $value;
 				}
 
@@ -920,19 +932,26 @@ class TagHooks {
 				$htmlType = Validate::validHTML( $args );
 
 				if ( $input !== '' ) {
+
+					/*
 					if ( $noParse === false ) {
-						$input = $parser->recursiveTagParseFully(
+						$input = $parser->recursiveTagParse(
 							$input,
 							$frame
 						);
 					}
+					*/
 					// We want to purify the input based on the form's HTML type
+					//echo "<pre>";
+					//var_dump( $input );
 					$input = Protect::purify(
 						$input,
 						$htmlType,
 						Config::isSecure()
 					);
-				} else {
+					//var_dump( $input );
+					//echo "</pre>";
+				} elseif ( Core::getValue( $tagName ) !== '' ) {
 					// No input is given in the field, but we might have input through GET parameters
 					$input = Protect::purify(
 						Core::getValue( $tagName ),
@@ -953,8 +972,10 @@ class TagHooks {
 					$tagName,
 					$class,
 					$editor,
-					$additionalArguments
+					$additionalArguments,
+					$htmlType
 				);
+
 
 				break;
 			case 'signature':
@@ -978,7 +999,7 @@ class TagHooks {
 
 				$javascriptOptions = [
 					'syncField: "#wsform_signature_data"',
-					'syncFormat: "' . htmlspecialchars( strtoupper( $fileName ) ) . '"'
+					'syncFormat: "' . htmlspecialchars( strtoupper( $fileType ) ) . '"'
 				];
 
 				if ( isset( $args['background'] ) ) {
@@ -1165,6 +1186,7 @@ class TagHooks {
 			$input,
 			$frame
 		);
+		$args = $this->filterInputTags( $args );
 
 		foreach ( $args as $name => $value ) {
 			if ( ( strpos(
@@ -1262,6 +1284,36 @@ class TagHooks {
 	}
 
 	/**
+	 * @param $tags
+	 *
+	 * @return array
+	 */
+	private function filterInputTags( array $tags ): array {
+		$skipped = [
+			'src',
+			'value'
+		];
+		if ( Config::isFilterTags() ) {
+			foreach ( $tags as $k => $v ) {
+				if ( !in_array( $k, $skipped ) && ( substr( $k, 0, 4 ) !== 'data' ) ) {
+					$k        = Protect::purify(
+						$k,
+						'nohtml',
+						true
+					);
+					$v        = Protect::purify(
+						$v,
+						'nohtml',
+						true
+					);
+					$tags[$k] = $v;
+				}
+			}
+		}
+		return $tags;
+	}
+
+	/**
 	 * @brief renders the html label
 	 *
 	 * @param string $input Received from parser from begin till end
@@ -1273,11 +1325,7 @@ class TagHooks {
 	 * @throws FlexFormException
 	 */
 	public function renderLabel( $input, array $args, Parser $parser, PPFrame $frame ) {
-		$input = $parser->recursiveTagParse(
-			$input,
-			$frame
-		);
-
+		$args = $this->filterInputTags( $args );
 		if ( isset( $args['for'] ) ) {
 			$for = $args['for'];
 			unset( $args['for'] );
@@ -1291,6 +1339,18 @@ class TagHooks {
 			if ( Validate::validParameters( $name ) ) {
 				$inputArguments[$name] = $value;
 			}
+		}
+
+		// We always parse the input, unless noparse is set.
+		if ( ! isset( $args['noparse'] ) ) {
+			$noParse = false;
+			$input = $parser->recursiveTagParse(
+				$input,
+				$frame
+			);
+		} else {
+			unset( $args['noparse'] );
+			$noParse = true;
 		}
 
 		$output = $this->themeStore->getFormTheme()->getLabelRenderer()->render_label(
@@ -1764,6 +1824,13 @@ class TagHooks {
 	 * @throws FlexFormException
 	 */
 	public function renderCreateUser( $input, array $args, Parser $parser, PPFrame $frame ) {
+		$canWedCreateUser = Config::getConfigVariable( 'can_create_user' );
+		if ( $canWedCreateUser !== true ) {
+			return [
+				wfMessage( 'flexform-createuser-disabled' )->text(),
+				'noparse' => true
+			];
+		}
 		$username = isset( $args['username'] ) ? $parser->recursiveTagParse(
 			$args['username'],
 			$frame
@@ -1785,7 +1852,7 @@ class TagHooks {
 			];
 		}
 
-		if ( ! MediaWikiServices::getInstance()->getUserNameUtils()->isValid( $username ) ) {
+		if ( !MediaWikiServices::getInstance()->getUserNameUtils()->isValid( $username ) ) {
 			return [
 				'Not a valid username according to MediaWiki',
 				'noparse' => true

@@ -92,11 +92,11 @@ class Render {
 	 * @throws MWException
 	 */
 	public function makeRequest( array $data ) {
-		global $wgUser;
+		global $wgUser, $wgRequest;
 		$apiRequest = new FauxRequest(
 			$data,
 			true,
-			null
+			$wgRequest->getSession()
 		);
 		$context    = new DerivativeContext( new RequestContext() );
 		$context->setRequest( $apiRequest );
@@ -111,7 +111,9 @@ class Render {
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
 				'FauxRequest ' . time(),
-				$result
+				[ 'result' => $result,
+				 'post-data' => $data ]
+
 			);
 		}
 		return $result;

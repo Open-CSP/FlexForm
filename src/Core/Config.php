@@ -19,6 +19,7 @@ class Config {
 	private static $WSConfigStatus = false;
 	private static $debug = false;
 	private static $secure = true;
+	private static $filterInputTags = true;
 
 	/**
 	 * setConfig
@@ -72,6 +73,13 @@ class Config {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public static function isFilterTags(): bool {
+		return self::$filterInputTags;
+	}
+
+	/**
 	 * Add additional checks and default to loaded config
 	 */
 	private static function checkConfig() {
@@ -83,6 +91,9 @@ class Config {
 		}
 		if ( self::getConfigVariable( 'secure' ) !== null ) {
 			self::$secure = self::getConfigVariable( 'secure' );
+		}
+		if ( self::getConfigVariable( 'filter_input_tags' ) !== null ) {
+			self::$filterInputTags = self::getConfigVariable( 'filter_input_tags' );
 		}
 		$canonical = self::getConfigVariable( 'wgCanonicalServer' );
 		if ( is_null( $filePathFromConfig ) || $filePathFromConfig === '' ) {

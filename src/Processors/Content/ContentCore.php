@@ -61,6 +61,8 @@ class ContentCore {
 	private static function checkFields() {
 		if ( self::$fields['summary'] === false ) {
 			self::$fields['summary'] = self::setSummary();
+		} else {
+			self::$fields['summary'] = self::parseTitle( self::$fields['summary'] );
 		}
 
 		if ( self::$fields['nooverwrite'] === false ) {
@@ -80,7 +82,7 @@ class ContentCore {
 			foreach ( self::$fields['parsePost'] as $pp ) {
 				$pp = General::makeUnderscoreFromSpace( $pp );
 				if ( isset( $_POST[ $pp ] ) ) {
-					$_POST[ $pp ] = $filesCore->parseTitle( $_POST[ $pp ] );
+					$_POST[ $pp ] = self::parseTitle( $_POST[ $pp ] );
 				}
 			}
 		}
@@ -186,7 +188,7 @@ class ContentCore {
 			}
 		}
 
-		// We need to do multiple edits
+		// WSCreate multiple
 		if ( self::$fields['writepages'] !== false ) {
 			$create = new Create();
 			try {
@@ -224,7 +226,7 @@ class ContentCore {
 
 				}
 				if ( $nrOfEdits > 1 ) {
-					$slotsToSend = array();
+					$slotsToSend = [];
 					$overWrite = true;
 					foreach ( $pContent as $singleCreate ) {
 						$slotName                 = key( $singleCreate['slot'] );
@@ -252,7 +254,7 @@ class ContentCore {
 				}
 			}
 
-			if ( ! self::$fields['mwedit'] && ! $email ) {
+			if ( !self::$fields['mwedit'] && !$email ) {
 				$response_handler->setMwReturn( self::$fields['returnto'] );
 				$response_handler->setReturnType( HandleResponse::TYPE_SUCCESS );
 				if ( self::$fields['msgOnSuccess'] !== false ) {
@@ -262,6 +264,8 @@ class ContentCore {
 				return $response_handler;
 			}
 		}
+
+		// WSEdits
 		if ( self::$fields['mwedit'] !== false ) {
 			$save         = new Save();
 			$edit         = new Edit();
@@ -272,26 +276,27 @@ class ContentCore {
 					$pageContents
 				);
 			}
-			foreach ( $pageContents as $slotName => $singlePage ) {
+			foreach ( $pageContents as $pageContent ) {
+				foreach ( $pageContent as $slotName => $singlePage ) {
+					$slotContents = $singlePage['content'];
+					$pTitle       = $singlePage['title'];
 
-				$slotContents = $singlePage['content'];
-				$pTitle       = $singlePage['title'];
-
-				try {
-					$save->saveToWiki(
-						$pTitle,
-						self::createSlotArray(
-							$slotName,
-							$slotContents
-						),
-						self::$fields['summary']
-					);
-				} catch ( FlexFormException $e ) {
-					throw new FlexFormException(
-						$e->getMessage(),
-						0,
-						$e
-					);
+					try {
+						$save->saveToWiki(
+							$pTitle,
+							self::createSlotArray(
+								$slotName,
+								$slotContents
+							),
+							self::$fields['summary']
+						);
+					} catch ( FlexFormException $e ) {
+						throw new FlexFormException(
+							$e->getMessage(),
+							0,
+							$e
+						);
+					}
 				}
 			}
 		}
