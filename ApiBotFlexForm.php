@@ -72,6 +72,7 @@ class ApiBotFlexForm extends ApiBase {
 	 * @throws ApiUsageException
 	 */
 	public function execute() {
+		$this->checkUserRightsAny( [ 'read' ] );
 		$params = $this->extractRequestParams();
 		$action = $params['trigger'];
 		if ( !$action || $action === null ) {
