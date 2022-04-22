@@ -87,10 +87,22 @@ class ApiBotFlexForm extends ApiBase {
 				}
 				$this->title = $template;
 				$mail = new Mail( $template );
+				$this->data = $params['data'];
+
+				$bcc = [];
+				if ( $this->data !== null && $this->data !== false ) {
+					$json = json_decode( $this->data, true );
+
+					if ( $json !== null ) {
+						if ( isset( $json['bcc'] ) ) {
+							$bcc['bcc'] = $json['bcc'];
+						}
+					}
+				}
 
 				if ( $mail->getTemplate() !== false ) {
 					try {
-						$mail->handleTemplate();
+						$mail->handleTemplate( $bcc );
 						$this->returnResult( 'success' );
 					} catch ( FlexFormException | MWException $e ) {
 						$this->returnFailure( $e->getMessage() );
