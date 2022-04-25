@@ -1603,7 +1603,7 @@ class TagHooks {
 
 		foreach ( $args as $name => $value ) {
 			if ( Validate::validParameters( $name ) ) {
-				$additionalArguments[$name] = $parser->recursiveTagParse( $value );
+				$additionalArguments[$name] = $parser->recursiveTagParse( $value, $frame );
 			}
 		}
 
