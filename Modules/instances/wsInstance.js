@@ -189,6 +189,7 @@ const WsInstance = function (selector, options) {
 			if (!$(input).attr('id')) return
 
 			const id = $(input).attr('id')
+			if (id.includes('select2options-') && input.type === 'hidden') return;
 			$(input).attr('id', id + '_' + idUnifier)
 			clone.find(`label[for="${id}"]`).attr('for', id + '_' + idUnifier)
 		})
@@ -224,7 +225,9 @@ const WsInstance = function (selector, options) {
 				$(select).attr('id', select2id + idUnifier)
 
 				let sibling = $(select).siblings(`input[id="select2options-${select2id}"]`)[0]
+				if (!sibling) return;
 				sibling.id = $(sibling).attr('id') + idUnifier
+
 
 				let statement = sibling.value
 				statement = statement.replace(select2id, select2id + idUnifier)
@@ -248,7 +251,7 @@ const WsInstance = function (selector, options) {
 	 */
 	_.save = () => {
 		let saveString = ''
-		
+
 		// loop through all instances in the list
 		_.list.find('.WSmultipleTemplateInstance').each(function (i, instance) {
 			let valuesObj = {}
