@@ -137,8 +137,11 @@ function startInstance () {
 	if (lst === undefined) return
 
 	var instance_array = []
+	var selector_array = []
 	var temp_selector = ''
 	$(lst).each(function (i, obj) {
+		if (selector_array.includes(obj.selector)) return;
+		selector_array.push(obj.selector);
 		/*
 		$instanceSettings = array(
 	'draggable' => $allowMove,

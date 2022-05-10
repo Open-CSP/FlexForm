@@ -223,8 +223,8 @@ const WsInstance = function (selector, options) {
 				$(select).attr('data-wsselect2id', select2id + idUnifier)
 				$(select).attr('id', select2id + idUnifier)
 
-				let sibling = $(select).siblings('[data-wsselect2options]')[0]
-				sibling.id = $(sibling).attr('data-wsselect2options') + idUnifier
+				let sibling = $(select).siblings(`input[id="select2options-${select2id}"]`)[0]
+				sibling.id = $(sibling).attr('id') + idUnifier
 
 				let statement = sibling.value
 				statement = statement.replace(select2id, select2id + idUnifier)
