@@ -69,6 +69,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 1.1.5 : Fixed slot creation bug
 * 1.1.4 : Instances changes
 * 1.1.3 : Added frame parsing for tokens. Form validation was set to input field validations.. Fixed!
 * 1.1.2 : Fixed no submit on enter per form. Security checksum changes.

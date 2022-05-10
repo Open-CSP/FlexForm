@@ -394,6 +394,7 @@ class ContentCore {
 			$ret = "{{" . self::$fields['template'] . "\n";
 		}
 		foreach ( $_POST as $k => $v ) {
+
 			if ( is_array( $v ) && !Definitions::isFlexFormSystemField( $k ) ) {
 				$ret .= "|" . General::makeSpaceFromUnderscore( $k ) . "=";
 				foreach ( $v as $multiple ) {
@@ -405,6 +406,7 @@ class ContentCore {
 				       ) . PHP_EOL;
 			} else {
 				if ( ! Definitions::isFlexFormSystemField( $k ) && $v != "" ) {
+
 					if ( ! $noTemplate ) {
 						$ret .= '|' . General::makeSpaceFromUnderscore( $k ) . '=' . wsSecurity::cleanBraces(
 								$v
@@ -415,10 +417,10 @@ class ContentCore {
 				}
 			}
 		}
+		var_dump( $ret );
 		if ( ! $noTemplate ) {
 			$ret .= "}}";
 		}
-
 		return $ret;
 	}
 
