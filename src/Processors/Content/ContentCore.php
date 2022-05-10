@@ -322,6 +322,7 @@ class ContentCore {
 			$get              = new Get();
 			$response_handler = $get->createGet( $response_handler );
 		}
+
 		$response_handler->setReturnType( HandleResponse::TYPE_SUCCESS );
 		if ( self::$fields['msgOnSuccess'] !== false ) {
 			$response_handler->setReturnData( self::$fields['msgOnSuccess'] );

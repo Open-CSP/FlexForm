@@ -140,7 +140,8 @@ class Validate {
 			"lock",
 			"recaptcha-v3-action",
             "autosave",
-			"show-on-select"
+			"show-on-select",
+			"autocomplete"
 		);
 		if ( $ret ) {
 			return $validFormElements;

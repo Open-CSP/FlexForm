@@ -304,7 +304,7 @@ class TagHooks {
 
 		$additionalArgs = [];
 		foreach ( $args as $name => $argument ) {
-			if ( Validate::validParameters( $name ) ) {
+			if ( Validate::validFormParameters( $name ) ) {
 				$additionalArgs[$name] = $parser->recursiveTagParse(
 					$argument,
 					$frame
@@ -1610,7 +1610,7 @@ class TagHooks {
 
 		foreach ( $args as $name => $value ) {
 			if ( Validate::validParameters( $name ) ) {
-				$additionalArguments[$name] = $parser->recursiveTagParse( $value );
+				$additionalArguments[$name] = $parser->recursiveTagParse( $value, $frame );
 			}
 		}
 
