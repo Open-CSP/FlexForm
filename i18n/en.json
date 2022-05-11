@@ -82,6 +82,7 @@
 
 	"flexform-unkown-slot" : "Unknown Content Slot",
 
+	"flexform-captcha-missing-config" : "reCaptcha settings not found in Config",
 	"flexform-captcha-missing-details" : "no captcha details",
 	"flexform-captcha-score-to-low" : "Your Captcha score is to low. You form is not submitted",
 

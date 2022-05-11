@@ -7,7 +7,6 @@ use FlexForm\FlexFormException;
 use MediaWiki\HookContainer\HookRunner;
 use MediaWiki\MediaWikiServices;
 use PasswordError;
-use SiteStatsUpdate;
 use User;
 
 class CreateUser {
@@ -49,45 +48,6 @@ class CreateUser {
 	 * @throws FlexFormException
 	 */
 	public function addUser(): User {
-		/*
-		$user = User::newFromName( $this->getUserName() );
-		if ( !is_object( $user ) ) {
-			throw new FlexFormException(
-				wfMessage( 'flexform-createuser-invalid-name' )->text(),
-				0
-			);
-		}
-		$exists = ( $user->idForName() !== 0 );
-		if ( $exists ) {
-			throw new FlexFormException(
-				wfMessage( 'flexform-createuser-username-exists', $this->getUserName() )->text(),
-				0
-			);
-		}
-
-		$user->setEmail( $this->getEmailAddress() );
-
-		if ( $this->getRealName() !== null ) {
-			$user->setRealName( $this->getRealName() );
-		}
-		*/
-		/*
-
-		$status = MediaWikiServices::getInstance()->getAuthManager()->autoCreateUser(
-			$user,
-			\MediaWiki\Auth\AuthManager::AUTOCREATE_SOURCE_MAINT,
-			false
-		);
-		if ( !$status->isGood() ) {
-			throw new FlexFormException(
-				$status->getMessage( false, false, 'en' )->text(),
-				0
-			);
-		}
-		# Increment site_stats.ss_users
-		$ssu = SiteStatsUpdate::factory( [ 'users' => 1 ] );
-		$ssu->doUpdate();
-		*/
 		$user = User::createNew( $this->getUserName(), [
 			'email' => $this->getEmailAddress(),
 			'email_authenticated' => null,
@@ -145,9 +105,9 @@ class CreateUser {
 
 	/**
 	 * @param User $user
-	 * @param string $pwd
 	 *
 	 * @return void
+	 * @throws FlexFormException
 	 */
 	public function sendPassWordAndConfirmationLink( User $user ) {
 		global $IP;
