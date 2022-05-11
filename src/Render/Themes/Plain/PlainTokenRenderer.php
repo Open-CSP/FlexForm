@@ -197,9 +197,7 @@ class PlainTokenRenderer implements TokenRenderer {
 
 		$javascript .= $callbackJavascript . "$('select').trigger('change');";
 
-		$format = ! Core::isLoaded(
-			'wsinstance-initiated'
-		) ? '<input type="hidden" id="%s" value="%s" />' : '<input type="hidden" data-wsselect2options="%s" value="%s" />';
+		$format = '<input type="hidden" id="%s" value="%s" />';
 
 		return sprintf(
 			$format,

@@ -33,11 +33,17 @@ class Create {
 	public function writePage(): array {
 		$fields = ContentCore::getFields();
 		if( Config::isDebug() ) {
-			Debug::addToDebug( 'Write page activated ' . time(), $fields );
+			Debug::addToDebug( 'Write page activated ' . time(),
+							   [ "fields" => $fields,
+								"_post" => $_POST ] );
 		}
 
 		$this->content = ContentCore::createContent();
 
+		if( Config::isDebug() ) {
+			Debug::addToDebug( 'Write page activated CONTENT ' . time(),
+							   $this->content );
+		}
 		if ( strpos(
 				 $fields['writepage'],
 				 '['

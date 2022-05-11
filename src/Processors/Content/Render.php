@@ -16,6 +16,7 @@ use FlexForm\Core\Config;
 use FlexForm\Core\Debug;
 use MediaWiki\Content\ContentHandlerFactory;
 use Title;
+use User;
 use WikiPage;
 use FlexForm\FlexFormException;
 
@@ -92,7 +93,12 @@ class Render {
 	 * @throws MWException
 	 */
 	public function makeRequest( array $data ) {
-		global $wgUser, $wgRequest;
+		global $wgRequest;
+		$wgUser = RequestContext::getMain()->getUser();
+		// TODO: Add switch to only allow this when it is safe.
+		if ( $wgUser->isAnon() ) {
+			$wgUser = User::newSystemUser( 'FlexForm', [ 'steal' => true ] );
+		}
 		$apiRequest = new FauxRequest(
 			$data,
 			true,

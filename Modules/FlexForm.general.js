@@ -137,8 +137,11 @@ function startInstance () {
 	if (lst === undefined) return
 
 	var instance_array = []
+	var selector_array = []
 	var temp_selector = ''
 	$(lst).each(function (i, obj) {
+		if (selector_array.includes(obj.selector)) return;
+		selector_array.push(obj.selector);
 		/*
 		$instanceSettings = array(
 	'draggable' => $allowMove,
@@ -736,27 +739,24 @@ function attachTokens () {
 	})
 }
 
-function noReturnOnEnter () {
-	$(document).on('keyup keypress', 'form input[type="text"]', function (e) {
-		if (e.keyCode == 13) {
-			e.preventDefault()
-			return false
-		}
-	})
+var ffNoSubmitOnEnter = function( e ) {
+	if (e.keyCode === 13) {
+		e.preventDefault();
+		return false
+	}
+}
 
-	$(document).on('keyup keypress', 'form input[type="search"]', function (e) {
-		if (e.keyCode == 13) {
-			e.preventDefault()
-			return false
-		}
-	})
-
-	$(document).on('keyup keypress', 'form input[type="password"]', function (e) {
-		if (e.keyCode == 13) {
-			e.preventDefault()
-			return false
-		}
-	})
+/*
+function noReturnOnEnter( id ) {
+	$('#' + id).on('keyup keypress', 'input[type="text"]', ffNoSubmitOnEnter() );
+	$('#' + id).on('keyup keypress', 'input[type="search"]', ffNoSubmitOnEnter() );
+	$('#' + id).on('keyup keypress', 'form input[type="password"]', ffNoSubmitOnEnter() );
+}
+*/
+function noReturnOnEnter() {
+	$('.ff-nosubmit-onreturn').keypress(ffNoSubmitOnEnter);
+	$('.ff-nosubmit-onreturn').keydown(ffNoSubmitOnEnter);
+	$('.ff-nosubmit-onreturn').keyup(ffNoSubmitOnEnter);
 }
 
 function wsInitTinyMCE () {

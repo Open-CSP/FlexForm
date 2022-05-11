@@ -60,7 +60,8 @@ class TagHooks {
 	public function renderForm( $input, array $args, Parser $parser, PPFrame $frame ) {
 		global $wgUser, $wgEmailConfirmToEdit, $IP, $wgScript;
 		$ret = '';
-		//Core::$securityId = uniqid();
+		Core::$securityId = uniqid();
+		Core::$chkSums = [];
 		Core::includeTagsCSS( Core::getRealUrl() . '/Modules/ext.WSForm.css' );
 		//$parser->getOutput()->addModuleStyles( 'ext.wsForm.general.styles' );
 
@@ -285,7 +286,12 @@ class TagHooks {
 
 		if ( isset( $args['no_submit_on_return'] ) ) {
 			unset( $args['no_submit_on_return'] );
-
+			if ( isset( $args['class'] ) ) {
+				$args['class'] .= ' ff-nosubmit-onreturn';
+			} else {
+				$args['class'] = 'ff-nosubmit-onreturn';
+			}
+			//Core::includeJavaScriptConfig( 'noSubmit', $formId );
 			if ( !Core::isLoaded( 'keypress' ) ) {
 				$noEnter = <<<SCRIPT
                 wachtff( noReturnOnEnter ); 
@@ -298,7 +304,7 @@ class TagHooks {
 
 		$additionalArgs = [];
 		foreach ( $args as $name => $argument ) {
-			if ( Validate::validParameters( $name ) ) {
+			if ( Validate::validFormParameters( $name ) ) {
 				$additionalArgs[$name] = $parser->recursiveTagParse(
 					$argument,
 					$frame
@@ -415,6 +421,7 @@ class TagHooks {
 		}
 
 		self::addInlineJavaScriptAndCSS();
+
 
 		return [
 			$ret,
@@ -1603,7 +1610,7 @@ class TagHooks {
 
 		foreach ( $args as $name => $value ) {
 			if ( Validate::validParameters( $name ) ) {
-				$additionalArguments[$name] = $parser->recursiveTagParse( $value );
+				$additionalArguments[$name] = $parser->recursiveTagParse( $value, $frame );
 			}
 		}
 

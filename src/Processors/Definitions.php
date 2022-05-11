@@ -152,7 +152,8 @@ class Definitions {
 			"mwleadingzero",
 			"showonselect",
 			"mwcreateuser",
-			"mwnooverwrite"
+			"mwnooverwrite",
+			"mwslot"
 		];
 		if ( in_array(
 			strtolower( $field ),

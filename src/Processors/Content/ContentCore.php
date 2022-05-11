@@ -27,7 +27,7 @@ class ContentCore {
 	/**
 	 * @return array
 	 */
-	public static function getFields(): array {
+	public static function getFields() : array {
 		return self::$fields;
 	}
 
@@ -38,7 +38,7 @@ class ContentCore {
 	 *
 	 * @return string
 	 */
-	private static function setSummary( bool $onlyName = false ): string {
+	private static function setSummary( bool $onlyName = false ) : string {
 		$user = RequestContext::getMain()->getUser();
 		if ( $user->isAnon() === false ) {
 			if ( $onlyName === true ) {
@@ -81,8 +81,8 @@ class ContentCore {
 			$filesCore = new FilesCore();
 			foreach ( self::$fields['parsePost'] as $pp ) {
 				$pp = General::makeUnderscoreFromSpace( $pp );
-				if ( isset( $_POST[ $pp ] ) ) {
-					$_POST[ $pp ] = self::parseTitle( $_POST[ $pp ] );
+				if ( isset( $_POST[$pp] ) ) {
+					$_POST[$pp] = self::parseTitle( $_POST[$pp] );
 				}
 			}
 		}
@@ -97,7 +97,7 @@ class ContentCore {
 	 * @throws FlexFormException
 	 * @throws \MWContentSerializationException
 	 */
-	public static function saveToWiki( HandleResponse $response_handler, $email = false ): HandleResponse {
+	public static function saveToWiki( HandleResponse $response_handler, $email = false ) : HandleResponse {
 		self::$fields = Definitions::createAndEditFields();
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
@@ -117,17 +117,15 @@ class ContentCore {
 		// mwcreateuser
 		if ( self::$fields['createuser'] !== false && self::$fields['createuser'] !== '' ) {
 			$createUser = new CreateUser();
-			$user = $createUser->addUser();
+			$user       = $createUser->addUser();
 			$createUser->sendPassWordAndConfirmationLink( $user );
 		}
 
 		// WSCreate single
 		if ( self::$fields['template'] !== false && self::$fields['writepage'] !== false ) {
 			if ( Config::isDebug() ) {
-				Debug::addToDebug(
-					'Writing single page',
-					[]
-				);
+				Debug::addToDebug( 'Writing single page',
+								   [] );
 			}
 			$create = new Create();
 			try {
@@ -211,7 +209,7 @@ class ContentCore {
 							$pTitle,
 							self::createSlotArray(
 								$slotName,
-								$pContent[0]['slot'][ $slotName ]
+								$pContent[0]['slot'][$slotName]
 							),
 							$pContent[0]['summary'],
 							$pContent[0]['overwrite']
@@ -223,15 +221,14 @@ class ContentCore {
 							$e
 						);
 					}
-
 				}
 				if ( $nrOfEdits > 1 ) {
 					$slotsToSend = [];
-					$overWrite = true;
+					$overWrite   = true;
 					foreach ( $pContent as $singleCreate ) {
-						$slotName                 = key( $singleCreate['slot'] );
-						$slotValue                = $singleCreate['slot'][ $slotName ];
-						$slotsToSend[ $slotName ] = $slotValue;
+						$slotName               = key( $singleCreate['slot'] );
+						$slotValue              = $singleCreate['slot'][$slotName];
+						$slotsToSend[$slotName] = $slotValue;
 						if ( $singleCreate['overwrite'] === false ) {
 							$overWrite = false;
 						}
@@ -254,7 +251,7 @@ class ContentCore {
 				}
 			}
 
-			if ( !self::$fields['mwedit'] && !$email ) {
+			if ( ! self::$fields['mwedit'] && ! $email ) {
 				$response_handler->setMwReturn( self::$fields['returnto'] );
 				$response_handler->setReturnType( HandleResponse::TYPE_SUCCESS );
 				if ( self::$fields['msgOnSuccess'] !== false ) {
@@ -308,7 +305,6 @@ class ContentCore {
 			if ( $mail->getTemplate() !== false ) {
 				try {
 					$mail->handleTemplate();
-
 				} catch ( FlexFormException $e ) {
 					throw new FlexFormException(
 						$e->getMessage(),
@@ -322,6 +318,7 @@ class ContentCore {
 			$get              = new Get();
 			$response_handler = $get->createGet( $response_handler );
 		}
+
 		$response_handler->setReturnType( HandleResponse::TYPE_SUCCESS );
 		if ( self::$fields['msgOnSuccess'] !== false ) {
 			$response_handler->setReturnData( self::$fields['msgOnSuccess'] );
@@ -337,7 +334,7 @@ class ContentCore {
 	 *
 	 * @return void
 	 */
-	public static function checkFollowPage( $title ): void {
+	public static function checkFollowPage( $title ) : void {
 		$title     = ltrim(
 			$title,
 			'/'
@@ -346,12 +343,12 @@ class ContentCore {
 		if ( self::$fields['mwfollow'] !== false ) {
 			if ( self::$fields['mwfollow'] === 'true' ) {
 				if ( strpos(
-					     $title,
-					     '--id--'
-				     ) === false && strpos(
-					                    $title,
-					                    '::id::'
-				                    ) === false ) {
+						 $title,
+						 '--id--'
+					 ) === false && strpos(
+										$title,
+										'::id::'
+									) === false ) {
 					self::$fields['returnto'] = $serverUrl . '/' . $title;
 				}
 			} else {
@@ -373,7 +370,7 @@ class ContentCore {
 	 *
 	 * @return array
 	 */
-	private static function createSlotArray( string $slot, string $value ): array {
+	private static function createSlotArray( string $slot, string $value ) : array {
 		return array( $slot => $value );
 	}
 
@@ -382,26 +379,26 @@ class ContentCore {
 	 *
 	 * @return string
 	 */
-	public static function createContent(): string {
+	public static function createContent() : string {
 		$ret        = '';
 		$noTemplate = false;
 
 		if ( self::$fields['template'] === strtolower( 'wsnone' ) ) {
 			$noTemplate = true;
 		}
-		if ( !$noTemplate ) {
+		if ( ! $noTemplate ) {
 			$ret = "{{" . self::$fields['template'] . "\n";
 		}
 		foreach ( $_POST as $k => $v ) {
-			if ( is_array( $v ) && !Definitions::isFlexFormSystemField( $k ) ) {
+			if ( is_array( $v ) && ! Definitions::isFlexFormSystemField( $k ) ) {
 				$ret .= "|" . General::makeSpaceFromUnderscore( $k ) . "=";
 				foreach ( $v as $multiple ) {
 					$ret .= wsSecurity::cleanBraces( $multiple ) . ',';
 				}
 				$ret = rtrim(
-					       $ret,
-					       ','
-				       ) . PHP_EOL;
+						   $ret,
+						   ','
+					   ) . PHP_EOL;
 			} else {
 				if ( ! Definitions::isFlexFormSystemField( $k ) && $v != "" ) {
 					if ( ! $noTemplate ) {
@@ -424,7 +421,7 @@ class ContentCore {
 	/**
 	 * @return int
 	 */
-	public static function createRandom(): int {
+	public static function createRandom() : int {
 		return time();
 	}
 
@@ -446,8 +443,8 @@ class ContentCore {
 					General::MakeTitle(),
 					$title
 				);
-			} elseif ( isset( $_POST[ General::makeUnderscoreFromSpace( $fieldname ) ] ) ) {
-				$fn = $_POST[ General::makeUnderscoreFromSpace( $fieldname ) ];
+			} elseif ( isset( $_POST[General::makeUnderscoreFromSpace( $fieldname )] ) ) {
+				$fn = $_POST[General::makeUnderscoreFromSpace( $fieldname )];
 				if ( is_array( $fn ) ) {
 					$imp   = implode(
 						', ',
@@ -481,7 +478,6 @@ class ContentCore {
 					$title
 				);
 			}
-
 		}
 
 		return $title;
@@ -492,7 +488,7 @@ class ContentCore {
 	 *
 	 * @return string
 	 */
-	public static function urlToSEO( $string ): string {
+	public static function urlToSEO( $string ) : string {
 		$separator     = '-';
 		$accents_regex = '~&([a-z]{1,2})(?:acute|cedil|circ|grave|lig|orn|ring|slash|th|tilde|uml);~i';
 		$special_cases = array(
@@ -541,7 +537,7 @@ class ContentCore {
 	 * @return array|string[]
 	 * @throws MWException
 	 */
-	public static function getNextAvailable( $nameStartsWith ): array {
+	public static function getNextAvailable( $nameStartsWith ) : array {
 		$render   = new Render();
 		$postdata = [
 			"action"          => "flexform",
@@ -551,7 +547,10 @@ class ContentCore {
 		];
 		$result   = $render->makeRequest( $postdata );
 		if ( Config::isDebug() ) {
-			Debug::addToDebug( 'NextAvailable result ' . time(), $result );
+			Debug::addToDebug(
+				'NextAvailable result ' . time(),
+				$result
+			);
 		}
 		if ( isset( $result['flexform']['error'] ) ) {
 			return ( array(
@@ -590,7 +589,10 @@ class ContentCore {
 		$render   = new Render();
 		$result   = $render->makeRequest( $postdata );
 		if ( Config::isDebug() ) {
-			Debug::addToDebug( 'getFromRange result ' . time(), $result );
+			Debug::addToDebug(
+				'getFromRange result ' . time(),
+				$result
+			);
 		}
 
 		if ( isset( $result['flexform']['error'] ) ) {
