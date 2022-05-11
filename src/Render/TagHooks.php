@@ -60,9 +60,7 @@ class TagHooks {
 	public function renderForm( $input, array $args, Parser $parser, PPFrame $frame ) {
 		global $wgUser, $wgEmailConfirmToEdit, $IP, $wgScript;
 		$ret = '';
-		Core::$securityId = uniqid();
-		Core::$chkSums = [];
-		Core::includeTagsCSS( Core::getRealUrl() . '/Modules/ext.WSForm.css' );
+
 		//$parser->getOutput()->addModuleStyles( 'ext.wsForm.general.styles' );
 
 		// Do we have some messages to show?
@@ -96,6 +94,10 @@ class TagHooks {
 				'markerType' => 'nowiki'
 			];
 		}
+
+		Core::$securityId = uniqid();
+		Core::$chkSums = [];
+		Core::includeTagsCSS( Core::getRealUrl() . '/Modules/ext.WSForm.css' );
 
 		if ( isset( $args['messageonsuccess'] ) ) {
 			$messageOnSuccess = $parser->recursiveTagParse(
@@ -204,6 +206,7 @@ class TagHooks {
 			// Generate a form ID for the user to use in JavaScript snippets and such
 			$formId = bin2hex( random_bytes( 16 ) );
 		}
+
 
 		if ( isset( $args['recaptcha-v3-action'] ) ) {
 			Core::$reCaptcha = $args['recaptcha-v3-action'];
@@ -384,6 +387,8 @@ class TagHooks {
 			if ( $captcha !== false ) {
 				Core::addAsLoaded( 'google-captcha' );
 				$ret = $captcha . $ret;
+			} else {
+				return wfMessage( "flexform-captcha-missing-config" )->parse();
 			}
 		}
 
@@ -416,12 +421,12 @@ class TagHooks {
 				Core::includeInlineScript( $rcaptcha );
 				Core::$reCaptcha = false;
 			} else {
+
 				return wfMessage( "flexform-recaptcha-no-js" )->parse();
 			}
 		}
 
 		self::addInlineJavaScriptAndCSS();
-
 
 		return [
 			$ret,

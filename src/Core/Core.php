@@ -494,7 +494,6 @@ class Core {
 				"all"
 			);
 		}
-
 		return '<input type="hidden" name="' . $name . '" value="' . $value . '">' . "\n";
 	}
 
@@ -524,6 +523,5 @@ class Core {
 			}
 		}
 	}
-
 
 }
