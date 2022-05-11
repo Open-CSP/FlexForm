@@ -4,6 +4,7 @@ namespace FlexForm\Processors\Content;
 
 use FlexForm\Core\Core;
 use FlexForm\FlexFormException;
+use MediaWiki\HookContainer\HookRunner;
 use MediaWiki\MediaWikiServices;
 use PasswordError;
 use SiteStatsUpdate;
@@ -98,6 +99,9 @@ class CreateUser {
 				0
 			);
 		}
+		$hookContainer = MediaWikiServices::getInstance()->getHookContainer();
+		$hookRunner = new HookRunner( $hookContainer );
+		$hookRunner->onLocalUserCreated( $user, false );
 		return $user;
 	}
 
