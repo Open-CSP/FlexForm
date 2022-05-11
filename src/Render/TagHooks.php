@@ -61,10 +61,6 @@ class TagHooks {
 		global $wgUser, $wgEmailConfirmToEdit, $IP, $wgScript;
 		$ret = '';
 
-		echo "<pre>";
-		var_dump( $args );
-		echo "</pre>";
-
 		//$parser->getOutput()->addModuleStyles( 'ext.wsForm.general.styles' );
 
 		// Do we have some messages to show?
@@ -431,9 +427,6 @@ class TagHooks {
 		}
 
 		self::addInlineJavaScriptAndCSS();
-		echo "<pre>";
-		var_dump( Core::$securityId, Core::$chkSums );
-		echo "</pre>";
 
 		return [
 			$ret,
