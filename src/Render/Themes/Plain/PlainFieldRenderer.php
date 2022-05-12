@@ -110,13 +110,17 @@ class PlainFieldRenderer implements FieldRenderer {
 		if ( ! is_array( $args ) ) {
 			return trim( $args );
 		}
-
-		$args['attributes']['type'] = 'file';
-		$ret                        = Xml::tags(
-			'input',
-			$args['attributes'],
-			''
-		);
+		// We need to handle canvas, not real files.
+		if ( $args['canvas'] !== '' ) {
+			$ret = $args['canvas'];
+		} else {
+			$args['attributes']['type'] = 'file';
+			$ret                        = Xml::tags(
+				'input',
+				$args['attributes'],
+				''
+			);
+		}
 		//$neededFields = implode( PHP_EOL, $args['function_fields'] );
 		$hiddenField = '';
 		foreach ( $args['function_fields'] as $hidden ) {
@@ -125,19 +129,22 @@ class PlainFieldRenderer implements FieldRenderer {
 			}
 		}
 		$ret = $hiddenField . $ret;
-		if ( $args['verbose_div']['id'] !== false ) {
-			$classes = implode(
-				' ',
-				$args['verbose_div']['class']
-			);
-			$ret     .= '<div id="' . $args['verbose_div']['id'] . '" class="' . $classes . '"></div>';
-		}
-		if ( $args['error_div']['id'] !== false ) {
-			$classes = implode(
-				' ',
-				$args['error_div']['class']
-			);
-			$ret     .= '<div id="' . $args['error_div']['id'] . '" class="' . $classes . '"></div>';
+
+		if ( !$args['canvas'] ) {
+			if ( $args['verbose_div']['id'] !== false ) {
+				$classes = implode(
+					' ',
+					$args['verbose_div']['class']
+				);
+				$ret     .= '<div id="' . $args['verbose_div']['id'] . '" class="' . $classes . '"></div>';
+			}
+			if ( $args['error_div']['id'] !== false ) {
+				$classes = implode(
+					' ',
+					$args['error_div']['class']
+				);
+				$ret     .= '<div id="' . $args['error_div']['id'] . '" class="' . $classes . '"></div>';
+			}
 		}
 
 		return trim( $ret );

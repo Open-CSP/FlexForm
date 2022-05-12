@@ -2,6 +2,7 @@
 
 namespace FlexForm\Render;
 
+use Composer\Command\ScriptAliasCommand;
 use FlexForm\Processors\Files\FilesCore;
 use FlexForm\Processors\Utilities\General;
 use MediaWiki\MediaWikiServices;
@@ -2158,6 +2159,8 @@ class TagHooks {
 		$use_label          = false;
 		$force              = false;
 		$parseContent       = false;
+		$canvasSourceId     = false;
+		$canvasRenderId     = uniqid();
 		foreach ( $args as $k => $v ) {
 			if ( validate::validParameters( $k ) || validate::validFileParameters( $k ) ) {
 				// going through specific extra's.
@@ -2198,6 +2201,12 @@ class TagHooks {
 					case "error_id":
 						$error_id = $v;
 						break;
+					case "canvas_source_id":
+						$canvasSourceId = $v;
+						break;
+					case "canvas_render_id":
+						$canvasRenderId = $v;
+						break;
 					default:
 						$attributes[$k] = $v;
 				}
@@ -2214,10 +2223,12 @@ class TagHooks {
 
 			return $ret;
 		} else {
-			$hiddenFiles[] = '<input type="hidden" name="wsform_file_target" value="' . $target . '">';
+			//$hiddenFiles[] = '<input type="hidden" name="wsform_file_target" value="' . $target . '">';
+			$hiddenFiles[] = Core::createHiddenField( "wsform_file_target", $target );
 		}
 		if ( $pagecontent ) {
-			$hiddenFiles[] = '<input type="hidden" name="wsform_page_content" value="' . $pagecontent . '">';
+			//$hiddenFiles[] = '<input type="hidden" name="wsform_page_content" value="' . $pagecontent . '">';
+			$hiddenFiles[] = Core::createHiddenField( "wsform_page_content", $pagecontent );
 		}
 		if ( $comment ) {
 			$hiddenFiles[] = '<input type="hidden" name="wsform-upload-comment" value="' . $comment . '">';
@@ -2342,11 +2353,27 @@ class TagHooks {
 			$parser->getOutput()->addModuleStyles( 'ext.wsForm.slim.styles' );
 			$parser->getOutput()->addModules( 'ext.wsForm.slim.scripts' );
 			*/
+		} elseif( $presentor === "canvas" ) {
+			if( !$canvasSourceId || !$canvasRenderId ) {
+				return "Missing canvas_source_id and/or canvas_render_id";
+			}
+			$verboseDiv = '';
+			$errorDiv = '';
+			if ( ! Core::isLoaded( 'WSFORM_upload.js' ) ) {
+				Core::addAsLoaded( 'WSFORM_upload.js' );
+				Core::includeTagsScript( Core::getRealUrl() . '/Modules/WSForm_upload.js' );
+			}
+			if ( ! Core::isLoaded( 'htmltocanvas' ) ) {
+				Core::addAsLoaded( 'htmltocanvas' );
+				Core::includeTagsScript( Core::getRealUrl() . '/Modules/htmlToCanvas/html2canvas.min.js' );
+			}
+			$canvasDiv = '<div style="display:none;" data-canvas-source="' . $canvasSourceId . '" id="canvas_' . $canvasRenderId . '"></div>';
 		}
 		$result['verbose_div']     = $verboseDiv;
 		$result['error_div']       = $errorDiv;
 		$result['attributes']      = $attributes;
 		$result['function_fields'] = $hiddenFiles;
+		$result['canvas']          = $canvasDiv;
 
 		return $result;
 	}
