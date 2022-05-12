@@ -690,12 +690,12 @@ function addTokenInfo () {
 				showWeAreWorking(this);
 				var canvas = pform.find('div[id*="canvas_"]' );
 				if( canvas.length > 0 ) {
-					console.log( "We have a canvas!" );
+					//console.log( "We have a canvas!" );
 					var sourceId =  $(canvas[0]).data('canvas-source');
-					console.log( 'id to get = ' + sourceId );
+					//console.log( 'id to get = ' + sourceId );
 
 					var exportId = $(canvas)[0].id;
-					console.log( 'id to export = ' + exportId );
+					//console.log( 'id to export = ' + exportId );
 					let htmlDiv = document.getElementById( sourceId );
 					html2canvas(htmlDiv).then(
 						function (canvas) {
