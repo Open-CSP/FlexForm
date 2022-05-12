@@ -686,9 +686,34 @@ function addTokenInfo () {
 					}
 
 				})
+			} else if( pform.find('div[id*="canvas_"]' ).length > 0 )  {
+				showWeAreWorking(this);
+				var canvas = pform.find('div[id*="canvas_"]' );
+				if( canvas.length > 0 ) {
+					//console.log( "We have a canvas!" );
+					var sourceId =  $(canvas[0]).data('canvas-source');
+					//console.log( 'id to get = ' + sourceId );
+
+					var exportId = $(canvas)[0].id;
+					//console.log( 'id to export = ' + exportId );
+					let htmlDiv = document.getElementById( sourceId );
+					html2canvas(htmlDiv).then(
+						function (canvas) {
+							$('<input />')
+								.attr('type', 'hidden')
+								.attr('name', 'ff_canvas_file')
+								.attr('value', canvas.toDataURL( "image/jpeg", 100 ) )
+								.appendTo(pform);
+							//document.getElementById( exportId ).appendChild(canvas);
+							weAreDoneWorking(pform);
+							pform.submit();
+						})
+
+				} else {
+					pform.submit();
+				}
 			} else {
-				showWeAreWorking(this)
-				pform.submit()
+				pform.submit();
 			}
 		})
 	})
