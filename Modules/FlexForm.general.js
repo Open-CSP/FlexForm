@@ -701,8 +701,8 @@ function addTokenInfo () {
 						function (canvas) {
 							$('<input />')
 								.attr('type', 'hidden')
-								.attr('name', 'canvas_file')
-								.attr('value', canvas.toDataURL( 'image/jpg', 100 ) )
+								.attr('name', 'ff_canvas_file')
+								.attr('value', canvas.toDataURL( "image/jpeg", 100 ) )
 								.appendTo(pform);
 							//document.getElementById( exportId ).appendChild(canvas);
 							weAreDoneWorking(pform);

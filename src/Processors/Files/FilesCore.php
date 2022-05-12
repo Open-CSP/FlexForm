@@ -14,6 +14,7 @@ class FilesCore {
 
 	 public const FILENAME = 'wsformfile';
 	 public const SIGNATURE_FILENAME = 'wsform_signature';
+	 public const CANVAS_FILENAME = 'ff_canvas_file';
 
 	/**
 	 * @return void
@@ -25,9 +26,22 @@ class FilesCore {
 			false
 		);
 
+		$wsCanvas = General::getPostString(
+			self::CANVAS_FILENAME,
+			false
+		);
 
 		if ( $wsSignature !== false ) {
 			$res = Signature::upload();
+		}
+
+		if ( $wsCanvas !== false ) {
+			try {
+				$res = Canvas::upload( $wsCanvas );
+			} catch ( FlexFormException $e ) {
+				throw new FlexFormException( $e->getMessage(), 0 );
+			} catch ( \MWContentSerializationException|\MWException $e ) {
+			}
 		}
 
 		if ( Config::isDebug() ) {
@@ -263,6 +277,16 @@ class FilesCore {
 				$data
 			)
 		);
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getUploadDir(): string {
+		return rtrim(
+						  Config::getConfigVariable( 'file_temp_path' ),
+						  '/'
+					  ) . '/';
 	}
 
 

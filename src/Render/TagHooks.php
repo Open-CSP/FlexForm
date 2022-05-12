@@ -2353,8 +2353,8 @@ class TagHooks {
 			$parser->getOutput()->addModuleStyles( 'ext.wsForm.slim.styles' );
 			$parser->getOutput()->addModules( 'ext.wsForm.slim.scripts' );
 			*/
-		} elseif( $presentor === "canvas" ) {
-			if( !$canvasSourceId || !$canvasRenderId ) {
+		} elseif ( $presentor === "canvas" ) {
+			if ( !$canvasSourceId || !$canvasRenderId ) {
 				return "Missing canvas_source_id and/or canvas_render_id";
 			}
 			$verboseDiv = '';
