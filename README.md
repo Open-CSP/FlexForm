@@ -35,6 +35,7 @@ $wgFlexFormConfig['can_create_user']                        = false; // If FlexF
 $wgFlexFormConfig['filter_input_tags']                      = false; // Defaults to false. Will filter all parser arguments to plain text, except value parameters. Will also disallow onClick and onFocus parameter. This feature will most likely be removed in future updates.
 $wgFlexFormConfig['CreateAndEditForms']['allowedGroups']    = ["sysop","moderator"]; // Defaults to sysop. Only a user in the allowedGroups is able to edit pages with a FlexForm in the source.
 $wgFlexFormConfig['CreateAndEditForms']['hideEdit']         = true; // Defaults to true. If a user is not in the allowedGroups then hide edit and editsource menu items for any page containing a FlexForm form.
+$wgFlexFormConfig['create-seo-titles']                      = true; // Defaults to false. Will filter any user input on creating a new page to be SEO friendly.
 $wgFlexFormConfig['auto_save_btn_on']                       = "Autosave On";
 $wgFlexFormConfig['auto_save_btn_off']                      = "Autosave Off";
 $wgFlexFormConfig['use_smtp']                               = false; // when sending email, should we use separate smtp ?
@@ -69,6 +70,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 1.1.9 : Addendum and SEO setting
 * 1.1.8 : FileUpload fix
 * 1.1.7 : Add HTML screenshot upload (canvas)
 * 1.1.6 : reCaptcha fixed. Rdy to test. https://github.com/WikibaseSolutions/FlexForm/issues/8
