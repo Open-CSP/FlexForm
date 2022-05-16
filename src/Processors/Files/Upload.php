@@ -143,6 +143,8 @@ class Upload {
 			$originalFileNameExtension = $fileNameExtension;
 			$fileNameBase = $filesCore->remove_extension_from_image( $targetFile );
 
+			$fileNameBase = ContentCore::urlToSEO( $fileNameBase );
+
 			if ( Config::isDebug() ) {
 				Debug::addToDebug( 'File #' . $i . ' passed error checks',
 								   [
