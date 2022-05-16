@@ -2161,6 +2161,7 @@ class TagHooks {
 		$parseContent       = false;
 		$canvasSourceId     = false;
 		$canvasRenderId     = uniqid();
+		$canvasDiv			= '';
 		foreach ( $args as $k => $v ) {
 			if ( validate::validParameters( $k ) || validate::validFileParameters( $k ) ) {
 				// going through specific extra's.

@@ -69,6 +69,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 1.1.8 : FileUpload fix
 * 1.1.7 : Add HTML screenshot upload (canvas)
 * 1.1.6 : reCaptcha fixed. Rdy to test. https://github.com/WikibaseSolutions/FlexForm/issues/8
 * 1.1.5 : Fixed slot creation bug

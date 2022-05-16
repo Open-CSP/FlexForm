@@ -1,7 +1,7 @@
 /**
- * applying show on select on the page and make sure everyting will be handled as needed
+ * applying show on select on the page and make sure everything will be handled as needed
  */
-async function WsShowOnSelect () {
+async function WsShowOnSelect(selector = document.body) {
 	await waitForJQueryIsReady();
 	let divWait = document.querySelector('form')
   $('form.WSShowOnSelect').each( function(){
@@ -12,7 +12,7 @@ async function WsShowOnSelect () {
 
 
 	let selectArray = []
-	$('.WSShowOnSelect').find('[data-wssos-show]').each(function (index, elm) {
+	$(selector).find('.WSShowOnSelect').find('[data-wssos-show]').each(function (index, elm) {
 		if ($(elm).is('option')) {
 			let isInArray = false
 			let selectParent = $(elm).parent()[0]
@@ -43,6 +43,10 @@ async function WsShowOnSelect () {
 	$('.flex-form-hide').removeClass('flex-form-hide');
 
 }
+
+
+
+
 
 /**
  * wait function for jQuery
@@ -128,7 +132,7 @@ function handleRadio (radioElm) {
 		}
 	}
 
-	$.each(pre_wssos_elm, (index, element) => radioElementCb(index, element));
+	$.each(wssos_elm, (index, element) => radioElementCb(index, element));
 
 	$(radioElm).off('change')
 	$(radioElm).on('change', function () {
