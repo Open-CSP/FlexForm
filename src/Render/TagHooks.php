@@ -1612,6 +1612,13 @@ class TagHooks {
 			$allowClear = false;
 		}
 
+		if ( isset( $args['allowsort'] ) ) {
+			$allowSort = true;
+			unset( $args['allowsort'] );
+		} else {
+			$allowSort = false;
+		}
+
 		$additionalArguments = [];
 
 		foreach ( $args as $name => $value ) {
@@ -1632,6 +1639,7 @@ class TagHooks {
 			$multiple,
 			$allowTags,
 			$allowClear,
+			$allowSort,
 			$additionalArguments
 		);
 

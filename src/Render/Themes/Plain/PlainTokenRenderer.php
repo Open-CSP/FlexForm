@@ -22,6 +22,7 @@ class PlainTokenRenderer implements TokenRenderer {
 		bool $multiple,
 		bool $allowTags,
 		bool $allowClear,
+		bool $allowSort,
 		array $additionalArguments
 	) : string {
 		$selectTag = $this->renderSelectTag(
@@ -40,6 +41,7 @@ class PlainTokenRenderer implements TokenRenderer {
 			$callback,
 			$allowTags,
 			$allowClear,
+			$allowSort,
 			$inputLengthTrigger
 		);
 
@@ -106,6 +108,7 @@ class PlainTokenRenderer implements TokenRenderer {
 	 * @param string|null $callback
 	 * @param bool $allowTags
 	 * @param bool $allowClear
+	 * @param bool $allowSort
 	 * @param int $inputLengthTrigger
 	 *
 	 * @return string
@@ -119,6 +122,7 @@ class PlainTokenRenderer implements TokenRenderer {
 		?string $callback,
 		bool $allowTags,
 		bool $allowClear,
+		bool $allowSort,
 		int $inputLengthTrigger
 	) : string {
 		$javascript = '';
@@ -141,7 +145,7 @@ class PlainTokenRenderer implements TokenRenderer {
 			$javascript .= "var jsonDecoded = '" . $smwQueryUrl . $smwQueryUrlQ . "';\n";
 		}
 
-		$javascript .= "$('#" . $id . "').select2({";
+		$javascript .= "var selectEl = $('#" . $id . "').select2({";
 
 		if ( $placeholder !== null ) {
 			$javascript .= "placeholder: '" . htmlspecialchars(
@@ -178,6 +182,19 @@ class PlainTokenRenderer implements TokenRenderer {
 		}
 
 		$javascript .= '});';
+		if( $allowSort ) {
+			$javascript .= "selectEl.next().children().children().children().sortable({
+	containment: 'parent', stop: function (event, ui) {
+		ui.item.parent().children('[title]').each(function () {
+			var title = $(this).attr('title');
+			var original = $( 'option:contains(' + title + ')', selectEl ).first();
+			original.detach();
+			selectEl.append(original)
+		});
+		selectEl.change();
+	}
+});";
+		}
 
 		if ( $smwQueryUrl !== null && $callback !== null ) {
 			$preparedTemplate = $template !== null ? ", '" . $template . "'" : '';

@@ -25,6 +25,7 @@ interface TokenRenderer {
 	 * @param bool $multiple Whether to add "multiple=multiple" to the tag attributes
 	 * @param bool $allowTags Whether to add "allowTags: true" to the select2 arguments
 	 * @param bool $allowClear Whether to add "allowClear: true" to the select2 arguments
+	 * @param bool $allowSort Whether to allow sortable select2 tags
 	 * @param array $additionalArguments Any additional arguments given to the token field
 	 *
 	 * @return string Rendered HTML
@@ -41,6 +42,7 @@ interface TokenRenderer {
 		bool $multiple,
 		bool $allowTags,
 		bool $allowClear,
+		bool $allowSort,
 		array $additionalArguments
 	) : string;
 }

@@ -70,6 +70,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 1.1.10 : Added sortable tokens
 * 1.1.9 : Addendum and SEO setting
 * 1.1.8 : FileUpload fix
 * 1.1.7 : Add HTML screenshot upload (canvas)
