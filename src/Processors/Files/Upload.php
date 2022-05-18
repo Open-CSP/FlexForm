@@ -198,12 +198,18 @@ class Upload {
 					);
 				}
 			}
-			// find [filename] and replace
+
+			// filename of stored file in temp FF folder
 			$storedFile = $newFile;
-			$newFile = $filesCore->remove_extension_from_image( $newFile );
-			$name    = $filesCore->parseTarget(
+			// Filename without extension
+			$titleName = $filesCore->remove_extension_from_image( $newFile );
+			if ( Config::getConfigVariable( 'create-seo-titles' ) === true ) {
+				$titleName = ContentCore::urlToSEO( $titleName );
+			}
+			// find [filename] and replace
+			$titleName = $filesCore->parseTarget(
 				trim( $fields['target'] ),
-				$targetFile
+				$titleName
 			);
 
 			$details = trim( $fields['pagecontent'] );
@@ -212,17 +218,22 @@ class Upload {
 			}
 
 			// find any other form fields and put them into the title
-			$name = ContentCore::parseTitle( $name );
+			if ( Config::isDebug() ) {
+				Debug::addToDebug( 'Title before parsetitle', $titleName );
+			}
+			$titleName = ContentCore::parseTitle( $titleName );
+			if ( Config::isDebug() ) {
+				Debug::addToDebug( 'Title after parsetitle', $titleName );
+			}
 
-
-			$name = $this->finalNameCleanUp( $name, [ $fileNameExtension, $originalFileNameExtension ] );
-			$name .= "." . $fileNameExtension;
+			$titleName = $this->finalNameCleanUp( $titleName, [ $fileNameExtension, $originalFileNameExtension ] );
+			$titleName .= "." . $fileNameExtension;
 
 			if ( Config::isDebug() ) {
 				Debug::addToDebug( 'Preparing to upload file',
 								   [
 									   'original file name' => $filename,
-									   'new file name'      => $name,
+									   'new file name'      => $titleName,
 									   'stored file'        => $storedFile,
 									   'details'            => $details,
 									   'comment'            => $fields['comment']
@@ -231,7 +242,7 @@ class Upload {
 
 			$resultFileUpload = $this->uploadFileToWiki(
 				$upload_dir . $storedFile,
-				$name,
+				$titleName,
 				$wgUser,
 				$details,
 				$fields['comment'],
@@ -263,8 +274,8 @@ class Upload {
 					'extensions to remove'      => $extensions
 				] );
 		}
-		foreach( $extensions as $extension ) {
-			if( strpos( $name, '.' . $extension ) !== false ) {
+		foreach ( $extensions as $extension ) {
+			if ( strpos( $name, '.' . $extension ) !== false ) {
 				$name = str_replace( '.' . $extension, '', $name );
 			}
 		}

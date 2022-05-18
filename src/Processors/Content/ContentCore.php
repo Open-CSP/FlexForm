@@ -436,6 +436,10 @@ class ContentCore {
 			'[',
 			']'
 		);
+		$t = time();
+		if ( Config::isDebug() ) {
+			Debug::addToDebug( 'Parsetitle ' . $t, $tmp );
+		}
 		foreach ( $tmp as $fieldname ) {
 			if ( $fieldname == 'mwrandom' ) {
 				$title = str_replace(
@@ -479,7 +483,9 @@ class ContentCore {
 				);
 			}
 		}
-
+		if ( Config::isDebug() ) {
+			Debug::addToDebug( 'Parsetitle result' . $t, $title );
+		}
 		return $title;
 	}
 
