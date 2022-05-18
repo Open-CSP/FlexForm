@@ -989,7 +989,7 @@ class TagHooks {
 					$htmlType
 				);
 
-				$ret = $this->themeStore->getFormTheme()->getFieldRenderer()->render_textarea(
+				$ret .= $this->themeStore->getFormTheme()->getFieldRenderer()->render_textarea(
 					$input,
 					$tagName,
 					$class,
