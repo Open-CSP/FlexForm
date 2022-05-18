@@ -356,16 +356,12 @@ class PlainFieldRenderer implements FieldRenderer {
 			$textareaAttributes['class'] = $class;
 		}
 
-		if ( $editor === 've' ) {
-			// TODO: Implement VisualEditor
-		}
 		$ret = '<textarea name="' . $name . '"';
 		foreach ( $textareaAttributes as $k => $v ) {
 			$ret .= ' ' . $k . '="' . $v . '"';
 		}
 		$ret .= ">" . $input . "</textarea>";
 		return $ret;
-
 	}
 
 	/**
