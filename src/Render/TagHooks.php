@@ -1002,10 +1002,11 @@ class TagHooks {
 						$ret .= '</span>' . PHP_EOL;
 					}
 				}
-
+				global $wgScript;
+				$gifUrl = str_replace( '/index.php', '', $wgScript ) . '/extensions/FlexForm/Modules/load-editor.gif';
 				Core::includeInlineScript( 'var WSFormEditor = "VE";' );
 				$cssVE = '.load-editor{ 
-								background: url("https://www.wikibase.nl/load-editor.gif") no-repeat bottom right #fff;
+								background: url("' . $gifUrl . '") no-repeat bottom right #fff;
 								background-size: 50px; 
 							}';
 				Core::includeInlineCSS( $cssVE );
