@@ -70,6 +70,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 1.1.12 : Added entity decoding to mwreturn to support &-sign. Fixed multiple instances issue.
 * 1.1.11 : SEO url's to file upload
 * 1.1.10 : Added sortable tokens
 * 1.1.9 : Addendum and SEO setting

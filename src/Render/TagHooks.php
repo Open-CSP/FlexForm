@@ -3,6 +3,7 @@
 namespace FlexForm\Render;
 
 use Composer\Command\ScriptAliasCommand;
+use ExtensionRegistry;
 use FlexForm\Processors\Files\FilesCore;
 use FlexForm\Processors\Utilities\General;
 use MediaWiki\MediaWikiServices;
@@ -972,6 +973,14 @@ class TagHooks {
 						Config::isSecure()
 					);
 				}
+				$ret = '';
+				if ( isset( $editor ) && $editor === "ve" ) {
+					if ( ExtensionRegistry::getInstance()->isLoaded( 'VEForAll' ) ) {
+						$parser->getOutput()->addModules( 'ext.veforall.main' );
+						$class .= ' load-editor ';
+						$ret = '<span class="ve-area-wrapper">';
+					}
+				}
 
 				Core::addCheckSum(
 					'textarea',
@@ -980,7 +989,7 @@ class TagHooks {
 					$htmlType
 				);
 
-				$ret = $this->themeStore->getFormTheme()->getFieldRenderer()->render_textarea(
+				$ret .= $this->themeStore->getFormTheme()->getFieldRenderer()->render_textarea(
 					$input,
 					$tagName,
 					$class,
@@ -988,6 +997,20 @@ class TagHooks {
 					$additionalArguments,
 					$htmlType
 				);
+				if ( isset( $editor ) && $editor === "ve" ) {
+					if ( ExtensionRegistry::getInstance()->isLoaded( 'VEForAll' ) ) {
+						$ret .= '</span>' . PHP_EOL;
+					}
+				}
+				global $wgScript;
+				$gifUrl = str_replace( '/index.php', '', $wgScript ) . '/extensions/FlexForm/Modules/load-editor.gif';
+				Core::includeInlineScript( 'var WSFormEditor = "VE";' );
+				$cssVE = '.load-editor{ 
+								background: url("' . $gifUrl . '") no-repeat bottom right #fff;
+								background-size: 50px; 
+							}';
+				Core::includeInlineCSS( $cssVE );
+
 
 
 				break;
