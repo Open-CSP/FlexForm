@@ -246,7 +246,7 @@ if ( Config::isDebug() ) {
 
 try {
 	$responseHandler->exitResponse();
-	$this->getOutput()->redirect( $responseHandler->getMwReturn() );
+	$this->getOutput()->redirect( html_entity_decode( $responseHandler->getMwReturn() ) );
 } catch ( FlexFormException $e ) {
 	return $e->getMessage();
 }
