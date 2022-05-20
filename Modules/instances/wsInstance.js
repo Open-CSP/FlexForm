@@ -252,6 +252,20 @@ const WsInstance = function (selector, options) {
 	_.save = () => {
 		let saveString = ''
 
+		// remove the names in the copy element
+		_.clone.find('input,select,textarea').each(function(index, input) {
+			// name is later in this function removed, when the save event occurs multiple times it needs to get
+			// the name in another way
+			let name = input.name
+			if (name === '') name = input.getAttribute('data-name')
+
+			// check if name is set, else return
+			if (!name) return
+
+			input.removeAttribute('name');
+			input.setAttribute('data-name', name);
+		})
+
 		// loop through all instances in the list
 		_.list.find('.WSmultipleTemplateInstance').each(function (i, instance) {
 			let valuesObj = {}
@@ -268,7 +282,6 @@ const WsInstance = function (selector, options) {
 
 				// remove brackets at the end
 				name = removeBracketsAtEnd(name)
-
 
 				// switch through all different types
 				switch (input.type) {
@@ -302,7 +315,6 @@ const WsInstance = function (selector, options) {
 		})
 
 		_.saveField.val(saveString)
-
 	}
 
 	/**
