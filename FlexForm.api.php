@@ -221,7 +221,7 @@ if ( General::getPostString( 'mwextension' ) !== false ) {
 		External::handlePost( $responseHandler );
 	} catch ( FlexFormException $e ) {
 		$responseHandler->setReturnData( $e->getMessage() );
-		$responseHandler->setReturnStatus( 'GET error' );
+		$responseHandler->setReturnStatus( 'Extension error' );
 		$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
 		try {
 			$responseHandler->exitResponse();
@@ -230,8 +230,6 @@ if ( General::getPostString( 'mwextension' ) !== false ) {
 		}
 	}
 }
-
-External::runHook( $responseHandler );
 
 if ( Config::isDebug() ) {
 	if ( $responseHandler->getReturnStatus() !== "ok" ) {

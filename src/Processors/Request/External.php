@@ -37,14 +37,15 @@ class External {
 
 	/**
 	 * Run hook
+	 * @param string $external
 	 * @param HandleResponse $responseHandler
 	 *
 	 * @return void
 	 */
-	public static function runHook( HandleResponse $responseHandler ) {
+	public static function runHook( string $external, HandleResponse $responseHandler ) {
 		$hookContainer = MediaWikiServices::getInstance()->getHookContainer();
 		$handler = new Handlers();
-		$hookContainer->run( 'FFAfterFormHandling', [ $handler->setFFPostFields(), &$responseHandler ] );
+		$hookContainer->run( 'FFAfterFormHandling', [ $external, $handler->setFFPostFields(), &$responseHandler ] );
 	}
 
 	/**
@@ -78,12 +79,19 @@ class External {
 					$responseHandler
 				);
 			} else {
+				/*
 				throw new FlexFormException(
 					wfMessage( 'flexform-external-request-not-found' )->text(),
 					0
 				);
+				*/
+
+				// We cannot find the extension in the extension folder, so let's run the hook
+				self::runHook( $external, $responseHandler );
+
 			}
-		} else {
+		}
+		/* else {
 			if ( $postHandler ) {
 				$throwMessage = wfMessage( 'flexform-extension-not-found' )->text();
 			} else {
@@ -93,6 +101,6 @@ class External {
 				$throwMessage,
 				0
 			);
-		}
+		}*/
 	}
 }
