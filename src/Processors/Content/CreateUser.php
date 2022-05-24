@@ -110,8 +110,8 @@ class CreateUser {
 	 * @throws FlexFormException
 	 */
 	public function sendPassWordAndConfirmationLink( User $user ) {
-		global $IP;
 		$user = $this->setPassword( $user );
+		/*
 		$template = file_get_contents(
 			$IP . '/extensions/FlexForm/src/Templates/createUserEmailConfirmation.tpl'
 		);
@@ -120,17 +120,22 @@ class CreateUser {
 			'%%username%%',
 			'%%password%%'
 		];
+		*/
+
 		if ( $this->getRealName() === null || $this->getRealName() === '' ) {
 			$rName = $this->getUserName();
 		} else {
 			$rName = $this->getRealName();
 		}
+		/*
 		$replaceWith = [
 			$rName,
 			$this->getUserName(),
 			$this->passWord
 		];
 		$template = str_replace( $searchFor, $replaceWith, $template );
+		*/
+		$template = wfMessage( 'flexform-createuser-email', $rName, $this->getUserName(), $this->passWord );
 		$user->sendConfirmationMail();
 		$user->sendMail( 'Account registration', $template );
 	}

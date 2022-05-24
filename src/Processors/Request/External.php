@@ -14,6 +14,7 @@ use FlexForm\Core\HandleResponse;
 use FlexForm\Processors\Security\wsSecurity;
 use FlexForm\Processors\Utilities\General;
 use FlexForm\FlexFormException;
+use MediaWiki\MediaWikiServices;
 
 /**
  * Class external
@@ -32,6 +33,18 @@ class External {
 	public static function handle( HandleResponse $responseHandler ) {
 		$external = General::getGetString( 'script' );
 		self::doHandle( $external, $responseHandler );
+	}
+
+	/**
+	 * Run hook
+	 * @param HandleResponse $responseHandler
+	 *
+	 * @return void
+	 */
+	public static function runHook( HandleResponse $responseHandler ) {
+		$hookContainer = MediaWikiServices::getInstance()->getHookContainer();
+		$handler = new Handlers();
+		$hookContainer->run( 'FFAfterFormHandling', [ $handler->setFFPostFields(), &$responseHandler ] );
 	}
 
 	/**

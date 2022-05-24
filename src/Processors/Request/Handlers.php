@@ -77,7 +77,7 @@ class Handlers {
 	 *
 	 * @return mixed
 	 */
-	private function setFFPostFields() {
+	public function setFFPostFields() {
 		foreach ( $_POST as $k => $v ) {
 			if ( Definitions::isFlexFormSystemField( $k ) ) {
 				unset( $_POST[$k] );

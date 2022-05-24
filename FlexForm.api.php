@@ -231,6 +231,8 @@ if ( General::getPostString( 'mwextension' ) !== false ) {
 	}
 }
 
+External::runHook( $responseHandler );
+
 if ( Config::isDebug() ) {
 	if ( $responseHandler->getReturnStatus() !== "ok" ) {
 		Debug::addToDebug(

@@ -70,6 +70,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 1.1.14 : Create user email is now a system message. Added FFAfterFormHandling Hook.
 * 1.1.13 : Added extension support
 * 1.1.12 : Added entity decoding to mwreturn to support &-sign. Fixed multiple instances issue.
 * 1.1.11 : SEO url's to file upload
