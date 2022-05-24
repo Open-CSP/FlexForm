@@ -13,6 +13,7 @@ namespace FlexForm\Processors\Request;
 use FlexForm\Core\Config;
 use FlexForm\Core\Debug;
 use FlexForm\Core\HandleResponse;
+use FlexForm\FlexFormException;
 use FlexForm\Processors\Definitions;
 use FlexForm\Processors\Utilities\General;
 
@@ -112,6 +113,7 @@ class Handlers {
 	 * @param HandleResponse $responseHandler
 	 *
 	 * @return void
+	 * @throws FlexFormException
 	 */
 	public function handlerExecute( string $name, HandleResponse $responseHandler ) {
 		if ( $this->handlerExist( $name ) ) {
@@ -128,14 +130,32 @@ class Handlers {
 			}
 			//echo Debug::createDebugOutput();
 			//die();
-			$handler = new $class;
-			if ( $this->isPostHandler === true ) {
-				$handler->execute( $this->setFFPostFields() );
+			if ( class_exists( $class ) ) {
+				$handler = new $class;
+				if ( method_exists( $handler, 'execute' ) ) {
+					if ( $this->isPostHandler === true ) {
+						$responseHandler = $handler->execute( $this->setFFPostFields(), $responseHandler );
+					} else {
+						$handler->execute( $responseHandler );
+					}
+					return $responseHandler;
+				} else {
+					throw new FlexFormException(
+						wfMessage( 'flexform-query-handler-no-method' )->text(),
+						0
+					);
+				}
 			} else {
-				$handler->execute( $responseHandler );
+				throw new FlexFormException(
+					wfMessage( 'flexform-query-handler-no-class' )->text(),
+					0
+				);
 			}
 		} else {
-
+			throw new FlexFormException(
+				wfMessage( 'flexform-extension-not-found' )->text(),
+				0
+			);
 		}
 	}
 

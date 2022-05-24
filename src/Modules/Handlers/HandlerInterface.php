@@ -1,4 +1,10 @@
 <?php
+
+namespace FlexForm\Modules\Handlers;
+
+use FlexForm\Core\HandleResponse;
+use FlexForm\FlexFormException;
+
 /**
  * Created by  : Designburo.nl
  * Project     : MWWSForm
@@ -8,13 +14,28 @@
  * Time        : 20:53
  */
 
-namespace FlexForm\Modules\Handlers;
+/*
+ * Usage HandleResponse:
+ *
+ * throw a new FlexFormException on error
+ * on success with no further output needed :
+ * $responseHandler->setReturnType( HandleResponse::TYPE_SUCCESS );
+ * end return $responseHandler
+ *
+ * on success with an additional message :
+ *
+ * $responseHandler->setReturnType( HandleResponse::TYPE_SUCCESS );
+ * $responseHandler->setReturnData( string <your message> );
+ * return $responsehandler
+ */
 
 interface HandlerInterface {
 	/**
 	 * @param array $flexFormFields
+	 * @param HandleResponse $responseHandler
 	 *
-	 * @return mixed
+	 * @return HandleResponse
+	 * @throws FlexFormException
 	 */
-	public function execute( array $flexFormFields );
+	public function execute( array $flexFormFields, HandleResponse $responseHandler ): HandleResponse;
 }
