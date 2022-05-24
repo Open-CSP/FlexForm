@@ -135,7 +135,7 @@ class CreateUser {
 		];
 		$template = str_replace( $searchFor, $replaceWith, $template );
 		*/
-		$template = wfMessage( 'flexform-createuser-email', $rName, $this->getUserName(), $this->passWord );
+		$template = wfMessage( 'flexform-createuser-email', $rName, $this->getUserName(), $this->passWord )->plain();
 		$user->sendConfirmationMail();
 		$user->sendMail( 'Account registration', $template );
 	}
