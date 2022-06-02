@@ -70,6 +70,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 1.1.16 : VE error message fix when nog VE loaded.
 * 1.1.15 : Extended the hook to contain extension name.
 * 1.1.14 : Create user email is now a system message. Added FFAfterFormHandling Hook.
 * 1.1.13 : Added extension support

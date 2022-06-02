@@ -1000,16 +1000,19 @@ class TagHooks {
 				if ( isset( $editor ) && $editor === "ve" ) {
 					if ( ExtensionRegistry::getInstance()->isLoaded( 'VEForAll' ) ) {
 						$ret .= '</span>' . PHP_EOL;
-					}
-				}
-				global $wgScript;
-				$gifUrl = str_replace( '/index.php', '', $wgScript ) . '/extensions/FlexForm/Modules/load-editor.gif';
-				Core::includeInlineScript( 'var WSFormEditor = "VE";' );
-				$cssVE = '.load-editor{ 
+						Core::includeInlineScript( 'var WSFormEditor = "VE";' );
+						global $wgScript;
+						$gifUrl = str_replace( '/index.php', '', $wgScript ) . '/extensions/FlexForm/Modules/load-editor.gif';
+						$cssVE = '.load-editor{ 
 								background: url("' . $gifUrl . '") no-repeat bottom right #fff;
 								background-size: 50px; 
 							}';
-				Core::includeInlineCSS( $cssVE );
+						Core::includeInlineCSS( $cssVE );
+					}
+				}
+
+
+
 
 
 
