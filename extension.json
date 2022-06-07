@@ -7,7 +7,7 @@
   ],
   "url": "https://www.mediawiki.org/wiki/Extension:FlexForm",
   "descriptionmsg": "flexform-desc",
-  "license-name": "GPL v2",
+  "license-name": "GPL-2.0-or-later",
   "type": "parserhook",
   "AutoloadClasses": {
     "ApiFlexForm": "ApiFlexForm.php",
