@@ -119,6 +119,7 @@ function handleRadio (radioElm) {
 		}
 		// there are no multiple tags
 		else {
+			// check if it is exactly that value
 			if (element_wssos_value !== wssos_value) return;
 			needToShow = radio.checked;
 		}
@@ -151,7 +152,7 @@ function handleRadio (radioElm) {
 		// loop through the radio button groep and hide others
 		$(parent_wssos).find('input[name="' + this.name + '"][type="radio"]').each(function (index, radiobtn) {
 			let radio_hide_data_attr = $(radiobtn).data('wssos-show')
-			let radio_hide_elm = $(parent_wssos).find('[data-wssos-value="' + radio_hide_data_attr + '"]')
+			let radio_hide_elm = $(parent_wssos).find('[data-wssos-value*="' + radio_hide_data_attr + '"]')
 
 			if (radio_hide_elm.length === 0) radio_hide_elm = $(parent_wssos).find('#' + radio_hide_data_attr)
 			if (radio_hide_elm.length === 0) radio_hide_elm = $(parent_wssos).find('[data-wssos-value*="' + radio_hide_data_attr + '"]')
@@ -162,8 +163,15 @@ function handleRadio (radioElm) {
 				let element_wssos_value = element.data('wssos-value');
 
 				if (element_wssos_value.split('||').length > 1) {
+					if (!element_wssos_value.split('||').includes(radio_hide_data_attr)) return;
 					needToShow = handleMultipleTags(element_wssos_value.split('||'), parent_wssos, false, element);
 				}
+
+				if (element_wssos_value.split('&&').length > 1) {
+					if (!element_wssos_value.split('&&').includes(radio_hide_data_attr)) return;
+					needToShow = handleMultipleTags(element_wssos_value.split('&&'), parent_wssos, true, element);
+				}
+
 
 				if (needToShow) {
 					element.show(0);
