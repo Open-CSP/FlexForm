@@ -149,17 +149,17 @@ class SemanticAsk {
 				$t = 0;
 				foreach ( $data as $k => $val ) {
 					if ( $returnText === false ) {
-						$ret['results'][$t]['text'] = htmlentities( $val['displaytitle'] );
+						$ret['results'][$t]['text'] = $val['displaytitle'];
 					} elseif ( isset( $val['printouts'][$returnText][0] ) ) {
-						$ret['results'][$t]['text'] = htmlentities( $val['printouts'][$returnText][0] );
+						$ret['results'][$t]['text'] = $val['printouts'][$returnText][0];
 					} else {
 						$ret['results'][$t]['text'] = 'Not found';
 					}
 
 					if ( $returnId === false ) {
-						$ret['results'][$t]['id'] = htmlentities( $k );
+						$ret['results'][$t]['id'] = $k;
 					} elseif ( isset( $val['printouts'][$returnId][0] ) ) {
-						$ret['results'][$t]['id'] = htmlentities( $val['printouts'][$returnId][0] );
+						$ret['results'][$t]['id'] = $val['printouts'][$returnId][0];
 					} else {
 						$ret['results'][$t]['id'] = 'Not found';
 					}
