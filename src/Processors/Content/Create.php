@@ -149,6 +149,19 @@ class Create {
 		$this->pageData['formFields'] = false;
 	}
 
+	private function setFormFieldAliases() {
+		$this->pageData['aliasFields'] = [];
+		foreach ( $this->pageData['formFields'] as $k => $field ) {
+			if ( strpos( $field, '::' ) !== false ) {
+				// We have Aliases
+				$exploded = explode( '::', $field );
+				$originalName = $exploded[0];
+				$templateName = $exploded[1];
+				$this->pageData['aliasFields'][$originalName] = $templateName;
+			}
+		}
+	}
+
 	/**
 	 * @param string $page
 	 *
@@ -193,8 +206,10 @@ class Create {
 				'trim',
 				$formFields
 			);
+			$this->setFormFieldAliases();
 		} else {
 			$this->pageData['formFields'] = false;
+			$this->pageData['aliasFields'] = [];
 		}
 
 		if ( isset( $exploded[4] ) && $exploded[4] !== '' ) {
@@ -231,7 +246,7 @@ class Create {
 		$pageCount = 0;
 		$fields    = ContentCore::getFields();
 		$pageTitleToLinkTo = [];
-		if( Config::isDebug() ) {
+		if ( Config::isDebug() ) {
 			Debug::addToDebug( 'Write several page activated ' . time(), $fields );
 		}
 		foreach ( $fields['writepages'] as $singlePage ) {
