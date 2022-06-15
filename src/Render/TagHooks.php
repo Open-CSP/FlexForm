@@ -2285,7 +2285,6 @@ class TagHooks {
 				$verboseDiv['class'][] = 'wsform-verbose';
 				// $ret .= '<div id="' . $verbose_id . '" class="wsform-verbose"></div>';
 			} else {
-				$verbose_id          = $id;
 				$verboseDiv['id']    = false;
 				$verboseDiv['class'] = false;
 			}
@@ -2296,7 +2295,6 @@ class TagHooks {
 				$errorDiv['class'] = [ "wsform-error" ];
 				//$ret      .= '<div id="' . $error_id . '" class="wsform-error"></div>';
 			} else {
-				$error_id          = $id;
 				$errorDiv['id']    = false;
 				$errorDiv['class'] = false;
 			}
