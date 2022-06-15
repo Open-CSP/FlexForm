@@ -386,11 +386,11 @@ class ContentCore {
 		if ( self::$fields['template'] === strtolower( 'wsnone' ) ) {
 			$noTemplate = true;
 		}
-		if ( ! $noTemplate ) {
+		if ( !$noTemplate ) {
 			$ret = "{{" . self::$fields['template'] . "\n";
 		}
 		foreach ( $_POST as $k => $v ) {
-			if ( is_array( $v ) && ! Definitions::isFlexFormSystemField( $k ) ) {
+			if ( is_array( $v ) && !Definitions::isFlexFormSystemField( $k ) ) {
 				$ret .= "|" . General::makeSpaceFromUnderscore( $k ) . "=";
 				foreach ( $v as $multiple ) {
 					$ret .= wsSecurity::cleanBraces( $multiple ) . ',';
@@ -400,8 +400,8 @@ class ContentCore {
 						   ','
 					   ) . PHP_EOL;
 			} else {
-				if ( ! Definitions::isFlexFormSystemField( $k ) && $v != "" ) {
-					if ( ! $noTemplate ) {
+				if ( !Definitions::isFlexFormSystemField( $k ) && $v != "" ) {
+					if ( !$noTemplate ) {
 						$ret .= '|' . General::makeSpaceFromUnderscore( $k ) . '=' . wsSecurity::cleanBraces(
 								$v
 							) . "\n";
@@ -411,7 +411,7 @@ class ContentCore {
 				}
 			}
 		}
-		if ( ! $noTemplate ) {
+		if ( !$noTemplate ) {
 			$ret .= "}}";
 		}
 

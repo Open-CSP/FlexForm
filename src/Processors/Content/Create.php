@@ -32,7 +32,7 @@ class Create {
 	 */
 	public function writePage(): array {
 		$fields = ContentCore::getFields();
-		if( Config::isDebug() ) {
+		if ( Config::isDebug() ) {
 			Debug::addToDebug( 'Write page activated ' . time(),
 							   [ "fields" => $fields,
 								"_post" => $_POST ] );
@@ -40,7 +40,7 @@ class Create {
 
 		$this->content = ContentCore::createContent();
 
-		if( Config::isDebug() ) {
+		if ( Config::isDebug() ) {
 			Debug::addToDebug( 'Write page activated CONTENT ' . time(),
 							   $this->content );
 		}
@@ -149,6 +149,33 @@ class Create {
 		$this->pageData['formFields'] = false;
 	}
 
+	public function getFormFieldAliases( $fields ){
+		$alias = [];
+		foreach ( $fields as $k => $field ) {
+			if ( strpos( $field, '::' ) !== false ) {
+				// We have Aliases
+				$exploded = explode( '::', $field );
+				$originalName = $exploded[0];
+				$templateName = $exploded[1];
+				$alias['aliasFields'][$originalName] = $templateName;
+			}
+		}
+	}
+
+	private function setFormFieldAliases() {
+		$this->pageData['aliasFields'] = [];
+		foreach ( $this->pageData['formFields'] as $k => $field ) {
+			if ( strpos( $field, '::' ) !== false ) {
+				// We have Aliases
+				$exploded = explode( '::', $field );
+				$originalName = $exploded[0];
+				$templateName = $exploded[1];
+				$this->pageData['aliasFields'][$originalName] = $templateName;
+				$this->pageData['formFields'][$k] = $originalName;
+			}
+		}
+	}
+
 	/**
 	 * @param string $page
 	 *
@@ -193,8 +220,10 @@ class Create {
 				'trim',
 				$formFields
 			);
+			$this->setFormFieldAliases();
 		} else {
 			$this->pageData['formFields'] = false;
+			$this->pageData['aliasFields'] = [];
 		}
 
 		if ( isset( $exploded[4] ) && $exploded[4] !== '' ) {
@@ -231,7 +260,7 @@ class Create {
 		$pageCount = 0;
 		$fields    = ContentCore::getFields();
 		$pageTitleToLinkTo = [];
-		if( Config::isDebug() ) {
+		if ( Config::isDebug() ) {
 			Debug::addToDebug( 'Write several page activated ' . time(), $fields );
 		}
 		foreach ( $fields['writepages'] as $singlePage ) {
@@ -353,12 +382,11 @@ class Create {
 			$pagesToSave[] = [
 				$this->pageData['title'],
 				$this->content,
-				ContentCore::parseTitle( $fields['summary'] ),
+				$fields['summary'],
 				$this->pageData['slot'],
 				$this->pageData['overwrite']
 			];
 		}
-
 
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
@@ -459,8 +487,17 @@ class Create {
 					continue;
 				}
 			}
-			if ( is_array( $v ) ) {
-				$this->content .= "|" . General::makeSpaceFromUnderscore( $k ) . "=";
+			if ( is_array( $v ) && !Definitions::isFlexFormSystemField( $k ) ) {
+				if ( array_key_exists(
+					$k,
+					$this->pageData['aliasFields']
+				) ) {
+					$this->content .= "|" . General::makeSpaceFromUnderscore(
+							$this->pageData['aliasFields'][$k]
+						) . "=";
+				} else {
+					$this->content .= "|" . General::makeSpaceFromUnderscore( $k ) . "=";
+				}
 				foreach ( $v as $multiple ) {
 					$this->content .= wsSecurity::cleanBraces( $multiple ) . ',';
 				}
@@ -473,9 +510,22 @@ class Create {
 					// if ( $k !== "mwtemplate" && $k !== "mwoption" && $k !== "mwwrite" &&
 					// $k !== "mwreturn" && $k !== "mwedit" && $v != "" ) {
 					if ( !$this->pageData['notemplate'] ) {
-						$this->content .= '|' . General::makeSpaceFromUnderscore( $k ) . '=' . wsSecurity::cleanBraces(
-								$v
-							) . PHP_EOL;
+						if ( array_key_exists(
+							$k,
+							$this->pageData['aliasFields']
+						) ) {
+							$this->content .= '|' . General::makeSpaceFromUnderscore(
+									$this->pageData['aliasFields'][$k]
+								) . '=' . wsSecurity::cleanBraces(
+									$v
+								) . PHP_EOL;
+						} else {
+							$this->content .= '|' . General::makeSpaceFromUnderscore(
+									$k
+								) . '=' . wsSecurity::cleanBraces(
+									$v
+								) . PHP_EOL;
+						}
 					} else {
 						$this->content = $v;
 					}

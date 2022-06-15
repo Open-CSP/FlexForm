@@ -97,6 +97,7 @@ class FlexFormHooks {
 	 * @return void
 	 */
 	public static function onBeforePageOutput( OutputPage $out, Skin $skin ) {
+
 		$out->addModules( [
 			'ext.FlexForm.showOnSelect.script',
 			'ext.wsForm.ajax.scripts'
