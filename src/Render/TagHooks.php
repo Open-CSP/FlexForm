@@ -1221,10 +1221,11 @@ class TagHooks {
 	 * @throws FlexFormException
 	 */
 	public function renderFieldset( $input, array $args, Parser $parser, PPFrame $frame ) {
-		$input = $parser->recursiveTagParseFully(
+		$input = $parser->recursiveTagParse(
 			$input,
 			$frame
 		);
+
 		$args = $this->filterInputTags( $args );
 
 		foreach ( $args as $name => $value ) {
@@ -1495,7 +1496,7 @@ class TagHooks {
 	 * @brief This is the initial call from the MediaWiki parser for the WSToken
 	 *
 	 * @param $input string Received from parser from begin till end
-	 * @param array $args List of arguments for the Fieldset
+	 * @param array $args List of arguments for the Tokens
 	 * @param Parser $parser MediaWiki parser
 	 * @param PPFrame $frame MediaWiki pframe
 	 *
