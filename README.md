@@ -72,7 +72,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 * 1.1.21 : Fixed Paragraph tag appearing in fieldset
 * 1.1.20 : Fixed file upload preview and dropzone issues
-* 1.1.19 : Added wscreate usefield like options. Fixed SMW qeury results being escaped
+* 1.1.19 : Added wscreate usefield like options. Fixed SMW query results being escaped
 * 1.1.17 : Fixed autosave with Instances
 * 1.1.16 : VE error message fix when nog VE loaded.
 * 1.1.15 : Extended the hook to contain extension name.
