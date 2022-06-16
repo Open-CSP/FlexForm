@@ -70,6 +70,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 1.1.21 : Fixed Paragraph tag appearing in fieldset
 * 1.1.20 : Fixed file upload preview and dropzone issues
 * 1.1.19 : Added wscreate usefield like options. Fixed SMW qeury results being escaped
 * 1.1.17 : Fixed autosave with Instances
