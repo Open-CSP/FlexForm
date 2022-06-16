@@ -2275,26 +2275,33 @@ class TagHooks {
 			$hiddenFiles[] = '<input type="hidden" name="wsform_image_force" value="' . $force . '">';
 		}
 
+
+		// Normal file upload. No presentor
 		if ( ! $presentor ) {
+			// If we do not have a verbose id, then create our own preview from the form ID
 			if ( $verbose_id === false ) {
 				$verbose_id       = 'verbose_' . $id;
 				$verboseDiv['id'] = $verbose_id;
+				// If we also have a dropzone, then turn the verbose element into a dropzone
 				if ( $drop && ! $use_label ) {
 					$verboseDiv['class'][] = 'wsform-dropzone';
 				}
 				$verboseDiv['class'][] = 'wsform-verbose';
 				// $ret .= '<div id="' . $verbose_id . '" class="wsform-verbose"></div>';
 			} else {
+				// If we have our own verbose element, then set the create verbose element to false
 				$verboseDiv['id']    = false;
 				$verboseDiv['class'] = false;
 			}
 
+			// If we do not have an error id, then create our own error element from the form id.
 			if ( ! $error_id ) {
 				$error_id          = 'error_' . $id;
 				$errorDiv['id']    = $error_id;
 				$errorDiv['class'] = [ "wsform-error" ];
 				//$ret      .= '<div id="' . $error_id . '" class="wsform-error"></div>';
 			} else {
+				// If we do have a error element, then set create new error element to false.
 				$errorDiv['id']    = false;
 				$errorDiv['class'] = false;
 			}
@@ -2316,6 +2323,7 @@ class TagHooks {
 				$("#' . $id . '").trigger("change"); 
 		});';
 			}
+			// If we are using a dropzone AND we have an input file field label replacement
 			if ( $drop && $use_label ) {
 				$onChangeScript .= "\n";
 				$onChangeScript .= 'var label = $("label[for=\'' . $id . '\']");';
