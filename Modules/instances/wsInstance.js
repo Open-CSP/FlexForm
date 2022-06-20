@@ -64,11 +64,20 @@ const WsInstance = function (selector, options) {
 		let textarea_items = textarea_content.split('{{').filter((v) => v)
 
 		$.each(textarea_items, function (i, val) {
-			let content_array = val.split('\n').filter((v) => v.includes('='))
+			let content_array = val.split('}}').join('').split('|').filter(v => v.includes('='))
 			$.each(content_array, function (index, item) {
-				name_array.push(item.split('=')[0].split('|')[1])
-				value_array.push(item.split('=')[1].split('}}')[0])
+				const s = item.split('=')
+				let value = s[1]
+
+				// check if the last character is a new line, then remove that
+				if ( value[value.length-1] === '\n') {
+					value = value.slice(0, -1)
+				}
+
+				name_array.push(s[0])
+				value_array.push(value)
 			})
+
 
 			handlePredefinedData(name_array, value_array)
 			name_array = []
@@ -215,9 +224,10 @@ const WsInstance = function (selector, options) {
 			}
 		}
 
-		checkForSelect2(0)
 
 		if ($(element).find('[data-inputtype="ws-select2"]').length > 0) {
+			checkForSelect2(0)
+
 			$(element).find('[data-wsselect2id]').each(function (i, select) {
 				let select2id = $(select).attr('data-wsselect2id')
 
@@ -390,7 +400,16 @@ const WsInstance = function (selector, options) {
 			_.addToBottom()
 		})
 
-		_.convertPredefinedToInstances()
+		if ($(_.clone).find('.ve-area-wrapper').length > 0) {
+			// // console.log(_.clone)
+			// $(_.clone).find('.ve-area-wrapper')[0].innerHTML = $(_.clone).find('.ve-area-wrapper textarea').html()
+			// $(_.clone).find('.ve-area-wrapper textarea').removeClass('oo-ui-texture-pending')
+			// $(_.clone).find('.ve-area-wrapper')
+			waitForVE(_.convertPredefinedToInstances)
+		} else {
+			_.convertPredefinedToInstances()
+		}
+
 	}
 
 	_.init()
