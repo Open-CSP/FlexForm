@@ -66,15 +66,15 @@ const WsInstance = function (selector, options) {
 		$.each(textarea_items, function (i, val) {
 			let content_array = val.split('}}').join('').split('|').filter(v => v.includes('='))
 			$.each(content_array, function (index, item) {
-				const s = item.split('=')
-				let value = s[1]
+				let template = item.slice(0, item.indexOf('='));
+				let value = item.slice(item.indexOf('=') + 1);
 
 				// check if the last character is a new line, then remove that
 				if ( value[value.length-1] === '\n') {
 					value = value.slice(0, -1)
 				}
 
-				name_array.push(s[0])
+				name_array.push(template)
 				value_array.push(value)
 			})
 
@@ -140,7 +140,7 @@ const WsInstance = function (selector, options) {
 
 		let element = _.getCloneElementHandled(clone)
 		_.list.append(element)
-		_.handleIntegrations(element)
+		_.handleIntegrations(element, true)
 	}
 
 	/**
@@ -208,10 +208,17 @@ const WsInstance = function (selector, options) {
 			radio.name += '___' + idUnifier
 		})
 
+		clone.find('select[data-inputtype="ws-select2"]').each((i, select) => {
+			if ($(select).next().is('span')) {
+				$(select).next().remove();
+			}
+		})
+
+
 		return clone
 	}
 
-	_.handleIntegrations = (element) => {
+	_.handleIntegrations = (element, isPreDefined = false) => {
 		// make functions for eventual integrations like select2 or wssos
 		if (typeof WsShowOnSelect === 'function') WsShowOnSelect()
 
@@ -245,6 +252,14 @@ const WsInstance = function (selector, options) {
 				if (typeof $.fn.select2 === 'function') Function(statement)()
 			})
 		}
+
+		if ($(element).find('.ve-area-wrapper').length > 0 && !isPreDefined) {
+			$(element).find('.ve-area-wrapper').each((i, wrapper) => {
+				wrapper.innerHTML = $(wrapper).find('textarea')[0].outerHTML;
+				$(wrapper).find('textarea').show(0)
+				$(wrapper).find('textarea').applyVisualEditor()
+			})
+		}
 	}
 
 	/**
@@ -276,55 +291,91 @@ const WsInstance = function (selector, options) {
 			input.setAttribute('data-name', name);
 		})
 
-		// loop through all instances in the list
-		_.list.find('.WSmultipleTemplateInstance').each(function (i, instance) {
-			let valuesObj = {}
+		const saveAllInstances = () => {
+			// loop through all instances in the list
+			_.list.find('.WSmultipleTemplateInstance').each(function (i, instance) {
+				let valuesObj = {}
 
-			// loop through every input selectbox and textarea in this instance
-			$(instance).find('input,select,textarea').each(function (index, input) {
-				// name is later in this function removed, when the save event occurs multiple times it needs to get
-				// the name in another way
-				let name = input.name
-				if (name === '') name = input.getAttribute('data-name')
+				// loop through every input selectbox and textarea in this instance
+				$(instance).find('input,select,textarea').each(function (index, input) {
+					// name is later in this function removed, when the save event occurs multiple times it needs to get
+					// the name in another way
+					let name = input.name
+					if (name === '') name = input.getAttribute('data-name')
 
-				// check if name is set, else return
-				if (!name) return
+					// check if name is set, else return
+					if (!name) return
 
-				// remove brackets at the end
-				name = removeBracketsAtEnd(name)
+					// remove brackets at the end
+					name = removeBracketsAtEnd(name)
 
-				// switch through all different types
-				switch (input.type) {
-					case 'checkbox':
-						if (input.checked) {
+					// switch through all different types
+					switch (input.type) {
+						case 'checkbox':
+							if (input.checked) {
+								valuesObj[name] = input.value
+							} else {
+								valuesObj[name] = ''
+							}
+							break
+						case 'radio':
+							if (input.checked) {
+								// remove added unique name attribute
+								name = name.substring(0, name.indexOf('___'))
+								valuesObj[name] = input.value
+							}
+							break
+						case 'hidden':
+							return
+						default:
 							valuesObj[name] = input.value
-						} else {
-							valuesObj[name] = ''
-						}
-						break
-					case 'radio':
-						if (input.checked) {
-							// remove added unique name attribute
-							name = name.substring(0, name.indexOf('___'))
-							valuesObj[name] = input.value
-						}
-						break
-					case 'hidden':
-						return
-					default:
-						valuesObj[name] = input.value
-						break
-				}
-				// remove name attr otherwise it will be send along with wsform
-				input.removeAttribute('name')
+							break
+					}
+					// remove name attr otherwise it will be send along with wsform
+					input.removeAttribute('name')
 
-				// set name in data attribute so the name is still available
-				input.setAttribute('data-name', name)
+					// set name in data attribute so the name is still available
+					input.setAttribute('data-name', name)
+				})
+				saveString += createSaveStringForInstance(valuesObj)
 			})
-			saveString += createSaveStringForInstance(valuesObj)
-		})
 
-		_.saveField.val(saveString)
+			_.saveField.val(saveString)
+		}
+
+
+		let veWrapperLength = _.list.find('.ve-area-wrapper').length;
+
+		if (veWrapperLength > 0) {
+			const api = new mw.Api()
+
+			// loop through all VisualEditor instances to handle the convert from html to wikitext
+			$.each($.fn.getVEInstances(), (i, ve) => {
+				// check if the last element in the array has class WSmultipleTemplateInstance to continue
+				if ($(Array.from(ve.$node.parentsUntil('.WSmultipleTemplateList')).at(-1)).hasClass('WSmultipleTemplateInstance')) {
+					// make api post to convert the html to wikitext
+					api.post({
+						action: 'veforall-parsoid-utils',
+						from: 'html',
+						to: 'wikitext',
+						content: ve.target.getSurface().getHtml(),
+						title: mw.config.get('wgPageName').split(/(\\|\/)/g).pop()
+					}).then(data => {
+						// replace pipes and set the content in the textarea
+						const text = data['veforall-parsoid-utils'].content
+						let esc = replacePipes(text)
+						$(ve.$node).val(esc)
+
+						veWrapperLength--;
+						if (veWrapperLength === 0) {
+							saveAllInstances()
+						}
+					})
+				}
+			})
+		} else {
+			saveAllInstances()
+		}
 	}
 
 	/**
@@ -389,7 +440,9 @@ const WsInstance = function (selector, options) {
 			$.getScript(extensionPath + '/FlexForm/Modules/instances/Sortable.min.js').done(function () {
 				_.sortable = Sortable.create(_.list[0], {
 					animation: 150,
-					handle: _.settings.handleClass
+					handle: _.settings.handleClass,
+					forceFallback: true,
+					touchStartThreshold: 10
 				})
 			})
 		}
@@ -401,15 +454,13 @@ const WsInstance = function (selector, options) {
 		})
 
 		if ($(_.clone).find('.ve-area-wrapper').length > 0) {
-			// // console.log(_.clone)
-			// $(_.clone).find('.ve-area-wrapper')[0].innerHTML = $(_.clone).find('.ve-area-wrapper textarea').html()
-			// $(_.clone).find('.ve-area-wrapper textarea').removeClass('oo-ui-texture-pending')
-			// $(_.clone).find('.ve-area-wrapper')
-			waitForVE(_.convertPredefinedToInstances)
+			waitForVE(() => {
+				_.convertPredefinedToInstances()
+				initializeVE()
+			})
 		} else {
 			_.convertPredefinedToInstances()
 		}
-
 	}
 
 	_.init()

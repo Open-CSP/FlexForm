@@ -144,7 +144,7 @@ class Save {
 		$comment = CommentStoreComment::newUnsavedComment( $summary );
 		$result = $page_updater->saveRevision(
 			$comment,
-			EDIT_SUPPRESS_RC | EDIT_INTERNAL
+			EDIT_INTERNAL
 		);
 
 

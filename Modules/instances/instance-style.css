@@ -1,49 +1,46 @@
-
 .wsform-instance-move-handle {
-
-    float: left;
-    padding: 2px;
-    text-align:center;
-    vertical-align: middle;
-    background-color: white;
-    display:inline-block;
-    cursor: move;
-    border:1px solid black;
-    line-height:100%;
-    margin-right:15px;
+	float: left;
+	padding: 2px;
+	text-align: center;
+	vertical-align: middle;
+	background-color: white;
+	display: inline-block;
+	cursor: move;
+	border: 1px solid black;
+	line-height: 100%;
+	margin-right: 15px;
 
 }
 
 .wsform-instance-move-handle:before {
-    font-size: 19px;
-    font-weight: bold;
-    content: "\2630";
+	font-size: 19px;
+	font-weight: bold;
+	content: "\2630";
 }
 
 .WSmultipleTemplateDel:before {
-    font-size: 19px;
-    font-weight: bold;
-    content: "\2718";
+	font-size: 19px;
+	font-weight: bold;
+	content: "\2718";
 }
 
 .WSmultipleTemplateAddAbove:before, .WSmultipleTemplateAddBelow:before {
-    font-size: 19px;
-    font-weight: bold;
-    content: "\271A";
+	font-size: 19px;
+	font-weight: bold;
+	content: "\271A";
 }
 
 
-
 .wsform-instance-add-btn, .wsform-instance-delete-btn {
-    float:right;
-    line-height:100%;
-    margin:0 auto;
+	float: right;
+	line-height: 100%;
+	margin: 0 auto;
 
 }
 
 .wsform-instance-record {
-    padding: 1rem;
-    border:1px dotted #666;
-    margin: 5px 0px 5px 0px;
+	padding: 1rem;
+	border: 1px dotted #666;
+	margin: 5px 0px 5px 0px;
 
 }

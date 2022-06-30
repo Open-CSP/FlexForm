@@ -241,6 +241,8 @@ function initializeWSFormEditor () {
  */
 function initializeVE () {
 	$('.ve-area-wrapper textarea').each(function () {
+		if ($(this).prev().hasClass('ve-init-target')) return
+
 		var textAreaContent = $(this).val()
 		var pipesReplace = textAreaContent.replace(/{{!}}/gmi, '|')
 		$(this).val(pipesReplace)
@@ -622,6 +624,7 @@ function addTokenInfo () {
 		$('form.flex-form').one('submit', function (e) {
 			// Check for Visual editor
 			e.preventDefault()
+			showWeAreWorking(this);
 			var pform = $(this)
 			if ($(this).data('wsform') && $(this).data('wsform') === 'wsform-general') {
 				// We have a FlexForm form
@@ -651,14 +654,19 @@ function addTokenInfo () {
 				}
 				var numberofEditors = VEditors.length
 				var tAreasFieldNames = []
+
 				var tAreas = $(this).find('textarea').each(function () {
-					tAreasFieldNames.push($(this).attr('name'))
+					tAreasFieldNames.push(this.name ? this.name : $(this).data('name'))
 				})
 
 				var veInstances = VEditors.getVEInstances()
+
 				$(veInstances).each(function () {
-					var instanceName = $(this)[0].$node[0].name
+					var instanceName = this.$node[0].name ? this.$node[0].name : $(this.$node[0]).data('name')
+					const node = this.$node
+
 					if ($.inArray(instanceName, tAreasFieldNames) !== -1) {
+
 						new mw.Api().post({
 							action: 'veforall-parsoid-utils',
 							from: 'html',
@@ -667,10 +675,13 @@ function addTokenInfo () {
 							title: mw.config.get('wgPageName').split(/(\\|\/)/g).pop()
 						})
 							.then(function (data) {
-								var text = data['veforall-parsoid-utils'].content
-								var esc = replacePipes(text)
-								var area = pform.find('textarea[name=\'' + instanceName + '\']')[0]
-								$(area).val(esc)
+								if (!$(Array.from(node.parentsUntil('.WSmultipleTemplateList')).at(-1)).hasClass('WSmultipleTemplateInstance')) {
+									var text = data['veforall-parsoid-utils'].content
+									var esc = replacePipes(text)
+									var area = pform.find('textarea[name=\'' + instanceName + '\']')[0]
+									$(area).val(esc)
+								}
+
 								numberofEditors--
 								if (numberofEditors === 0) {
 									pform.submit()

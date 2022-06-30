@@ -70,6 +70,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 1.1.23 : Another instance update for tokens. Recent changes are now initiated.
 * 1.1.22 : Instances and textarea fix
 * 1.1.21 : Fixed Paragraph tag appearing in fieldset
 * 1.1.20 : Fixed file upload preview and dropzone issues
