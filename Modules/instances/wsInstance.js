@@ -27,7 +27,7 @@ const WsInstance = function (selector, options) {
 	 * returns unique id based on timestamp
 	 * @returns {number}
 	 */
-	_.getUniqueId = () => new Date().getTime() + idUnifier++
+	_.getUniqueId = () => new Date().getTime() + idUnifier
 
 	// update settings with custom options
 	Object.assign(_.settings, options)
@@ -78,7 +78,6 @@ const WsInstance = function (selector, options) {
 				value_array.push(value)
 			})
 
-
 			handlePredefinedData(name_array, value_array)
 			name_array = []
 			value_array = []
@@ -113,10 +112,13 @@ const WsInstance = function (selector, options) {
 				textarea.setAttribute('value', values[i])
 			})
 
+
 			$(clone).find('select[name*="' + names[i] + '"]').each(function (index, select) {
 				if (values[i].indexOf(',') !== -1) {
 					let multipleSelect2Values = values[i].split(',')
 					let optionList = select.children
+
+					if ( optionList.length )
 					for (let k = 0; k < optionList.length; k++) {
 						optionList[k].selected = multipleSelect2Values.includes(optionList[k].value)
 					}
@@ -124,9 +126,13 @@ const WsInstance = function (selector, options) {
 					let optionSelected = $(select).find('option[value=\'' + values[i] + '\']')
 					if (optionSelected.length > 0 && values[i] !== '') {
 						optionSelected.prop('selected', 'selected')
-					} else if (optionSelected.length === 0) {
-						if ($(select).first().val() !== '') {
+					} else if (optionSelected.length === 0 && $(select).data('inputtype') !== 'ws-select2') {
+						if ($(select).children().val() !== '') {
 							$(select).insertBefore('<option value="" selected="selected">""</option>', select.children[0])
+						}
+					} else if ($(select).data('inputtype') === 'ws-select2') {
+						if ($(select).children().val() === '' && values[i]) {
+							$(select).append(`<option value="${values[i]}" selected="selected">${values[i]}</option>`)
 						}
 					}
 				}
@@ -134,6 +140,7 @@ const WsInstance = function (selector, options) {
 				if (values[i] !== '') {
 					select.setAttribute('value', values[i])
 					select.value = values[i]
+					$(select).val(values[i])
 				}
 			})
 		}
@@ -214,7 +221,6 @@ const WsInstance = function (selector, options) {
 			}
 		})
 
-
 		return clone
 	}
 
@@ -238,16 +244,16 @@ const WsInstance = function (selector, options) {
 			$(element).find('[data-wsselect2id]').each(function (i, select) {
 				let select2id = $(select).attr('data-wsselect2id')
 
-				$(select).attr('data-wsselect2id', select2id + idUnifier)
-				$(select).attr('id', select2id + idUnifier)
+				$(select).attr('data-wsselect2id', select2id + '_' + idUnifier)
+				$(select).attr('id', select2id + '_' + idUnifier)
 
 				let sibling = $(select).siblings(`input[id="select2options-${select2id}"]`)[0]
 				if (!sibling) return;
-				sibling.id = $(sibling).attr('id') + idUnifier
+				sibling.id = $(sibling).attr('id') + '_' + idUnifier
 
 
 				let statement = sibling.value
-				statement = statement.replace(select2id, select2id + idUnifier)
+				statement = statement.replace(select2id, select2id + '_' + idUnifier)
 				sibling.value = statement
 				if (typeof $.fn.select2 === 'function') Function(statement)()
 			})
@@ -260,6 +266,8 @@ const WsInstance = function (selector, options) {
 				$(wrapper).find('textarea').applyVisualEditor()
 			})
 		}
+
+		idUnifier++;
 	}
 
 	/**

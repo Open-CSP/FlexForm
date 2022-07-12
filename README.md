@@ -70,6 +70,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 1.1.25 : Instance default-content 2 token fix
 * 1.1.24 : Fixed an issue where select2 tokens callbacks were initiated multiple times. Removed 1.12 J-UI dependency.
 * 1.1.23 : Another instance update for tokens. Recent changes are now initiated.
 * 1.1.22 : Instances and textarea fix
