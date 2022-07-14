@@ -118,9 +118,13 @@ const WsInstance = function (selector, options) {
 					let multipleSelect2Values = values[i].split(',')
 					let optionList = select.children
 
-					if ( optionList.length )
-					for (let k = 0; k < optionList.length; k++) {
-						optionList[k].selected = multipleSelect2Values.includes(optionList[k].value)
+					// check if token field
+					if ( $(select).children().val() === '' && $(select).data('inputtype') === 'ws-select2' ) {
+						getPredefinedOptionsTokenField(select, multipleSelect2Values);
+					} else {
+						for (let k = 0; k < optionList.length; k++) {
+							optionList[k].selected = multipleSelect2Values.includes(optionList[k].value)
+						}
 					}
 				} else {
 					let optionSelected = $(select).find('option[value=\'' + values[i] + '\']')
@@ -132,7 +136,8 @@ const WsInstance = function (selector, options) {
 						}
 					} else if ($(select).data('inputtype') === 'ws-select2') {
 						if ($(select).children().val() === '' && values[i]) {
-							$(select).append(`<option value="${values[i]}" selected="selected">${values[i]}</option>`)
+							// $(select).append(`<option value="${values[i]}" selected="selected">${values[i]}</option>`)
+							getPredefinedOptionsTokenField(select, [values[i]]);
 						}
 					}
 				}
@@ -148,6 +153,41 @@ const WsInstance = function (selector, options) {
 		let element = _.getCloneElementHandled(clone)
 		_.list.append(element)
 		_.handleIntegrations(element, true)
+	}
+
+	const getPredefinedOptionsTokenField = (select, values) => {
+		let query = $(select).next().val()
+		query = query.slice((query.indexOf('query=') + 6), query.indexOf("=';"))
+		query = atob(query)
+
+		let return_text =  query.slice(query.indexOf('returntext') + 11, query.indexOf(')', query.indexOf('returntext')))
+		query = `[[${values.join('||')}]]|?${return_text}`;
+
+		let params = {
+			action: 'ask',
+			query: query,
+			format: 'json'
+		}
+
+		new mw.Api().get(params).done(data => {
+			const results = data.query.results;
+			if ( !results ) {
+				mw.notify('something went wrong collecting pre defined tokens', { type: 'error' })
+				return
+			}
+
+			$.each(results, (k, v) => {
+				let title = '';
+				if (v.printouts[return_text].length > 0 ) {
+					title = v.printouts[return_text][0];
+				} else if (v.displaytitle) {
+					title = v.displaytitle;
+				} else {
+					title = k;
+				}
+				$(select).append(`<option value="${k}" selected="selected">${title}</option>`)
+			})
+		})
 	}
 
 	/**
