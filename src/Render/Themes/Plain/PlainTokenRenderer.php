@@ -161,7 +161,7 @@ class PlainTokenRenderer implements TokenRenderer {
 			$filterQuery = $this->checkFilterQuery( $smwQuery );
 			if ( $filterQuery !== false ) {
 				$smwQuery = $filterQuery['query'];
-				$ffFormField = $filterQuery['ffformfield'];
+				$ffFormField = $filterQuery['fffield'];
 			} else {
 				$ffFormField = '';
 			}
