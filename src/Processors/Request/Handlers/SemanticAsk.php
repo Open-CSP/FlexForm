@@ -59,11 +59,22 @@ class SemanticAsk {
 			// $ret = createMsg('No query found.');
 			// test query :  $query = "[[Class::Organization]] [[Name::~*ik*]]|?Name |format=json |limit=99999"
 			// ik kan dat q worden voor select2 door !!! in te vullen in de query, deze wordt dan vervangen.
+			$filterQuery = false;
 			if ( strpos( $query, '(' ) !== false && strpos( $query, ')' ) !== false ) {
 				if ( strpos( $query, '(fquery=' ) !== false ) {
 					$fQuery = Core::get_string_between( $query, '(fquery=', ')' );
+					$fQueryOld = $fQuery;
+					if ( strpos( $fQuery, '__^^__' ) !== false ) {
+						$fform = General::getGetString( 'ffform', true, false );
+						if ( $fform === false ) {
+							$fQuery = '';
+						} else {
+							$fQuery = str_replace( '__^^__', $fform, $fQuery );
+							$filterQuery = true;
+						}
+					}
 					$query = str_replace(
-						'(fquery=' . $fQuery . ')',
+						'(fquery=' . $fQueryOld . ')',
 						'',
 						$query
 					);
@@ -93,7 +104,11 @@ class SemanticAsk {
 					);
 				}
 			}
-			//echo $q;
+			if ( $filterQuery ) {
+				$query .= $fQuery;
+			}
+			var_dump( $query );
+			die();
 			if ( $q !== false ) {
 				// Are there spaces in the query?
 				if ( strpos( $q, ' ' ) !== false ) {
