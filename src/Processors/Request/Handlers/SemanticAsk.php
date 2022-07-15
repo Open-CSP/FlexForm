@@ -55,6 +55,7 @@ class SemanticAsk {
 		$ret            = [];
 		$ret['results'] = [];
 		// if( strlen( $q ) < 3 ) return $ret;
+		var_dump( $query );
 		if ( $query !== false ) {
 			// $ret = createMsg('No query found.');
 			// test query :  $query = "[[Class::Organization]] [[Name::~*ik*]]|?Name |format=json |limit=99999"
