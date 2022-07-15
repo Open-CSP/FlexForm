@@ -37,7 +37,7 @@ function showMessage (msg, type, where = false, stick = false) {
 
 function ffFindFormElementValueByName( form, name ) {
 	if ( name.length > 1 ) {
-		return $(form).find('select[name=' + name + '] :selected').text();
+		return $(form).find('select[name="' + name + '[]"]').val();
 	} else return "";
 }
 
