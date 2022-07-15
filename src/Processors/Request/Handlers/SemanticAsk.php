@@ -60,6 +60,14 @@ class SemanticAsk {
 			// test query :  $query = "[[Class::Organization]] [[Name::~*ik*]]|?Name |format=json |limit=99999"
 			// ik kan dat q worden voor select2 door !!! in te vullen in de query, deze wordt dan vervangen.
 			if ( strpos( $query, '(' ) !== false && strpos( $query, ')' ) !== false ) {
+				if ( strpos( $query, '(fquery=' ) !== false ) {
+					$fQuery = Core::get_string_between( $query, '(fquery=', ')' );
+					$query = str_replace(
+						'(fquery=' . $fQuery . ')',
+						'',
+						$query
+					);
+				}
 				if ( strpos( $query, '(returntext=' ) !== false ) {
 					$returnText = Core::get_string_between( $query, '(returntext=', ')' );
 					$query = str_replace(

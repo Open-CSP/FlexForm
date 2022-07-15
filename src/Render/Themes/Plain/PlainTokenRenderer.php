@@ -104,6 +104,7 @@ class PlainTokenRenderer implements TokenRenderer {
 		);
 	}
 
+
 	/**
 	 * @param string $id
 	 * @param string|null $template
@@ -139,6 +140,11 @@ class PlainTokenRenderer implements TokenRenderer {
 			$smwQueryUrl =  '/index.php/Special:FlexForm';
 		}
 		if ( $smwQuery !== null ) {
+			$filterQuery = $this->checkFilterQuery( $smwQuery );
+			if ( $filterQuery !== false ) {
+				$smwQuery = $filterQuery['query'];
+				$ffFormField = $filterQuery['ffformfield'];
+			}
 			$smwQueryUrl .= '?action=handleExternalRequest';
 			$smwQueryUrl .= '&script=SemanticAsk&query=';
 			$smwQueryUrlQ = base64_encode( $smwQuery );
@@ -147,7 +153,10 @@ class PlainTokenRenderer implements TokenRenderer {
 		}
 
 		if ( $smwQueryUrl !== null ) {
-			$javascript .= "var jsonDecoded = '" . $smwQueryUrl . $smwQueryUrlQ . "';\n";
+			$uniqueID = uniqid();
+			$javascript .= "var jsonDecoded'. $uniqueID . ' = '" . $smwQueryUrl . $smwQueryUrlQ . "';\n";
+			$javascript .= "var ffTokenFormField' . $uniqueID . ' = '" . $ffFormField . "';\n";
+			$javascript .= "var ffForm' . $uniqueID . = $('#" . $id . "').closet('form');\n";
 		}
 
 		$javascript .= "var selectEl = $('#" . $id . "').select2({";
@@ -167,11 +176,11 @@ class PlainTokenRenderer implements TokenRenderer {
                 },
                 minimumInputLength: $inputLengthTrigger,
                 ajax: { 
-                    url: jsonDecoded, 
+                    url: jsonDecoded$uniqueID,
                     delay:500, 
                     dataType: 'json',
                     data: function (params) { 
-                        var queryParameters = { q: params.term }; 
+                        var queryParameters = { q: params.term , ffform: ffFindFormElementValueByName( ffForm$uniqueID, ffTokenFormField$uniqueID ) }; 
                         return queryParameters; 
                     }
                 }

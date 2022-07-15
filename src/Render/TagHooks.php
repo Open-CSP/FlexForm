@@ -1493,7 +1493,7 @@ class TagHooks {
 	}
 
 	/**
-	 * @brief This is the initial call from the MediaWiki parser for the WSToken
+	 * @brief This is the initial call from the MediaWiki parser for the _token field
 	 *
 	 * @param $input string Received from parser from begin till end
 	 * @param array $args List of arguments for the Tokens

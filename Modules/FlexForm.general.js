@@ -35,6 +35,10 @@ function showMessage (msg, type, where = false, stick = false) {
 	}
 }
 
+function ffFindFormElementValueByName( form, name ) {
+	return $(form).find( 'select[name=' + name + '] :selected').text();
+}
+
 /**
  * Holds further JavaScript execution intull jQuery is loaded
  * @param method string Name of the method to call once jQuery is ready
