@@ -36,7 +36,9 @@ function showMessage (msg, type, where = false, stick = false) {
 }
 
 function ffFindFormElementValueByName( form, name ) {
-	return $(form).find( 'select[name=' + name + '] :selected').text();
+	if ( name.length > 1 ) {
+		return $(form).find('select[name=' + name + '] :selected').text();
+	} else return "";
 }
 
 /**

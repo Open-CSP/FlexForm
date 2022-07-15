@@ -104,6 +104,24 @@ class PlainTokenRenderer implements TokenRenderer {
 		);
 	}
 
+	/**
+	 * @param string $query
+	 *
+	 * @return array|false
+	 */
+	private function checkFilterQuery( string $query ) {
+		if ( strpos( $query, '[fffield=' ) !== false ) {
+			$fQuery = Core::get_string_between( $query, '[fffield=', ']' );
+			$query = str_replace(
+				'[fffield=' . $fQuery . ']',
+				'__^^__',
+				$query
+			);
+			return [ 'query' => $query, 'fffield' => $fQuery ];
+		} else {
+			return false;
+		}
+	}
 
 	/**
 	 * @param string $id
@@ -144,6 +162,8 @@ class PlainTokenRenderer implements TokenRenderer {
 			if ( $filterQuery !== false ) {
 				$smwQuery = $filterQuery['query'];
 				$ffFormField = $filterQuery['ffformfield'];
+			} else {
+				$ffFormField = '';
 			}
 			$smwQueryUrl .= '?action=handleExternalRequest';
 			$smwQueryUrl .= '&script=SemanticAsk&query=';
@@ -154,9 +174,9 @@ class PlainTokenRenderer implements TokenRenderer {
 
 		if ( $smwQueryUrl !== null ) {
 			$uniqueID = uniqid();
-			$javascript .= "var jsonDecoded'. $uniqueID . ' = '" . $smwQueryUrl . $smwQueryUrlQ . "';\n";
-			$javascript .= "var ffTokenFormField' . $uniqueID . ' = '" . $ffFormField . "';\n";
-			$javascript .= "var ffForm' . $uniqueID . = $('#" . $id . "').closet('form');\n";
+			$javascript .= "var jsonDecoded". $uniqueID . " = '" . $smwQueryUrl . $smwQueryUrlQ . "';\n";
+			$javascript .= "var ffTokenFormField" . $uniqueID . " = '" . $ffFormField . "';\n";
+			$javascript .= "var ffForm" . $uniqueID . " = $('#" . $id . "').closest('form');\n";
 		}
 
 		$javascript .= "var selectEl = $('#" . $id . "').select2({";
