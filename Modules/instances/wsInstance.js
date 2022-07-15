@@ -160,8 +160,11 @@ const WsInstance = function (selector, options) {
 		query = query.slice((query.indexOf('query=') + 6), query.indexOf("=';"))
 		query = atob(query)
 
-		let return_text =  query.slice(query.indexOf('returntext') + 11, query.indexOf(')', query.indexOf('returntext')))
-		query = `[[${values.join('||')}]]|?${return_text}`;
+		let return_text = ''
+		if ( query.indexOf('returntext') > -1 ) {
+			return_text =  query.slice(query.indexOf('returntext') + 11, query.indexOf(')', query.indexOf('returntext')))
+		}
+		query = `[[${values.join('||')}]]|?${return_text}`
 
 		let params = {
 			action: 'ask',
@@ -177,13 +180,14 @@ const WsInstance = function (selector, options) {
 			}
 
 			$.each(results, (k, v) => {
-				let title = '';
-				if (v.printouts[return_text].length > 0 ) {
-					title = v.printouts[return_text][0];
+				let title = ''
+				const checkPrintouts = v.printouts[return_text] ? v.printouts[return_text].length > 0 : false
+				if (checkPrintouts) {
+					title = v.printouts[return_text][0]
 				} else if (v.displaytitle) {
-					title = v.displaytitle;
+					title = v.displaytitle
 				} else {
-					title = k;
+					title = k
 				}
 				$(select).append(`<option value="${k}" selected="selected">${title}</option>`)
 			})
@@ -503,11 +507,13 @@ const WsInstance = function (selector, options) {
 
 		if ($(_.clone).find('.ve-area-wrapper').length > 0) {
 			waitForVE(() => {
-				_.convertPredefinedToInstances()
-				initializeVE()
+				wachtff(() => {
+					_.convertPredefinedToInstances()
+					initializeVE()
+				}, true)
 			})
 		} else {
-			_.convertPredefinedToInstances()
+			wachtff(_.convertPredefinedToInstances, true)
 		}
 	}
 
