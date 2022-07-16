@@ -265,6 +265,8 @@ const WsInstance = function (selector, options) {
 			}
 		})
 
+		clone.find('[data-ff-required=true]').prop('required', true)
+
 		return clone
 	}
 
@@ -297,7 +299,7 @@ const WsInstance = function (selector, options) {
 
 
 				let statement = sibling.value
-				statement = statement.replace(select2id, select2id + '_' + idUnifier)
+				statement = statement.replaceAll(`'#${select2id}'`, `'#${select2id}_${idUnifier}'`)
 				sibling.value = statement
 				if (typeof $.fn.select2 === 'function') Function(statement)()
 			})
@@ -463,6 +465,14 @@ const WsInstance = function (selector, options) {
 		return returnStr + '}}'
 	}
 
+
+	const setRequiredFieldToDataset = () => {
+		$(_.clone).find(':required').each((i, input) => {
+			$(input).prop('required', false)
+			$(input).attr('data-ff-required', true)
+		})
+	}
+
 	/**
 	 * init function
 	 */
@@ -498,6 +508,8 @@ const WsInstance = function (selector, options) {
 				})
 			})
 		}
+
+		setRequiredFieldToDataset()
 
 		_.wrapper.find('.WSmultipleTemplateAddBelow').on('click', function (e) {
 			e.preventDefault()
