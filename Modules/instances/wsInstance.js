@@ -171,25 +171,26 @@ const WsInstance = function (selector, options) {
 			query: query,
 			format: 'json'
 		}
-
-		new mw.Api().get(params).done(data => {
-			const results = data.query.results;
-			if ( !results ) {
-				mw.notify('something went wrong collecting pre defined tokens', { type: 'error' })
-				return
-			}
-
-			$.each(results, (k, v) => {
-				let title = ''
-				const checkPrintouts = v.printouts[return_text] ? v.printouts[return_text].length > 0 : false
-				if (checkPrintouts) {
-					title = v.printouts[return_text][0]
-				} else if (v.displaytitle) {
-					title = v.displaytitle
-				} else {
-					title = k
+		mw.loader.using( 'mw.Api' ).then( function () {
+			new mw.Api().get(params).done(data => {
+				const results = data.query.results;
+				if (!results) {
+					mw.notify('something went wrong collecting pre defined tokens', { type: 'error' })
+					return
 				}
-				$(select).append(`<option value="${k}" selected="selected">${title}</option>`)
+
+				$.each(results, (k, v) => {
+					let title = ''
+					const checkPrintouts = v.printouts[return_text] ? v.printouts[return_text].length > 0 : false
+					if (checkPrintouts) {
+						title = v.printouts[return_text][0]
+					} else if (v.displaytitle) {
+						title = v.displaytitle
+					} else {
+						title = k
+					}
+					$(select).append(`<option value="${k}" selected="selected">${title}</option>`)
+				})
 			})
 		})
 	}
@@ -401,31 +402,33 @@ const WsInstance = function (selector, options) {
 		let veWrapperLength = _.list.find('.ve-area-wrapper').length;
 
 		if (veWrapperLength > 0) {
-			const api = new mw.Api()
+			mw.loader.using( 'mw.Api' ).then( function () {
+				const api = new mw.Api()
 
-			// loop through all VisualEditor instances to handle the convert from html to wikitext
-			$.each($.fn.getVEInstances(), (i, ve) => {
-				// check if the last element in the array has class WSmultipleTemplateInstance to continue
-				if ($(Array.from(ve.$node.parentsUntil('.WSmultipleTemplateList')).at(-1)).hasClass('WSmultipleTemplateInstance')) {
-					// make api post to convert the html to wikitext
-					api.post({
-						action: 'veforall-parsoid-utils',
-						from: 'html',
-						to: 'wikitext',
-						content: ve.target.getSurface().getHtml(),
-						title: mw.config.get('wgPageName').split(/(\\|\/)/g).pop()
-					}).then(data => {
-						// replace pipes and set the content in the textarea
-						const text = data['veforall-parsoid-utils'].content
-						let esc = replacePipes(text)
-						$(ve.$node).val(esc)
+				// loop through all VisualEditor instances to handle the convert from html to wikitext
+				$.each($.fn.getVEInstances(), (i, ve) => {
+					// check if the last element in the array has class WSmultipleTemplateInstance to continue
+					if ($(Array.from(ve.$node.parentsUntil('.WSmultipleTemplateList')).at(-1)).hasClass('WSmultipleTemplateInstance')) {
+						// make api post to convert the html to wikitext
+						api.post({
+							action: 'veforall-parsoid-utils',
+							from: 'html',
+							to: 'wikitext',
+							content: ve.target.getSurface().getHtml(),
+							title: mw.config.get('wgPageName').split(/(\\|\/)/g).pop()
+						}).then(data => {
+							// replace pipes and set the content in the textarea
+							const text = data['veforall-parsoid-utils'].content
+							let esc = replacePipes(text)
+							$(ve.$node).val(esc)
 
-						veWrapperLength--;
-						if (veWrapperLength === 0) {
-							saveAllInstances()
-						}
-					})
-				}
+							veWrapperLength--;
+							if (veWrapperLength === 0) {
+								saveAllInstances()
+							}
+						})
+					}
+				})
 			})
 		} else {
 			saveAllInstances()
