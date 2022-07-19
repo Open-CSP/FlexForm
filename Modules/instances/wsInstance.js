@@ -171,7 +171,7 @@ const WsInstance = function (selector, options) {
 			query: query,
 			format: 'json'
 		}
-		mw.loader.using( 'mw.Api' ).then( function () {
+		mw.loader.using( 'mediawiki.api', function() {
 			new mw.Api().get(params).done(data => {
 				const results = data.query.results;
 				if (!results) {
@@ -402,7 +402,7 @@ const WsInstance = function (selector, options) {
 		let veWrapperLength = _.list.find('.ve-area-wrapper').length;
 
 		if (veWrapperLength > 0) {
-			mw.loader.using( 'mw.Api' ).then( function () {
+			mw.loader.using( 'mediawiki.api', function() {
 				const api = new mw.Api()
 
 				// loop through all VisualEditor instances to handle the convert from html to wikitext
