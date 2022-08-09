@@ -1,0 +1,42 @@
+{
+  "name": "surveyBuilder",
+  "author": "Lars Akkermans",
+  "version": "1.0.0",
+  "type": "parserhook",
+  "ResourceModules": {
+    "ext.SurveyBuilder.module": {
+      "dependencies": [
+        "vue",
+        "vuex",
+        "ext.SurveyBuilder.dependencies"
+      ],
+      "scripts": [
+        "./dist/survey-builder.umd.min.js",
+        "./dist/survey-builder.common.js",
+        "./main.js"
+      ],
+      "styles": [
+        "./dist/survey-builder.css"
+      ]
+    },
+    "ext.SurveyBuilder.dependencies": {
+      "scripts": [
+        "https://cdnjs.cloudflare.com/ajax/libs/Vue.Draggable/2.24.3/vuedraggable.umd.js",
+        "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-vue/2.21.2/bootstrap-vue.min.js"
+      ]
+    }
+  },
+  "AutoloadNamespaces": {
+    "SurveyBuilder\\": "includes/"
+  },
+  "ResourceFileModulePaths": {
+    "localBasePath": "",
+    "remoteExtPath": "SurveyBuilder/"
+  },
+  "AutoloadClasses": {
+    "SurveyBuilderHooks": "includes/SurveyBuilderHooks.php"
+  },
+  "Hooks": {
+    "SurveyBuilderOnLoadFrontend": "SurveyBuilder\\SurveyBuilderHooks::onSurveyBuilderOnLoadFrontend"
+  }
+}
