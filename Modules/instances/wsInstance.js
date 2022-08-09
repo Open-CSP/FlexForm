@@ -530,6 +530,9 @@ const WsInstance = function (selector, options) {
 		} else {
 			wachtff(_.convertPredefinedToInstances, true)
 		}
+
+		// fire hook when instances are done
+		mw.hook('flexform.instance.done').fire(_);
 	}
 
 	_.init()
