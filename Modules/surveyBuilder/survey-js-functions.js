@@ -323,7 +323,10 @@ $(document).ready(function() {
   $('form.questionnaire-form.flex-form-hide').removeClass('flex-form-hide');
 });
 
+
+
 const getCSV = (qid) => {
+  var qid = encrypt('questionnaire-share-salt', mw.config.values.wgPageName);
   console.log( "qid", qid );
   const api = new mw.Api(),
       formName = $( 'input.questionnaire-form-title' ).val(),
@@ -339,7 +342,7 @@ const getCSV = (qid) => {
   };
 
   // get the saved results
-  api.get( paramsGetSlot )
+  api.get( getIt )
       .fail( err => {
         if ( err === 'slotdoesnotexist' ) {
           $( '#questionnaire-results-textarea' ).val( JSON.stringify( [formJSON] ) );
@@ -355,9 +358,32 @@ const getCSV = (qid) => {
           results = JSON.parse( data.result );
         }
         console.log( results );
+        downloadObjectAsJson( convertToCSV( results ), "results" );
       } );
 }
 
+function convertToCSV( json ) {
+   var fields = Object.keys(json[0])
+  var replacer = function(key, value) { return value === null ? '' : value }
+  var csv = json.map(function(row){
+    return fields.map(function(fieldName){
+      return JSON.stringify(row[fieldName], replacer)
+    }).join(',')
+  })
+  csv.unshift(fields.join(',')) // add header column
+  csv = csv.join('\r\n');
+  return csv;
+}
+
+function downloadObjectAsJson(exportObj, exportName){
+  var dataStr = "data:text/csv;charset=utf-8," + encodeURI(exportObj);
+  var downloadAnchorNode = document.createElement('a');
+  downloadAnchorNode.setAttribute("href",     dataStr);
+  downloadAnchorNode.setAttribute("download", exportName + ".csv");
+  document.body.appendChild(downloadAnchorNode); // required for firefox
+  downloadAnchorNode.click();
+  downloadAnchorNode.remove();
+}
 
 const encrypt = (salt, text) => {
   const textToChars = (text) => text.split("").map((c) => c.charCodeAt(0));
