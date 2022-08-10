@@ -1825,6 +1825,8 @@ class TagHooks {
 
 		$noOverWrite = isset( $args['nooverwrite'] );
 
+		$skipSEO = isset( $args['noseo'] );
+
 		if ( $fields !== null && $template === null ) {
 			return [
 				'No valid template for creating a page.',
@@ -1848,7 +1850,8 @@ class TagHooks {
 			$option,
 			$fields,
 			$leadingZero,
-			$noOverWrite
+			$noOverWrite,
+			$skipSEO
 		);
 
 		return [

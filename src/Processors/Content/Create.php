@@ -249,6 +249,12 @@ class Create {
 		} else {
 			$this->pageData['overwrite'] = false;
 		}
+
+		if ( isset( $exploded[8] ) && $exploded[8] === 'true' ) {
+			$this->pageData['noseo'] = true;
+		} else {
+			$this->pageData['noseo'] = false;
+		}
 	}
 
 	/**
@@ -298,7 +304,10 @@ class Create {
 					 $this->pageData['title'],
 					 '['
 				 ) !== false ) {
-				$this->pageData['title'] = ContentCore::parseTitle( $this->pageData['title'] );
+				$this->pageData['title'] = ContentCore::parseTitle(
+					$this->pageData['title'],
+					$this->pageData['noseo']
+				);
 			}
 			if ( $this->pageData['option'] == 'next_available' && $this->pageData['title'] !== false ) {
 
@@ -399,7 +408,7 @@ class Create {
 		}
 		$pagesToSave = $this->addCreateToTitle( $pagesToSave, $pageTitleToLinkTo );
 		if ( Config::isDebug() ) {
-			Debug::addToDebug( 'Pages to save after addCreatToTile ' . time(), $pagesToSave );
+			Debug::addToDebug( 'Pages to save after addCreatToTitle ' . time(), $pagesToSave );
 		}
 		$finalPages = $this->createFinalPages( $pagesToSave );
 		if ( Config::isDebug() ) {

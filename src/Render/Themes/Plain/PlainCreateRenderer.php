@@ -18,7 +18,8 @@ class PlainCreateRenderer implements CreateRenderer {
 		?string $option,
 		?string $fields,
 		bool $leadingZero,
-		bool $noOverWrite
+		bool $noOverWrite,
+		bool $skipSEO
 	) : string {
 		$template = $template !== null ? htmlspecialchars( $template ) : '';
 		$createId = $createId !== null ? htmlspecialchars( $createId ) : '';
@@ -39,6 +40,11 @@ class PlainCreateRenderer implements CreateRenderer {
 			$override = "true";
 		}
 
+		if ( $skipSEO ) {
+			$skipSEO = "true";
+		} else {
+			$skipSEO = "false";
+		}
 
 		if ( $follow !== null ) {
 			$follow = $follow === '' || $follow === '1' ? 'true' : htmlspecialchars( $follow );
@@ -55,7 +61,7 @@ class PlainCreateRenderer implements CreateRenderer {
 			$createValue = $template . Core::DIVIDER . $write . Core::DIVIDER;
 			$createValue .= $option . Core::DIVIDER . $fields . Core::DIVIDER . $slot;
 			$createValue .= Core::DIVIDER . $createId . Core::DIVIDER . $leadingZero;
-			$createValue .= Core::DIVIDER . $override;
+			$createValue .= Core::DIVIDER . $override . Core::DIVIDER . $skipSEO;
 
 			return Core::createHiddenField(
 					'mwcreatemultiple[]',
