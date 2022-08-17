@@ -284,11 +284,11 @@ class Edit {
 				Core::DIVIDER,
 				$edits
 			);
-			if ( $edit[0] == '' || $edit[1] == '' || $edit[2] == '' ) {
+			if ( trim( $edit[0] ) == '' || trim( $edit[1] ) == '' || trim( $edit[2] ) == '' ) {
 				continue;
 			}
-			$pid                        = $edit[0];
-			$data[$pid][$t]['template'] = General::makeSpaceFromUnderscore( $edit[1] );
+			$pid                        = trim( $edit[0] );
+			$data[$pid][$t]['template'] = General::makeSpaceFromUnderscore( trim( $edit[1] ) );
 			if ( ( strpos(
 					   $edit[1],
 					   '|'
@@ -314,15 +314,15 @@ class Edit {
 			}
 
 			if ( $edit[3] != '' ) {
-				$data[$pid][$t]['variable'] = $edit[3];
+				$data[$pid][$t]['variable'] = trim( $edit[3] );
 			} else {
-				$data[$pid][$t]['variable'] = $edit[2];
+				$data[$pid][$t]['variable'] = trim( $edit[2] );
 			}
 
 			if ( $edit[4] != '' ) {
-				$data[$pid][$t]['value'] = $edit[4];
+				$data[$pid][$t]['value'] = trim( $edit[4] );
 			} else {
-				$ff = General::makeUnderscoreFromSpace( $edit[2] );
+				$ff = General::makeUnderscoreFromSpace( trim( $edit[2] ) );
 				// Does this field exist in the current form that we can use ?
 				if ( ! isset( $_POST[$ff] ) ) {
 					$data[$pid][$t]['value'] = '';
@@ -344,7 +344,7 @@ class Edit {
 				}
 			}
 			if ( $edit[5] != '' ) {
-				$data[$pid][$t]['slot'] = $edit[5];
+				$data[$pid][$t]['slot'] = trim( $edit[5] );
 			} else {
 				$data[$pid][$t]['slot'] = false;
 			}

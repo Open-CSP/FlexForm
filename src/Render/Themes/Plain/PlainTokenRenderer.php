@@ -105,6 +105,25 @@ class PlainTokenRenderer implements TokenRenderer {
 	}
 
 	/**
+	 * @param string $query
+	 *
+	 * @return array|false
+	 */
+	private function checkFilterQuery( string $query ) {
+		if ( strpos( $query, '[fffield=' ) !== false ) {
+			$fQuery = Core::get_string_between( $query, '[fffield=', ']' );
+			$query = str_replace(
+				'[fffield=' . $fQuery . ']',
+				'__^^__',
+				$query
+			);
+			return [ 'query' => $query, 'fffield' => $fQuery ];
+		} else {
+			return false;
+		}
+	}
+
+	/**
 	 * @param string $id
 	 * @param string|null $template
 	 * @param string|null $smwQuery
@@ -134,11 +153,18 @@ class PlainTokenRenderer implements TokenRenderer {
 
 		global $wgScriptPath, $wgServer;
 		if ( $wgScriptPath !== "" ) {
-			$smwQueryUrl =  "/" . $wgScriptPath . '/index.php/Special:FlexForm';
+			$smwQueryUrl = "/" . $wgScriptPath . '/index.php/Special:FlexForm';
 		} else {
-			$smwQueryUrl =  '/index.php/Special:FlexForm';
+			$smwQueryUrl = '/index.php/Special:FlexForm';
 		}
 		if ( $smwQuery !== null ) {
+			$filterQuery = $this->checkFilterQuery( $smwQuery );
+			if ( $filterQuery !== false ) {
+				$smwQuery = $filterQuery['query'];
+				$ffFormField = $filterQuery['fffield'];
+			} else {
+				$ffFormField = '';
+			}
 			$smwQueryUrl .= '?action=handleExternalRequest';
 			$smwQueryUrl .= '&script=SemanticAsk&query=';
 			$smwQueryUrlQ = base64_encode( $smwQuery );
@@ -147,7 +173,10 @@ class PlainTokenRenderer implements TokenRenderer {
 		}
 
 		if ( $smwQueryUrl !== null ) {
-			$javascript .= "var jsonDecoded = '" . $smwQueryUrl . $smwQueryUrlQ . "';\n";
+			$uniqueID = uniqid();
+			$javascript .= "var jsonDecoded". $uniqueID . " = '" . $smwQueryUrl . $smwQueryUrlQ . "';\n";
+			$javascript .= "var ffTokenFormField" . $uniqueID . " = '" . base64_encode( $ffFormField ) . "';\n";
+			$javascript .= "var ffForm" . $uniqueID . " = $('#" . $id . "').closest('form');\n";
 		}
 
 		$javascript .= "var selectEl = $('#" . $id . "').select2({";
@@ -167,11 +196,11 @@ class PlainTokenRenderer implements TokenRenderer {
                 },
                 minimumInputLength: $inputLengthTrigger,
                 ajax: { 
-                    url: jsonDecoded, 
+                    url: jsonDecoded$uniqueID,
                     delay:500, 
                     dataType: 'json',
                     data: function (params) { 
-                        var queryParameters = { q: params.term }; 
+                        var queryParameters = { q: params.term , ffform: ffFindFormElementValueByName( ffForm$uniqueID, ffTokenFormField$uniqueID ) }; 
                         return queryParameters; 
                     }
                 }

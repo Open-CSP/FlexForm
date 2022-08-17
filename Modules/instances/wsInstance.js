@@ -160,32 +160,37 @@ const WsInstance = function (selector, options) {
 		query = query.slice((query.indexOf('query=') + 6), query.indexOf("=';"))
 		query = atob(query)
 
-		let return_text =  query.slice(query.indexOf('returntext') + 11, query.indexOf(')', query.indexOf('returntext')))
-		query = `[[${values.join('||')}]]|?${return_text}`;
+		let return_text = ''
+		if ( query.indexOf('returntext') > -1 ) {
+			return_text =  query.slice(query.indexOf('returntext') + 11, query.indexOf(')', query.indexOf('returntext')))
+		}
+		query = `[[${values.join('||')}]]|?${return_text}`
 
 		let params = {
 			action: 'ask',
 			query: query,
 			format: 'json'
 		}
-
-		new mw.Api().get(params).done(data => {
-			const results = data.query.results;
-			if ( !results ) {
-				mw.notify('something went wrong collecting pre defined tokens', { type: 'error' })
-				return
-			}
-
-			$.each(results, (k, v) => {
-				let title = '';
-				if (v.printouts[return_text].length > 0 ) {
-					title = v.printouts[return_text][0];
-				} else if (v.displaytitle) {
-					title = v.displaytitle;
-				} else {
-					title = k;
+		mw.loader.using( 'mediawiki.api', function() {
+			new mw.Api().get(params).done(data => {
+				const results = data.query.results;
+				if (!results) {
+					mw.notify('something went wrong collecting pre defined tokens', { type: 'error' })
+					return
 				}
-				$(select).append(`<option value="${k}" selected="selected">${title}</option>`)
+
+				$.each(results, (k, v) => {
+					let title = ''
+					const checkPrintouts = v.printouts[return_text] ? v.printouts[return_text].length > 0 : false
+					if (checkPrintouts) {
+						title = v.printouts[return_text][0]
+					} else if (v.displaytitle) {
+						title = v.displaytitle
+					} else {
+						title = k
+					}
+					$(select).append(`<option value="${k}" selected="selected">${title}</option>`)
+				})
 			})
 		})
 	}
@@ -261,6 +266,8 @@ const WsInstance = function (selector, options) {
 			}
 		})
 
+		clone.find('[data-ff-required=true]').prop('required', true)
+
 		return clone
 	}
 
@@ -293,7 +300,7 @@ const WsInstance = function (selector, options) {
 
 
 				let statement = sibling.value
-				statement = statement.replace(select2id, select2id + '_' + idUnifier)
+				statement = statement.replaceAll(`'#${select2id}'`, `'#${select2id}_${idUnifier}'`)
 				sibling.value = statement
 				if (typeof $.fn.select2 === 'function') Function(statement)()
 			})
@@ -395,31 +402,33 @@ const WsInstance = function (selector, options) {
 		let veWrapperLength = _.list.find('.ve-area-wrapper').length;
 
 		if (veWrapperLength > 0) {
-			const api = new mw.Api()
+			mw.loader.using( 'mediawiki.api', function() {
+				const api = new mw.Api()
 
-			// loop through all VisualEditor instances to handle the convert from html to wikitext
-			$.each($.fn.getVEInstances(), (i, ve) => {
-				// check if the last element in the array has class WSmultipleTemplateInstance to continue
-				if ($(Array.from(ve.$node.parentsUntil('.WSmultipleTemplateList')).at(-1)).hasClass('WSmultipleTemplateInstance')) {
-					// make api post to convert the html to wikitext
-					api.post({
-						action: 'veforall-parsoid-utils',
-						from: 'html',
-						to: 'wikitext',
-						content: ve.target.getSurface().getHtml(),
-						title: mw.config.get('wgPageName').split(/(\\|\/)/g).pop()
-					}).then(data => {
-						// replace pipes and set the content in the textarea
-						const text = data['veforall-parsoid-utils'].content
-						let esc = replacePipes(text)
-						$(ve.$node).val(esc)
+				// loop through all VisualEditor instances to handle the convert from html to wikitext
+				$.each($.fn.getVEInstances(), (i, ve) => {
+					// check if the last element in the array has class WSmultipleTemplateInstance to continue
+					if ($(Array.from(ve.$node.parentsUntil('.WSmultipleTemplateList')).at(-1)).hasClass('WSmultipleTemplateInstance')) {
+						// make api post to convert the html to wikitext
+						api.post({
+							action: 'veforall-parsoid-utils',
+							from: 'html',
+							to: 'wikitext',
+							content: ve.target.getSurface().getHtml(),
+							title: mw.config.get('wgPageName').split(/(\\|\/)/g).pop()
+						}).then(data => {
+							// replace pipes and set the content in the textarea
+							const text = data['veforall-parsoid-utils'].content
+							let esc = replacePipes(text)
+							$(ve.$node).val(esc)
 
-						veWrapperLength--;
-						if (veWrapperLength === 0) {
-							saveAllInstances()
-						}
-					})
-				}
+							veWrapperLength--;
+							if (veWrapperLength === 0) {
+								saveAllInstances()
+							}
+						})
+					}
+				})
 			})
 		} else {
 			saveAllInstances()
@@ -459,6 +468,14 @@ const WsInstance = function (selector, options) {
 		return returnStr + '}}'
 	}
 
+
+	const setRequiredFieldToDataset = () => {
+		$(_.clone).find(':required').each((i, input) => {
+			$(input).prop('required', false)
+			$(input).attr('data-ff-required', true)
+		})
+	}
+
 	/**
 	 * init function
 	 */
@@ -495,6 +512,8 @@ const WsInstance = function (selector, options) {
 			})
 		}
 
+		setRequiredFieldToDataset()
+
 		_.wrapper.find('.WSmultipleTemplateAddBelow').on('click', function (e) {
 			e.preventDefault()
 			e.stopPropagation()
@@ -503,12 +522,17 @@ const WsInstance = function (selector, options) {
 
 		if ($(_.clone).find('.ve-area-wrapper').length > 0) {
 			waitForVE(() => {
-				_.convertPredefinedToInstances()
-				initializeVE()
+				wachtff(() => {
+					_.convertPredefinedToInstances()
+					initializeVE()
+				}, true)
 			})
 		} else {
-			_.convertPredefinedToInstances()
+			wachtff(_.convertPredefinedToInstances, true)
 		}
+
+		// fire hook when instances are done
+		mw.hook('flexform.instance.done').fire(_);
 	}
 
 	_.init()

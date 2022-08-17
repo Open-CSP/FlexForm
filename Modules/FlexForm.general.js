@@ -35,19 +35,24 @@ function showMessage (msg, type, where = false, stick = false) {
 	}
 }
 
+function ffFindFormElementValueByName( form, name ) {
+	if ( name.length > 1 ) {
+		return btoa( $(form).find('select[name="' + atob( name ) + '[]"]').val() );
+	} else return "";
+}
+
 /**
  * Holds further JavaScript execution intull jQuery is loaded
  * @param method string Name of the method to call once jQuery is ready
  * @param both bool if true it will also wait until MW is loaded.
  */
-function wachtff (method, both = false) {
+function wachtff (method, both = false ) {
 	//console.log('wacht ff op jQuery..: ' + method.name );
 	if (window.jQuery) {
 		if (both === false) {
 			//console.log( 'ok JQuery active.. lets go!' );
 			method()
 		} else {
-			// console.log('wacht ff op jQuery.ui..');
 			if (window.mw) {
 				var scriptPath = mw.config.get('wgScript')
 				if (scriptPath !== null && scriptPath !== false) {
@@ -129,7 +134,16 @@ function wsformShowOnSelect () {
 	})
 }
 
-function startInstance () {
+/*
+function startInstance() {
+	console.log('waiting for mw.api to be loaded')
+	mw.loader.using('mw.Api').then( function() {
+		console.log('mw.api is loaded. running instance')
+		startInstance2();
+	});
+}
+*/
+function startInstance() {
 	console.log('initiating instance')
 	//var lst = mw.config.get('wsinstance')
 	var lst = window.wgInstance

@@ -70,6 +70,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 1.1.27 : Survey module added. More on this later. Filter option for SMQ Queries added. noseo option for _create
 * 1.1.26 : Rendering instances with default content will do a SMW Ask to get the Display property for a token using its value and Query.
 * 1.1.25 : Instance default-content 2 token fix
 * 1.1.24 : Fixed an issue where select2 tokens callbacks were initiated multiple times. Removed 1.12 J-UI dependency.

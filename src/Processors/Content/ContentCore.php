@@ -427,10 +427,11 @@ class ContentCore {
 
 	/**
 	 * @param string $title
+	 * @param bool $noSEO
 	 *
 	 * @return array|mixed|string|string[]
 	 */
-	public static function parseTitle( string $title ) {
+	public static function parseTitle( string $title, bool $noSEO = false ) {
 		$tmp = General::get_all_string_between(
 			$title,
 			'[',
@@ -460,7 +461,7 @@ class ContentCore {
 						$title
 					);
 				} elseif ( $fn !== '' ) {
-					if ( Config::getConfigVariable( 'create-seo-titles' ) === true ) {
+					if ( Config::getConfigVariable( 'create-seo-titles' ) === true && $noSEO === false ) {
 						$fn = self::urlToSEO( $fn );
 					}
 					$title = str_replace(
