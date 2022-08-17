@@ -69,7 +69,7 @@ class SemanticAsk {
 						if ( $fform === false ) {
 							$fQuery = '';
 						} else {
-							$fQuery = str_replace( '__^^__', $fform, $fQuery );
+							$fQuery = str_replace( '__^^__', base64_decode( $fform ), $fQuery );
 							$filterQuery = true;
 						}
 					}
