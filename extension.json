@@ -73,6 +73,7 @@
       "debug": false,
       "FlexFormDefaultTheme": "Plain",
       "can_create_user": false,
+      "create-seo-titles": false,
       "filter_input_tags" : false,
       "CreateAndEditForms" : {
         "allowedGroups" : [ "sysop" ],
