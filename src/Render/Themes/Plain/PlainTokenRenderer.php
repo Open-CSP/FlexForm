@@ -153,9 +153,9 @@ class PlainTokenRenderer implements TokenRenderer {
 
 		global $wgScriptPath, $wgServer;
 		if ( $wgScriptPath !== "" ) {
-			$smwQueryUrl =  "/" . $wgScriptPath . '/index.php/Special:FlexForm';
+			$smwQueryUrl = "/" . $wgScriptPath . '/index.php/Special:FlexForm';
 		} else {
-			$smwQueryUrl =  '/index.php/Special:FlexForm';
+			$smwQueryUrl = '/index.php/Special:FlexForm';
 		}
 		if ( $smwQuery !== null ) {
 			$filterQuery = $this->checkFilterQuery( $smwQuery );
@@ -175,7 +175,7 @@ class PlainTokenRenderer implements TokenRenderer {
 		if ( $smwQueryUrl !== null ) {
 			$uniqueID = uniqid();
 			$javascript .= "var jsonDecoded". $uniqueID . " = '" . $smwQueryUrl . $smwQueryUrlQ . "';\n";
-			$javascript .= "var ffTokenFormField" . $uniqueID . " = '" . $ffFormField . "';\n";
+			$javascript .= "var ffTokenFormField" . $uniqueID . " = '" . base64_encode( $ffFormField ) . "';\n";
 			$javascript .= "var ffForm" . $uniqueID . " = $('#" . $id . "').closest('form');\n";
 		}
 
