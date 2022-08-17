@@ -188,7 +188,7 @@ class Create {
 			$page
 		);
 		if ( isset( $exploded[0] ) && $exploded[0] !== '' ) {
-			$this->pageData['template'] = $exploded[0];
+			$this->pageData['template'] = trim( $exploded[0] );
 			if ( strtolower( $exploded[0] ) === 'wsnone' ) {
 				$this->pageData['notemplate'] = true;
 			} else {
@@ -200,13 +200,13 @@ class Create {
 		}
 
 		if ( isset( $exploded[1] ) && $exploded[1] !== '' ) {
-			$this->pageData['title'] = $exploded[1];
+			$this->pageData['title'] = trim( $exploded[1] );
 		} else {
 			$this->pageData['title'] = false;
 		}
 
 		if ( isset( $exploded[2] ) && $exploded[2] !== '' ) {
-			$this->pageData['option'] = $exploded[2];
+			$this->pageData['option'] = trim( $exploded[2] );
 		} else {
 			$this->pageData['option'] = false;
 		}
@@ -227,30 +227,30 @@ class Create {
 		}
 
 		if ( isset( $exploded[4] ) && $exploded[4] !== '' ) {
-			$this->pageData['slot'] = $exploded[4];
+			$this->pageData['slot'] = trim( $exploded[4] );
 		} else {
 			$this->pageData['slot'] = false;
 		}
 
 		if ( isset( $exploded[5] ) && $exploded[5] !== '' ) {
-			$this->pageData['id'] = $exploded[5];
+			$this->pageData['id'] = trim( $exploded[5] );
 		} else {
 			$this->pageData['id'] = false;
 		}
 
-		if ( isset( $exploded[6] ) && $exploded[6] === 'true' ) {
+		if ( isset( $exploded[6] ) && trim( $exploded[6] ) === 'true' ) {
 			$this->pageData['leadByZero'] = true;
 		} else {
 			$this->pageData['leadByZero'] = false;
 		}
 
-		if ( isset( $exploded[7] ) && $exploded[7] === 'true' ) {
+		if ( isset( $exploded[7] ) && trim( $exploded[7] ) === 'true' ) {
 			$this->pageData['overwrite'] = true;
 		} else {
 			$this->pageData['overwrite'] = false;
 		}
 
-		if ( isset( $exploded[8] ) && $exploded[8] === 'true' ) {
+		if ( isset( $exploded[8] ) && trim( $exploded[8] ) === 'true' ) {
 			$this->pageData['noseo'] = true;
 		} else {
 			$this->pageData['noseo'] = false;
