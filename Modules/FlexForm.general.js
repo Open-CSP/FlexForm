@@ -473,6 +473,19 @@ function wsAutoSaveInit () {
 			return
 		}
 
+		if ( type === 'onintervalafterchange' ) {
+			let dit = this;
+			$(this).on('input paste change', 'input, select, textarea, div', function() {
+				$(dit).off();
+				$('<button onClick="wsToggleIntervalSave(this)" class="btn btn-primary ws-interval-on" id="btn-' + id + '">' + wsAutoSaveButtonOn + '</button>').insertBefore(form)
+
+				$(form).find('input[type=submit]').each(function () {
+					setGlobalAutoSave(this, id)
+				})
+			})
+
+		}
+
 		if (type === 'auto' || type === 'oninterval') {
 			$('<button onClick="wsToggleIntervalSave(this)" class="btn btn-primary ws-interval-on" id="btn-' + id + '">' + wsAutoSaveButtonOn + '</button>').insertBefore(form)
 
