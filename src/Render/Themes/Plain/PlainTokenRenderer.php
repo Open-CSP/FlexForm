@@ -180,6 +180,8 @@ class PlainTokenRenderer implements TokenRenderer {
 		}
 
 		$javascript .= "var selectEl = $('#" . $id . "').select2({";
+		//escape markup
+		$javascript .= "\nescapeMarkup: function (markup) {\nreturn decodeHtml(markup);\n},\n";
 
 		if ( $placeholder !== null ) {
 			$javascript .= "placeholder: '" . htmlspecialchars(

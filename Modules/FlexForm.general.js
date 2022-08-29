@@ -619,6 +619,13 @@ function wsform (btn, callback = 0, preCallback = 0, showId = 0) {
 	}
 }
 
+function decodeHtml(html) {
+	var txt = document.createElement("textarea");
+	txt.innerHTML = html;
+	console.log( html, txt.value );
+	return txt.value;
+}
+
 function getEditToken () {
 	if (window.mw) {
 		var tokens = mw.user.tokens.get()
