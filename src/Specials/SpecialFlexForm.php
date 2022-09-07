@@ -532,7 +532,8 @@ class SpecialFlexForm extends \SpecialPage {
 			}
 		} else {
 			if ( $sourceVersion !== $currentVersion ) {
-				$changeLogText   = wfMessage( "flexform-docs-new-version-notice" )->text();
+				$changeLogText   = wfMessage( "flexform-docs-new-version-notice", $sourceVersion )->text();
+				$changeLogText .= " " . wfMessage( "flexform-docs-new-version-install" );
 				$tableHead       = wfMessage( "flexform-docs-new-version-table" )->text();
 				$changelogDetail = $this->getChangeLog(
 					$bitbucketChangelog,
