@@ -502,8 +502,17 @@ class SpecialFlexForm extends \SpecialPage {
 		$statusUrl   = $realUrl . "/index.php/Special:FlexForm/Status";
 		$eurl        = $realUrl . "/index.php/Special:FlexForm/Docs/examples";
 		$out         = $this->getOutput();
+		$out->addModuleStyles( [
+			'ext.wsForm.general.styles'
+		] );
+		$docsLogo = '<img src="' . $wgServer . '/extensions/FlexForm/Modules/ff-docs-icon.png">';
+		$headerPage  = '<div class="flex-form-special-top"><div class="flex-form-special-top-left">';
+		$headerPage  .= '<img src="' . $wgServer . "/extensions/FlexForm/FlexForm-logo.png" . '" /><br>v' . $currentVersion;
+		$headerPage .= '</div><div class="flex-form-special-top-right"><a target="_blank" title="FlexForm Documentation"';
+		$headerPage .= ' href="https://www.open-csp.org/DevOps:Doc/FlexForm">';
+		$headerPage .= $docsLogo.'<br>FlexForm Documentation</a></div></div>';
 		$out->addHTML(
-			'<img style="width:150px; margin:5px 15px;" src="' . $wgServer . "/extensions/FlexForm/FlexForm-logo.png" . '" /><br>v' . $currentVersion
+			$headerPage
 		);
 
 		if ( ! $wgUser->isLoggedIn() ) {

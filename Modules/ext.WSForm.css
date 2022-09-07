@@ -32,6 +32,29 @@
 	max-width:25px;
 }
 
+.flex-form-special-top {
+	width:100%;
+}
+
+.flex-form-special-top-left img, .flex-form-special-top-right img {
+	width:150px;
+	margin:5px 15px;
+}
+
+.flex-form-special-top-left {
+	width:49%;
+	text-align:left;
+	display:inline-block;
+	vertical-align: top;
+}
+
+.flex-form-special-top-right {
+	width:49%;
+	text-align:right;
+	display:inline-block;
+	vertical-align: top;
+}
+
 @keyframes spin {
 	100% {
 		-webkit-transform: rotate(360deg);
