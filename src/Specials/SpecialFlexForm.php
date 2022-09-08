@@ -511,7 +511,7 @@ class SpecialFlexForm extends \SpecialPage {
 		$headerPage  .= '<img src="' . $wgServer . "/extensions/FlexForm/FlexForm-logo.png" . '" /><br>Your version: v' . $currentVersion;
 		$headerPage .= '</div><div class="flex-form-special-top-right"><a target="_blank" title="FlexForm Documentation"';
 		$headerPage .= ' href="https://www.open-csp.org/DevOps:Doc/FlexForm">';
-		$headerPage .= $docsLogo.'<br>FlexForm Documentation</a></div></div>';
+		$headerPage .= $docsLogo.'<br>Documentation</a></div></div>';
 		$out->addHTML(
 			$headerPage
 		);
@@ -533,15 +533,15 @@ class SpecialFlexForm extends \SpecialPage {
 
 					return true;
 				case "Install_step-1":
-					$out->addHTML( 'Click to button to perform a git pull on FlexForm' );
 					$iVersion = $this->getPostString( 'version_to_install' );
 					if ( $iVersion === false ) {
-						$out->addHTML( 'Could not find this version to install' );
+						$out->addHTML( 'Could not find this version to install.' );
 						return;
 					}
+					$out->addHTML( 'Click the button to perform a git update to version ' . $iVersion );
 					$install4real = '<form method="post" action="' . $installUrl4real . '">' . PHP_EOL;
 					$install4real .= '<input type="hidden" name="version_to_install" value="'.$sourceVersion.'">' . PHP_EOL;
-					$install4real .= '<input type="submit" value="Install using Git" class="flex-form-special-install-btn"></form>' . PHP_EOL;
+					$install4real .= '<input type="submit" value="update using Git" class="flex-form-special-install-btn"></form>' . PHP_EOL;
 					$out->addHTML( $install4real );
 					return true;
 				case "Install_step-2":
@@ -556,6 +556,7 @@ class SpecialFlexForm extends \SpecialPage {
 					$result = $this->executeCmd( $cmd );
 					if ( substr( $result['output'], 0, 6 ) === 'error:' ) {
 						$out->addHTML( '<h2>Git error</h2><p>Please ask the website admin to fix this problem.</p>' );
+						$result['output'] = str_replace('error:', '', $result['output']);
 					} else {
 						$out->addHTML( '<h2>Git result:</h2>' );
 					}

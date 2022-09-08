@@ -36,9 +36,14 @@
 	width:100%;
 }
 
-.flex-form-special-top-left img, .flex-form-special-top-right img {
+.flex-form-special-top-left img {
 	width:150px;
 	margin:5px 15px;
+}
+
+.flex-form-special-top-right img {
+	max-height:100px;
+	margin:0px;
 }
 
 .flex-form-special-top-left {
