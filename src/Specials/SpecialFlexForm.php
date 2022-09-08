@@ -496,6 +496,7 @@ class SpecialFlexForm extends \SpecialPage {
 		*/
 		$path        = "$IP/extensions/FlexForm/docs/";
 		$wsformpurl  = $realUrl . "/extensions/FlexForm/";
+		$homeUrl  =   $realUrl . '/index.php/Special:FlexForm';
 		$installUrl  = $realUrl . '/index.php/Special:FlexForm/Install_step-1/';
 		$installUrl4real  = $realUrl . '/index.php/Special:FlexForm/Install_step-2/';
 		$purl        = $realUrl . "/index.php/Special:FlexForm/Docs";
@@ -508,7 +509,8 @@ class SpecialFlexForm extends \SpecialPage {
 		] );
 		$docsLogo = '<img src="' . $wgServer . '/extensions/FlexForm/Modules/ff-docs-icon.png">';
 		$headerPage  = '<div class="flex-form-special-top"><div class="flex-form-special-top-left">';
-		$headerPage  .= '<img src="' . $wgServer . "/extensions/FlexForm/FlexForm-logo.png" . '" /><br>Your version: v' . $currentVersion;
+		$headerPage .= '<a title="FlexForm Special Page - Home" href="' . $homeUrl . '">';
+		$headerPage  .= '<img src="' . $wgServer . "/extensions/FlexForm/FlexForm-logo.png" . '" /></a><br>Your version: v' . $currentVersion;
 		$headerPage .= '</div><div class="flex-form-special-top-right"><a target="_blank" title="FlexForm Documentation"';
 		$headerPage .= ' href="https://www.open-csp.org/DevOps:Doc/FlexForm">';
 		$headerPage .= $docsLogo.'<br>Documentation</a></div></div>';
