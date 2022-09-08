@@ -70,7 +70,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
-* 1.1.30 : Version bump to git update
+* 1.1.31 : Version bump to git update
 * 1.1.28 : autosave onintervalafterchange. Added admin git update feature.
 * 1.1.27 : Survey module added. More on this later. Filter option for SMQ Queries added. noseo option for _create
 * 1.1.26 : Rendering instances with default content will do a SMW Ask to get the Display property for a token using its value and Query.
