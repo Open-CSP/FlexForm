@@ -1,6 +1,6 @@
 {
 	"@metadata": {
-		"authors": []
+		"authors": [ "Sen-Sai" ]
 	},
 	"flexform-desc": "Powerful HTML5 Form renderer",
 	"flexform-i18n-welcome": "Welcome ",
@@ -78,7 +78,8 @@
 	"flexform-docs-editing-disabled" : "Editing is disabled",
 	"flexform-docs-changelog" : "New version",
 	"flexform-docs-no-new-version" : "You have the latest version",
-	"flexform-docs-new-version-notice" : "There is a <strong>new</strong> version available for FlexForm. Please contact your administrator so he can update this extension",
+	"flexform-docs-new-version-notice" : "There is a <strong>new</strong> version available for FlexForm (v$1). Please contact your administrator so he can update this extension.",
+	"flexform-docs-new-version-install" : "Or click the button to download and install right now!",
 	"flexform-docs-no-new-version-notice" : "There is <strong>no</strong> new version available for FlexForm. The complete changelog is shown.",
 	"flexform-docs-new-version-table" : "Changelog from your version to this new version",
 	"flexform-docs-no-new-version-table" : "Complete changelog",

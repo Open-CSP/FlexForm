@@ -109,6 +109,9 @@ function handleRadio (radioElm) {
 		let needToShow = false;
 		let element_wssos_value = element.data('wssos-value');
 
+		// check if multiple tags are separated by same separator
+		if ( !checkIfMultipleTagsSeparatedBySame(element_wssos_value) ) return;
+
 		// are there multiple tags that need to be handled as OR
 		if (element_wssos_value.split('||').length > 1) {
 			needToShow = handleMultipleTags(element_wssos_value.split('||'), parent_wssos, false, element);
@@ -161,6 +164,9 @@ function handleRadio (radioElm) {
 				element = $(element);
 				let needToShow = false;
 				let element_wssos_value = element.data('wssos-value');
+
+				// check if multiple tags are separated by same separator
+				if ( !checkIfMultipleTagsSeparatedBySame(element_wssos_value) ) return;
 
 				if (element_wssos_value.split('||').length > 1) {
 					if (!element_wssos_value.split('||').includes(radio_hide_data_attr)) return;
@@ -218,6 +224,9 @@ function handleCheckbox (checkElm) {
 		element = $(element);
 		let needToShow = false;
 		let element_wssos_value = element.data('wssos-value');
+
+		// check if multiple tags are separated by same separator
+		if ( !checkIfMultipleTagsSeparatedBySame(element_wssos_value) ) return;
 
 		// are there multiple tags that need to be handled as OR
 		if (element_wssos_value.split('||').length > 1) {
@@ -325,6 +334,9 @@ function handleSelect (selectElm) {
 		element = $(element);
 		let needToShow = false;
 		let element_wssos_value = element.data('wssos-value');
+
+		// check if multiple tags are separated by same separator
+		if ( !checkIfMultipleTagsSeparatedBySame(element_wssos_value) ) return;
 
 		// are there multiple tags that need to be handled as OR
 		if (element_wssos_value.split('||').length > 1) {
@@ -474,6 +486,9 @@ function handleInput(input) {
 		let type = $(element).data('wssos-type').split('::');
 		let element_wssos_value = $(element).data('wssos-value');
 
+		// check if multiple tags are separated by same separator
+		if ( !checkIfMultipleTagsSeparatedBySame(element_wssos_value) ) return;
+
 		// are there multiple tags that need to be handled as OR
 		if (element_wssos_value.split('||').length > 1) {
 			needToShow = handleMultipleTags(element_wssos_value.split('||'), parent, false, element);
@@ -551,6 +566,25 @@ function handleMultipleTags(tags, parent, isAnd, element) {
 		return !boolArray.includes(false);
 	}
 	return boolArray.includes(true);
+}
+
+/**
+ * Checks if the value that will be used to extract the tags are separated by the same condition
+ * So all `&&` or all `||` not both in the same value
+ * @param value {string}
+ * @returns {boolean}
+ */
+function checkIfMultipleTagsSeparatedBySame(value) {
+	let check = true;
+	if ( value.split('||').length > 1 ) {
+		Array.from(value.split('||')).forEach(v => {
+			if ( v.split('&&').length > 1 ) {
+				check = false;
+			}
+		});
+	}
+	if ( !check ) mw.notify('You cannot have different separators in the show on select value\n && and || must be used separate', {type: 'error'});
+	return check;
 }
 
 /**

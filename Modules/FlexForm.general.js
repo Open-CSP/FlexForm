@@ -387,7 +387,12 @@ function wsFormTinymceReady (editorid) {
 	var _editor = tinymce.editors[editorid]
 	var txtare = _editor.getElement()
 	var form = $(txtare).closest('form')
+	var type = $(form).attr('data-autosave');
+
 	_editor.on('change', function (e) {
+		if (type === 'onintervalafterchange' ) {
+			$(form).attr('data-autosave', 'oninterval');
+		}
 		_editor.save()
 		wsSetEventsAutoSave(form)
 	})
@@ -420,7 +425,7 @@ function wsSetEventsAutoSave (form) {
 			wsAutoSave(btn, false)
 		}, wsAutoSaveOnChangeInterval)
 	}
-	if (type === 'auto' || type === 'oninterval') {
+	if (type === 'auto' || type === 'oninterval' || type === 'onintervalafterchange' ) {
 		setGlobalAutoSave(btn, id)
 	}
 }
@@ -460,6 +465,7 @@ function wsToggleIntervalSave (element) {
 	}
 }
 
+
 /**
  * Initialize Autosave
  */
@@ -471,6 +477,19 @@ function wsAutoSaveInit () {
 		var id = $(this).attr('id')
 		if (typeof id === 'undefined') {
 			return
+		}
+
+		if ( type === 'onintervalafterchange' ) {
+
+			let dit = this;
+			$('<button onClick="wsToggleIntervalSave(this)" class="btn btn-primary ws-interval-on" id="btn-' + id + '">' + wsAutoSaveButtonOn + '</button>').insertBefore(form)
+			$(this).on('input paste change', 'input, select, textarea, div', function() {
+				$(dit).off();
+				$(form).find('input[type=submit]').each(function () {
+					setGlobalAutoSave(this, id)
+				})
+			})
+
 		}
 
 		if (type === 'auto' || type === 'oninterval') {
@@ -606,6 +625,13 @@ function wsform (btn, callback = 0, preCallback = 0, showId = 0) {
 	}
 }
 
+function decodeHtml(html) {
+	var txt = document.createElement("textarea");
+	txt.innerHTML = html;
+	console.log( html, txt.value );
+	return txt.value;
+}
+
 function getEditToken () {
 	if (window.mw) {
 		var tokens = mw.user.tokens.get()
@@ -636,11 +662,13 @@ function addTokenInfo () {
 		}
 
 		$('form.flex-form').one('submit', function (e) {
+			console.log( "go go go" );
 			// Check for Visual editor
 			e.preventDefault()
 			showWeAreWorking(this);
 			var pform = $(this)
 			if ($(this).data('wsform') && $(this).data('wsform') === 'wsform-general') {
+				console.log( "We have a FlexForm form" );
 				// We have a FlexForm form
 				$('<input />')
 					.attr('type', 'hidden')
@@ -653,6 +681,7 @@ function addTokenInfo () {
 			if ($(res) && $(res).length === 0) {
 				var uid = getUid()
 				if (uid !== false) {
+					console.log( "Adding uid" );
 					$('<input />')
 						.attr('type', 'hidden')
 						.attr('name', 'wsuid')
@@ -661,6 +690,7 @@ function addTokenInfo () {
 				}
 			}
 			if (typeof WSFormEditor !== 'undefined' && WSFormEditor === 'VE') {
+				console.log( "VE Editor");
 				var VEditors = $(this).find('span.ve-area-wrapper')
 				if (VEditors.length === 0) {
 					// normal for so submit
@@ -710,7 +740,8 @@ function addTokenInfo () {
 
 				})
 			} else if( pform.find('div[id*="canvas_"]' ).length > 0 )  {
-				showWeAreWorking(this);
+				console.log( "Dealing with canvas" );
+				//showWeAreWorking(this);
 				var canvas = pform.find('div[id*="canvas_"]' );
 				if( canvas.length > 0 ) {
 					//console.log( "We have a canvas!" );
@@ -736,6 +767,7 @@ function addTokenInfo () {
 					pform.submit();
 				}
 			} else {
+				console.log( "Form submit" );
 				pform.submit();
 			}
 		})

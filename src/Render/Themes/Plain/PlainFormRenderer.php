@@ -63,7 +63,10 @@ class PlainFormRenderer implements FormRenderer {
 
 		if ( $autosaveType !== null ) {
 			$formAttributes['class']         .= ' ws-autosave';
-			$formAttributes['data-autosave'] = $autosaveType === "onchange" || $autosaveType === "oninterval" ? $autosaveType : 'auto';
+			$autosaveTypes = [ "onchange", "onintervalafterchange", "oninterval" ];
+			$formAttributes['data-autosave'] = in_array( $autosaveType, $autosaveTypes, true ) ?
+				$autosaveType :	'auto';
+			//$formAttributes['data-autosave'] = $autosaveType === "onchange" || $autosaveType === "onintervalafterchange" || $autosaveType === "oninterval" ? $autosaveType : 'auto';
 
 			$javascript .= sprintf(
 				'var wsAutoSaveGlobalInterval = %s;',
