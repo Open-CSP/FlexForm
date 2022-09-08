@@ -551,11 +551,13 @@ class SpecialFlexForm extends \SpecialPage {
 						$out->addHTML( 'Could not find this version to install' );
 						return;
 					}
-
-
+					$terminalOutput = '';
+					$cmd = "cd " . $IP . '/extensions/FlexForm && git fetch';
+					$result = $this->executeCmd( $cmd );
+					$terminalOutput .= $result['output'];
 					$cmd = "cd " . $IP . '/extensions/FlexForm && git checkout tags/v' . $iVersion;
 					$result = $this->executeCmd( $cmd );
-					$terminalOutput = '';
+
 					if ( substr( $result['output'], 0, 6 ) === 'error:' ) {
 						$out->addHTML( '<h2>Git checkout error</h2><p>Please ask the website admin to fix this problem.</p>' );
 						$terminalOutput .= str_replace('error:', '', $result['output']);
