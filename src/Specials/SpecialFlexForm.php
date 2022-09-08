@@ -552,7 +552,7 @@ class SpecialFlexForm extends \SpecialPage {
 						return;
 					}
 					$terminalOutput = '';
-					$cmd = "cd " . $IP . '/extensions/FlexForm && git fetch';
+					$cmd = "cd " . $IP . '/extensions/FlexForm && git fetch --all';
 					$result = $this->executeCmd( $cmd );
 					$terminalOutput .= $result['output'];
 					$cmd = "cd " . $IP . '/extensions/FlexForm && git checkout tags/v' . $iVersion;
