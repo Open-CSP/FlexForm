@@ -513,11 +513,10 @@ class SpecialFlexForm extends \SpecialPage {
 		$headerPage  .= '<img src="' . $wgServer . "/extensions/FlexForm/FlexForm-logo.png" . '" /></a><br>Your version: v' . $currentVersion;
 		$headerPage .= '</div><div class="flex-form-special-top-right"><a target="_blank" title="FlexForm Documentation"';
 		$headerPage .= ' href="https://www.open-csp.org/DevOps:Doc/FlexForm">';
-		$headerPage .= $docsLogo.'<br>Documentation</a></div></div>';
+		$headerPage .= $docsLogo . '<br>Documentation</a></div></div>';
 		$out->addHTML(
 			$headerPage
 		);
-
 
 		if ( ! $wgUser->isLoggedIn() ) {
 			$out->addHTML( '<p>' . wfMessage( "flexform-docs-log-in" )->text() . '</p>' );
