@@ -562,16 +562,8 @@ class SpecialFlexForm extends \SpecialPage {
 						$out->addHTML( '<h2>Git checkout error</h2><p>Please ask the website admin to fix this problem.</p>' );
 						$terminalOutput .= str_replace('error:', '', $result['output']);
 					} else {
-						$cmd = "cd " . $IP . '/extensions/FlexForm && git pull';
-						$result = $this->executeCmd( $cmd );
-						if ( substr( $result['output'], 0, 6 ) === 'error:' ) {
-							$out->addHTML( '<h2>Git pull error</h2><p>Please ask the website admin to fix this problem.</p>' );
-							$terminalOutput .= str_replace('error:', '', $result['output']);
-						} else {
-							$terminalOutput .= $result['output'];
-							$out->addHTML( '<h2>Git result:</h2>' );
-						}
-
+						$terminalOutput .= $result['output'];
+						$out->addHTML( '<h2>Git result:</h2>' );
 					}
 					$out->addHTML('<div class="flex-form-terminal"><pre><output>' );
 					$out->addHTML( $terminalOutput );
