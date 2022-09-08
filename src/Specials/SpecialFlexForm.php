@@ -554,14 +554,24 @@ class SpecialFlexForm extends \SpecialPage {
 
 					$cmd = "cd " . $IP . '/extensions/FlexForm && git checkout tags/v' . $iVersion;
 					$result = $this->executeCmd( $cmd );
+					$terminalOutput = '';
 					if ( substr( $result['output'], 0, 6 ) === 'error:' ) {
-						$out->addHTML( '<h2>Git error</h2><p>Please ask the website admin to fix this problem.</p>' );
-						$result['output'] = str_replace('error:', '', $result['output']);
+						$out->addHTML( '<h2>Git checkout error</h2><p>Please ask the website admin to fix this problem.</p>' );
+						$terminalOutput .= str_replace('error:', '', $result['output']);
 					} else {
-						$out->addHTML( '<h2>Git result:</h2>' );
+						$cmd = "cd " . $IP . '/extensions/FlexForm && git pull';
+						$result = $this->executeCmd( $cmd );
+						if ( substr( $result['output'], 0, 6 ) === 'error:' ) {
+							$out->addHTML( '<h2>Git pull error</h2><p>Please ask the website admin to fix this problem.</p>' );
+							$terminalOutput .= str_replace('error:', '', $result['output']);
+						} else {
+							$terminalOutput .= $result['output'];
+							$out->addHTML( '<h2>Git result:</h2>' );
+						}
+
 					}
 					$out->addHTML('<div class="flex-form-terminal"><pre><output>' );
-					$out->addHTML( $result['output'] );
+					$out->addHTML( $terminalOutput );
 					$out->addHTML( '</output></pre></div>' );
 					return true;
 			}
