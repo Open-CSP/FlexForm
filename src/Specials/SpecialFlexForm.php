@@ -496,7 +496,8 @@ class SpecialFlexForm extends \SpecialPage {
 		*/
 		$path        = "$IP/extensions/FlexForm/docs/";
 		$wsformpurl  = $realUrl . "/extensions/FlexForm/";
-		$examplePath = $path . 'examples/';
+		$installUrl  = $realUrl . '/index.php/Special:FlexForm/Install_step-1/';
+		$installUrl4real  = $realUrl . '/index.php/Special:FlexForm/Install_step-2/';
 		$purl        = $realUrl . "/index.php/Special:FlexForm/Docs";
 		$setupUrl    = $realUrl . "/index.php/Special:FlexForm/Setup";
 		$statusUrl   = $realUrl . "/index.php/Special:FlexForm/Status";
@@ -507,13 +508,14 @@ class SpecialFlexForm extends \SpecialPage {
 		] );
 		$docsLogo = '<img src="' . $wgServer . '/extensions/FlexForm/Modules/ff-docs-icon.png">';
 		$headerPage  = '<div class="flex-form-special-top"><div class="flex-form-special-top-left">';
-		$headerPage  .= '<img src="' . $wgServer . "/extensions/FlexForm/FlexForm-logo.png" . '" /><br>v' . $currentVersion;
+		$headerPage  .= '<img src="' . $wgServer . "/extensions/FlexForm/FlexForm-logo.png" . '" /><br>Your version: v' . $currentVersion;
 		$headerPage .= '</div><div class="flex-form-special-top-right"><a target="_blank" title="FlexForm Documentation"';
 		$headerPage .= ' href="https://www.open-csp.org/DevOps:Doc/FlexForm">';
 		$headerPage .= $docsLogo.'<br>FlexForm Documentation</a></div></div>';
 		$out->addHTML(
 			$headerPage
 		);
+
 
 		if ( ! $wgUser->isLoggedIn() ) {
 			$out->addHTML( '<p>' . wfMessage( "flexform-docs-log-in" )->text() . '</p>' );
@@ -523,17 +525,53 @@ class SpecialFlexForm extends \SpecialPage {
 
 		$args = $this->getArgumentsFromSpecialPage( $sub );
 		if ( $args !== false ) {
-			if ( strtolower( $args[0] ) == 'survey' ) {
-                $path = "$IP/extensions/FlexForm/Modules/surveyBuilder";
-                $ret = file_get_contents($path . "/dist/index.html");
-                $out->addHTML($ret);
+			switch ( $args[0] ) {
+				case "survey":
+					$path = "$IP/extensions/FlexForm/Modules/surveyBuilder";
+					$ret = file_get_contents( $path . "/dist/index.html" );
+					$out->addHTML( $ret );
 
-				return true;
+					return true;
+				case "Install_step-1":
+					$out->addHTML( 'Click to button to perform a git pull on FlexForm' );
+					$iVersion = $this->getPostString( 'version_to_install' );
+					if ( $iVersion === false ) {
+						$out->addHTML( 'Could not find this version to install' );
+						return;
+					}
+					$install4real = '<form method="post" action="' . $installUrl4real . '">' . PHP_EOL;
+					$install4real .= '<input type="hidden" name="version_to_install" value="'.$sourceVersion.'">' . PHP_EOL;
+					$install4real .= '<input type="submit" value="Install using Git" class="flex-form-special-install-btn"></form>' . PHP_EOL;
+					$out->addHTML( $install4real );
+					return true;
+				case "Install_step-2":
+					$iVersion = $this->getPostString( 'version_to_install' );
+					if ( $iVersion === false ) {
+						$out->addHTML( 'Could not find this version to install' );
+						return;
+					}
+
+
+					$cmd = "cd " . $IP . '/extensions/FlexForm && git checkout tags/v' . $iVersion;
+					$result = $this->executeCmd( $cmd );
+					if ( substr( $result['output'], 0, 6 ) === 'error:' ) {
+						$out->addHTML( '<h2>Git error</h2><p>Please ask the website admin to fix this problem.</p>' );
+					} else {
+						$out->addHTML( '<h2>Git result:</h2>' );
+					}
+					$out->addHTML('<div class="flex-form-terminal"><pre><output>' );
+					$out->addHTML( $result['output'] );
+					$out->addHTML( '</output></pre></div>' );
+					return true;
 			}
 		} else {
 			if ( $sourceVersion !== $currentVersion ) {
+				$installForm = '<form method="post" action="' . $installUrl . '">' . PHP_EOL;
+				$installForm .= '<input type="hidden" name="version_to_install" value="'.$sourceVersion.'">' . PHP_EOL;
+				$installForm .= '<input type="submit" value="Go to update page" class="flex-form-special-install-btn"></form>' . PHP_EOL;
 				$changeLogText   = wfMessage( "flexform-docs-new-version-notice", $sourceVersion )->text();
 				$changeLogText .= " " . wfMessage( "flexform-docs-new-version-install" );
+				$changeLogText .= $installForm;
 				$tableHead       = wfMessage( "flexform-docs-new-version-table" )->text();
 				$changelogDetail = $this->getChangeLog(
 					$bitbucketChangelog,
@@ -1156,6 +1194,19 @@ class SpecialFlexForm extends \SpecialPage {
 			$url,
 			$css
 		);
+	}
+
+	private function executeCmd( $cmd ) {
+
+		$cmd .= ' 2>&1';
+		$output = null;
+		$resultCode = null;
+		exec( $cmd, $output, $resultCode );
+
+		return [
+			'exit_status'  => $resultCode,
+			'output'       => implode( '<br>', $output )
+		];
 	}
 
 	private function getConfigSetting( $name ) {

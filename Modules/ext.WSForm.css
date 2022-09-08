@@ -47,13 +47,37 @@
 	display:inline-block;
 	vertical-align: top;
 }
+.flex-form-terminal {
+	background-color: black;
+	background-image: radial-gradient(rgba(0, 150, 0, 0.75), black 120%);
+}
 
+.flex-form-terminal pre  {
+	font-size: 14px;
+	background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.15) 1px, transparent 1px, transparent 2px);
+	pointer-events: none;
+	color: white;
+	font: 1.1rem Inconsolata, monospace;
+	text-shadow: 0 0 5px #C8C8C8;
+}
 .flex-form-special-top-right {
 	width:49%;
 	text-align:right;
 	display:inline-block;
 	vertical-align: top;
 }
+
+.flex-form-special-install-btn {
+	cursor:pointer;
+	color: #fff;
+	background: #0576a8 linear-gradient(180deg,#2b8bb5,#0576a8) repeat-x;
+	border-color: #0576a8;
+	box-shadow: inset 0 1px 0 rgba(255,255,255,0.15),0 1px 1px rgba(0,0,0,0.075);
+	display:inline-block;
+	vertical-align: center;
+}
+
+
 
 @keyframes spin {
 	100% {
