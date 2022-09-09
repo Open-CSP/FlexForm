@@ -2,8 +2,9 @@
 
 namespace FlexForm\Core;
 
-use FlexForm\FlexFormException;
-
+/**
+ * Class to make simple git commands. Used on src/SpecialFlexForm.php
+ */
 class Git {
 
 	/**
@@ -18,6 +19,10 @@ class Git {
 		$this->gitPath = $path;
 	}
 
+	/**
+	 * Check if the path is a Git repo and not part of top level repo
+	 * @return bool
+	 */
 	public function isGitRepo(): bool {
 		$cmd = 'rev-parse --show-toplevel';
 		$result = $this->executeGitCmd( $cmd );
