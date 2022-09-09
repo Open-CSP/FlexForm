@@ -534,33 +534,51 @@ class SpecialFlexForm extends \SpecialPage {
 
 					return true;
 				case "Install_step-1":
-					$iVersion = $this->getPostString( 'version_to_install' );
-					if ( $iVersion === false ) {
-						$out->addHTML( 'Could not find this version to install.' );
-						return;
+					if ( isset( $_GET['v'] ) && $_GET['v'] !== '' ) {
+						$getVersion = $_GET['v'];
+					} else {
+						$getVersion = false;
 					}
-					$out->addHTML( 'Click the button to perform a git update to version ' . $iVersion );
-					$install4real = '<form method="post" action="' . $installUrl4real . '">' . PHP_EOL;
-					$install4real .= '<input type="hidden" name="version_to_install" value="'.$sourceVersion.'">' . PHP_EOL;
+					if ( $getVersion ) {
+						$out->addHTML( 'Click the button to perform a git update to version ' . $getVersion );
+						$install4real = '<form method="post" action="' . $installUrl4real . '?v=' . $getVersion . '">' . PHP_EOL;
+					} else {
+						$out->addHTML( 'Click the button to perform a git update to version ' . $sourceVersion );
+						$install4real = '<form method="post" action="' . $installUrl4real . '">' . PHP_EOL;
+					}
 					$install4real .= '<input type="submit" value="update using Git" class="flex-form-special-install-btn"></form>' . PHP_EOL;
 					$out->addHTML( $install4real );
 					return true;
 				case "Install_step-2":
-					$iVersion = $this->getPostString( 'version_to_install' );
-					if ( $iVersion === false ) {
-						$out->addHTML( 'Could not find this version to install' );
+					if ( isset( $_GET['v'] ) && $_GET['v'] !== '' ) {
+						$sourceVersion = $_GET['v'];
+					}
+					$git = new FlexForm\Core\Git( $IP . '/extensions/FlexForm' );
+					if ( $git->isGitRepo() !== true ) {
+						$out->addHTML( 'This installation of FlexForm is not Git based. We cannot update your version of FlexForm. Please contact the site admin to do this for you.' );
 						return;
 					}
 					$terminalOutput = '';
-					$cmd = "cd " . $IP . '/extensions/FlexForm && git fetch --all';
-					$result = $this->executeCmd( $cmd );
-					$terminalOutput .= $result['output'];
-					$cmd = "cd " . $IP . '/extensions/FlexForm && git checkout tags/v' . $iVersion;
-					$result = $this->executeCmd( $cmd );
-
-					if ( substr( $result['output'], 0, 6 ) === 'error:' ) {
-						$out->addHTML( '<h2>Git checkout error</h2><p>Please ask the website admin to fix this problem.</p>' );
-						$terminalOutput .= str_replace('error:', '', $result['output']);
+					$result = $git->executeGitCmd( 'fetch --all' );
+					if ( $result === false ) {
+						$out->addHTML( 'Could not execute git command' );
+						return;
+					}
+					$terminalOutput .= $git->implodeResponse( $result['output'] );
+					$cmd = 'checkout tags/v' . $sourceVersion;
+					$result = $git->executeGitCmd( $cmd );
+					$result['output'] = $git->implodeResponse( $result['output'] );
+					if ( $git->checkResponseForError( $result['output'] ) !== 'ok' ) {
+						switch( $git->checkResponseForError( $result['output'] ) ) {
+							case "error" :
+								$out->addHTML( '<h2>Git checkout error</h2><p>Please ask the website admin to fix this problem.</p>' );
+								$terminalOutput .= str_replace( 'error:', '', $result['output'] );
+								break;
+							case "fatal" :
+								$out->addHTML( '<h2>Git fatal error</h2><p>Please ask the website admin to fix this problem.</p>' );
+								$terminalOutput .= str_replace( 'fatal:', '', $result['output'] );
+								break;
+						}
 					} else {
 						$terminalOutput .= $result['output'];
 						$out->addHTML( '<h2>Git result:</h2>' );
@@ -573,7 +591,6 @@ class SpecialFlexForm extends \SpecialPage {
 		} else {
 			if ( $sourceVersion !== $currentVersion ) {
 				$installForm = '<form method="post" action="' . $installUrl . '">' . PHP_EOL;
-				$installForm .= '<input type="hidden" name="version_to_install" value="'.$sourceVersion.'">' . PHP_EOL;
 				$installForm .= '<input type="submit" value="Go to update page" class="flex-form-special-install-btn"></form>' . PHP_EOL;
 				$changeLogText   = wfMessage( "flexform-docs-new-version-notice", $sourceVersion )->text();
 				$changeLogText .= " " . wfMessage( "flexform-docs-new-version-install" );
@@ -1202,6 +1219,7 @@ class SpecialFlexForm extends \SpecialPage {
 		);
 	}
 
+	/*
 	private function executeCmd( $cmd ) {
 
 		$cmd .= ' 2>&1';
@@ -1214,6 +1232,7 @@ class SpecialFlexForm extends \SpecialPage {
 			'output'       => implode( '<br>', $output )
 		];
 	}
+	*/
 
 	private function getConfigSetting( $name ) {
 		if ( isset( $this->config[$name] ) ) {
