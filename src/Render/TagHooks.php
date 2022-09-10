@@ -2197,6 +2197,7 @@ class TagHooks {
 		$use_label          = false;
 		$force              = false;
 		$parseContent       = false;
+		$template			= false;
 		$canvasSourceId     = false;
 		$canvasRenderId     = uniqid();
 		$canvasDiv			= '';
@@ -2246,6 +2247,9 @@ class TagHooks {
 					case "canvas_render_id":
 						$canvasRenderId = $v;
 						break;
+					case "template":
+						$template = $v;
+						break;
 					default:
 						$attributes[$k] = $v;
 				}
@@ -2275,10 +2279,12 @@ class TagHooks {
 		if ( $parseContent ) {
 			$hiddenFiles[] = '<input type="hidden" name="wsform_parse_content" value="true">';
 		}
+		if ( $template ) {
+			$hiddenFiles[] = '<input type="hidden" name="wsform_file_template" value="' . $template . '">';
+		}
 		if ( $force ) {
 			$hiddenFiles[] = '<input type="hidden" name="wsform_image_force" value="' . $force . '">';
 		}
-
 
 		// Normal file upload. No presentor
 		if ( ! $presentor ) {

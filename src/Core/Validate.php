@@ -291,7 +291,8 @@ class Validate {
 			"parsecontent",
 			"dropzone",
 			"canvas_source_id",
-			"canvas_render_id"
+			"canvas_render_id",
+			"template"
 		);
 		if ( $ret ) {
 			return $validParameters;

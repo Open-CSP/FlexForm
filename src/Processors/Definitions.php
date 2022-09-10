@@ -66,6 +66,7 @@ class Definitions {
 
 		return [
 			'files'        => $files,
+			'pagetemplate' => General::getPostString( 'wsform_file_template' ),
 			'pagecontent'  => General::getPostString( 'wsform_page_content', false ),
 			'parsecontent' => General::getPostString( 'wsform_parse_content' ),
 			'comment'      => General::getPostString( 'wsform-upload-comment' ),

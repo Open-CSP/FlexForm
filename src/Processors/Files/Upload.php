@@ -212,9 +212,19 @@ class Upload {
 				$titleName
 			);
 
-			$details = trim( $fields['pagecontent'] );
 			if ( $fields['parsecontent'] !== false ) {
-				$details = ContentCore::parseTitle( $details );
+				$details = trim( $fields['pagecontent'] );
+			} else {
+				$details = "";
+			}
+
+			if ( $fields['pagetemplate'] && $fields['parsecontent'] !== false ) {
+				$filePageTemplate = trim( $fields['pagetemplate'] );
+				$details = $this->setFileTemplate( $filePageTemplate, $details );
+			}
+
+			if ( $fields['parsecontent'] !== false ) {
+				$details = ContentCore::parseTitle( $details, true );
 			}
 
 			// find any other form fields and put them into the title
@@ -258,6 +268,22 @@ class Upload {
 		}
 
 		return true;
+	}
+
+	/**
+	 * @param string $template
+	 * @param string $content
+	 *
+	 * @return string
+	 */
+	private function setFileTemplate( string $template, string $content ): string {
+		if ( strpos( $content, '[flexform-template]' ) !== false ) {
+			$arrayS = [ '[flexform-template]', '[/flexform-template]', '|' ];
+			$arrayR = [ '{{' . $template, "\n}}\n", "\n" .'|' ];
+			$content = str_replace( $arrayS, $arrayR, $content );
+
+		}
+		return $content;
 	}
 
 	/**
