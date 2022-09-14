@@ -13,6 +13,7 @@ namespace FlexForm\Processors\Files;
 use flexform\processors\api\mediawiki\render;
 use flexform\processors\api\mwApi;
 use FlexForm\Processors\Content\ContentCore;
+use FlexForm\Processors\Definitions;
 use FlexForm\Processors\Utilities\General;
 use FlexForm\FlexFormException;
 use FlexForm\Core\Config;
@@ -51,22 +52,35 @@ class Signature {
 			'svg'
 		);
 
+		$fields = Definitions::fileUploadFields();
+
 		$wname    = General::getPostString( 'wsform_signature_filename' );
 		$data     = General::getPostString( 'wsform_signature' );
 		$fileType = General::getPostString( 'wsform_signature_type' );
 		$pcontent = General::getPostString( 'wsform_signature_page_content' );
 
-		if ( ! $wname ) {
+		if ( !$wname ) {
 			throw new FlexFormException( 'No target file for signature.', 0 );
 		}
-		if ( ! $pcontent ) {
+		if ( !$pcontent ) {
 			throw new FlexFormException( 'No page content found. Required.', 0 );
 		}
-		if ( ! $data ) {
+		if ( !$data ) {
 			throw new FlexFormException( 'No signature file found.', 0 );
 		}
-		if ( ! $fileType || ! in_array( $fileType, $allowedTypes ) ) {
+		if ( !$fileType || !in_array( $fileType, $allowedTypes ) ) {
 			throw new FlexFormException( 'No signature file type found or a not allowed filetype', 0 );
+		}
+
+		$pcontent = trim( $pcontent );
+
+		if ( $fields['pagetemplate'] && $fields['parsecontent'] !== false ) {
+			$filePageTemplate = trim( $fields['pagetemplate'] );
+			$pcontent = ContentCore::setFileTemplate( $filePageTemplate, $pcontent );
+		}
+
+		if ( $fields['parsecontent'] !== false ) {
+			$pcontent = ContentCore::parseTitle( $pcontent );
 		}
 
 		$upload_dir = Config::getConfigVariable( 'file_temp_path' );

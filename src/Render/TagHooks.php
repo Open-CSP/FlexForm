@@ -2198,6 +2198,7 @@ class TagHooks {
 		$force              = false;
 		$parseContent       = false;
 		$template			= false;
+		$multiple			= 'files';
 		$canvasSourceId     = false;
 		$canvasRenderId     = uniqid();
 		$canvasDiv			= '';
@@ -2250,6 +2251,8 @@ class TagHooks {
 					case "template":
 						$template = $v;
 						break;
+					case "multiple":
+						$multiple = 'files';
 					default:
 						$attributes[$k] = $v;
 				}
@@ -2329,7 +2332,7 @@ class TagHooks {
 				$("#' . $verbose_id . '").addClass("dragover")
 			}).on("drop", function(e) {
 				
-				$("#' . $id . '").prop("files", e.originalEvent.dataTransfer.files)
+				$("#' . $id . '").prop("files", e.originalEvent.dataTransfer.' . $multiple . ')
 				$("#' . $id . '").trigger("change"); 
 		});';
 			}
@@ -2342,7 +2345,7 @@ class TagHooks {
 				$("#' . $id . '").addClass("dragover")
 			}).on("drop", function(e) {
 				
-				$("#' . $id . '").prop("files", e.originalEvent.dataTransfer.files)
+				$("#' . $id . '").prop("files", e.originalEvent.dataTransfer.' . $multiple . ')
 				$("#' . $id . '").trigger("change"); 
 		});';
 			}
@@ -2350,18 +2353,23 @@ class TagHooks {
 			$jsChange       = $onChangeScript . "\n";
 			//$ret .= "<script>\n" . $onChangeScript . "\n";
 			$jsChange .= "\n" . "wachtff(WSFile" . $random . ");\n";
+			$addjsChange = "\n" . 'var ffNoFileSelected = "';
+			$addjsChange .= wfMessage( "flexform-fileupload-no-files-selected" )->plain() . '";' . "\n";
+			$jsChange = $addjsChange . $jsChange;
 			Core::includeInlineScript( $jsChange );
 			//$ret     .= '<script>$( document ).ready(function() { $("#' . $random . '").on("change", function(){ wsfiles( "' . $id . '", "' . $verbose_id . '", "' . $error_id . '", "' . $use_label . '", "' . $verbose_custom . '", "' . $error_custom . '");});});</script>';
 			$css     = file_get_contents( "$IP/extensions/FlexForm/Modules/WSForm_upload.css" );
 			$replace = array(
 				'{{verboseid}}',
 				'{{errorid}}',
+				'{{dropfiles}}',
 				'<style>',
 				'</style>'
 			);
 			$with    = array(
 				$verbose_id,
 				$error_id,
+				wfMessage( "flexform-fileupload-dropfiles" )->plain(),
 				'',
 				''
 			); //wsfiles( "file-upload2", "hiddendiv2", "error_file-upload2", "", "yes", "none");

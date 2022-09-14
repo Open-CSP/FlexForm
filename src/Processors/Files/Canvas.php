@@ -103,6 +103,12 @@ class Canvas {
 		}
 
 		$details = trim( $fields['pagecontent'] );
+
+		if ( $fields['pagetemplate'] && $fields['parsecontent'] !== false ) {
+			$filePageTemplate = trim( $fields['pagetemplate'] );
+			$details = ContentCore::setFileTemplate( $filePageTemplate, $details );
+		}
+
 		if ( $fields['parsecontent'] !== false ) {
 			$details = ContentCore::parseTitle( $details );
 		}

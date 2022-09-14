@@ -38,6 +38,8 @@
 	"flexform-config-not-found" : "Could not find the config file for FlexForm. Please read the manual",
 	"flexform-config-credentials-not-found" : "We need all the API user credentials",
 
+	"flexform-fileupload-no-files-selected" : "No file selected for upload",
+	"flexform-fileupload-dropfiles" : "Drop files",
 	"flexform-fileupload-file-not-found" : "Cannot find file $1",
 	"flexform-fileupload-user-unknown" : "Cannot find user to connect to file upload",
 	"flexform-fileupload-file-title-invalid" : "{$1} could not be imported; a valid title cannot be produced",

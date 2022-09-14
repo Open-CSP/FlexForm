@@ -41,14 +41,21 @@ function wsfiles( id, verbose_id, error_id, hide ) {
 		$( idfile ).css( 'opacity', 0 )
 	}
 	if ( current_files.length === 0 ) {
-		verbose.html( 'No file selected for upload' )
+		verbose.html( ffNoFileSelected )
 	} else {
+		var allowMultiple = true;
 		var output = '<ol>'
 		var err = '<ol>'
 		var del = ''
+		if( typeof idfile.attr( 'multiple' ) === 'undefined' ) {
+			allowMultiple = false;
+		}
 		for ( var i = 0; i < current_files.length; i++ ) {
+			if ( i === 0 && allowMultiple === false ) {
+				continue;
+			}
 			if ( validFileType( idfile, current_files[i] ) ) {
-				console.log( current_files[i] )
+				//console.log( current_files[i] )
 				if ( isImage( current_files[i].type ) ) {
 					del = ' <i class="fa fa-times wsform-reset-button" onClick="resetFile(\'' + id + '\', \'' + i + '\', \'' + verbose_id + '\' )"></i> '
 					/*   VOOR LATER
@@ -113,7 +120,7 @@ function resetFile( id, fileid, verbose_id ) {
 	// removeFileFromFileList( fileid, id );
 	// $('#img_' + fileid ).remove();
 	idfile.val( '' );
-	$( '#' + verbose_id ).html( 'No file selected for upload' )
+	$( '#' + verbose_id ).html( ffNoFileSelected )
 }
 
 function removeFileFromFileList( index, id ) {

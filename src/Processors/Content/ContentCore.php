@@ -491,6 +491,22 @@ class ContentCore {
 	}
 
 	/**
+	 * @param string $template
+	 * @param string $content
+	 *
+	 * @return string
+	 */
+	public static function setFileTemplate( string $template, string $content ): string {
+		if ( strpos( $content, '[flexform-template]' ) !== false ) {
+			$arrayS = [ '[flexform-template]', '[/flexform-template]', '|' ];
+			$arrayR = [ '{{' . $template, "\n}}\n", "\n" .'|' ];
+			$content = str_replace( $arrayS, $arrayR, $content );
+
+		}
+		return $content;
+	}
+
+	/**
 	 * @param $string
 	 *
 	 * @return string

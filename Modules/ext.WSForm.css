@@ -107,3 +107,81 @@
 		transform: rotate(360deg);
 	}
 }
+
+/* Simple styling */
+
+.flex-form.simple {
+	margin:10px auto;
+	padding: 20px 12px 10px 20px;
+	font: 13px "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+}
+
+.flex-form.simple label{
+	margin:0 5px 3px 0;
+	padding:0px;
+	display:inline-block;
+	font-weight: bold;
+}
+
+.flex-form.simple label.above{
+	margin:0 0 3px 0;
+	padding:0px;
+	display:block;
+	font-weight: bold;
+}
+.flex-form.simple input[type=text],
+.flex-form.simple input[type=date],
+.flex-form.simple input[type=datetime],
+.flex-form.simple input[type=number],
+.flex-form.simple input[type=search],
+.flex-form.simple input[type=time],
+.flex-form.simple input[type=url],
+.flex-form.simple input[type=email],
+textarea,
+select{
+	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	border:1px solid #BEBEBE;
+	padding: 7px;
+	margin:0px;
+	-webkit-transition: all 0.30s ease-in-out;
+	-moz-transition: all 0.30s ease-in-out;
+	-ms-transition: all 0.30s ease-in-out;
+	-o-transition: all 0.30s ease-in-out;
+	outline: none;
+}
+.flex-form.simple input[type=text]:focus,
+.flex-form.simple input[type=date]:focus,
+.flex-form.simple input[type=datetime]:focus,
+.flex-form.simple input[type=number]:focus,
+.flex-form.simple input[type=search]:focus,
+.flex-form.simple input[type=time]:focus,
+.flex-form.simple input[type=url]:focus,
+.flex-form.simple input[type=email]:focus,
+.flex-form.simple textarea:focus,
+.flex-form.simple select:focus{
+	-moz-box-shadow: 0 0 8px #88D5E9;
+	-webkit-box-shadow: 0 0 8px #88D5E9;
+	box-shadow: 0 0 8px #88D5E9;
+	border: 1px solid #88D5E9;
+}
+
+.flex-form.simple textarea{
+	min-height: 100px;
+}
+.flex-form.simple input[type=submit], .flex-form.simple input[type=button]{
+	background: #4B99AD;
+	padding: 8px 15px 8px 15px;
+	border: none;
+	color: #fff;
+}
+.flex-form.simple input[type=submit]:hover, .flex-form.simple input[type=button]:hover{
+	background: #4691A4;
+	box-shadow:none;
+	-moz-box-shadow:none;
+	-webkit-box-shadow:none;
+}
+.flex-form.simple .required{
+	color:red;
+}

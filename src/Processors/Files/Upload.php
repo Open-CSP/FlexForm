@@ -220,7 +220,7 @@ class Upload {
 
 			if ( $fields['pagetemplate'] && $fields['parsecontent'] !== false ) {
 				$filePageTemplate = trim( $fields['pagetemplate'] );
-				$details = $this->setFileTemplate( $filePageTemplate, $details );
+				$details = ContentCore::setFileTemplate( $filePageTemplate, $details );
 			}
 
 			if ( $fields['parsecontent'] !== false ) {
@@ -268,22 +268,6 @@ class Upload {
 		}
 
 		return true;
-	}
-
-	/**
-	 * @param string $template
-	 * @param string $content
-	 *
-	 * @return string
-	 */
-	private function setFileTemplate( string $template, string $content ): string {
-		if ( strpos( $content, '[flexform-template]' ) !== false ) {
-			$arrayS = [ '[flexform-template]', '[/flexform-template]', '|' ];
-			$arrayR = [ '{{' . $template, "\n}}\n", "\n" .'|' ];
-			$content = str_replace( $arrayS, $arrayR, $content );
-
-		}
-		return $content;
 	}
 
 	/**
