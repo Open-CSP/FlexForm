@@ -25,6 +25,19 @@ use Wikimedia\AtEase\AtEase;
 use MediaWiki\MediaWikiServices;
 
 class Upload {
+
+	/**
+	 * @return string
+	 */
+	private function getSummary(): string {
+		$summary = General::getPostString( 'mwwikicomment' );
+		if ( $summary === false ) {
+			return "Uploaded using FlexForm.";
+		} else {
+			return ContentCore::parseTitle( $summary );
+		}
+	}
+
 	/**
 	 * @return bool
 	 * @throws FlexFormException
@@ -71,9 +84,9 @@ class Upload {
 		if ( $fields['pagecontent'] === false ) {
 			$fields['pagecontent'] = '';
 		}
-		if ( $fields['comment'] === false ) {
-			$fields['comment'] = "Uploaded using FlexForm.";
-		}
+
+		$fields['comment'] = $this->getSummary();
+
 		if ( $fields['force'] === false || $fields['force'] === '' ) {
 			$convert = false;
 		} else {

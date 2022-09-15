@@ -74,12 +74,12 @@ class Canvas {
 				0
 			);
 		}
+
 		if ( $fields['pagecontent'] === false ) {
 			$fields['pagecontent'] = '';
 		}
-		if ( $fields['comment'] === false ) {
-			$fields['comment'] = "Uploaded using FlexForm.";
-		}
+
+		$fields['comment'] = self::getSummary();
 
 		$filesCore = new FilesCore();
 		$uploadPath = $filesCore->getUploadDir();
