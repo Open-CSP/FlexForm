@@ -70,6 +70,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 1.1.34 : file upload dropzone verbose fixes
 * 1.1.33 : Added template support for file pages
 * 1.1.32 : Seperated Git from Special page
 * 1.1.31 : Version bump to git update
