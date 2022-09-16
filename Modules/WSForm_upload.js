@@ -56,7 +56,6 @@ function wsfiles( id, verbose_id, error_id, hide ) {
 				reset = true;
 			}
 		}
-		console.log( allowMultiple );
 		for ( var i = 0; i < current_files.length; i++ ) {
 			if ( allowMultiple === false && i >= 1 || reset === true ) {
 				continue;
