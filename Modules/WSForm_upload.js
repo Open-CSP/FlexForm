@@ -44,14 +44,21 @@ function wsfiles( id, verbose_id, error_id, hide ) {
 		verbose.html( ffNoFileSelected )
 	} else {
 		var allowMultiple = true;
+		var reset = false;
 		var output = '<ol>'
 		var err = '<ol>'
 		var del = ''
 		if( typeof idfile.attr( 'multiple' ) === 'undefined' ) {
 			allowMultiple = false;
+			if ( current_files.length >= 2 ) {
+				err += '<li>You can only upload 1 file. Use multiple="multiple" to upload multiple files</li>'
+				idfile.val( '' );
+				reset = true;
+			}
 		}
+		console.log( allowMultiple );
 		for ( var i = 0; i < current_files.length; i++ ) {
-			if ( i === 0 && allowMultiple === false ) {
+			if ( allowMultiple === false && i >= 1 || reset === true ) {
 				continue;
 			}
 			if ( validFileType( idfile, current_files[i] ) ) {

@@ -2259,12 +2259,12 @@ class TagHooks {
 			}
 		}
 		global $IP;
-		if ( ! $id ) {
+		if ( !$id ) {
 			$ret = 'You cannot upload files without adding an unique id.';
 
 			return $ret;
 		}
-		if ( ! $target ) {
+		if ( !$target ) {
 			$ret = 'You cannot upload files without a target.';
 
 			return $ret;
@@ -2290,13 +2290,13 @@ class TagHooks {
 		}
 
 		// Normal file upload. No presentor
-		if ( ! $presentor ) {
+		if ( !$presentor ) {
 			// If we do not have a verbose id, then create our own preview from the form ID
 			if ( $verbose_id === false ) {
 				$verbose_id       = 'verbose_' . $id;
 				$verboseDiv['id'] = $verbose_id;
 				// If we also have a dropzone, then turn the verbose element into a dropzone
-				if ( $drop && ! $use_label ) {
+				if ( $drop && !$use_label ) {
 					$verboseDiv['class'][] = 'wsform-dropzone';
 				}
 				$verboseDiv['class'][] = 'wsform-verbose';
