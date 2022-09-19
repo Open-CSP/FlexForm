@@ -558,7 +558,12 @@ class TagHooks {
 					$args,
 					"number"
 				);
-				$ret               = $renderer->render_number( $preparedArguments );
+				if ( isset( $preparedArguments['count'] ) && $preparedArguments['count'] !== '' ) {
+					$preparedArguments['data-count'] = $preparedArguments['count'];
+					unset( $preparedArguments['count'] );
+					$preparedArguments['readonly'] = 'readonly';
+				}
+				$ret = $renderer->render_number( $preparedArguments );
 
 				break;
 			case 'radio':

@@ -227,7 +227,8 @@ class Validate {
 			"onclick",
 			"buttontype",
 			"show-on-select-trigger",
-			"show-on-select-type"
+			"show-on-select-type",
+			"count"
 		);
 		if ( $ret ) {
 			return $validParameters;

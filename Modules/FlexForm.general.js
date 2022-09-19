@@ -625,6 +625,10 @@ function wsform (btn, callback = 0, preCallback = 0, showId = 0) {
 	}
 }
 
+function ffCount(){
+
+}
+
 function decodeHtml(html) {
 	var txt = document.createElement("textarea");
 	txt.innerHTML = html;
