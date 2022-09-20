@@ -625,7 +625,36 @@ function wsform (btn, callback = 0, preCallback = 0, showId = 0) {
 	}
 }
 
-function ffCount(){
+function ffGetFormCalcFields( txt ) {
+	var newTxt = txt.split('[');
+	var arr = [];
+	for ( var i = 1; i < newTxt.length; i++ ) {
+		arr.push( newTxt[i].split(']')[0] );
+	}
+	return arr;
+}
+
+function ffCount() {
+	// Get all calc fields in DOM
+	let calcFields = $("[data-calc]");
+	console.log( calcFields );
+	calcFields.each( function() {
+		console.log( "Working this" , this );
+		let form = $(this).closest("form");
+		console.log( "Form" , form );
+		if ( form.hasClass('flex-form' ) )  {
+			let calc = $(this).data( "calc" );
+			if ( calc.length > 2 ) {
+				console.log( calc );
+				// Get all text between square brackets ( form fields )
+				console.log( ffGetFormCalcFields( calc ) );
+			}
+		}
+
+	});
+	// Get the Form
+
+
 
 }
 
