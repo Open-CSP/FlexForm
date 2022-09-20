@@ -392,8 +392,8 @@ class Core {
 	 * @return string
 	 */
 	public static function getRealUrl(): string {
-		global $wgScript;
-		$uri = wfGetServerUrl( null ) . '/extensions/FlexForm';
+		global $wgExtensionAssetsPath;
+		$uri = wfGetServerUrl( null ) . $wgExtensionAssetsPath . '/FlexForm';
 		/*
 		$uri = str_replace(
 			'/index.php',
