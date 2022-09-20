@@ -558,9 +558,9 @@ class TagHooks {
 					$args,
 					"number"
 				);
-				if ( isset( $preparedArguments['count'] ) && $preparedArguments['count'] !== '' ) {
-					$preparedArguments['data-count'] = $preparedArguments['count'];
-					unset( $preparedArguments['count'] );
+				if ( isset( $preparedArguments['calc'] ) && $preparedArguments['calc'] !== '' ) {
+					$preparedArguments['data-calc'] = $preparedArguments['calc'];
+					unset( $preparedArguments['calc'] );
 					$preparedArguments['readonly'] = 'readonly';
 				}
 				$ret = $renderer->render_number( $preparedArguments );
