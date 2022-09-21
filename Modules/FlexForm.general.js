@@ -630,9 +630,9 @@ function wsform (btn, callback = 0, preCallback = 0, showId = 0) {
  */
 const ffCalc = () => {
 	const ffGetFormCalcFields = ( txt ) => {
-		var newTxt = txt.split('[');
-		var arr = [];
-		for ( var i = 1; i < newTxt.length; i++ ) {
+		let newTxt = txt.split('[');
+		let arr = [];
+		for ( let i = 1; i < newTxt.length; i++ ) {
 			arr.push( newTxt[i].split(']')[0] );
 		}
 		return arr;
@@ -655,7 +655,7 @@ const ffCalc = () => {
 		let calcString = $(input).data('calc');
 		$.each(name_value_obj, (n, v) => {
 			if ( !v ) v = 0;
-			calcString = calcString.replace(`[${n}]`, v);
+			calcString = calcString.replaceAll(`[${n}]`, v);
 		});
 
 		const val = eval(calcString);
