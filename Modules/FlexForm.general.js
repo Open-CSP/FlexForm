@@ -704,7 +704,7 @@ const ffCalc = () => {
 function decodeHtml(html) {
 	var txt = document.createElement("textarea");
 	txt.innerHTML = html;
-	console.log( html, txt.value );
+	//console.log( html, txt.value );
 	return txt.value;
 }
 
