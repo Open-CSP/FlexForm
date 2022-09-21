@@ -82,9 +82,13 @@ class PlainFieldRenderer implements FieldRenderer {
 			);
 		}
 
-		$args['type']                      = 'checkbox';
-		$args['data-wssos-show']           = $showOnChecked;
-		$args['data-wssos-show-unchecked'] = $showOnUnchecked;
+		$args['type'] = 'checkbox';
+		if ( !empty( $showOnChecked ) ) {
+			$args['data-wssos-show'] = $showOnChecked;
+		}
+		if ( !empty( $showOnUnchecked ) ) {
+			$args['data-wssos-show-unchecked'] = $showOnUnchecked;
+		}
 
 		$ret .= Xml::tags(
 			'input',
