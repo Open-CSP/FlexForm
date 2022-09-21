@@ -625,37 +625,80 @@ function wsform (btn, callback = 0, preCallback = 0, showId = 0) {
 	}
 }
 
-function ffGetFormCalcFields( txt ) {
-	var newTxt = txt.split('[');
-	var arr = [];
-	for ( var i = 1; i < newTxt.length; i++ ) {
-		arr.push( newTxt[i].split(']')[0] );
-	}
-	return arr;
-}
-
-function ffCount() {
-	// Get all calc fields in DOM
-	let calcFields = $("[data-calc]");
-	console.log( calcFields );
-	calcFields.each( function() {
-		console.log( "Working this" , this );
-		let form = $(this).closest("form");
-		console.log( "Form" , form );
-		if ( form.hasClass('flex-form' ) )  {
-			let calc = $(this).data( "calc" );
-			if ( calc.length > 2 ) {
-				console.log( calc );
-				// Get all text between square brackets ( form fields )
-				console.log( ffGetFormCalcFields( calc ) );
-			}
+/**
+ * FlexForm calc function
+ */
+const ffCalc = () => {
+	const ffGetFormCalcFields = ( txt ) => {
+		var newTxt = txt.split('[');
+		var arr = [];
+		for ( var i = 1; i < newTxt.length; i++ ) {
+			arr.push( newTxt[i].split(']')[0] );
 		}
+		return arr;
+	}
 
-	});
-	// Get the Form
+	/**
+	 * calc function which do the action/operation with the values of the wanted inputs
+	 * @param input {HTMLInputElement}
+	 */
+	const calc = (input) => {
+		// get the input names
+		const input_names = ffGetFormCalcFields($(input).data('calc'));
+		let name_value_obj = {};
 
+		// loop through the input names to find the wanted input
+		Array.from(input_names).forEach(n => {
+			name_value_obj[n] = $(input).closest('form.flex-form').find(`input[type=number][name="${n}"]`).val();
+		});
 
+		let calcString = $(input).data('calc');
+		$.each(name_value_obj, (n, v) => {
+			if ( !v ) v = 0;
+			calcString = calcString.replace(`[${n}]`, v);
+		});
 
+		const val = eval(calcString);
+
+		// set the value to the input
+		$(input).val(val);
+	};
+
+	// search for the data-calc inputs
+	const ffCalcElements = $('form.flex-form').find('input[type="number"][data-calc]');
+
+	// check if there are any data-calc inputs
+	if ( ffCalcElements.length > 0 ) {
+		// loop through the data-calc inputs
+		ffCalcElements.each((i, input) => {
+			// get the form where the input is placed in
+			const form = $(input).closest('form.flex-form');
+			let input_names = ffGetFormCalcFields($(input).data('calc'));
+
+			// check if every input is in the same form
+			let everyInputIsFound = true;
+			Array.from(input_names).forEach(v => {
+				if ( $(form).find(`input[type="number"][name="${v}"]`).length === 0 ) {
+					everyInputIsFound = false;
+				}
+			});
+			if (!everyInputIsFound) return;
+
+			// add event listener on the result input
+			$(input).on('ffcalc', function(e) {
+				// do the calculation, with the input and action
+				calc(input);
+			});
+
+			// loop through the names of the inputs
+			Array.from(input_names).forEach(v => {
+				// find the inputs and add the onchange listener, which triggers the event on the result input
+				$(form).find(`input[type="number"][name="${v}"]`).on('change', function(e) {
+					$(input).trigger('ffcalc');
+				});
+			});
+		});
+	}
 }
 
 function decodeHtml(html) {
@@ -910,6 +953,7 @@ wachtff(addTokenInfo)
 wachtff(initializeWSFormEditor)
 wachtff(checkForTinyMCE)
 wachtff(createAlertsIfNeeded)
+wachtff(ffCalc)
 
 // tinyMCE stuff if needed
 
