@@ -70,6 +70,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 1.1.36 : Secure calc added and resolve template fields
 * 1.1.35 : Calc options added. Added Fix for wikis with different paths and urls
 * 1.1.34 : file upload dropzone verbose fixes
 * 1.1.33 : Added template support for file pages

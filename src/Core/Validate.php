@@ -382,7 +382,7 @@ class Validate {
 					if( $type === "secure" ) {
 						Protect::setCrypt( Core::$checksumKey );
 						$name = Protect::encrypt( $v );
-						$v = $name; // set value to be encypted
+						$v = $name; // set value to be encrypted
 					} else {
 						$name = $v;
 					}

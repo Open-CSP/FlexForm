@@ -100,6 +100,11 @@ class TagHooks {
 		Core::$securityId = uniqid();
 		Core::$chkSums = [];
 		Core::includeTagsCSS( Core::getRealUrl() . '/Modules/ext.WSForm.css' );
+		if ( Config::isSecure() === true ) {
+			Core::includeInlineScript( "const wgFlexFormSecure = true;" );
+		} else {
+			Core::includeInlineScript( "const wgFlexFormSecure = false;" );
+		}
 
 		if ( isset( $args['messageonsuccess'] ) ) {
 			$messageOnSuccess = $parser->recursiveTagParse(
@@ -558,8 +563,14 @@ class TagHooks {
 					$args,
 					"number"
 				);
+				$secure = Config::isSecure();
 				if ( isset( $preparedArguments['calc'] ) && $preparedArguments['calc'] !== '' ) {
-					$preparedArguments['data-calc'] = $preparedArguments['calc'];
+					if ( $secure ) {
+						Protect::setCrypt( Core::$checksumKey );
+						$preparedArguments['data-calc'] = Protect::encrypt( $preparedArguments['calc'] );
+					} else {
+						$preparedArguments['data-calc'] = $preparedArguments['calc'];
+					}
 					unset( $preparedArguments['calc'] );
 					$preparedArguments['readonly'] = 'readonly';
 				}

@@ -1,7 +1,8 @@
 <?php
 
+use FlexForm\Core\Protect;
+use FlexForm\FlexFormException;
 use Wikimedia\ParamValidator\ParamValidator;
-
 
 class ApiFlexForm extends ApiBase {
 
@@ -125,6 +126,27 @@ class ApiFlexForm extends ApiBase {
 		return $c;
 	}
 
+	/**
+	 * @param string $txt
+	 *
+	 * @return array
+	 */
+	private function decrypt( string $txt ) : array {
+		\FlexForm\Core\Config::setConfigFromMW();
+		$crypt = new Protect();
+		try {
+			$crypt::setCrypt();
+		} catch ( FlexFormException $exception ) {
+			return $this->createResult(
+				'error',
+				$exception->getMessage()
+			);
+		}
+		return $this->createResult(
+			'ok',
+			$crypt::decrypt( $txt )
+		);
+	}
 
 	private function searchDocs( $keyword ) {
 		global $IP, $wgScript;
@@ -221,6 +243,14 @@ class ApiFlexForm extends ApiBase {
 		switch ( $action ) {
 			case "searchdocs":
 				$output = $this->searchDocs( $params['for'] );
+
+				break;
+			case "decrypt":
+				$output = $this->decrypt( $params['titleStartsWith'] );
+				if ( $output['status'] === "error" ) {
+					$this->returnFailure( $output['data'] );
+					break;
+				}
 
 				break;
 			case "nextAvailable" :
@@ -353,7 +383,10 @@ class ApiFlexForm extends ApiBase {
 			if ( $thisCnt > 0 ) {
 				foreach ( $pages as $page ) {
 					$tempTitle = str_replace(
-						ltrim( $nameStartsWith, ':'),
+						ltrim(
+							$nameStartsWith,
+							':'
+						),
 						'',
 						$page['title']
 					);
@@ -483,7 +516,10 @@ class ApiFlexForm extends ApiBase {
 			if ( $thisCnt > 0 ) {
 				foreach ( $pages as $page ) {
 					$tempTitle = str_replace(
-						ltrim ( $nameStartsWith, ':' ),
+						ltrim(
+							$nameStartsWith,
+							':'
+						),
 						'',
 						$page['title']
 					);
@@ -535,7 +571,7 @@ class ApiFlexForm extends ApiBase {
 				 $nameStartsWith,
 				 ':'
 			 ) !== false ) {
-			$split          = explode(
+			$split = explode(
 				':',
 				$nameStartsWith
 			);

@@ -26,9 +26,11 @@ class Protect {
 	 */
 	public static function setCrypt( $method = false ) {
 		$key = Config::getConfigVariable( 'sec_key' ) ?? false;
-		if ( ! $key ) {
+
+		if ( !$key ) {
 			$key = php_uname(); // default encryption key if none supplied
 		}
+
 		if ( ctype_print( $key ) ) {
 			// convert ASCII keys to binary format
 			self::$key = openssl_digest(
