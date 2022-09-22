@@ -672,11 +672,11 @@ const ffCalc = () => {
 			if ( !name_value_obj[n] ) name_value_obj[n] = 0;
 			calcString = calcString.replaceAll(`[${n}]`, name_value_obj[n]);
 		});
-
+		let val = '';
 		try {
-			const val = eval(calcString);
+			val = eval(calcString);
 		} catch (error) {
-			console.error( error );
+			console.log( calcString, error );
 		}
 
 		// set the value to the input
