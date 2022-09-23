@@ -1066,6 +1066,7 @@ wachtff(initializeWSFormEditor)
 wachtff(checkForTinyMCE)
 wachtff(createAlertsIfNeeded)
 wachtff(ffCalc)
+wachtff(ffTempex)
 
 // tinyMCE stuff if needed
 

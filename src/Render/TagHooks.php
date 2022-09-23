@@ -486,6 +486,11 @@ class TagHooks {
 			$parsePost = false;
 		}
 
+		if ( isset( $args['tempex'] ) ) {
+			$args['data-tempex'] = $args['tempex'];
+			unset( $args['tempex'] );
+		}
+
 		// We always parse the input, unless noparse is set.
 		if ( ! isset( $args['noparse'] ) ) {
 			$noParse = false;

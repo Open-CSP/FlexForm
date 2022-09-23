@@ -228,7 +228,8 @@ class Validate {
 			"buttontype",
 			"show-on-select-trigger",
 			"show-on-select-type",
-			"calc"
+			"calc",
+			'data-tempex'
 		);
 		if ( $ret ) {
 			return $validParameters;
