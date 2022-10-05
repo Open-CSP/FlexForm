@@ -443,6 +443,12 @@ class Edit {
 					);
 				}
 				if ( $templateContent === false || empty( trim( $templateContent ) ) ) {
+					if ( Config::isDebug() ) {
+						Debug::addToDebug(
+							'Skipping this edit. Template content is false or Template Content is empty for ' . $edit['template'],
+							$templateContent
+						);
+					}
 					//echo 'skipping ' . $edit['template'] ;
 					continue;
 				}
