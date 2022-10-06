@@ -27,6 +27,7 @@ class PlainCreateRenderer implements CreateRenderer {
 		$slot     = $slot !== null ? htmlspecialchars( $slot ) : '';
 		$option   = $option !== null ? htmlspecialchars( $option ) : '';
 		$fields   = $fields !== null ? htmlspecialchars( $fields ) : '';
+
 		if ( $leadingZero ) {
 			$leadingZero  = "true";
 		} else {

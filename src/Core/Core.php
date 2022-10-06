@@ -483,16 +483,15 @@ class Core {
 	 */
 	public static function createHiddenField( string $name, $value ): string {
 		if ( Config::isSecure() ) {
-
 			Protect::setCrypt( self::$checksumKey );
 			$name  = Protect::encrypt( $name );
 			$value = Protect::encrypt( $value );
 			self::addCheckSum(
-				'secure',
-				$name,
-				$value,
-				"all"
-			);
+					'secure',
+					$name,
+					$value,
+					"all"
+				);
 		}
 		return '<input type="hidden" name="' . $name . '" value="' . $value . '">' . "\n";
 	}

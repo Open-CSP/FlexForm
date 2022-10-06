@@ -400,7 +400,11 @@ class ApiFlexForm extends ApiBase {
 			}
 		}
 		rsort( $number );
-		$nr = intval( $number[0] );
+		if ( isset( $number[0] ) ) {
+			$nr = intval( $number[0] );
+		} else {
+			$nr = 0;
+		}
 
 		return $this->createResult(
 			'ok',
