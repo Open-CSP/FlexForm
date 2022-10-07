@@ -248,6 +248,6 @@ try {
 	$responseHandler->exitResponse();
 	$this->getOutput()->redirect( html_entity_decode( $responseHandler->getMwReturn() ) );
 } catch ( FlexFormException $e ) {
-	return $e->getMessage();
+	echo $e->getMessage();
 }
 

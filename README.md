@@ -70,6 +70,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 1.1.39 : Localhost redirect fix
 * 1.1.38 : API next available warning removed
 * 1.1.37 : Version bumb
 * 1.1.36 : Secure calc added and resolve template fields

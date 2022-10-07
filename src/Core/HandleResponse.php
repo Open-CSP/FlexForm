@@ -251,7 +251,11 @@ class HandleResponse {
 		// Check if url is from same domain
 		$parsed = parse_url( $this->getMwReturn() );
 		if ( isset( $parsed['host'] ) ) {
-			if ( $parsed['host'] !== $_SERVER['HTTP_HOST'] ) {
+			$serverToCheck = $parsed['host'];
+			if ( isset( $parsed['port'] ) && !empty( $parsed['port'] ) ) {
+				$serverToCheck = $serverToCheck . ':' . $parsed['port'];
+			}
+			if ( $_SERVER['HTTP_HOST'] !== $serverToCheck ) {
 				throw new FlexFormException( wfMessage( 'flexform-return-outside-domain' )->text() );
 			}
 		}
