@@ -381,19 +381,27 @@ class ContentCore {
 	 */
 	public static function createContent() : string {
 		$ret        = '';
+		$fret = [];
+		$cleanedBracesArray = [];
+		$fk = false;
 		$noTemplate = false;
+		$format = self::$fields['format'];
 
 		if ( self::$fields['template'] === strtolower( 'wsnone' ) ) {
 			$noTemplate = true;
 		}
 		if ( !$noTemplate ) {
+			$fk = self::$fields['template'];
 			$ret = "{{" . self::$fields['template'] . "\n";
 		}
 		foreach ( $_POST as $k => $v ) {
 			if ( is_array( $v ) && !Definitions::isFlexFormSystemField( $k ) ) {
-				$ret .= "|" . General::makeSpaceFromUnderscore( $k ) . "=";
+				$uk = General::makeSpaceFromUnderscore( $k );
+				$ret .= "|" . $uk . "=";
 				foreach ( $v as $multiple ) {
-					$ret .= wsSecurity::cleanBraces( $multiple ) . ',';
+					$cleanedBraces = wsSecurity::cleanBraces( $multiple );
+					$cleanedBracesArray[$uk][] = $cleanedBraces;
+					$ret .= $cleanedBraces . ',';
 				}
 				$ret = rtrim(
 						   $ret,
@@ -402,10 +410,12 @@ class ContentCore {
 			} else {
 				if ( !Definitions::isFlexFormSystemField( $k ) && $v != "" ) {
 					if ( !$noTemplate ) {
-						$ret .= '|' . General::makeSpaceFromUnderscore( $k ) . '=' . wsSecurity::cleanBraces(
-								$v
-							) . "\n";
+						$uk = General::makeSpaceFromUnderscore( $k );
+						$cleanedBraces = wsSecurity::cleanBraces( $v );
+						$ret .= '|' . $uk . '=' . $cleanedBraces . "\n";
+						$cleanedBracesArray[$uk] = $cleanedBraces;
 					} else {
+						$cleanedBracesArray = $v;
 						$ret = $v . PHP_EOL;
 					}
 				}
@@ -414,8 +424,17 @@ class ContentCore {
 		if ( !$noTemplate ) {
 			$ret .= "}}";
 		}
+		if ( $fk !== false ) {
+			$fret[$k] = $cleanedBracesArray;
+		} else {
+			$fret = $cleanedBracesArray;
+		}
 
-		return $ret;
+		if ( !$format ) {
+			return $ret;
+		} else {
+			return $fret;
+		}
 	}
 
 	/**

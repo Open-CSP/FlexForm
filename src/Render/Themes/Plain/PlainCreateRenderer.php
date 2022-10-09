@@ -19,7 +19,8 @@ class PlainCreateRenderer implements CreateRenderer {
 		?string $fields,
 		bool $leadingZero,
 		bool $noOverWrite,
-		bool $skipSEO
+		bool $skipSEO,
+		string $format
 	) : string {
 		$template = $template !== null ? htmlspecialchars( $template ) : '';
 		$createId = $createId !== null ? htmlspecialchars( $createId ) : '';
@@ -45,6 +46,15 @@ class PlainCreateRenderer implements CreateRenderer {
 			$skipSEO = "true";
 		} else {
 			$skipSEO = "false";
+		}
+
+		if ( strtolower( $format ) !== 'wiki' ) {
+			$format = Core::createHiddenField(
+				'mwformat',
+				$follow
+			);
+		} else {
+			$format = '';
 		}
 
 		if ( $follow !== null ) {
@@ -107,7 +117,7 @@ class PlainCreateRenderer implements CreateRenderer {
 				'true'
 			) : '';
 
-			return $template . $write . $option . $follow . $leadingZero . $slot . $noOverWrite;
+			return $template . $write . $option . $follow . $leadingZero . $slot . $noOverWrite . $format;
 		}
 	}
 }
