@@ -614,8 +614,13 @@ const WsInstance = function (selector, options) {
 			// parse the template with the api
 			new mw.Api().parse(`{{${templateCall}}}`)
 				.done(function(data) {
-					// Get the wanted text from the parser output
-					$(field).val($(data).find('p').text());
+					// check if field type is number, to cast text to numeric
+					if ( field.type === 'number' ) {
+						$(field).val(+$(data).find('p').text());
+					} else {
+						// Get the wanted text from the parser output
+						$(field).val($(data).find('p').text());
+					}
 				});
 		};
 
