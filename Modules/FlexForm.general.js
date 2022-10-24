@@ -1062,8 +1062,12 @@ wachtff(addTokenInfo)
 wachtff(initializeWSFormEditor)
 wachtff(checkForTinyMCE)
 wachtff(createAlertsIfNeeded)
-wachtff(ffCalc)
-wachtff(ffTempex)
+wachtff(() => {
+	setTimeout(() => {
+		ffCalc();
+		ffTempex();
+	}, 1500);
+}, true);
 
 // tinyMCE stuff if needed
 

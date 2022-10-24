@@ -305,6 +305,20 @@ const WsInstance = function (selector, options) {
 				sibling.value = statement
 				if (typeof $.fn.select2 === 'function') Function(statement)()
 			})
+
+			if ( isPreDefined ) {
+				setTimeout(() => {
+					ffTempex(element, isPreDefined);
+					ffCalc(element, isPreDefined);
+				}, 1500);
+			} else {
+				ffTempex(element, isPreDefined);
+				ffCalc(element, isPreDefined);
+			}
+
+		} else {
+			ffTempex(element, isPreDefined);
+			ffCalc(element, isPreDefined);
 		}
 
 		if ($(element).find('.ve-area-wrapper').length > 0 && !isPreDefined) {
@@ -314,9 +328,6 @@ const WsInstance = function (selector, options) {
 				$(wrapper).find('textarea').applyVisualEditor()
 			})
 		}
-
-		ffTempex(element);
-		ffCalc(element);
 
 		idUnifier++;
 	}
@@ -577,7 +588,7 @@ const WsInstance = function (selector, options) {
 	/**
 	 * FlexForm Tempex function
 	 */
-	const ffTempex = (instance) => {
+	const ffTempex = (instance, isPredined = false) => {
 
 		/**
 		 * Returns the names of the input field used for the template call
@@ -611,9 +622,13 @@ const WsInstance = function (selector, options) {
 				templateCall = templateCall.replaceAll(`|${n}`, `|${n}=${name_value_obj[n]}`);
 			});
 
+
+			if ( Object.keys(name_value_obj).length === 1 && Object.values(name_value_obj)[0] === '' ) return;
+
 			// parse the template with the api
 			new mw.Api().parse(`{{${templateCall}}}`)
 				.done(function(data) {
+					if ( isPredined ) return;
 					// check if field type is number, to cast text to numeric
 					if ( field.type === 'number' ) {
 						$(field).val(+$(data).find('p').text());
@@ -622,6 +637,8 @@ const WsInstance = function (selector, options) {
 						$(field).val($(data).find('p').text());
 					}
 				});
+
+			isPredined = false;
 		};
 
 		// Find the tempex fields present in the forms
@@ -644,16 +661,20 @@ const WsInstance = function (selector, options) {
 				if (!everyInputIsFound) return;
 
 				// Add event listener on the tempex field
-				$(field).on('fftempex', function() {
+				$(field).on('fftempex', function(e) {
+					e.stopImmediatePropagation();
+					e.preventDefault();
 					// call the tempex function
 					tempex(field);
 				});
 
 				// Loop through the field names, find them and add onchange listener
 				names.forEach(n => {
-					$(instance).find(`[name="${n}"]`).on('change', function () {
+					$(instance).find(`[name="${n}"]`).on('change', function (e) {
+						e.stopImmediatePropagation();
+						e.preventDefault();
 						// trigger the tempex event
-						$(field).trigger('fftempex');
+						$(field).trigger('fftempex', e);
 					});
 				});
 			});
