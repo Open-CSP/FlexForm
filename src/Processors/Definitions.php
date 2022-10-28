@@ -155,7 +155,8 @@ class Definitions {
 			"showonselect",
 			"mwcreateuser",
 			"mwnooverwrite",
-			"mwslot"
+			"mwslot",
+			"mwformat"
 		];
 		if ( in_array(
 			strtolower( $field ),
