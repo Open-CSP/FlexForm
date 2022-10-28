@@ -425,7 +425,7 @@ class ContentCore {
 			$ret .= "}}";
 		}
 		if ( $fk !== false ) {
-			$fret[$k] = $cleanedBracesArray;
+			$fret[$fk] = $cleanedBracesArray;
 		} else {
 			$fret = $cleanedBracesArray;
 		}
