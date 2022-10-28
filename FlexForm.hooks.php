@@ -331,5 +331,35 @@ class FlexFormHooks {
 				$tagHooks,
 				'renderInstance'
 			] );
+		$parser->setHook( 'form',
+			[
+				$tagHooks,
+				'renderForm'
+			] );
+		$parser->setHook( 'input',
+			[
+				$tagHooks,
+				'renderField'
+			] );
+		$parser->setHook( 'fieldset',
+			[
+				$tagHooks,
+				'renderFieldset'
+			] );
+		$parser->setHook( 'legend',
+			[
+				$tagHooks,
+				'renderLegend'
+			] );
+		$parser->setHook( 'label',
+			[
+				$tagHooks,
+				'renderLabel'
+			] );
+		$parser->setHook( 'select',
+			[
+				$tagHooks,
+				'renderSelect'
+			] );
 	}
 }
