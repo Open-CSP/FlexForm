@@ -1841,6 +1841,10 @@ class TagHooks {
 			$args['mwfollow'],
 			$frame
 		) : null;
+		$format   = isset( $args['mwformat'] ) ? $parser->recursiveTagParse(
+			$args['mwformat'],
+			$frame
+		) : 'wiki';
 
 		$leadingZero = isset( $args['mwleadingzero'] );
 
@@ -1872,7 +1876,8 @@ class TagHooks {
 			$fields,
 			$leadingZero,
 			$noOverWrite,
-			$skipSEO
+			$skipSEO,
+			$format
 		);
 
 		return [

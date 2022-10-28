@@ -729,9 +729,6 @@ const ffCalc = () => {
  * FlexForm Tempex function
  */
 const ffTempex = () => {
-	// MediaWiki Api
-	const api = new mw.Api();
-
 	/**
 	 * Returns the names of the input field used for the template call
 	 * @param txt {string}
@@ -765,7 +762,7 @@ const ffTempex = () => {
 		});
 
 		// parse the template with the api
-		api.parse(`{{${templateCall}}}`)
+		new mw.Api().parse(`{{${templateCall}}}`)
 			.done(function(data) {
 				// Get the wanted text from the parser output
 				$(field).val($(data).find('p').text());
@@ -1065,8 +1062,12 @@ wachtff(addTokenInfo)
 wachtff(initializeWSFormEditor)
 wachtff(checkForTinyMCE)
 wachtff(createAlertsIfNeeded)
-wachtff(ffCalc)
-wachtff(ffTempex)
+wachtff(() => {
+	setTimeout(() => {
+		ffCalc();
+		ffTempex();
+	}, 1500);
+}, true);
 
 // tinyMCE stuff if needed
 

@@ -105,7 +105,8 @@ class Definitions {
 			'summary'      => General::getPostString( 'mwwikicomment' ),
 			'slot'         => General::getPostString( 'mwslot' ),
 			'createuser'   => General::getPostString( 'mwcreateuser' ),
-			'nooverwrite'    => General::getPostString( 'mwnooverwrite' )
+			'nooverwrite'  => General::getPostString( 'mwnooverwrite' ),
+			'format'       => General::getPostString( 'mwformat' )
 		];
 	}
 

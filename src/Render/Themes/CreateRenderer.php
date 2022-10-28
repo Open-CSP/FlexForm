@@ -24,6 +24,7 @@ interface CreateRenderer {
 	 * @param bool $leadingZero
 	 * @param bool $noOverWrite
 	 * @param bool $skipSEO
+	 * @param string $format
 	 *
 	 * @return string Rendered HTML
 	 */
@@ -37,6 +38,7 @@ interface CreateRenderer {
 		?string $fields,
 		bool $leadingZero,
 		bool $noOverWrite,
-		bool $skipSEO
+		bool $skipSEO,
+		string $format
 	): string;
 }
