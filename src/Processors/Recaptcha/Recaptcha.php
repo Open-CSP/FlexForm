@@ -11,6 +11,7 @@
 namespace FlexForm\Processors\Recaptcha;
 
 use FlexForm\Core\Config;
+use FlexForm\Core\Debug;
 use FlexForm\Processors\Utilities\General;
 use FlexForm\FlexFormException;
 
@@ -76,8 +77,6 @@ class Recaptcha {
 	}
 
 	/**
-	 * @param $api
-	 *
 	 * @return bool
 	 * @throws FlexFormException
 	 */
@@ -99,13 +98,27 @@ class Recaptcha {
 		}
 
 		$rc_secret_key = Config::getConfigVariable( 'rc_secret_key' );
+
 		$captchaResult = self::googleSiteVerify(
 			$rc_secret_key,
 			$captchaToken,
 			$captchaAction
 		);
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'RECAPTCHA RESULT',
+				$captchaResult
+			);
+		}
 		if ( $captchaResult['status'] === false ) {
-			throw new FlexFormException( wfMessage( 'flexform-captcha-score-to-low' )->text() . ' : ' . $captchaResult['results']['score'] );
+			$msg = '';
+			if ( isset( $captchaResult['result']['score'] ) ) {
+				$msg = $captchaResult['result']['score'];
+			}
+			if ( isset( $captchaResult['result']['error-codes'] ) ) {
+				$msg = implode( '<br>', $captchaResult['result']['error-codes'] );
+			}
+			throw new FlexFormException( wfMessage( 'flexform-captcha-score-to-low' )->text() . ' : ' . $msg );
 		}
 
 		return true;

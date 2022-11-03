@@ -625,11 +625,17 @@ function wsform (btn, callback = 0, preCallback = 0, showId = 0) {
 	}
 }
 
+
 /**
  * FlexForm calc function
  */
-const ffCalc = () => {
-
+const ffCalc = (element = null) => {
+	if ( element === null ) {
+		$('form.flex-form').each((i, form) => {
+			ffCalc(form);
+		});
+		return;
+	}
 
 	const ffGetFormCalcFields = ( txt ) => {
 		let newTxt = txt.split('[');
@@ -640,20 +646,6 @@ const ffCalc = () => {
 		return arr;
 	}
 
-	const getDecrypt = async( txt ) => {
-		if ( wgFlexFormSecure === false ) {
-			return txt;
-		}
-		const api = new mw.Api();
-		const result = await api.get({
-			action: 'flexform',
-			what: 'decrypt',
-			titleStartsWith: txt
-		})
-		const data = await result;
-		return data.flexform.result.data;
-	}
-
 	/**
 	 * calc function which do the action/operation with the values of the wanted inputs
 	 * @param input {HTMLInputElement}
@@ -661,14 +653,14 @@ const ffCalc = () => {
 	const calc = async (input) => {
 		// get the input names
 		let calcString = $(input).data('calc');
-		calcString = await getDecrypt( calcString );
+		calcString = getDecrypt( calcString );
 		const input_names = ffGetFormCalcFields( calcString );
 		let name_value_obj = {};
 
 
 		// loop through the input names to find the wanted input
 		Array.from(input_names).forEach(n => {
-			name_value_obj[n] = $(input).closest('form.flex-form').find(`input[type=number][name="${n}"]`).val();
+			name_value_obj[n] = $(element).find(`input[type=number][name="${n}"]`).val();
 			if ( !name_value_obj[n] ) name_value_obj[n] = 0;
 			calcString = calcString.replaceAll(`[${n}]`, name_value_obj[n]);
 		});
@@ -684,25 +676,20 @@ const ffCalc = () => {
 	};
 
 	// search for the data-calc inputs
-	const ffCalcElements = $('form.flex-form').find('input[type="number"][data-calc]');
+	const ffCalcElements = $(element).find('input[type="number"][data-calc]');
 
 	// check if there are any data-calc inputs
 	if ( ffCalcElements.length > 0 ) {
 		// loop through the data-calc inputs
 		ffCalcElements.each(async (i, input) =>  {
-			// get the form where the input is placed in
-			const form = $(input).closest('form.flex-form');
 			let calcField = $(input).data('calc');
-			calcField = await getDecrypt( calcField );
+			calcField = getDecrypt( calcField );
 			let input_names = ffGetFormCalcFields( calcField );
-
-			// check if element is in instance
-			if ( $(input).parents('.WSmultipleTemplateWrapper').length > 0 ) return;
 
 			// check if every input is in the same form
 			let everyInputIsFound = true;
 			Array.from(input_names).forEach(v => {
-				if ( $(form).find(`input[type="number"][name="${v}"]`).length === 0 ) {
+				if ( $(element).find(`input[type="number"][name="${v}"]`).length === 0 ) {
 					everyInputIsFound = false;
 				}
 			});
@@ -717,7 +704,7 @@ const ffCalc = () => {
 			// loop through the names of the inputs
 			Array.from(input_names).forEach(v => {
 				// find the inputs and add the onchange listener, which triggers the event on the result input
-				$(form).find(`input[type="number"][name="${v}"]`).on('change', function(e) {
+				$(element).find(`input[type="number"][name="${v}"]`).on('change', function(e) {
 					$(input).trigger('ffcalc');
 				});
 			});
@@ -725,10 +712,53 @@ const ffCalc = () => {
 	}
 }
 
+let ffDecryptObj = {};
+const fetchAllDecrypt = async () => {
+	if ( wgFlexFormSecure === false ) {
+		return;
+	}
+
+	let jsonObj = {};
+	$('[data-tempex],[data-calc]').each((i, element) => {
+		if ( $(element).data('calc') ) {
+			jsonObj[i] = $(element).data('calc');
+		} else {
+			jsonObj[i] = $(element).data('tempex');
+		}
+	});
+
+	const result = await new mw.Api().get({
+		action: 'flexform',
+		what: 'decrypt',
+		titleStartsWith: JSON.stringify(jsonObj),
+		format: 'json'
+	})
+	const data = await result;
+	const res = data.flexform.result.data;
+	for (let i = 0; i < res.length; i++ ) {
+		ffDecryptObj[jsonObj[i]] = res[i];
+	}
+}
+
+const getDecrypt = ( txt ) => {
+	if ( wgFlexFormSecure === false ) return txt;
+	if ( !ffDecryptObj[txt] ) return txt;
+	return ffDecryptObj[txt];
+}
+
 /**
  * FlexForm Tempex function
  */
-const ffTempex = () => {
+const ffTempex = (element = null, isPredefined = false) => {
+	if ( element === null ) {
+		$('form.flex-form').each((i, form) => {
+			ffTempex(form);
+		});
+		return;
+	}
+
+	if ( $(element).is('form') && $(element).find('.WSmultipleTemplateWrapper').length > 0 ) return;
+
 	/**
 	 * Returns the names of the input field used for the template call
 	 * @param txt {string}
@@ -745,6 +775,7 @@ const ffTempex = () => {
 	const tempex = (field) => {
 		// get the tempex call from dataset
 		let templateCall = $(field).data('tempex');
+		templateCall = getDecrypt(templateCall);
 		// extract the names from the dataset
 		const names = extractNamesFromDataset(templateCall);
 		let name_value_obj = {};
@@ -752,7 +783,7 @@ const ffTempex = () => {
 		// loop through the field names
 		names.forEach(n => {
 			// find the fields by name and get the value
-			name_value_obj[n] = $(field).closest('form.flex-form').find(`[name="${n}"]`).val();
+			name_value_obj[n] = $(element).find(`[name="${n}"]`).val();
 
 			// check if value is set
 			if ( !name_value_obj[n] ) name_value_obj[n] = '';
@@ -761,49 +792,62 @@ const ffTempex = () => {
 			templateCall = templateCall.replaceAll(`|${n}`, `|${n}=${name_value_obj[n]}`);
 		});
 
+		if ( Object.keys(name_value_obj).length === 1 && Object.values(name_value_obj)[0] === '' ) return;
+		if ( Object.values(name_value_obj).filter(v => v !== '').length === 0 ) return;
+
 		// parse the template with the api
 		new mw.Api().parse(`{{${templateCall}}}`)
 			.done(function(data) {
-				// Get the wanted text from the parser output
-				$(field).val($(data).find('p').text());
+				if ( isPredefined ) return;
+				// check if field type is number, to cast text to numeric
+				if ( field.type === 'number' ) {
+					$(field).val(+$(data).find('p').text());
+				} else {
+					// Get the wanted text from the parser output
+					$(field).val($(data).find('p').text());
+				}
 			});
+
+		isPredefined = false;
 	};
 
 	// Find the tempex fields present in the forms
-	const tempexFields = $('form.flex-form').find('[data-tempex]');
+	const tempexFields = $(element).find('[data-tempex]');
 
 	// check if there are any
 	if ( tempexFields.length > 0 ) {
 		// loop through the tempex fields
 		tempexFields.each(function(i, field) {
-			// Get the form which has the field as child element
-			const form = $(field).closest('form.flex-form');
-			// Get the field names from the dataset
-			const names = extractNamesFromDataset($(field).data('tempex'));
+			let templateCall = $(field).data('tempex');
+			templateCall = getDecrypt(templateCall);
 
-			// check if element is in instance
-			if ( $(field).parents('.WSmultipleTemplateWrapper').length > 0 ) return;
+			// Get the field names from the dataset
+			const names = extractNamesFromDataset(templateCall);
 
 			// check if every input is in the same form
 			let everyInputIsFound = true;
 			names.forEach(n => {
-				if ( $(form).find(`[name="${n}"]`).length === 0 ) {
+				if ( $(element).find(`[name="${n}"]`).length === 0 ) {
 					everyInputIsFound = false;
 				}
 			});
 			if (!everyInputIsFound) return;
 
 			// Add event listener on the tempex field
-			$(field).on('fftempex', function() {
+			$(field).on('fftempex', function(e) {
+				e.stopImmediatePropagation();
+				e.preventDefault();
 				// call the tempex function
 				tempex(field);
 			});
 
 			// Loop through the field names, find them and add onchange listener
 			names.forEach(n => {
-				$(form).find(`[name="${n}"]`).on('change', function () {
+				$(element).find(`[name="${n}"]`).on('change', function (e) {
+					e.stopImmediatePropagation();
+					e.preventDefault();
 					// trigger the tempex event
-					$(field).trigger('fftempex');
+					$(field).trigger('fftempex', e);
 				});
 			});
 		});
@@ -1063,7 +1107,8 @@ wachtff(initializeWSFormEditor)
 wachtff(checkForTinyMCE)
 wachtff(createAlertsIfNeeded)
 wachtff(() => {
-	setTimeout(() => {
+	setTimeout(async () => {
+		await fetchAllDecrypt();
 		ffCalc();
 		ffTempex();
 	}, 1500);

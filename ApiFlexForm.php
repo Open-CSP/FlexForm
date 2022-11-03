@@ -142,9 +142,21 @@ class ApiFlexForm extends ApiBase {
 				$exception->getMessage()
 			);
 		}
+
+		$json = json_decode( $txt, true );
+		if ( $json === null ) {
+			$json = $crypt::decrypt( $txt );
+		} elseif ( is_array( $json ) ) {
+			foreach ( $json as $k=>$v ){
+				$json[$k] = $crypt::decrypt( $v );
+			}
+		} else {
+			$json = $crypt::decrypt( $json );
+		}
+
 		return $this->createResult(
 			'ok',
-			$crypt::decrypt( $txt )
+			$json
 		);
 	}
 
@@ -240,12 +252,14 @@ class ApiFlexForm extends ApiBase {
 		if ( ! $action || $action === null ) {
 			$this->dieUsageMsg( 'missingparam' );
 		}
+
 		switch ( $action ) {
 			case "searchdocs":
 				$output = $this->searchDocs( $params['for'] );
 
 				break;
 			case "decrypt":
+
 				$output = $this->decrypt( $params['titleStartsWith'] );
 				if ( $output['status'] === "error" ) {
 					$this->returnFailure( $output['data'] );

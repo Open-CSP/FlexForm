@@ -375,6 +375,26 @@ class ContentCore {
 	}
 
 	/**
+	 * @param string $JSONValue
+	 *
+	 * @return bool|int|string
+	 */
+	private static function checkJsonValues( string $JSONValue ) {
+		switch ( $JSONValue ) {
+			case "true" :
+				return true;
+			case "false" :
+				return false;
+			default :
+				if ( is_numeric( $JSONValue ) ) {
+					return (int)$JSONValue;
+				} else {
+					return $JSONValue;
+				}
+		}
+	}
+
+	/**
 	 * Create content
 	 *
 	 * @return string
@@ -400,7 +420,7 @@ class ContentCore {
 				$ret .= "|" . $uk . "=";
 				foreach ( $v as $multiple ) {
 					$cleanedBraces = wsSecurity::cleanBraces( $multiple );
-					$cleanedBracesArray[$uk][] = $cleanedBraces;
+					$cleanedBracesArray[$uk][] = self::checkJsonValues( $cleanedBraces );
 					$ret .= $cleanedBraces . ',';
 				}
 				$ret = rtrim(
@@ -409,13 +429,13 @@ class ContentCore {
 					   ) . PHP_EOL;
 			} else {
 				if ( !Definitions::isFlexFormSystemField( $k ) && $v != "" ) {
+					$uk = General::makeSpaceFromUnderscore( $k );
 					if ( !$noTemplate ) {
-						$uk = General::makeSpaceFromUnderscore( $k );
 						$cleanedBraces = wsSecurity::cleanBraces( $v );
 						$ret .= '|' . $uk . '=' . $cleanedBraces . "\n";
-						$cleanedBracesArray[$uk] = $cleanedBraces;
+						$cleanedBracesArray[$uk] = self::checkJsonValues( $cleanedBraces );
 					} else {
-						$cleanedBracesArray = $v;
+						$cleanedBracesArray[$uk] = self::checkJsonValues( $v );
 						$ret = $v . PHP_EOL;
 					}
 				}
@@ -433,7 +453,7 @@ class ContentCore {
 		if ( !$format ) {
 			return $ret;
 		} else {
-			return $fret;
+			return json_encode( $fret, JSON_PRETTY_PRINT );
 		}
 	}
 

@@ -51,7 +51,7 @@ class PlainCreateRenderer implements CreateRenderer {
 		if ( strtolower( $format ) !== 'wiki' ) {
 			$format = Core::createHiddenField(
 				'mwformat',
-				$follow
+				$format
 			);
 		} else {
 			$format = '';
