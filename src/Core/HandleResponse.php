@@ -168,6 +168,10 @@ class HandleResponse {
 				$type
 			);
 			Debug::addToDebug(
+				"exitResponse status",
+				$status
+			);
+			Debug::addToDebug(
 				"exitResponse mwreturn",
 				$mwReturn
 			);
@@ -175,8 +179,6 @@ class HandleResponse {
 				"exitResponse messagedata",
 				$messageData
 			);
-			echo Debug::createDebugOutput();
-			die( '!testing..' );
 		}
 		if ( is_array( $messageData ) ) {
 			$message = implode(
@@ -185,6 +187,14 @@ class HandleResponse {
 			);
 		} else {
 			$message = $messageData;
+		}
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				"exitResponse messagedata after implode",
+				$messageData
+			);
+			echo Debug::createDebugOutput();
+			die( '!testing.. No cookies set!' );
 		}
 		if ( $status === 'ok' && $this->apiAjax === false ) {
 			$this->setCookieMessage(
@@ -271,6 +281,7 @@ class HandleResponse {
 				'ok',
 				'ok'
 			);
+			die();
 		}
 	}
 

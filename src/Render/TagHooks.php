@@ -485,9 +485,14 @@ class TagHooks {
 		} else {
 			$parsePost = false;
 		}
-
-		if ( isset( $args['tempex'] ) ) {
-			$args['data-tempex'] = $args['tempex'];
+		$secure = Config::isSecure();
+		Protect::setCrypt( Core::$checksumKey );
+		if ( isset( $args['tempex'] ) && $args['tempex'] !== '' ) {
+			if ( $secure ) {
+				$args['data-tempex'] = Protect::encrypt( $args['tempex'] );
+			} else {
+				$args['data-tempex'] = $args['tempex'];
+			}
 			unset( $args['tempex'] );
 		}
 
@@ -568,10 +573,8 @@ class TagHooks {
 					$args,
 					"number"
 				);
-				$secure = Config::isSecure();
 				if ( isset( $preparedArguments['calc'] ) && $preparedArguments['calc'] !== '' ) {
 					if ( $secure ) {
-						Protect::setCrypt( Core::$checksumKey );
 						$preparedArguments['data-calc'] = Protect::encrypt( $preparedArguments['calc'] );
 					} else {
 						$preparedArguments['data-calc'] = $preparedArguments['calc'];
