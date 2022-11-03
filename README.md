@@ -70,7 +70,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
-* 1.1.41 : Add copy and past support form formats. _create json support finished. Tempex and Calc secure and with instances. reCaptcha changes
+* 1.1.41 : Add copy and paste support form formats. _create json support finished. Tempex and Calc secure and with instances. reCaptcha changes
 * 1.1.40 : _create json support
 * 1.1.39 : Localhost redirect fix
 * 1.1.38 : API next available warning removed

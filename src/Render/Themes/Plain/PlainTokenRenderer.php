@@ -248,7 +248,7 @@ class PlainTokenRenderer implements TokenRenderer {
 			$callbackJavascript = '';
 		}
 
-		$javascript .= $callbackJavascript . "$('select').trigger('change');";
+		$javascript .= $callbackJavascript . "$('#" . $id . "').trigger('change');";
 
 		$format = '<input type="hidden" id="%s" value="%s" />';
 
