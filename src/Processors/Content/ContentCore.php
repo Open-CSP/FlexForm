@@ -412,12 +412,14 @@ class ContentCore {
 		}
 		if ( !$noTemplate ) {
 			$fk = self::$fields['template'];
+			$cleanedBracesArray['ffID'] = self::createRandom();
 			$ret = "{{" . self::$fields['template'] . "\n";
 		}
 		foreach ( $_POST as $k => $v ) {
 			if ( is_array( $v ) && !Definitions::isFlexFormSystemField( $k ) ) {
 				$uk = General::makeSpaceFromUnderscore( $k );
 				$ret .= "|" . $uk . "=";
+				$cleanedBracesArray[$uk]['ffID'] = self::createRandom();
 				foreach ( $v as $multiple ) {
 					$cleanedBraces = wsSecurity::cleanBraces( $multiple );
 					$cleanedBracesArray[$uk][] = self::checkJsonValues( $cleanedBraces );
