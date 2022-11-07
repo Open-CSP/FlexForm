@@ -1057,18 +1057,19 @@ var ffNoSubmitOnEnter = function( e ) {
 	}
 }
 
-/*
-function noReturnOnEnter( id ) {
-	$('#' + id).on('keyup keypress', 'input[type="text"]', ffNoSubmitOnEnter() );
-	$('#' + id).on('keyup keypress', 'input[type="search"]', ffNoSubmitOnEnter() );
-	$('#' + id).on('keyup keypress', 'form input[type="password"]', ffNoSubmitOnEnter() );
+function noReturnOnEnter() {
+	$('.ff-nosubmit-onreturn').on('keyup keypress', 'input[type="text"]', ffNoSubmitOnEnter );
+	$('.ff-nosubmit-onreturn').on('keyup keypress', 'input[type="search"]', ffNoSubmitOnEnter );
+	$('.ff-nosubmit-onreturn').on('keyup keypress', 'form input[type="password"]', ffNoSubmitOnEnter );
 }
-*/
+
+/*
 function noReturnOnEnter() {
 	$('.ff-nosubmit-onreturn').keypress(ffNoSubmitOnEnter);
 	$('.ff-nosubmit-onreturn').keydown(ffNoSubmitOnEnter);
 	$('.ff-nosubmit-onreturn').keyup(ffNoSubmitOnEnter);
 }
+*/
 
 function wsInitTinyMCE () {
 	for (id in window.tinymce.editors) {
