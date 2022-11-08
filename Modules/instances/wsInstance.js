@@ -135,7 +135,7 @@ const WsInstance = function (selector, options) {
 							$(select).insertBefore('<option value="" selected="selected">""</option>', select.children[0])
 						}
 					} else if ($(select).data('inputtype') === 'ws-select2') {
-						if ($(select).children().val() === '' && values[i]) {
+						if (!$(select).children().val() && values[i]) {
 							// $(select).append(`<option value="${values[i]}" selected="selected">${values[i]}</option>`)
 							getPredefinedOptionsTokenField(select, [values[i]]);
 						}
@@ -157,7 +157,7 @@ const WsInstance = function (selector, options) {
 
 	const getPredefinedOptionsTokenField = (select, values) => {
 		let query = $(select).next().val()
-		query = query.slice((query.indexOf('query=') + 6), query.indexOf("=';"))
+		query = query.slice((query.indexOf('query=') + 6), query.indexOf("';"))
 		query = atob(query)
 
 		let return_text = ''
