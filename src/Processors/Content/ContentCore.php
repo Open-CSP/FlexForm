@@ -460,10 +460,16 @@ class ContentCore {
 	}
 
 	/**
+	 * @param bool $mtRand
+	 *
 	 * @return int
 	 */
-	public static function createRandom() : int {
-		return time();
+	public static function createRandom( bool $mtRand = false ) : int {
+		if ( !$mtRand ) {
+			return time();
+		} else {
+			return mt_rand( 10, 10 );
+		}
 	}
 
 	/**

@@ -38,7 +38,7 @@ class Create {
 								"_post" => $_POST ] );
 		}
 
-		$this->content = ContentCore::createContent();
+		$this->content = ContentCore::createContent( true );
 
 		if ( Config::isDebug() ) {
 			Debug::addToDebug( 'Write page activated CONTENT ' . time(),
