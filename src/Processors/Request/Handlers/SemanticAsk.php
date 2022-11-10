@@ -47,13 +47,21 @@ class SemanticAsk {
 	 * @throws \MWException
 	 */
 	public function execute( HandleResponse $responseHandler ) {
-		$query          = base64_decode( General::getGetString( 'query', true, false ) );
+		$ret            = [];
+		$ret['results'] = [];
+		$queryEncoded = General::getGetString( 'query', true, false );
+		if ( $queryEncoded !== false ) {
+			// $_GET will urldecode automatically. Make sure any spaces return to a +
+			$query = base64_decode( str_replace( ' ', '+', $queryEncoded ) );
+		} else {
+			$query = false;
+		}
+		//$query          = base64_decode( General::getGetString( 'query', true, false ) );
 		$q              = General::getGetString( 'q', true, false );
 		$returnId       = General::getGetString( 'returnid', true, false );
 		$returnText     = General::getGetString( 'returntext', true, false );
 		$limit          = General::getGetString( 'limit', true, false );
-		$ret            = [];
-		$ret['results'] = [];
+
 		// if( strlen( $q ) < 3 ) return $ret;
 		if ( $query !== false ) {
 			// $ret = createMsg('No query found.');
