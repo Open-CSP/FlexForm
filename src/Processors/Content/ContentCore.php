@@ -379,7 +379,7 @@ class ContentCore {
 	 *
 	 * @return bool|int|string
 	 */
-	private static function checkJsonValues( string $JSONValue ) {
+	public static function checkJsonValues( string $JSONValue ) {
 		switch ( $JSONValue ) {
 			case "true" :
 				return true;
@@ -412,12 +412,14 @@ class ContentCore {
 		}
 		if ( !$noTemplate ) {
 			$fk = self::$fields['template'];
+			$cleanedBracesArray['ffID'] = self::createRandom();
 			$ret = "{{" . self::$fields['template'] . "\n";
 		}
 		foreach ( $_POST as $k => $v ) {
 			if ( is_array( $v ) && !Definitions::isFlexFormSystemField( $k ) ) {
 				$uk = General::makeSpaceFromUnderscore( $k );
 				$ret .= "|" . $uk . "=";
+				$cleanedBracesArray[$uk]['ffID'] = self::createRandom();
 				foreach ( $v as $multiple ) {
 					$cleanedBraces = wsSecurity::cleanBraces( $multiple );
 					$cleanedBracesArray[$uk][] = self::checkJsonValues( $cleanedBraces );
@@ -458,10 +460,16 @@ class ContentCore {
 	}
 
 	/**
+	 * @param bool $mtRand
+	 *
 	 * @return int
 	 */
-	public static function createRandom() : int {
-		return time();
+	public static function createRandom( bool $mtRand = false ) : int {
+		if ( !$mtRand ) {
+			return time();
+		} else {
+			return mt_rand( 10, 10 );
+		}
 	}
 
 	/**

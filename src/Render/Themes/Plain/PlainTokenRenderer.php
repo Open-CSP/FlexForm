@@ -171,7 +171,6 @@ class PlainTokenRenderer implements TokenRenderer {
 		} else {
 			$smwQueryUrl = null;
 		}
-
 		if ( $smwQueryUrl !== null ) {
 			$uniqueID = uniqid();
 			$javascript .= "var jsonDecoded". $uniqueID . " = '" . $smwQueryUrl . $smwQueryUrlQ . "';\n";

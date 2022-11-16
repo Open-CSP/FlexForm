@@ -844,8 +844,6 @@ const ffTempex = (element = null, isPredefined = false) => {
 			// Loop through the field names, find them and add onchange listener
 			names.forEach(n => {
 				$(element).find(`[name="${n}"]`).on('change', function (e) {
-					e.stopImmediatePropagation();
-					e.preventDefault();
 					// trigger the tempex event
 					$(field).trigger('fftempex', e);
 				});
