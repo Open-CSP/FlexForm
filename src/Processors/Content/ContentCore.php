@@ -379,7 +379,7 @@ class ContentCore {
 	 *
 	 * @return bool|int|string
 	 */
-	private static function checkJsonValues( string $JSONValue ) {
+	public static function checkJsonValues( string $JSONValue ) {
 		switch ( $JSONValue ) {
 			case "true" :
 				return true;

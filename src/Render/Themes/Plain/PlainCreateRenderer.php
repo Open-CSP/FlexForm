@@ -49,11 +49,13 @@ class PlainCreateRenderer implements CreateRenderer {
 		}
 
 		if ( strtolower( $format ) !== 'wiki' ) {
+			$formatName = $format;
 			$format = Core::createHiddenField(
 				'mwformat',
 				$format
 			);
 		} else {
+			$formatName = '';
 			$format = '';
 		}
 
@@ -73,6 +75,7 @@ class PlainCreateRenderer implements CreateRenderer {
 			$createValue .= $option . Core::DIVIDER . $fields . Core::DIVIDER . $slot;
 			$createValue .= Core::DIVIDER . $createId . Core::DIVIDER . $leadingZero;
 			$createValue .= Core::DIVIDER . $override . Core::DIVIDER . $skipSEO;
+			$createValue .= Core::DIVIDER . $formatName;
 
 			return Core::createHiddenField(
 					'mwcreatemultiple[]',

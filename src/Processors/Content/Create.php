@@ -21,6 +21,7 @@ use FlexForm\FlexFormException;
 class Create {
 
 	private $content;
+	private $JSONContent;
 	private $title;
 	private $pagesToSave;
 	private $pageData;
@@ -255,6 +256,11 @@ class Create {
 		} else {
 			$this->pageData['noseo'] = false;
 		}
+		if ( isset( $exploded[9] ) && trim( $exploded[9] ) !== '' ) {
+			$this->pageData['format'] = trim( $exploded[9] );
+		} else {
+			$this->pageData['format'] = 'wiki';
+		}
 	}
 
 	/**
@@ -266,6 +272,7 @@ class Create {
 		$pageCount = 0;
 		$fields    = ContentCore::getFields();
 		$pageTitleToLinkTo = [];
+		$json = [];
 		if ( Config::isDebug() ) {
 			Debug::addToDebug( 'Write several page activated ' . time(), $fields );
 		}
@@ -296,9 +303,20 @@ class Create {
 			$this->addPostFieldsToContent();
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
-					'Content after adding form fields ' . $pageCount,
-					$this->content
+					'PageData after adding form fields ' . $pageCount,
+					$this->pageData
 				);
+				if ( $this->pageData['format'] === 'wiki' ) {
+					Debug::addToDebug(
+						'Content after adding form fields ' . $pageCount,
+						$this->content
+					);
+				} else {
+					Debug::addToDebug(
+						'JSONContent after adding form fields ' . $pageCount,
+						$this->JSONContent
+					);
+				}
 			}
 			if ( strpos(
 					 $this->pageData['title'],
@@ -356,7 +374,9 @@ class Create {
 					// return wbHandleResponses::createMsg( $tmp['message'], 'error', $returnto);
 				}
 				$rangeResult = $rangeResult['result'];
-				if ( $rangeResult === '' ) $rangeResult = "0";
+				if ( $rangeResult === '' ) {
+					$rangeResult = "0";
+				}
 
 				if ( $this->pageData['leadByZero'] === true ) {
 					$endrangeLength = strlen( $rangeCheck[1] );
@@ -369,9 +389,9 @@ class Create {
 					if ( Config::isDebug() ) {
 						Debug::addToDebug(
 							'lead by zero active ' . time(),
-							[ 	'rangeCheck' => $rangeCheck,
-								'endrangeLenth' => $endrangeLength,
-								'rangeResult' => $rangeResult ]
+							[ 'rangeCheck' => $rangeCheck,
+							'endrangeLenth' => $endrangeLength,
+							'rangeResult' => $rangeResult ]
 						);
 					}
 
@@ -388,9 +408,14 @@ class Create {
 			if ( false !== $this->pageData['id'] ) {
 				$pageTitleToLinkTo[strtolower( $this->pageData['id'] )] = $this->pageData['title'];
 			}
+			if ( $this->pageData['format'] === 'wiki' ) {
+				$saveContent = $this->content;
+			} else {
+				$saveContent = json_encode( $this->JSONContent, JSON_PRETTY_PRINT );
+			}
 			$pagesToSave[] = [
 				$this->pageData['title'],
-				$this->content,
+				$saveContent,
 				$fields['summary'],
 				$this->pageData['slot'],
 				$this->pageData['overwrite']
@@ -484,6 +509,10 @@ class Create {
 	}
 
 	private function addPostFieldsToContent() {
+		$fields    = ContentCore::getFields();
+		$format = $fields['format'];
+		$json = [];
+		$json['ffID'] = ContentCore::createRandom();
 		foreach ( $_POST as $k => $v ) {
 			if ( is_array( $this->pageData['formFields'] ) ) {
 				if ( !in_array(
@@ -501,14 +530,16 @@ class Create {
 					$k,
 					$this->pageData['aliasFields']
 				) ) {
-					$this->content .= "|" . General::makeSpaceFromUnderscore(
-							$this->pageData['aliasFields'][$k]
-						) . "=";
+					$kField = General::makeSpaceFromUnderscore( $this->pageData['aliasFields'][$k] );
+					$this->content .= "|" . $kField . "=";
 				} else {
-					$this->content .= "|" . General::makeSpaceFromUnderscore( $k ) . "=";
+					$kField = General::makeSpaceFromUnderscore( $k );
+					$this->content .= "|" . $kField . "=";
 				}
+				$json[$kField]['ffID'] = ContentCore::createRandom();
 				foreach ( $v as $multiple ) {
 					$this->content .= wsSecurity::cleanBraces( $multiple ) . ',';
+					$json[$kField][] = ContentCore::checkJsonValues( $multiple );
 				}
 				$this->content = rtrim(
 									 $this->content,
@@ -523,17 +554,16 @@ class Create {
 							$k,
 							$this->pageData['aliasFields']
 						) ) {
-							$this->content .= '|' . General::makeSpaceFromUnderscore(
-									$this->pageData['aliasFields'][$k]
-								) . '=' . wsSecurity::cleanBraces(
+							$kField = General::makeSpaceFromUnderscore( $this->pageData['aliasFields'][$k] );
+							$this->content .= '|' . $kField . '=' . wsSecurity::cleanBraces(
 									$v
 								) . PHP_EOL;
+							$json[$kField] = ContentCore::checkJsonValues( $v );
 						} else {
-							$this->content .= '|' . General::makeSpaceFromUnderscore(
-									$k
-								) . '=' . wsSecurity::cleanBraces(
-									$v
-								) . PHP_EOL;
+							$kField = General::makeSpaceFromUnderscore(	$k );
+							$vField = wsSecurity::cleanBraces( $v );
+							$this->content .= '|' . $kField . '=' . $vField . PHP_EOL;
+							$json[$kField] = ContentCore::checkJsonValues( $vField );
 						}
 					} else {
 						$this->content = $v;
@@ -543,6 +573,10 @@ class Create {
 		}
 		if ( !$this->pageData['notemplate'] ) {
 			$this->content .= "}}";
+			$templateToUse = $this->pageData['template'];
+			$this->JSONContent[ $templateToUse ] = $json;
+		} else {
+			$this->JSONContent = $json;
 		}
 	}
 
