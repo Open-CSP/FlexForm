@@ -290,28 +290,51 @@ class Edit {
 			}
 			$pid                        = trim( $edit[0] );
 			$data[$pid][$t]['template'] = General::makeSpaceFromUnderscore( trim( $edit[1] ) );
-			if ( ( strpos(
-					   $edit[1],
-					   '|'
-				   ) !== false ) && ( strpos(
-										  $edit[1],
-										  '='
-									  ) !== false ) ) {
-				// We need to find the template with a specific argument and value
-				$line                       = explode(
-					'|',
-					$data[$pid][$t]['template']
-				);
-				$info                       = explode(
-					'=',
-					$line[1]
-				);
-				$data[$pid][$t]['find']     = $info[0];
-				$data[$pid][$t]['val']      = $info[1];
-				$data[$pid][$t]['template'] = $line[0];
+
+			// Get format to use. defaults to wiki
+			if ( isset( $edit[6] ) && $edit[6] !== 'wiki' ) {
+				$data[$pid][$t]['format'] = trim( $edit[6] );
 			} else {
-				$data[$pid][$t]['find'] = false;
-				$data[$pid][$t]['val']  = false;
+				$data[$pid][$t]['format'] = 'wiki';
+			}
+
+			switch ( $data[$pid][$t]['format'] ) {
+				case "json":
+					if ( $data[$pid][$t]['template'] === 'jsonKeys' ) {
+						if ( strpos( $data[$pid][$t]['template'], '|' ) ) {
+							$templateExplode = explode( '|', $data[$pid][$t]['template'] );
+							$data[$pid][$t]['template'] = $templateExplode[0];
+							$data[$pid][$t]['find'] = explode( '.', $templateExplode[1] );
+						}
+					}
+					break;
+				case "wiki":
+				default :
+					// Do we have a unique identifier to search for?
+					if ( ( strpos(
+							   $edit[1],
+							   '|'
+						   ) !== false ) && ( strpos(
+												  $edit[1],
+												  '='
+											  ) !== false ) ) {
+						// We need to find the template with a specific argument and value
+						$line                       = explode(
+							'|',
+							$data[$pid][$t]['template']
+						);
+						$info                       = explode(
+							'=',
+							$line[1]
+						);
+						$data[$pid][$t]['find']     = $info[0];
+						$data[$pid][$t]['val']      = $info[1];
+						$data[$pid][$t]['template'] = $line[0];
+					} else {
+						$data[$pid][$t]['find'] = false;
+						$data[$pid][$t]['val']  = false;
+					}
+					break;
 			}
 
 			if ( $edit[3] != '' ) {
@@ -415,6 +438,7 @@ class Edit {
 			$usedVariables = array();
 			foreach ( $edits as $edit ) {
 				$slotToEdit = $edit['slot'];
+				$format = $edit['format'];
 				if ( $slotToEdit === false ) {
 					$slotToEdit = 'main';
 				}
