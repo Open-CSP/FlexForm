@@ -34,6 +34,7 @@
 	"flexform-query-handler-not-found" : "External handler not found.",
 	"flexform-query-handler-no-class" : "External handler Class not found.",
 	"flexform-query-handler-no-method" : "External handler Class method Execute not found.",
+	"flexform-query-handler-smw-no-result" : "No results found",
 	"flexform-extension-not-found" : "External Extension handler not found.",
 	"flexform-config-not-found" : "Could not find the config file for FlexForm. Please read the manual",
 	"flexform-config-credentials-not-found" : "We need all the API user credentials",
