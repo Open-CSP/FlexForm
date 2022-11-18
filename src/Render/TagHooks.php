@@ -1786,13 +1786,19 @@ class TagHooks {
 			$frame
 		) : '';
 
+		$format  = isset( $args['format'] ) ? $parser->recursiveTagParse(
+			$args['format'],
+			$frame
+		) : 'wiki';
+
 		$output = $this->themeStore->getFormTheme()->getEditRenderer()->render_edit(
 			$target,
 			$template,
 			$formfield,
 			$usefield,
 			$slot,
-			$value
+			$value,
+			$format
 		);
 
 		return [

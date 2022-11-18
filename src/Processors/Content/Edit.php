@@ -280,6 +280,7 @@ class Edit {
 		$fields = ContentCore::getFields();
 		foreach ( $fields['mwedit'] as $edits ) {
 			$this->editCount++;
+			//[0]target:[1]template:[2]formfields:[3]usefields:[4]value:[5]slot
 			$edit = explode(
 				Core::DIVIDER,
 				$edits
