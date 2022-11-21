@@ -300,7 +300,7 @@ class Edit {
 
 			switch ( $data[$pid][$t]['format'] ) {
 				case "json":
-					if ( $data[$pid][$t]['template'] === 'jsonKeys' ) {
+					if ( strpos( $data[$pid][$t]['template'], 'jsonKeys' ) !== false ) {
 						if ( strpos( $data[$pid][$t]['template'], '|' ) ) {
 							$templateExplode = explode( '|', $data[$pid][$t]['template'] );
 							$data[$pid][$t]['template'] = $templateExplode[0];
@@ -380,6 +380,259 @@ class Edit {
 	}
 
 	/**
+	 * @param array $edit
+	 * @param int|string $pid
+	 * @param array &$pageContents
+	 * @param array &$result
+	 * @param array &$usedVariables
+	 *
+	 * @return void
+	 */
+	private function actualWikiEdit(
+		array $edit,
+		$pid,
+		array &$pageContents,
+		array &$result,
+		array &$usedVariables
+	) {
+		$slotToEdit = $edit['slot'];
+		if ( $slotToEdit === false ) {
+			$slotToEdit = 'main';
+		}
+
+		if ( $edit['find'] !== false ) {
+			$templateContent = $this->getTemplate(
+				$pageContents[$pid][$slotToEdit]['content'],
+				$edit['template'],
+				$edit['find'],
+				$edit['val']
+			);
+			if ( $templateContent === false ) {
+				$rslt                          = 'Template: ' . $edit['template'];
+				$rslt                          .= ' where variable:' . $edit['find'] . '=' . $edit['val'] . ' not found';
+				$result['received']['error'][] = $rslt;
+			}
+		} else {
+			$templateContent = $this->getTemplate(
+				$pageContents[$pid][$slotToEdit]['content'],
+				$edit['template']
+			);
+		}
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'Template content for ' . $pid,
+				$templateContent
+			);
+		}
+		if ( $templateContent === false || empty( trim( $templateContent ) ) ) {
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'Skipping this edit. Template content is false or Template Content is empty for ' .
+					$edit['template'],
+					$templateContent
+				);
+			}
+
+			// echo 'skipping ' . $edit['template'] ;
+			return;
+		}
+
+		$expl = self::pregExplode( $templateContent );
+		if ( $expl === false ) {
+			// There's nothing to explode lets add the new argument
+			$expl            = [];
+			$expl[]          = $edit['variable'] . '=' . $edit['value'];
+			$usedVariables[] = $edit['variable'];
+		}
+		foreach ( $expl as $k => $line ) {
+			$tmp = explode(
+				'=',
+				$line
+			);
+			if ( trim( $tmp[0] ) == $edit['variable'] ) {
+				$expl[$k]        = $edit['variable'] . '=' . $edit['value'];
+				$usedVariables[] = $edit['variable'];
+			}
+		}
+		if ( !in_array(
+			$edit['variable'],
+			$usedVariables
+		) ) {
+			$ttemp  = $edit['variable'];
+			$expl[] = $edit['variable'] . '=' . $edit['value'];
+		}
+
+		$newTemplateContent = '';
+		$cnt                = count( $expl );
+		$t                  = 0;
+		if ( Config::isDebug() ) {
+			Debug::addToDebug( 'Creating new template content for ' . $pid,
+							   [
+								   'cnt expl'          => $cnt,
+								   'expl'              => $expl,
+								   'cnt usedvariables' => count( $usedVariables ),
+								   'Edit'              => $edit
+							   ] );
+		}
+		foreach ( $expl as $line ) {
+			if ( strlen( $line ) > 1 ) {
+				$newTemplateContent .= "\n" . '|' . trim( $line );
+			}
+			// Is it the last one. Then {5041} put end template }} on a new line
+			if ( $t === ( $cnt - 1 ) ) {
+				$newTemplateContent .= "\n";
+			}
+			$t++;
+		}
+		$pageContents[$pid][$slotToEdit]['content'] = str_replace(
+			$templateContent,
+			$newTemplateContent,
+			$pageContents[$pid][$slotToEdit]['content']
+		);
+	}
+
+	/**
+	 * @param array $edit
+	 * @param int|string $pid
+	 * @param array &$pageContents
+	 * @param array &$result
+	 * @param array &$usedVariables
+	 *
+	 * @return void
+	 */
+	private function actualJSONEdit(
+		array $edit,
+		$pid,
+		array &$pageContents,
+		array &$result,
+		array &$usedVariables
+	) {
+		$slotToEdit = $edit['slot'];
+		if ( $slotToEdit === false ) {
+			$slotToEdit = 'main';
+		}
+
+		$content = $pageContents[$pid][$slotToEdit]['content'];
+
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'Template content for ' . $pid,
+				$content
+			);
+		}
+		$JSONContent = json_decode(
+			$content,
+			true
+		);
+		if ( $content === false || empty( trim( $content ) || $JSONContent === null ) ) {
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'Skipping this edit. Template content is false or Template Content is empty or JSON' . 'cannot be decoded for ' . $edit['template'],
+					[
+						$content,
+						$JSONContent
+					] );
+			}
+
+			// echo 'skipping ' . $edit['template'] ;
+			return;
+		}
+		if ( empty( $edit['find'] ) || $edit['find'] === false ) {
+			if ( Config::isDebug() ) {
+				Debug::addToDebug( 'Skipping this edit. There no JSON keys defined',
+								   [
+									   $content,
+									   $edit
+								   ] );
+			}
+
+			// echo 'skipping ' . $edit['template'] ;
+			return;
+		}
+		$nrOfKeys = count( $edit['find'] );
+		$find     = $edit['find'];
+		$newKey = $this->createNestedArray( $find );
+		var_dump( $newKey );
+		var_dump( $JSONContent[$newKey] );
+		var_dump( $JSONContent );
+		if ( isset( $JSONContent[$newKey] ) ) {
+			echo "found";
+		}
+		die();
+	}
+/*
+		$expl = self::pregExplode( $templateContent );
+		if ( $expl === false ) {
+			// There's nothing to explode lets add the new argument
+			$expl            = [];
+			$expl[]          = $edit['variable'] . '=' . $edit['value'];
+			$usedVariables[] = $edit['variable'];
+		}
+		foreach ( $expl as $k => $line ) {
+			$tmp = explode(
+				'=',
+				$line
+			);
+			if ( trim( $tmp[0] ) == $edit['variable'] ) {
+				$expl[$k]        = $edit['variable'] . '=' . $edit['value'];
+				$usedVariables[] = $edit['variable'];
+			}
+		}
+		if ( !in_array(
+			$edit['variable'],
+			$usedVariables
+		) ) {
+			$ttemp  = $edit['variable'];
+			$expl[] = $edit['variable'] . '=' . $edit['value'];
+		}
+
+		$newTemplateContent = '';
+		$cnt                = count( $expl );
+		$t                  = 0;
+		if ( Config::isDebug() ) {
+			Debug::addToDebug( 'Creating new template content for ' . $pid,
+							   [
+								   'cnt expl'          => $cnt,
+								   'expl'              => $expl,
+								   'cnt usedvariables' => count( $usedVariables ),
+								   'Edit'              => $edit
+							   ] );
+		}
+		foreach ( $expl as $line ) {
+			if ( strlen( $line ) > 1 ) {
+				$newTemplateContent .= "\n" . '|' . trim( $line );
+			}
+			// Is it the last one. Then {5041} put end template }} on a new line
+			if ( $t === ( $cnt - 1 ) ) {
+				$newTemplateContent .= "\n";
+			}
+			$t++;
+		}
+		$pageContents[$pid][$slotToEdit]['content'] = str_replace(
+			$templateContent,
+			$newTemplateContent,
+			$pageContents[$pid][$slotToEdit]['content']
+		);
+	}
+
+**/
+	private function createNestedArray( $array ) {
+		$tmpJson = '{';
+		foreach ( $array as $key ) {
+			if ( is_integer( $key ) ) {
+				$tmpJson .= '[' . '"' .
+			} else {
+				$tmpJson .= '"' . $key . '": ""' .
+			}
+		}
+		$value = [];
+		while ( $single = array_pop( $array ) ) {
+			$value = [ $single => '' ];
+		}
+		return $value;
+	}
+
+	/**
 	 * @return array|void
 	 */
 	public function editPage() {
@@ -399,12 +652,12 @@ class Edit {
 		$render       = new Render();
 		// Loop through all edits
 		foreach ( $data as $pid => $edits ) {
-			//setup slots if needed
+			// setup slots if needed
 			$wehaveslots = false;
 			foreach ( $edits as $edit ) {
 				if ( $edit['slot'] !== false && !isset( $pageContents[$pid][$edit['slot']]['content'] ) ) {
 					$wehaveslots = true;
-					//$pageTitle = $edit['slot'];
+					// $pageTitle = $edit['slot'];
 					$content = $render->getSlotContent(
 						$pid,
 						$edit['slot']
@@ -416,7 +669,7 @@ class Edit {
 						);
 					}
 
-					//$content = $api->getWikiPage( $pid, $edit['slot'] );
+					// $content = $api->getWikiPage( $pid, $edit['slot'] );
 					if ( $content['content'] == '' ) {
 						$pageContents[$pid][$edit['slot']]['content'] = false;
 					} else {
@@ -435,101 +688,19 @@ class Edit {
 				}
 			}
 
-			$usedVariables = array();
+			$usedVariables = [];
+			$result = [];
 			foreach ( $edits as $edit ) {
-				$slotToEdit = $edit['slot'];
 				$format = $edit['format'];
-				if ( $slotToEdit === false ) {
-					$slotToEdit = 'main';
+				switch ( $format ) {
+					case "json":
+						$this->actualJSONEdit( $edit, $pid, $pageContents, $result, $usedVariables );
+						break;
+					case "wiki":
+					default:
+						$this->actualWikiEdit( $edit, $pid, $pageContents, $result, $usedVariables );
+						break;
 				}
-
-				if ( $edit['find'] !== false ) {
-					$templateContent = $this->getTemplate(
-						$pageContents[$pid][$slotToEdit]['content'],
-						$edit['template'],
-						$edit['find'],
-						$edit['val']
-					);
-					if ( $templateContent === false ) {
-						$rslt = 'Template: ' . $edit['template'];
-						$rslt .= ' where variable:' . $edit['find'] . '=' . $edit['val'] . ' not found';
-						$result['received']['error'][] = $rslt;
-					}
-				} else {
-					$templateContent = $this->getTemplate(
-						$pageContents[$pid][$slotToEdit]['content'],
-						$edit['template']
-					);
-				}
-				if ( Config::isDebug() ) {
-					Debug::addToDebug(
-						'Template content for ' . $pid,
-						$templateContent
-					);
-				}
-				if ( $templateContent === false || empty( trim( $templateContent ) ) ) {
-					if ( Config::isDebug() ) {
-						Debug::addToDebug(
-							'Skipping this edit. Template content is false or Template Content is empty for ' . $edit['template'],
-							$templateContent
-						);
-					}
-					//echo 'skipping ' . $edit['template'] ;
-					continue;
-				}
-
-				$expl = self::pregExplode( $templateContent );
-				if ( $expl === false ) {
-					// There's nothing to explode lets add the new argument
-					$expl = [];
-					$expl[] = $edit['variable'] . '=' . $edit['value'];
-					$usedVariables[] = $edit['variable'];
-				}
-				foreach ( $expl as $k => $line ) {
-					$tmp = explode(
-						'=',
-						$line
-					);
-					if ( trim( $tmp[0] ) == $edit['variable'] ) {
-						$expl[$k]        = $edit['variable'] . '=' . $edit['value'];
-						$usedVariables[] = $edit['variable'];
-					}
-				}
-				if ( ! in_array(
-					$edit['variable'],
-					$usedVariables
-				) ) {
-					$ttemp  = $edit['variable'];
-					$expl[] = $edit['variable'] . '=' . $edit['value'];
-				}
-
-				$newTemplateContent = '';
-				$cnt                = count( $expl );
-				$t                  = 0;
-				if ( Config::isDebug() ) {
-					Debug::addToDebug(
-						'Creating new template content for ' . $pid,
-						[ 'cnt expl' => $cnt,
-						  'expl' => $expl,
-						  'cnt usedvariables' => count( $usedVariables),
-						  'Edit' => $edit ]
-					);
-				}
-				foreach ( $expl as $line ) {
-					if ( strlen( $line ) > 1 ) {
-						$newTemplateContent .= "\n" . '|' . trim( $line );
-					}
-					// Is it the last one. Then {5041} put end template }} on a new line
-					if ( $t === ( $cnt - 1 ) ) {
-						$newTemplateContent .= "\n";
-					}
-					$t++;
-				}
-				$pageContents[$pid][$slotToEdit]['content'] = str_replace(
-					$templateContent,
-					$newTemplateContent,
-					$pageContents[$pid][$slotToEdit]['content']
-				);
 			}
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
