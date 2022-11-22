@@ -28,9 +28,11 @@ class Get {
 		$returnto = $responseHandler->getMwReturn();
 		if ( $returnto ) {
 			$urlParsed = parse_url( $returnto );
-			if( isset( $urlParsed['fragment'] ) ) {
+			if ( isset( $urlParsed['fragment'] ) ) {
 				$fragment = '#' . $urlParsed['fragment'];
-			} else $fragment = '';
+			} else {
+				$fragment = '';
+			}
 			$ret = $returnto;
 			foreach ( $_POST as $k => $v ) {
 				if ( strpos( $ret, "?" ) ) {
@@ -39,7 +41,7 @@ class Get {
 					$delimiter = '?';
 				}
 				if ( is_array( $v ) ) {
-					if( !Definitions::isFlexFormSystemField( $k ) ) {
+					if ( !Definitions::isFlexFormSystemField( $k ) ) {
 						$ret .= $delimiter . General::makeSpaceFromUnderscore( $k ) . "=";
 						foreach ( $v as $multiple ) {
 							$ret .= wsSecurity::cleanHTML( wsSecurity::cleanBraces( $multiple ) ) . ',';
@@ -57,10 +59,12 @@ class Get {
 					) {
 
 						$html = wsSecurity::getHTMLType( $k );
-						if( $html !== "all" ) {
-							$ret .= $delimiter . General::makeSpaceFromUnderscore( $k ) . '=' . wsSecurity::cleanUrl( General::getPostString( $k ) );
+						if ( $html !== "all" ) {
+							$ret .= $delimiter . General::makeSpaceFromUnderscore( $k ) . '=';
+							$ret .= wsSecurity::cleanUrl( General::getPostString( $k ) );
 						} else {
-							$ret .= $delimiter . General::makeSpaceFromUnderscore( $k ) . '=' . General::getPostString( $k );
+							$ret .= $delimiter . General::makeSpaceFromUnderscore( $k ) . '=';
+							$ret .= General::getPostString( $k );
 						}
 					}
 				}

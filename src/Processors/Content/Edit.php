@@ -14,6 +14,8 @@ use FlexForm\Core\Config;
 use FlexForm\Core\Core;
 use FlexForm\Core\Debug;
 use FlexForm\Processors\Utilities\General;
+use RecursiveArrayIterator;
+use RecursiveIteratorIterator;
 
 /**
  * Class for editing pages
@@ -300,11 +302,11 @@ class Edit {
 
 			switch ( $data[$pid][$t]['format'] ) {
 				case "json":
-					if ( strpos( $data[$pid][$t]['template'], 'jsonKeys' ) !== false ) {
+					if ( strpos( $data[$pid][$t]['template'], 'json' ) !== false ) {
 						if ( strpos( $data[$pid][$t]['template'], '|' ) ) {
 							$templateExplode = explode( '|', $data[$pid][$t]['template'] );
 							$data[$pid][$t]['template'] = $templateExplode[0];
-							$data[$pid][$t]['find'] = explode( '.', $templateExplode[1] );
+							$data[$pid][$t]['find'] = explode( '=', $templateExplode[1] );
 						}
 					}
 					break;
@@ -491,6 +493,27 @@ class Edit {
 		);
 	}
 
+
+	private function getkeypath( $arr, $lookup, $value ) {
+		if ( array_key_exists( $lookup, $arr ) && $arr[$lookup] === $value ) {
+			return array( $lookup );
+		} else {
+			foreach ( $arr as $key => $subarr ) {
+				if ( is_array( $subarr ) ) {
+					$ret = $this->getkeypath( $subarr, $lookup, $value );
+
+					if ( $ret ) {
+						$ret[] = $key;
+
+						return $ret;
+					}
+				}
+			}
+		}
+
+		return null;
+	}
+
 	/**
 	 * @param array $edit
 	 * @param int|string $pid
@@ -549,15 +572,36 @@ class Edit {
 			// echo 'skipping ' . $edit['template'] ;
 			return;
 		}
-		$nrOfKeys = count( $edit['find'] );
-		$find     = $edit['find'];
-		$newKey = $this->createNestedArray( $find );
-		var_dump( $newKey );
-		var_dump( $JSONContent[$newKey] );
-		var_dump( $JSONContent );
-		if ( isset( $JSONContent[$newKey] ) ) {
-			echo "found";
+		$findKey   = $edit['find'][0];
+		$findValue = $edit['find'][1];
+		if ( is_numeric( $findValue ) ) {
+			$findValue = (int)$findValue;
 		}
+		echo "<pre>array search result : ";
+		//$edit['variable'] . '=' . $edit['value'];
+		var_dump( $findKey );
+		var_dump( $findValue );
+		$pathresult = $this->getkeypath( $JSONContent, $findKey, $findValue );
+		var_dump( $pathresult );
+		krsort( $pathresult );
+		$path = [];
+		$cur = &$path;
+		foreach ( $pathresult as $value ) {
+			$cur[ $value ] = [];
+			$cur = &$cur[$value];
+		}
+		$cur = null;
+		//var_dump( $path );
+		$JSONContent[ key($path) ][$edit['variable']] = $edit['value'];
+		//$JSONContent[0][$edit['variable']] = $edit['variable'];
+		//$newKey = $this->createNestedArray( $find );
+		//var_dump( $newKey );
+		//var_dump( $JSONContent[$newKey] );
+		var_dump( $JSONContent );
+		//if ( isset( $JSONContent[$newKey] ) ) {
+		//	echo "found";
+		//$edit['variable'] . '=' . $edit['value'];
+	//	}
 		die();
 	}
 /*
@@ -616,21 +660,7 @@ class Edit {
 	}
 
 **/
-	private function createNestedArray( $array ) {
-		$tmpJson = '{';
-		foreach ( $array as $key ) {
-			if ( is_integer( $key ) ) {
-				$tmpJson .= '[' . '"' .
-			} else {
-				$tmpJson .= '"' . $key . '": ""' .
-			}
-		}
-		$value = [];
-		while ( $single = array_pop( $array ) ) {
-			$value = [ $single => '' ];
-		}
-		return $value;
-	}
+
 
 	/**
 	 * @return array|void
