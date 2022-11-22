@@ -493,8 +493,17 @@ class Edit {
 		);
 	}
 
-
-	private function getkeypath( $arr, $lookup, $value ) {
+	/**
+	 * @param array $arr
+	 * @param string $lookup
+	 * @param string|int $value
+	 *
+	 * @return array|null
+	 */
+	private function getkeypath( array $arr, string $lookup, $value ) {
+		if ( is_numeric( $value ) ) {
+			$value = (int)$value;
+		}
 		if ( array_key_exists( $lookup, $arr ) && $arr[$lookup] === $value ) {
 			return array( $lookup );
 		} else {
@@ -574,15 +583,17 @@ class Edit {
 		}
 		$findKey   = $edit['find'][0];
 		$findValue = $edit['find'][1];
+
 		if ( is_numeric( $findValue ) ) {
 			$findValue = (int)$findValue;
 		}
-		echo "<pre>array search result : ";
+
+		//echo "<pre>";
 		//$edit['variable'] . '=' . $edit['value'];
-		var_dump( $findKey );
-		var_dump( $findValue );
+		//var_dump( $findKey );
+		//var_dump( $findValue );
 		$pathresult = $this->getkeypath( $JSONContent, $findKey, $findValue );
-		var_dump( $pathresult );
+		//var_dump( $pathresult );
 		krsort( $pathresult );
 		$path = [];
 		$cur = &$path;
@@ -591,76 +602,42 @@ class Edit {
 			$cur = &$cur[$value];
 		}
 		$cur = null;
+		if ( Config::isDebug() ) {
+			Debug::addToDebug( 'array search result ' . time(),
+							   [
+								   "findKey" => $findKey,
+								   "findValue" => $findValue,
+								   "pathResult" => $path
+							   ] );
+		}
 		//var_dump( $path );
-		$JSONContent[ key($path) ][$edit['variable']] = $edit['value'];
+		if ( $path !== null ) {
+			$JSONContent[key( $path )][$edit['variable']] = $edit['value'];
+		} else {
+			if ( Config::isDebug() ) {
+				Debug::addToDebug( 'array search result error. Not found' . time(),
+								   [
+									   "findKey" => $findKey,
+									   "findValue" => $findValue,
+									   "pathResult" => $path
+								   ] );
+			}
+		}
+		// TODO: How to treat values for forms and numbers ?
 		//$JSONContent[0][$edit['variable']] = $edit['variable'];
 		//$newKey = $this->createNestedArray( $find );
 		//var_dump( $newKey );
 		//var_dump( $JSONContent[$newKey] );
-		var_dump( $JSONContent );
+		//var_dump( $JSONContent );
+		//die();
 		//if ( isset( $JSONContent[$newKey] ) ) {
 		//	echo "found";
 		//$edit['variable'] . '=' . $edit['value'];
 	//	}
-		die();
+
+
+		$pageContents[$pid][$slotToEdit]['content'] = json_encode( $JSONContent, JSON_PRETTY_PRINT );
 	}
-/*
-		$expl = self::pregExplode( $templateContent );
-		if ( $expl === false ) {
-			// There's nothing to explode lets add the new argument
-			$expl            = [];
-			$expl[]          = $edit['variable'] . '=' . $edit['value'];
-			$usedVariables[] = $edit['variable'];
-		}
-		foreach ( $expl as $k => $line ) {
-			$tmp = explode(
-				'=',
-				$line
-			);
-			if ( trim( $tmp[0] ) == $edit['variable'] ) {
-				$expl[$k]        = $edit['variable'] . '=' . $edit['value'];
-				$usedVariables[] = $edit['variable'];
-			}
-		}
-		if ( !in_array(
-			$edit['variable'],
-			$usedVariables
-		) ) {
-			$ttemp  = $edit['variable'];
-			$expl[] = $edit['variable'] . '=' . $edit['value'];
-		}
-
-		$newTemplateContent = '';
-		$cnt                = count( $expl );
-		$t                  = 0;
-		if ( Config::isDebug() ) {
-			Debug::addToDebug( 'Creating new template content for ' . $pid,
-							   [
-								   'cnt expl'          => $cnt,
-								   'expl'              => $expl,
-								   'cnt usedvariables' => count( $usedVariables ),
-								   'Edit'              => $edit
-							   ] );
-		}
-		foreach ( $expl as $line ) {
-			if ( strlen( $line ) > 1 ) {
-				$newTemplateContent .= "\n" . '|' . trim( $line );
-			}
-			// Is it the last one. Then {5041} put end template }} on a new line
-			if ( $t === ( $cnt - 1 ) ) {
-				$newTemplateContent .= "\n";
-			}
-			$t++;
-		}
-		$pageContents[$pid][$slotToEdit]['content'] = str_replace(
-			$templateContent,
-			$newTemplateContent,
-			$pageContents[$pid][$slotToEdit]['content']
-		);
-	}
-
-**/
-
 
 	/**
 	 * @return array|void
