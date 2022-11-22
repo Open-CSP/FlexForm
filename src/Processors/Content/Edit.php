@@ -306,7 +306,17 @@ class Edit {
 						if ( strpos( $data[$pid][$t]['template'], '|' ) ) {
 							$templateExplode = explode( '|', $data[$pid][$t]['template'] );
 							$data[$pid][$t]['template'] = $templateExplode[0];
-							$data[$pid][$t]['find'] = explode( '=', $templateExplode[1] );
+							if ( $templateExplode[0] === 'jsonk' ) {
+								$data[$pid][$t]['find'] = explode(
+									'.',
+									$templateExplode[1]
+								);
+							} else {
+								$data[$pid][$t]['find'] = explode(
+									'=',
+									$templateExplode[1]
+								);
+							}
 						}
 					}
 					break;
@@ -543,7 +553,7 @@ class Edit {
 		if ( $slotToEdit === false ) {
 			$slotToEdit = 'main';
 		}
-
+		$template = $edit['template'];
 		$content = $pageContents[$pid][$slotToEdit]['content'];
 
 		if ( Config::isDebug() ) {
@@ -581,62 +591,124 @@ class Edit {
 			// echo 'skipping ' . $edit['template'] ;
 			return;
 		}
-		$findKey   = $edit['find'][0];
-		$findValue = $edit['find'][1];
 
-		if ( is_numeric( $findValue ) ) {
-			$findValue = (int)$findValue;
-		}
+		if ( $template === "json" ) {
+			$findKey   = $edit['find'][0];
+			$findValue = $edit['find'][1];
 
-		//echo "<pre>";
-		//$edit['variable'] . '=' . $edit['value'];
-		//var_dump( $findKey );
-		//var_dump( $findValue );
-		$pathresult = $this->getkeypath( $JSONContent, $findKey, $findValue );
-		//var_dump( $pathresult );
-		krsort( $pathresult );
-		$path = [];
-		$cur = &$path;
-		foreach ( $pathresult as $value ) {
-			$cur[ $value ] = [];
-			$cur = &$cur[$value];
-		}
-		$cur = null;
-		if ( Config::isDebug() ) {
-			Debug::addToDebug( 'array search result ' . time(),
-							   [
-								   "findKey" => $findKey,
-								   "findValue" => $findValue,
-								   "pathResult" => $path
-							   ] );
-		}
-		//var_dump( $path );
-		if ( $path !== null ) {
-			$JSONContent[key( $path )][$edit['variable']] = $edit['value'];
-		} else {
-			if ( Config::isDebug() ) {
-				Debug::addToDebug( 'array search result error. Not found' . time(),
-								   [
-									   "findKey" => $findKey,
-									   "findValue" => $findValue,
-									   "pathResult" => $path
-								   ] );
+			if ( is_numeric( $findValue ) ) {
+				$findValue = (int) $findValue;
 			}
-		}
-		// TODO: How to treat values for forms and numbers ?
-		//$JSONContent[0][$edit['variable']] = $edit['variable'];
-		//$newKey = $this->createNestedArray( $find );
-		//var_dump( $newKey );
-		//var_dump( $JSONContent[$newKey] );
-		//var_dump( $JSONContent );
-		//die();
-		//if ( isset( $JSONContent[$newKey] ) ) {
-		//	echo "found";
-		//$edit['variable'] . '=' . $edit['value'];
-	//	}
 
+			//echo "<pre>";
+			//$edit['variable'] . '=' . $edit['value'];
+			//var_dump( $findKey );
+			//var_dump( $findValue );
+			$pathresult = $this->getkeypath(
+				$JSONContent,
+				$findKey,
+				$findValue
+			);
+			//var_dump( $pathresult );
+			krsort( $pathresult );
+			$path = [];
+			$cur  = &$path;
+			foreach ( $pathresult as $value ) {
+				$cur[$value] = [];
+				$cur         = &$cur[$value];
+			}
+			$cur = null;
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'array search result ' . time(),
+					[
+						"findKey"    => $findKey,
+						"findValue"  => $findValue,
+						"pathResult" => $path
+					]
+				);
+			}
+			//var_dump( $path );
+			if ( $path !== null ) {
+				$JSONContent[key( $path )][$edit['variable']] = $edit['value'];
+			} else {
+				if ( Config::isDebug() ) {
+					Debug::addToDebug(
+						'array search result error. Not found' . time(),
+						[
+							"findKey"    => $findKey,
+							"findValue"  => $findValue,
+							"pathResult" => $path
+						]
+					);
+				}
+			}
+			// TODO: How to treat values for forms and numbers ?
+			//$JSONContent[0][$edit['variable']] = $edit['variable'];
+			//$newKey = $this->createNestedArray( $find );
+			//var_dump( $newKey );
+			//var_dump( $JSONContent[$newKey] );
+			//var_dump( $JSONContent );
+			//die();
+			//if ( isset( $JSONContent[$newKey] ) ) {
+			//	echo "found";
+			//$edit['variable'] . '=' . $edit['value'];
+			//	}
+
+		} else {
+			if ( $this->arrayPath( $JSONContent, $edit['find'] ) === null ) {
+				if ( Config::isDebug() ) {
+					Debug::addToDebug(
+						'array search result error. Not found' . time(),
+						[
+							"find"    => $edit['find'],
+							"JSON"  => $JSONContent
+						]
+					);
+				}
+			} else {
+				$this->arrayPath( $JSONContent, $edit['find'], $edit['value'] );
+			}
+			//echo "<pre>";
+			//var_dump( $edit['find'] );
+			//var_dump( $edit['value'] );
+			//var_dump( $resr );
+			//var_dump($this->arrayPath( $JSONContent, $edit['find'] ));
+			//var_dump( $JSONContent );
+			//die();
+		}
 
 		$pageContents[$pid][$slotToEdit]['content'] = json_encode( $JSONContent, JSON_PRETTY_PRINT );
+	}
+
+	/**
+	 * set/return a nested array value
+	 *
+	 * @param array $array the array to modify
+	 * @param array $path the path to the value
+	 * @param mixed $value (optional) value to set
+	 *
+	 * @return mixed previous value
+	 */
+	private function arrayPath( &$array, $path = array(), &$value = null ) {
+		$args = func_get_args();
+		$ref  = &$array;
+		foreach ( $path as $key ) {
+			if ( !is_array( $ref ) ) {
+				$ref = [];
+			}
+			$ref = &$ref[$key];
+		}
+		$prev = $ref;
+		if ( array_key_exists(
+			2,
+			$args
+		) ) {
+			// value param was passed -> we're setting
+			$ref = $value;  // set the value
+		}
+
+		return $prev;
 	}
 
 	/**

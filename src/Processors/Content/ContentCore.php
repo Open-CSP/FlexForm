@@ -395,6 +395,21 @@ class ContentCore {
 	}
 
 	/**
+	 * @param array $arrayToTest
+	 *
+	 * @return bool
+	 */
+	public static function hasAssignedKeys( array $arrayToTest ): bool {
+		foreach ( $arrayToTest as $key => $value ) {
+			if ( is_string( $key ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Create content
 	 *
 	 * @return string
@@ -419,7 +434,9 @@ class ContentCore {
 			if ( is_array( $v ) && !Definitions::isFlexFormSystemField( $k ) ) {
 				$uk = General::makeSpaceFromUnderscore( $k );
 				$ret .= "|" . $uk . "=";
-				$cleanedBracesArray[$uk]['ffID'] = self::createRandom();
+				if ( self::hasAssignedKeys( $v ) ) {
+					$cleanedBracesArray[$uk]['ffID'] = self::createRandom();
+				}
 				foreach ( $v as $multiple ) {
 					$cleanedBraces = wsSecurity::cleanBraces( $multiple );
 					$cleanedBracesArray[$uk][] = self::checkJsonValues( $cleanedBraces );

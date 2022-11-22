@@ -536,7 +536,9 @@ class Create {
 					$kField = General::makeSpaceFromUnderscore( $k );
 					$this->content .= "|" . $kField . "=";
 				}
-				$json[$kField]['ffID'] = ContentCore::createRandom();
+				if ( ContentCore::hasAssignedKeys( $v ) ) {
+					$json[$kField]['ffID'] = ContentCore::createRandom();
+				}
 				foreach ( $v as $multiple ) {
 					$this->content .= wsSecurity::cleanBraces( $multiple ) . ',';
 					$json[$kField][] = ContentCore::checkJsonValues( $multiple );
