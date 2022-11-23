@@ -575,8 +575,6 @@ class Edit {
 						$JSONContent
 					] );
 			}
-
-			// echo 'skipping ' . $edit['template'] ;
 			return;
 		}
 		if ( empty( $edit['find'] ) || $edit['find'] === false ) {
@@ -597,19 +595,15 @@ class Edit {
 			$findValue = $edit['find'][1];
 
 			if ( is_numeric( $findValue ) ) {
-				$findValue = (int) $findValue;
+				$findValue = (int)$findValue;
 			}
 
-			//echo "<pre>";
-			//$edit['variable'] . '=' . $edit['value'];
-			//var_dump( $findKey );
-			//var_dump( $findValue );
 			$pathresult = $this->getkeypath(
 				$JSONContent,
 				$findKey,
 				$findValue
 			);
-			//var_dump( $pathresult );
+
 			krsort( $pathresult );
 			$path = [];
 			$cur  = &$path;
@@ -628,7 +622,7 @@ class Edit {
 					]
 				);
 			}
-			//var_dump( $path );
+
 			if ( $path !== null ) {
 				$JSONContent[key( $path )][$edit['variable']] = $edit['value'];
 			} else {
@@ -643,18 +637,6 @@ class Edit {
 					);
 				}
 			}
-			// TODO: How to treat values for forms and numbers ?
-			//$JSONContent[0][$edit['variable']] = $edit['variable'];
-			//$newKey = $this->createNestedArray( $find );
-			//var_dump( $newKey );
-			//var_dump( $JSONContent[$newKey] );
-			//var_dump( $JSONContent );
-			//die();
-			//if ( isset( $JSONContent[$newKey] ) ) {
-			//	echo "found";
-			//$edit['variable'] . '=' . $edit['value'];
-			//	}
-
 		} else {
 			if ( $this->arrayPath( $JSONContent, $edit['find'] ) === null ) {
 				if ( Config::isDebug() ) {
@@ -669,13 +651,6 @@ class Edit {
 			} else {
 				$this->arrayPath( $JSONContent, $edit['find'], $edit['value'] );
 			}
-			//echo "<pre>";
-			//var_dump( $edit['find'] );
-			//var_dump( $edit['value'] );
-			//var_dump( $resr );
-			//var_dump($this->arrayPath( $JSONContent, $edit['find'] ));
-			//var_dump( $JSONContent );
-			//die();
 		}
 
 		$pageContents[$pid][$slotToEdit]['content'] = json_encode( $JSONContent, JSON_PRETTY_PRINT );
