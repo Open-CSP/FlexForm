@@ -150,6 +150,7 @@ class General {
 				if ( ! isset( $_POST[$tempVar] ) ) {
 					$_POST[$tempVar] = $v;
 				}
+				unset( $_POST[$k] );
 			}
 		}
 	}
