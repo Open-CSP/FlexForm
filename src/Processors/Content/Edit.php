@@ -14,6 +14,8 @@ use FlexForm\Core\Config;
 use FlexForm\Core\Core;
 use FlexForm\Core\Debug;
 use FlexForm\Processors\Utilities\General;
+use RecursiveArrayIterator;
+use RecursiveIteratorIterator;
 
 /**
  * Class for editing pages
@@ -280,6 +282,7 @@ class Edit {
 		$fields = ContentCore::getFields();
 		foreach ( $fields['mwedit'] as $edits ) {
 			$this->editCount++;
+			//[0]target:[1]template:[2]formfields:[3]usefields:[4]value:[5]slot
 			$edit = explode(
 				Core::DIVIDER,
 				$edits
@@ -289,28 +292,61 @@ class Edit {
 			}
 			$pid                        = trim( $edit[0] );
 			$data[$pid][$t]['template'] = General::makeSpaceFromUnderscore( trim( $edit[1] ) );
-			if ( ( strpos(
-					   $edit[1],
-					   '|'
-				   ) !== false ) && ( strpos(
-										  $edit[1],
-										  '='
-									  ) !== false ) ) {
-				// We need to find the template with a specific argument and value
-				$line                       = explode(
-					'|',
-					$data[$pid][$t]['template']
-				);
-				$info                       = explode(
-					'=',
-					$line[1]
-				);
-				$data[$pid][$t]['find']     = $info[0];
-				$data[$pid][$t]['val']      = $info[1];
-				$data[$pid][$t]['template'] = $line[0];
+
+			// Get format to use. defaults to wiki
+			if ( isset( $edit[6] ) && $edit[6] !== 'wiki' ) {
+				$data[$pid][$t]['format'] = trim( $edit[6] );
 			} else {
-				$data[$pid][$t]['find'] = false;
-				$data[$pid][$t]['val']  = false;
+				$data[$pid][$t]['format'] = 'wiki';
+			}
+
+			switch ( $data[$pid][$t]['format'] ) {
+				case "json":
+					if ( strpos( $data[$pid][$t]['template'], 'json' ) !== false ) {
+						if ( strpos( $data[$pid][$t]['template'], '|' ) ) {
+							$templateExplode = explode( '|', $data[$pid][$t]['template'] );
+							$data[$pid][$t]['template'] = $templateExplode[0];
+							if ( $templateExplode[0] === 'jsonk' ) {
+								$data[$pid][$t]['find'] = explode(
+									'.',
+									$templateExplode[1]
+								);
+							} else {
+								$data[$pid][$t]['find'] = explode(
+									'=',
+									$templateExplode[1]
+								);
+							}
+						}
+					}
+					break;
+				case "wiki":
+				default :
+					// Do we have a unique identifier to search for?
+					if ( ( strpos(
+							   $edit[1],
+							   '|'
+						   ) !== false ) && ( strpos(
+												  $edit[1],
+												  '='
+											  ) !== false ) ) {
+						// We need to find the template with a specific argument and value
+						$line                       = explode(
+							'|',
+							$data[$pid][$t]['template']
+						);
+						$info                       = explode(
+							'=',
+							$line[1]
+						);
+						$data[$pid][$t]['find']     = $info[0];
+						$data[$pid][$t]['val']      = $info[1];
+						$data[$pid][$t]['template'] = $line[0];
+					} else {
+						$data[$pid][$t]['find'] = false;
+						$data[$pid][$t]['val']  = false;
+					}
+					break;
 			}
 
 			if ( $edit[3] != '' ) {
@@ -356,6 +392,301 @@ class Edit {
 	}
 
 	/**
+	 * @param array $edit
+	 * @param int|string $pid
+	 * @param array &$pageContents
+	 * @param array &$result
+	 * @param array &$usedVariables
+	 *
+	 * @return void
+	 */
+	private function actualWikiEdit(
+		array $edit,
+		$pid,
+		array &$pageContents,
+		array &$result,
+		array &$usedVariables
+	) {
+		$slotToEdit = $edit['slot'];
+		if ( $slotToEdit === false ) {
+			$slotToEdit = 'main';
+		}
+
+		if ( $edit['find'] !== false ) {
+			$templateContent = $this->getTemplate(
+				$pageContents[$pid][$slotToEdit]['content'],
+				$edit['template'],
+				$edit['find'],
+				$edit['val']
+			);
+			if ( $templateContent === false ) {
+				$rslt                          = 'Template: ' . $edit['template'];
+				$rslt                          .= ' where variable:' . $edit['find'] . '=' . $edit['val'] . ' not found';
+				$result['received']['error'][] = $rslt;
+			}
+		} else {
+			$templateContent = $this->getTemplate(
+				$pageContents[$pid][$slotToEdit]['content'],
+				$edit['template']
+			);
+		}
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'Template content for ' . $pid,
+				$templateContent
+			);
+		}
+		if ( $templateContent === false || empty( trim( $templateContent ) ) ) {
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'Skipping this edit. Template content is false or Template Content is empty for ' .
+					$edit['template'],
+					$templateContent
+				);
+			}
+
+			// echo 'skipping ' . $edit['template'] ;
+			return;
+		}
+
+		$expl = self::pregExplode( $templateContent );
+		if ( $expl === false ) {
+			// There's nothing to explode lets add the new argument
+			$expl            = [];
+			$expl[]          = $edit['variable'] . '=' . $edit['value'];
+			$usedVariables[] = $edit['variable'];
+		}
+		foreach ( $expl as $k => $line ) {
+			$tmp = explode(
+				'=',
+				$line
+			);
+			if ( trim( $tmp[0] ) == $edit['variable'] ) {
+				$expl[$k]        = $edit['variable'] . '=' . $edit['value'];
+				$usedVariables[] = $edit['variable'];
+			}
+		}
+		if ( !in_array(
+			$edit['variable'],
+			$usedVariables
+		) ) {
+			$ttemp  = $edit['variable'];
+			$expl[] = $edit['variable'] . '=' . $edit['value'];
+		}
+
+		$newTemplateContent = '';
+		$cnt                = count( $expl );
+		$t                  = 0;
+		if ( Config::isDebug() ) {
+			Debug::addToDebug( 'Creating new template content for ' . $pid,
+							   [
+								   'cnt expl'          => $cnt,
+								   'expl'              => $expl,
+								   'cnt usedvariables' => count( $usedVariables ),
+								   'Edit'              => $edit
+							   ] );
+		}
+		foreach ( $expl as $line ) {
+			if ( strlen( $line ) > 1 ) {
+				$newTemplateContent .= "\n" . '|' . trim( $line );
+			}
+			// Is it the last one. Then {5041} put end template }} on a new line
+			if ( $t === ( $cnt - 1 ) ) {
+				$newTemplateContent .= "\n";
+			}
+			$t++;
+		}
+		$pageContents[$pid][$slotToEdit]['content'] = str_replace(
+			$templateContent,
+			$newTemplateContent,
+			$pageContents[$pid][$slotToEdit]['content']
+		);
+	}
+
+	/**
+	 * @param array $arr
+	 * @param string $lookup
+	 * @param string|int $value
+	 *
+	 * @return array|null
+	 */
+	private function getkeypath( array $arr, string $lookup, $value ) {
+		if ( is_numeric( $value ) ) {
+			$value = (int)$value;
+		}
+		if ( array_key_exists( $lookup, $arr ) && $arr[$lookup] === $value ) {
+			return array( $lookup );
+		} else {
+			foreach ( $arr as $key => $subarr ) {
+				if ( is_array( $subarr ) ) {
+					$ret = $this->getkeypath( $subarr, $lookup, $value );
+
+					if ( $ret ) {
+						$ret[] = $key;
+
+						return $ret;
+					}
+				}
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * @param array $edit
+	 * @param int|string $pid
+	 * @param array &$pageContents
+	 * @param array &$result
+	 * @param array &$usedVariables
+	 *
+	 * @return void
+	 */
+	private function actualJSONEdit(
+		array $edit,
+		$pid,
+		array &$pageContents,
+		array &$result,
+		array &$usedVariables
+	) {
+		$slotToEdit = $edit['slot'];
+		if ( $slotToEdit === false ) {
+			$slotToEdit = 'main';
+		}
+		$template = $edit['template'];
+		$content = $pageContents[$pid][$slotToEdit]['content'];
+
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'Template content for ' . $pid,
+				$content
+			);
+		}
+		$JSONContent = json_decode(
+			$content,
+			true
+		);
+		if ( $content === false || empty( trim( $content ) || $JSONContent === null ) ) {
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'Skipping this edit. Template content is false or Template Content is empty or JSON' . 'cannot be decoded for ' . $edit['template'],
+					[
+						$content,
+						$JSONContent
+					] );
+			}
+			return;
+		}
+		if ( empty( $edit['find'] ) || $edit['find'] === false ) {
+			if ( Config::isDebug() ) {
+				Debug::addToDebug( 'Skipping this edit. There no JSON keys defined',
+								   [
+									   $content,
+									   $edit
+								   ] );
+			}
+
+			// echo 'skipping ' . $edit['template'] ;
+			return;
+		}
+
+		if ( $template === "json" ) {
+			$findKey   = $edit['find'][0];
+			$findValue = $edit['find'][1];
+
+			if ( is_numeric( $findValue ) ) {
+				$findValue = (int)$findValue;
+			}
+
+			$pathresult = $this->getkeypath(
+				$JSONContent,
+				$findKey,
+				$findValue
+			);
+
+			krsort( $pathresult );
+			$path = [];
+			$cur  = &$path;
+			foreach ( $pathresult as $value ) {
+				$cur[$value] = [];
+				$cur         = &$cur[$value];
+			}
+			$cur = null;
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'array search result ' . time(),
+					[
+						"findKey"    => $findKey,
+						"findValue"  => $findValue,
+						"pathResult" => $path
+					]
+				);
+			}
+
+			if ( $path !== null ) {
+				$JSONContent[key( $path )][$edit['variable']] = $edit['value'];
+			} else {
+				if ( Config::isDebug() ) {
+					Debug::addToDebug(
+						'array search result error. Not found' . time(),
+						[
+							"findKey"    => $findKey,
+							"findValue"  => $findValue,
+							"pathResult" => $path
+						]
+					);
+				}
+			}
+		} else {
+			if ( $this->arrayPath( $JSONContent, $edit['find'] ) === null ) {
+				if ( Config::isDebug() ) {
+					Debug::addToDebug(
+						'array search result error. Not found' . time(),
+						[
+							"find"    => $edit['find'],
+							"JSON"  => $JSONContent
+						]
+					);
+				}
+			} else {
+				$this->arrayPath( $JSONContent, $edit['find'], $edit['value'] );
+			}
+		}
+
+		$pageContents[$pid][$slotToEdit]['content'] = json_encode( $JSONContent, JSON_PRETTY_PRINT );
+	}
+
+	/**
+	 * set/return a nested array value
+	 *
+	 * @param array $array the array to modify
+	 * @param array $path the path to the value
+	 * @param mixed $value (optional) value to set
+	 *
+	 * @return mixed previous value
+	 */
+	private function arrayPath( &$array, $path = array(), &$value = null ) {
+		$args = func_get_args();
+		$ref  = &$array;
+		foreach ( $path as $key ) {
+			if ( !is_array( $ref ) ) {
+				$ref = [];
+			}
+			$ref = &$ref[$key];
+		}
+		$prev = $ref;
+		if ( array_key_exists(
+			2,
+			$args
+		) ) {
+			// value param was passed -> we're setting
+			$ref = $value;  // set the value
+		}
+
+		return $prev;
+	}
+
+	/**
 	 * @return array|void
 	 */
 	public function editPage() {
@@ -375,12 +706,12 @@ class Edit {
 		$render       = new Render();
 		// Loop through all edits
 		foreach ( $data as $pid => $edits ) {
-			//setup slots if needed
+			// setup slots if needed
 			$wehaveslots = false;
 			foreach ( $edits as $edit ) {
 				if ( $edit['slot'] !== false && !isset( $pageContents[$pid][$edit['slot']]['content'] ) ) {
 					$wehaveslots = true;
-					//$pageTitle = $edit['slot'];
+					// $pageTitle = $edit['slot'];
 					$content = $render->getSlotContent(
 						$pid,
 						$edit['slot']
@@ -392,7 +723,7 @@ class Edit {
 						);
 					}
 
-					//$content = $api->getWikiPage( $pid, $edit['slot'] );
+					// $content = $api->getWikiPage( $pid, $edit['slot'] );
 					if ( $content['content'] == '' ) {
 						$pageContents[$pid][$edit['slot']]['content'] = false;
 					} else {
@@ -411,100 +742,19 @@ class Edit {
 				}
 			}
 
-			$usedVariables = array();
+			$usedVariables = [];
+			$result = [];
 			foreach ( $edits as $edit ) {
-				$slotToEdit = $edit['slot'];
-				if ( $slotToEdit === false ) {
-					$slotToEdit = 'main';
+				$format = $edit['format'];
+				switch ( $format ) {
+					case "json":
+						$this->actualJSONEdit( $edit, $pid, $pageContents, $result, $usedVariables );
+						break;
+					case "wiki":
+					default:
+						$this->actualWikiEdit( $edit, $pid, $pageContents, $result, $usedVariables );
+						break;
 				}
-
-				if ( $edit['find'] !== false ) {
-					$templateContent = $this->getTemplate(
-						$pageContents[$pid][$slotToEdit]['content'],
-						$edit['template'],
-						$edit['find'],
-						$edit['val']
-					);
-					if ( $templateContent === false ) {
-						$rslt = 'Template: ' . $edit['template'];
-						$rslt .= ' where variable:' . $edit['find'] . '=' . $edit['val'] . ' not found';
-						$result['received']['error'][] = $rslt;
-					}
-				} else {
-					$templateContent = $this->getTemplate(
-						$pageContents[$pid][$slotToEdit]['content'],
-						$edit['template']
-					);
-				}
-				if ( Config::isDebug() ) {
-					Debug::addToDebug(
-						'Template content for ' . $pid,
-						$templateContent
-					);
-				}
-				if ( $templateContent === false || empty( trim( $templateContent ) ) ) {
-					if ( Config::isDebug() ) {
-						Debug::addToDebug(
-							'Skipping this edit. Template content is false or Template Content is empty for ' . $edit['template'],
-							$templateContent
-						);
-					}
-					//echo 'skipping ' . $edit['template'] ;
-					continue;
-				}
-
-				$expl = self::pregExplode( $templateContent );
-				if ( $expl === false ) {
-					// There's nothing to explode lets add the new argument
-					$expl = [];
-					$expl[] = $edit['variable'] . '=' . $edit['value'];
-					$usedVariables[] = $edit['variable'];
-				}
-				foreach ( $expl as $k => $line ) {
-					$tmp = explode(
-						'=',
-						$line
-					);
-					if ( trim( $tmp[0] ) == $edit['variable'] ) {
-						$expl[$k]        = $edit['variable'] . '=' . $edit['value'];
-						$usedVariables[] = $edit['variable'];
-					}
-				}
-				if ( ! in_array(
-					$edit['variable'],
-					$usedVariables
-				) ) {
-					$ttemp  = $edit['variable'];
-					$expl[] = $edit['variable'] . '=' . $edit['value'];
-				}
-
-				$newTemplateContent = '';
-				$cnt                = count( $expl );
-				$t                  = 0;
-				if ( Config::isDebug() ) {
-					Debug::addToDebug(
-						'Creating new template content for ' . $pid,
-						[ 'cnt expl' => $cnt,
-						  'expl' => $expl,
-						  'cnt usedvariables' => count( $usedVariables),
-						  'Edit' => $edit ]
-					);
-				}
-				foreach ( $expl as $line ) {
-					if ( strlen( $line ) > 1 ) {
-						$newTemplateContent .= "\n" . '|' . trim( $line );
-					}
-					// Is it the last one. Then {5041} put end template }} on a new line
-					if ( $t === ( $cnt - 1 ) ) {
-						$newTemplateContent .= "\n";
-					}
-					$t++;
-				}
-				$pageContents[$pid][$slotToEdit]['content'] = str_replace(
-					$templateContent,
-					$newTemplateContent,
-					$pageContents[$pid][$slotToEdit]['content']
-				);
 			}
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(

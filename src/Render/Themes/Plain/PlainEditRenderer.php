@@ -15,7 +15,8 @@ class PlainEditRenderer implements EditRenderer {
 		string $formfield,
 		string $usefield,
 		string $slot,
-		string $value
+		string $value,
+		string $format
 	) : string {
 		$tagValue = htmlspecialchars( $target ) . Core::DIVIDER . htmlspecialchars(
 				$template
@@ -23,7 +24,7 @@ class PlainEditRenderer implements EditRenderer {
 						$formfield
 					) . Core::DIVIDER . htmlspecialchars( $usefield ) . Core::DIVIDER . htmlspecialchars(
 						$value
-					) . Core::DIVIDER . htmlspecialchars( $slot );
+					) . Core::DIVIDER . htmlspecialchars( $slot ) . Core::DIVIDER . htmlspecialchars( $format );
 
 		return Core::createHiddenField(
 			'mwedit[]',

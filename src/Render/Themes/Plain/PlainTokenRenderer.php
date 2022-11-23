@@ -189,9 +189,18 @@ class PlainTokenRenderer implements TokenRenderer {
 				) . "',";
 		}
 
+
+
 		if ( $smwQueryUrl !== null ) {
+			$noResultsFound = wfMessage( 'flexform-query-handler-smw-no-result' )->text();
+			$noResultsFoundJS = "\nlanguage: {
+                    \nnoResults: function() {
+                        \nreturn '" . $noResultsFound . "';
+                    \n}
+                \n},";
 			$javascript .= <<<SCRIPT
                 templateResult: testSelect2Callback,
+                $noResultsFoundJS
                 escapeMarkup: function (markup) { 
                     return markup; 
                 },
@@ -208,6 +217,7 @@ class PlainTokenRenderer implements TokenRenderer {
             SCRIPT;
 		}
 
+
 		if ( $allowTags ) {
 			$javascript .= $smwQueryUrl !== null ? ",\ntags: true" : "\ntags: true";
 		}
@@ -217,7 +227,7 @@ class PlainTokenRenderer implements TokenRenderer {
 		}
 
 		$javascript .= '});';
-		if( $allowSort ) {
+		if ( $allowSort ) {
 			$javascript .= "selectEl.next().children().children().children().sortable({
 	containment: 'parent', stop: function (event, ui) {
 		ui.item.parent().children('[title]').each(function () {
