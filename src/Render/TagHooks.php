@@ -466,7 +466,14 @@ class TagHooks {
 			];
 		}
 
+
 		$fieldType = $args['type'];
+
+		$fieldType = trim( $this->tagParseIfNeeded(
+			$fieldType,
+			$parser,
+			$frame
+		) );
 
 		if ( !Validate::validInputTypes( $fieldType ) ) {
 			return [
