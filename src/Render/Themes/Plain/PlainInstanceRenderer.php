@@ -143,7 +143,11 @@ class PlainInstanceRenderer implements InstanceRenderer {
 	private static function renderInstanceHtml( $instance, $innerHtml, $textAreaContent ) {
 		$ret = '<div class="' . $instance['selector'] . '">' . PHP_EOL;
 		$ret .= '<div class="hidden">' . PHP_EOL;
-		$ret .= '<textarea rows="10" name="' . $instance['instanceName'] . '"  class="hidden ' . $instance['textarea'] . '" data-template="' . $instance['template'] . '">' . $textAreaContent . '</textarea>' . PHP_EOL;
+		$ret .= '<textarea rows="10" name="' . $instance['instanceName'] . '" class="hidden ';
+		$ret .= $instance['textarea'] . '" data-template="' . $instance['template'] . '"';
+		$ret .= ' data-format="' . $instance['format'] . '"';
+		$ret .= '>' . $textAreaContent;
+		$ret .= '</textarea>' . PHP_EOL;
 		//$ret .= "</div>" . PHP_EOL;
 		if ( Core::isShowOnSelectActive() ) {
 			$ret .= '<div class="' . $instance['copy'] . ' ' . $instance['copyExtra'] . ' WSShowOnSelect">' . PHP_EOL;
@@ -211,7 +215,8 @@ class PlainInstanceRenderer implements InstanceRenderer {
 			'templateParent'          => "",
 			'txtareacontent'          => '',
 			'buttonBottom'            => '',
-			'copyExtra'               => 'wsform-instance-record'
+			'copyExtra'               => 'wsform-instance-record',
+			'format'                  => 'wiki'
 		);
 
 		$defaultTranslator = array(
@@ -231,7 +236,8 @@ class PlainInstanceRenderer implements InstanceRenderer {
 			'instance-list'          => 'list',
 			'default-content'        => 'txtareacontent',
 			'add-button-on-bottom'   => 'buttonBottom',
-			'button-on-bottom-class' => 'addButtonTopBottomClass'
+			'button-on-bottom-class' => 'addButtonTopBottomClass',
+			"format"                 => 'format'
 		);
 
 		foreach ( $defaultTranslator as $from => $to ) {
