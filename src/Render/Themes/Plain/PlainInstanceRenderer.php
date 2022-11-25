@@ -38,14 +38,14 @@ class PlainInstanceRenderer implements InstanceRenderer {
 	 * @inheritDoc
 	 * @throws MWException
 	 */
-	public function render_instance( string $content, array $args ) : string {
+	public function render_instance( \Parser $parser, \PPFrame $frame, string $content, array $args ) : string {
 		// TODO: Move some of this logic to the caller
 
 		if ( ! RequestContext::getMain()->canUseWikiPage() ) {
 			return "";
 		}
 
-		$instance           = self::instanceDefault( $args );
+		$instance           = self::instanceDefault( $args, $parser, $frame );
 		$pageWikiObject     = RequestContext::getMain()->getWikiPage();
 		$textAreaContent    = $instance['txtareacontent'];
 		$newTextAreaContent = '';
@@ -195,7 +195,7 @@ class PlainInstanceRenderer implements InstanceRenderer {
 		return $ret;
 	}
 
-	private static function instanceDefault( $args ) {
+	private static function instanceDefault( $args, $parser, $frame ) {
 		$defaultInstance = array(
 			'selector'                => "WSmultipleTemplateWrapper",
 			'copy'                    => "WSmultipleTemplateMain",
@@ -246,12 +246,17 @@ class PlainInstanceRenderer implements InstanceRenderer {
 			} else {
 				$checkIfEmpty = true;
 			}
+
 			$val = self::getArg(
 				$from,
 				$args,
 				$checkIfEmpty
 			);
 			if ( $val !== false ) {
+				$val = $parser->recursiveTagParse(
+					$val,
+					$frame
+				);
 				switch ( $from ) {
 					case "button-move":
 						if ( strtolower( $val ) === "none" ) {

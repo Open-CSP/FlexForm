@@ -61,27 +61,60 @@ const WsInstance = function (selector, options) {
 		let value_array = []
 
 		let textarea_content = _.saveField.val()
-		let textarea_items = textarea_content.split('{{').filter((v) => v)
 
-		$.each(textarea_items, function (i, val) {
-			let content_array = val.split('}}').join('').split('|').filter(v => v.includes('='))
-			$.each(content_array, function (index, item) {
-				let template = item.slice(0, item.indexOf('='));
-				let value = item.slice(item.indexOf('=') + 1);
+		/**
+		 * handle the data as wikitxt
+		 */
+		const handleAsWikitxt = () => {
+			let textarea_items = textarea_content.split('{{').filter((v) => v)
 
-				// check if the last character is a new line, then remove that
-				if ( value[value.length-1] === '\n') {
-					value = value.slice(0, -1)
-				}
+			$.each(textarea_items, function (i, val) {
+				let content_array = val.split('}}').join('').split('|').filter(v => v.includes('='))
+				$.each(content_array, function (index, item) {
+					let template = item.slice(0, item.indexOf('='));
+					let value = item.slice(item.indexOf('=') + 1);
 
-				name_array.push(template)
-				value_array.push(value)
+					// check if the last character is a new line, then remove that
+					if ( value[value.length - 1] === '\n' ) {
+						value = value.slice(0, -1)
+					}
+
+					name_array.push(template)
+					value_array.push(value)
+				})
+
+				handlePredefinedData(name_array, value_array)
+				name_array = []
+				value_array = []
 			})
+		}
 
-			handlePredefinedData(name_array, value_array)
-			name_array = []
-			value_array = []
-		})
+		/**
+		 * handle the data as JSON
+		 */
+		const handleAsJSON = () => {
+
+			let textarea_json_array = JSON.parse( textarea_content );
+			$.each( textarea_json_array, function ( i, template ) {
+				Object.values( template ).forEach( function ( json ) {
+					$.each( json, ( name, value ) => {
+						name_array.push( name );
+						value_array.push( value );
+					} );
+				} );
+
+				handlePredefinedData( name_array, value_array );
+				name_array = [];
+				value_array = [];
+			} );
+		}
+
+		// check in which format the data is handed
+		if ( _.saveField.data('format') === 'json' ) {
+			handleAsJSON();
+		} else {
+			handleAsWikitxt();
+		}
 	}
 
 	/**
@@ -467,17 +500,41 @@ const WsInstance = function (selector, options) {
 	 * @returns {string}
 	 */
 	const createSaveStringForInstance = (obj) => {
-		let returnStr = `{{${_.saveField.data('template')}\n`
+		/**
+		 * handle the data as wikitxt
+		 * @return {string}
+		 */
+		const handleAsWikitxt = () => {
+			let returnStr = `{{${_.saveField.data('template')}\n`
 
-		$.each(obj, function (k, v) {
-			if (typeof v === 'array') {
-				returnStr += `|${k}=${v.join(',')}\n`
-			} else {
-				returnStr += `|${k}=${v}\n`
-			}
-		})
+			$.each(obj, function (k, v) {
+				if (typeof v === 'array') {
+					returnStr += `|${k}=${v.join(',')}\n`
+				} else {
+					returnStr += `|${k}=${v}\n`
+				}
+			})
 
-		return returnStr + '}}'
+			return returnStr + '}}'
+		}
+
+		/**
+		 * handle the data as JSON
+		 * @return {string}
+		 */
+		const handleAsJSON = () => {
+			let json = {};
+			json[_.saveField.data('template')] = obj;
+			return JSON.stringify(json);
+		}
+
+		// check in which format the data needs to be saved
+		if ( _.saveField.data('format') === 'json' ) {
+			return handleAsJSON();
+		} else {
+			return handleAsWikitxt();
+		}
+
 	}
 
 

@@ -2138,6 +2138,8 @@ class TagHooks {
 
 		// TODO: Move some of the logic from "render_instance" to here
 		$ret = $this->themeStore->getFormTheme()->getInstanceRenderer()->render_instance(
+			$parser,
+			$frame,
 			$content,
 			$args
 		);
