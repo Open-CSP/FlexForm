@@ -240,6 +240,13 @@ class PlainInstanceRenderer implements InstanceRenderer {
 			"format"                 => 'format'
 		);
 
+		foreach( $args as $k => $arg ) {
+			$args[$k] = $parser->recursiveTagParse(
+				$arg,
+				$frame
+			);
+		}
+
 		foreach ( $defaultTranslator as $from => $to ) {
 			if ( $from === 'add-button-on-bottom' ) {
 				$checkIfEmpty = false;
@@ -253,10 +260,7 @@ class PlainInstanceRenderer implements InstanceRenderer {
 				$checkIfEmpty
 			);
 			if ( $val !== false ) {
-				$val = $parser->recursiveTagParse(
-					$val,
-					$frame
-				);
+
 				switch ( $from ) {
 					case "button-move":
 						if ( strtolower( $val ) === "none" ) {
