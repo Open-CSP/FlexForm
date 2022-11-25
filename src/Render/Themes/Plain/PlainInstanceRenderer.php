@@ -240,7 +240,7 @@ class PlainInstanceRenderer implements InstanceRenderer {
 			"format"                 => 'format'
 		);
 
-		foreach( $args as $k => $arg ) {
+		foreach ( $args as $k => $arg ) {
 			$args[$k] = $parser->recursiveTagParse(
 				$arg,
 				$frame
