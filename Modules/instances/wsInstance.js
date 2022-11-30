@@ -93,8 +93,12 @@ const WsInstance = function (selector, options) {
 		 * handle the data as JSON
 		 */
 		const handleAsJSON = () => {
+			console.log(textarea_content);
+			// check if content is empty before parsing as JSON
+			if ( !textarea_content ) return;
 
 			let textarea_json_array = JSON.parse( textarea_content );
+			console.log(textarea_json_array);
 			$.each( textarea_json_array, function ( i, template ) {
 				Object.values( template ).forEach( function ( json ) {
 					$.each( json, ( name, value ) => {
@@ -392,6 +396,9 @@ const WsInstance = function (selector, options) {
 		})
 
 		const saveAllInstances = () => {
+			const isJSONFormat = _.saveField.data('format') === 'json';
+			let json = {};
+			json[_.saveField.data('template')] = [];
 			// loop through all instances in the list
 			_.list.find('.WSmultipleTemplateInstance').each(function (i, instance) {
 				let valuesObj = {}
@@ -437,10 +444,20 @@ const WsInstance = function (selector, options) {
 					// set name in data attribute so the name is still available
 					input.setAttribute('data-name', name)
 				})
-				saveString += createSaveStringForInstance(valuesObj)
+				if ( isJSONFormat ) {
+					json[_.saveField.data('template')].push(valuesObj);
+				} else {
+					saveString += createSaveStringForInstance(valuesObj)
+				}
 			})
 
-			_.saveField.val(saveString)
+			if ( isJSONFormat ) {
+				console.log(json)
+				_.saveField.val(JSON.stringify(json))
+			} else {
+				_.saveField.val(saveString)
+			}
+
 		}
 
 
@@ -500,41 +517,17 @@ const WsInstance = function (selector, options) {
 	 * @returns {string}
 	 */
 	const createSaveStringForInstance = (obj) => {
-		/**
-		 * handle the data as wikitxt
-		 * @return {string}
-		 */
-		const handleAsWikitxt = () => {
-			let returnStr = `{{${_.saveField.data('template')}\n`
+		let returnStr = `{{${_.saveField.data('template')}\n`
 
-			$.each(obj, function (k, v) {
-				if (typeof v === 'array') {
-					returnStr += `|${k}=${v.join(',')}\n`
-				} else {
-					returnStr += `|${k}=${v}\n`
-				}
-			})
+		$.each(obj, function (k, v) {
+			if (typeof v === 'array') {
+				returnStr += `|${k}=${v.join(',')}\n`
+			} else {
+				returnStr += `|${k}=${v}\n`
+			}
+		})
 
-			return returnStr + '}}'
-		}
-
-		/**
-		 * handle the data as JSON
-		 * @return {string}
-		 */
-		const handleAsJSON = () => {
-			let json = {};
-			json[_.saveField.data('template')] = obj;
-			return JSON.stringify(json);
-		}
-
-		// check in which format the data needs to be saved
-		if ( _.saveField.data('format') === 'json' ) {
-			return handleAsJSON();
-		} else {
-			return handleAsWikitxt();
-		}
-
+		return returnStr + '}}'
 	}
 
 
