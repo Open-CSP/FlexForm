@@ -91,6 +91,12 @@ class ContentCore {
 
 					self::$instances[] = $k;
 					unset( $_POST[ $temp ] );
+					if ( Config::isDebug() ) {
+						Debug::addToDebug(
+							'deleting instance for ' . $temp,
+							$_POST
+						);
+					}
 				}
 			}
 		}
@@ -151,6 +157,7 @@ class ContentCore {
 			);
 		}
 
+		// Check and set default self::$fields. Also check for instances input
 		self::checkFields();
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
@@ -498,9 +505,12 @@ class ContentCore {
 						$cleanedBraces = wsSecurity::cleanBraces( $v );
 						if ( in_array( $k, self::$instances ) && $format === 'json' ) {
 							$cleanedBraces = json_decode( $cleanedBraces, true );
+							$cleanedBracesArray[$uk] = $cleanedBraces;
+							$ret .= '|' . $uk . '=' . json_encode( $cleanedBraces, JSON_PRETTY_PRINT ) . "\n";
+						} else {
+							$cleanedBracesArray[$uk] = self::checkJsonValues( $cleanedBraces );
+							$ret .= '|' . $uk . '=' . $cleanedBraces . "\n";
 						}
-						$ret .= '|' . $uk . '=' . $cleanedBraces . "\n";
-						$cleanedBracesArray[$uk] = self::checkJsonValues( $cleanedBraces );
 					} else {
 						if ( in_array( $k, self::$instances ) && $format === 'json' ) {
 							$cleanedBracesArray[ $uk ] = json_decode( $v, true );

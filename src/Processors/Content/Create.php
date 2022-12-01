@@ -542,8 +542,7 @@ class Create {
 				foreach ( $v as $multiple ) {
 					$this->content .= wsSecurity::cleanBraces( $multiple ) . ',';
 					if ( contentcore::isInstance( $kField ) === true ) {
-						$json[ $kField ][] = json_decode( ContentCore::checkJsonValues( $multiple ),
-							true );
+						$json[ $kField ][] = json_decode( $multiple, true );
 					} else {
 						$json[ $kField ][] = ContentCore::checkJsonValues( $multiple );
 					}
@@ -566,8 +565,7 @@ class Create {
 									$v
 								) . PHP_EOL;
 							if ( contentcore::isInstance( $kField ) === true ) {
-								$json[$kField] = json_decode( ContentCore::checkJsonValues( $v ),
-									true );
+								$json[$kField] = json_decode( $v, true );
 							} else {
 								$json[ $kField ] = ContentCore::checkJsonValues( $v );
 							}
@@ -576,8 +574,7 @@ class Create {
 							$vField = wsSecurity::cleanBraces( $v );
 							$this->content .= '|' . $kField . '=' . $vField . PHP_EOL;
 							if ( contentcore::isInstance( $kField ) === true ) {
-								$json[$kField] = json_decode( ContentCore::checkJsonValues( $vField ),
-									true );
+								$json[$kField] = json_decode( $vField,	true );
 							} else {
 								$json[ $kField ] = ContentCore::checkJsonValues( $vField );
 							}
