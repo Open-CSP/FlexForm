@@ -541,7 +541,12 @@ class Create {
 				}
 				foreach ( $v as $multiple ) {
 					$this->content .= wsSecurity::cleanBraces( $multiple ) . ',';
-					$json[$kField][] = ContentCore::checkJsonValues( $multiple );
+					if ( contentcore::isInstance( $kField ) === true ) {
+						$json[ $kField ][] = json_decode( ContentCore::checkJsonValues( $multiple ),
+							true );
+					} else {
+						$json[ $kField ][] = ContentCore::checkJsonValues( $multiple );
+					}
 				}
 				$this->content = rtrim(
 									 $this->content,
@@ -560,12 +565,22 @@ class Create {
 							$this->content .= '|' . $kField . '=' . wsSecurity::cleanBraces(
 									$v
 								) . PHP_EOL;
-							$json[$kField] = ContentCore::checkJsonValues( $v );
+							if ( contentcore::isInstance( $kField ) === true ) {
+								$json[$kField] = json_decode( ContentCore::checkJsonValues( $v ),
+									true );
+							} else {
+								$json[ $kField ] = ContentCore::checkJsonValues( $v );
+							}
 						} else {
 							$kField = General::makeSpaceFromUnderscore(	$k );
 							$vField = wsSecurity::cleanBraces( $v );
 							$this->content .= '|' . $kField . '=' . $vField . PHP_EOL;
-							$json[$kField] = ContentCore::checkJsonValues( $vField );
+							if ( contentcore::isInstance( $kField ) === true ) {
+								$json[$kField] = json_decode( ContentCore::checkJsonValues( $vField ),
+									true );
+							} else {
+								$json[ $kField ] = ContentCore::checkJsonValues( $vField );
+							}
 						}
 					} else {
 						$this->content = $v;

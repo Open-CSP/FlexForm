@@ -41,7 +41,7 @@ class PlainInstanceRenderer implements InstanceRenderer {
 	public function render_instance( \Parser $parser, \PPFrame $frame, string $content, array $args ) : string {
 		// TODO: Move some of this logic to the caller
 
-		if ( ! RequestContext::getMain()->canUseWikiPage() ) {
+		if ( !RequestContext::getMain()->canUseWikiPage() ) {
 			return "";
 		}
 
@@ -141,7 +141,8 @@ class PlainInstanceRenderer implements InstanceRenderer {
 	}
 
 	private static function renderInstanceHtml( $instance, $innerHtml, $textAreaContent ) {
-		$ret = '<div class="' . $instance['selector'] . '">' . PHP_EOL;
+		$ret = Core::createHiddenField( 'isinstance_' . $instance['instanceName'], "true" );
+		$ret .= '<div class="' . $instance['selector'] . '">' . PHP_EOL;
 		$ret .= '<div class="hidden">' . PHP_EOL;
 		$ret .= '<textarea rows="10" name="' . $instance['instanceName'] . '" class="hidden ';
 		$ret .= $instance['textarea'] . '" data-template="' . $instance['template'] . '"';

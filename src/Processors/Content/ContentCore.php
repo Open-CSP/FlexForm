@@ -23,6 +23,7 @@ use User;
 class ContentCore {
 
 	private static $fields = array(); // Post fields we get
+	private static $instances = []; // Any post fields that are labelled as an instance
 
 	/**
 	 * @return array
@@ -50,6 +51,48 @@ class ContentCore {
 			$ip = $_SERVER['REMOTE_ADDR'];
 
 			return ( 'Anon user: ' . $ip );
+		}
+	}
+
+	/**
+	 * @param string $name
+	 *
+	 * @return bool
+	 */
+	public static function isInstance( string $name ):bool {
+		return in_array( $name, self::$instances );
+	}
+
+	/**
+	 * @param string $name
+	 *
+	 * @return bool
+	 */
+	public static function getAllInstances():array {
+		return self::$instances;
+	}
+
+	/**
+	 * @return void
+	 */
+	private static function checkInstances() {
+		$lookFor = 'isinstance_';
+		foreach ( $_POST as $k => $v ) {
+			if ( !Definitions::isFlexFormSystemField( $k ) ) {
+
+				if ( Config::isDebug() ) {
+					Debug::addToDebug(
+						'checkInstance for ' . $k,
+						$_POST
+					);
+				}
+				$temp = $lookFor . General::makeSpaceFromUnderscore( $k );
+				if ( isset( $_POST[ $temp ] ) ) {
+
+					self::$instances[] = $k;
+					unset( $_POST[ $temp ] );
+				}
+			}
 		}
 	}
 
@@ -86,6 +129,8 @@ class ContentCore {
 				}
 			}
 		}
+
+		self::checkInstances();
 	}
 
 	/**
@@ -451,10 +496,17 @@ class ContentCore {
 					$uk = General::makeSpaceFromUnderscore( $k );
 					if ( !$noTemplate ) {
 						$cleanedBraces = wsSecurity::cleanBraces( $v );
+						if ( in_array( $k, self::$instances ) && $format === 'json' ) {
+							$cleanedBraces = json_decode( $cleanedBraces, true );
+						}
 						$ret .= '|' . $uk . '=' . $cleanedBraces . "\n";
 						$cleanedBracesArray[$uk] = self::checkJsonValues( $cleanedBraces );
 					} else {
-						$cleanedBracesArray[$uk] = self::checkJsonValues( $v );
+						if ( in_array( $k, self::$instances ) && $format === 'json' ) {
+							$cleanedBracesArray[ $uk ] = json_decode( $v, true );
+						} else {
+							$cleanedBracesArray[ $uk ] = self::checkJsonValues( $v );
+						}
 						$ret = $v . PHP_EOL;
 					}
 				}
@@ -469,7 +521,7 @@ class ContentCore {
 			$fret = $cleanedBracesArray;
 		}
 
-		if ( !$format ) {
+		if ( !$format || $format === 'wiki' ) {
 			return $ret;
 		} else {
 			return json_encode( $fret, JSON_PRETTY_PRINT );
