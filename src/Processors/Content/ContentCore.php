@@ -143,6 +143,7 @@ class ContentCore {
 	 * @throws \MWContentSerializationException
 	 */
 	public static function saveToWiki( HandleResponse $response_handler, $email = false ) : HandleResponse {
+		// Get all fields from the form that have to do with edit or create
 		self::$fields = Definitions::createAndEditFields();
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
@@ -151,6 +152,7 @@ class ContentCore {
 			);
 		}
 
+		// Check field from form and set potential defaults
 		self::checkFields();
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
@@ -182,14 +184,13 @@ class ContentCore {
 					);
 				}
 			} catch ( FlexFormException $e ) {
-				//echo "damn";
 				throw new FlexFormException(
 					$e->getMessage(),
 					0,
 					$e
 				);
 			}
-			if ( false === self::$fields['slot'] ) {
+			if ( self::$fields['slot'] === false ) {
 				$slot = "main";
 			} else {
 				$slot = self::$fields['slot'];
@@ -214,7 +215,7 @@ class ContentCore {
 				);
 			}
 			self::checkFollowPage( $result['title'] );
-			if ( ! self::$fields['mwedit'] && ! $email && ! self::$fields['writepages'] ) {
+			if ( !self::$fields['mwedit'] && !$email && !self::$fields['writepages'] ) {
 				if ( Config::isDebug() ) {
 					Debug::addToDebug(
 						'finished 1 wscreate value returnto is',
@@ -296,7 +297,7 @@ class ContentCore {
 				}
 			}
 
-			if ( ! self::$fields['mwedit'] && ! $email ) {
+			if ( !self::$fields['mwedit'] && !$email ) {
 				$response_handler->setMwReturn( self::$fields['returnto'] );
 				$response_handler->setReturnType( HandleResponse::TYPE_SUCCESS );
 				if ( self::$fields['msgOnSuccess'] !== false ) {
