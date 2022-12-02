@@ -20,7 +20,7 @@ use MediaWiki\MediaWikiServices;
  * Class external
  * <p>Handles external request</p>
  *
- * @package flexform\processors\request
+ * @package FlexForm\Processors\Request
  */
 class External {
 

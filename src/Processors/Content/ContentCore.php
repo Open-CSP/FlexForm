@@ -23,6 +23,7 @@ use User;
 class ContentCore {
 
 	private static $fields = array(); // Post fields we get
+	private static $instances = []; // Any post fields that are labelled as an instance
 
 	/**
 	 * @return array
@@ -50,6 +51,54 @@ class ContentCore {
 			$ip = $_SERVER['REMOTE_ADDR'];
 
 			return ( 'Anon user: ' . $ip );
+		}
+	}
+
+	/**
+	 * @param string $name
+	 *
+	 * @return bool
+	 */
+	public static function isInstance( string $name ):bool {
+		return in_array( $name, self::$instances );
+	}
+
+	/**
+	 * @param string $name
+	 *
+	 * @return bool
+	 */
+	public static function getAllInstances():array {
+		return self::$instances;
+	}
+
+	/**
+	 * @return void
+	 */
+	private static function checkInstances() {
+		$lookFor = 'isinstance_';
+		foreach ( $_POST as $k => $v ) {
+			if ( !Definitions::isFlexFormSystemField( $k ) ) {
+
+				if ( Config::isDebug() ) {
+					Debug::addToDebug(
+						'checkInstance for ' . $k,
+						$_POST
+					);
+				}
+				$temp = $lookFor . General::makeSpaceFromUnderscore( $k );
+				if ( isset( $_POST[ $temp ] ) ) {
+
+					self::$instances[] = $k;
+					unset( $_POST[ $temp ] );
+					if ( Config::isDebug() ) {
+						Debug::addToDebug(
+							'deleting instance for ' . $temp,
+							$_POST
+						);
+					}
+				}
+			}
 		}
 	}
 
@@ -86,6 +135,8 @@ class ContentCore {
 				}
 			}
 		}
+
+		self::checkInstances();
 	}
 
 	/**
@@ -106,6 +157,7 @@ class ContentCore {
 			);
 		}
 
+		// Check and set default self::$fields. Also check for instances input
 		self::checkFields();
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
@@ -137,14 +189,13 @@ class ContentCore {
 					);
 				}
 			} catch ( FlexFormException $e ) {
-				//echo "damn";
 				throw new FlexFormException(
 					$e->getMessage(),
 					0,
 					$e
 				);
 			}
-			if ( false === self::$fields['slot'] ) {
+			if ( self::$fields['slot'] === false ) {
 				$slot = "main";
 			} else {
 				$slot = self::$fields['slot'];
@@ -169,7 +220,7 @@ class ContentCore {
 				);
 			}
 			self::checkFollowPage( $result['title'] );
-			if ( ! self::$fields['mwedit'] && ! $email && ! self::$fields['writepages'] ) {
+			if ( !self::$fields['mwedit'] && !$email && !self::$fields['writepages'] ) {
 				if ( Config::isDebug() ) {
 					Debug::addToDebug(
 						'finished 1 wscreate value returnto is',
@@ -251,7 +302,7 @@ class ContentCore {
 				}
 			}
 
-			if ( ! self::$fields['mwedit'] && ! $email ) {
+			if ( !self::$fields['mwedit'] && !$email ) {
 				$response_handler->setMwReturn( self::$fields['returnto'] );
 				$response_handler->setReturnType( HandleResponse::TYPE_SUCCESS );
 				if ( self::$fields['msgOnSuccess'] !== false ) {
@@ -452,10 +503,20 @@ class ContentCore {
 					$uk = General::makeSpaceFromUnderscore( $k );
 					if ( !$noTemplate ) {
 						$cleanedBraces = wsSecurity::cleanBraces( $v );
-						$ret .= '|' . $uk . '=' . $cleanedBraces . "\n";
-						$cleanedBracesArray[$uk] = self::checkJsonValues( $cleanedBraces );
+						if ( in_array( $k, self::$instances ) && $format === 'json' ) {
+							$cleanedBraces = json_decode( $cleanedBraces, true );
+							$cleanedBracesArray[$uk] = $cleanedBraces;
+							$ret .= '|' . $uk . '=' . json_encode( $cleanedBraces, JSON_PRETTY_PRINT ) . "\n";
+						} else {
+							$cleanedBracesArray[$uk] = self::checkJsonValues( $cleanedBraces );
+							$ret .= '|' . $uk . '=' . $cleanedBraces . "\n";
+						}
 					} else {
-						$cleanedBracesArray[$uk] = self::checkJsonValues( $v );
+						if ( in_array( $k, self::$instances ) && $format === 'json' ) {
+							$cleanedBracesArray[ $uk ] = json_decode( $v, true );
+						} else {
+							$cleanedBracesArray[ $uk ] = self::checkJsonValues( $v );
+						}
 						$ret = $v . PHP_EOL;
 					}
 				}
@@ -470,7 +531,7 @@ class ContentCore {
 			$fret = $cleanedBracesArray;
 		}
 
-		if ( !$format ) {
+		if ( !$format || $format === 'wiki' ) {
 			return $ret;
 		} else {
 			return json_encode( $fret, JSON_PRETTY_PRINT );

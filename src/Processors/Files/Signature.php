@@ -21,7 +21,7 @@ use FlexForm\Processors\Files\FilesCore;
 
 /**
  * Class signature
- * @package wsform\processors\files
+ * @package FlexForm\Processors\Files
  */
 class Signature {
 

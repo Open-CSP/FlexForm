@@ -375,7 +375,24 @@ class Edit {
 							','
 						);
 					} else { // it is not an array.
-						$data[$pid][$t]['value'] = $_POST[$ff];
+						if ( Config::isDebug() ) {
+							$tof = ( contentcore::isInstance( $ff ) === true ) ? "true" : "false";
+							Debug::addToDebug(
+								'Create and edit data NOT ARRAY for : ' . $ff,
+								[ 'inInstance' => $tof, 'instances' => contentcore::getAllInstances() ]
+							);
+						}
+						if ( contentcore::isInstance( $ff ) && $data[$pid][$t]['format'] === 'json' ) {
+							if ( Config::isDebug() ) {
+								Debug::addToDebug(
+									'This is an instance and in JSON format : ' . $ff,
+									$data
+								);
+							}
+							$data[ $pid ][ $t ]['value'] = json_decode( $_POST[ $ff ], true );
+						} else {
+							$data[ $pid ][ $t ]['value'] = $_POST[ $ff ];
+						}
 					}
 				}
 			}
@@ -559,7 +576,7 @@ class Edit {
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
 				'Template content for ' . $pid,
-				$content
+				[$content, $pageContents]
 			);
 		}
 		$JSONContent = json_decode(
@@ -740,6 +757,13 @@ class Edit {
 						);
 					}
 				}
+			}
+
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'edit data page formation before edit',
+					[ 'pagecontents' => $pageContents ]
+				);
 			}
 
 			$usedVariables = [];
