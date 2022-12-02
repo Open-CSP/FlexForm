@@ -70,6 +70,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 1.1.45 : Split wiki edit and create
 * 1.1.44 : JSON Support for instances. Fixed nooverwrite on create page option.
 * 1.1.43 : JSON Edit support. Dropped jQuery.UI dependency
 * 1.1.42 : Instances and multiple _create json support
