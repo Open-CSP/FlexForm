@@ -22,7 +22,7 @@ use FlexForm\Processors\Files\FilesCore;
 
 /**
  * Class canvas
- * @package wsform\processors\files
+ * @package FlexForm\Processors\Files
  */
 class Canvas {
 

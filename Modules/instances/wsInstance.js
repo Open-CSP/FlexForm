@@ -93,23 +93,23 @@ const WsInstance = function (selector, options) {
 		 * handle the data as JSON
 		 */
 		const handleAsJSON = () => {
-			console.log(textarea_content);
 			// check if content is empty before parsing as JSON
 			if ( !textarea_content ) return;
 
 			let textarea_json_array = JSON.parse( textarea_content );
-			console.log(textarea_json_array);
 			$.each( textarea_json_array, function ( i, template ) {
 				Object.values( template ).forEach( function ( json ) {
 					$.each( json, ( name, value ) => {
 						name_array.push( name );
 						value_array.push( value );
 					} );
+
+					handlePredefinedData( name_array, value_array );
+					name_array = [];
+					value_array = [];
 				} );
 
-				handlePredefinedData( name_array, value_array );
-				name_array = [];
-				value_array = [];
+
 			} );
 		}
 
@@ -452,7 +452,6 @@ const WsInstance = function (selector, options) {
 			})
 
 			if ( isJSONFormat ) {
-				console.log(json)
 				_.saveField.val(JSON.stringify(json))
 			} else {
 				_.saveField.val(saveString)

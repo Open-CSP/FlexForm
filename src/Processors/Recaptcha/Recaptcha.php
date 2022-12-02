@@ -18,7 +18,7 @@ use FlexForm\FlexFormException;
 /**
  * Class recaptcha
  *
- * @package flexform\processors\recaptcha
+ * @package FlexForm\Processors\Recaptcha
  */
 class Recaptcha {
 

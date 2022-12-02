@@ -19,7 +19,7 @@ use FlexForm\Processors\Utilities\General;
  * Class wsSecurity
  * <p>Handles requests</p>
  *
- * @package flexform\processors\request
+ * @package FlexForm\Processors\Request
  */
 class Query {
 
