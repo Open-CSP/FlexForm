@@ -117,6 +117,13 @@ class PlainInstanceRenderer implements InstanceRenderer {
 		return $ret;
 	}
 
+	/**
+	 * @param $string
+	 * @param $start
+	 * @param $end
+	 *
+	 * @return false|string
+	 */
 	private static function get_string_between( $string, $start, $end ) {
 		$string = " " . $string;
 		$ini    = strpos(
@@ -141,7 +148,9 @@ class PlainInstanceRenderer implements InstanceRenderer {
 	}
 
 	private static function renderInstanceHtml( $instance, $innerHtml, $textAreaContent ) {
+		// Added in 1.1.44 for JSON support in instances
 		$ret = Core::createHiddenField( 'isinstance_' . $instance['instanceName'], "true" );
+
 		$ret .= '<div class="' . $instance['selector'] . '">' . PHP_EOL;
 		$ret .= '<div class="hidden">' . PHP_EOL;
 		$ret .= '<textarea rows="10" name="' . $instance['instanceName'] . '" class="hidden ';
@@ -149,7 +158,7 @@ class PlainInstanceRenderer implements InstanceRenderer {
 		$ret .= ' data-format="' . $instance['format'] . '"';
 		$ret .= '>' . $textAreaContent;
 		$ret .= '</textarea>' . PHP_EOL;
-		//$ret .= "</div>" . PHP_EOL;
+		// $ret .= "</div>" . PHP_EOL;
 		if ( Core::isShowOnSelectActive() ) {
 			$ret .= '<div class="' . $instance['copy'] . ' ' . $instance['copyExtra'] . ' WSShowOnSelect">' . PHP_EOL;
 		} else {
