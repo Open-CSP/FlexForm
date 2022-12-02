@@ -70,6 +70,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 1.1.44 : JSON Support for instances. Fixed nooverwrite on create page option.
 * 1.1.43 : JSON Edit support. Dropped jQuery.UI dependency
 * 1.1.42 : Instances and multiple _create json support
 * 1.1.41 : Add copy and paste support form formats. _create json support finished. Tempex and Calc secure and with instances. reCaptcha changes

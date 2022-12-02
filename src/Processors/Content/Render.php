@@ -79,6 +79,14 @@ class Render {
 			$ret['title']   = $page->getTitle()->getFullText();
 
 			return $ret;
+		} else {
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'no slot for ' . $id,
+					[ 'id' => $id,
+					  'slotname' => $slotName ]
+				);
+			}
 		}
 
 		return $ret;;

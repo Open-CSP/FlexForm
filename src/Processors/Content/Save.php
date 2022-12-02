@@ -318,7 +318,7 @@ class Save {
 		if ( !$titleObject || $titleObject->hasFragment() ) {
 			throw new FlexFormException( "Invalid title $title." );
 		}
-		if ( !$overWrite ) {
+		if ( !$overWrite && $titleObject->exists() ) {
 			throw new FlexFormException( wfMessage( 'flexform-mwcreate-page-exists' )->text() . ' : ' . $title );
 		}
 		// $slot is now an array as of v0.8.0.9.8.8

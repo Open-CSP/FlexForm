@@ -38,14 +38,14 @@ class PlainInstanceRenderer implements InstanceRenderer {
 	 * @inheritDoc
 	 * @throws MWException
 	 */
-	public function render_instance( string $content, array $args ) : string {
+	public function render_instance( \Parser $parser, \PPFrame $frame, string $content, array $args ) : string {
 		// TODO: Move some of this logic to the caller
 
-		if ( ! RequestContext::getMain()->canUseWikiPage() ) {
+		if ( !RequestContext::getMain()->canUseWikiPage() ) {
 			return "";
 		}
 
-		$instance           = self::instanceDefault( $args );
+		$instance           = self::instanceDefault( $args, $parser, $frame );
 		$pageWikiObject     = RequestContext::getMain()->getWikiPage();
 		$textAreaContent    = $instance['txtareacontent'];
 		$newTextAreaContent = '';
@@ -117,6 +117,13 @@ class PlainInstanceRenderer implements InstanceRenderer {
 		return $ret;
 	}
 
+	/**
+	 * @param $string
+	 * @param $start
+	 * @param $end
+	 *
+	 * @return false|string
+	 */
 	private static function get_string_between( $string, $start, $end ) {
 		$string = " " . $string;
 		$ini    = strpos(
@@ -141,10 +148,17 @@ class PlainInstanceRenderer implements InstanceRenderer {
 	}
 
 	private static function renderInstanceHtml( $instance, $innerHtml, $textAreaContent ) {
-		$ret = '<div class="' . $instance['selector'] . '">' . PHP_EOL;
+		// Added in 1.1.44 for JSON support in instances
+		$ret = Core::createHiddenField( 'isinstance_' . $instance['instanceName'], "true" );
+
+		$ret .= '<div class="' . $instance['selector'] . '">' . PHP_EOL;
 		$ret .= '<div class="hidden">' . PHP_EOL;
-		$ret .= '<textarea rows="10" name="' . $instance['instanceName'] . '"  class="hidden ' . $instance['textarea'] . '" data-template="' . $instance['template'] . '">' . $textAreaContent . '</textarea>' . PHP_EOL;
-		//$ret .= "</div>" . PHP_EOL;
+		$ret .= '<textarea rows="10" name="' . $instance['instanceName'] . '" class="hidden ';
+		$ret .= $instance['textarea'] . '" data-template="' . $instance['template'] . '"';
+		$ret .= ' data-format="' . $instance['format'] . '"';
+		$ret .= '>' . $textAreaContent;
+		$ret .= '</textarea>' . PHP_EOL;
+		// $ret .= "</div>" . PHP_EOL;
 		if ( Core::isShowOnSelectActive() ) {
 			$ret .= '<div class="' . $instance['copy'] . ' ' . $instance['copyExtra'] . ' WSShowOnSelect">' . PHP_EOL;
 		} else {
@@ -191,7 +205,7 @@ class PlainInstanceRenderer implements InstanceRenderer {
 		return $ret;
 	}
 
-	private static function instanceDefault( $args ) {
+	private static function instanceDefault( $args, $parser, $frame ) {
 		$defaultInstance = array(
 			'selector'                => "WSmultipleTemplateWrapper",
 			'copy'                    => "WSmultipleTemplateMain",
@@ -211,7 +225,8 @@ class PlainInstanceRenderer implements InstanceRenderer {
 			'templateParent'          => "",
 			'txtareacontent'          => '',
 			'buttonBottom'            => '',
-			'copyExtra'               => 'wsform-instance-record'
+			'copyExtra'               => 'wsform-instance-record',
+			'format'                  => 'wiki'
 		);
 
 		$defaultTranslator = array(
@@ -231,8 +246,16 @@ class PlainInstanceRenderer implements InstanceRenderer {
 			'instance-list'          => 'list',
 			'default-content'        => 'txtareacontent',
 			'add-button-on-bottom'   => 'buttonBottom',
-			'button-on-bottom-class' => 'addButtonTopBottomClass'
+			'button-on-bottom-class' => 'addButtonTopBottomClass',
+			"format"                 => 'format'
 		);
+
+		foreach ( $args as $k => $arg ) {
+			$args[$k] = $parser->recursiveTagParse(
+				$arg,
+				$frame
+			);
+		}
 
 		foreach ( $defaultTranslator as $from => $to ) {
 			if ( $from === 'add-button-on-bottom' ) {
@@ -240,12 +263,14 @@ class PlainInstanceRenderer implements InstanceRenderer {
 			} else {
 				$checkIfEmpty = true;
 			}
+
 			$val = self::getArg(
 				$from,
 				$args,
 				$checkIfEmpty
 			);
 			if ( $val !== false ) {
+
 				switch ( $from ) {
 					case "button-move":
 						if ( strtolower( $val ) === "none" ) {

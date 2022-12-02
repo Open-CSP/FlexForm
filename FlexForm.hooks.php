@@ -193,6 +193,7 @@ class FlexFormHooks {
 		return true;
 	}
 
+
 	/**
 	 * MediaWiki hook when FlexForm extension is initiated
 	 *
@@ -214,13 +215,14 @@ class FlexFormHooks {
 		$wgFlexFormConfig['loaders']['javascripttag'] = [];
 		$wgFlexFormConfig['loaders']['csstag']        = [];
 
+		$formTags = [ 'wsform', '_form', 'form' ];
+
 		$tagHooks = new TagHooks( MediaWikiServices::getInstance()->getService( 'FlexForm.ThemeStore' ) );
 
 		$parser->setHook( 'wsform',
-			[
-				$tagHooks,
-				'renderForm'
-			] );
+				[$tagHooks, 'renderForm']
+			 );
+
 		$parser->setHook( 'wsfield',
 			[
 				$tagHooks,

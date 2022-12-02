@@ -54,6 +54,7 @@ class TagHooks {
 	 * @param array $args Arguments for the field
 	 * @param Parser $parser MediaWiki Parser
 	 * @param PPFrame $frame MediaWiki PPFrame
+	 * @param string $tagName the tagname used
 	 *
 	 * @return array|string send to the MediaWiki Parser or send to the MediaWiki Parser with the message not a valid
 	 *     function
@@ -62,8 +63,8 @@ class TagHooks {
 	public function renderForm( $input, array $args, Parser $parser, PPFrame $frame ) {
 		global $wgUser, $wgEmailConfirmToEdit, $IP, $wgScript;
 		$ret = '';
-
 		//$parser->getOutput()->addModuleStyles( 'ext.wsForm.general.styles' );
+
 
 		// Do we have some messages to show?
 		if ( isset( $args['showmessages'] ) ) {
@@ -466,7 +467,14 @@ class TagHooks {
 			];
 		}
 
+
 		$fieldType = $args['type'];
+
+		$fieldType = trim( $this->tagParseIfNeeded(
+			$fieldType,
+			$parser,
+			$frame
+		) );
 
 		if ( !Validate::validInputTypes( $fieldType ) ) {
 			return [
@@ -2131,6 +2139,8 @@ class TagHooks {
 
 		// TODO: Move some of the logic from "render_instance" to here
 		$ret = $this->themeStore->getFormTheme()->getInstanceRenderer()->render_instance(
+			$parser,
+			$frame,
 			$content,
 			$args
 		);
