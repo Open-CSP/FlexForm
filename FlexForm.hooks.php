@@ -14,9 +14,10 @@ use FlexForm\FlexFormException;
 use Wikimedia\Services\NoSuchServiceException;
 
 /**
- * Class FlexFormHooks
+ * @class FlexFormHooks
+ * @brief Hooks for FlexForm extension
  *
- * Hooks for FlexForm extension
+ * MediaWiki hooks for FlexForm
  *
  * @author Sen-Sai
  */
@@ -193,9 +194,19 @@ class FlexFormHooks {
 		return true;
 	}
 
-
 	/**
 	 * MediaWiki hook when FlexForm extension is initiated
+	 * \deprecated { wsform will be removed soon }
+	 * \deprecated { wsfield will be removed soon }
+	 * \deprecated { wsfieldset will be removed soon }
+	 * \deprecated { wslegend will be removed soon }
+	 * \deprecated { wslabel will be removed soon }
+	 * \deprecated { wsselect will be removed soon }
+	 * \deprecated { wstoken will be removed soon }
+	 * \deprecated { wsedit will be removed soon }
+	 * \deprecated { wscreate will be removed soon }
+	 * \deprecated { wsemail will be removed soon }
+	 * \deprecated { wsinstance will be removed soon }
 	 *
 	 * @param Parser $parser Sets a list of all FlexForm hooks
 	 *
@@ -220,7 +231,7 @@ class FlexFormHooks {
 		$tagHooks = new TagHooks( MediaWikiServices::getInstance()->getService( 'FlexForm.ThemeStore' ) );
 
 		$parser->setHook( 'wsform',
-				[$tagHooks, 'renderForm']
+				[ $tagHooks, 'renderForm' ]
 			 );
 
 		$parser->setHook( 'wsfield',
@@ -228,46 +239,73 @@ class FlexFormHooks {
 				$tagHooks,
 				'renderField'
 			] );
+		/*
+		 * \deprecated { wsfieldset will be removed soon }
+		 */
 		$parser->setHook( 'wsfieldset',
 			[
 				$tagHooks,
 				'renderFieldset'
 			] );
+		/*
+		 * \deprecated { wslegend will be removed soon }
+		 */
 		$parser->setHook( 'wslegend',
 			[
 				$tagHooks,
 				'renderLegend'
 			] );
+		/*
+		 * \deprecated { wslabel will be removed soon }
+		 */
 		$parser->setHook( 'wslabel',
 			[
 				$tagHooks,
 				'renderLabel'
 			] );
+		/*
+		 * \deprecated { wsselect will be removed soon }
+		 */
 		$parser->setHook( 'wsselect',
 			[
 				$tagHooks,
 				'renderSelect'
 			] );
+		/*
+		 * \deprecated { wstoken will be removed soon }
+		 */
 		$parser->setHook( 'wstoken',
 			[
 				$tagHooks,
 				'renderToken'
 			] );
+		/*
+		 * \deprecated { wsedit will be removed soon }
+		 */
 		$parser->setHook( 'wsedit',
 			[
 				$tagHooks,
 				'renderEdit'
 			] );
+		/*
+		 * \deprecated { wscreate will be removed soon }
+		 */
 		$parser->setHook( 'wscreate',
 			[
 				$tagHooks,
 				'renderCreate'
 			] );
+		/*
+		 * \deprecated { wsemail will be removed soon }
+		 */
 		$parser->setHook( 'wsemail',
 			[
 				$tagHooks,
 				'renderEmail'
 			] );
+		/*
+		 * \deprecated { wsinstance will be removed soon }
+		 */
 		$parser->setHook( 'wsinstance',
 			[
 				$tagHooks,
