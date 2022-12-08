@@ -164,7 +164,13 @@ try {
 	}
 }
 
-if ( General::getPostString( 'mwaction' ) !== false ) {
+// Add default action is addToWiki
+$action = General::getPostString( 'mwaction' );
+if ( $action === false ) {
+	$action = "addToWiki";
+}
+
+if ( $action !== false ) {
 	$action = General::getPostString( 'mwaction' );
 	unset( $_POST['mwaction'] );
 

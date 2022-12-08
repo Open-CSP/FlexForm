@@ -55,14 +55,16 @@ class Mail {
 		return $this->template;
 	}
 
+	/**
+	 * @param string|bool $template
+	 */
 	public function __construct( $template = false ) {
 		$this->fields = Definitions::mailFields();
 		$this->template = $this->fields['mtemplate'];
-		if( $template !== false ) {
+		if ( $template !== false ) {
 			$this->isBot = true;
 			$this->template = $template;
 		}
-
 	}
 
 	/**

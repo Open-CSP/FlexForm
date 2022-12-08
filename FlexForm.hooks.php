@@ -226,180 +226,265 @@ class FlexFormHooks {
 		$wgFlexFormConfig['loaders']['javascripttag'] = [];
 		$wgFlexFormConfig['loaders']['csstag']        = [];
 
-		$formTags = [ 'wsform', '_form', 'form' ];
+		$formTags = [
+			'wsform',
+			'_form',
+			'form'
+		];
 
 		$tagHooks = new TagHooks( MediaWikiServices::getInstance()->getService( 'FlexForm.ThemeStore' ) );
 
-		$parser->setHook( 'wsform',
-				[ $tagHooks, 'renderForm' ]
-			 );
+		$parser->setHook(
+			'wsform',
+			[
+				$tagHooks,
+				'renderForm'
+			]
+		);
 
-		$parser->setHook( 'wsfield',
+		$parser->setHook(
+			'wsfield',
 			[
 				$tagHooks,
 				'renderField'
-			] );
+			]
+		);
 		/*
 		 * \deprecated { wsfieldset will be removed soon }
 		 */
-		$parser->setHook( 'wsfieldset',
+		$parser->setHook(
+			'wsfieldset',
 			[
 				$tagHooks,
 				'renderFieldset'
-			] );
+			]
+		);
 		/*
 		 * \deprecated { wslegend will be removed soon }
 		 */
-		$parser->setHook( 'wslegend',
+		$parser->setHook(
+			'wslegend',
 			[
 				$tagHooks,
 				'renderLegend'
-			] );
+			]
+		);
 		/*
 		 * \deprecated { wslabel will be removed soon }
 		 */
-		$parser->setHook( 'wslabel',
+		$parser->setHook(
+			'wslabel',
 			[
 				$tagHooks,
 				'renderLabel'
-			] );
+			]
+		);
 		/*
 		 * \deprecated { wsselect will be removed soon }
 		 */
-		$parser->setHook( 'wsselect',
+		$parser->setHook(
+			'wsselect',
 			[
 				$tagHooks,
 				'renderSelect'
-			] );
+			]
+		);
 		/*
 		 * \deprecated { wstoken will be removed soon }
 		 */
-		$parser->setHook( 'wstoken',
+		$parser->setHook(
+			'wstoken',
 			[
 				$tagHooks,
 				'renderToken'
-			] );
+			]
+		);
 		/*
 		 * \deprecated { wsedit will be removed soon }
 		 */
-		$parser->setHook( 'wsedit',
+		$parser->setHook(
+			'wsedit',
 			[
 				$tagHooks,
 				'renderEdit'
-			] );
+			]
+		);
 		/*
 		 * \deprecated { wscreate will be removed soon }
 		 */
-		$parser->setHook( 'wscreate',
+		$parser->setHook(
+			'wscreate',
 			[
 				$tagHooks,
 				'renderCreate'
-			] );
+			]
+		);
 		/*
 		 * \deprecated { wsemail will be removed soon }
 		 */
-		$parser->setHook( 'wsemail',
+		$parser->setHook(
+			'wsemail',
 			[
 				$tagHooks,
 				'renderEmail'
-			] );
+			]
+		);
 		/*
 		 * \deprecated { wsinstance will be removed soon }
 		 */
-		$parser->setHook( 'wsinstance',
+		$parser->setHook(
+			'wsinstance',
 			[
 				$tagHooks,
 				'renderInstance'
-			] );
-		$parser->setHook( '_form',
+			]
+		);
+		$parser->setHook(
+			'_form',
 			[
 				$tagHooks,
 				'renderForm'
-			] );
-		$parser->setHook( '_input',
+			]
+		);
+		$parser->setHook(
+			'_input',
 			[
 				$tagHooks,
 				'renderField'
-			] );
-		$parser->setHook( '_fieldset',
+			]
+		);
+		$parser->setHook(
+			'_fieldset',
 			[
 				$tagHooks,
 				'renderFieldset'
-			] );
-		$parser->setHook( '_legend',
+			]
+		);
+		$parser->setHook(
+			'_legend',
 			[
 				$tagHooks,
 				'renderLegend'
-			] );
-		$parser->setHook( '_label',
+			]
+		);
+		$parser->setHook(
+			'_label',
 			[
 				$tagHooks,
 				'renderLabel'
-			] );
-		$parser->setHook( '_select',
+			]
+		);
+		$parser->setHook(
+			'_select',
 			[
 				$tagHooks,
 				'renderSelect'
-			] );
-		$parser->setHook( '_token',
+			]
+		);
+		$parser->setHook(
+			'_token',
 			[
 				$tagHooks,
 				'renderToken'
-			] );
-		$parser->setHook( '_edit',
+			]
+		);
+		$parser->setHook(
+			'_edit',
 			[
 				$tagHooks,
 				'renderEdit'
-			] );
-		$parser->setHook( '_create',
+			]
+		);
+		$parser->setHook(
+			'_create',
 			[
 				$tagHooks,
 				'renderCreate'
-			] );
-		$parser->setHook( '_createuser',
+			]
+		);
+		$parser->setHook(
+			'_createuser',
 			[
 				$tagHooks,
 				'renderCreateUser'
-			] );
-		$parser->setHook( '_email',
+			]
+		);
+		$parser->setHook(
+			'_email',
 			[
 				$tagHooks,
 				'renderEmail'
-			] );
-		$parser->setHook( '_instance',
+			]
+		);
+		$parser->setHook(
+			'_instance',
 			[
 				$tagHooks,
 				'renderInstance'
-			] );
-		$parser->setHook( 'form',
+			]
+		);
+		$parser->setHook(
+			'form',
 			[
 				$tagHooks,
 				'renderForm'
-			] );
-		$parser->setHook( 'input',
+			]
+		);
+		$parser->setHook(
+			'input',
 			[
 				$tagHooks,
 				'renderField'
-			] );
-		$parser->setHook( 'fieldset',
+			]
+		);
+		$parser->setHook(
+			'fieldset',
 			[
 				$tagHooks,
 				'renderFieldset'
-			] );
-		$parser->setHook( 'legend',
+			]
+		);
+		$parser->setHook(
+			'legend',
 			[
 				$tagHooks,
 				'renderLegend'
-			] );
-		$parser->setHook( 'label',
+			]
+		);
+		$parser->setHook(
+			'label',
 			[
 				$tagHooks,
 				'renderLabel'
-			] );
-		$parser->setHook( 'select',
+			]
+		);
+		$parser->setHook(
+			'select',
 			[
 				$tagHooks,
 				'renderSelect'
-			] );
+			]
+		);
+		$parser->setHook(
+			'textarea',
+			[
+				$tagHooks,
+				'renderTextarea'
+			]
+		);
+		$parser->setHook(
+			'button',
+			[
+				$tagHooks,
+				'renderButton'
+			]
+		);
+		$parser->setHook(
+			'option',
+			[
+				$tagHooks,
+				'renderOption'
+			]
+		);
 	}
 }

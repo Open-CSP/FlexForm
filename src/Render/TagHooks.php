@@ -443,6 +443,60 @@ class TagHooks {
 	}
 
 	/**
+	 * @brief Function to render am Option input field.
+	 *
+	 * This function will look for the option input fields and will call its subfunction render_<inputfield>
+	 *
+	 * @param string $input Parser Between beginning and end
+	 * @param array $args Arguments for the field
+	 * @param Parser $parser MediaWiki Parser
+	 * @param PPFrame $frame MediaWiki PPFrame
+	 *
+	 * @return array send to the MediaWiki Parser
+	 * @throws FlexFormException
+	 */
+	public function renderOption( $input, array $args, Parser $parser, PPFrame $frame ) {
+		$args['type'] = 'option';
+		return $this->renderField( $input, $args, $parser, $frame );
+	}
+
+	/**
+	 * @brief Function to render a button field.
+	 *
+	 * This function will look for a button input field and will call its subfunction render_<inputfield>
+	 *
+	 * @param string $input Parser Between beginning and end
+	 * @param array $args Arguments for the field
+	 * @param Parser $parser MediaWiki Parser
+	 * @param PPFrame $frame MediaWiki PPFrame
+	 *
+	 * @return array send to the MediaWiki Parser
+	 * @throws FlexFormException
+	 */
+	public function renderButton( $input, array $args, Parser $parser, PPFrame $frame ) {
+		$args['type'] = 'button';
+		return $this->renderField( $input, $args, $parser, $frame );
+	}
+
+	/**
+	 * @brief Function to render a textarea input field.
+	 *
+	 * This function will look for the textarea input field and will call its subfunction render_<inputfield>
+	 *
+	 * @param string $input Parser Between beginning and end
+	 * @param array $args Arguments for the field
+	 * @param Parser $parser MediaWiki Parser
+	 * @param PPFrame $frame MediaWiki PPFrame
+	 *
+	 * @return array send to the MediaWiki Parser
+	 * @throws FlexFormException
+	 */
+	public function renderTextarea( $input, array $args, Parser $parser, PPFrame $frame ) {
+		$args['type'] = 'textarea';
+		return $this->renderField( $input, $args, $parser, $frame );
+	}
+
+	/**
 	 * @brief Function to render an input field.
 	 *
 	 * This function will look for the type of input field and will call its subfunction render_<inputfield>
