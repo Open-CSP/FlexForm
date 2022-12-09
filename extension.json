@@ -25,6 +25,7 @@
     "FlexFormBot": "ApiBotFlexForm"
   },
   "Hooks": {
+    "LoadExtensionSchemaUpdates": "FlexFormHooks::addTables",
     "ParserFirstCallInit": [
       "FlexFormHooks::onParserFirstCallInit"
     ],
@@ -52,13 +53,14 @@
   "ServiceWiringFiles": [
     "FlexForm.ServiceWiring.php"
   ],
+
   "config": {
     "FlexFormConfig": {
       "file_temp_path": "",
       "rc_site_key": "",
       "rc_secret_key": "",
       "sec_key": "",
-      "secure": false,
+      "secure": true,
       "auto_save_interval": 30000,
       "auto_save_after_change": 3000,
       "auto_save_btn_on": "Autosave On",
@@ -76,6 +78,8 @@
       "create-seo-titles": false,
       "filter_input_tags" : false,
       "CreateAndEditForms" : {
+        "renderonlyapprovedforms": true,
+        "userscaneditallpages" : false,
         "allowedGroups" : [ "sysop" ],
         "hideEdit" : true
       }

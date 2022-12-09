@@ -22,6 +22,10 @@ use Wikimedia\Services\NoSuchServiceException;
  * @author Sen-Sai
  */
 class FlexFormHooks {
+
+	const DBTABLE = 'FLEXFORM';
+
+
 	/**
 	 * List that returns an array of all FlexForm hooks
 	 *
@@ -107,6 +111,35 @@ class FlexFormHooks {
 			'ext.FlexForm.Instance.styles',
 			'ext.wsForm.general.styles'
 		] );
+	}
+
+	/**
+	 * When running maintenance update with will add the database tables
+	 *
+	 * @param [type] $updater [description]
+	 */
+	public static function addTables( $updater ) {
+		$dbt = $updater->getDB()->getType();
+		// If using SQLite, just use the MySQL/MariaDB schema, it's compatible
+		// anyway. Only PGSQL and some more exotic variants need a totally
+		// different schema.
+		if ( $dbt === 'sqlite' ) {
+			$dbt = 'sql';
+		}
+		$tables = __DIR__ . "/sql/FlexForm.$dbt";
+
+		if ( file_exists( $tables ) ) {
+			$updater->addExtensionUpdate( array(
+				'addTable',
+				self::DBTABLE,
+				$tables,
+				true
+			) );
+		} else {
+			throw new \MWException( wfMessage( 'flexform-unspported-database', $dbt ) );
+		}
+
+		return true;
 	}
 
 	/**
