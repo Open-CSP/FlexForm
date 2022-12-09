@@ -25,10 +25,11 @@
     "FlexFormBot": "ApiBotFlexForm"
   },
   "Hooks": {
-    "LoadExtensionSchemaUpdates": "FlexFormHooks::addTables",
+    "LoadExtensionSchemaUpdates": "FlexForm\\Core\\Sql::addTables",
     "ParserFirstCallInit": [
       "FlexFormHooks::onParserFirstCallInit"
     ],
+    "PageSaveComplete": "FlexForm\\Core\\Sql::pageSaved",
     "AdminLinks": [
       "FlexFormHooks::addToAdminLinks"
     ],

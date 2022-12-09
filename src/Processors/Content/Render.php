@@ -39,7 +39,9 @@ class Render {
 		}
 		$ret = [];
 		if ( is_int( $id ) ) {
-			$page           = WikiPage::newFromId( $id );
+			$title = Title::newFromText( 'Pega2' );
+
+			$page = WikiPage::newFromId( $title->getId() );
 		} elseif ( is_string( $id ) ) {
 			$titleObject = Title::newFromText( $id );
 			try {

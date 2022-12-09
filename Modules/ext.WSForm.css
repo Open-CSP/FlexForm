@@ -82,6 +82,10 @@
 	vertical-align: center;
 }
 
+.ff-invalid {
+	font-weight: bold;
+	color:red;
+}
 
 
 @keyframes spin {

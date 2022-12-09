@@ -23,6 +23,12 @@ use User;
  * This class is responsible for rendering tags.
  */
 class TagHooks {
+
+	/**
+	 * @var bool|null
+	 */
+	private $officialForm;
+
 	/**
 	 * @var ThemeStore
 	 */
@@ -35,6 +41,16 @@ class TagHooks {
 	 */
 	public function __construct( ThemeStore $themeStore ) {
 		$this->themeStore = $themeStore;
+	}
+
+	/**
+	 * @param int $pageId
+	 *
+	 * @return void
+	 */
+	public function isOfficialForm( int $pageId ) {
+		$sql = new \FlexForm\Core\Sql();
+		$this->officialForm = $sql->exists( $pageId );
 	}
 
 	/**
@@ -64,6 +80,12 @@ class TagHooks {
 		global $wgUser, $wgEmailConfirmToEdit, $IP, $wgScript;
 		$ret = '';
 		//$parser->getOutput()->addModuleStyles( 'ext.wsForm.general.styles' );
+
+		if ( $this->officialForm === null ) {
+			$title = $parser->getTitle();
+			$id = $title->getId();
+			$this->isOfficialForm( $id );
+		}
 
 
 		// Do we have some messages to show?
@@ -101,6 +123,12 @@ class TagHooks {
 		Core::$securityId = uniqid();
 		Core::$chkSums = [];
 		Core::includeTagsCSS( Core::getRealUrl() . '/Modules/ext.WSForm.css' );
+		if ( !$this->officialForm ) {
+			return [
+				wfMessage( 'flexform-unvalidated-form' ),
+				"markerType" => 'nowiki'
+			];
+		}
 		if ( Config::isSecure() === true ) {
 			Core::includeInlineScript( "const wgFlexFormSecure = true;" );
 		} else {
@@ -474,6 +502,9 @@ class TagHooks {
 	 * @throws FlexFormException
 	 */
 	public function renderButton( $input, array $args, Parser $parser, PPFrame $frame ) {
+		if ( isset( $args['type'] ) ) {
+			$args['buttontype'] = $args['type'];
+		}
 		$args['type'] = 'button';
 		return $this->renderField( $input, $args, $parser, $frame );
 	}
