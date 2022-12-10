@@ -63,14 +63,14 @@ class Rights {
 			RevisionRecord::FOR_THIS_USER,
 			$user
 		)->getWikitextForTransclusion();
-		if ( strpos(
-				 $content,
-				 '<_form'
-			 ) !== false ) {
-			return true;
-		} else {
-			return false;
+		$formTags = [ '<wsform', '<_form', '<form' ];
+		$ret = false;
+		foreach ( $formTags as $tag ) {
+			if ( strpos( $content, $tag ) !== false ) {
+				$ret = true;
+			}
 		}
+		return $ret;
 	}
 
 	/**
@@ -79,7 +79,7 @@ class Rights {
 	 * @return bool
 	 * @throws FlexFormException
 	 */
-	private static function isUserAllowedToEditorCreateForms( User $user = null ) {
+	public static function isUserAllowedToEditorCreateForms( User $user = null ) {
 		if ( $user === null ) {
 			$user = RequestContext::getMain()->getUser();
 		}

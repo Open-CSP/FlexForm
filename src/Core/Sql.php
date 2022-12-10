@@ -2,6 +2,7 @@
 
 namespace FlexForm\Core;
 
+use FlexForm\FlexFormException;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Storage\EditResult;
@@ -57,6 +58,7 @@ class Sql {
 	 *
 	 * @return bool
 	 * @throws Exception
+	 * @throws FlexFormException
 	 */
 	public static function pageSaved(
 		WikiPage $article,
@@ -66,6 +68,27 @@ class Sql {
 		RevisionRecord $revisionRecord,
 		EditResult $editResult
 	) : bool {
+		$id = $article->getId();
+		$idExists = self::exists( $id );
+		if ( Rights::isUserAllowedToEditorCreateForms() ) {
+			if ( $idExists ) {
+				return true;
+			} else {
+				$result = self::addPageId( $id );
+				if ( $result === false ) {
+					throw new FlexFormException( 'Can\'t save to Database [add]' );
+				}
+			}
+		} else {
+			if ( $idExists ) {
+				$result = self::removePageId( $id );
+				if ( $result === false ) {
+					throw new FlexFormException( 'Can\'t save to Database [remove]' );
+				}
+			} else {
+				return true;
+			}
+		}
 		return true;
 	}
 
@@ -74,7 +97,64 @@ class Sql {
 	 *
 	 * @return bool
 	 */
-	public function exists( int $pageId ):bool {
+	private static function addPageId( int $pageId ): bool {
+		$lb          = MediaWikiServices::getInstance()->getDBLoadBalancer();
+		$dbw         = $lb->getConnectionRef( DB_PRIMARY );
+		try {
+			$res = $dbw->insert(
+				self::DBTABLE,
+				[ 'page_id' => $pageId ],
+				__METHOD__
+			);
+		} catch ( \Exception $e ) {
+			echo $e;
+
+			return false;
+		}
+		//var_dump( $table );
+		//var_dump( $vals );
+		//var_dump( $res );
+		//die();
+		if ( $res ) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * @param int $pId
+	 *
+	 * @return bool
+	 * @throws FlexFormException
+	 */
+	private static function removePageId( int $pId ): bool {
+		$lb          = MediaWikiServices::getInstance()->getDBLoadBalancer();
+		$dbw         = $lb->getConnectionRef( DB_PRIMARY );
+		try {
+			$res = $dbw->delete(
+				self::DBTABLE,
+				"page_id = " . $pId,
+				__METHOD__
+			);
+		} catch ( \Exception $e ) {
+			throw new FlexFormException( 'Database error : ' . $e );
+			return false;
+		}
+
+		if ( $res ) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * @param int $pageId
+	 *
+	 * @return bool
+	 */
+	public static function exists( int $pageId ):bool {
 		$lb          = MediaWikiServices::getInstance()->getDBLoadBalancer();
 		$dbr         = $lb->getConnectionRef( DB_REPLICA );
 		$select      = [
