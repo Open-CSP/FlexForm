@@ -315,9 +315,10 @@ class Save {
 	public function saveToWiki( string $title, array $contentArray, string $summary, bool $overWrite = true ) {
 		$user        = RequestContext::getMain()->getUser();
 		$titleObject = Title::newFromText( $title );
+		$editAllPagesConfig = Config::getConfigVariable( 'userscaneditallpages' );
 		$canEdit = MediaWikiServices::getInstance()->getPermissionManager()->userCan( 'edit', $user, $titleObject );
 		$canCreate = MediaWikiServices::getInstance()->getPermissionManager()->userCan( 'create', $user, $titleObject );
-		if ( $canCreate === false || $canEdit === false ) {
+		if ( $editAllPagesConfig === false && ( $canCreate === false || $canEdit === false ) ) {
 			throw new FlexFormException( wfMessage( 'flexform-user-rights-not' )->text() . ' : ' . $title );
 		}
 		if ( !$titleObject || $titleObject->hasFragment() ) {

@@ -80,13 +80,15 @@ class TagHooks {
 		global $wgUser, $wgEmailConfirmToEdit, $IP, $wgScript;
 		$ret = '';
 		//$parser->getOutput()->addModuleStyles( 'ext.wsForm.general.styles' );
-
+		$renderonlyapprovedforms = Config::getConfigVariable( 'renderonlyapprovedforms' );
+		if ( $renderonlyapprovedforms === false ) {
+			$this->officialForm = true;
+		}
 		if ( $this->officialForm === null ) {
-			$title = $parser->getTitle();
+			$title = $frame->getTitle();
 			$id = $title->getId();
 			$this->isOfficialForm( $id );
 		}
-
 
 		// Do we have some messages to show?
 		if ( isset( $args['showmessages'] ) ) {
@@ -120,10 +122,30 @@ class TagHooks {
 			];
 		}
 
+
 		Core::$securityId = uniqid();
 		Core::$chkSums = [];
 		Core::includeTagsCSS( Core::getRealUrl() . '/Modules/ext.WSForm.css' );
-		if ( !$this->officialForm ) {
+
+		// Are there explicit 'restrictions' lifts set?
+		// TODO: Allow administrators of a wiki to configure whether lifting restrictions is allowed (useful for public wikis)
+		if ( isset( $args['restrictions'] ) ) {
+			// Parse the given restriction
+			$restrictions = $parser->recursiveTagParse(
+				$args['restrictions'],
+				$frame
+			);
+
+			// Only allow anonymous users if the restrictions are lifted
+			$allowAnonymous = strtolower( $restrictions ) === 'lifted';
+
+			unset( $args['restrictions'] );
+		} else {
+			// By default, deny anonymous users
+			$allowAnonymous = false;
+		}
+
+		if ( !$this->officialForm && $allowAnonymous === false ) {
 			return [
 				wfMessage( 'flexform-unvalidated-form' ),
 				"markerType" => 'nowiki'
@@ -249,23 +271,7 @@ class TagHooks {
 			unset( $args['recaptcha-v3-action'] );
 		}
 
-		// Are there explicit 'restrictions' lifts set?
-		// TODO: Allow administrators of a wiki to configure whether lifting restrictions is allowed (useful for public wikis)
-		if ( isset( $args['restrictions'] ) ) {
-			// Parse the given restriction
-			$restrictions = $parser->recursiveTagParse(
-				$args['restrictions'],
-				$frame
-			);
 
-			// Only allow anonymous users if the restrictions are lifted
-			$allowAnonymous = strtolower( $restrictions ) === 'lifted';
-
-			unset( $args['restrictions'] );
-		} else {
-			// By default, deny anonymous users
-			$allowAnonymous = false;
-		}
 
 		if ( isset( $args['changetrigger'] ) ) {
 			$changeCall = $parser->recursiveTagParse(
