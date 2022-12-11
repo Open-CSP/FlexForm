@@ -13,9 +13,10 @@ namespace FlexForm\Processors\Content;
 use FlexForm\Core\Config;
 use FlexForm\Core\Core;
 use FlexForm\Core\Debug;
+use FlexForm\FlexFormException;
 use FlexForm\Processors\Utilities\General;
-use RecursiveArrayIterator;
-use RecursiveIteratorIterator;
+use JsonPath\InvalidJsonException;
+use JsonPath\JsonObject;
 
 /**
  * Class for editing pages
@@ -307,10 +308,7 @@ class Edit {
 							$templateExplode = explode( '|', $data[$pid][$t]['template'] );
 							$data[$pid][$t]['template'] = $templateExplode[0];
 							if ( $templateExplode[0] === 'jsonk' ) {
-								$data[$pid][$t]['find'] = explode(
-									'.',
-									$templateExplode[1]
-								);
+								$data[$pid][$t]['find'] = '$.' . $templateExplode[1];
 							} else {
 								$data[$pid][$t]['find'] = explode(
 									'=',
@@ -558,6 +556,8 @@ class Edit {
 	 * @param array &$usedVariables
 	 *
 	 * @return void
+	 * @throws InvalidJsonException
+	 * @throws FlexFormException
 	 */
 	private function actualJSONEdit(
 		array $edit,
@@ -566,6 +566,8 @@ class Edit {
 		array &$result,
 		array &$usedVariables
 	) {
+		global $IP;
+		include_once( $IP . '/extensions/FlexForm/vendor/autoload.php' );
 		$slotToEdit = $edit['slot'];
 		if ( $slotToEdit === false ) {
 			$slotToEdit = 'main';
@@ -576,7 +578,7 @@ class Edit {
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
 				'Template content for ' . $pid,
-				[$content, $pageContents]
+				[ $content, $pageContents ]
 			);
 		}
 		$JSONContent = json_decode(
@@ -642,6 +644,7 @@ class Edit {
 
 			if ( $path !== null ) {
 				$JSONContent[key( $path )][$edit['variable']] = $edit['value'];
+				$pageContents[$pid][$slotToEdit]['content'] = json_encode( $JSONContent, JSON_PRETTY_PRINT );
 			} else {
 				if ( Config::isDebug() ) {
 					Debug::addToDebug(
@@ -655,6 +658,7 @@ class Edit {
 				}
 			}
 		} else {
+			/*
 			if ( $this->arrayPath( $JSONContent, $edit['find'] ) === null ) {
 				if ( Config::isDebug() ) {
 					Debug::addToDebug(
@@ -665,12 +669,32 @@ class Edit {
 						]
 					);
 				}
-			} else {
-				$this->arrayPath( $JSONContent, $edit['find'], $edit['value'] );
+			*/
+
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'JSON PATH: ' . $edit['find'],
+					[
+						$edit['value']
+					]
+				);
 			}
+			try {
+				$jsonObject = new JsonObject( $content );
+				$jsonObject->set(
+					$edit['find'],
+					$edit['value']
+				);
+
+				$pageContents[$pid][$slotToEdit]['content'] = $jsonObject->getJson();
+			} catch ( \Exception $e ) {
+				throw new FlexFormException( 'jsonpath error : ' . $e );
+			}
+			//$this->arrayPath( $JSONContent, $edit['find'], $edit['value'] );
+
 		}
 
-		$pageContents[$pid][$slotToEdit]['content'] = json_encode( $JSONContent, JSON_PRETTY_PRINT );
+
 	}
 
 	/**

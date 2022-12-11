@@ -13,7 +13,8 @@
     "php": "^7.3.19",
     "ext-json": "*",
     "ext-exif": "*",
-    "composer/installers": "1.*,>=1.0.1"
+    "composer/installers": "1.*,>=1.0.1",
+    "galbar/jsonpath": "2.1"
   },
   "require-dev": {
     "mediawiki/mediawiki-codesniffer": "34.0.0",
