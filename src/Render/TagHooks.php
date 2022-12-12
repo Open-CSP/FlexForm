@@ -187,6 +187,7 @@ class TagHooks {
 			$mwReturn = $parser->getTitle()->getLinkURL();
 		}
 
+
 		if ( isset( $args['formtarget'] ) ) {
 			$formTarget = $args['formtarget'];
 			unset( $args['formtarget'] );
@@ -265,13 +266,10 @@ class TagHooks {
 			$formId = bin2hex( random_bytes( 16 ) );
 		}
 
-
 		if ( isset( $args['recaptcha-v3-action'] ) ) {
 			Core::$reCaptcha = $args['recaptcha-v3-action'];
 			unset( $args['recaptcha-v3-action'] );
 		}
-
-
 
 		if ( isset( $args['changetrigger'] ) ) {
 			$changeCall = $parser->recursiveTagParse(
@@ -302,8 +300,8 @@ class TagHooks {
 			}
 
 			// Is this script already loaded?
-			if ( ! Core::isLoaded( $scriptToLoad ) ) {
-				if ( ! file_exists(
+			if ( !Core::isLoaded( $scriptToLoad ) ) {
+				if ( !file_exists(
 					$IP . '/extensions/FlexForm/Modules/customJS/loadScripts/' . $scriptToLoad . '.js'
 				) ) {
 					return [ 'The script specified in "loadscript" could not be loaded because it does not exist.' ];

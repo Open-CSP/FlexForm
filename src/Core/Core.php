@@ -14,7 +14,10 @@ class Core {
 
 	public const DIVIDER = '-^^-';
 
-	static $showOnSelectSet = false;
+	/**
+	 * @var bool
+	 */
+	public static $showOnSelectSet = false;
 
 	/**
 	 * Globally set as a variable to check if the posting add a reCaptcha v3 and to disable ajax submit
@@ -44,7 +47,6 @@ class Core {
 
 	public static $securityId = "";
 
-
 	public static $runAsUser = false;
 
 	public static $wsConfig = false;
@@ -54,6 +56,7 @@ class Core {
 	private static $cssStyles = array();
 
 	private static $javaScriptConfigVars = array();
+
 
 	/**
 	 * @return string
@@ -121,7 +124,7 @@ class Core {
 	 * @return string either the value of the key or an empty string
 	 */
 	public static function getValue( $k, $apo = false ): string {
-		if ( ! self::$gValues ) {
+		if ( !self::$gValues ) {
 			return "";
 		}
 		$k = str_replace(
