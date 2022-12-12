@@ -451,10 +451,10 @@ class Edit {
 				$templateContent
 			);
 		}
-		if ( $templateContent === false || empty( trim( $templateContent ) ) ) {
+		if ( $templateContent === false ) {
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
-					'Skipping this edit. Template content is false or Template Content is empty for ' .
+					'Skipping this edit. Template content is false for ' .
 					$edit['template'],
 					$templateContent
 				);
@@ -463,14 +463,41 @@ class Edit {
 			// echo 'skipping ' . $edit['template'] ;
 			return;
 		}
+		$emptyTemplate = false;
+		if ( empty( trim( $templateContent ) ) ) {
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'The template is found, but it contains no key->values',
+					[ "Template" => $edit['template'],
+					"Template Content" => $templateContent ]
+				);
+			}
+			$emptyTemplate = true;
+		}
 
 		$expl = self::pregExplode( $templateContent );
-		if ( $expl === false ) {
+
+
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'Exploded Template',
+				[ "Template exploded" => $expl ]
+			);
+		}
+		if ( $expl === false || $emptyTemplate ) {
+
 			// There's nothing to explode lets add the new argument
 			$expl            = [];
 			$expl[]          = $edit['variable'] . '=' . $edit['value'];
 			$usedVariables[] = $edit['variable'];
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'Exploded empty Template',
+					[ "Template exploded" => $expl ]
+				);
+			}
 		}
+
 		foreach ( $expl as $k => $line ) {
 			$tmp = explode(
 				'=',
@@ -489,7 +516,7 @@ class Edit {
 			$expl[] = $edit['variable'] . '=' . $edit['value'];
 		}
 
-		$newTemplateContent = '';
+		$newTemplateContent = '{{' . $edit['template'];
 		$cnt                = count( $expl );
 		$t                  = 0;
 		if ( Config::isDebug() ) {
@@ -506,16 +533,17 @@ class Edit {
 				$newTemplateContent .= "\n" . '|' . trim( $line );
 			}
 			// Is it the last one. Then {5041} put end template }} on a new line
-			if ( $t === ( $cnt - 1 ) ) {
+			if ( $t === ( $cnt - 1 ) || $cnt === 1 ) {
 				$newTemplateContent .= "\n";
 			}
 			$t++;
 		}
-		$pageContents[$pid][$slotToEdit]['content'] = str_replace(
-			$templateContent,
-			$newTemplateContent,
-			$pageContents[$pid][$slotToEdit]['content']
-		);
+		$pageContents[ $pid ][ $slotToEdit ]['content'] = str_replace(
+			'{{' . $edit['template'] . $templateContent,
+				$newTemplateContent,
+				$pageContents[ $pid ][ $slotToEdit ]['content']
+			);
+
 	}
 
 	/**
@@ -688,7 +716,7 @@ class Edit {
 
 				$pageContents[$pid][$slotToEdit]['content'] = $jsonObject->getJson();
 			} catch ( \Exception $e ) {
-				throw new FlexFormException( 'jsonpath error : ' . $e );
+				throw new FlexFormException( 'jsonpath error' );
 			}
 			//$this->arrayPath( $JSONContent, $edit['find'], $edit['value'] );
 
