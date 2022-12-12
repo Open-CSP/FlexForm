@@ -122,6 +122,15 @@ class TagHooks {
 			];
 		}
 
+		if ( isset( $_COOKIE['ffSaveFields'] ) ) {
+			Core::addPreSaved( json_decode( base64_decode( $_COOKIE['ffSaveFields'] ), true ) );
+			setcookie(
+				"ffSaveFields",
+				"",
+				time() - 3600,
+				'/'
+			);
+		}
 
 		Core::$securityId = uniqid();
 		Core::$chkSums = [];

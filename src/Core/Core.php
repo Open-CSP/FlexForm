@@ -57,6 +57,8 @@ class Core {
 
 	private static $javaScriptConfigVars = array();
 
+	public static $presavedValues = [];
+
 
 	/**
 	 * @return string
@@ -68,6 +70,28 @@ class Core {
 
 	public static function setShowOnSelectActive() {
 		self::$showOnSelectSet = true;
+	}
+
+	/**
+	 * @param array $array
+	 *
+	 * @return void
+	 */
+	public static function addPreSaved( array $array ) {
+		self::$presavedValues = $array;
+	}
+
+	/**
+	 * @param string $name
+	 *
+	 * @return false|mixed
+	 */
+	public static function getPreSavedKey( string $name ) {
+		if ( array_key_exists( $name, self::$presavedValues ) ) {
+			return self::$presavedValues[$name];
+		} else {
+			return false;
+		}
 	}
 
 	public static function isShowOnSelectActive() {
@@ -127,29 +151,18 @@ class Core {
 		if ( !self::$gValues ) {
 			return "";
 		}
+
 		$k = str_replace(
 			" ",
 			"_",
 			$k
 		);
+		$possiblePreSavedValue = self::getPreSavedKey( $k );
 
 		if ( isset( $_GET[$k] ) ) {
 			return htmlentities( $_GET[$k] );
-			//return $tmp;
-			$tmp = str_replace(
-				'"',
-				"",
-				$tmp
-			);
-			if ( $apo ) {
-				$tmp = str_replace(
-					"'",
-					"",
-					$tmp
-				);
-			}
-
-			return $tmp;
+		} elseif ( $possiblePreSavedValue !== false ) {
+			return $possiblePreSavedValue;
 		} else {
 			return "";
 		}
