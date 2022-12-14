@@ -15,7 +15,9 @@
     "FlexFormHooks": "FlexForm.hooks.php"
   },
   "AutoloadNamespaces": {
-    "FlexForm\\": "src/"
+    "FlexForm\\": "src/",
+    "JsonPath\\": "Modules/jsonPath/src/Galbar/JsonPath",
+    "Utilities\\": "Modules/jsonPath/src/Galbar/Utilities"
   },
   "ExtensionMessagesFiles": {
     "WBFormAlias": "FlexForm.i18n.alias.php"

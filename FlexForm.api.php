@@ -169,9 +169,7 @@ $action = General::getPostString( 'mwaction' );
 if ( $action === false ) {
 	$action = "addToWiki";
 }
-
 if ( $action !== false ) {
-	$action = General::getPostString( 'mwaction' );
 	unset( $_POST['mwaction'] );
 
 	switch ( $action ) {

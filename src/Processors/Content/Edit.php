@@ -594,8 +594,6 @@ class Edit {
 		array &$result,
 		array &$usedVariables
 	) {
-		global $IP;
-		include_once( $IP . '/extensions/FlexForm/vendor/autoload.php' );
 		$slotToEdit = $edit['slot'];
 		if ( $slotToEdit === false ) {
 			$slotToEdit = 'main';
