@@ -27,7 +27,7 @@ class Sql {
 		if ( $dbt === 'sqlite' ) {
 			$dbt = 'sql';
 		}
-		$tables = __DIR__ . "../../sql/FlexForm.$dbt";
+		$tables = __DIR__ . "/../../sql/FlexForm.$dbt";
 
 		if ( file_exists( $tables ) ) {
 			$updater->addExtensionUpdate( array(
