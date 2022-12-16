@@ -469,7 +469,7 @@ class Upload {
 
 		$upload_dir = $IP . "/extensions/FlexForm/uploads/";
 
-		include_once( $IP . '/extensions/FlexForm/<odules/slim/server/slim.php' );
+		include_once( $IP . '/extensions/FlexForm/modules/slim/server/slim.php' );
 		// Get posted data
 		$images = Slim::getImages( 'wsformfile_slim' );
 
