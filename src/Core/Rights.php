@@ -51,7 +51,7 @@ class Rights {
 	}
 
 	/**
-	 * @param WikiPage $wikipageObject
+	 * @param WikiPage $wikiPageObject
 	 * @param User $user
 	 *
 	 * @return bool
@@ -65,7 +65,7 @@ class Rights {
 		$ret = false;
 		foreach ( $formTags as $tag ) {
 			if ( strpos( $content, $tag ) !== false ) {
-				$ret = true;
+				return true;
 			}
 		}
 		return $ret;

@@ -308,7 +308,10 @@ class Edit {
 							$templateExplode = explode( '|', $data[$pid][$t]['template'] );
 							$data[$pid][$t]['template'] = $templateExplode[0];
 							if ( $templateExplode[0] === 'jsonk' ) {
-								$data[$pid][$t]['find'] = '$.' . $templateExplode[1];
+								if ( substr( $templateExplode[1], 0, 2 ) !== '$.' ) {
+									$templateExplode[1] .= '$.' . $templateExplode[1];
+								}
+								$data[$pid][$t]['find'] = $templateExplode[1];
 							} else {
 								$data[$pid][$t]['find'] = explode(
 									'=',

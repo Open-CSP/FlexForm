@@ -169,48 +169,49 @@ $action = General::getPostString( 'mwaction' );
 if ( $action === false ) {
 	$action = "addToWiki";
 }
-if ( $action !== false ) {
-	unset( $_POST['mwaction'] );
 
-	switch ( $action ) {
-		case "addToWiki" :
-		case "email" :
-			try {
-				if ( $action === 'email' ) {
-					$responseHandler = ContentCore::saveToWiki( $responseHandler, "yes" );
-				} else {
-					$responseHandler = ContentCore::saveToWiki( $responseHandler );
-				}
-			} catch ( FlexFormException | MWException | Exception $e ) {
-				$responseHandler->setReturnData( $e->getMessage() );
-				$responseHandler->setReturnStatus( 'saveToWiki error' );
-				$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
-			}
-			break;
-		case "get" :
-			try {
-				$responseHandler = ContentCore::saveToWiki(
-					$responseHandler,
-					"get"
-				);
-			} catch ( FlexFormException | MWException $e ) {
-				$responseHandler->setReturnData( $e->getMessage() );
-				$responseHandler->setReturnStatus( 'GET error' );
-				$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
-				try {
-					$responseHandler->exitResponse();
-				} catch ( FlexFormException $e ) {
-					return $e->getMessage();
-				}
-			}
+unset( $_POST['mwaction'] );
 
-			break;
-	}
-} else {
-	if ( Config::isDebug() ) {
-		Debug::addToDebug( 'running main functions fail',
-						   array( 'action' => General::getPostString( 'mwaction' ) ) );
-	}
+switch ( $action ) {
+	case "addToWiki" :
+	case "email" :
+		try {
+			if ( $action === 'email' ) {
+				$responseHandler = ContentCore::saveToWiki( $responseHandler, "yes" );
+			} else {
+				$responseHandler = ContentCore::saveToWiki( $responseHandler );
+			}
+		} catch ( FlexFormException | MWException | Exception $e ) {
+			$responseHandler->setReturnData( $e->getMessage() );
+			$responseHandler->setReturnStatus( 'saveToWiki error' );
+			$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
+		}
+		break;
+	case "get" :
+		try {
+			$responseHandler = ContentCore::saveToWiki(
+				$responseHandler,
+				"get"
+			);
+		} catch ( FlexFormException | MWException $e ) {
+			$responseHandler->setReturnData( $e->getMessage() );
+			$responseHandler->setReturnStatus( 'GET error' );
+			$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
+			try {
+				$responseHandler->exitResponse();
+			} catch ( FlexFormException $e ) {
+				return $e->getMessage();
+			}
+		}
+		break;
+	default:
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'running main functions fail',
+				[ 'action' => General::getPostString( 'mwaction' ) ]
+			);
+		}
+		break;
 }
 
 // Handle extensions

@@ -48,7 +48,7 @@ class TagHooks {
 	 *
 	 * @return void
 	 */
-	public function isOfficialForm( int $pageId ) {
+	public function setOfficialForm( int $pageId ) {
 		$sql = new \FlexForm\Core\Sql();
 		$this->officialForm = $sql->exists( $pageId );
 	}
@@ -81,19 +81,21 @@ class TagHooks {
 		$ret = '';
 		//$parser->getOutput()->addModuleStyles( 'ext.wsForm.general.styles' );
 		$renderonlyapprovedforms = Config::getConfigVariable( 'renderonlyapprovedforms' );
-		$renderi18nErrorInsteadofImageForApprovedForms = Config::getConfigVariable( 'renderi18nErrorInsteadofImageForApprovedForms' );
+		$renderi18nErrorInsteadofImageForApprovedForms = Config::getConfigVariable(
+			'renderi18nErrorInsteadofImageForApprovedForms'
+		);
 		if ( $renderonlyapprovedforms === false ) {
 			$this->officialForm = true;
 		}
 		if ( $this->officialForm === null ) {
 			$title = $frame->getTitle();
 			$id = $title->getId();
-			$this->isOfficialForm( $id );
+			$this->setOfficialForm( $id );
 		}
 
 		// Do we have some messages to show?
 		if ( isset( $args['showmessages'] ) ) {
-			if ( ! isset ( $_COOKIE['wsform'] ) ) {
+			if ( !isset ( $_COOKIE['wsform'] ) ) {
 				return '';
 			}
 

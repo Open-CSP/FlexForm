@@ -20,6 +20,9 @@ Or install using Composer. Read more here: https://www.mediawiki.org/wiki/Compos
 
 The Composer required name is: wikibase-solutions/flex-form
 
+```
+composer require wikibase-solutions/flex-form
+```
 ---
 
 ## Setup

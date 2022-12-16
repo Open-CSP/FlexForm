@@ -3,9 +3,12 @@
 namespace FlexForm\Core;
 
 use FlexForm\FlexFormException;
+use FlexForm\Processors\Content\Render;
+use FlexForm\Processors\Utilities\General;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Storage\EditResult;
+use MediaWiki\Storage\SlotRecord;
 use MediaWiki\User\UserIdentity;
 use WikiPage;
 
@@ -49,6 +52,30 @@ class Sql {
 	}
 
 	/**
+	 * @param string $content
+	 *
+	 * @return string
+	 */
+	public static function createHash( string $content ): string {
+		return hash( 'md5', $content );
+	}
+
+	public static function getAllFormTags( $content ) {
+		preg_match_all( '/<form(.|\n)*?<\/form>/', $content, $result );
+		return $result;
+	}
+
+	public static function createFormHashes( $slots ) {
+		echo "<pre>";
+		foreach ( $slots as $slotContent ) {
+			$forms = self::getAllFormTags( $slotContent );
+
+			var_dump ( $forms );
+		}
+		echo "</pre>";
+	}
+
+	/**
 	 * @param WikiPage $article
 	 * @param UserIdentity $user
 	 * @param string $summary
@@ -74,6 +101,10 @@ class Sql {
 			if ( $idExists ) {
 				return true;
 			} else {
+				$render = new Render();
+				$content = $render->getSlotsContentForPage(	$id	);
+				self::createFormHashes( $content );
+				die();
 				$result = self::addPageId( $id );
 				if ( $result === false ) {
 					throw new FlexFormException( 'Can\'t save to Database [add]' );

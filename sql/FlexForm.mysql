@@ -1,3 +1,4 @@
-CREATE TABLE /*_*/FLEXFORM (
-  `page_id` int(11) PRIMARY KEY
+CREATE TABLE /*_*/flexform (
+  `page_id` int(11),
+  `hash` char(34)
 ) /*$wgDBTableOptions*/;

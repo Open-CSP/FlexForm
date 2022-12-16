@@ -307,7 +307,7 @@ class Save {
 	/**
 	 * @return void
 	 */
-	private  function saveFieldsToCookie() {
+	private function saveFieldsToCookie() {
 		$toSaveArray = [];
 		foreach ( $_POST as $k=>$v ) {
 			if ( !Definitions::isFlexFormSystemField( $k ) ) {
