@@ -97,9 +97,9 @@
 	"flexform-secure-fields-incomplete" : "Secure fields not complete",
 	"flexform-rights-not" : "You do not have the rights to modify a page containing a FlexForm.",
 	"flexform-user-rights-not" : "You do not have the rights to modify or create this page: ",
-	"flexform-unvalidated-form" : "<span class=\"ff-invalid\">FORM CANNOT BE RENDERED, NOT VALIDATED</span>",
+	"flexform-unvalidated-form" : "FORM CANNOT BE RENDERED, NOT VALIDATED",
 
-	"flexform-unspported-database" : "FlexForm does not support $1",
+	"flexform-unsupported-database" : "FlexForm does not support $1",
 
 	"flexform-api-error-allpages" : "No allpages result from MediaWiki API",
 	"flexform-api-error-noquery-response" : "No query result from MediaWiki API",

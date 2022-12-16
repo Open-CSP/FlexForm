@@ -39,7 +39,7 @@ class Sql {
 		} else {
 			throw new \MWException(
 				wfMessage(
-					'flexform-unspported-database',
+					'flexform-unsupported-database',
 					$dbt
 				)
 			);

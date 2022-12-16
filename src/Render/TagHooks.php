@@ -81,6 +81,7 @@ class TagHooks {
 		$ret = '';
 		//$parser->getOutput()->addModuleStyles( 'ext.wsForm.general.styles' );
 		$renderonlyapprovedforms = Config::getConfigVariable( 'renderonlyapprovedforms' );
+		$renderi18nErrorInsteadofImageForApprovedForms = Config::getConfigVariable( 'renderi18nErrorInsteadofImageForApprovedForms' );
 		if ( $renderonlyapprovedforms === false ) {
 			$this->officialForm = true;
 		}
@@ -155,10 +156,7 @@ class TagHooks {
 		}
 
 		if ( !$this->officialForm && $allowAnonymous === false ) {
-			return [
-				wfMessage( 'flexform-unvalidated-form' ),
-				"markerType" => 'nowiki'
-			];
+			return $this->returnNonValidatedResponse( $renderi18nErrorInsteadofImageForApprovedForms );
 		}
 		if ( Config::isSecure() === true ) {
 			Core::includeInlineScript( "const wgFlexFormSecure = true;" );
@@ -481,6 +479,34 @@ class TagHooks {
 			$ret,
 			"markerType" => 'nowiki'
 		];
+	}
+
+	/**
+	 * @param bool $renderi18nErrorInsteadofImageForApprovedForms
+	 *
+	 * @return string[]
+	 */
+	private function returnNonValidatedResponse( bool $renderi18nErrorInsteadofImageForApprovedForms ){
+		if ( $renderi18nErrorInsteadofImageForApprovedForms === true ) {
+			return [
+				'<span class="ff-invalid">' . wfMessage( 'flexform-unvalidated-form' )->text() . '</span>',
+				"markerType" => 'nowiki'
+			];
+			// TODO: Add image here
+		} else {
+			global $wgScript;
+			$realUrl               = str_replace(
+				'/index.php',
+				'',
+				$wgScript
+			);
+			$img = $realUrl . '/extensions/FlexForm/Modules/unnaproved.png';
+			$html = '<img src="' . $img . '" alt="'.wfMessage( 'flexform-unvalidated-form' )->text().'">';
+			return [
+				$html,
+				"markerType" => 'nowiki'
+			];
+		}
 	}
 
 	/**

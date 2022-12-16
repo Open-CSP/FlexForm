@@ -38,10 +38,8 @@ class Rights {
 	 */
 	private static function getConfigVariable( string $name ) {
 		$config = MediaWikiServices::getInstance()->getMainConfig();
-		//var_dump( $config );
 		if ( $config->has( 'FlexFormConfig' ) ) {
 			$ffConfig = $config->get( 'FlexFormConfig' );
-			$ffConfig = $ffConfig['CreateAndEditForms'];
 
 			return $ffConfig[$name] ?? false;
 		} else {

@@ -80,12 +80,11 @@
       "can_create_user": false,
       "create-seo-titles": false,
       "filter_input_tags" : false,
-      "CreateAndEditForms" : {
-        "renderonlyapprovedforms": true,
-        "userscaneditallpages" : false,
-        "allowedGroups" : [ "sysop" ],
-        "hideEdit" : true
-      }
+      "renderonlyapprovedforms": true,
+      "renderi18nErrorInsteadofImageForApprovedForms" : true,
+      "userscaneditallpages" : false,
+      "allowedGroups" : [ "sysop" ],
+      "hideEdit" : true
     }
 
   },
