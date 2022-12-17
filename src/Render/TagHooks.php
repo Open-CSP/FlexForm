@@ -4,6 +4,7 @@ namespace FlexForm\Render;
 
 use Composer\Command\ScriptAliasCommand;
 use ExtensionRegistry;
+use FlexForm\Core\Sql;
 use FlexForm\Processors\Files\FilesCore;
 use FlexForm\Processors\Utilities\General;
 use MediaWiki\MediaWikiServices;
@@ -45,12 +46,14 @@ class TagHooks {
 
 	/**
 	 * @param int $pageId
+	 * @param string $input
 	 *
 	 * @return void
 	 */
-	public function setOfficialForm( int $pageId ) {
-		$sql = new \FlexForm\Core\Sql();
-		$this->officialForm = $sql->exists( $pageId );
+	public function setOfficialForm( int $pageId, string $input ) {
+		$hash = Sql::createHash( $input );
+		echo $hash;
+		$this->officialForm = Sql::exists( $pageId, $hash );
 	}
 
 	/**
@@ -84,13 +87,17 @@ class TagHooks {
 		$renderi18nErrorInsteadofImageForApprovedForms = Config::getConfigVariable(
 			'renderi18nErrorInsteadofImageForApprovedForms'
 		);
+		$this->officialForm = null;
 		if ( $renderonlyapprovedforms === false ) {
 			$this->officialForm = true;
 		}
 		if ( $this->officialForm === null ) {
 			$title = $frame->getTitle();
 			$id = $title->getId();
-			$this->setOfficialForm( $id );
+			$this->setOfficialForm( $id, trim( $input ) );
+			echo "<pre>";
+			var_dump( $input );
+			echo "</pre>";
 		}
 
 		// Do we have some messages to show?

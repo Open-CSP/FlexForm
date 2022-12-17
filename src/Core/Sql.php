@@ -2,6 +2,7 @@
 
 namespace FlexForm\Core;
 
+use DatabaseUpdater;
 use FlexForm\FlexFormException;
 use FlexForm\Processors\Content\Render;
 use FlexForm\Processors\Utilities\General;
@@ -10,19 +11,20 @@ use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Storage\EditResult;
 use MediaWiki\Storage\SlotRecord;
 use MediaWiki\User\UserIdentity;
+use MWException;
 use WikiPage;
 
 class Sql {
 
-	private const DBTABLE = 'FLEXFORM';
+	private const DBTABLE = 'flexform';
 
 	/**
-	 * @param $updater
+	 * @param DatabaseUpdater $updater
 	 *
 	 * @return bool
-	 * @throws \MWException
+	 * @throws MWException
 	 */
-	public static function addTables( $updater ) {
+	public static function addTables( DatabaseUpdater $updater ) {
 		$dbt = $updater->getDB()->getType();
 		// If using SQLite, just use the MySQL/MariaDB schema, it's compatible
 		// anyway. Only PGSQL and some more exotic variants need a totally
@@ -31,7 +33,6 @@ class Sql {
 			$dbt = 'sql';
 		}
 		$tables = __DIR__ . "/../../sql/FlexForm.$dbt";
-
 		if ( file_exists( $tables ) ) {
 			$updater->addExtensionUpdate( array(
 											  'addTable',
@@ -40,7 +41,7 @@ class Sql {
 											  true
 										  ) );
 		} else {
-			throw new \MWException(
+			throw new MWException(
 				wfMessage(
 					'flexform-unsupported-database',
 					$dbt
@@ -65,14 +66,32 @@ class Sql {
 		return $result;
 	}
 
-	public static function createFormHashes( $slots ) {
+	/**
+	 * @param $slots
+	 *
+	 * @return array
+	 */
+	public static function createFormHashes( array $slots ): array {
 		echo "<pre>";
-		foreach ( $slots as $slotContent ) {
-			$forms = self::getAllFormTags( $slotContent );
-
-			var_dump ( $forms );
+		$forms = [];
+		foreach ( $slots as $slotName => $slotContent ) {
+			if ( !empty( $slotContent ) ) {
+				$forms[$slotName] = self::getAllFormTags( $slotContent )[0];
+			}
 		}
+		$hashes = [];
+		foreach ( $forms as $page ) {
+			foreach ( $page as $singleForm ) {
+				if ( !empty( trim( $singleForm ) ) ) {
+					$hashes[] = self::createHash( $singleForm );
+				}
+			}
+		}
+		var_dump( $forms );
+		var_dump( $hashes );
 		echo "</pre>";
+		die();
+		return $hashes;
 	}
 
 	/**
@@ -96,28 +115,19 @@ class Sql {
 		EditResult $editResult
 	) : bool {
 		$id = $article->getId();
-		$idExists = self::exists( $id );
+		//$idExists = self::exists( $id );
 		if ( Rights::isUserAllowedToEditorCreateForms() ) {
-			if ( $idExists ) {
-				return true;
-			} else {
-				$render = new Render();
-				$content = $render->getSlotsContentForPage(	$id	);
-				self::createFormHashes( $content );
-				die();
-				$result = self::addPageId( $id );
-				if ( $result === false ) {
-					throw new FlexFormException( 'Can\'t save to Database [add]' );
-				}
+			$render = new Render();
+			$content = $render->getSlotsContentForPage(	$id	);
+			$hashes = self::createFormHashes( $content );
+			$result = self::addPageId( $id, $hashes );
+			if ( $result === false ) {
+				throw new FlexFormException( 'Can\'t save to Database [add]' );
 			}
 		} else {
-			if ( $idExists ) {
-				$result = self::removePageId( $id );
-				if ( $result === false ) {
-					throw new FlexFormException( 'Can\'t save to Database [remove]' );
-				}
-			} else {
-				return true;
+			$result = self::removePageId( $id );
+			if ( $result === false ) {
+				throw new FlexFormException( 'Can\'t save to Database [remove]' );
 			}
 		}
 		return true;
@@ -125,21 +135,28 @@ class Sql {
 
 	/**
 	 * @param int $pageId
+	 * @param array $hashes
 	 *
 	 * @return bool
 	 */
-	private static function addPageId( int $pageId ): bool {
+	private static function addPageId( int $pageId, array $hashes ): bool {
 		$lb          = MediaWikiServices::getInstance()->getDBLoadBalancer();
 		$dbw         = $lb->getConnectionRef( DB_PRIMARY );
 		try {
-			$res = $dbw->insert(
-				self::DBTABLE,
-				[ 'page_id' => $pageId ],
-				__METHOD__
-			);
+			foreach ( $hashes as $hash ) {
+				if ( !self::exists( $pageId, $hash ) ) {
+					$res = $dbw->insert(
+						self::DBTABLE,
+						[
+							'page_id'     => $pageId,
+							'hash_string' => $hash
+						],
+						__METHOD__
+					);
+				}
+			}
 		} catch ( \Exception $e ) {
 			echo $e;
-
 			return false;
 		}
 		//var_dump( $table );
@@ -182,19 +199,21 @@ class Sql {
 
 	/**
 	 * @param int $pageId
+	 * @param string $hash
 	 *
 	 * @return bool
 	 */
-	public static function exists( int $pageId ):bool {
+	public static function exists( int $pageId, string $hash ):bool {
 		$lb          = MediaWikiServices::getInstance()->getDBLoadBalancer();
 		$dbr         = $lb->getConnectionRef( DB_REPLICA );
 		$select      = [
 			'page_id',
 			"count" => 'COUNT(*)'
 		];
-		$selectWhere = "page_id = '" . $pageId . "'";
+		$selectWhere = [ "page_id = '" . $pageId . "'", "hash_string = '" . $hash . "'" ];
 		$res         = $dbr->newSelectQueryBuilder()->select( $select )->from( self::DBTABLE )->where( $selectWhere )
 						   ->caller( __METHOD__ )->fetchResultSet();
+
 		if ( $res->numRows() > 0 ) {
 			$row = $res->fetchRow();
 			if ( $row['count'] === '0' ) {

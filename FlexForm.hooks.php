@@ -197,17 +197,17 @@ class FlexFormHooks {
 
 	/**
 	 * MediaWiki hook when FlexForm extension is initiated
-	 * @deprecated { wsform will be removed soon }
-	 * @deprecated { wsfield will be removed soon }
-	 * @deprecated { wsfieldset will be removed soon }
-	 * @deprecated { wslegend will be removed soon }
-	 * @deprecated { wslabel will be removed soon }
-	 * @deprecated { wsselect will be removed soon }
-	 * @deprecated { wstoken will be removed soon }
-	 * @deprecated { wsedit will be removed soon }
-	 * @deprecated { wscreate will be removed soon }
-	 * @deprecated { wsemail will be removed soon }
-	 * @deprecated { wsinstance will be removed soon }
+	 * \deprecated { wsform will be removed soon }
+	 * \deprecated { wsfield will be removed soon }
+	 * \deprecated { wsfieldset will be removed soon }
+	 * \deprecated { wslegend will be removed soon }
+	 * \deprecated { wslabel will be removed soon }
+	 * \deprecated { wsselect will be removed soon }
+	 * \deprecated { wstoken will be removed soon }
+	 * \deprecated { wsedit will be removed soon }
+	 * \deprecated { wscreate will be removed soon }
+	 * \deprecated { wsemail will be removed soon }
+	 * \deprecated { wsinstance will be removed soon }
 	 *
 	 * @param Parser $parser Sets a list of all FlexForm hooks
 	 *
