@@ -51,8 +51,10 @@ class TagHooks {
 	 * @return void
 	 */
 	public function setOfficialForm( int $pageId, string $input ) {
+		echo "<pre>";
+		var_dump( $input );
 		$hash = Sql::createHash( $input );
-		echo $hash;
+		echo $hash . "-----" . strlen( $input ) . "-----</pre>";
 		$this->officialForm = Sql::exists( $pageId, $hash );
 	}
 
@@ -95,9 +97,9 @@ class TagHooks {
 			$title = $frame->getTitle();
 			$id = $title->getId();
 			$this->setOfficialForm( $id, trim( $input ) );
-			echo "<pre>";
-			var_dump( $input );
-			echo "</pre>";
+			//echo "<pre>";
+			//var_dump( $input );
+			//echo "</pre>";
 		}
 
 		// Do we have some messages to show?

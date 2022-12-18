@@ -62,8 +62,16 @@ class Sql {
 	}
 
 	public static function getAllFormTags( $content ) {
-		preg_match_all( '/<form(.|\n)*?<\/form>/', $content, $result );
-		return $result;
+		$dom = new \DOMDocument();
+		@$dom->loadHTML( $content );
+		$forms = $dom->getElementsByTagName( 'form' );
+		$i1 = $forms->item(0);
+
+		foreach ( $forms as $form ) {
+			$contentArray[] = $form->as;
+		}
+		//preg_match_all( '/<form(.|\n)*?<\/form>/', $content, $result );
+		return $contentArray;
 	}
 
 	/**
@@ -76,18 +84,21 @@ class Sql {
 		$forms = [];
 		foreach ( $slots as $slotName => $slotContent ) {
 			if ( !empty( $slotContent ) ) {
-				$forms[$slotName] = self::getAllFormTags( $slotContent )[0];
+				$forms[$slotName] = self::getAllFormTags( $slotContent );
 			}
 		}
 		$hashes = [];
 		foreach ( $forms as $page ) {
 			foreach ( $page as $singleForm ) {
 				if ( !empty( trim( $singleForm ) ) ) {
+					var_dump( strlen( trim( $singleForm ) ) );
 					$hashes[] = self::createHash( $singleForm );
 				}
 			}
 		}
+		echo "forms-------------------------------------------------------------------";
 		var_dump( $forms );
+		echo "hashes-------------------------------------------------------------------";
 		var_dump( $hashes );
 		echo "</pre>";
 		die();
