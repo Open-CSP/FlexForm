@@ -70,7 +70,7 @@ class validForms {
 	 * @return string
 	 */
 	private function renderTable( array $formInfo ): string {
-		$table = '<table class="uk-table uk-table-small uk-table-divider">' . PHP_EOL;
+		$table  = '<table class="uk-table uk-table-small uk-table-divider">' . PHP_EOL;
 		$table .= '<caption>There are ' . count( $formInfo ) . ' Pages with approved Forms</caption>' . PHP_EOL;
 		$table .= '<thead><tr><th>Page ID</th><th>Page Title</th><th>Nr of Forms</th></tr></thead>' . PHP_EOL;
 		$table .= '<tbody>' . PHP_EOL;
@@ -78,9 +78,9 @@ class validForms {
 		foreach ( $formInfo as $id=>$count ) {
 			$counter = $counter + $count;
 			$table .= '<tr>' . PHP_EOL;
-			$table .='<td>' . $id. '</td>';
-			$table .='<td>' . $this->getTitleFromId( $id ). '</td>';
-			$table .='<td>' . $count . '</td></tr>' . PHP_EOL;
+			$table .= '<td>' . $id. '</td>';
+			$table .= '<td>' . $this->getTitleFromId( $id ). '</td>';
+			$table .= '<td>' . $count . '</td></tr>' . PHP_EOL;
 		}
 		$table .= '</tbody>' . PHP_EOL;
 		$table .= '<tfoot><tr><td></td><td></td><td>Total of ' . $counter . ' approved forms</td></tr></tfoot>';
