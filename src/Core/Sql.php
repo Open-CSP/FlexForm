@@ -187,6 +187,35 @@ class Sql {
 		}
 	}
 
+	public static function getAllApprovedForms() {
+		$lb          = MediaWikiServices::getInstance()->getDBLoadBalancer();
+		$dbr         = $lb->getConnectionRef( DB_REPLICA );
+		$select      = [ 'page_id', "count" => 'COUNT(*)' ];
+		$selectOptions = [
+			'GROUP BY' => 'page_id',
+			'ORDER BY' => 'count DESC'
+		];
+		$res = $dbr->select(
+			self::DBTABLE,
+			$select,
+			[],
+			__METHOD__,
+			$selectOptions
+		);
+
+		$pages = [];
+		if ( $res->numRows() > 0 ) {
+			while ( $row = $res->fetchRow() ) {
+				$pId = $row['page_id'];
+				$cnt = $row['count'];
+				$pages[$pId] = $cnt;
+			}
+			return $pages;
+		} else {
+			return [];
+		}
+	}
+
 	/**
 	 * @param int $pageId
 	 * @param string $hash

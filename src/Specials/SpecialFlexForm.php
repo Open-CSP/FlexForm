@@ -404,6 +404,7 @@ class SpecialFlexForm extends \SpecialPage {
 			return;
 		}
 
+		/*
 		$config_default = false;
 		$config         = false;
 
@@ -432,6 +433,7 @@ class SpecialFlexForm extends \SpecialPage {
 		}
 		// Temporarily removing Formbuilder
 		$this->showFormBuilder = false;
+		*/
 		$realUrl               = str_replace(
 			'/index.php',
 			'',
@@ -527,6 +529,11 @@ class SpecialFlexForm extends \SpecialPage {
 		$args = $this->getArgumentsFromSpecialPage( $sub );
 		if ( $args !== false ) {
 			switch ( $args[0] ) {
+				case "valid_forms":
+					$vF = new FlexForm\Specials\SpecialHelpers\validForms( $realUrl );
+					$out->addHTML( $vF->renderApprovedFormsInformation() );
+					return true;
+					break;
 				case "survey":
 					$path = "$IP/extensions/FlexForm/Modules/surveyBuilder";
 					$ret = file_get_contents( $path . "/dist/index.html" );
