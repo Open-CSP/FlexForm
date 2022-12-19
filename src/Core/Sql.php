@@ -61,17 +61,19 @@ class Sql {
 		return hash( 'md5', $content );
 	}
 
-	public static function getAllFormTags( $content ) {
-		$dom = new \DOMDocument();
-		@$dom->loadHTML( $content );
-		$forms = $dom->getElementsByTagName( 'form' );
-		$i1 = $forms->item(0);
-
-		foreach ( $forms as $form ) {
-			$contentArray[] = $form->as;
+	/**
+	 * @param string $content
+	 *
+	 * @return mixed
+	 */
+	public static function getAllFormTags( string $content ) {
+		preg_match_all( '/<form[^>]*>([\s\S]*)<\/form>/U', $content, $result ) ;
+		// preg_match_all( '/<form(.|\n)*?<\/form>/', $content, $result );
+		if ( isset( $result[1] ) ) {
+			return $result[1];
+		} else {
+			return [];
 		}
-		//preg_match_all( '/<form(.|\n)*?<\/form>/', $content, $result );
-		return $contentArray;
 	}
 
 	/**
@@ -80,7 +82,6 @@ class Sql {
 	 * @return array
 	 */
 	public static function createFormHashes( array $slots ): array {
-		echo "<pre>";
 		$forms = [];
 		foreach ( $slots as $slotName => $slotContent ) {
 			if ( !empty( $slotContent ) ) {
@@ -91,17 +92,10 @@ class Sql {
 		foreach ( $forms as $page ) {
 			foreach ( $page as $singleForm ) {
 				if ( !empty( trim( $singleForm ) ) ) {
-					var_dump( strlen( trim( $singleForm ) ) );
-					$hashes[] = self::createHash( $singleForm );
+					$hashes[] = self::createHash( trim( $singleForm ) );
 				}
 			}
 		}
-		echo "forms-------------------------------------------------------------------";
-		var_dump( $forms );
-		echo "hashes-------------------------------------------------------------------";
-		var_dump( $hashes );
-		echo "</pre>";
-		die();
 		return $hashes;
 	}
 
@@ -170,15 +164,7 @@ class Sql {
 			echo $e;
 			return false;
 		}
-		//var_dump( $table );
-		//var_dump( $vals );
-		//var_dump( $res );
-		//die();
-		if ( $res ) {
-			return true;
-		} else {
-			return false;
-		}
+		return true;
 	}
 
 	/**
@@ -217,13 +203,21 @@ class Sql {
 	public static function exists( int $pageId, string $hash ):bool {
 		$lb          = MediaWikiServices::getInstance()->getDBLoadBalancer();
 		$dbr         = $lb->getConnectionRef( DB_REPLICA );
-		$select      = [
-			'page_id',
-			"count" => 'COUNT(*)'
+		$select      = [ 'page_id', "count" => 'COUNT(*)' ];
+		$selectOptions    = [
+			'LIMIT'    => 1
 		];
-		$selectWhere = [ "page_id = '" . $pageId . "'", "hash_string = '" . $hash . "'" ];
-		$res         = $dbr->newSelectQueryBuilder()->select( $select )->from( self::DBTABLE )->where( $selectWhere )
-						   ->caller( __METHOD__ )->fetchResultSet();
+		$selectWhere = [
+			"page_id = '" . $pageId . "'",
+			"hash_string = '" . $hash . "'"
+		];
+		$res = $dbr->select(
+			self::DBTABLE,
+			$select,
+			$selectWhere,
+			__METHOD__,
+			$selectOptions
+		);
 
 		if ( $res->numRows() > 0 ) {
 			$row = $res->fetchRow();
@@ -231,6 +225,7 @@ class Sql {
 				return false;
 			} else {
 				return true;
+
 			}
 		}
 		return false;

@@ -51,10 +51,7 @@ class TagHooks {
 	 * @return void
 	 */
 	public function setOfficialForm( int $pageId, string $input ) {
-		echo "<pre>";
-		var_dump( $input );
-		$hash = Sql::createHash( $input );
-		echo $hash . "-----" . strlen( $input ) . "-----</pre>";
+		$hash = Sql::createHash( trim( $input ) );
 		$this->officialForm = Sql::exists( $pageId, $hash );
 	}
 
@@ -96,10 +93,12 @@ class TagHooks {
 		if ( $this->officialForm === null ) {
 			$title = $frame->getTitle();
 			$id = $title->getId();
-			$this->setOfficialForm( $id, trim( $input ) );
-			//echo "<pre>";
-			//var_dump( $input );
-			//echo "</pre>";
+			if ( $input === null ) {
+				$formContent = '';
+			} else {
+				$formContent = $input;
+			}
+			$this->setOfficialForm( (int)$id, $formContent );
 		}
 
 		// Do we have some messages to show?
@@ -169,6 +168,7 @@ class TagHooks {
 		if ( !$this->officialForm && $allowAnonymous === false ) {
 			return $this->returnNonValidatedResponse( $renderi18nErrorInsteadofImageForApprovedForms );
 		}
+
 		if ( Config::isSecure() === true ) {
 			Core::includeInlineScript( "const wgFlexFormSecure = true;" );
 		} else {
