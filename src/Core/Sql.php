@@ -5,11 +5,9 @@ namespace FlexForm\Core;
 use DatabaseUpdater;
 use FlexForm\FlexFormException;
 use FlexForm\Processors\Content\Render;
-use FlexForm\Processors\Utilities\General;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Storage\EditResult;
-use MediaWiki\Storage\SlotRecord;
 use MediaWiki\User\UserIdentity;
 use MWException;
 use WikiPage;
@@ -24,7 +22,7 @@ class Sql {
 	 * @return bool
 	 * @throws MWException
 	 */
-	public static function addTables( DatabaseUpdater $updater ) {
+	public static function addTables( DatabaseUpdater $updater ): bool {
 		$dbt = $updater->getDB()->getType();
 		// If using SQLite, just use the MySQL/MariaDB schema, it's compatible
 		// anyway. Only PGSQL and some more exotic variants need a totally
@@ -34,12 +32,12 @@ class Sql {
 		}
 		$tables = __DIR__ . "/../../sql/FlexForm.$dbt";
 		if ( file_exists( $tables ) ) {
-			$updater->addExtensionUpdate( array(
+			$updater->addExtensionUpdate( [
 											  'addTable',
 											  self::DBTABLE,
 											  $tables,
 											  true
-										  ) );
+										  ] );
 		} else {
 			throw new MWException(
 				wfMessage(
@@ -75,7 +73,7 @@ class Sql {
 	}
 
 	/**
-	 * @param $slots
+	 * @param array $slots
 	 *
 	 * @return array
 	 */
@@ -106,7 +104,6 @@ class Sql {
 	 * @param EditResult $editResult
 	 *
 	 * @return bool
-	 * @throws Exception
 	 * @throws FlexFormException
 	 */
 	public static function pageSaved(
@@ -118,7 +115,6 @@ class Sql {
 		EditResult $editResult
 	) : bool {
 		$id = $article->getId();
-		//$idExists = self::exists( $id );
 		if ( Rights::isUserAllowedToEditorCreateForms() ) {
 			$render = new Render();
 			$content = $render->getSlotsContentForPage(	$id	);
@@ -148,7 +144,7 @@ class Sql {
 		try {
 			foreach ( $hashes as $hash ) {
 				if ( !self::exists( $pageId, $hash ) ) {
-					$res = $dbw->insert(
+					$dbw->insert(
 						self::DBTABLE,
 						[
 							'page_id'     => $pageId,
@@ -182,7 +178,6 @@ class Sql {
 			);
 		} catch ( \Exception $e ) {
 			throw new FlexFormException( 'Database error : ' . $e );
-			return false;
 		}
 
 		if ( $res ) {
