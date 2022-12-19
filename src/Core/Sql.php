@@ -67,13 +67,11 @@ class Sql {
 	 * @return mixed
 	 */
 	public static function getAllFormTags( string $content ) {
-		preg_match_all( '/<form[^>]*>([\s\S]*)<\/form>/U', $content, $result ) ;
+		preg_match_all( '/<form[^>]*>([\s\S]*)<\/form>/U', $content, $result1 );
+		preg_match_all( '/<wsform[^>]*>([\s\S]*)<\/wsform>/U', $content, $result2 );
+		preg_match_all( '/<_form[^>]*>([\s\S]*)<\/_form>/U', $content, $result3 );
 		// preg_match_all( '/<form(.|\n)*?<\/form>/', $content, $result );
-		if ( isset( $result[1] ) ) {
-			return $result[1];
-		} else {
-			return [];
-		}
+		return array_merge_recursive( $result1[1], $result2[1], $result3[1] );
 	}
 
 	/**
