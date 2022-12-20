@@ -10,6 +10,7 @@
 //namespace wsform\special;
 namespace FlexForm\Specials;
 
+use MediaWiki\MediaWikiServices;
 use SpecialPage;
 
 use FlexForm;
@@ -439,6 +440,18 @@ class SpecialFlexForm extends \SpecialPage {
 			'',
 			$wgScript
 		);
+		$out = $this->getOutput();
+		FlexForm\Core\Config::setConfigFromMW();
+		$groups = FlexForm\Core\Config::getConfigVariable( 'allowedGroups' );
+		$userAllowed = true;
+		if ( empty( array_intersect(
+			$groups,
+			MediaWikiServices::getInstance()->getUserGroupManager()->getUserEffectiveGroups( $wgUser )
+		) ) ) {
+			//$out->addHTML( '<p>Nothing to see here, only interesting stuff for Admins</p>' );
+			$userAllowed = false;
+			//return true;
+		}
 		$ver                   = "";
 		//TODO: Needs to be set to final destination
 		$bitbucketSource    = 'https://raw.githubusercontent.com/WikibaseSolutions/FlexForm/main/extension.json';
@@ -502,18 +515,29 @@ class SpecialFlexForm extends \SpecialPage {
 		$installUrl  = $realUrl . '/index.php/Special:FlexForm/Install_step-1/';
 		$installUrl4real  = $realUrl . '/index.php/Special:FlexForm/Install_step-2/';
 		$purl        = $realUrl . "/index.php/Special:FlexForm/Docs";
+		$approvedPageUrl        = $realUrl . "/index.php/Special:FlexForm/valid_forms";
 		$setupUrl    = $realUrl . "/index.php/Special:FlexForm/Setup";
 		$statusUrl   = $realUrl . "/index.php/Special:FlexForm/Status";
 		$eurl        = $realUrl . "/index.php/Special:FlexForm/Docs/examples";
-		$out         = $this->getOutput();
+
 		$out->addModuleStyles( [
 			'ext.wsForm.general.styles'
 		] );
 		$docsLogo = '<img src="' . $wgServer . '/extensions/FlexForm/Modules/ff-docs-icon.png">';
-		$headerPage  = '<div class="flex-form-special-top"><div class="flex-form-special-top-left">';
+		$vF = new FlexForm\Specials\SpecialHelpers\validForms( $realUrl );
+		$headerPage = $vF->addResources();
+		$headerPage  .= '<div class="flex-form-special-top"><div class="flex-form-special-top-left"><div class="uk-inline">';
 		$headerPage .= '<a title="FlexForm Special Page - Home" href="' . $homeUrl . '">';
-		$headerPage  .= '<img src="' . $wgServer . "/extensions/FlexForm/FlexForm-logo.png" . '" /></a><br>Your version: v' . $currentVersion;
-		$headerPage .= '</div><div class="flex-form-special-top-right"><a target="_blank" title="FlexForm Documentation"';
+		$headerPage  .= '<img src="' . $wgServer . "/extensions/FlexForm/FlexForm-logo.png" . '" /></a>';
+		if ( $userAllowed ) {
+			$headerPage .= '<div class="uk-card uk-card-body uk-card-default" uk-drop="pos: right-top">';
+			$headerPage .= '<a href=" ' . $homeUrl . ' ">FlexForm Home</a><br>';
+			$headerPage .= '<a href=" ' . $approvedPageUrl . ' ">Manage approved pages</a></div></div>';
+		}
+		$headerPage .= '<br>Your version: v' . $currentVersion;
+		$headerPage .= '</div>';
+
+		$headerPage .= '<div class="flex-form-special-top-right"><a target="_blank" title="FlexForm Documentation"';
 		$headerPage .= ' href="https://www.open-csp.org/DevOps:Doc/FlexForm">';
 		$headerPage .= $docsLogo . '<br>Documentation</a></div></div>';
 		$out->addHTML(
@@ -530,8 +554,13 @@ class SpecialFlexForm extends \SpecialPage {
 		if ( $args !== false ) {
 			switch ( $args[0] ) {
 				case "valid_forms":
-					$vF = new FlexForm\Specials\SpecialHelpers\validForms( $realUrl );
-					$out->addHTML( $vF->renderApprovedFormsInformation() );
+					if ( $userAllowed ) {
+						$pId = $this->getPostString( 'pId' );
+						if ( $pId !== false ) {
+							FlexForm\Core\Sql::removePageId( (int)$pId );
+						}
+						$out->addHTML( $vF->renderApprovedFormsInformation( $pId ) );
+					}
 					return true;
 					break;
 				case "survey":
@@ -541,101 +570,130 @@ class SpecialFlexForm extends \SpecialPage {
 
 					return true;
 				case "Install_step-1":
-					if ( isset( $_GET['v'] ) && $_GET['v'] !== '' ) {
-						$getVersion = $_GET['v'];
-					} else {
-						$getVersion = false;
-					}
-					if ( $getVersion ) {
-						$out->addHTML( 'Click the button to perform a git update to version ' . $getVersion );
-						$install4real = '<form method="post" action="' . $installUrl4real . '?v=' . $getVersion . '">' . PHP_EOL;
-					} else {
-						$out->addHTML( 'Click the button to perform a git update to version ' . $sourceVersion );
-						$install4real = '<form method="post" action="' . $installUrl4real . '">' . PHP_EOL;
-					}
-					$install4real .= '<input type="submit" value="update using Git" class="flex-form-special-install-btn"></form>' . PHP_EOL;
-					$out->addHTML( $install4real );
-					return true;
-				case "Install_step-2":
-					if ( isset( $_GET['v'] ) && $_GET['v'] !== '' ) {
-						$sourceVersion = $_GET['v'];
-					}
-					$git = new FlexForm\Core\Git( $IP . '/extensions/FlexForm' );
-					if ( $git->isGitRepo() !== true ) {
-						$out->addHTML( 'This installation of FlexForm is not Git based. We cannot update your version of FlexForm. Please contact the site admin to do this for you.' );
-						return;
-					}
-					$terminalOutput = '';
-					$result = $git->executeGitCmd( 'fetch --all' );
-					if ( $result === false ) {
-						$out->addHTML( 'Could not execute git command' );
-						return;
-					}
-					$terminalOutput .= $git->implodeResponse( $result['output'] );
-					$cmd = 'checkout tags/v' . $sourceVersion;
-					$result = $git->executeGitCmd( $cmd );
-					$result['output'] = $git->implodeResponse( $result['output'] );
-					if ( $git->checkResponseForError( $result['output'] ) !== 'ok' ) {
-						switch( $git->checkResponseForError( $result['output'] ) ) {
-							case "error" :
-								$out->addHTML( '<h2>Git checkout error</h2><p>Please ask the website admin to fix this problem.</p>' );
-								$terminalOutput .= str_replace( 'error:', '', $result['output'] );
-								break;
-							case "fatal" :
-								$out->addHTML( '<h2>Git fatal error</h2><p>Please ask the website admin to fix this problem.</p>' );
-								$terminalOutput .= str_replace( 'fatal:', '', $result['output'] );
-								break;
+					if ( $userAllowed ) {
+						if ( isset( $_GET['v'] ) && $_GET['v'] !== '' ) {
+							$getVersion = $_GET['v'];
+						} else {
+							$getVersion = false;
 						}
-					} else {
-						$terminalOutput .= $result['output'];
-						$out->addHTML( '<h2>Git result:</h2>' );
+						if ( $getVersion ) {
+							$out->addHTML( 'Click the button to perform a git update to version ' . $getVersion );
+							$install4real = '<form method="post" action="' . $installUrl4real . '?v=' . $getVersion . '">' . PHP_EOL;
+						} else {
+							$out->addHTML( 'Click the button to perform a git update to version ' . $sourceVersion );
+							$install4real = '<form method="post" action="' . $installUrl4real . '">' . PHP_EOL;
+						}
+						$install4real .= '<input type="submit" value="update using Git" class="flex-form-special-install-btn"></form>' . PHP_EOL;
+						$out->addHTML( $install4real );
+
+						return true;
 					}
-					$out->addHTML('<div class="flex-form-terminal"><pre><output>' );
-					$out->addHTML( $terminalOutput );
-					$out->addHTML( '</output></pre></div>' );
-					return true;
+					break;
+				case "Install_step-2":
+					if ( $userAllowed ) {
+						if ( isset( $_GET['v'] ) && $_GET['v'] !== '' ) {
+							$sourceVersion = $_GET['v'];
+						}
+						$git = new FlexForm\Core\Git( $IP . '/extensions/FlexForm' );
+						if ( $git->isGitRepo() !== true ) {
+							$out->addHTML(
+								'This installation of FlexForm is not Git based. We cannot update your version of FlexForm. Please contact the site admin to do this for you.'
+							);
+
+							return;
+						}
+						$terminalOutput = '';
+						$result         = $git->executeGitCmd( 'fetch --all' );
+						if ( $result === false ) {
+							$out->addHTML( 'Could not execute git command' );
+
+							return;
+						}
+						$terminalOutput .= $git->implodeResponse( $result['output'] );
+						$cmd = 'checkout tags/v' . $sourceVersion;
+						$result = $git->executeGitCmd( $cmd );
+						$result['output'] = $git->implodeResponse( $result['output'] );
+						if ( $git->checkResponseForError( $result['output'] ) !== 'ok' ) {
+							switch ( $git->checkResponseForError( $result['output'] ) ) {
+								case "error" :
+									$out->addHTML(
+										'<h2>Git checkout error</h2><p>Please ask the website admin to fix this problem.</p>'
+									);
+									$terminalOutput .= str_replace(
+										'error:',
+										'',
+										$result['output']
+									);
+									break;
+								case "fatal" :
+									$out->addHTML(
+										'<h2>Git fatal error</h2><p>Please ask the website admin to fix this problem.</p>'
+									);
+									$terminalOutput .= str_replace(
+										'fatal:',
+										'',
+										$result['output']
+									);
+									break;
+							}
+						} else {
+							$terminalOutput .= $result['output'];
+							$out->addHTML( '<h2>Git result:</h2>' );
+						}
+						$out->addHTML( '<div class="flex-form-terminal"><pre><output>' );
+						$out->addHTML( $terminalOutput );
+						$out->addHTML( '</output></pre></div>' );
+
+						return true;
+					}
+					break;
 			}
 		} else {
-			if ( $sourceVersion !== $currentVersion ) {
-				$installForm = '<form method="post" action="' . $installUrl . '">' . PHP_EOL;
-				$installForm .= '<input type="submit" value="Go to update page" class="flex-form-special-install-btn"></form>' . PHP_EOL;
-				$changeLogText   = wfMessage( "flexform-docs-new-version-notice", $sourceVersion )->text();
-				$changeLogText .= " " . wfMessage( "flexform-docs-new-version-install" );
-				$changeLogText .= $installForm;
-				$tableHead       = wfMessage( "flexform-docs-new-version-table" )->text();
-				$changelogDetail = $this->getChangeLog(
-					$bitbucketChangelog,
-					$currentVersion
+			if ( $userAllowed ) {
+				if ( $sourceVersion !== $currentVersion ) {
+					$installForm     = '<form method="post" action="' . $installUrl . '">' . PHP_EOL;
+					$installForm     .= '<input type="submit" value="Go to update page" class="flex-form-special-install-btn"></form>' . PHP_EOL;
+					$changeLogText   = wfMessage(
+						"flexform-docs-new-version-notice",
+						$sourceVersion
+					)->text();
+					$changeLogText   .= " " . wfMessage( "flexform-docs-new-version-install" );
+					$changeLogText   .= $installForm;
+					$tableHead       = wfMessage( "flexform-docs-new-version-table" )->text();
+					$changelogDetail = $this->getChangeLog(
+						$bitbucketChangelog,
+						$currentVersion
+					);
+				} else {
+					$changeLogText   = wfMessage( "flexform-docs-no-new-version-notice" )->text();
+					$tableHead       = wfMessage( "flexform-docs-no-new-version-table" )->text();
+					$changelogDetail = $this->getChangeLog(
+						$bitbucketChangelog,
+						''
+					);
+				}
+
+				$changeLogTemplate = file_get_contents( $path . 'changelog.html' );
+				$repl              = array(
+					'%changelogdescr%',
+					'%tablehead%',
+					'%version%',
+					'%changelog%'
 				);
-			} else {
-				$changeLogText   = wfMessage( "flexform-docs-no-new-version-notice" )->text();
-				$tableHead       = wfMessage( "flexform-docs-no-new-version-table" )->text();
-				$changelogDetail = $this->getChangeLog(
-					$bitbucketChangelog,
-					''
+				$with              = array(
+					$changeLogText,
+					$tableHead,
+					$sourceVersion,
+					'<pre>' . $changelogDetail . '</pre>'
+				);
+				$out->addHTML(
+					str_replace(
+						$repl,
+						$with,
+						$changeLogTemplate
+					)
 				);
 			}
-
-			$changeLogTemplate = file_get_contents( $path . 'changelog.html' );
-			$repl              = array(
-				'%changelogdescr%',
-				'%tablehead%',
-				'%version%',
-				'%changelog%'
-			);
-			$with              = array(
-				$changeLogText,
-				$tableHead,
-				$sourceVersion,
-				'<pre>' . $changelogDetail . '</pre>'
-			);
-			$out->addHTML(
-				str_replace(
-					$repl,
-					$with,
-					$changeLogTemplate
-				)
-			);
 
 			return true;
 		}

@@ -167,7 +167,7 @@ class Sql {
 	 * @return bool
 	 * @throws FlexFormException
 	 */
-	private static function removePageId( int $pId ): bool {
+	public static function removePageId( int $pId ): bool {
 		$lb          = MediaWikiServices::getInstance()->getDBLoadBalancer();
 		$dbw         = $lb->getConnectionRef( DB_PRIMARY );
 		try {

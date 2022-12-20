@@ -39,7 +39,7 @@ class validForms {
 	/**
 	 * @return string
 	 */
-	private function addResources(): string {
+	public function addResources(): string {
 		$html = '<!-- UIkit CSS -->' . PHP_EOL;
 		$html .= '<link rel="stylesheet" href="' . $this->uiKit['css'] . '" />';
 		$html .= PHP_EOL;
@@ -66,21 +66,32 @@ class validForms {
 
 	/**
 	 * @param array $formInfo
+	 * @param bool|int $pid
 	 *
 	 * @return string
 	 */
-	private function renderTable( array $formInfo ): string {
-		$table  = '<table class="uk-table uk-table-small uk-table-divider">' . PHP_EOL;
+	private function renderTable( array $formInfo, $pid ): string {
+		$table  = '<h2>Managed approved forms</h2><br>';
+		if ( $pid !== false ) {
+			$table .= '<div class="uk-alert-success" uk-alert>';
+			$table .= '<a class="uk-alert-close" uk-close></a>';
+			$table .= '<p>Successfully delete approved form(s) from page <strong>'.$this->getTitleFromId( $pid ).'</strong>';
+			$table .= ' ( PageID: '. $pid .' )</p></div>';
+		}
+		$table .= '<table class="uk-table uk-table-small uk-table-divider uk-table-middle">' . PHP_EOL;
 		$table .= '<caption>There are ' . count( $formInfo ) . ' Pages with approved Forms</caption>' . PHP_EOL;
-		$table .= '<thead><tr><th>Page ID</th><th>Page Title</th><th>Nr of Forms</th></tr></thead>' . PHP_EOL;
-		$table .= '<tbody>' . PHP_EOL;
+		$table .= '<thead><tr><th>Page ID</th><th>Page Title</th><th>Nr of Forms</th><th class="uk-text-center">Action</th></tr></thead>';
+		$table .= PHP_EOL . '<tbody>' . PHP_EOL;
 		$counter = 0;
+		$formHeader = '<form style="display:inline-block;" method="post">';
 		foreach ( $formInfo as $id=>$count ) {
+			$form = $formHeader . '<input type="hidden" name="pId" value="' . $id . '">';
+			$form .= '<button style="border:none;" type="submit" class="uk-button uk-button-default ff-del"><span class="uk-icon-button" uk-icon="minus-circle" title="delete"></span></button></form> ';
 			$counter = $counter + $count;
 			$table .= '<tr>' . PHP_EOL;
 			$table .= '<td>' . $id. '</td>';
 			$table .= '<td>' . $this->getTitleFromId( $id ). '</td>';
-			$table .= '<td>' . $count . '</td></tr>' . PHP_EOL;
+			$table .= '<td>' . $count . '</td><td class="uk-text-center">' . $form . '</td></tr>' . PHP_EOL;
 		}
 		$table .= '</tbody>' . PHP_EOL;
 		$table .= '<tfoot><tr><td></td><td></td><td>Total of ' . $counter . ' approved forms</td></tr></tfoot>';
@@ -89,12 +100,12 @@ class validForms {
 	}
 
 	/**
+	 * @param $pid
+	 *
 	 * @return string
 	 */
-	public function renderApprovedFormsInformation(): string {
-		$html = $this->addResources();
+	public function renderApprovedFormsInformation( $pid = false ): string {
 		$formInfo = Sql::getAllApprovedForms();
-		$html .= $this->renderTable( $formInfo );
-		return $html;
+		return $this->renderTable( $formInfo, $pid );
 	}
 }
