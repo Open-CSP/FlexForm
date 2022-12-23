@@ -165,9 +165,11 @@ class TagHooks {
 			$allowAnonymous = false;
 		}
 
-		if ( !$this->officialForm && $allowAnonymous === false ) {
+		if ( !$this->officialForm ) {
 			return $this->returnNonValidatedResponse( $renderi18nErrorInsteadofImageForApprovedForms );
 		}
+		// && $allowAnonymous === false
+
 
 		if ( Config::isSecure() === true ) {
 			Core::includeInlineScript( "const wgFlexFormSecure = true;" );
