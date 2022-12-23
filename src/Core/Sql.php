@@ -64,12 +64,29 @@ class Sql {
 	 *
 	 * @return mixed
 	 */
-	public static function getAllFormTags( string $content ) {
-		preg_match_all( '/<form[^>]*>([\s\S]*)<\/form>/U', $content, $result1 );
-		preg_match_all( '/<wsform[^>]*>([\s\S]*)<\/wsform>/U', $content, $result2 );
-		preg_match_all( '/<_form[^>]*>([\s\S]*)<\/_form>/U', $content, $result3 );
-		// preg_match_all( '/<form(.|\n)*?<\/form>/', $content, $result );
-		return array_merge_recursive( $result1[1], $result2[1], $result3[1] );
+	public static function getAllFormTags( string $content, $specific = false ) {
+		if ( !$specific ) {
+			preg_match_all( '/<form[^>]*>([\s\S]*)<\/form>/U', $content, $result1 );
+			preg_match_all( '/<wsform[^>]*>([\s\S]*)<\/wsform>/U', $content, $result2 );
+			preg_match_all( '/<_form[^>]*>([\s\S]*)<\/_form>/U', $content, $result3 );
+
+			// preg_match_all( '/<form(.|\n)*?<\/form>/', $content, $result );
+			return array_merge_recursive( $result1[1], $result2[1], $result3[1] );
+		} else {
+			$result = [];
+			switch ( $specific ) {
+				case "wsform":
+					preg_match_all( '/<wsform[^>]*>([\s\S]*)<\/wsform>/U', $content, $result );
+					break;
+				case "_form":
+					preg_match_all( '/<_form[^>]*>([\s\S]*)<\/_form>/U', $content, $result );
+					break;
+				case "form":
+					preg_match_all( '/<form[^>]*>([\s\S]*)<\/form>/U', $content, $result );
+					break;
+			}
+			return $result[1];
+		}
 	}
 
 	/**

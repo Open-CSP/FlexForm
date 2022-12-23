@@ -11,6 +11,12 @@
 namespace FlexForm\Specials\SpecialHelpers;
 
 use FlexForm\Core\Sql;
+use FlexForm\Processors\Content\Render;
+use MediaWiki\MediaWikiServices;
+use MWNamespace;
+use NamespaceInfo;
+use Title;
+use Wikimedia\Rdbms\IResultWrapper;
 use WikiPage;
 
 class validForms {
@@ -107,5 +113,84 @@ class validForms {
 	public function renderApprovedFormsInformation( $pid = false ): string {
 		$formInfo = Sql::getAllApprovedForms();
 		return $this->renderTable( $formInfo, $pid );
+	}
+
+
+	/**
+	 * @param string $search
+	 *
+	 * @return IResultWrapper
+	 */
+	public function doSearchQuery( string $search ): IResultWrapper {
+		$namespaces = $this->getNamespaces();
+		$dbr = wfGetDB( DB_REPLICA );
+		$tables = [ 'page', 'revision', 'text', 'slots', 'content' ];
+		$vars = [ 'page_id', 'page_namespace', 'page_title', 'old_text' ];
+		$any = $dbr->anyString();
+		$comparisonCond = 'old_text ' . $dbr->buildLike( $any, $search, $any );
+		$conds = [
+			$comparisonCond,
+			'page_namespace' => $namespaces,
+			'rev_id = page_latest',
+			'rev_id = slot_revision_id',
+			'slot_content_id = content_id',
+			$dbr->buildIntegerCast( 'SUBSTR(content_address, 4)' ) . ' = old_id'
+		];
+
+		$options = [
+			'ORDER BY' => 'page_namespace, page_title',
+			'LIMIT' => 1000
+		];
+
+		return $dbr->select( $tables, $vars, $conds, __METHOD__, $options );
+	}
+
+	/**
+	 * @param IResultWrapper $res
+	 * @param string $name
+	 *
+	 * @return array
+	 */
+	public function getTitlesArray( IResultWrapper $res, string $name ): array {
+		$ret = [];
+		$t = 0;
+		foreach ( $res as $row ) {
+			$title = Title::makeTitleSafe( $row->page_namespace, $row->page_title );
+			if ( $title == null ) {
+				continue;
+			}
+			$content = $row->old_text;
+			$formTags = sql::getAllFormTags( $content, $name );
+			$hashes = [];
+			$id = $title->getArticleID();
+			$ret[$t]['title'] = $title->getFullText();
+			$ret[$t]['id'] = $id;
+			$ret[$t]['tag'] = $name;
+			$ret[$t]['numberOfForms'] = count( $formTags );
+			foreach( $formTags as $k=>$singleForm ) {
+				$hash = sql::createHash( trim( $singleForm ) );
+				if ( !sql::exists( $id, $hash ) ) {
+					$ret[$t]['forms'][$k]['tag'] = $name;
+					$ret[$t]['forms'][$k]['isValid'] = "no";
+				} else {
+					$ret[$t]['forms'][$k]['tag'] = $name;
+					$ret[$t]['forms'][$k]['isValid'] = "yes";
+				}
+			}
+			$t++;
+
+
+		}
+		return $ret;
+	}
+
+	/**
+	 * @return int[]|string[]
+	 */
+	private function getNamespaces() {
+		$canonical            = MediaWikiServices::getInstance()->getNamespaceInfo()->getCanonicalNamespaces();
+		$canonical[ NS_MAIN ] = "_";
+
+		return array_flip( $canonical );
 	}
 }

@@ -92,7 +92,7 @@ class TagHooks {
 		}
 		if ( $this->officialForm === null ) {
 			$title = $frame->getTitle();
-			$id = $title->getId();
+			$id = $title->getArticleID();
 			if ( $input === null ) {
 				$formContent = '';
 			} else {
