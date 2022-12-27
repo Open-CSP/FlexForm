@@ -71,13 +71,24 @@ class validForms {
 	}
 
 	/**
+	 * @param string $title
+	 *
+	 * @return string
+	 */
+	private function makeLinkFromTitle( string $title ): string {
+		global $wgScript;
+		return '<a target="_blank" href="'. $wgScript . '/' . $title . '">' . $title . '</a>';
+	}
+
+	/**
 	 * @param array $formInfo
 	 * @param bool|int $pid
 	 *
 	 * @return string
 	 */
 	private function renderTable( array $formInfo, $pid ): string {
-		$title = '<h2>Managed approved forms</h2><br>';
+		global $wgScript;
+		$title = 'Managed approved forms';
 		if ( $pid !== false ) {
 			$alert = '<div class="uk-alert-success" uk-alert>';
 			$alert .= '<a class="uk-alert-close" uk-close></a>';
@@ -101,7 +112,8 @@ class validForms {
 			$data[$rowCount] = [];
 			$data[$rowCount][0]['value'] = $id;
 			$data[$rowCount][0]['class'] = false;
-			$data[$rowCount][1]['value'] = $this->getTitleFromId( $id );
+			$tTitle = $this->getTitleFromId( $id );
+			$data[$rowCount][1]['value'] = $this->makeLinkFromTitle( $tTitle );
 			$data[$rowCount][1]['class'] = false;
 			$data[$rowCount][2]['value'] = $count;
 			$data[$rowCount][2]['class'] ='uk-text-center';
@@ -189,7 +201,6 @@ class validForms {
 		return $this->renderTable( $formInfo, $pid );
 	}
 
-
 	/**
 	 * @param string $search
 	 *
@@ -258,10 +269,61 @@ class validForms {
 
 	public function renderAllFormsInWiki( $formsData ) {
 		$headers = [];
+		$headers['#'] = false;
+		$headers['Validated'] = 'uk-text-center';
 		$headers['Page ID'] = false;
 		$headers['Page Title'] = false;
+		$headers['Tag used'] = 'uk-text-center';
 		$headers['Nr of Forms'] = 'uk-text-center';
 		$headers['Action'] = 'uk-text-center';
+		$title = 'All FlexForms information';
+		$caption = 'There are ' . count( $formsData ) . ' Pages with FlexForm forms';
+		$data = [];
+		$count = 1;
+		$foundNrOfForms = 0;
+		foreach ( $formsData as $k => $pageInfo ) {
+			$data[$k][0]['value'] = $count;
+			$data[$k][0]['class'] = false;
+			$validated = true;
+			foreach ( $pageInfo['forms'] as $formsInfo ) {
+				if ( $formsInfo['isValid'] === 'no' ) {
+					$validated = false;
+				}
+			}
+			if ( $validated ) {
+				$data[$k][1]['value'] = '<span class="uk-margin-small-right uk-text-success" uk-icon="check"></span>';
+			} else {
+				$data[$k][1]['value'] = '<span class="uk-margin-small-right uk-text-danger" uk-icon="ban"></span>';
+			}
+			$data[$k][1]['class'] = 'uk-text-center';
+			$data[$k][2]['value'] = $pageInfo['id'];
+			$data[$k][2]['class'] = false;
+			$data[$k][3]['value'] = $this->makeLinkFromTitle( $pageInfo['title'] );
+			$data[$k][3]['class'] = false;
+			if ( $pageInfo['tag'] !== 'form' ) {
+				$extraClass = ' uk-background-muted uk-text-danger';
+			} else {
+				$extraClass = '';
+			}
+			$data[$k][4]['value'] = '<span class="uk-badge' . $extraClass . '">' . $pageInfo['tag'] . '</span>';
+			$data[$k][4]['class'] = 'uk-text-center';
+			$data[$k][5]['value'] = $pageInfo['numberOfForms'];
+			$data[$k][5]['class'] = 'uk-text-center';
+			$data[$k][6]['value'] = '';
+			$data[$k][6]['class'] = 'uk-text-center';
+			$foundNrOfForms = $foundNrOfForms + $pageInfo['numberOfForms'];
+			$count++;
+		}
+		$footer = [];
+		$footer[0] = '';
+		$footer[1] = '';
+		$footer[2] = '';
+		$footer[3] = '';
+		$footer[4] = '';
+		$footer[5] = '';
+		$footer[6] = 'Total of ' . $foundNrOfForms . ' FlexForm forms found on ' . ( $count - 1 ) . ' pages';
+		return $this->renderDefaultTable( $title, $caption, $headers, $data, $footer );
+
 	}
 
 	/**

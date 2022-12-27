@@ -560,7 +560,6 @@ class SpecialFlexForm extends \SpecialPage {
 							FlexForm\Core\Sql::removePageId( (int)$pId );
 						}
 						$out->addHTML( $vF->renderApprovedFormsInformation( $pId ) );
-						$out->addHTML( '<pre>Pages with a wsform tag:' . "\n" );
 						$tag = [];
 						$tag['wsform'] = $vF->doSearchQuery( '<wsform' );
 						$tag['_form'] = $vF->doSearchQuery( '<_form' );
@@ -572,8 +571,8 @@ class SpecialFlexForm extends \SpecialPage {
 						//$total = count( $results['wsform'] ) + count( $results['_form'] ) +  count( $results['form'] );
 						//$out->addHTML( $total );
 						$rest =  array_merge( $results['wsform'], $results['_form'], $results['form'] );
-						$out->addHTML( print_r( $rest, true ) );
-						$out->addHTML( '</pre>' );
+						$out->addHTML( $vF->renderAllFormsInWiki( $rest ) );
+						//$out->addHTML( '</pre>' );
 					}
 					return true;
 					break;
