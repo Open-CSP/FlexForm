@@ -77,31 +77,105 @@ class validForms {
 	 * @return string
 	 */
 	private function renderTable( array $formInfo, $pid ): string {
-		$table  = '<h2>Managed approved forms</h2><br>';
+		$title = '<h2>Managed approved forms</h2><br>';
 		if ( $pid !== false ) {
-			$table .= '<div class="uk-alert-success" uk-alert>';
-			$table .= '<a class="uk-alert-close" uk-close></a>';
-			$table .= '<p>Successfully delete approved form(s) from page <strong>'.$this->getTitleFromId( $pid ).'</strong>';
-			$table .= ' ( PageID: '. $pid .' )</p></div>';
+			$alert = '<div class="uk-alert-success" uk-alert>';
+			$alert .= '<a class="uk-alert-close" uk-close></a>';
+			$alert .= '<p>Successfully delete approved form(s) from page <strong>'.$this->getTitleFromId( $pid ).'</strong>';
+			$alert .= ' ( PageID: '. $pid .' )</p></div>';
 		}
-		$table .= '<table class="uk-table uk-table-small uk-table-divider uk-table-middle">' . PHP_EOL;
-		$table .= '<caption>There are ' . count( $formInfo ) . ' Pages with approved Forms</caption>' . PHP_EOL;
-		$table .= '<thead><tr><th>Page ID</th><th>Page Title</th><th>Nr of Forms</th><th class="uk-text-center">Action</th></tr></thead>';
-		$table .= PHP_EOL . '<tbody>' . PHP_EOL;
+		$caption = 'There are ' . count( $formInfo ) . ' Pages with approved Forms';
+		$headers = [];
+		$headers['Page ID'] = false;
+		$headers['Page Title'] = false;
+		$headers['Nr of Forms'] = 'uk-text-center';
+		$headers['Action'] = 'uk-text-center';
 		$counter = 0;
+		$rowCount = 0;
 		$formHeader = '<form style="display:inline-block;" method="post">';
-		foreach ( $formInfo as $id=>$count ) {
+		$data = [];
+		foreach ( $formInfo as $id => $count ) {
 			$form = $formHeader . '<input type="hidden" name="pId" value="' . $id . '">';
 			$form .= '<button style="border:none;" type="submit" class="uk-button uk-button-default ff-del"><span class="uk-icon-button" uk-icon="minus-circle" title="delete"></span></button></form> ';
 			$counter = $counter + $count;
+			$data[$rowCount] = [];
+			$data[$rowCount][0]['value'] = $id;
+			$data[$rowCount][0]['class'] = false;
+			$data[$rowCount][1]['value'] = $this->getTitleFromId( $id );
+			$data[$rowCount][1]['class'] = false;
+			$data[$rowCount][2]['value'] = $count;
+			$data[$rowCount][2]['class'] ='uk-text-center';
+			$data[$rowCount][3]['value'] = $form;
+			$data[$rowCount][3]['class'] = 'uk-text-center';
+			$rowCount++;
+		}
+		$footer = [];
+		$footer[0] = '';
+		$footer[1] = '';
+		$footer[2] = '';
+		$footer[3] = 'Total of ' . $counter . ' approved forms';
+		return $this->renderDefaultTable( $title, $caption, $headers, $data, $footer );
+	}
+
+	/**
+	 * @param string|null $title
+	 * @param string|null $caption
+	 * @param array|null $headers
+	 * @param array $data
+	 * @param array|null $footer
+	 *
+	 * @return string
+	 */
+	public function renderDefaultTable(
+		?string $title,
+		?string $caption,
+		?array $headers,
+		array $data,
+		?array $footer
+	) : string {
+		$table = '';
+		if ( $title !== null ) {
+			$table .= '<h2>' . $title . '</h2><br>';
+		}
+		$table .= '<table class="uk-table uk-table-small uk-table-divider uk-table-middle">' . PHP_EOL;
+		if ( $caption !== null ) {
+			$table .= '<caption>' . $caption . '</caption>' . PHP_EOL;
+		}
+		if ( $headers !== null ) {
+			$table .= '<thead><tr>';
+			foreach ( $headers as $header => $class ) {
+				if ( $class !== false ) {
+					$table .= '<th class="' . $class . '">';
+				} else {
+					$table .= '<th>';
+				}
+				$table .= $header . '</th>';
+			}
+			$table .= '</tr></thead>' . PHP_EOL;
+		}
+		$table .= '<tbody>' . PHP_EOL;
+		foreach ( $data as $row ) {
 			$table .= '<tr>' . PHP_EOL;
-			$table .= '<td>' . $id. '</td>';
-			$table .= '<td>' . $this->getTitleFromId( $id ). '</td>';
-			$table .= '<td>' . $count . '</td><td class="uk-text-center">' . $form . '</td></tr>' . PHP_EOL;
+			foreach ( $row as $dt ) {
+				if ( $dt['class'] !== false ) {
+					$table .= '<td class="' . $dt['class'] . '">';
+				} else {
+					$table .= '<td>';
+				}
+				$table .= $dt['value'] . '</td>';
+			}
+			$table .= '</tr>' . PHP_EOL;
 		}
 		$table .= '</tbody>' . PHP_EOL;
-		$table .= '<tfoot><tr><td></td><td></td><td>Total of ' . $counter . ' approved forms</td></tr></tfoot>';
+		if ( $footer !== null ) {
+			$table .= '<tfoot><tr>';
+			foreach ( $footer as $column ) {
+				$table .= '<td>' . $column . '</td>';
+			}
+			$table .= '</tr></tfoot>';
+		}
 		$table .= PHP_EOL . '</table>' . PHP_EOL;
+
 		return $table;
 	}
 
@@ -167,7 +241,7 @@ class validForms {
 			$ret[$t]['id'] = $id;
 			$ret[$t]['tag'] = $name;
 			$ret[$t]['numberOfForms'] = count( $formTags );
-			foreach( $formTags as $k=>$singleForm ) {
+			foreach ( $formTags as $k => $singleForm ) {
 				$hash = sql::createHash( trim( $singleForm ) );
 				if ( !sql::exists( $id, $hash ) ) {
 					$ret[$t]['forms'][$k]['tag'] = $name;
@@ -178,10 +252,16 @@ class validForms {
 				}
 			}
 			$t++;
-
-
 		}
 		return $ret;
+	}
+
+	public function renderAllFormsInWiki( $formsData ) {
+		$headers = [];
+		$headers['Page ID'] = false;
+		$headers['Page Title'] = false;
+		$headers['Nr of Forms'] = 'uk-text-center';
+		$headers['Action'] = 'uk-text-center';
 	}
 
 	/**
