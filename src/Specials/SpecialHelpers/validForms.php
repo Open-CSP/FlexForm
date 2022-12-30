@@ -267,6 +267,20 @@ class validForms {
 		return $ret;
 	}
 
+	/**
+	 * @param $arr
+	 * @param string $col
+	 * @param int $dir
+	 *
+	 */
+	public function arraySortByColumn( &$arr, string $col, int $dir = SORT_ASC ) {
+		$sort_col = [];
+		foreach ( $arr as $key => $row ) {
+			$sort_col[$key] = $row[$col];
+		}
+		array_multisort( $sort_col, $dir, $arr );
+	}
+
 	public function renderAllFormsInWiki( $formsData ) {
 		$headers = [];
 		$headers['#'] = false;
@@ -276,13 +290,19 @@ class validForms {
 		$headers['Tag used'] = 'uk-text-center';
 		$headers['Nr of Forms'] = 'uk-text-center';
 		$headers['Action'] = 'uk-text-center';
-		$title = 'All FlexForms information';
+		$title = 'All FlexForm forms information';
 		$caption = 'There are ' . count( $formsData ) . ' Pages with FlexForm forms';
 		$data = [];
 		$count = 1;
 		$foundNrOfForms = 0;
+		$formHeader = '<form style="display:inline-block;" method="post">';
 		foreach ( $formsData as $k => $pageInfo ) {
+			$formUnvalidate = $formHeader . '<input type="hidden" name="pId" value="' . $pageInfo['id'] . '">';
+			$formUnvalidate .= '<button style="border:none;" type="submit" class="uk-button uk-button-default ff-del"><span class="uk-icon-button" uk-icon="minus-circle" title="delete"></span></button></form> ';
+			$formValidate = $formHeader . '<input type="hidden" name="pIdA" value="' . $pageInfo['id'] . '">';
+			$formValidate .= '<button style="border:none;" type="submit" class="uk-button uk-button-default ff-del"><span class="uk-icon-button" uk-icon="plus-circle" title="validate"></span></button></form> ';
 			$data[$k][0]['value'] = $count;
+
 			$data[$k][0]['class'] = false;
 			$validated = true;
 			foreach ( $pageInfo['forms'] as $formsInfo ) {
@@ -309,7 +329,11 @@ class validForms {
 			$data[$k][4]['class'] = 'uk-text-center';
 			$data[$k][5]['value'] = $pageInfo['numberOfForms'];
 			$data[$k][5]['class'] = 'uk-text-center';
-			$data[$k][6]['value'] = '';
+			if ( $validated ) {
+				$data[$k][6]['value'] = $formUnvalidate;
+			} else {
+				$data[$k][6]['value'] = $formValidate;
+			}
 			$data[$k][6]['class'] = 'uk-text-center';
 			$foundNrOfForms = $foundNrOfForms + $pageInfo['numberOfForms'];
 			$count++;

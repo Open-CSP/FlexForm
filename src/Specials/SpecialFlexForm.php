@@ -570,7 +570,8 @@ class SpecialFlexForm extends \SpecialPage {
 						}
 						//$total = count( $results['wsform'] ) + count( $results['_form'] ) +  count( $results['form'] );
 						//$out->addHTML( $total );
-						$rest =  array_merge( $results['wsform'], $results['_form'], $results['form'] );
+						$rest = array_merge( $results['wsform'], $results['_form'], $results['form'] );
+						$vF->arraySortByColumn( $rest, 'title' );
 						$out->addHTML( $vF->renderAllFormsInWiki( $rest ) );
 						//$out->addHTML( '</pre>' );
 					}
