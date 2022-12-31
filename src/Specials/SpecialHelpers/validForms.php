@@ -290,13 +290,27 @@ class validForms {
 		$headers['Tag used'] = 'uk-text-center';
 		$headers['Nr of Forms'] = 'uk-text-center';
 		$headers['Action'] = 'uk-text-center';
-		$title = 'All FlexForm forms information';
+		$title = 'All unvalidated FlexForm forms';
 		$caption = 'There are ' . count( $formsData ) . ' Pages with FlexForm forms';
 		$data = [];
 		$count = 1;
 		$foundNrOfForms = 0;
 		$formHeader = '<form style="display:inline-block;" method="post">';
+		$pids = [];
+		$pidsForm = [];
 		foreach ( $formsData as $k => $pageInfo ) {
+			$validated = true;
+			foreach ( $pageInfo['forms'] as $formsInfo ) {
+				if ( $formsInfo['isValid'] === 'no' ) {
+					$validated = false;
+				}
+			}
+			if ( $validated ) {
+				//$foundNrOfForms = $foundNrOfForms + $pageInfo['numberOfForms'];
+				//$count++;
+				continue;
+			}
+			$pids[] = $pageInfo['id'];
 			$formUnvalidate = $formHeader . '<input type="hidden" name="pId" value="' . $pageInfo['id'] . '">';
 			$formUnvalidate .= '<button style="border:none;" type="submit" class="uk-button uk-button-default ff-del"><span class="uk-icon-button" uk-icon="minus-circle" title="delete"></span></button></form> ';
 			$formValidate = $formHeader . '<input type="hidden" name="pIdA" value="' . $pageInfo['id'] . '">';
@@ -304,12 +318,7 @@ class validForms {
 			$data[$k][0]['value'] = $count;
 
 			$data[$k][0]['class'] = false;
-			$validated = true;
-			foreach ( $pageInfo['forms'] as $formsInfo ) {
-				if ( $formsInfo['isValid'] === 'no' ) {
-					$validated = false;
-				}
-			}
+
 			if ( $validated ) {
 				$data[$k][1]['value'] = '<span class="uk-margin-small-right uk-text-success" uk-icon="check"></span>';
 			} else {
@@ -323,6 +332,7 @@ class validForms {
 			if ( $pageInfo['tag'] !== 'form' ) {
 				$extraClass = ' uk-background-muted uk-text-danger';
 			} else {
+				$pidsForm[] = $pageInfo['id'];
 				$extraClass = '';
 			}
 			$data[$k][4]['value'] = '<span class="uk-badge' . $extraClass . '">' . $pageInfo['tag'] . '</span>';
@@ -345,7 +355,15 @@ class validForms {
 		$footer[3] = '';
 		$footer[4] = '';
 		$footer[5] = '';
-		$footer[6] = 'Total of ' . $foundNrOfForms . ' FlexForm forms found on ' . ( $count - 1 ) . ' pages';
+		$footer[6] = 'Total of ' . $foundNrOfForms;
+		$footer[6] .= ' unvalidated FlexForm forms found on ' . ( $count - 1 ) . ' pages<br>';
+		$footer[6] .= $formHeader;
+		$footer[6] .= '<input type="hidden" name="pIdAll" value="' . json_encode( $pids ) . '">';
+		$footer[6] .= '<button style="border:none;" type="submit" class="uk-button uk-button-default ff-del"><span class="uk-icon-button uk-text-danger" uk-icon="check" title="validate"></span> Validate all</button></form> ';
+		$footer[6] .= $formHeader;
+		$footer[6] .= '<input type="hidden" name="pIdAllOnlyForm" value="' . json_encode( $pidsForm ) . '">';
+		$footer[6] .= '<button style="border:none;" type="submit" class="uk-button uk-button-default ff-del"><span class="uk-icon-button uk-text-success" uk-icon="check" title="validate"></span> Validate only "form" tags Forms</button></form> ';
+
 		return $this->renderDefaultTable( $title, $caption, $headers, $data, $footer );
 
 	}
