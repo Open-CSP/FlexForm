@@ -150,6 +150,43 @@ class Sql {
 	}
 
 	/**
+	 * @param string $json
+	 *
+	 * @return bool
+	 * @throws FlexFormException
+	 */
+	public static function addPagesFromIds( string $json ): bool {
+		$IDArrays = json_decode( $json, true );
+		if ( $IDArrays === null ) {
+			return false;
+		}
+		foreach ( $IDArrays as $id ) {
+			$result = self::addPageFromId( $id );
+			if ( $result !== true ) {
+				throw new FlexFormException( 'Can\'t save to Database [add]' );
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * @param int $id
+	 *
+	 * @return true
+	 * @throws FlexFormException
+	 */
+	public static function addPageFromId( int $id ) {
+		$render = new Render();
+		$content = $render->getSlotsContentForPage(	$id	);
+		$hashes = self::createFormHashes( $content );
+		$result = self::addPageId( $id, $hashes );
+		if ( $result === false ) {
+			throw new FlexFormException( 'Can\'t save to Database [add]' );
+		}
+		return true;
+	}
+
+	/**
 	 * @param int $pageId
 	 * @param array $hashes
 	 *

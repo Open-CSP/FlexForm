@@ -284,7 +284,7 @@ class validForms {
 	public function renderAllFormsInWiki( $formsData ) {
 		$headers = [];
 		$headers['#'] = false;
-		$headers['Validated'] = 'uk-text-center';
+		//$headers['Validated'] = 'uk-text-center';
 		$headers['Page ID'] = false;
 		$headers['Page Title'] = false;
 		$headers['Tag used'] = 'uk-text-center';
@@ -319,32 +319,34 @@ class validForms {
 
 			$data[$k][0]['class'] = false;
 
+			/*
 			if ( $validated ) {
 				$data[$k][1]['value'] = '<span class="uk-margin-small-right uk-text-success" uk-icon="check"></span>';
 			} else {
 				$data[$k][1]['value'] = '<span class="uk-margin-small-right uk-text-danger" uk-icon="ban"></span>';
 			}
 			$data[$k][1]['class'] = 'uk-text-center';
-			$data[$k][2]['value'] = $pageInfo['id'];
+			*/
+			$data[$k][1]['value'] = $pageInfo['id'];
+			$data[$k][1]['class'] = false;
+			$data[$k][2]['value'] = $this->makeLinkFromTitle( $pageInfo['title'] );
 			$data[$k][2]['class'] = false;
-			$data[$k][3]['value'] = $this->makeLinkFromTitle( $pageInfo['title'] );
-			$data[$k][3]['class'] = false;
 			if ( $pageInfo['tag'] !== 'form' ) {
 				$extraClass = ' uk-background-muted uk-text-danger';
 			} else {
 				$pidsForm[] = $pageInfo['id'];
 				$extraClass = '';
 			}
-			$data[$k][4]['value'] = '<span class="uk-badge' . $extraClass . '">' . $pageInfo['tag'] . '</span>';
+			$data[$k][3]['value'] = '<span class="uk-badge' . $extraClass . '">' . $pageInfo['tag'] . '</span>';
+			$data[$k][3]['class'] = 'uk-text-center';
+			$data[$k][4]['value'] = $pageInfo['numberOfForms'];
 			$data[$k][4]['class'] = 'uk-text-center';
-			$data[$k][5]['value'] = $pageInfo['numberOfForms'];
-			$data[$k][5]['class'] = 'uk-text-center';
 			if ( $validated ) {
-				$data[$k][6]['value'] = $formUnvalidate;
+				$data[$k][5]['value'] = $formUnvalidate;
 			} else {
-				$data[$k][6]['value'] = $formValidate;
+				$data[$k][5]['value'] = $formValidate;
 			}
-			$data[$k][6]['class'] = 'uk-text-center';
+			$data[$k][5]['class'] = 'uk-text-center';
 			$foundNrOfForms = $foundNrOfForms + $pageInfo['numberOfForms'];
 			$count++;
 		}
@@ -354,15 +356,14 @@ class validForms {
 		$footer[2] = '';
 		$footer[3] = '';
 		$footer[4] = '';
-		$footer[5] = '';
-		$footer[6] = 'Total of ' . $foundNrOfForms;
-		$footer[6] .= ' unvalidated FlexForm forms found on ' . ( $count - 1 ) . ' pages<br>';
-		$footer[6] .= $formHeader;
-		$footer[6] .= '<input type="hidden" name="pIdAll" value="' . json_encode( $pids ) . '">';
-		$footer[6] .= '<button style="border:none;" type="submit" class="uk-button uk-button-default ff-del"><span class="uk-icon-button uk-text-danger" uk-icon="check" title="validate"></span> Validate all</button></form> ';
-		$footer[6] .= $formHeader;
-		$footer[6] .= '<input type="hidden" name="pIdAllOnlyForm" value="' . json_encode( $pidsForm ) . '">';
-		$footer[6] .= '<button style="border:none;" type="submit" class="uk-button uk-button-default ff-del"><span class="uk-icon-button uk-text-success" uk-icon="check" title="validate"></span> Validate only "form" tags Forms</button></form> ';
+		$footer[5] = 'Total of ' . $foundNrOfForms;
+		$footer[5] .= ' unvalidated FlexForm forms found on ' . ( $count - 1 ) . ' pages<br>';
+		$footer[5] .= $formHeader;
+		$footer[5] .= '<input type="hidden" name="pIdAll" value="' . json_encode( $pids ) . '">';
+		$footer[5] .= '<button style="border:none;" type="submit" class="uk-button uk-button-default ff-del"><span class="uk-icon-button uk-text-danger" uk-icon="check" title="validate"></span> Validate all</button></form> ';
+		$footer[5] .= $formHeader;
+		$footer[5] .= '<input type="hidden" name="pIdAllOnlyForm" value="' . json_encode( $pidsForm ) . '">';
+		$footer[5] .= '<button style="border:none;" type="submit" class="uk-button uk-button-default ff-del"><span class="uk-icon-button uk-text-success" uk-icon="check" title="validate"></span> Validate only "form" tags Forms</button></form> ';
 
 		return $this->renderDefaultTable( $title, $caption, $headers, $data, $footer );
 

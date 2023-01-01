@@ -559,6 +559,18 @@ class SpecialFlexForm extends \SpecialPage {
 						if ( $pId !== false ) {
 							FlexForm\Core\Sql::removePageId( (int)$pId );
 						}
+						$pIdA = $this->getPostString( 'pIdA' );
+						if ( $pIdA !== false ) {
+							FlexForm\Core\Sql::addPageFromId( (int)$pIdA );
+						}
+						$pIdAll = $this->getPostString( 'pIdAll' );
+						if ( $pIdAll !== false ) {
+							FlexForm\Core\Sql::addPagesFromIds( $pIdAll );
+						}
+						$pIdAllOnlyForm = $this->getPostString( 'pIdAllOnlyForm' );
+						if ( $pIdAllOnlyForm !== false ) {
+							FlexForm\Core\Sql::addPagesFromIds( $pIdAllOnlyForm );
+						}
 						$out->addHTML( $vF->renderApprovedFormsInformation( $pId ) );
 						$tag = [];
 						$tag['wsform'] = $vF->doSearchQuery( '<wsform' );
