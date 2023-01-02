@@ -88,26 +88,42 @@ class validForms {
 	 */
 	private function renderTable( array $formInfo, $pid ): string {
 		global $wgScript;
-		$title = 'Managed approved forms';
+		$title = wfMessage( 'flexform-validforms-valid-list-title' )->text();
 		if ( $pid !== false ) {
 			$alert = '<div class="uk-alert-success" uk-alert>';
-			$alert .= '<a class="uk-alert-close" uk-close></a>';
-			$alert .= '<p>Successfully delete approved form(s) from page <strong>'.$this->getTitleFromId( $pid ).'</strong>';
-			$alert .= ' ( PageID: '. $pid .' )</p></div>';
+			$alert .= '<a class="uk-alert-close" uk-close></a><p>';
+			$alert .= wfMessage(
+				'flexform-validforms-valid-list-action-response-delete',
+				$this->getTitleFromId( $pid ),
+				$pid
+			)->text();
+			$alert .= '</p></div>';
+		} else {
+			$alert = null;
 		}
-		$caption = 'There are ' . count( $formInfo ) . ' Pages with approved Forms';
+		$caption = wfMessage( 'flexform-validforms-valid-list-caption', count( $formInfo ) );
 		$headers = [];
-		$headers['Page ID'] = false;
-		$headers['Page Title'] = false;
-		$headers['Nr of Forms'] = 'uk-text-center';
-		$headers['Action'] = 'uk-text-center';
+		$h1 = wfMessage( 'flexform-validforms-valid-list-table-page-id' )->text();
+		$h2 = wfMessage( 'flexform-validforms-valid-list-table-page-title' )->text();
+		$h3 = wfMessage( 'flexform-validforms-valid-list-table-nr-forms' )->text();
+		$h4 = wfMessage( 'flexform-validforms-valid-list-table-action' )->text();
+		$headers[$h1] = false;
+		$headers[$h2] = false;
+		$headers[$h3] = 'uk-text-center';
+		$headers[$h4] = 'uk-text-center';
 		$counter = 0;
 		$rowCount = 0;
 		$formHeader = '<form style="display:inline-block;" method="post">';
 		$data = [];
 		foreach ( $formInfo as $id => $count ) {
 			$form = $formHeader . '<input type="hidden" name="pId" value="' . $id . '">';
-			$form .= '<button style="border:none;" type="submit" class="uk-button uk-button-default ff-del"><span class="uk-icon-button" uk-icon="minus-circle" title="delete"></span></button></form> ';
+			$form .= $this->renderGenericBtn(
+				'',
+				'minus-circle',
+				wfMessage( 'flexform-validforms-invalid-list-action-delete' )->text(),
+				''
+			);
+			$form .= '</form> ';
 			$counter = $counter + $count;
 			$data[$rowCount] = [];
 			$data[$rowCount][0]['value'] = $id;
@@ -125,8 +141,8 @@ class validForms {
 		$footer[0] = '';
 		$footer[1] = '';
 		$footer[2] = '';
-		$footer[3] = 'Total of ' . $counter . ' approved forms';
-		return $this->renderDefaultTable( $title, $caption, $headers, $data, $footer );
+		$footer[3] = wfMessage( 'flexform-validforms-valid-list-footer', $counter )->text();
+		return $this->renderDefaultTable( $title, $caption, $headers, $data, $footer, $alert );
 	}
 
 	/**
@@ -135,6 +151,7 @@ class validForms {
 	 * @param array|null $headers
 	 * @param array $data
 	 * @param array|null $footer
+	 * @param string|null $alert
 	 *
 	 * @return string
 	 */
@@ -143,11 +160,15 @@ class validForms {
 		?string $caption,
 		?array $headers,
 		array $data,
-		?array $footer
+		?array $footer,
+		?string $alert
 	) : string {
 		$table = '';
 		if ( $title !== null ) {
 			$table .= '<h2>' . $title . '</h2><br>';
+		}
+		if ( $alert !== null ) {
+			$table .= $alert;
 		}
 		$table .= '<table class="uk-table uk-table-small uk-table-divider uk-table-middle">' . PHP_EOL;
 		if ( $caption !== null ) {
@@ -285,13 +306,18 @@ class validForms {
 		$headers = [];
 		$headers['#'] = false;
 		//$headers['Validated'] = 'uk-text-center';
-		$headers['Page ID'] = false;
-		$headers['Page Title'] = false;
-		$headers['Tag used'] = 'uk-text-center';
-		$headers['Nr of Forms'] = 'uk-text-center';
-		$headers['Action'] = 'uk-text-center';
-		$title = 'All unvalidated FlexForm forms';
-		$caption = 'There are ' . count( $formsData ) . ' Pages with FlexForm forms';
+		$h1 = wfMessage( 'flexform-validforms-valid-list-table-page-id' )->text();
+		$h2 = wfMessage( 'flexform-validforms-valid-list-table-page-title' )->text();
+		$h3 = wfMessage( 'flexform-validforms-valid-list-table-tag_used' )->text();
+		$h4 = wfMessage( 'flexform-validforms-valid-list-table-nr-forms' )->text();
+		$h5 = wfMessage( 'flexform-validforms-valid-list-table-action' )->text();
+		$headers[$h1] = false;
+		$headers[$h2] = false;
+		$headers[$h3] = 'uk-text-center';
+		$headers[$h4] = 'uk-text-center';
+		$headers[$h5] = 'uk-text-center';
+		$title = wfMessage( 'flexform-validforms-invalid-list-title' )->text();
+		$caption = wfMessage( 'flexform-validforms-invalid-list-caption', count( $formsData ) )->text();
 		$data = [];
 		$count = 1;
 		$foundNrOfForms = 0;
@@ -312,9 +338,21 @@ class validForms {
 			}
 			$pids[] = $pageInfo['id'];
 			$formUnvalidate = $formHeader . '<input type="hidden" name="pId" value="' . $pageInfo['id'] . '">';
-			$formUnvalidate .= '<button style="border:none;" type="submit" class="uk-button uk-button-default ff-del"><span class="uk-icon-button" uk-icon="minus-circle" title="delete"></span></button></form> ';
+			$formUnvalidate .= $this->renderGenericBtn(
+				'',
+				'minus-circle',
+				wfMessage( 'flexform-validforms-invalid-list-action-delete' )->text(),
+				''
+			);
+			$formUnvalidate .= '</form> ';
 			$formValidate = $formHeader . '<input type="hidden" name="pIdA" value="' . $pageInfo['id'] . '">';
-			$formValidate .= '<button style="border:none;" type="submit" class="uk-button uk-button-default ff-del"><span class="uk-icon-button" uk-icon="plus-circle" title="validate"></span></button></form> ';
+			$formValidate .= $this->renderGenericBtn(
+				'',
+				'plus-circle',
+				wfMessage( 'flexform-validforms-invalid-list-action-validate' )->text(),
+				''
+			);
+			$formValidate .= '</form> ';
 			$data[$k][0]['value'] = $count;
 
 			$data[$k][0]['class'] = false;
@@ -356,17 +394,53 @@ class validForms {
 		$footer[2] = '';
 		$footer[3] = '';
 		$footer[4] = '';
-		$footer[5] = 'Total of ' . $foundNrOfForms;
-		$footer[5] .= ' unvalidated FlexForm forms found on ' . ( $count - 1 ) . ' pages<br>';
+		$footer[5] = wfMessage( 'flexform-validforms-invalid-list-footer', $foundNrOfForms, ( $count - 1 ) )->text();
+		$footer[5] .= '<br>';
 		$footer[5] .= $formHeader;
 		$footer[5] .= '<input type="hidden" name="pIdAll" value="' . json_encode( $pids ) . '">';
-		$footer[5] .= '<button style="border:none;" type="submit" class="uk-button uk-button-default ff-del"><span class="uk-icon-button uk-text-danger" uk-icon="check" title="validate"></span> Validate all</button></form> ';
+		$footer[5] .= $this->renderGenericBtn(
+			wfMessage( 'flexform-validforms-invalid-list-action-validate-all' )->text(),
+			'check',
+			wfMessage( 'flexform-validforms-invalid-list-action-validate' )->text(),
+			'uk-text-danger'
+		);
+		$footer[5] .= '</form> ';
 		$footer[5] .= $formHeader;
 		$footer[5] .= '<input type="hidden" name="pIdAllOnlyForm" value="' . json_encode( $pidsForm ) . '">';
-		$footer[5] .= '<button style="border:none;" type="submit" class="uk-button uk-button-default ff-del"><span class="uk-icon-button uk-text-success" uk-icon="check" title="validate"></span> Validate only "form" tags Forms</button></form> ';
+		$footer[5] .= $this->renderGenericBtn(
+			wfMessage( 'flexform-validforms-invalid-list-action-validate-form' )->text(),
+			'check',
+			wfMessage( 'flexform-validforms-invalid-list-action-validate' )->text(),
+			'uk-text-success'
+		);
+		$footer[5] .= '</form> ';
 
-		return $this->renderDefaultTable( $title, $caption, $headers, $data, $footer );
+		return $this->renderDefaultTable( $title, $caption, $headers, $data, $footer, null );
+	}
 
+	/**
+	 * @param string $text
+	 * @param string $icon
+	 * @param string $title
+	 * @param string $class
+	 *
+	 * @return string
+	 */
+	private function renderGenericBtn(
+		string $text = '',
+		string $icon = '',
+		string $title = '',
+		string $class = ''
+	) : string {
+		$ret = '<button style="border:none;" type="submit" class="uk-button uk-button-default ff-del">';
+		$ret .= '<span class="uk-icon-button ' . $class . '" uk-icon="' . $icon . '" title="' . $title . '"></span>';
+
+		if ( $text !== '' ) {
+			$ret .= ' ' . $text;
+		}
+		$ret .= '</button>';
+
+		return $ret;
 	}
 
 	/**
