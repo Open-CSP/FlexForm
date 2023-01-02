@@ -4,12 +4,9 @@ FlexForm is an enhanced HTML5 rendering engine.
 
 It renders HTML5 form elements and allows to edit or create a page or multiple pages with one form.
 
-This version 1 is a complete rewrite and stripped down version from the previous FlexForm.
+Version 2 has changes in its config. So upgrading to version 2 means adjusting your local settings.
 
-Compared to the previous version File upload and E-mail are not supported and will be added in a later version.
-Rendering of a form has been rewritten to support themes.
-
-Documentation will be added soon.
+Version 1 was a complete rewrite and stripped down version from the previous WSForm.
 
 ## Installation
 
@@ -80,6 +77,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 2.0.0 : Added approved forms, -usercan- options and code optimization
 * 1.1.45 : Split wiki edit and create
 * 1.1.44 : JSON Support for instances. Fixed nooverwrite on create page option.
 * 1.1.43 : JSON Edit support. Dropped jQuery.UI dependency
