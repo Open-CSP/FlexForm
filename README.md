@@ -56,12 +56,19 @@ $wgFlexFormConfig['smtp_port']                                     = 587;
 
 ---
 
-Finally add the following line at the end of your LocalSettings.php to enable the extension :
+Add the following line at the end of your LocalSettings.php to enable the extension :
 
 ```php
 wfLoadExtension( 'FlexForm' );
 ```
 
+---
+
+Run the [update script](https://www.mediawiki.org/wiki/Manual:Update.php) which will automatically create the necessary database tables that this extension needs.
+
+Navigate to Special:Version on your wiki to verify that the extension is successfully installed.
+
+---
 FlexForm has a notification system build in. This is used to show possible errors or success / custom messages.
 
 To enable this.. add to your header page :
