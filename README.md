@@ -75,7 +75,7 @@ To enable this.. add to your header page :
 
 ```html
 
-<_form showmessages/>
+<form showmessages/>
 ```
 
 ## Docs
