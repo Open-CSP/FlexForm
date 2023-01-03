@@ -81,6 +81,7 @@ class TagHooks {
 	public function renderForm( $input, array $args, Parser $parser, PPFrame $frame ) {
 		global $wgUser, $wgEmailConfirmToEdit, $IP, $wgScript;
 		$ret = '';
+		$addFFJS = '';
 		//$parser->getOutput()->addModuleStyles( 'ext.wsForm.general.styles' );
 		$renderonlyapprovedforms = Config::getConfigVariable( 'renderonlyapprovedforms' );
 		$renderi18nErrorInsteadofImageForApprovedForms = Config::getConfigVariable(
@@ -110,18 +111,10 @@ class TagHooks {
 
 			$alertTag = \Xml::tags(
 				'div',
-				[ 'class' => 'wsform alert-' . $_COOKIE['wsform']['type'] ],
+				[ 'class' => 'wsform alert-' . $_COOKIE['wsform']['type'],
+				  'style' => 'display:none;height:0px;' ],
 				$_COOKIE['wsform']['txt']
 			);
-
-			if ( !empty( $args['showmessages'] ) ) {
-				$alertTag .= \Xml::tags(
-					'div',
-					[ 'class' => 'wsform attach' ],
-					$args['showmessages']
-				);
-			}
-
 
 			setcookie(
 				"wsform[type]",
@@ -197,6 +190,12 @@ class TagHooks {
 			Core::includeInlineScript( 'var mwonsuccess = "' . htmlspecialchars( $messageOnSuccess ) . '";' );
 		} else {
 			$messageOnSuccess = null;
+		}
+
+		if ( isset( $args['attachmessageto'] ) && $args['attachmessageto'] !== '' ) {
+			Core::includeInlineScript(
+				'var mwMessageAttach = "' . htmlspecialchars( $args['attachmessageto'] ) . '";'
+			);
 		}
 
 		if ( isset( $args['setwikicomment'] ) ) {
@@ -401,7 +400,7 @@ class TagHooks {
 		if ( Core::getRun() === false ) {
 			// FIXME: Move to ResourceLoader
 			//Core::includeTagsScript( Core::getRealUrl() . '/Modules/FlexForm.general.js' );
-			$ret     = '<script type="text/javascript" charset="UTF-8" src="' . Core::getRealUrl() . '/Modules/FlexForm.general.js"></script>' . "\n";
+			$addFFJS  = '<script type="text/javascript" charset="UTF-8" src="' . Core::getRealUrl() . '/Modules/FlexForm.general.js"></script>' . "\n";
 
 			Core::setRun( true );
 		}
@@ -446,6 +445,8 @@ class TagHooks {
 		} finally {
 			$this->themeStore->setFormThemeName( $previousTheme );
 		}
+
+		$ret .= $addFFJS;
 
 		if ( Core::isShowOnSelectActive() ) {
 			$ret .= Core::addShowOnSelectJS();

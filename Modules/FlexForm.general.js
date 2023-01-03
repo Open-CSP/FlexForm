@@ -1101,9 +1101,7 @@ function createAlertsIfNeeded () {
 		let type = alert.attr('class').split('-')[1]
 		if (type === 'danger') type = 'error'
 		if (type === 'warning') type = 'warn'
-		let attach = $('[class^="wsform attach"]')
-		if ( attach !== null && attach.length > 0 ) {
-			let where = attach.text();
+		if ( typeof mwMessageAttach !== 'undefined' ) {
 			if (typeof $.notify === 'undefined') {
 				var u = mw.config.get('wgScriptPath')
 
@@ -1112,8 +1110,11 @@ function createAlertsIfNeeded () {
 				}
 
 				$.getScript(u + '/extensions/FlexForm/Modules/notify.js').done( function() {
-					showMessage( alert.text(), type, $(where) );
-					console.log( alert.text(), type, $(where) );
+					setTimeout(function(){
+						showMessage( alert.text(), type, $(mwMessageAttach), true );
+						//console.log( alert.text(), type, $(mwMessageAttach) );
+					}, 500);
+
 				})
 			}
 
