@@ -107,11 +107,21 @@ class TagHooks {
 				return '';
 			}
 
+
 			$alertTag = \Xml::tags(
 				'div',
 				[ 'class' => 'wsform alert-' . $_COOKIE['wsform']['type'] ],
 				$_COOKIE['wsform']['txt']
 			);
+
+			if ( !empty( $args['showmessages'] ) ) {
+				$alertTag .= \Xml::tags(
+					'div',
+					[ 'class' => 'wsform attach' ],
+					$args['showmessages']
+				);
+			}
+
 
 			setcookie(
 				"wsform[type]",

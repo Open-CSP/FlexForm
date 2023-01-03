@@ -11,7 +11,7 @@
 var wsAjax = false
 
 /**
- * Show popup message. Initiated and loaded bu wsform function
+ * Show popup message. Initiated and loaded by flexform function
  * @param  {[string]}  msg           [Text message]
  * @param  {[string]}  type          [what kind of alert (success, alert, warning, etc..)]
  * @param  {Boolean} [where=false] [where to show]
@@ -19,7 +19,15 @@ var wsAjax = false
  * @return
  */
 function showMessage (msg, type, where = false, stick = false) {
-	if (typeof $.notify === 'undefined') return
+	if (typeof $.notify === 'undefined') {
+		var u = mw.config.get('wgScriptPath')
+
+		if (u === 'undefined') {
+			u = ''
+		}
+
+		$.getScript(u + '/extensions/FlexForm/Modules/notify.js')
+	}
 	if (where !== false) {
 		if (stick) {
 			where.notify(msg, type, { clickToHide: true, autoHide: false })
@@ -1093,7 +1101,25 @@ function createAlertsIfNeeded () {
 		let type = alert.attr('class').split('-')[1]
 		if (type === 'danger') type = 'error'
 		if (type === 'warning') type = 'warn'
-		mw.notify(alert.text(), { autoHide: false, type: type })
+		let attach = $('[class^="wsform attach"]')
+		if ( attach !== null && attach.length > 0 ) {
+			let where = attach.text();
+			if (typeof $.notify === 'undefined') {
+				var u = mw.config.get('wgScriptPath')
+
+				if (u === 'undefined') {
+					u = ''
+				}
+
+				$.getScript(u + '/extensions/FlexForm/Modules/notify.js').done( function() {
+					showMessage( alert.text(), type, $(where) );
+					console.log( alert.text(), type, $(where) );
+				})
+			}
+
+		} else {
+			mw.notify( alert.text(), {autoHide: false, type: type} )
+		}
 	}
 }
 
