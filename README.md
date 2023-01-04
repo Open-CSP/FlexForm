@@ -78,6 +78,12 @@ To enable this.. add to your header page :
 <form showmessages />
 ```
 
+==== Migrate from version 1.x to 2.0 ====
+Please notice the changes in the config settings.
+Also, by default, the setting renderonlyapprovedforms will be true. Meaning that once you install FlexForm v2.0 all your 
+existing FlexForm forms in your wiki will be shown as unvalidated. 
+Visit this documentation page https://www.open-csp.org/DevOps:Doc/FlexForm/2.0/Validated_Forms to read how to solve this easily.
+
 ## Docs
 
 Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
