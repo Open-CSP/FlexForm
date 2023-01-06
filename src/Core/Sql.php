@@ -133,6 +133,7 @@ class Sql {
 	) : bool {
 		$id = $article->getId();
 		if ( Rights::isUserAllowedToEditorCreateForms() ) {
+			self::removePageId( $id );
 			$render = new Render();
 			$content = $render->getSlotsContentForPage(	$id	);
 			$hashes = self::createFormHashes( $content );
