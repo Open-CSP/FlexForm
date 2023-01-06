@@ -13,9 +13,10 @@ namespace FlexForm\Processors\Content;
 use FlexForm\Core\Config;
 use FlexForm\Core\Core;
 use FlexForm\Core\Debug;
+use FlexForm\FlexFormException;
 use FlexForm\Processors\Utilities\General;
-use RecursiveArrayIterator;
-use RecursiveIteratorIterator;
+use JsonPath\InvalidJsonException;
+use JsonPath\JsonObject;
 
 /**
  * Class for editing pages
@@ -307,10 +308,10 @@ class Edit {
 							$templateExplode = explode( '|', $data[$pid][$t]['template'] );
 							$data[$pid][$t]['template'] = $templateExplode[0];
 							if ( $templateExplode[0] === 'jsonk' ) {
-								$data[$pid][$t]['find'] = explode(
-									'.',
-									$templateExplode[1]
-								);
+								if ( substr( $templateExplode[1], 0, 2 ) !== '$.' ) {
+									$templateExplode[1] .= '$.' . $templateExplode[1];
+								}
+								$data[$pid][$t]['find'] = $templateExplode[1];
 							} else {
 								$data[$pid][$t]['find'] = explode(
 									'=',
@@ -453,10 +454,10 @@ class Edit {
 				$templateContent
 			);
 		}
-		if ( $templateContent === false || empty( trim( $templateContent ) ) ) {
+		if ( $templateContent === false ) {
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
-					'Skipping this edit. Template content is false or Template Content is empty for ' .
+					'Skipping this edit. Template content is false for ' .
 					$edit['template'],
 					$templateContent
 				);
@@ -465,14 +466,41 @@ class Edit {
 			// echo 'skipping ' . $edit['template'] ;
 			return;
 		}
+		$emptyTemplate = false;
+		if ( empty( trim( $templateContent ) ) ) {
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'The template is found, but it contains no key->values',
+					[ "Template" => $edit['template'],
+					"Template Content" => $templateContent ]
+				);
+			}
+			$emptyTemplate = true;
+		}
 
 		$expl = self::pregExplode( $templateContent );
-		if ( $expl === false ) {
+
+
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'Exploded Template',
+				[ "Template exploded" => $expl ]
+			);
+		}
+		if ( $expl === false || $emptyTemplate ) {
+
 			// There's nothing to explode lets add the new argument
 			$expl            = [];
 			$expl[]          = $edit['variable'] . '=' . $edit['value'];
 			$usedVariables[] = $edit['variable'];
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'Exploded empty Template',
+					[ "Template exploded" => $expl ]
+				);
+			}
 		}
+
 		foreach ( $expl as $k => $line ) {
 			$tmp = explode(
 				'=',
@@ -491,7 +519,7 @@ class Edit {
 			$expl[] = $edit['variable'] . '=' . $edit['value'];
 		}
 
-		$newTemplateContent = '';
+		$newTemplateContent = '{{' . $edit['template'];
 		$cnt                = count( $expl );
 		$t                  = 0;
 		if ( Config::isDebug() ) {
@@ -508,16 +536,17 @@ class Edit {
 				$newTemplateContent .= "\n" . '|' . trim( $line );
 			}
 			// Is it the last one. Then {5041} put end template }} on a new line
-			if ( $t === ( $cnt - 1 ) ) {
+			if ( $t === ( $cnt - 1 ) || $cnt === 1 ) {
 				$newTemplateContent .= "\n";
 			}
 			$t++;
 		}
-		$pageContents[$pid][$slotToEdit]['content'] = str_replace(
-			$templateContent,
-			$newTemplateContent,
-			$pageContents[$pid][$slotToEdit]['content']
-		);
+		$pageContents[ $pid ][ $slotToEdit ]['content'] = str_replace(
+			'{{' . $edit['template'] . $templateContent,
+				$newTemplateContent,
+				$pageContents[ $pid ][ $slotToEdit ]['content']
+			);
+
 	}
 
 	/**
@@ -558,6 +587,8 @@ class Edit {
 	 * @param array &$usedVariables
 	 *
 	 * @return void
+	 * @throws InvalidJsonException
+	 * @throws FlexFormException
 	 */
 	private function actualJSONEdit(
 		array $edit,
@@ -576,7 +607,7 @@ class Edit {
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
 				'Template content for ' . $pid,
-				[$content, $pageContents]
+				[ $content, $pageContents ]
 			);
 		}
 		$JSONContent = json_decode(
@@ -642,6 +673,7 @@ class Edit {
 
 			if ( $path !== null ) {
 				$JSONContent[key( $path )][$edit['variable']] = $edit['value'];
+				$pageContents[$pid][$slotToEdit]['content'] = json_encode( $JSONContent, JSON_PRETTY_PRINT );
 			} else {
 				if ( Config::isDebug() ) {
 					Debug::addToDebug(
@@ -655,6 +687,7 @@ class Edit {
 				}
 			}
 		} else {
+			/*
 			if ( $this->arrayPath( $JSONContent, $edit['find'] ) === null ) {
 				if ( Config::isDebug() ) {
 					Debug::addToDebug(
@@ -665,12 +698,32 @@ class Edit {
 						]
 					);
 				}
-			} else {
-				$this->arrayPath( $JSONContent, $edit['find'], $edit['value'] );
+			*/
+
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'JSON PATH: ' . $edit['find'],
+					[
+						$edit['value']
+					]
+				);
 			}
+			try {
+				$jsonObject = new JsonObject( $content );
+				$jsonObject->set(
+					$edit['find'],
+					$edit['value']
+				);
+
+				$pageContents[$pid][$slotToEdit]['content'] = $jsonObject->getJson();
+			} catch ( \Exception $e ) {
+				throw new FlexFormException( 'jsonpath error' );
+			}
+			//$this->arrayPath( $JSONContent, $edit['find'], $edit['value'] );
+
 		}
 
-		$pageContents[$pid][$slotToEdit]['content'] = json_encode( $JSONContent, JSON_PRETTY_PRINT );
+
 	}
 
 	/**

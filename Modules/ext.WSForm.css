@@ -1,4 +1,4 @@
-.wsform.alert-danger, .wsform.alert-success, .wsform.alert-warning, .wsform.alert-info{
+.wsform.alert-danger, .wsform.alert-success, .wsform.alert-warning, .wsform.alert-info, .wsform.attach {
 	display:none;
 }
 .hidden {
@@ -82,6 +82,10 @@
 	vertical-align: center;
 }
 
+.ff-invalid {
+	font-weight: bold;
+	color:red;
+}
 
 
 @keyframes spin {

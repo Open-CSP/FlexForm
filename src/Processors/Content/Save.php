@@ -5,6 +5,9 @@ namespace FlexForm\Processors\Content;
 use CommentStoreComment;
 use ContentHandler;
 use ExtensionRegistry;
+use FlexForm\Core\Core;
+use FlexForm\Core\Validate;
+use FlexForm\Processors\Definitions;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
 use MWContentSerializationException;
@@ -302,6 +305,28 @@ class Save {
 	}
 
 	/**
+	 * @return void
+	 */
+	private function saveFieldsToCookie() {
+		$toSaveArray = [];
+		foreach ( $_POST as $k=>$v ) {
+			if ( !Definitions::isFlexFormSystemField( $k ) ) {
+				$toSaveArray[$k] = $v;
+			}
+		}
+		$wR = new \WebResponse();
+		$wR->setCookie(
+			'ffSaveFields',
+			base64_encode( json_encode( $toSaveArray ) ),
+			0,
+			[
+				'path' => '/',
+				'prefix' => ''
+			]
+		);
+	}
+
+	/**
 	 * @param string $title
 	 * @param array $contentArray
 	 * @param string $summary
@@ -315,10 +340,17 @@ class Save {
 	public function saveToWiki( string $title, array $contentArray, string $summary, bool $overWrite = true ) {
 		$user        = RequestContext::getMain()->getUser();
 		$titleObject = Title::newFromText( $title );
+		$editAllPagesConfig = Config::getConfigVariable( 'userscaneditallpages' );
+		$canEdit = MediaWikiServices::getInstance()->getPermissionManager()->userCan( 'edit', $user, $titleObject );
+		$canCreate = MediaWikiServices::getInstance()->getPermissionManager()->userCan( 'create', $user, $titleObject );
+		if ( $editAllPagesConfig === false && ( $canCreate === false || $canEdit === false ) ) {
+			throw new FlexFormException( wfMessage( 'flexform-user-rights-not' )->text() . ' : ' . $title );
+		}
 		if ( !$titleObject || $titleObject->hasFragment() ) {
 			throw new FlexFormException( "Invalid title $title." );
 		}
 		if ( !$overWrite && $titleObject->exists() ) {
+			$this->saveFieldsToCookie();
 			throw new FlexFormException( wfMessage( 'flexform-mwcreate-page-exists' )->text() . ' : ' . $title );
 		}
 		// $slot is now an array as of v0.8.0.9.8.8

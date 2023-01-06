@@ -1,6 +1,6 @@
 {
   "name": "FlexForm",
-  "version": "1.1.45",
+  "version": "2.0.0ß",
   "author": [
     "[https://www.wikibase-solutions.com/author/charlot Sen-Sai]",
     "[https://www.wikibase-solutions.com/author/marijn Marijn]"
@@ -25,9 +25,11 @@
     "FlexFormBot": "ApiBotFlexForm"
   },
   "Hooks": {
+    "LoadExtensionSchemaUpdates": "FlexForm\\Core\\Sql::addTables",
     "ParserFirstCallInit": [
       "FlexFormHooks::onParserFirstCallInit"
     ],
+    "PageSaveComplete": "FlexForm\\Core\\Sql::pageSaved",
     "AdminLinks": [
       "FlexFormHooks::addToAdminLinks"
     ],
@@ -52,13 +54,14 @@
   "ServiceWiringFiles": [
     "FlexForm.ServiceWiring.php"
   ],
+
   "config": {
     "FlexFormConfig": {
       "file_temp_path": "",
       "rc_site_key": "",
       "rc_secret_key": "",
       "sec_key": "",
-      "secure": false,
+      "secure": true,
       "auto_save_interval": 30000,
       "auto_save_after_change": 3000,
       "auto_save_btn_on": "Autosave On",
@@ -75,10 +78,11 @@
       "can_create_user": false,
       "create-seo-titles": false,
       "filter_input_tags" : false,
-      "CreateAndEditForms" : {
-        "allowedGroups" : [ "sysop" ],
-        "hideEdit" : true
-      }
+      "renderonlyapprovedforms": true,
+      "renderi18nErrorInsteadofImageForApprovedForms" : true,
+      "userscaneditallpages" : false,
+      "allowedGroups" : [ "sysop" ],
+      "hideEdit" : true
     }
 
   },
@@ -126,5 +130,6 @@
   "SpecialPages": {
     "FlexForm": "\\FlexForm\\Specials\\SpecialFlexForm"
   },
-  "manifest_version": 1
+  "manifest_version": 1,
+  "load_composer_autoloader": true
 }

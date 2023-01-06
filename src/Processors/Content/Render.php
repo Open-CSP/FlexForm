@@ -15,6 +15,8 @@ use ContentHandler;
 use FlexForm\Core\Config;
 use FlexForm\Core\Debug;
 use MediaWiki\Content\ContentHandlerFactory;
+use MediaWiki\MediaWikiServices;
+use MWUnknownContentModelException;
 use Title;
 use User;
 use WikiPage;
@@ -22,6 +24,67 @@ use FlexForm\FlexFormException;
 
 class Render {
 
+	/**
+	 * @param int $id
+	 *
+	 * @return array|false
+	 */
+	public function getSlotNamesForPageAndRevision( int $id ) {
+		$page = WikiPage::newFromId( $id );
+		if ( $page === false || $page === null ) {
+			return false;
+		}
+		$latest_revision = $page->getRevisionRecord();
+		if ( $latest_revision === null ) {
+			return false;
+		}
+
+		return [
+			"slots"           => $latest_revision->getSlotRoles(),
+			"latest_revision" => $latest_revision
+		];
+	}
+
+	/**
+	 * @param int $id
+	 *
+	 * @return array|false
+	 */
+	public function getSlotsContentForPage( int $id ) {
+		$slot_result = $this->getSlotNamesForPageAndRevision( $id );
+		if ( $slot_result === false ) {
+			return false;
+		}
+		$slot_roles      = $slot_result['slots'];
+		$latest_revision = $slot_result['latest_revision'];
+
+		$slot_contents = [];
+
+		foreach ( $slot_roles as $slot_role ) {
+			if ( !$latest_revision->hasSlot( $slot_role ) ) {
+				continue;
+			}
+
+			$content_object = $latest_revision->getContent( $slot_role );
+
+			if ( $content_object === null ) {
+				continue;
+			}
+			$content_handler = MediaWikiServices::getInstance()->getContentHandlerFactory()->getContentHandler(
+				$content_object->getModel()
+			);
+
+			$contentOfSLot = $content_handler->serializeContent( $content_object );
+
+			if ( empty( $contentOfSLot ) && $slot_role !== 'main' ) {
+				continue;
+			}
+
+			$slot_contents[$slot_role] = $contentOfSLot;
+		}
+
+		return $slot_contents;
+	}
 
 	/**
 	 * @param int|string $id
@@ -39,7 +102,7 @@ class Render {
 		}
 		$ret = [];
 		if ( is_int( $id ) ) {
-			$page           = WikiPage::newFromId( $id );
+			$page = WikiPage::newFromId( $id );
 		} elseif ( is_string( $id ) ) {
 			$titleObject = Title::newFromText( $id );
 			try {

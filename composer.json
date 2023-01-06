@@ -10,6 +10,7 @@
   ],
   "license": "GPL-2.0-or-later",
   "require": {
+    "galbar/jsonpath": "^2.1",
     "php": "^7.3.19",
     "ext-json": "*",
     "ext-exif": "*",

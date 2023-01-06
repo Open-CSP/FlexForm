@@ -87,6 +87,41 @@
 	"flexform-docs-new-version-table" : "Changelog from your version to this new version",
 	"flexform-docs-no-new-version-table" : "Complete changelog",
 
+	"flexform-special-menu-home" : "FlexForm Home",
+	"flexform-special-menu-home-title" : "FlexForm Special Page - Home",
+	"flexform-special-menu-approved-forms" : "Manage approved forms/pages",
+	"flexform-special-version" : "Your version: v$1",
+	"flexform-special-godo-update-btn" : "Go to update page",
+	"flexform-special-new-version" : "NEW: v$1",
+	"flexform-special-update-using-git-to-version" : "Click the button to perform a git update to version $1",
+	"flexform-special-update-using-git-submit" : "Your version: v$1",
+	"flexform-special-update-using-git-no-git" : "This installation of FlexForm is not Git based. We cannot update your version of FlexForm. Please contact the site admin to do this for you.",
+	"flexform-special-update-using-git-cmd-error" : "Could not execute git command",
+	"flexform-special-update-using-git-checkout-error" : "<h2>Git checkout error</h2><p>Please ask the website admin to fix this problem.</p>",
+	"flexform-special-update-using-git-fatal-error" : "<h2>Git fatal error</h2><p>Please ask the website admin to fix this problem.</p>",
+	"flexform-special-update-using-git-result" : "Git result:",
+	"flexform-special-documentation-title" : "update using Git",
+	"flexform-special-documentation-text" : "Documentation",
+
+	"flexform-validforms-invalid-list-title" : "All unvalidated FlexForm forms",
+	"flexform-validforms-invalid-list-caption" : "There are $1 Pages with FlexForm forms",
+	"flexform-validforms-invalid-list-footer" : "Total of $1 unvalidated FlexForm form(s) found on $2 page(s)",
+	"flexform-validforms-invalid-list-action-delete" : "Delete",
+	"flexform-validforms-invalid-list-action-validate" : "Validate",
+	"flexform-validforms-invalid-list-action-validate-all" : "Validate all",
+	"flexform-validforms-invalid-list-action-validate-form" : "Validate only \"form\" tags Forms",
+
+	"flexform-validforms-valid-list-title" : "Managed approved forms",
+	"flexform-validforms-valid-list-caption" : "There are $1 Pages with approved Forms",
+	"flexform-validforms-valid-list-footer" : "Total of $1 approved forms",
+	"flexform-validforms-valid-list-action-response-delete" : "Successfully delete approved form(s) from page <strong>$1</strong> ( PageID: $2 )",
+
+	"flexform-validforms-valid-list-table-page-id" : "Page ID",
+	"flexform-validforms-valid-list-table-page-title" : "Page title",
+	"flexform-validforms-valid-list-table-nr-forms" : "Nr of Forms",
+	"flexform-validforms-valid-list-table-tag_used" : "Tag used",
+	"flexform-validforms-valid-list-table-action" : "Action",
+
 	"flexform-unkown-slot" : "Unknown Content Slot",
 
 	"flexform-captcha-missing-config" : "reCaptcha settings not found in Config",
@@ -96,6 +131,10 @@
 	"flexform-secure-not" : "not a secure form",
 	"flexform-secure-fields-incomplete" : "Secure fields not complete",
 	"flexform-rights-not" : "You do not have the rights to modify a page containing a FlexForm.",
+	"flexform-user-rights-not" : "You do not have the rights to modify or create this page: ",
+	"flexform-unvalidated-form" : "FORM CANNOT BE RENDERED, NOT VALIDATED",
+
+	"flexform-unsupported-database" : "FlexForm does not support $1",
 
 	"flexform-api-error-allpages" : "No allpages result from MediaWiki API",
 	"flexform-api-error-noquery-response" : "No query result from MediaWiki API",

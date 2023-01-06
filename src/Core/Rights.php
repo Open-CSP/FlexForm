@@ -38,10 +38,8 @@ class Rights {
 	 */
 	private static function getConfigVariable( string $name ) {
 		$config = MediaWikiServices::getInstance()->getMainConfig();
-		//var_dump( $config );
 		if ( $config->has( 'FlexFormConfig' ) ) {
 			$ffConfig = $config->get( 'FlexFormConfig' );
-			$ffConfig = $ffConfig['CreateAndEditForms'];
 
 			return $ffConfig[$name] ?? false;
 		} else {
@@ -53,7 +51,7 @@ class Rights {
 	}
 
 	/**
-	 * @param WikiPage $wikipageObject
+	 * @param WikiPage $wikiPageObject
 	 * @param User $user
 	 *
 	 * @return bool
@@ -63,14 +61,14 @@ class Rights {
 			RevisionRecord::FOR_THIS_USER,
 			$user
 		)->getWikitextForTransclusion();
-		if ( strpos(
-				 $content,
-				 '<_form'
-			 ) !== false ) {
-			return true;
-		} else {
-			return false;
+		$formTags = [ '<wsform', '<_form', '<form' ];
+		$ret = false;
+		foreach ( $formTags as $tag ) {
+			if ( strpos( $content, $tag ) !== false ) {
+				return true;
+			}
 		}
+		return $ret;
 	}
 
 	/**
@@ -79,7 +77,7 @@ class Rights {
 	 * @return bool
 	 * @throws FlexFormException
 	 */
-	private static function isUserAllowedToEditorCreateForms( User $user = null ) {
+	public static function isUserAllowedToEditorCreateForms( User $user = null ) {
 		if ( $user === null ) {
 			$user = RequestContext::getMain()->getUser();
 		}

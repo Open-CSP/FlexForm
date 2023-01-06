@@ -4,6 +4,7 @@ namespace FlexForm\Render;
 
 use Composer\Command\ScriptAliasCommand;
 use ExtensionRegistry;
+use FlexForm\Core\Sql;
 use FlexForm\Processors\Files\FilesCore;
 use FlexForm\Processors\Utilities\General;
 use MediaWiki\MediaWikiServices;
@@ -23,6 +24,12 @@ use User;
  * This class is responsible for rendering tags.
  */
 class TagHooks {
+
+	/**
+	 * @var bool|null
+	 */
+	private $officialForm;
+
 	/**
 	 * @var ThemeStore
 	 */
@@ -35,6 +42,17 @@ class TagHooks {
 	 */
 	public function __construct( ThemeStore $themeStore ) {
 		$this->themeStore = $themeStore;
+	}
+
+	/**
+	 * @param int $pageId
+	 * @param string $input
+	 *
+	 * @return void
+	 */
+	public function setOfficialForm( int $pageId, string $input ) {
+		$hash = Sql::createHash( trim( $input ) );
+		$this->officialForm = Sql::exists( $pageId, $hash );
 	}
 
 	/**
@@ -63,18 +81,38 @@ class TagHooks {
 	public function renderForm( $input, array $args, Parser $parser, PPFrame $frame ) {
 		global $wgUser, $wgEmailConfirmToEdit, $IP, $wgScript;
 		$ret = '';
+		$addFFJS = '';
 		//$parser->getOutput()->addModuleStyles( 'ext.wsForm.general.styles' );
-
+		$renderonlyapprovedforms = Config::getConfigVariable( 'renderonlyapprovedforms' );
+		$renderi18nErrorInsteadofImageForApprovedForms = Config::getConfigVariable(
+			'renderi18nErrorInsteadofImageForApprovedForms'
+		);
+		$this->officialForm = null;
+		if ( $renderonlyapprovedforms === false ) {
+			$this->officialForm = true;
+		}
+		if ( $this->officialForm === null ) {
+			$title = $frame->getTitle();
+			$id = $title->getArticleID();
+			if ( $input === null ) {
+				$formContent = '';
+			} else {
+				$formContent = $input;
+			}
+			$this->setOfficialForm( (int)$id, $formContent );
+		}
 
 		// Do we have some messages to show?
 		if ( isset( $args['showmessages'] ) ) {
-			if ( ! isset ( $_COOKIE['wsform'] ) ) {
+			if ( !isset ( $_COOKIE['wsform'] ) ) {
 				return '';
 			}
 
+
 			$alertTag = \Xml::tags(
 				'div',
-				[ 'class' => 'wsform alert-' . $_COOKIE['wsform']['type'] ],
+				[ 'class' => 'wsform alert-' . $_COOKIE['wsform']['type'],
+				  'style' => 'display:none;height:0px;' ],
 				$_COOKIE['wsform']['txt']
 			);
 
@@ -98,9 +136,44 @@ class TagHooks {
 			];
 		}
 
+		if ( isset( $_COOKIE['ffSaveFields'] ) ) {
+			Core::addPreSaved( json_decode( base64_decode( $_COOKIE['ffSaveFields'] ), true ) );
+			setcookie(
+				"ffSaveFields",
+				"",
+				time() - 3600,
+				'/'
+			);
+		}
+
 		Core::$securityId = uniqid();
 		Core::$chkSums = [];
 		Core::includeTagsCSS( Core::getRealUrl() . '/Modules/ext.WSForm.css' );
+
+		// Are there explicit 'restrictions' lifts set?
+		// TODO: Allow administrators of a wiki to configure whether lifting restrictions is allowed (useful for public wikis)
+		if ( isset( $args['restrictions'] ) ) {
+			// Parse the given restriction
+			$restrictions = $parser->recursiveTagParse(
+				$args['restrictions'],
+				$frame
+			);
+
+			// Only allow anonymous users if the restrictions are lifted
+			$allowAnonymous = strtolower( $restrictions ) === 'lifted';
+
+			unset( $args['restrictions'] );
+		} else {
+			// By default, deny anonymous users
+			$allowAnonymous = false;
+		}
+
+		if ( !$this->officialForm ) {
+			return $this->returnNonValidatedResponse( $renderi18nErrorInsteadofImageForApprovedForms );
+		}
+		// && $allowAnonymous === false
+
+
 		if ( Config::isSecure() === true ) {
 			Core::includeInlineScript( "const wgFlexFormSecure = true;" );
 		} else {
@@ -117,6 +190,12 @@ class TagHooks {
 			Core::includeInlineScript( 'var mwonsuccess = "' . htmlspecialchars( $messageOnSuccess ) . '";' );
 		} else {
 			$messageOnSuccess = null;
+		}
+
+		if ( isset( $args['attachmessageto'] ) && $args['attachmessageto'] !== '' ) {
+			Core::includeInlineScript(
+				'var mwMessageAttach = "' . htmlspecialchars( $args['attachmessageto'] ) . '";'
+			);
 		}
 
 		if ( isset( $args['setwikicomment'] ) ) {
@@ -136,6 +215,7 @@ class TagHooks {
 		} else {
 			$mwReturn = $parser->getTitle()->getLinkURL();
 		}
+
 
 		if ( isset( $args['formtarget'] ) ) {
 			$formTarget = $args['formtarget'];
@@ -215,28 +295,9 @@ class TagHooks {
 			$formId = bin2hex( random_bytes( 16 ) );
 		}
 
-
 		if ( isset( $args['recaptcha-v3-action'] ) ) {
 			Core::$reCaptcha = $args['recaptcha-v3-action'];
 			unset( $args['recaptcha-v3-action'] );
-		}
-
-		// Are there explicit 'restrictions' lifts set?
-		// TODO: Allow administrators of a wiki to configure whether lifting restrictions is allowed (useful for public wikis)
-		if ( isset( $args['restrictions'] ) ) {
-			// Parse the given restriction
-			$restrictions = $parser->recursiveTagParse(
-				$args['restrictions'],
-				$frame
-			);
-
-			// Only allow anonymous users if the restrictions are lifted
-			$allowAnonymous = strtolower( $restrictions ) === 'lifted';
-
-			unset( $args['restrictions'] );
-		} else {
-			// By default, deny anonymous users
-			$allowAnonymous = false;
 		}
 
 		if ( isset( $args['changetrigger'] ) ) {
@@ -268,8 +329,8 @@ class TagHooks {
 			}
 
 			// Is this script already loaded?
-			if ( ! Core::isLoaded( $scriptToLoad ) ) {
-				if ( ! file_exists(
+			if ( !Core::isLoaded( $scriptToLoad ) ) {
+				if ( !file_exists(
 					$IP . '/extensions/FlexForm/Modules/customJS/loadScripts/' . $scriptToLoad . '.js'
 				) ) {
 					return [ 'The script specified in "loadscript" could not be loaded because it does not exist.' ];
@@ -339,7 +400,7 @@ class TagHooks {
 		if ( Core::getRun() === false ) {
 			// FIXME: Move to ResourceLoader
 			//Core::includeTagsScript( Core::getRealUrl() . '/Modules/FlexForm.general.js' );
-			$ret     = '<script type="text/javascript" charset="UTF-8" src="' . Core::getRealUrl() . '/Modules/FlexForm.general.js"></script>' . "\n";
+			$addFFJS  = '<script type="text/javascript" charset="UTF-8" src="' . Core::getRealUrl() . '/Modules/FlexForm.general.js"></script>' . "\n";
 
 			Core::setRun( true );
 		}
@@ -384,6 +445,8 @@ class TagHooks {
 		} finally {
 			$this->themeStore->setFormThemeName( $previousTheme );
 		}
+
+		$ret .= $addFFJS;
 
 		if ( Core::isShowOnSelectActive() ) {
 			$ret .= Core::addShowOnSelectJS();
@@ -440,6 +503,91 @@ class TagHooks {
 			$ret,
 			"markerType" => 'nowiki'
 		];
+	}
+
+	/**
+	 * @param bool $renderi18nErrorInsteadofImageForApprovedForms
+	 *
+	 * @return string[]
+	 */
+	private function returnNonValidatedResponse( bool $renderi18nErrorInsteadofImageForApprovedForms ){
+		if ( $renderi18nErrorInsteadofImageForApprovedForms === true ) {
+			return [
+				'<span class="ff-invalid">' . wfMessage( 'flexform-unvalidated-form' )->text() . '</span>',
+				"markerType" => 'nowiki'
+			];
+			// TODO: Add image here
+		} else {
+			global $wgScript;
+			$realUrl               = str_replace(
+				'/index.php',
+				'',
+				$wgScript
+			);
+			$img = $realUrl . '/extensions/FlexForm/Modules/unnaproved.png';
+			$html = '<img src="' . $img . '" alt="'.wfMessage( 'flexform-unvalidated-form' )->text().'">';
+			return [
+				$html,
+				"markerType" => 'nowiki'
+			];
+		}
+	}
+
+	/**
+	 * @brief Function to render am Option input field.
+	 *
+	 * This function will look for the option input fields and will call its subfunction render_<inputfield>
+	 *
+	 * @param string $input Parser Between beginning and end
+	 * @param array $args Arguments for the field
+	 * @param Parser $parser MediaWiki Parser
+	 * @param PPFrame $frame MediaWiki PPFrame
+	 *
+	 * @return array send to the MediaWiki Parser
+	 * @throws FlexFormException
+	 */
+	public function renderOption( $input, array $args, Parser $parser, PPFrame $frame ) {
+		$args['type'] = 'option';
+		return $this->renderField( $input, $args, $parser, $frame );
+	}
+
+	/**
+	 * @brief Function to render a button field.
+	 *
+	 * This function will look for a button input field and will call its subfunction render_<inputfield>
+	 *
+	 * @param string $input Parser Between beginning and end
+	 * @param array $args Arguments for the field
+	 * @param Parser $parser MediaWiki Parser
+	 * @param PPFrame $frame MediaWiki PPFrame
+	 *
+	 * @return array send to the MediaWiki Parser
+	 * @throws FlexFormException
+	 */
+	public function renderButton( $input, array $args, Parser $parser, PPFrame $frame ) {
+		if ( isset( $args['type'] ) ) {
+			$args['buttontype'] = $args['type'];
+		}
+		$args['type'] = 'button';
+		return $this->renderField( $input, $args, $parser, $frame );
+	}
+
+	/**
+	 * @brief Function to render a textarea input field.
+	 *
+	 * This function will look for the textarea input field and will call its subfunction render_<inputfield>
+	 *
+	 * @param string $input Parser Between beginning and end
+	 * @param array $args Arguments for the field
+	 * @param Parser $parser MediaWiki Parser
+	 * @param PPFrame $frame MediaWiki PPFrame
+	 *
+	 * @return array send to the MediaWiki Parser
+	 * @throws FlexFormException
+	 */
+	public function renderTextarea( $input, array $args, Parser $parser, PPFrame $frame ) {
+		$args['type'] = 'textarea';
+		return $this->renderField( $input, $args, $parser, $frame );
 	}
 
 	/**

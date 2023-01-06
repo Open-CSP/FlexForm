@@ -14,7 +14,10 @@ class Core {
 
 	public const DIVIDER = '-^^-';
 
-	static $showOnSelectSet = false;
+	/**
+	 * @var bool
+	 */
+	public static $showOnSelectSet = false;
 
 	/**
 	 * Globally set as a variable to check if the posting add a reCaptcha v3 and to disable ajax submit
@@ -44,7 +47,6 @@ class Core {
 
 	public static $securityId = "";
 
-
 	public static $runAsUser = false;
 
 	public static $wsConfig = false;
@@ -54,6 +56,9 @@ class Core {
 	private static $cssStyles = array();
 
 	private static $javaScriptConfigVars = array();
+
+	public static $presavedValues = [];
+
 
 	/**
 	 * @return string
@@ -65,6 +70,28 @@ class Core {
 
 	public static function setShowOnSelectActive() {
 		self::$showOnSelectSet = true;
+	}
+
+	/**
+	 * @param array $array
+	 *
+	 * @return void
+	 */
+	public static function addPreSaved( array $array ) {
+		self::$presavedValues = $array;
+	}
+
+	/**
+	 * @param string $name
+	 *
+	 * @return false|mixed
+	 */
+	public static function getPreSavedKey( string $name ) {
+		if ( array_key_exists( $name, self::$presavedValues ) ) {
+			return self::$presavedValues[$name];
+		} else {
+			return false;
+		}
 	}
 
 	public static function isShowOnSelectActive() {
@@ -121,32 +148,21 @@ class Core {
 	 * @return string either the value of the key or an empty string
 	 */
 	public static function getValue( $k, $apo = false ): string {
-		if ( ! self::$gValues ) {
+		if ( !self::$gValues ) {
 			return "";
 		}
+
 		$k = str_replace(
 			" ",
 			"_",
 			$k
 		);
+		$possiblePreSavedValue = self::getPreSavedKey( $k );
 
 		if ( isset( $_GET[$k] ) ) {
 			return htmlentities( $_GET[$k] );
-			//return $tmp;
-			$tmp = str_replace(
-				'"',
-				"",
-				$tmp
-			);
-			if ( $apo ) {
-				$tmp = str_replace(
-					"'",
-					"",
-					$tmp
-				);
-			}
-
-			return $tmp;
+		} elseif ( $possiblePreSavedValue !== false ) {
+			return $possiblePreSavedValue;
 		} else {
 			return "";
 		}
