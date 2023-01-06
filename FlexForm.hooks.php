@@ -94,29 +94,10 @@ class FlexFormHooks {
 
 	/**
 	 * @param OutputPage $out
-	 * @param Skin $skin
-	 *
-	 * @return void
-	 */
-	public static function onBeforePageOutput( OutputPage $out, Skin $skin ) {
-
-		$out->addModules( [
-			'ext.FlexForm.showOnSelect.script',
-			'ext.wsForm.ajax.scripts'
-		] );
-		$out->addModuleStyles( [
-			'ext.FlexForm.Instance.styles',
-			'ext.wsForm.general.styles'
-		] );
-	}
-
-	/**
-	 * @param $out
 	 *
 	 * @return true
 	 */
-	public static function onAfterFinalPageOutput( $out ) {
-		global $wgFlexFormConfig;
+	public static function onAfterFinalPageOutput( OutputPage $out ) {
 		$scripts    = array_unique( Core::getJavaScriptToBeIncluded() );
 		$scriptTags = array_unique( Core::getJavaScriptTagsToBeIncluded() );
 		$csss       = array_unique( Core::getCSSToBeIncluded() );

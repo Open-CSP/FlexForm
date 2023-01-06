@@ -36,9 +36,6 @@
     "AfterFinalPageOutput": [
       "FlexFormHooks::onAfterFinalPageOutput"
     ],
-    "BeforePageOutput": [
-      "FlexFormHooks::onBeforePageOutput"
-    ],
     "SkinTemplateNavigation": [
       "FlexForm\\Core\\Rights::hideSource"
     ],
