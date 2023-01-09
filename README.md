@@ -90,6 +90,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 2.0.0 : Added wgCapitalLinks support
 * 2.0.0ß : Added approved forms, -usercan- options and code optimization. Rdy for testing.
 * 1.1.45 : Split wiki edit and create
 * 1.1.44 : JSON Support for instances. Fixed nooverwrite on create page option.
