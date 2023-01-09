@@ -52,7 +52,10 @@ class Create {
 			$fields['writepage'] = ContentCore::parseTitle( $fields['writepage'] );
 		}
 
+		$fields['writepage'] = ContentCore::checkCapitalTitle( $fields['writepage'] );
+
 		$this->title = $fields['writepage'];
+
 
 		if ( strtolower( $fields['option'] ) == 'next_available' ) {
 			// get highest number
@@ -327,7 +330,13 @@ class Create {
 					$this->pageData['noseo']
 				);
 			}
-			if ( $this->pageData['option'] == 'next_available' && $this->pageData['title'] !== false ) {
+
+			if ( $this->pageData['title'] === false ) {
+				throw new FlexFormException( wfMessage( 'flexform-mwcreate-wrong-title2' )->text() );
+			}
+
+			$this->pageData['title'] = ContentCore::checkCapitalTitle( $this->pageData['title'] );
+			if ( $this->pageData['option'] == 'next_available' ) {
 
 				$hnr = ContentCore::getNextAvailable( $this->pageData['title'] );
 				if ( Config::isDebug() ) {
@@ -343,9 +352,7 @@ class Create {
 					// return wbHandleResponses::createMsg( $hnr['message'], 'error', $returnto);
 				}
 			}
-			if ( $this->pageData['title'] === false ) {
-				throw new FlexFormException( wfMessage( 'flexform-mwcreate-wrong-title2' )->text() );
-			}
+
 
 			if ( substr(
 					 strtolower( $this->pageData['option'] ),

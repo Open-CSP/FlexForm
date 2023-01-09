@@ -2,6 +2,7 @@
 
 namespace FlexForm\Processors\Content;
 
+use MediaWiki\MediaWikiServices;
 use MWException;
 use RequestContext;
 use FlexForm\Core\Config;
@@ -549,6 +550,24 @@ class ContentCore {
 		} else {
 			return mt_rand( 10, 10 );
 		}
+	}
+
+
+	/**
+	 * @param string $title
+	 *
+	 * @return string
+	 */
+	public static function checkCapitalTitle( string $title ): string {
+		$config = MediaWikiServices::getInstance()->getMainConfig();
+		if ( $config->has( 'CapitalLinks' ) ) {
+			if ( $config->get( 'CapitalLinks' ) === true ) {
+				return ucfirst( $title );
+			}
+		} else {
+			return ucfirst( $title );
+		}
+		return $title;
 	}
 
 	/**
