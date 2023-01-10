@@ -12,8 +12,8 @@ var wsAjax = false
 
 /**
  * Show popup message. Initiated and loaded by flexform function
- * @param  {[string]}  msg           [Text message]
- * @param  {[string]}  type          [what kind of alert (success, alert, warning, etc..)]
+ * @param  {string} msg           [Text message]
+ * @param  {string}  type          [what kind of alert (success, alert, warning, etc..)]
  * @param  {Boolean} [where=false] [where to show]
  * @param  {Boolean} [stick=false] [wether popup must be sticky or not]
  * @return
@@ -612,19 +612,31 @@ function wsform (btn, callback = 0, preCallback = 0, showId = 0) {
 			if (window.wsAjax === false) {
 				$(frm).find('input[name="mwidentifier"]')[0].remove()
 			}
+			let statusType = '';
+			let statusMsg = '';
+			let attachTo = false;
 			if (result.status === 'ok') {
-				if (showId !== 0) {
-					showMessage(mwonsuccess, 'success', $('#' + showId))
-				} else if ( typeof mwMessageAttach !== 'undefined' ) {
-					showMessage(mwonsuccess, 'success', $(mwMessageAttach) )
-				} else {
-					showMessage(mwonsuccess, 'success', $(btn))
-				}
+				statusType = 'success';
+				statusMsg = mwonsuccess;
+			} else {
+				statusType = 'error';
+				statusMsg = 'FlexForm : ERROR: ' + result.message;
+			}
+			if (showId !== 0) {
+				attachTo = $( '#' + showId );
+			} else if ( typeof mwMessageAttach !== 'undefined' ) {
+				attachTo = $( mwMessageAttach );
+			} else {
+				attachTo = $( btn );
+			}
+			showMessage( statusMsg, statusType, attachTo );
+			if (result.status === 'ok') {
 				if (callback !== 0 && typeof callback !== 'undefined') {
 					callback(frm)
 				}
-			} else {
-				$.notify('FlexForm : ERROR: ' + result.message, 'error')
+				if ( result.redirect !== 'undefined' ) {
+					window.location.href = result.redirect;
+				}
 			}
 		}).fail( function( xhr, textStatus, errorThrown ) {
 			console.log( xhr, textStatus, errorThrown );

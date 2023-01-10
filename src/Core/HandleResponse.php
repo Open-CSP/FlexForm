@@ -12,6 +12,7 @@ namespace FlexForm\Core;
 
 use Database;
 use FlexForm\FlexFormException;
+use FlexForm\Processors\Content\ContentCore;
 use Wikimedia\Rdbms\DBError;
 use Wikimedia\Rdbms\DBUnexpectedError;
 use Wikimedia\Rdbms\IDatabase;
@@ -236,7 +237,9 @@ class HandleResponse {
 		// Status not ok, but we have redirect ?
 		if ( $status !== 'ok' && $mwReturn !== false ) {
 			// set cookies
-			$this->setCookieMessage( $message );
+			if ( !$this->apiAjax ) {
+				$this->setCookieMessage( $message );
+			}
 			try {
 				// do a redirect or json output
 				$this->redirect( $type, $message );
@@ -279,9 +282,16 @@ class HandleResponse {
 		if ( !$this->apiAjax ) {
 			header( 'Location: ' . $this->getMwReturn() );
 		} else {
+			$fields = ContentCore::getFields();
+			if ( $fields['mwfollow'] === "true" ) {
+				$follow = $this->getMwReturn();
+			} else {
+				$follow = false;
+			}
 			$this->outputJson(
 				$type,
-				$message
+				$message,
+				$follow
 			);
 			die();
 		}
@@ -291,10 +301,13 @@ class HandleResponse {
 	 * @param $status string : status keyword
 	 * @param $data mixed : holds the date
 	 */
-	public function outputJson( string $status, $data ) {
-		$ret            = array();
+	public function outputJson( string $status, $data, $follow = false ) {
+		$ret            = [];
 		$ret['status']  = $status;
 		$ret['message'] = $data;
+		if ( $follow !== false ) {
+			$ret['redirect'] = $follow;
+		}
 		header( 'Content-Type: application/json' );
 		echo json_encode(
 			$ret,
