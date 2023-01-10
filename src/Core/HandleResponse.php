@@ -191,7 +191,7 @@ class HandleResponse {
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
 				"exitResponse messagedata after implode",
-				$messageData
+				$message
 			);
 			echo Debug::createDebugOutput();
 			die( '!testing.. No cookies set!' );
@@ -233,11 +233,13 @@ class HandleResponse {
 				$e
 			);
 		}
-
-		if ( $status !== 'ok' && $mwReturn !== false ) { // Status not ok.. but we have redirect ?
-			$this->setCookieMessage( $message ); // set cookies
+		// Status not ok, but we have redirect ?
+		if ( $status !== 'ok' && $mwReturn !== false ) {
+			// set cookies
+			$this->setCookieMessage( $message );
 			try {
-				$this->redirect(); // do a redirect or json output
+				// do a redirect or json output
+				$this->redirect( $type, $message );
 			} catch ( FlexFormException $e ) {
 				throw new FlexFormException(
 					$e->getMessage(),
@@ -251,13 +253,13 @@ class HandleResponse {
 	}
 
 	/**
-	 * Do a final redirect
+	 * @param string $type
+	 * @param string $message
 	 *
-	 * @param string $redirect
-	 *
+	 * @return void
 	 * @throws FlexFormException
 	 */
-	public function redirect() {
+	public function redirect( string $type = "ok", string $message = "ok" ) {
 		// Check if url is from same domain
 		$parsed = parse_url( $this->getMwReturn() );
 		if ( isset( $parsed['host'] ) ) {
@@ -278,8 +280,8 @@ class HandleResponse {
 			header( 'Location: ' . $this->getMwReturn() );
 		} else {
 			$this->outputJson(
-				'ok',
-				'ok'
+				$type,
+				$message
 			);
 			die();
 		}
