@@ -615,6 +615,8 @@ function wsform (btn, callback = 0, preCallback = 0, showId = 0) {
 			if (result.status === 'ok') {
 				if (showId !== 0) {
 					showMessage(mwonsuccess, 'success', $('#' + showId))
+				} else if ( typeof mwMessageAttach !== 'undefined' ) {
+					showMessage(mwonsuccess, 'success', $(mwMessageAttach) )
 				} else {
 					showMessage(mwonsuccess, 'success', $(btn))
 				}
