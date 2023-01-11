@@ -344,22 +344,23 @@ class Save {
 		$canEdit = MediaWikiServices::getInstance()->getPermissionManager()->userCan( 'edit', $user, $titleObject );
 		$canCreate = MediaWikiServices::getInstance()->getPermissionManager()->userCan( 'create', $user, $titleObject );
 		if ( $editAllPagesConfig === false && ( $canCreate === false || $canEdit === false ) ) {
-			throw new FlexFormException( wfMessage( 'flexform-user-rights-not' )->text() . ' : ' . $title );
+			throw new FlexFormException( wfMessage( 'flexform-user-rights-not', $title )->text() );
 		}
-		if ( !$titleObject || $titleObject->hasFragment() ) {
-			throw new FlexFormException( "Invalid title $title." );
+		if ( !$titleObject || !$titleObject->hasFragment() ) {
+			throw new FlexFormException( wfMessage( 'flexform-savetowiki-title-invalid', $title )->text() );
 		}
 		if ( !$overWrite && $titleObject->exists() ) {
 			$this->saveFieldsToCookie();
-			throw new FlexFormException( wfMessage( 'flexform-mwcreate-page-exists' )->text() . ' : ' . $title );
+			throw new FlexFormException( wfMessage( 'flexform-mwcreate-page-exists', $title )->text() );
 		}
 		// $slot is now an array as of v0.8.0.9.8.8
 		try {
 			$wikiPageObject = WikiPage::factory( $titleObject );
 		} catch ( MWException $e ) {
 			throw new FlexFormException(
-				"Could not create a WikiPage Object from title " . $titleObject->getText(
-				) . '. Message ' . $e->getMessage(),
+				wfMessage( 'flexform-error-could-not-create-page',
+					$titleObject->getText(),
+					$e->getMessage() )->text(),
 				0,
 				$e
 			);
@@ -384,10 +385,7 @@ class Save {
 		}
 		if ( $saveResult !== true ) {
 			throw new FlexFormException(
-				"Save Result error: " . print_r(
-					$saveResult,
-					true
-				)
+				wfMessage( 'flexform-error-general-save-result-error', print_r( $saveResult, true ) )->text()
 			);
 		}
 	}

@@ -13,7 +13,8 @@
 	"flexform-mwoption-out-of-range" : "No page title could be made (out of range)",
 	"flexform-mwcreate-wrong-title" : "No page title could be made (parser responded as not possible)",
 	"flexform-mwcreate-wrong-title2" : "No page title could be made (parser responded as not possible)",
-	"flexform-mwcreate-page-exists" : "Page create failed. Page already exists",
+	"flexform-mwcreate-page-exists" : "Page create failed. Page already exists : $1",
+	"flexform-savetowiki-title-invalid" : "Could not create page $1. Invalid title.",
 
 
 	"apihelp-flexform-summary" : "Range and next available queries",
@@ -123,6 +124,9 @@
 	"flexform-validforms-valid-list-table-action" : "Action",
 
 	"flexform-unkown-slot" : "Unknown Content Slot",
+	"flexform-error-could-not-create-page" : "Could not create a WikiPage Object from title $1. Message: $2",
+	"flexform-error-general-save-result-error" : "Save Result error: $1",
+	"flexform-error-invalid-page-title" : "Invalid title: $1",
 
 	"flexform-captcha-missing-config" : "reCaptcha settings not found in Config",
 	"flexform-captcha-missing-details" : "no captcha details",
@@ -130,7 +134,7 @@
 
 	"flexform-secure-not" : "not a secure form",
 	"flexform-secure-fields-incomplete" : "Secure fields not complete",
-	"flexform-rights-not" : "You do not have the rights to modify a page containing a FlexForm.",
+	"flexform-rights-not" : "You do not have the rights to modify page ($1) containing a FlexForm.",
 	"flexform-user-rights-not" : "You do not have the rights to modify or create this page: ",
 	"flexform-unvalidated-form" : "FORM CANNOT BE RENDERED, NOT VALIDATED",
 

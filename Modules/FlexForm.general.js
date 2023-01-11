@@ -620,7 +620,7 @@ function wsform (btn, callback = 0, preCallback = 0, showId = 0) {
 				statusMsg = mwonsuccess;
 			} else {
 				statusType = 'error';
-				statusMsg = 'FlexForm : ERROR: ' + result.message;
+				statusMsg = result.message;
 			}
 			if (showId !== 0) {
 				attachTo = $( '#' + showId );
