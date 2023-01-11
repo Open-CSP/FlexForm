@@ -346,7 +346,7 @@ class Save {
 		if ( $editAllPagesConfig === false && ( $canCreate === false || $canEdit === false ) ) {
 			throw new FlexFormException( wfMessage( 'flexform-user-rights-not', $title )->text() );
 		}
-		if ( !$titleObject || !$titleObject->hasFragment() ) {
+		if ( !$titleObject || $titleObject->hasFragment() ) {
 			throw new FlexFormException( wfMessage( 'flexform-savetowiki-title-invalid', $title )->text() );
 		}
 		if ( !$overWrite && $titleObject->exists() ) {
