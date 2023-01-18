@@ -5,6 +5,7 @@ namespace FlexForm\Render;
 use Composer\Command\ScriptAliasCommand;
 use ExtensionRegistry;
 use FlexForm\Core\Sql;
+use FlexForm\Processors\Content\Render;
 use FlexForm\Processors\Files\FilesCore;
 use FlexForm\Processors\Utilities\General;
 use MediaWiki\MediaWikiServices;
@@ -1125,6 +1126,8 @@ class TagHooks {
 
 				$htmlType = Validate::validHTML( $args );
 
+
+
 				if ( $input !== '' ) {
 
 					/*
@@ -1160,6 +1163,11 @@ class TagHooks {
 						$class .= ' load-editor ';
 						$ret = '<span class="ve-area-wrapper">';
 					}
+				}
+				if ( isset( $args['source'] ) ) {
+					$render       = new Render();
+					$source = $render->getSlotContent( $args['source'] );
+					$input = $source['content'];
 				}
 
 				Core::addCheckSum(

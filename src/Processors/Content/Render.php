@@ -152,7 +152,7 @@ class Render {
 			}
 		}
 
-		return $ret;;
+		return $ret;
 	}
 
 	/**
