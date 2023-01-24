@@ -161,12 +161,22 @@ class Edit {
 	private function getEndPos( $start, $txt ) {
 		$pos      = false;
 		$brackets = 2;
+		$length = strlen( $txt );
 		for ( $i = $start; $i < strlen( $txt ) + 1; $i++ ) {
+			if ( ( $i + 1 ) < $length ) {
+				$strEnd = $txt[ $i + 1 ];
+			} else {
+				$strEnd = '';
+			}
 			if ( $txt[$i] == '{' ) {
-				$brackets++;
+				if ( $txt[ $i - 1 ] == '{' || $strEnd == '{' ) {
+					$brackets++;
+				}
 			}
 			if ( $txt[$i] == '}' ) {
-				$brackets--;
+				if ( $txt[ $i - 1 ] == '}' || $strEnd == '}' ) {
+					$brackets--;
+				}
 			}
 			if ( $brackets == 0 ) {
 				$pos = $i;
