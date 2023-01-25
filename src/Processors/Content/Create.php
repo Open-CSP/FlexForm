@@ -418,7 +418,7 @@ class Create {
 			if ( $this->pageData['format'] === 'wiki' ) {
 				$saveContent = $this->content;
 			} else {
-				$saveContent = json_encode( $this->JSONContent[$this->pageData['template']], JSON_PRETTY_PRINT );
+				$saveContent = json_encode( $this->JSONContent, JSON_PRETTY_PRINT );
 			}
 			$pagesToSave[] = [
 				$this->pageData['title'],
@@ -519,6 +519,7 @@ class Create {
 		$fields    = ContentCore::getFields();
 		$format = $fields['format'];
 		$json = [];
+		$this->JSONContent = [];
 		$json['ffID'] = ContentCore::createRandom();
 		foreach ( $_POST as $k => $v ) {
 			if ( is_array( $this->pageData['formFields'] ) ) {
