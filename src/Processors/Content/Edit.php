@@ -319,7 +319,7 @@ class Edit {
 							$data[$pid][$t]['template'] = $templateExplode[0];
 							if ( $templateExplode[0] === 'jsonk' ) {
 								if ( substr( $templateExplode[1], 0, 2 ) !== '$.' ) {
-									$templateExplode[1] .= '$.' . $templateExplode[1];
+									$templateExplode[1] = '$.' . $templateExplode[1];
 								}
 								$data[$pid][$t]['find'] = $templateExplode[1];
 							} else {
@@ -727,6 +727,14 @@ class Edit {
 
 				$pageContents[$pid][$slotToEdit]['content'] = $jsonObject->getJson();
 			} catch ( \Exception $e ) {
+				if ( Config::isDebug() ) {
+					Debug::addToDebug(
+						'JSON PATH ERROR: ',
+						[
+							$e->getMessage()
+						]
+					);
+				}
 				throw new FlexFormException( 'jsonpath error' );
 			}
 			//$this->arrayPath( $JSONContent, $edit['find'], $edit['value'] );
