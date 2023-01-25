@@ -50,13 +50,8 @@ class PlainCreateRenderer implements CreateRenderer {
 
 		if ( strtolower( $format ) !== 'wiki' ) {
 			$formatName = $format;
-			$format = Core::createHiddenField(
-				'mwformat',
-				$format
-			);
 		} else {
 			$formatName = '';
-			$format = '';
 		}
 
 		if ( $follow !== null ) {
@@ -87,6 +82,14 @@ class PlainCreateRenderer implements CreateRenderer {
 					'mwtemplate',
 					$template
 				);
+			}
+			if ( strtolower( $format ) !== 'wiki' ) {
+				$format = Core::createHiddenField(
+					'mwformat',
+					$format
+				);
+			} else {
+				$format = '';
 			}
 
 			if ( $write !== '' ) {

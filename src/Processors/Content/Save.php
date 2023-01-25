@@ -71,11 +71,11 @@ class Save {
 		foreach ( $text as $slot_name => $content ) {
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
-					'edit slot slot name',
+					'edit slot slot name' . time(),
 					$slot_name
 				);
 				Debug::addToDebug(
-					'edit slot slot content',
+					'edit slot slot content' . time(),
 					$content
 				);
 			}

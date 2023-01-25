@@ -418,7 +418,7 @@ class Create {
 			if ( $this->pageData['format'] === 'wiki' ) {
 				$saveContent = $this->content;
 			} else {
-				$saveContent = json_encode( $this->JSONContent, JSON_PRETTY_PRINT );
+				$saveContent = json_encode( $this->JSONContent[$this->pageData['template']], JSON_PRETTY_PRINT );
 			}
 			$pagesToSave[] = [
 				$this->pageData['title'],
