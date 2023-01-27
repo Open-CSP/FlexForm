@@ -634,7 +634,8 @@ function wsform (btn, callback = 0, preCallback = 0, showId = 0) {
 				if (callback !== 0 && typeof callback !== 'undefined') {
 					callback(frm)
 				}
-				if ( result.redirect !== 'undefined' ) {
+				if ( typeof result.redirect !== 'undefined' ) {
+					//console.log( result.redirect );
 					window.location.href = result.redirect;
 				}
 			}
