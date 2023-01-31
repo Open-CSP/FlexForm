@@ -234,10 +234,12 @@ class HandleResponse {
 				$e
 			);
 		}
+		$logger = Logging::getMeLogger();
 		// Status not ok, but we have redirect ?
 		if ( $status !== 'ok' && $mwReturn !== false ) {
 			// set cookies
 			if ( !$this->apiAjax ) {
+				$logger->error( $message );
 				$this->setCookieMessage( $message );
 			}
 			try {
@@ -250,7 +252,9 @@ class HandleResponse {
 					$e
 				);
 			}
-		} else { // Status not ok.. and no redirect
+		} else {
+			// Status not ok.. and no redirect
+			$logger->error( $message );
 			$this->outputMsg( $message ); // show error on screen or do json output
 		}
 	}
