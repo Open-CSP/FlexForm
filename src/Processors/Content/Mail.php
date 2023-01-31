@@ -525,7 +525,18 @@ class Mail {
 				}
 				//die ( substr($this->fields['attachment'], 5 ) );
 				$fileRepo = MediaWikiServices::getInstance()->getRepoGroup();
-				//$fTitle = Title::newFromText( substr( $this->fields['attachment'], 5 ) );
+				$fTitle = Title::newFromText( substr( $this->fields['attachment'], 5 ) );
+				global $wgUser;
+				$user = $wgUser;
+				if ( !MediaWikiServices::getInstance()->getPermissionManager()->userCan( "read", $user, $fTitle ) ) {
+					if ( Config::isDebug() ) {
+						Debug::addToDebug(
+							'User is not allowed to read this file : ' . substr( $this->fields['attachment'], 5 ),
+							''
+						);
+					}
+					return $mail;
+				}
 				$searchedFile = $fileRepo->findFile( substr( $this->fields['attachment'], 5 ) );
 				if ( $searchedFile === false ) {
 					if ( Config::isDebug() ) {
