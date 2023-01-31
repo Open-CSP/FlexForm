@@ -10,6 +10,7 @@
 
 namespace FlexForm\Processors\Content;
 
+use MediaWiki\MediaWikiServices;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
 use FlexForm\Core\Config;
@@ -507,6 +508,7 @@ class Mail {
 	 * @throws Exception
 	 */
 	private function checkForAttachment( PHPMailer $mail ) : PHPMailer {
+		$fileRepo       = MediaWikiServices::getInstance()->getRepoGroup()->getLocalRepo();
 		$protocol = stripos(
 						$_SERVER['SERVER_PROTOCOL'],
 						'https'
