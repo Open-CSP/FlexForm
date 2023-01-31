@@ -191,7 +191,7 @@ class Mail {
 				$regexResult
 			);
 			//echo "<pre>";
-			//print_r($tmp);
+			//var_dump($regexResult);
 			//echo "</pre>";
 			if ( isset( $regexResult[1] ) ) {
 				$tmp = $regexResult[1];
@@ -209,7 +209,15 @@ class Mail {
 					$template
 				);
 			} else {
-				$this->fields[$field] = false;
+				if( isset( $regexResult[1] ) ) {
+					$template               = str_replace(
+						'%_' . $field . '=' . $tmp . '%',
+						'',
+						$template
+					);
+
+				}
+				$this->fields[ $field ] = false;
 			}
 		}
 
@@ -476,7 +484,14 @@ class Mail {
 			$mail->isHTML( $this->fields['html'] );
 			$mail->Subject = $this->fields['subject'];
 			$mail->Body    = $this->fields['content'];
-			$mail->send();
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'Debug on, not sending mail',
+					$this->fields
+				);
+			} else {
+				$mail->send();
+			}
 		} catch ( Exception $e ) {
 			throw new FlexFormException(
 				$e->getMessage(),
