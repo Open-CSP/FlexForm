@@ -18,6 +18,7 @@ use FlexForm\Core\Debug;
 use FlexForm\Processors\Definitions;
 use FlexForm\Processors\Security\wsSecurity;
 use FlexForm\FlexFormException;
+use Title;
 
 /**
  * Class for mailings
@@ -508,19 +509,54 @@ class Mail {
 	 * @throws Exception
 	 */
 	private function checkForAttachment( PHPMailer $mail ) : PHPMailer {
-		$fileRepo       = MediaWikiServices::getInstance()->getRepoGroup()->getLocalRepo();
+
 		$protocol = stripos(
 						$_SERVER['SERVER_PROTOCOL'],
 						'https'
 					) === 0 ? 'https:' : 'http:';
 		if ( $this->fields['attachment'] !== false ) {
-			if ( strpos(
-					 $this->fields['attachment'],
-					 'http'
-				 ) === false ) {
-				$fileAttachedContent = file_get_contents( $protocol . $this->fields['attachment'] );
+			if ( substr( strtolower( $this->fields['attachment'] ), 0, 5 ) === 'file:' ) {
+				// We have a wiki file
+				if ( Config::isDebug() ) {
+					Debug::addToDebug(
+						'Looking for wiki upload file : ' . substr( $this->fields['attachment'], 5 ),
+						''
+					);
+				}
+				//die ( substr($this->fields['attachment'], 5 ) );
+				$fileRepo = MediaWikiServices::getInstance()->getRepoGroup();
+				//$fTitle = Title::newFromText( substr( $this->fields['attachment'], 5 ) );
+				$searchedFile = $fileRepo->findFile( substr( $this->fields['attachment'], 5 ) );
+				if ( $searchedFile === false ) {
+					if ( Config::isDebug() ) {
+						Debug::addToDebug(
+							"File does not exists" . time(),
+							substr( $this->fields['attachment'], 5 )
+						);
+					}
+					return $mail;
+				}
+				$canonicalURL = $searchedFile->getLocalRefPath();
+				if ( $canonicalURL === false ) {
+					$canonicalURL = $searchedFile->getCanonicalUrl();
+				}
+				$fileAttachedContent = file_get_contents( $canonicalURL );
+				if ( Config::isDebug() ) {
+					Debug::addToDebug(
+						"File info : " . substr( $this->fields['attachment'], 4 ),
+						[ "exists" => $searchedFile->exists(), "canon url" => $canonicalURL ]
+					);
+				}
+
 			} else {
-				$fileAttachedContent = file_get_contents( $this->fields['attachment'] );
+				if ( strpos(
+						 $this->fields['attachment'],
+						 'http'
+					 ) === false ) {
+					$fileAttachedContent = file_get_contents( $protocol . $this->fields['attachment'] );
+				} else {
+					$fileAttachedContent = file_get_contents( $this->fields['attachment'] );
+				}
 			}
 		} else {
 			$fileAttachedContent = false;
