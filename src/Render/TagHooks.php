@@ -2496,11 +2496,13 @@ class TagHooks {
 		}
 		// When using convert, set accepted files to be the same
 		if ( $convertFrom ) {
+			/*
 			if ( isset( $attributes['accept'] ) ) {
 				$attributes['accept'] .= ', .' . $convertFrom;
 			} else {
 				$attributes['accept'] = '.' . $convertFrom;
 			}
+			*/
 			$hiddenFiles[] = '<input type="hidden" name="wsform_convert_from" value="' . $convertFrom . '">';
 		}
 

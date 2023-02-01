@@ -3,6 +3,7 @@
 namespace FlexForm\Processors\Files;
 
 use FlexForm\Core\Config;
+use FlexForm\Core\Debug;
 use FlexForm\FlexFormException;
 use Pandoc\Pandoc;
 use Pandoc\PandocException;
@@ -20,10 +21,15 @@ class Convert {
 	private string $fileToConvert;
 
 	/**
+	 * @var string
+	 */
+	private string $pandocPathAdditions = '';
+
+	/**
 	 * @return string
 	 */
 	private function getPandocMediaPath(): string {
-		return $this->getTempDir() . 'pandoc/';
+		return $this->getTempDir() . 'pandoc' . $this->pandocPathAdditions;
 	}
 
 	/**
@@ -137,12 +143,11 @@ class Convert {
 		return $wiki;
 	}
 
-
 	/**
 	 * @return string
 	 */
 	public function pandocGetSearchFor(): string {
-		return '[[File:' . $this->getPandocMediaPath();
+		return '[[File:' . $this->getPandocMediaPath() . '/';
 	}
 
 	/**
@@ -158,8 +163,28 @@ class Convert {
 	 * @return array|false
 	 */
 	public function getPossibleImagesFromConversion() {
+		if ( Config::isDebug() ) {
+			Debug::addToDebug( 'Checking for Pandoc Media ' . time(),
+							   [
+								   'path' => $this->getPandocMediaPath()
+							   ] );
+		}
 		if ( file_exists( $this->getPandocMediaPath() ) ) {
-			return glob( $this->getPandocMediaPath() . '*.*' );
+			$foundFiles = glob( $this->getPandocMediaPath() . '*.*' );
+			if ( empty( $foundFiles ) ) {
+				$foundFiles = glob( $this->getPandocMediaPath() . '/media/*.*' );
+				if ( empty( $foundFiles ) ) {
+					return false;
+				}
+				$this->pandocPathAdditions = '/media';
+				if ( Config::isDebug() ) {
+					Debug::addToDebug( 'Found Pandoc Media in extra media map ' . time(),
+									   [
+										   'path' => $this->getPandocMediaPath()
+									   ] );
+				}
+			}
+			return $foundFiles;
 		} else {
 			return false;
 		}
