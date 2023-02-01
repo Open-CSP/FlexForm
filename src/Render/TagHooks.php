@@ -101,6 +101,7 @@ class TagHooks {
 				$formContent = $input;
 			}
 			$this->setOfficialForm( (int)$id, $formContent );
+
 		}
 
 		// Do we have some messages to show?
@@ -2398,6 +2399,7 @@ class TagHooks {
 		$use_label          = false;
 		$force              = false;
 		$parseContent       = false;
+		$convertFrom        = false;
 		$template			= false;
 		$multiple			= 'files';
 		$canvasSourceId     = false;
@@ -2430,6 +2432,9 @@ class TagHooks {
 						break;
 					case "force":
 						$force = $v;
+						break;
+					case "convert_from":
+						$convertFrom = $v;
 						break;
 					case "id":
 						$id               = $v;
@@ -2488,6 +2493,15 @@ class TagHooks {
 		}
 		if ( $force ) {
 			$hiddenFiles[] = '<input type="hidden" name="wsform_image_force" value="' . $force . '">';
+		}
+		// When using convert, set accepted files to be the same
+		if ( $convertFrom ) {
+			if ( isset( $attributes['accept'] ) ) {
+				$attributes['accept'] .= ', .' . $convertFrom;
+			} else {
+				$attributes['accept'] = ', .' . $convertFrom;
+			}
+			$hiddenFiles[] = '<input type="hidden" name="wsform_convert_from" value="' . $convertFrom . '">';
 		}
 
 		// Normal file upload. No presentor

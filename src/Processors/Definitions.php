@@ -75,7 +75,8 @@ class Definitions {
 				false
 			),
 			'target'       => General::getPostString( 'wsform_file_target' ),
-			'force'        => General::getPostString( 'wsform_image_force' )
+			'force'        => General::getPostString( 'wsform_image_force' ),
+			'convertFrom'  => General::getPostString( 'wsform_convert_from' )
 		];
 	}
 

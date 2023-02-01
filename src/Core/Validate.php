@@ -294,7 +294,8 @@ class Validate {
 			"dropzone",
 			"canvas_source_id",
 			"canvas_render_id",
-			"template"
+			"template",
+			"convert_from"
 		);
 		if ( $ret ) {
 			return $validParameters;

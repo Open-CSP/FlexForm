@@ -9,9 +9,22 @@ use Pandoc\PandocException;
 
 class Convert {
 
+	/**
+	 * @var string
+	 */
 	private string $convertFrom;
 
+	/**
+	 * @var string
+	 */
 	private string $fileToConvert;
+
+	/**
+	 * @return string
+	 */
+	private function getPandocMediaPath(): string {
+		return $this->getTempDir() . 'pandoc/';
+	}
 
 	/**
 	 * @return Pandoc
@@ -82,10 +95,10 @@ class Convert {
 	}
 
 	/**
-	 * @return void
+	 * @return string
 	 * @throws FlexFormException
 	 */
-	public function convertFile() {
+	public function convertFile(): string {
 		if ( $this->convertFrom === null ) {
 			throw new FlexFormException(
 				'Missing convert to option for conversion',
@@ -98,12 +111,70 @@ class Convert {
 				0
 			);
 		}
-		$pandoc = $this->giveMePandoc();
+		$pandoc  = $this->giveMePandoc();
 		$options = [
-			'from' => $this->convertFrom,
-			'to' => 'mediawiki',
-			'extract-media' => $this->getTempDir() . 'media'
+			'from'          => $this->convertFrom,
+			'to'            => 'mediawiki',
+			'extract-media' => $this->getPandocMediaPath()
 		];
+		try {
+			$wiki = $pandoc->runWith( $this->getFile(), $options );
+		} catch ( \Pandoc\PandocException $e ) {
+			$params = [
+				'file'  => $e->getFile(),
+				'line'  => $e->getLine(),
+				'trace' => $e->getTraceAsString()
+			];
+			throw new FlexFormException(
+				'Pandoc Conversion Error',
+				0,
+				$e
+			);
+		}
+
+		$this->cleanConvertedText( $wiki );
+
+		return $wiki;
+	}
+
+
+
+	/**
+	 * @return string
+	 */
+	private function pandocGetSearchFor(): string {
+		return '[[File:' . $this->getPandocMediaPath();
+	}
+
+	/**
+	 * @param string $newFileName
+	 *
+	 * @return string
+	 */
+	private function pandocGetReplaceWith( string $newFileName ): string {
+		return '[[File:' . $newFileName;
+	}
+
+	/**
+	 * @return array|false
+	 */
+	private function getPossibleImagesFromConversion() {
+		return glob( $this->getPandocMediaPath() . '*.*' );
+	}
+
+	/**
+	 * Clean large empty spaces and other common conversion problems
+	 * @param string &$content
+	 *
+	 * @return void
+	 */
+	private function cleanConvertedText( string &$content ) {
+		// Remove any non-breaking space
+		$content = str_replace( ' ', ' ', $content );
+		// Remove empty lines
+		$content = preg_replace( '/(\n=+) (<br \/>)\n/', '$1 ', $content );
+		// Remove empty spans
+		$content = preg_replace( '/\R+<span> <\/span>/', '', $content );
 	}
 
 }

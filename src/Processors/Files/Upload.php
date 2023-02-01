@@ -54,7 +54,8 @@ class Upload {
 		 * false
 		 * ),
 		 * 'target'       => General::getPostString( 'wsform_file_target' ),
-		 * 'force'        => General::getPostArray( 'wsform_image_force' )
+		 * 'force'        => General::getPostArray( 'wsform_image_force' ),
+		 * 'force'        => General::getPostArray( 'wsform_image_force' ),
 		 * ];
 		 */ global $wgUser;
 		$fields = Definitions::fileUploadFields();
