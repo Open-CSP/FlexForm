@@ -87,7 +87,9 @@ class Upload {
 			$fields['pagecontent'] = '';
 		}
 
-		$fields['comment'] = $this->getSummary();
+		if ( $fields['comment'] === false ) {
+			$fields['comment'] = $this->getSummary();
+		}
 
 		if ( $fields['force'] === false || $fields['force'] === '' ) {
 			$convert = false;
