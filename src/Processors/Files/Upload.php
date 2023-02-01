@@ -55,7 +55,7 @@ class Upload {
 		 * ),
 		 * 'target'       => General::getPostString( 'wsform_file_target' ),
 		 * 'force'        => General::getPostArray( 'wsform_image_force' ),
-		 * 'force'        => General::getPostArray( 'wsform_image_force' ),
+		 * 'convertFrom'        => General::getPostArray( 'wsform_convert_from' ),
 		 * ];
 		 */ global $wgUser;
 		$fields = Definitions::fileUploadFields();
@@ -82,6 +82,7 @@ class Upload {
 				0
 			);
 		}
+
 		if ( $fields['pagecontent'] === false ) {
 			$fields['pagecontent'] = '';
 		}
@@ -250,8 +251,17 @@ class Upload {
 				Debug::addToDebug( 'Title after parsetitle', $titleName );
 			}
 
-			$titleName = $this->finalNameCleanUp( $titleName, [ $fileNameExtension, $originalFileNameExtension ] );
-			$titleName .= "." . $fileNameExtension;
+			$titleName = $this->finalNameCleanUp( $titleName,
+												  [
+													  $fileNameExtension,
+													  $originalFileNameExtension
+												  ]
+			);
+
+			// Not converting file, the add filename extension back
+			if ( $fields['convertFrom'] === false ) {
+				$titleName .= "." . $fileNameExtension;
+			}
 
 			if ( Config::isDebug() ) {
 				Debug::addToDebug( 'Preparing to upload file',
@@ -264,21 +274,74 @@ class Upload {
 								   ] );
 			}
 
-			$resultFileUpload = $this->uploadFileToWiki(
-				$upload_dir . $storedFile,
-				$titleName,
-				$wgUser,
-				$details,
-				$fields['comment'],
-				wfTimestampNow()
-			);
-			if ( $resultFileUpload !== true ) {
-				throw new FlexFormException(
-					$resultFileUpload,
-					0
-				);
+			if ( $fields['convertFrom'] !== false ) {
+				// We need to do a Pandoc conversion
+				$convert = new Convert();
+				$convert->setConvertFrom( $fields['convertFrom'] );
+				$convert->setFileName( $storedFile );
+				$newContent = $convert->convertFile();
+				$possibleImagesInDocument = $convert->getPossibleImagesFromConversion();
+				if ( $possibleImagesInDocument !== false ) {
+					foreach ( $possibleImagesInDocument as $singleImage ) {
+						$newFname = $titleName . '-' . basename( $singleImage );
+						if ( !Config::isDebug() ) {
+							$resultFileUpload = $this->uploadFileToWiki(
+								$singleImage,
+								$newFname,
+								$wgUser,
+								$details,
+								$fields['comment'],
+								wfTimestampNow()
+							);
+							if ( $resultFileUpload !== true ) {
+								throw new FlexFormException(
+									$resultFileUpload,
+									0
+								);
+							}
+						}
+						$search = $convert->pandocGetSearchFor() . basename( $singleImage );
+						$replace = $convert->pandocGetReplaceWith( $newFname );
+						$newContent = str_replace( $search, $replace, $newContent );
+						unlink( $singleImage );
+					}
+				}
+				// Now create the page in the wiki
+				if ( !Config::isDebug() ) {
+					$save = new Save();
+					try {
+						$save->saveToWiki(
+							$titleName,
+							[ 'main' => $newContent ],
+							$fields['comment']
+						);
+					} catch ( FlexFormException $e ) {
+						throw new FlexFormException(
+							$e->getMessage(),
+							0,
+							$e
+						);
+					}
+				}
+			} else {
+				if ( !Config::isDebug() ) {
+					$resultFileUpload = $this->uploadFileToWiki(
+						$upload_dir . $storedFile,
+						$titleName,
+						$wgUser,
+						$details,
+						$fields['comment'],
+						wfTimestampNow()
+					);
+					if ( $resultFileUpload !== true ) {
+						throw new FlexFormException(
+							$resultFileUpload,
+							0
+						);
+					}
+				}
+				unlink( $upload_dir . $storedFile );
 			}
-			unlink( $upload_dir . $storedFile );
 		}
 
 		return true;

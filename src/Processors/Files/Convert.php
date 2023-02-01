@@ -75,7 +75,7 @@ class Convert {
 	 *
 	 * @return bool
 	 */
-	public function fileExists(): bool {
+	private function fileExists(): bool {
 		if ( $this->fileToConvert === null ) {
 			return false;
 		}
@@ -86,8 +86,8 @@ class Convert {
 	 *
 	 * @return bool|string
 	 */
-	public function getFile() {
-		if ( $this->fileExists( $this->fileToConvert ) ) {
+	private function getFile() {
+		if ( $this->fileExists() ) {
 			return file_get_contents( $this->getTempDir() . $this->fileToConvert );
 		} else {
 			return false;
@@ -138,11 +138,10 @@ class Convert {
 	}
 
 
-
 	/**
 	 * @return string
 	 */
-	private function pandocGetSearchFor(): string {
+	public function pandocGetSearchFor(): string {
 		return '[[File:' . $this->getPandocMediaPath();
 	}
 
@@ -151,15 +150,19 @@ class Convert {
 	 *
 	 * @return string
 	 */
-	private function pandocGetReplaceWith( string $newFileName ): string {
+	public function pandocGetReplaceWith( string $newFileName ): string {
 		return '[[File:' . $newFileName;
 	}
 
 	/**
 	 * @return array|false
 	 */
-	private function getPossibleImagesFromConversion() {
-		return glob( $this->getPandocMediaPath() . '*.*' );
+	public function getPossibleImagesFromConversion() {
+		if ( file_exists( $this->getPandocMediaPath() ) ) {
+			return glob( $this->getPandocMediaPath() . '*.*' );
+		} else {
+			return false;
+		}
 	}
 
 	/**

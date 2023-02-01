@@ -2499,7 +2499,7 @@ class TagHooks {
 			if ( isset( $attributes['accept'] ) ) {
 				$attributes['accept'] .= ', .' . $convertFrom;
 			} else {
-				$attributes['accept'] = ', .' . $convertFrom;
+				$attributes['accept'] = '.' . $convertFrom;
 			}
 			$hiddenFiles[] = '<input type="hidden" name="wsform_convert_from" value="' . $convertFrom . '">';
 		}
