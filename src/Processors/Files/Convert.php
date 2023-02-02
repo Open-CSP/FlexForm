@@ -37,8 +37,12 @@ class Convert {
 	 * @throws FlexFormException
 	 */
 	private function giveMePandoc(): Pandoc {
+		$customInstallPath = Config::getConfigVariable( 'pandoc-install-path' );
+		if ( empty( $customInstallPath ) ) {
+			$customInstallPath = null;
+		}
 		try {
-			$pandoc = new Pandoc();
+			$pandoc = new Pandoc( $customInstallPath );
 		} catch ( PandocException $e ) {
 			throw new FlexFormException(
 				$e->getMessage(),
