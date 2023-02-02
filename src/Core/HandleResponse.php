@@ -136,6 +136,7 @@ class HandleResponse {
 	 * @return array
 	 */
 	public function createMsg( $type = false ) : array {
+		die();
 		$tmp             = array();
 		$tmp['status']   = $this->getReturnStatus();
 		$tmp['type']     = $type;
@@ -191,7 +192,7 @@ class HandleResponse {
 		}
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
-				"exitResponse messagedata after implode",
+				"exitResponse messagedata after implode " . time(),
 				$message
 			);
 			echo Debug::createDebugOutput();
@@ -203,6 +204,7 @@ class HandleResponse {
 				$type
 			); // set cookies
 		}
+
 
 		$database = wfGetDB( DB_PRIMARY );
 
@@ -236,6 +238,7 @@ class HandleResponse {
 		}
 		$logger = Logging::getMeLogger();
 		// Status not ok, but we have redirect ?
+
 		if ( $status !== 'ok' && $mwReturn !== false ) {
 			// set cookies
 			if ( !$this->apiAjax ) {
@@ -282,9 +285,9 @@ class HandleResponse {
 		if ( $this->getPauseBeforeRefresh() !== false ) {
 			sleep( $this->getPauseBeforeRefresh() );
 		}
-
 		if ( !$this->apiAjax ) {
 			header( 'Location: ' . $this->getMwReturn() );
+			die();
 		} else {
 			$fields = ContentCore::getFields();
 			if ( $fields['mwfollow'] === "true" ) {
@@ -347,7 +350,7 @@ class HandleResponse {
 			} else {
 				$wR->setCookie(
 					"wsform[txt]",
-					'FlexForm :: ' . $msg,
+					$msg,
 					0,
 					[ 'path' => '/' ,
 					  'prefix' => '' ]

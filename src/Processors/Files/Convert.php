@@ -131,8 +131,9 @@ class Convert {
 				'line'  => $e->getLine(),
 				'trace' => $e->getTraceAsString()
 			];
+			unlink( $this->getTempDir() . $this->fileToConvert );
 			throw new FlexFormException(
-				'Pandoc Conversion Error',
+				'Pandoc Conversion Error: ' . $e->getMessage(),
 				0,
 				$e
 			);

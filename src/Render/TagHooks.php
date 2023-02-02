@@ -110,7 +110,6 @@ class TagHooks {
 				return '';
 			}
 
-
 			$alertTag = \Xml::tags(
 				'div',
 				[ 'class' => 'wsform alert-' . $_COOKIE['wsform']['type'],
