@@ -242,6 +242,11 @@ class Upload {
 
 			if ( $fields['parsecontent'] !== false ) {
 				$details = ContentCore::parseTitle( $details, true );
+				// find [filename] and replace
+				$details = $filesCore->parseTarget(
+					$titleName,
+					$details
+				);
 			}
 
 			// find any other form fields and put them into the title
@@ -285,6 +290,7 @@ class Upload {
 				$possibleImagesInDocument = $convert->getPossibleImagesFromConversion();
 				if ( $possibleImagesInDocument !== false ) {
 					foreach ( $possibleImagesInDocument as $singleImage ) {
+						// find [filename] and replace
 						$newFname = $titleName . '-' . basename( $singleImage );
 						if ( !Config::isDebug() ) {
 							$resultFileUpload = $this->uploadFileToWiki(
