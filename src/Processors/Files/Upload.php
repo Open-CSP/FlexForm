@@ -241,21 +241,32 @@ class Upload {
 			}
 
 			if ( $fields['parsecontent'] !== false ) {
-				$details = ContentCore::parseTitle( $details, true );
+
 				// find [filename] and replace
+				if ( Config::isDebug() ) {
+					Debug::addToDebug( 'details before parseTarget' . time(), $details );
+				}
 				$details = $filesCore->parseTarget(
-					$titleName,
-					$details
+					$details,
+					$titleName
+
 				);
+				if ( Config::isDebug() ) {
+					Debug::addToDebug( 'details after parseTarget' . time(), $details );
+				}
+				$details = ContentCore::parseTitle( $details, true );
+				if ( Config::isDebug() ) {
+					Debug::addToDebug( 'details after parseTitle' . time(), $details );
+				}
 			}
 
 			// find any other form fields and put them into the title
 			if ( Config::isDebug() ) {
-				Debug::addToDebug( 'Title before parsetitle', $titleName );
+				Debug::addToDebug( 'Title before parsetitle' . time(), $titleName );
 			}
 			$titleName = ContentCore::parseTitle( $titleName );
 			if ( Config::isDebug() ) {
-				Debug::addToDebug( 'Title after parsetitle', $titleName );
+				Debug::addToDebug( 'Title after parsetitle' . time(), $titleName );
 			}
 
 			$titleName = $this->finalNameCleanUp( $titleName,

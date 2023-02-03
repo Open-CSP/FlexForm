@@ -584,7 +584,7 @@ class ContentCore {
 		);
 		$t = time();
 		if ( Config::isDebug() ) {
-			Debug::addToDebug( 'Parsetitle ' . $t, $tmp );
+			Debug::addToDebug( 'Parsetitle ' . $title, $tmp );
 		}
 		foreach ( $tmp as $fieldname ) {
 			if ( $fieldname == 'mwrandom' ) {
