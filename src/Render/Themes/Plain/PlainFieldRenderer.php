@@ -126,13 +126,15 @@ class PlainFieldRenderer implements FieldRenderer {
 			);
 		}
 		//$neededFields = implode( PHP_EOL, $args['function_fields'] );
+		/*
 		$hiddenField = '';
 		foreach ( $args['function_fields'] as $hidden ) {
 			if ( ! empty( $hidden ) ) {
 				$hiddenField .= trim( $hidden );
 			}
 		}
-		$ret = $hiddenField . $ret;
+		*/
+		$ret = $args['action_fields'] . $ret;
 
 		if ( !$args['canvas'] ) {
 			if ( $args['verbose_div']['id'] !== false ) {

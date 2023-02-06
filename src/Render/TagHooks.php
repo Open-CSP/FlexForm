@@ -2386,7 +2386,9 @@ class TagHooks {
 		$br                 = "\n";
 		$attributes         = [];
 		$hiddenFiles        = [];
-		$attributes['name'] = FilesCore::FILENAME . '[]';
+		$uploadDetails      = [];
+		//$attributes['name'] = FilesCore::FILENAME . '[]';
+		$name				= false;
 		$id                 = false;
 		$target             = false;
 		$drop               = false;
@@ -2440,6 +2442,7 @@ class TagHooks {
 						$attributes['id'] = $v;
 						break;
 					case "name":
+						$name = $v;
 						break;
 					case "verbose_id":
 						$verbose_id = $v;
@@ -2469,29 +2472,39 @@ class TagHooks {
 
 			return $ret;
 		}
+		if ( !$name ) {
+			$ret = 'Uploading files without a name will not work.';
+			return $ret;
+		}
 		if ( !$target ) {
 			$ret = 'You cannot upload files without a target.';
 
 			return $ret;
 		} else {
 			//$hiddenFiles[] = '<input type="hidden" name="wsform_file_target" value="' . $target . '">';
-			$hiddenFiles[] = Core::createHiddenField( "wsform_file_target", $target );
+			//$hiddenFiles[] = Core::createHiddenField( "wsform_file_target", $target );
+			$uploadDetails['wsform_file_target'] = $target;
 		}
 		if ( $pagecontent ) {
 			//$hiddenFiles[] = '<input type="hidden" name="wsform_page_content" value="' . $pagecontent . '">';
-			$hiddenFiles[] = Core::createHiddenField( "wsform_page_content", $pagecontent );
+			//$hiddenFiles[] = Core::createHiddenField( "wsform_page_content", $pagecontent );
+			$uploadDetails["wsform_page_content"] = $pagecontent;
 		}
 		if ( $comment ) {
-			$hiddenFiles[] = '<input type="hidden" name="wsform-upload-comment" value="' . $comment . '">';
+			//$hiddenFiles[] = '<input type="hidden" name="wsform-upload-comment" value="' . $comment . '">';
+			$uploadDetails["wsform-upload-comment"] = $comment;
 		}
 		if ( $parseContent ) {
-			$hiddenFiles[] = '<input type="hidden" name="wsform_parse_content" value="true">';
+			//$hiddenFiles[] = '<input type="hidden" name="wsform_parse_content" value="true">';
+			$uploadDetails["wsform_parse_content"] = true;
 		}
 		if ( $template ) {
-			$hiddenFiles[] = '<input type="hidden" name="wsform_file_template" value="' . $template . '">';
+			//$hiddenFiles[] = '<input type="hidden" name="wsform_file_template" value="' . $template . '">';
+			$uploadDetails["wsform_file_template"] = $template;
 		}
 		if ( $force ) {
-			$hiddenFiles[] = '<input type="hidden" name="wsform_image_force" value="' . $force . '">';
+			//$hiddenFiles[] = '<input type="hidden" name="wsform_image_force" value="' . $force . '">';
+			$uploadDetails["wsform_image_force"] = $force;
 		}
 		// When using convert, set accepted files to be the same
 		if ( $convertFrom ) {
@@ -2502,7 +2515,8 @@ class TagHooks {
 				$attributes['accept'] = '.' . $convertFrom;
 			}
 			*/
-			$hiddenFiles[] = '<input type="hidden" name="wsform_convert_from" value="' . $convertFrom . '">';
+			//$hiddenFiles[] = '<input type="hidden" name="wsform_convert_from" value="' . $convertFrom . '">';
+			$uploadDetails["wsform_convert_from"] = $convertFrom;
 		}
 
 		// Normal file upload. No presentor
@@ -2647,7 +2661,9 @@ class TagHooks {
 		$result['verbose_div']     = $verboseDiv;
 		$result['error_div']       = $errorDiv;
 		$result['attributes']      = $attributes;
-		$result['function_fields'] = $hiddenFiles;
+		//$result['function_fields'] = $hiddenFiles;
+		$actionFields[$name] = $uploadDetails;
+		$result['action_fields'] = Core::createHiddenField( "upload_actions", json_encode( $actionFields ) );
 		$result['canvas']          = $canvasDiv;
 
 		return $result;
