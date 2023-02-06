@@ -207,6 +207,7 @@ class FlexFormHooks {
 		$wgFlexFormConfig['loaders']['jsconfigvars']  = [];
 		$wgFlexFormConfig['loaders']['javascripttag'] = [];
 		$wgFlexFormConfig['loaders']['csstag']        = [];
+		$wgFlexFormConfig['loaders']['files']         = [];
 
 		$formTags = [
 			'wsform',

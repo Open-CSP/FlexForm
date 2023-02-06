@@ -59,6 +59,7 @@ class Upload {
 		 * ];
 		 */ global $wgUser;
 		$fields = Definitions::fileUploadFields();
+
 		if ( Config::isDebug() ) {
 			Debug::addToDebug( 'File upload start',
 							   [

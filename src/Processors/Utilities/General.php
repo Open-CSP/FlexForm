@@ -49,6 +49,20 @@ class General {
 	}
 
 	/**
+	 * @param string $var
+	 * @param array $json
+	 *
+	 * @return false|mixed
+	 */
+	public static function getJsonValue( string $var, array $json ) {
+		if ( isset( $json[$var] ) && $json[$var] !== '' ) {
+			return $json[$var];
+		} else {
+			return false;
+		}
+	}
+
+	/**
 	 * Check and get a $_POST value
 	 *
 	 * @param string $var $_POST value to check

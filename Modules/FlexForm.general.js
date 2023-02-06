@@ -996,6 +996,7 @@ function addTokenInfo () {
 				if( canvas.length > 0 ) {
 					//console.log( "We have a canvas!" );
 					var sourceId =  $(canvas[0]).data('canvas-source');
+					var canvasName =  $(canvas[0]).data('canvas-name');
 					//console.log( 'id to get = ' + sourceId );
 
 					var exportId = $(canvas)[0].id;
@@ -1004,8 +1005,8 @@ function addTokenInfo () {
 					html2canvas(htmlDiv).then(
 						function (canvas) {
 							$('<input />')
-								.attr('type', 'hidden')
-								.attr('name', 'ff_canvas_file')
+								.attr('type', 'hidden' )
+								.attr('name', canvasName )
 								.attr('value', canvas.toDataURL( "image/jpeg", 100 ) )
 								.appendTo(pform);
 							//document.getElementById( exportId ).appendChild(canvas);

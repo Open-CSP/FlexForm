@@ -6,6 +6,7 @@ use FlexForm\Core\Config;
 use FlexForm\Core\Debug;
 use FlexForm\Core\HandleResponse;
 use FlexForm\FlexFormException;
+use FlexForm\Processors\Definitions;
 use FlexForm\Processors\Utilities\General;
 use FlexForm\Processors\Files;
 use Symfony\Component\Security\Acl\Exception\Exception;
@@ -21,61 +22,85 @@ class FilesCore {
 	 * @throws FlexFormException
 	 */
 	public function handleFileUploads(): void {
+
 		$wsSignature = General::getPostString(
 			self::SIGNATURE_FILENAME,
 			false
 		);
-
-		$wsCanvas = General::getPostString(
-			self::CANVAS_FILENAME,
-			false
-		);
-
 		if ( $wsSignature !== false ) {
 			$res = Signature::upload();
 		}
 
-		if ( $wsCanvas !== false ) {
-			try {
-				$res = Canvas::upload( $wsCanvas );
-			} catch ( FlexFormException $e ) {
-				throw new FlexFormException( $e->getMessage(), 0 );
-			} catch ( \MWContentSerializationException|\MWException $e ) {
-			}
-		}
-
-		if ( Config::isDebug() ) {
-			Debug::addToDebug(
-				'File upload class',
-				['Looking for ' . self::FILENAME, $_FILES]
-			);
-		}
-		if ( isset( $_FILES[self::FILENAME] ) ) {
+		$fields = Definitions::fileUploadFields();
+		if ( $fields['actions'] === null ) {
 			if ( Config::isDebug() ) {
-				Debug::addToDebug(
-					'Checking for files to upload',
-					$_FILES[self::FILENAME]
-				);
+				Debug::addToDebug( 'No file uploads',
+								   [
+									   'fields' => $fields,
+									   'post'   => $_POST
+								   ] );
 			}
-			if ( file_exists( $_FILES[self::FILENAME]['tmp_name'][0] ) ) {
-				$fileUpload = new Upload();
-				try {
-					$res = $fileUpload->fileUpload();
-				} catch ( FlexFormException $e ) {
-					throw new FlexFormException( $e->getMessage(), 0 );
+			return;
+		}
+
+		foreach ( $fields['actions'] as $entry ) {
+			foreach ( $entry as $fileName => $fileDetails ) {
+				switch ( General::getJsonValue(
+					'type',
+					$fileDetails
+				) ) {
+					case "canvas":
+						$wsCanvas = General::getPostString(
+							$fileName,
+							false
+						);
+						if ( $wsCanvas !== false ) {
+							try {
+								$res = Canvas::upload( $fileName );
+							} catch ( FlexFormException $e ) {
+								throw new FlexFormException(
+									$e->getMessage(),
+									0
+								);
+							} catch ( \MWContentSerializationException|\MWException $e ) {
+							}
+						}
+						break;
+					case "file":
+						if ( Config::isDebug() ) {
+							Debug::addToDebug(
+								'File upload class',
+								[
+									'Looking for ' . $fileName,
+									$_FILES
+								]
+							);
+						}
+						if ( isset( $_FILES[$fileName] ) ) {
+							if ( Config::isDebug() ) {
+								Debug::addToDebug(
+									'Checking for files to upload',
+									$_FILES[$fileName]
+								);
+							}
+							if ( ( is_array( $_FILES[$fileName]['tmp_name'] ) && file_exists(
+										$_FILES[$fileName]['tmp_name'][0]
+									) ) || ( file_exists( $_FILES[$fileName]['tmp_name'] ) ) ) {
+								$fileUpload = new Upload();
+								try {
+									$res = $fileUpload->fileUpload();
+								} catch ( FlexFormException $e ) {
+									throw new FlexFormException(
+										$e->getMessage(),
+										0
+									);
+								}
+							}
+						}
+						break;
 				}
-
 			}
 		}
-
-		/*
-		if ( isset( $_POST['wsformfile_slim'] ) ) {
-			$ret = upload::fileUploadSlim( $api );
-			if ( isset( $ret['status'] ) && $ret['status'] === 'error' ) {
-				$messages->doDie( ' slim : ' . $ret['msg'] );
-			}
-		}
-		*/
 	}
 
 	/**

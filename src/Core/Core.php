@@ -261,6 +261,19 @@ class Core {
 		//self::$javaScript[] = $src;
 	}
 
+
+	/**
+	 * @brief Add Files upload information
+	 *
+	 * @param string $fileInfo File information array
+	 */
+	public static function includeFileAction( array $fileInfo ) {
+		global $wgFlexFormConfig;
+		//echo round( microtime( true ) * 1000 ) . "_add <pre>$src</pre>";
+		$wgFlexFormConfig['loaders']['files'][] = $fileInfo;
+		//self::$javaScript[] = $src;
+	}
+
 	/**
 	 * @brief Add JavaScript tags to be included
 	 *
@@ -293,6 +306,16 @@ class Core {
 	public static function getJavaScriptToBeIncluded(): array {
 		global $wgFlexFormConfig;
 		return $wgFlexFormConfig['loaders']['javascript'];
+	}
+
+	/**
+	 * Retrieve list of Files to be loaded added
+	 *
+	 * @return array
+	 */
+	public static function getFileActions():array {
+		global $wgFlexFormConfig;
+		return $wgFlexFormConfig['loaders']['files'];
 	}
 
 	/**

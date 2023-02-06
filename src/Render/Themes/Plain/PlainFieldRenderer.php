@@ -134,7 +134,7 @@ class PlainFieldRenderer implements FieldRenderer {
 			}
 		}
 		*/
-		$ret = $args['action_fields'] . $ret;
+		//$ret = $args['action_fields'] . $ret;
 
 		if ( !$args['canvas'] ) {
 			if ( $args['verbose_div']['id'] !== false ) {

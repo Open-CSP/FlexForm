@@ -62,8 +62,16 @@ class Definitions {
 	}
 
 	public static function fileUploadFields(): array {
-		$files = $_FILES[FilesCore::FILENAME] ?? false;
-
+		$files = $_FILES ?? false;
+		$uploadActions = General::getPostString( 'ff_upload_actions', false );
+		if ( $uploadActions !== false ) {
+			$uploadActions = json_decode( $uploadActions, true );
+		}
+		return [
+			'files' => $files,
+			'actions' => $uploadActions
+		];
+		/*
 		return [
 			'files'        => $files,
 			'pagetemplate' => General::getPostString( 'wsform_file_template' ),
@@ -78,6 +86,7 @@ class Definitions {
 			'force'        => General::getPostString( 'wsform_image_force' ),
 			'convertFrom'  => General::getPostString( 'wsform_convert_from' )
 		];
+		*/
 	}
 
 	/**

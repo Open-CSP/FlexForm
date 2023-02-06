@@ -2521,6 +2521,7 @@ class TagHooks {
 
 		// Normal file upload. No presentor
 		if ( !$presentor ) {
+			$uploadDetails['type'] = 'file';
 			// If we do not have a verbose id, then create our own preview from the form ID
 			if ( $verbose_id === false ) {
 				$verbose_id       = 'verbose_' . $id;
@@ -2646,6 +2647,7 @@ class TagHooks {
 			if ( !$canvasSourceId || !$canvasRenderId ) {
 				return "Missing canvas_source_id and/or canvas_render_id";
 			}
+			$uploadDetails['type'] = 'canvas';
 			$verboseDiv = '';
 			$errorDiv = '';
 			if ( ! Core::isLoaded( 'WSFORM_upload.js' ) ) {
@@ -2656,14 +2658,17 @@ class TagHooks {
 				Core::addAsLoaded( 'htmltocanvas' );
 				Core::includeTagsScript( Core::getRealUrl() . '/Modules/htmlToCanvas/html2canvas.min.js' );
 			}
-			$canvasDiv = '<div style="display:none;" data-canvas-source="' . $canvasSourceId . '" id="canvas_' . $canvasRenderId . '"></div>';
+			$canvasDiv = '<div style="display:none;" data-canvas-source="';
+			$canvasDiv .= $canvasSourceId . '" id="canvas_' . $canvasRenderId . '" ';
+			$canvasDiv .= 'data-canvas-name="' . $name . '"></div>';
 		}
 		$result['verbose_div']     = $verboseDiv;
 		$result['error_div']       = $errorDiv;
 		$result['attributes']      = $attributes;
 		//$result['function_fields'] = $hiddenFiles;
 		$actionFields[$name] = $uploadDetails;
-		$result['action_fields'] = Core::createHiddenField( "upload_actions", json_encode( $actionFields ) );
+		Core::includeFileAction( $actionFields );
+		//$result['action_fields'] = Core::createHiddenField( "ff_upload_actions", json_encode( $actionFields ) );
 		$result['canvas']          = $canvasDiv;
 
 		return $result;
