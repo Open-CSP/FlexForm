@@ -449,8 +449,8 @@ function wsToggleIntervalSave (element) {
 	var text = $(element).text()
 	if ($(element).hasClass('ws-interval-on')) {
 		$(element).removeClass('ws-interval-on')
-		$(element).removeClass('btn-secondary')
-		$(element).addClass('btn-btn')
+		$(element).removeClass('btn-primary')
+		$(element).addClass('btn-btn-secondary')
 		$(element).addClass('ws-interval-off')
 		$(element).text(wsAutoSaveButtonOff)
 	} else {
