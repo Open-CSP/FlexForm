@@ -90,6 +90,8 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+
+* 2.0.2 : Minor tweaks to autosave buttons and the placing
 * 2.0.0 : Added approved forms, -usercan- options and code optimization, wgCapitalLinks and many more
 * 1.1.45 : Split wiki edit and create
 * 1.1.44 : JSON Support for instances. Fixed nooverwrite on create page option.
