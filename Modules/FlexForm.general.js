@@ -490,7 +490,7 @@ function wsAutoSaveInit () {
 		if ( type === 'onintervalafterchange' ) {
 
 			let dit = this;
-			$('<button onClick="wsToggleIntervalSave(this)" class="btn btn-primary ws-interval-on" id="btn-' + id + '">' + wsAutoSaveButtonOn + '</button>').insertBefore(form)
+			$('<div class="ff-top-bar"><button onClick="wsToggleIntervalSave(this)" class="btn btn-primary ws-interval-on" id="btn-' + id + '">' + wsAutoSaveButtonOn + '</button></div>').insertBefore(form)
 			$(this).on('input paste change', 'input, select, textarea, div', function() {
 				$(dit).off();
 				$(form).find('input[type=submit]').each(function () {
@@ -501,7 +501,7 @@ function wsAutoSaveInit () {
 		}
 
 		if (type === 'auto' || type === 'oninterval') {
-			$('<button onClick="wsToggleIntervalSave(this)" class="btn btn-primary ws-interval-on" id="btn-' + id + '">' + wsAutoSaveButtonOn + '</button>').insertBefore(form)
+			$('<div class="ff-top-bar"><button onClick="wsToggleIntervalSave(this)" class="btn btn-primary ws-interval-on" id="btn-' + id + '">' + wsAutoSaveButtonOn + '</button></div>').insertBefore(form)
 
 			$(form).find('input[type=submit]').each(function () {
 				setGlobalAutoSave(this, id)
