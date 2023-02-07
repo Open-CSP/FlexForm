@@ -56,7 +56,7 @@ class FilesCore {
 						);
 						if ( $wsCanvas !== false ) {
 							try {
-								$res = Canvas::upload( $fileName );
+								$res = Canvas::upload( $wsCanvas, $fileDetails );
 							} catch ( FlexFormException $e ) {
 								throw new FlexFormException(
 									$e->getMessage(),
