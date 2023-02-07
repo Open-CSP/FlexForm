@@ -995,24 +995,27 @@ function addTokenInfo () {
 				var canvas = pform.find('div[id*="canvas_"]' );
 				if( canvas.length > 0 ) {
 					//console.log( "We have a canvas!" );
-					var sourceId =  $(canvas[0]).data('canvas-source');
-					var canvasName =  $(canvas[0]).data('canvas-name');
-					//console.log( 'id to get = ' + sourceId );
+					$(canvas).each(function(){
+						var completeCanvas = this;
+						var sourceId = $(this).data('canvas-source');
+						var canvasName = $(this).data('canvas-name');
+						console.log( 'id to get = ' + sourceId );
 
-					var exportId = $(canvas)[0].id;
-					//console.log( 'id to export = ' + exportId );
-					let htmlDiv = document.getElementById( sourceId );
-					html2canvas(htmlDiv).then(
-						function (canvas) {
-							$('<input />')
-								.attr('type', 'hidden' )
-								.attr('name', canvasName )
-								.attr('value', canvas.toDataURL( "image/jpeg", 100 ) )
-								.appendTo(pform);
-							//document.getElementById( exportId ).appendChild(canvas);
-							weAreDoneWorking(pform);
-							pform.submit();
-						})
+						var exportId = $(this).id;
+						console.log( 'id to export = ' + exportId );
+						let htmlDiv = document.getElementById( sourceId );
+						html2canvas(htmlDiv).then(
+							function (completeCanvas) {
+								$('<input />')
+									.attr('type', 'hidden' )
+									.attr('name', canvasName )
+									.attr('value', completeCanvas.toDataURL( "image/jpeg", 100 ) )
+									.appendTo(pform);
+								//document.getElementById( exportId ).appendChild(canvas);
+							})
+					});
+					weAreDoneWorking(pform);
+					pform.submit();
 
 				} else {
 					pform.submit();
