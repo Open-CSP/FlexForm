@@ -90,6 +90,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 2.0.5 : Added autosave="none", see docs.
 * 2.0.4 : Missing sortable on tokens
 * 2.0.3 : Edit on page id 0 fix
 * 2.0.2 : Minor tweaks to autosave buttons and the placing

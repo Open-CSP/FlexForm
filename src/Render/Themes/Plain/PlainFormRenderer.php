@@ -61,7 +61,7 @@ class PlainFormRenderer implements FormRenderer {
 			$formAttributes['class'] .= ' ' . htmlspecialchars( $additionalClass );
 		}
 
-		if ( $autosaveType !== null ) {
+		if ( $autosaveType !== null || $autosaveType !== 'none' ) {
 			$formAttributes['class']         .= ' ws-autosave';
 			$autosaveTypes = [ "onchange", "onintervalafterchange", "oninterval" ];
 			$formAttributes['data-autosave'] = in_array( $autosaveType, $autosaveTypes, true ) ?
