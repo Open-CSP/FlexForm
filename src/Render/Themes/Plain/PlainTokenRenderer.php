@@ -228,7 +228,10 @@ class PlainTokenRenderer implements TokenRenderer {
 
 		$javascript .= '});';
 		if ( $allowSort ) {
-			$javascript .= "selectEl.next().children().children().children().sortable({
+			$javascript .= '$.when( ' . "\n";
+			$javascript .= '$.getScript( \'https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js\' ) )';
+			$javascript .= '.done( function () { ' . "\n";
+			$javascript .= "\nselectEl.next().children().children().children().sortable({
 	containment: 'parent', stop: function (event, ui) {
 		ui.item.parent().children('[title]').each(function () {
 			var title = $(this).attr('title');
@@ -238,7 +241,7 @@ class PlainTokenRenderer implements TokenRenderer {
 		});
 		selectEl.change();
 	}
-});";
+}); })\n";
 		}
 
 		if ( $smwQueryUrl !== null && $callback !== null ) {
@@ -257,7 +260,9 @@ class PlainTokenRenderer implements TokenRenderer {
 			$callbackJavascript = '';
 		}
 
-		$javascript .= $callbackJavascript . "$('#" . $id . "').trigger('change');";
+		$javascript .= $callbackJavascript;
+
+		$javascript .= "$('#" . $id . "').trigger('change');\n;";
 
 		$format = '<input type="hidden" id="%s" value="%s" />';
 
