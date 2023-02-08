@@ -103,6 +103,13 @@ class Render {
 		$ret = [];
 		if ( is_int( $id ) ) {
 			$page = WikiPage::newFromId( $id );
+			if ( $page === null ) {
+				throw new FlexFormException(
+					"Could not create a WikiPage Object from id: " . $id . '. Message ',
+					0,
+					null
+				);
+			}
 		} elseif ( is_string( $id ) ) {
 			$titleObject = Title::newFromText( $id );
 			try {

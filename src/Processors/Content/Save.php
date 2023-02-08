@@ -340,6 +340,15 @@ class Save {
 	public function saveToWiki( string $title, array $contentArray, string $summary, bool $overWrite = true ) {
 		$user        = RequestContext::getMain()->getUser();
 		$titleObject = Title::newFromText( $title );
+		if ( $titleObject === null ) {
+			throw new FlexFormException(
+				wfMessage( 'flexform-error-could-not-create-page',
+						   $title,
+						   "Title is null" ),
+				0,
+				null
+			);
+		}
 		$editAllPagesConfig = Config::getConfigVariable( 'userscaneditallpages' );
 		$canEdit = MediaWikiServices::getInstance()->getPermissionManager()->userCan( 'edit', $user, $titleObject );
 		$canCreate = MediaWikiServices::getInstance()->getPermissionManager()->userCan( 'create', $user, $titleObject );
