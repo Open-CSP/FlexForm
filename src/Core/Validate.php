@@ -165,8 +165,8 @@ class Validate {
 				"custom"
 			);
 			if ( in_array( $html, $validParameters ) ) {
-				if( $html === 'custom' && isset( $tmp[1] ) ) {
-					return array( $html, $tmp[1] );
+				if ( $html === 'custom' && isset( $tmp[1] ) ) {
+					return [ $html, $tmp[1] ];
 				}
 				return $html;
 			}

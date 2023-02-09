@@ -198,9 +198,9 @@ class wsSecurity {
 	 *
 	 * @param string $name
 	 *
-	 * @return string
+	 * @return string|array
 	 */
-	public static function getHTMLType( string $name ) : string {
+	public static function getHTMLType( string $name ) {
 		$formId = self::$formId;
 		if ( is_null( self::$checksum ) ) {
 			return "default";
