@@ -654,7 +654,7 @@ class TagHooks {
 		}
 
 		// We always parse the input, unless noparse is set.
-		if ( ! isset( $args['noparse'] ) ) {
+		if ( !isset( $args['noparse'] ) ) {
 			$noParse = false;
 			$input = $parser->recursiveTagParse(
 				$input,
@@ -670,17 +670,30 @@ class TagHooks {
 		   TODO: Like you want to have {{Template:test}} inside the content of a page!
 		*/
 		foreach ( $args as $name => $value ) {
-			$tempValue = $this->tagParseIfNeeded(
-				$value,
-				$parser,
-				$frame
-			);
+			if ( $name === 'value' ) {
+				if ( $noParse ) {
+					$tempValue = $value;
+				} else {
+					$tempValue = $this->tagParseIfNeeded(
+						$value,
+						$parser,
+						$frame
+					);
+				}
+			} else {
+				$tempValue = $this->tagParseIfNeeded(
+					$value,
+					$parser,
+					$frame
+				);
+			}
 			if ( $tempValue !== $value ) {
 				// If we have had to parse the content, then make sure HTMLPurifier leaves it alone
 				$args['html'] = 'all';
 			}
 			$args[$name] = $tempValue;
 		}
+
 
 		$renderer = $this->themeStore->getFormTheme()->getFieldRenderer();
 		switch ( $fieldType ) {
@@ -689,7 +702,6 @@ class TagHooks {
 					$parser->getOutput()->addModules( 'ext.wsForm.datePicker.scripts' );
 					$parser->getOutput()->addModuleStyles( 'ext.wsForm.datePicker.styles' );
 				}
-
 				$preparedArguments = Validate::doSimpleParameters(
 					$args,
 					"text"
@@ -1834,6 +1846,34 @@ class TagHooks {
 			$allowSort = false;
 		}
 
+		if ( isset( $args['selected'] ) ) {
+			$selectedValues = explode(
+				',',
+				$args['selected']
+			);
+			$selectedValues = array_map(
+				'trim',
+				$selectedValues
+			);
+			unset( $args['selected'] );
+		} else {
+			$selectedValues = [];
+		}
+
+		if ( isset( $args['options'] ) ) {
+			$options = explode(
+				',',
+				$args['options']
+			);
+			$options = array_map(
+				'trim',
+				$options
+			);
+			unset( $args['options'] );
+		} else {
+			$options = [];
+		}
+
 		$additionalArguments = [];
 
 		foreach ( $args as $name => $value ) {
@@ -1855,6 +1895,8 @@ class TagHooks {
 			$allowTags,
 			$allowClear,
 			$allowSort,
+			$selectedValues,
+			$options,
 			$additionalArguments
 		);
 

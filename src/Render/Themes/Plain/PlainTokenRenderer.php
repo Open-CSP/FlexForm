@@ -7,6 +7,10 @@ use FlexForm\Render\Themes\TokenRenderer;
 use Xml;
 
 class PlainTokenRenderer implements TokenRenderer {
+
+
+	const OPTION_SEPARATOR = '::';
+
 	/**
 	 * @inheritDoc
 	 */
@@ -23,6 +27,8 @@ class PlainTokenRenderer implements TokenRenderer {
 		bool $allowTags,
 		bool $allowClear,
 		bool $allowSort,
+		array $selectedValues,
+		array $options,
 		array $additionalArguments
 	) : string {
 		$selectTag = $this->renderSelectTag(
@@ -30,6 +36,8 @@ class PlainTokenRenderer implements TokenRenderer {
 			$id,
 			$placeholder,
 			$multiple,
+			$selectedValues,
+			$options,
 			$additionalArguments
 		);
 		$selectJavascript = $this->renderSelectJavascript(
@@ -59,6 +67,8 @@ class PlainTokenRenderer implements TokenRenderer {
 	 * @param string $id
 	 * @param string|null $placeholder
 	 * @param bool $multiple
+	 * @param array $selectedValues
+	 * @param array $options
 	 * @param array $attribs
 	 *
 	 * @return string
@@ -68,6 +78,8 @@ class PlainTokenRenderer implements TokenRenderer {
 		string $id,
 		?string $placeholder,
 		bool $multiple,
+		array $selectedValues,
+		array $options,
 		array $attribs
 	) : string {
 		$attribs = array_merge(
@@ -93,14 +105,40 @@ class PlainTokenRenderer implements TokenRenderer {
 			$contents .= '<option></option>';
 		}
 
+		$tagContent = '';
+		foreach ( $options as $option ) {
+			if ( ! strpos(
+				$option,
+				self::OPTION_SEPARATOR
+			) ) {
+				$text = $valueName = $option;
+			} else {
+				list ( $text, $valueName ) = explode(
+					self::OPTION_SEPARATOR,
+					$option,
+					2
+				);
+			}
+
+			$isSelected = in_array(
+				$text,
+				$selectedValues
+			);
+			$tagContent .= Xml::option(
+				htmlspecialchars( $text ),
+				$valueName,
+				$isSelected
+			);
+		}
+
 		// Place the fully parsed contents of the "wstoken" tag inside of the select
 		$contents .= $input;
-
+		$tagContent .= $contents;
 		// Render the "wstoken" tag
 		return Xml::tags(
 			'select',
 			$attribs,
-			$contents
+			$tagContent
 		);
 	}
 

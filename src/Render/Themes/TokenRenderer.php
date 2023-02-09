@@ -27,6 +27,8 @@ interface TokenRenderer {
 	 * @param bool $allowClear Whether to add "allowClear: true" to the select2 arguments
 	 * @param bool $allowSort Whether to allow sortable select2 tags
 	 * @param array $additionalArguments Any additional arguments given to the token field
+	 * @param array $selectedValues selected options fields
+	 * @param array $options option fields
 	 *
 	 * @return string Rendered HTML
 	 */
@@ -43,6 +45,8 @@ interface TokenRenderer {
 		bool $allowTags,
 		bool $allowClear,
 		bool $allowSort,
+		array $selectedValues,
+		array $options,
 		array $additionalArguments
 	) : string;
 }

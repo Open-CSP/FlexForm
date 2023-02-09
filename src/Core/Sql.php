@@ -5,6 +5,7 @@ namespace FlexForm\Core;
 use DatabaseUpdater;
 use FlexForm\FlexFormException;
 use FlexForm\Processors\Content\Render;
+use Matrix\Exception;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Storage\EditResult;
@@ -132,20 +133,28 @@ class Sql {
 		EditResult $editResult
 	) : bool {
 		$id = $article->getId();
-		if ( Rights::isUserAllowedToEditorCreateForms() ) {
-			self::removePageId( $id );
-			$render = new Render();
-			$content = $render->getSlotsContentForPage(	$id	);
-			$hashes = self::createFormHashes( $content );
-			$result = self::addPageId( $id, $hashes );
-			if ( $result === false ) {
-				throw new FlexFormException( 'Can\'t save to Database [add]' );
+		try {
+			if ( Rights::isUserAllowedToEditorCreateForms() ) {
+				self::removePageId( $id );
+				$render = new Render();
+				$content = $render->getSlotsContentForPage( $id );
+				$hashes = self::createFormHashes( $content );
+				$result = self::addPageId(
+					$id,
+					$hashes
+				);
+				if ( $result === false ) {
+					throw new FlexFormException( 'Can\'t save to Database [add]' );
+				}
+			} else {
+				$result = self::removePageId( $id );
+				if ( $result === false ) {
+					throw new FlexFormException( 'Can\'t save to Database [remove]' );
+				}
 			}
-		} else {
-			$result = self::removePageId( $id );
-			if ( $result === false ) {
-				throw new FlexFormException( 'Can\'t save to Database [remove]' );
-			}
+		} catch ( Exception $e ) {
+			var_dump( $e->getMessage());
+			die();
 		}
 		return true;
 	}
