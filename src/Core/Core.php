@@ -516,11 +516,11 @@ class Core {
 	 * @param string $type
 	 * @param string $name
 	 * @param mixed $value
-	 * @param string $allowHTML
+	 * @param string|array $allowHTML
 	 *
 	 * @return void
 	 */
-	public static function addCheckSum( string $type, string $name, $value, string $allowHTML = "default" ) {
+	public static function addCheckSum( string $type, string $name, $value, $allowHTML = "default" ) {
 		if ( Config::isSecure() ) {
 			$formId = self::$securityId;
 			if ( $type === 'secure' ) {

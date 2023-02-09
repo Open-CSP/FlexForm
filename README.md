@@ -90,6 +90,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 2.0.8 : new way of rendering select and tokens without options
 * 2.0.7 : fixed HTML argument custom
 * 2.0.6 : autosave || to &&, Added autosave="none", see docs.
 * 2.0.4 : Missing sortable on tokens
