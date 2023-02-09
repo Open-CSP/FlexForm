@@ -994,29 +994,11 @@ function addTokenInfo () {
 				//showWeAreWorking(this);
 				var canvas = pform.find('div[id*="canvas_"]' );
 				if( canvas.length > 0 ) {
-					//console.log( "We have a canvas!" );
-					$(canvas).each(function(){
-						var completeCanvas = this;
-						var sourceId = $(this).data('canvas-source');
-						var canvasName = $(this).data('canvas-name');
-						console.log( 'id to get = ' + sourceId );
-
-						var exportId = $(this).id;
-						console.log( 'id to export = ' + exportId );
-						let htmlDiv = document.getElementById( sourceId );
-						html2canvas(htmlDiv).then(
-							function (completeCanvas) {
-								$('<input />')
-									.attr('type', 'hidden' )
-									.attr('name', canvasName )
-									.attr('value', completeCanvas.toDataURL( "image/jpeg", 100 ) )
-									.appendTo(pform);
-								//document.getElementById( exportId ).appendChild(canvas);
-							})
+					addScreenshotToForm( canvas, pform ).then(function(){
+						//weAreDoneWorking(pform);
+						//console.log( "DONE DONE DONE");
+						//pform.submit();
 					});
-					weAreDoneWorking(pform);
-					pform.submit();
-
 				} else {
 					pform.submit();
 				}
@@ -1028,6 +1010,34 @@ function addTokenInfo () {
 	})
 
 }
+
+async function makeScreenShot( htmlDiv ) {
+	const screenshot = await html2canvas( htmlDiv );
+	return screenshot.toDataURL( "image/jpeg", 100 );
+}
+
+async function addScreenshotToForm( canvas, pform ) {
+		//console.log( "We have a canvas!" );
+		canvas.length;
+		for( let i = 0; i < canvas.length; ++i ) {
+		var sourceId = $(canvas[i]).data('canvas-source');
+		var canvasName = $(canvas[i]).data('canvas-name');
+		console.log( 'id to get = ' + sourceId );
+
+		var exportId = $(canvas[i]).id;
+		console.log( 'canvasName = ' + canvasName );
+		let htmlDiv = document.getElementById( sourceId );
+		const screenshot = await makeScreenShot( htmlDiv );
+		$('<input />')
+			.attr('type', 'hidden' )
+			.attr('name', canvasName )
+			.attr('value', screenshot )
+			.appendTo(pform);
+		}
+			weAreDoneWorking(pform);
+			console.log( "DONE DONE DONE");
+			pform.submit();
+	}
 
 function showWeAreWorking (form) {
 	var btn = $(form).find(':submit')
