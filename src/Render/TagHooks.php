@@ -1218,10 +1218,17 @@ class TagHooks {
 
 				break;
 			case 'signature':
+				$uploadDetails = [];
 				if ( isset( $args['fname'] ) ) {
 					$fileName = $args['fname'];
 				} else {
 					return [ 'Missing attribute "fname" for signature field.' ];
+				}
+
+				if ( isset( $args['name'] ) ) {
+					$name = General::makeUnderscoreFromSpace( trim( $args['name'] ) );
+				} else {
+					return [ 'Missing attribute "name" for signature field.' ];
 				}
 
 				if ( isset( $args['pagecontent'] ) ) {
@@ -1237,7 +1244,7 @@ class TagHooks {
 				$required         = isset( $args['required'] ) && $args['required'] === 'required';
 
 				$javascriptOptions = [
-					'syncField: "#wsform_signature_data"',
+					'syncField: "#' . $name . '_signature_data"',
 					'syncFormat: "' . htmlspecialchars( strtoupper( $fileType ) ) . '"'
 				];
 
@@ -1322,42 +1329,41 @@ class TagHooks {
 				Core::includeInlineScript(
 					<<<SCRIPT
                     function doWSformActions() {
-                        $("#wsform-signature").signature({
+                        $("#$name-signature").signature({
                             $javascriptOptions
                         });
                         
-                        $("#wsform_signature_clear").click(function() {
-                            $("#wsform-signature").signature("clear");
+                        $("#$name-signature-clear").click(function() {
+                            $("#$name-signature").signature("clear");
                         });
                     }
                 SCRIPT
 				);
 
-				if ( ! file_exists( $IP . '/extensions/FlexForm/Modules/signature/css/jquery.signature.css' ) ) {
-					throw new FlexFormException( 'Missing jquery.signature.css' );
+				if ( !Core::isLoaded( 'jquery.signature.css' ) ) {
+					Core::addAsLoaded( 'jquery.signature.css' );
+					Core::includeTagsCSS( Core::getRealUrl() . '/Modules/signature/css/jquery.signature.css' );
 				}
 
-				Core::includeInlineCSS(
-					file_get_contents( $IP . '/extensions/FlexForm/Modules/signature/css/jquery.signature.css' )
-				);
+				if ( !Core::isLoaded( 'jquery.ui.css' ) ) {
+					Core::addAsLoaded( 'jquery.ui.css' );
+					Core::includeTagsCSS(
+						'https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/south-street/jquery-ui.css'
+					);
+				}
 
-				$ret = '<link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/south-street/jquery-ui.css" rel="stylesheet">';
-				$ret .= '<script type="text/javascript" charset="UTF-8" src="/extensions/FlexForm/Modules/signature/js/do-signature.js"></script>';
-				$ret .= \Xml::input( 'wsform_signature_filename',
-									 false,
-									 $fileName,
-									 [ 'type' => 'hidden' ] );
-				$ret .= \Xml::input( 'wsform_signature_type',
-									 false,
-									 $fileType,
-									 [ 'type' => 'hidden' ] );
-				$ret .= \Xml::input( 'wsform_signature_page_content',
-									 false,
-									 $pageContent,
-									 [ 'type' => 'hidden' ] );
+				if ( !Core::isLoaded( 'do-signature.js' ) ) {
+					Core::addAsLoaded( 'do-signature.js' );
+					Core::includeTagsScript( Core::getRealUrl() . '/Modules/signature/js/do-signature.js' );
+				}
+
+				$uploadDetails['wsform_signature_filename'] = $fileName;
+				$uploadDetails['wsform_signature_type'] = $fileType;
+				$uploadDetails['wsform_signature_page_content'] = $pageContent;
+				$uploadDetails['type'] = 'signature';
 
 				$signatureDataAttributes = [
-					'id'   => 'wsform_signature_data',
+					'id'   => $name . '_signature_data',
 					'type' => 'hidden'
 				];
 
@@ -1365,8 +1371,8 @@ class TagHooks {
 					$signatureDataAttributes['required'] = 'required';
 				}
 
-				$ret .= \Xml::input(
-					'wsform_signature',
+				$ret = \Xml::input(
+					$name,
 					false,
 					'',
 					$signatureDataAttributes
@@ -1374,7 +1380,7 @@ class TagHooks {
 				$ret .= \Xml::tags(
 					'div',
 					[
-						'id'    => 'wsform-signature',
+						'id'    => $name . '-signature',
 						'class' => 'wsform-signature ' . $class ?? ''
 					],
 					''
@@ -1383,11 +1389,14 @@ class TagHooks {
 					'button',
 					[
 						'type'  => 'button',
-						'id'    => 'wsform_signature_clear',
+						'id'    => $name . '-signature-clear',
 						'class' => 'wsform-signature-clear ' . $clearButtonClass ?? ''
 					],
 					htmlspecialchars( $clearButtonText )
 				);
+				$actionFields = [];
+				$actionFields[$name] = $uploadDetails;
+				Core::includeFileAction( $actionFields );
 
 				// TODO: Make this theme-able
 
@@ -2708,6 +2717,7 @@ class TagHooks {
 		$result['error_div']       = $errorDiv;
 		$result['attributes']      = $attributes;
 		//$result['function_fields'] = $hiddenFiles;
+		$actionFields = [];
 		$actionFields[$name] = $uploadDetails;
 		Core::includeFileAction( $actionFields );
 		//$result['action_fields'] = Core::createHiddenField( "ff_upload_actions", json_encode( $actionFields ) );

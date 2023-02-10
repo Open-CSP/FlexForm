@@ -39,25 +39,25 @@ class Signature {
 	}
 
 	/**
-	 * Takes care of uploading a signature file
-	 * @param $wsuid
-	 *
-	 * @return string|bool Either true on success or false
+	 * @return true
+	 * @throws FlexFormException
+	 * @throws \MWContentSerializationException
+	 * @throws \MWException
 	 */
-	public static function upload() {
+	public static function upload( $wsCanvasField, $fileDetails ) {
 		global $IP, $wgUser;
-		$allowedTypes = array(
+		$allowedTypes = [
 			'png',
 			'jpg',
 			'svg'
-		);
+		];
 
 		$fields = Definitions::fileUploadFields();
 
-		$wname    = General::getPostString( 'wsform_signature_filename' );
-		$data     = General::getPostString( 'wsform_signature' );
-		$fileType = General::getPostString( 'wsform_signature_type' );
-		$pcontent = General::getPostString( 'wsform_signature_page_content' );
+		$wname    = General::getJsonValue( 'wsform_signature_filename', $fileDetails );
+		$data     = $wsCanvasField;
+		$fileType = General::getJsonValue( 'wsform_signature_type', $fileDetails );
+		$pcontent = General::getJsonValue( 'wsform_signature_page_content', $fileDetails );
 
 		if ( !$wname ) {
 			throw new FlexFormException( 'No target file for signature.', 0 );
@@ -90,12 +90,12 @@ class Signature {
 		}
 
 		// Test if directory already exists
-		if ( ! is_dir( $upload_dir ) ) {
+		if ( !is_dir( $upload_dir ) ) {
 			mkdir( $upload_dir, 0755, true );
 		}
 		$fname = $fileCore->sanitizeFileName( $wname ) . "." . $fileType;
 		//echo $fname;
-		if ( ! file_put_contents( $upload_dir . $fname, $data ) ) {
+		if ( !file_put_contents( $upload_dir . $fname, $data ) ) {
 			throw new FlexFormException( 'Could not save file.', 0 );
 		}
 		$fileCore = new FilesCore();

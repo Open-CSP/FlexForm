@@ -23,14 +23,6 @@ class FilesCore {
 	 */
 	public function handleFileUploads(): void {
 
-		$wsSignature = General::getPostString(
-			self::SIGNATURE_FILENAME,
-			false
-		);
-		if ( $wsSignature !== false ) {
-			$res = Signature::upload();
-		}
-
 		$fields = Definitions::fileUploadFields();
 		if ( $fields['actions'] === null ) {
 			if ( Config::isDebug() ) {
@@ -49,6 +41,13 @@ class FilesCore {
 					'type',
 					$fileDetails
 				) ) {
+					case "signature":
+						$wsSignature = General::getPostString(
+							$fileName,
+							false
+						);
+						$res = Signature::upload( $wsSignature, $fileDetails );
+						break;
 					case "canvas":
 						$wsCanvas = General::getPostString(
 							$fileName,

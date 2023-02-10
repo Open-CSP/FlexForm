@@ -375,6 +375,11 @@ class Core {
 		//self::$javaScript = array();
 	}
 
+	public static function cleanFileActions(){
+		global $wgFlexFormConfig;
+		$wgFlexFormConfig['loaders']['files'] = [];
+	}
+
 	/**
 	 * Clear JavaScript tags list to be loaded
 	 */

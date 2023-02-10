@@ -114,7 +114,10 @@ class PlainFormRenderer implements FormRenderer {
 
 		$fileActions = Core::getFileActions();
 		if ( !empty( $fileActions ) ) {
-			$formContent .= Core::createHiddenField( "ff_upload_actions", json_encode( $fileActions ) );
+			$formContent .= Core::createHiddenField(
+				"ff_upload_actions",
+				base64_encode( json_encode( $fileActions ) ) );
+			Core::cleanFileActions();
 		}
 
 		if ( Config::isSecure() ) {

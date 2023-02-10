@@ -65,7 +65,7 @@ class Definitions {
 		$files = $_FILES ?? false;
 		$uploadActions = General::getPostString( 'ff_upload_actions', false );
 		if ( $uploadActions !== false ) {
-			$uploadActions = json_decode( $uploadActions, true );
+			$uploadActions = json_decode( base64_decode( $uploadActions ), true );
 		}
 		return [
 			'files' => $files,
