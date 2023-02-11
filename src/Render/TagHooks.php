@@ -1322,13 +1322,25 @@ class TagHooks {
 					}
 				}
 
+
 				$javascriptOptions = implode(
 					',',
 					$javascriptOptions
 				);
+				/*
+				$jsOptions = [];
+				foreach ( $javascriptOptions as $singleOption ) {
+					foreach ( $singleOption as $k => $v ) {
+						$jsOptions[$k] = $v;
+					}
+				}
+
+				$jsOptions = json_encode( $jsOptions );
+				*/
+				Core::includeJavaScriptConfig( 'ff_signature', [ 'name' => $name ] );
 				Core::includeInlineScript(
 					<<<SCRIPT
-                    function doWSformActions() {
+                    function signature_$name() {
                         $("#$name-signature").signature({
                             $javascriptOptions
                         });
