@@ -1241,6 +1241,8 @@ class TagHooks {
 				$class            = $args['class'] ?? null;
 				$clearButtonClass = $args['clearbuttonclass'] ?? null;
 				$clearButtonText  = $args['clearbuttontext'] ?? 'Clear';
+				$parseContent     = $args['parsecontent'] ?? null;
+				$pageTemplate     = $args['template'] ?? null;
 				$required         = isset( $args['required'] ) && $args['required'] === 'required';
 
 				$javascriptOptions = [
@@ -1372,6 +1374,8 @@ class TagHooks {
 				$uploadDetails['wsform_signature_filename'] = $fileName;
 				$uploadDetails['wsform_signature_type'] = $fileType;
 				$uploadDetails['wsform_signature_page_content'] = $pageContent;
+				$uploadDetails['parsecontent'] = $parseContent ?? false;
+				$uploadDetails['pagetemplate'] = $pageTemplate ?? false;
 				$uploadDetails['type'] = 'signature';
 
 				$signatureDataAttributes = [

@@ -10,6 +10,7 @@
 
 namespace FlexForm\Processors\Files;
 
+use FlexForm\Core\Debug;
 use flexform\processors\api\mediawiki\render;
 use flexform\processors\api\mwApi;
 use FlexForm\Processors\Content\ContentCore;
@@ -54,10 +55,35 @@ class Signature {
 
 		$fields = Definitions::fileUploadFields();
 
-		$wname    = General::getJsonValue( 'wsform_signature_filename', $fileDetails );
-		$data     = $wsCanvasField;
-		$fileType = General::getJsonValue( 'wsform_signature_type', $fileDetails );
-		$pcontent = General::getJsonValue( 'wsform_signature_page_content', $fileDetails );
+		if ( Config::isDebug() ) {
+			Debug::addToDebug( 'Signature File Upload',
+							   [
+								   'fields' => $fields,
+								   'post'   => $_POST
+							   ] );
+		}
+
+		$wname        = General::getJsonValue(
+			'wsform_signature_filename',
+			$fileDetails
+		);
+		$data         = $wsCanvasField;
+		$fileType     = General::getJsonValue(
+			'wsform_signature_type',
+			$fileDetails
+		);
+		$pcontent     = General::getJsonValue(
+			'wsform_signature_page_content',
+			$fileDetails
+		);
+		$pageTemplate = General::getJsonValue(
+			'pagetemplate',
+			$fileDetails
+		);
+		$parseContent = General::getJsonValue(
+			'parsecontent',
+			$fileDetails
+		);
 
 		if ( !$wname ) {
 			throw new FlexFormException( 'No target file for signature.', 0 );
@@ -74,12 +100,12 @@ class Signature {
 
 		$pcontent = trim( $pcontent );
 
-		if ( $fields['pagetemplate'] && $fields['parsecontent'] !== false ) {
-			$filePageTemplate = trim( $fields['pagetemplate'] );
+		if ( $pageTemplate !== false && $parseContent !== false ) {
+			$filePageTemplate = trim( $pageTemplate );
 			$pcontent = ContentCore::setFileTemplate( $filePageTemplate, $pcontent );
 		}
 
-		if ( $fields['parsecontent'] !== false ) {
+		if ( $parseContent !== false ) {
 			$pcontent = ContentCore::parseTitle( $pcontent );
 		}
 
