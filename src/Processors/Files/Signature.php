@@ -126,7 +126,7 @@ class Signature {
 		}
 		$fileCore = new FilesCore();
 		$url     = Config::getConfigVariable( 'wgCanonicalServer' ) . 'extensions/FlexForm/uploads/' . $fname;
-		$pname   = trim( $wname );
+		$pname   = trim( $wname . "." . $fileType );
 		$comment = self::getSummary();
 		//$result  = $api->uploadFileToWiki( $pname, $url, $pcontent, $comment, $upload_dir . $fname );
 		$uploadFile = new Upload();
