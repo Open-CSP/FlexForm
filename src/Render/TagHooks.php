@@ -2651,8 +2651,12 @@ class TagHooks {
 			$jsChange       = $onChangeScript . "\n";
 			//$ret .= "<script>\n" . $onChangeScript . "\n";
 			$jsChange .= "\n" . "wachtff(WSFile" . $random . ");\n";
-			$addjsChange = "\n" . 'var ffNoFileSelected = "';
-			$addjsChange .= wfMessage( "flexform-fileupload-no-files-selected" )->plain() . '";' . "\n";
+			if ( !Core::isLoaded( 'ffNoFileSelected' ) ) {
+				$addjsChange = "\n" . 'var ffNoFileSelected = "';
+				$addjsChange .= wfMessage( "flexform-fileupload-no-files-selected" )->plain() . '";' . "\n";
+			} else {
+				$addjsChange = '';
+			}
 			$jsChange = $addjsChange . $jsChange;
 			Core::includeInlineScript( $jsChange );
 			//$ret     .= '<script>$( document ).ready(function() { $("#' . $random . '").on("change", function(){ wsfiles( "' . $id . '", "' . $verbose_id . '", "' . $error_id . '", "' . $use_label . '", "' . $verbose_custom . '", "' . $error_custom . '");});});</script>';
