@@ -556,6 +556,7 @@ function wsform (btn, callback = 0, preCallback = 0, showId = 0) {
 
 	var val = $(btn).prop('value')
 	var frm = $(btn).closest('form')
+	frm.removeClass( 'wsform-submitted' );
 	frm.addClass('wsform-submitting')
 	showWeAreWorking(frm);
 
