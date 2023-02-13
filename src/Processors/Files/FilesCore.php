@@ -79,13 +79,13 @@ class FilesCore {
 							if ( Config::isDebug() ) {
 								Debug::addToDebug(
 									'Checking for files to upload',
-									$_FILES[$fileName]
+									$_FILES
 								);
 							}
 							if ( ( is_array( $_FILES[$fileName]['tmp_name'] ) && file_exists(
 										$_FILES[$fileName]['tmp_name'][0]
 									) ) || ( file_exists( $_FILES[$fileName]['tmp_name'] ) ) ) {
-								$fileUpload = new Upload();
+								$fileUpload = new Upload( $fileName, $fileDetails );
 								try {
 									$res = $fileUpload->fileUpload();
 								} catch ( FlexFormException $e ) {

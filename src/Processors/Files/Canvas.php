@@ -59,11 +59,10 @@ class Canvas {
 	 */
 	public static function upload( string $canvasFile, array $fileDetails ) {
 		global $wgUser;
-		$fields = Definitions::fileUploadFields();
 		if ( Config::isDebug() ) {
 			Debug::addToDebug( 'File upload start',
 							   [
-								   'fields' => $fields,
+								   'file details' => $fileDetails,
 								   'post'   => $_POST,
 								   'canvasFile' => $canvasFile
 							   ] );

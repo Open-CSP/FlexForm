@@ -2510,6 +2510,10 @@ class TagHooks {
 						break;
 					case "name":
 						$name = $v;
+						if ( strpos( $v, '[]' ) === false ) {
+							$v .= '[]';
+						}
+						$attributes[$k] = $v;
 						break;
 					case "verbose_id":
 						$verbose_id = $v;
@@ -2606,7 +2610,7 @@ class TagHooks {
 			}
 
 			// If we do not have an error id, then create our own error element from the form id.
-			if ( ! $error_id ) {
+			if ( !$error_id ) {
 				$error_id          = 'error_' . $id;
 				$errorDiv['id']    = $error_id;
 				$errorDiv['class'] = [ "wsform-error" ];
@@ -2620,7 +2624,7 @@ class TagHooks {
 			$onChangeScript = 'function WSFile' . $random . '(){' . "\n" . '$("#' . $id . '").on("change", function(){' . "\n" . 'wsfiles( "';
 			$onChangeScript .= $id . '", "' . $verbose_id . '", "' . $error_id . '", "' . $use_label;
 			$onChangeScript .= '");' . "\n" . '});' . "\n";
-			if ( $drop && ! $use_label ) {
+			if ( $drop && !$use_label ) {
 				$onChangeScript .= "\n" . '$("#' . $verbose_id . '").on("dragleave", function(e) {
 				event.preventDefault();
     			$(".br_dropzone").removeClass("dragover");
@@ -2661,20 +2665,20 @@ class TagHooks {
 			Core::includeInlineScript( $jsChange );
 			//$ret     .= '<script>$( document ).ready(function() { $("#' . $random . '").on("change", function(){ wsfiles( "' . $id . '", "' . $verbose_id . '", "' . $error_id . '", "' . $use_label . '", "' . $verbose_custom . '", "' . $error_custom . '");});});</script>';
 			$css     = file_get_contents( "$IP/extensions/FlexForm/Modules/WSForm_upload.css" );
-			$replace = array(
+			$replace = [
 				'{{verboseid}}',
 				'{{errorid}}',
 				'{{dropfiles}}',
 				'<style>',
 				'</style>'
-			);
-			$with    = array(
+			];
+			$with    = [
 				$verbose_id,
 				$error_id,
 				wfMessage( "flexform-fileupload-dropfiles" )->plain(),
 				'',
 				''
-			); //wsfiles( "file-upload2", "hiddendiv2", "error_file-upload2", "", "yes", "none");
+			]; //wsfiles( "file-upload2", "hiddendiv2", "error_file-upload2", "", "yes", "none");
 			$css     = str_replace(
 				$replace,
 				$with,
@@ -2682,7 +2686,7 @@ class TagHooks {
 			);
 			Core::includeInlineCSS( $css );
 			//$ret     .= $css;
-			if ( ! Core::isLoaded( 'WSFORM_upload.js' ) ) {
+			if ( !Core::isLoaded( 'WSFORM_upload.js' ) ) {
 				Core::addAsLoaded( 'WSFORM_upload.js' );
 				Core::includeTagsScript( Core::getRealUrl() . '/Modules/WSForm_upload.js' );
 				//$js = file_get_contents( "$IP/extensions/FlexForm/Modules/WSForm_upload.js" );

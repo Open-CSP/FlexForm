@@ -166,7 +166,8 @@ class Definitions {
 			"mwcreateuser",
 			"mwnooverwrite",
 			"mwslot",
-			"mwformat"
+			"mwformat",
+			"ff_upload_actions"
 		];
 		if ( in_array(
 			strtolower( $field ),
