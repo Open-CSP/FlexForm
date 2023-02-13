@@ -398,6 +398,7 @@ function wsFormTinymceReady (editorid) {
 	var type = $(form).attr('data-autosave');
 
 	_editor.on('change', function (e) {
+		$(form).removeClass( 'wsform-submitted' );
 		if (type === 'onintervalafterchange' ) {
 			$(form).attr('data-autosave', 'oninterval');
 		}
@@ -492,6 +493,7 @@ function wsAutoSaveInit () {
 			let dit = this;
 			$('<div class="ff-top-bar"><button onClick="wsToggleIntervalSave(this)" class="btn btn-primary ws-interval-on" id="btn-' + id + '">' + wsAutoSaveButtonOn + '</button></div>').insertBefore(form)
 			$(this).on('input paste change', 'input, select, textarea, div', function() {
+				$(form).removeClass( 'wsform-submitted' );
 				$(dit).off();
 				$(form).find('input[type=submit]').each(function () {
 					setGlobalAutoSave(this, id)
@@ -509,6 +511,7 @@ function wsAutoSaveInit () {
 		}
 		if (type === 'auto' || type === 'onchange') {
 			$(this).on('input paste change', 'input, select, textarea, div', function () {
+				$(form).removeClass( 'wsform-submitted' );
 				wsSetEventsAutoSave(form)
 			})
 		}
@@ -553,6 +556,7 @@ function wsform (btn, callback = 0, preCallback = 0, showId = 0) {
 
 	var val = $(btn).prop('value')
 	var frm = $(btn).closest('form')
+	frm.removeClass( 'wsform-submitted' );
 	frm.addClass('wsform-submitting')
 	showWeAreWorking(frm);
 
