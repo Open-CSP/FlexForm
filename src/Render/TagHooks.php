@@ -2736,6 +2736,9 @@ class TagHooks {
 			$canvasDiv = '<div style="display:none;" data-canvas-source="';
 			$canvasDiv .= $canvasSourceId . '" id="canvas_' . $canvasRenderId . '" ';
 			$canvasDiv .= 'data-canvas-name="' . $name . '"></div>';
+		} elseif ( $presentor === 'mobilescreenshot' ) {
+			$uploadDetails['type'] = 'mobile-screenshot';
+
 		}
 		$result['verbose_div']     = $verboseDiv;
 		$result['error_div']       = $errorDiv;

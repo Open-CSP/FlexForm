@@ -61,6 +61,7 @@ class Definitions {
 		];
 	}
 
+
 	public static function fileUploadFields(): array {
 		$files = $_FILES ?? false;
 		$uploadActions = General::getPostString( 'ff_upload_actions', false );

@@ -63,6 +63,26 @@ class General {
 	}
 
 	/**
+	 * @param string $name
+	 * @param array $args
+	 * @param bool $checkEmpty
+	 *
+	 * @return false|mixed
+	 */
+	public static function getArgs( string $name, array $args, bool $checkEmpty = true ) {
+		if ( isset( $args[$name] ) ) {
+			if ( $checkEmpty ) {
+				if ( empty( $args[$name] ) ) {
+					return false;
+				}
+			}
+			return $args[$name];
+		} else {
+			return false;
+		}
+	}
+
+	/**
 	 * Check and get a $_POST value
 	 *
 	 * @param string $var $_POST value to check
