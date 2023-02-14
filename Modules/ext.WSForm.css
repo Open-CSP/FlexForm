@@ -189,3 +189,35 @@ select{
 .flex-form.simple .required{
 	color:red;
 }
+
+.ff-video-screenshot-wrapper {
+	width:100%;
+	border:1px solid grey;
+	display:flex;
+	text-align: center;
+}
+.ff-video-preview {
+	width:45%;
+	border-right:2px dashed black;
+	display:inline-block;
+	text-align: center;
+}
+.ff-video-capture-btn {
+	display:flex;
+	justify-content: center;
+	align-items: center;
+}
+.ff-canvas {
+	width:45%;
+	display: inline-block;
+	border-left:2px dashed black;
+	text-align: center;
+}
+.ff-ms-video {
+	display: inline-block;
+
+}
+
+.ff-ms-btn {
+	height: 100%;
+}

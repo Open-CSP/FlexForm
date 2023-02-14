@@ -316,11 +316,9 @@ class Validate {
 	 */
 	public static function validFileMobileScreenshotParameters( string $check, bool $ret = false ) {
 		$validParameters = [
-			"force",
-			"live-class",
-			"preview-class",
-			"preview-width",
-			"preview-height",
+			"video-class",
+			"screenshot-width",
+			"screenshot-height",
 			"capture-button-text",
 			"capture-button-class"
 		];

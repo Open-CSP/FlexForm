@@ -1,3 +1,1 @@
-<video id="%%video-id%%" controls autoplay class="%%video-class%%"></video>
-<button id="%%button-id%%" type="button" class="%%button-class%%">%%button-text%%</button>
-<canvas id="%%canvas-id%%" width="%%canvas-width%%" height="%%canvas-height%%"></canvas>
+<div %%video-height-wrapper%% class="ff-video-screenshot-wrapper"><div class="ff-video-preview"><video id="%%video-id%%" %%video-width%% %%video-height%% controls autoplay class="%%video-class%%"></video></div><div class="ff-video-capture-btn"><button id="%%button-id%%" type="button" class="%%button-class%%">%%button-text%%</button></div><div class="ff-canvas"><canvas %%video-width%% %%video-height%% id="%%canvas-id%%"></canvas></div></div>

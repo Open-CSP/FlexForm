@@ -111,12 +111,14 @@ class PlainFieldRenderer implements FieldRenderer {
 		 */
 		// FIXME: Can you (attempt to) rewrite this @Charlot?
 
-		if ( ! is_array( $args ) ) {
+		if ( !is_array( $args ) ) {
 			return trim( $args );
 		}
 		// We need to handle canvas, not real files.
 		if ( $args['canvas'] !== '' ) {
 			$ret = $args['canvas'];
+		} elseif ( $args['mobileScreenshot'] ) {
+			$ret = $args['mobileScreenshot'];
 		} else {
 			$args['attributes']['type'] = 'file';
 			$ret                        = Xml::tags(
@@ -136,7 +138,7 @@ class PlainFieldRenderer implements FieldRenderer {
 		*/
 		//$ret = $args['action_fields'] . $ret;
 
-		if ( !$args['canvas'] ) {
+		if ( !$args['canvas'] && !$args['mobileScreenshot'] ) {
 			if ( $args['verbose_div']['id'] !== false ) {
 				$classes = implode(
 					' ',

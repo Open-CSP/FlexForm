@@ -8,6 +8,7 @@ use FlexForm\Core\Sql;
 use FlexForm\Processors\Content\Render;
 use FlexForm\Processors\Files\FilesCore;
 use FlexForm\Processors\Utilities\General;
+use FlexForm\Render\Helpers\MobileScreenShot;
 use MediaWiki\MediaWikiServices;
 use Parser;
 use PPFrame;
@@ -2473,6 +2474,7 @@ class TagHooks {
 		$canvasSourceId     = false;
 		$canvasRenderId     = uniqid();
 		$canvasDiv			= '';
+		$mobileScreenshot   = '';
 		foreach ( $args as $k => $v ) {
 			if ( validate::validParameters( $k ) || validate::validFileParameters( $k ) ) {
 				// going through specific extra's.
@@ -2737,18 +2739,22 @@ class TagHooks {
 			$canvasDiv .= $canvasSourceId . '" id="canvas_' . $canvasRenderId . '" ';
 			$canvasDiv .= 'data-canvas-name="' . $name . '"></div>';
 		} elseif ( $presentor === 'mobilescreenshot' ) {
+			$verboseDiv = '';
+			$errorDiv = '';
 			$uploadDetails['type'] = 'mobile-screenshot';
+			$mobileScreenshot = MobileScreenShot::renderHtml( $args );
 
 		}
-		$result['verbose_div']     = $verboseDiv;
-		$result['error_div']       = $errorDiv;
-		$result['attributes']      = $attributes;
+		$result['verbose_div'] = $verboseDiv;
+		$result['error_div']   = $errorDiv;
+		$result['attributes']  = $attributes;
 		//$result['function_fields'] = $hiddenFiles;
-		$actionFields = [];
+		$actionFields        = [];
 		$actionFields[$name] = $uploadDetails;
 		Core::includeFileAction( $actionFields );
 		//$result['action_fields'] = Core::createHiddenField( "ff_upload_actions", json_encode( $actionFields ) );
-		$result['canvas']          = $canvasDiv;
+		$result['canvas']           = $canvasDiv;
+		$result['mobileScreenshot'] = $mobileScreenshot;
 
 		return $result;
 	}
