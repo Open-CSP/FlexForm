@@ -1628,6 +1628,10 @@ class TagHooks {
 		}
 
 		if ( isset( $args['selected'] ) ) {
+			$args['selected'] = $parser->recursiveTagParse(
+				$args['selected'],
+				$frame
+			);
 			$selectedValues = explode(
 				',',
 				$args['selected']
@@ -1642,6 +1646,10 @@ class TagHooks {
 		}
 
 		if ( isset( $args['options'] ) ) {
+			$args['options'] = $parser->recursiveTagParse(
+				$args['options'],
+				$frame
+			);
 			$options = explode(
 				',',
 				$args['options']
@@ -1847,6 +1855,10 @@ class TagHooks {
 		}
 
 		if ( isset( $args['selected'] ) ) {
+			$args['selected'] = $parser->recursiveTagParse(
+				$args['selected'],
+				$frame
+			);
 			$selectedValues = explode(
 				',',
 				$args['selected']
@@ -1861,6 +1873,10 @@ class TagHooks {
 		}
 
 		if ( isset( $args['options'] ) ) {
+			$args['options'] = $parser->recursiveTagParse(
+				$args['options'],
+				$frame
+			);
 			$options = explode(
 				',',
 				$args['options']
