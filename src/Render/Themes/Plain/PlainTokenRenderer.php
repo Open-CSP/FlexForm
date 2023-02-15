@@ -260,7 +260,7 @@ class PlainTokenRenderer implements TokenRenderer {
 			$javascript .= $smwQueryUrl !== null ? ",\ntags: true" : "\ntags: true";
 		}
 
-		if ( $allowClear && $placeholder !== null ) {
+		if ( $allowClear !== false && $placeholder !== null ) {
 			$javascript .= $smwQueryUrl !== null || $allowTags !== false ? ",\nallowClear: true" : "\nallowClear: true";
 		}
 
