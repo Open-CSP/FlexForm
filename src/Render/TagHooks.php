@@ -8,6 +8,7 @@ use FlexForm\Core\Sql;
 use FlexForm\Processors\Content\Render;
 use FlexForm\Processors\Files\FilesCore;
 use FlexForm\Processors\Utilities\General;
+use FlexForm\Render\Helpers\Email;
 use FlexForm\Render\Helpers\MobileScreenShot;
 use MediaWiki\MediaWikiServices;
 use Parser;
@@ -2219,120 +2220,11 @@ class TagHooks {
 	 * @return array send to the MediaWiki Parser or
 	 * @throws FlexFormException
 	 */
-	public function renderEmail( $input, array $args, Parser $parser, PPFrame $frame ) {
-		$mailArguments = [];
-
-		if ( isset( $args['to'] ) ) {
-			$mailArguments["mwmailto"] = $parser->recursiveTagParse(
-				$args['to'],
-				$frame
-			);
-		}
-
-		if ( isset( $args['from'] ) ) {
-			$mailArguments["mwmailfrom"] = $parser->recursiveTagParse(
-				$args['from'],
-				$frame
-			);
-		}
-
-		if ( isset( $args['cc'] ) ) {
-			$mailArguments["mwmailcc"] = $parser->recursiveTagParse(
-				$args['cc'],
-				$frame
-			);
-		}
-
-		if ( isset( $args['bcc'] ) ) {
-			$mailArguments["mwmailbcc"] = $parser->recursiveTagParse(
-				$args['bcc'],
-				$frame
-			);
-		}
-
-		if ( isset( $args['replyto'] ) ) {
-			$mailArguments["mwmailreplyto"] = $parser->recursiveTagParse(
-				$args['replyto'],
-				$frame
-			);
-		}
-
-		if ( isset( $args['subject'] ) ) {
-			$mailArguments["mwmailsubject"] = $parser->recursiveTagParse(
-				$args['subject'],
-				$frame
-			);
-		}
-
-		if ( isset( $args['type'] ) ) {
-			$mailArguments["mwmailtype"] = $parser->recursiveTagParse(
-				$args['type'],
-				$frame
-			);
-		}
-
-		if ( isset( $args['content'] ) ) {
-			$mailArguments["mwmailcontent"] = $parser->recursiveTagParse(
-				$args['content'],
-				$frame
-			);
-		}
-
-		if ( isset( $args['job'] ) ) {
-			$mailArguments["mwmailjob"] = $parser->recursiveTagParse(
-				$args['job'],
-				$frame
-			);
-		}
-
-		if ( isset( $args['header'] ) ) {
-			$mailArguments["mwmailheader"] = $parser->recursiveTagParse(
-				$args['header'],
-				$frame
-			);
-		}
-
-		if ( isset( $args['footer'] ) ) {
-			$mailArguments["mwmailfooter"] = $parser->recursiveTagParse(
-				$args['footer'],
-				$frame
-			);
-		}
-
-		if ( isset( $args['html'] ) ) {
-			$mailArguments["mwmailhtml"] = $parser->recursiveTagParse(
-				$args['html'],
-				$frame
-			);
-		}
-
-		if ( isset( $args['attachment'] ) ) {
-			$mailArguments["mwmailattachment"] = $parser->recursiveTagParse(
-				$args['attachment'],
-				$frame
-			);
-		}
-
-		if ( isset( $args['template'] ) ) {
-			$mailArguments["mwmailtemplate"] = $parser->recursiveTagParse(
-				$args['template'],
-				$frame
-			);
-		}
-
-		if ( isset( $args['parselast'] ) ) {
-			$mailArguments["mwparselast"] = "true";
-		}
-
-		$base64content = base64_encode(
-			$parser->recursiveTagParse(
-				$input,
-				$frame
-			)
-		);
+	public function renderEmail( $input, array $args, Parser $parser, PPFrame $frame ): array {
+		$mailArguments = Email::getEmailParameters( $args, $parser, $frame );
 		$output        = $this->themeStore->getFormTheme()->getEmailRenderer()->render_mail(
 			$mailArguments,
-			$base64content
+			''
 		);
 
 		return [
@@ -2353,7 +2245,7 @@ class TagHooks {
 	 * @return array send to the MediaWiki Parser or
 	 * @throws FlexFormException
 	 */
-	public function renderInstance( $input, array $args, Parser $parser, PPFrame $frame ) {
+	public function renderInstance( $input, array $args, Parser $parser, PPFrame $frame ): array {
 		global $IP, $wgScript;
 
 		// Add move, delete and add button with classes
