@@ -1107,7 +1107,7 @@ function wsInitTinyMCE () {
 }
 
 function checkForTinyMCE () {
-	if ($('[class^="tinymce"]')[0]) {
+	if ($('[class^="tinymce"], [class*=" tinymce"]')[0]) {
 		if (typeof window.tinymce === 'undefined') {
 			waitForTinyMCE(wsInitTinyMCE)
 		} else wsInitTinyMCE()
