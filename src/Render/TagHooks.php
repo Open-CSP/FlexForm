@@ -2256,10 +2256,10 @@ class TagHooks {
 			Core::addAsLoaded( 'wsinstance-initiated' );
 		}
 
-		$content = $parser->recursiveTagParseFully(
+		$content = trim( $parser->recursiveTagParseFully(
 			$input,
 			$frame
-		);
+		) );
 
 		if( isset( $args['default-content'] ) ) {
 			//var_dump( "parsing content", $args['default-content'] );

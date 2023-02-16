@@ -182,11 +182,11 @@ class PlainInstanceRenderer implements InstanceRenderer {
 		}
 
 		if ( $instance['removeButtonClass'] !== 'none' ) {
-			$ret .= '<button type="button" class="' . $instance['removeButtonClass'] . ' ' . $instance['removeButtonClassExtra'] . '" role="button"></button>';
+			$ret .= '<span class="' . $instance['removeButtonClass'] . ' ' . $instance['removeButtonClassExtra'] . '"></span>';
 		}
 
 		if ( $instance['addButtonClass'] !== 'none' ) {
-			$addBtn = '<button type="button" class="' . $instance['addButtonClass'] . ' ' . $instance['addButtonClassExtra'] . '" role="button"></button>';
+			$addBtn = '<span class="' . $instance['addButtonClass'] . ' ' . $instance['addButtonClassExtra'] . '"></span>';
 			$ret    .= $addBtn;
 		}
 
@@ -229,6 +229,22 @@ class PlainInstanceRenderer implements InstanceRenderer {
 			'format'                  => 'wiki'
 		);
 
+		/*
+		 *
+var wgInstance = [{"
+		draggable":true,
+		"addButtonClass":".WSmultipleTemplateAddAbove",
+		"removeButtonClass":".WSmultipleTemplateDel",
+		"handleClass":".ws-sortable-handle",
+		"selector":".WSmultipleTemplateWrapper",
+		"textarea":".WSmultipleTemplateField",
+		"list":".WSmultipleTemplateList",
+		"copy":".WSmultipleTemplateMain"}]
+const wgFlexFormSecure = true;
+wachtff( startInstance, true );
+
+
+		 */
 		$defaultTranslator = array(
 			'template'               => 'template',
 			'template-parent'        => 'templateParent',

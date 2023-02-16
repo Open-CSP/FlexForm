@@ -1,63 +1,3 @@
-.wsform-instance-move-handle {
-	float: left;
-	padding: 2px;
-	text-align: center;
-	vertical-align: middle;
-	background-color: white;
-	display: inline-block;
-	cursor: move;
-	border: 1px solid black;
-	line-height: 100%;
-	margin-right: 15px;
-
-}
-
-.wsform-instance-move-handle:before {
-	font-size: 19px;
-	font-weight: bold;
-	content: "\2630";
-}
-
-.WSmultipleTemplateDel:before {
-	font-size: 19px;
-	font-weight: bold;
-	content: "\2718";
-}
-
-.WSmultipleTemplateAddAbove:before, .WSmultipleTemplateAddBelow:before {
-	font-size: 19px;
-	font-weight: bold;
-	content: "\271A";
-}
-
-
-.wsform-instance-add-btn, .wsform-instance-delete-btn {
-	float: right;
-	line-height: 100%;
-	margin: 0 auto;
-
-}
-
-.wsform-instance-record {
-	padding: 1rem;
-	border: 1px dotted #666;
-	margin: 5px 0px 5px 0px;
-
-}
-
-.ff-clean-btn {
-	background: none;
-	color: inherit;
-	border: none;
-	padding: 0;
-	font: inherit;
-	cursor: pointer;
-	outline: inherit;
-}
-.ff-font-size {
-	font-size:inherit;
-}
-
 @font-face {
 	font-family: 'ElegantIcons';
 	src:url('fonts/ElegantIcons.eot');
@@ -68,6 +8,75 @@
 	font-weight: normal;
 	font-style: normal;
 }
+
+
+.wsform-instance-move-handle, .wsform-instance-add-btn, .wsform-instance-delete-btn, .WSmultipleTemplateAddBelow {
+	font-family: 'ElegantIcons';
+	font-size:1.5rem;
+	max-width:50px;
+	speak: none;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+	-webkit-font-smoothing: antialiased;
+	margin: 0 5px 0 5px;
+}
+
+.wsform-instance-move-handle:before {
+	content: "\31";
+}
+
+.wsform-instance-delete-btn:before {
+	content: "\51";
+}
+
+.wsform-instance-delete-btn:hover, .wsform-instance-add-btn:hover, .wsform-instance-move-handle:hover {
+	color:dodgerblue;
+}
+
+.wsform-instance-add-btn:before, .WSmultipleTemplateAddBelow:before {
+	content: "\50";
+}
+
+.ff-font-size {
+	font-size:inherit;
+}
+
+.wsform-instance-record {
+	display:flex;
+	justify-content: space-between;
+	align-content: center;
+	align-items: center;
+	vertical-align: middle;
+	padding:4px;
+	margin: 4px 0px 4px 0px;
+	-webkit-box-shadow: inset 2px 2px 10px -5px #000000;
+	box-shadow: inset 2px 2px 10px -5px #000000;
+}
+
+.wsform-instance-record:nth-child(odd) {
+	background-color: #eee;
+}
+.wsform-instance-record > p {
+	margin:0;
+	padding:0;
+}
+.wsform-instance-record .ws-sortable-handle {
+	order:1;
+}
+.wsform-instance-record>div {
+	flex-grow:1;
+	order:2;
+}
+.wsform-instance-record .wsform-instance-add-btn  {
+	order:4;
+}
+.wsform-instance-record .wsform-instance-delete-btn {
+	order:3;
+}
+
 
 .ff_arrow_up, .ff_arrow_down, .ff_arrow_left, .ff_arrow_right, .ff_arrow_left-up, .ff_arrow_right-up, .ff_arrow_right-down, .ff_arrow_left-down, .ff_arrow-up-down, .ff_arrow_up-down_alt, .ff_arrow_left-right_alt, .ff_arrow_left-right, .ff_arrow_expand_alt2, .ff_arrow_expand_alt, .ff_arrow_condense, .ff_arrow_expand, .ff_arrow_move, .ff_arrow_carrot-up, .ff_arrow_carrot-down, .ff_arrow_carrot-left, .ff_arrow_carrot-right, .ff_arrow_carrot-2up, .ff_arrow_carrot-2down, .ff_arrow_carrot-2left, .ff_arrow_carrot-2right, .ff_arrow_carrot-up_alt2, .ff_arrow_carrot-down_alt2, .ff_arrow_carrot-left_alt2, .ff_arrow_carrot-right_alt2, .ff_arrow_carrot-2up_alt2, .ff_arrow_carrot-2down_alt2, .ff_arrow_carrot-2left_alt2, .ff_arrow_carrot-2right_alt2, .ff_arrow_triangle-up, .ff_arrow_triangle-down, .ff_arrow_triangle-left, .ff_arrow_triangle-right, .ff_arrow_triangle-up_alt2, .ff_arrow_triangle-down_alt2, .ff_arrow_triangle-left_alt2, .ff_arrow_triangle-right_alt2, .ff_arrow_back, .ff_icon_minus-06, .ff_icon_plus, .ff_icon_close, .ff_icon_check, .ff_icon_minus_alt2, .ff_icon_plus_alt2, .ff_icon_close_alt2, .ff_icon_check_alt2, .ff_icon_zoom-out_alt, .ff_icon_zoom-in_alt, .ff_icon_search, .ff_icon_box-empty, .ff_icon_box-selected, .ff_icon_minus-box, .ff_icon_plus-box, .ff_icon_box-checked, .ff_icon_circle-empty, .ff_icon_circle-slelected, .ff_icon_stop_alt2, .ff_icon_stop, .ff_icon_pause_alt2, .ff_icon_pause, .ff_icon_menu, .ff_icon_menu-square_alt2, .ff_icon_menu-circle_alt2, .ff_icon_ul, .ff_icon_ol, .ff_icon_adjust-horiz, .ff_icon_adjust-vert, .ff_icon_document_alt, .ff_icon_documents_alt, .ff_icon_pencil, .ff_icon_pencil-edit_alt, .ff_icon_pencil-edit, .ff_icon_folder-alt, .ff_icon_folder-open_alt, .ff_icon_folder-add_alt, .ff_icon_info_alt, .ff_icon_error-oct_alt, .ff_icon_error-circle_alt, .ff_icon_error-triangle_alt, .ff_icon_question_alt2, .ff_icon_question, .ff_icon_comment_alt, .ff_icon_chat_alt, .ff_icon_vol-mute_alt, .ff_icon_volume-low_alt, .ff_icon_volume-high_alt, .ff_icon_quotations, .ff_icon_quotations_alt2, .ff_icon_clock_alt, .ff_icon_lock_alt, .ff_icon_lock-open_alt, .ff_icon_key_alt, .ff_icon_cloud_alt, .ff_icon_cloud-upload_alt, .ff_icon_cloud-download_alt, .ff_icon_image, .ff_icon_images, .ff_icon_lightbulb_alt, .ff_icon_gift_alt, .ff_icon_house_alt, .ff_icon_genius, .ff_icon_mobile, .ff_icon_tablet, .ff_icon_laptop, .ff_icon_desktop, .ff_icon_camera_alt, .ff_icon_mail_alt, .ff_icon_cone_alt, .ff_icon_ribbon_alt, .ff_icon_bag_alt, .ff_icon_creditcard, .ff_icon_cart_alt, .ff_icon_paperclip, .ff_icon_tag_alt, .ff_icon_tags_alt, .ff_icon_trash_alt, .ff_icon_cursor_alt, .ff_icon_mic_alt, .ff_icon_compass_alt, .ff_icon_pin_alt, .ff_icon_pushpin_alt, .ff_icon_map_alt, .ff_icon_drawer_alt, .ff_icon_toolbox_alt, .ff_icon_book_alt, .ff_icon_calendar, .ff_icon_film, .ff_icon_table, .ff_icon_contacts_alt, .ff_icon_headphones, .ff_icon_lifesaver, .ff_icon_piechart, .ff_icon_refresh, .ff_icon_link_alt, .ff_icon_link, .ff_icon_loading, .ff_icon_blocked, .ff_icon_archive_alt, .ff_icon_heart_alt, .ff_icon_star_alt, .ff_icon_star-half_alt, .ff_icon_star, .ff_icon_star-half, .ff_icon_tools, .ff_icon_tool, .ff_icon_cog, .ff_icon_cogs, .ff_arrow_up_alt, .ff_arrow_down_alt, .ff_arrow_left_alt, .ff_arrow_right_alt, .ff_arrow_left-up_alt, .ff_arrow_right-up_alt, .ff_arrow_right-down_alt, .ff_arrow_left-down_alt, .ff_arrow_condense_alt, .ff_arrow_expand_alt3, .ff_arrow_carrot_up_alt, .ff_arrow_carrot-down_alt, .ff_arrow_carrot-left_alt, .ff_arrow_carrot-right_alt, .ff_arrow_carrot-2up_alt, .ff_arrow_carrot-2dwnn_alt, .ff_arrow_carrot-2left_alt, .ff_arrow_carrot-2right_alt, .ff_arrow_triangle-up_alt, .ff_arrow_triangle-down_alt, .ff_arrow_triangle-left_alt, .ff_arrow_triangle-right_alt, .ff_icon_minus_alt, .ff_icon_plus_alt, .ff_icon_close_alt, .ff_icon_check_alt, .ff_icon_zoom-out, .ff_icon_zoom-in, .ff_icon_stop_alt, .ff_icon_menu-square_alt, .ff_icon_menu-circle_alt, .ff_icon_document, .ff_icon_documents, .ff_icon_pencil_alt, .ff_icon_folder, .ff_icon_folder-open, .ff_icon_folder-add, .ff_icon_folder_upload, .ff_icon_folder_download, .ff_icon_info, .ff_icon_error-circle, .ff_icon_error-oct, .ff_icon_error-triangle, .ff_icon_question_alt, .ff_icon_comment, .ff_icon_chat, .ff_icon_vol-mute, .ff_icon_volume-low, .ff_icon_volume-high, .ff_icon_quotations_alt, .ff_icon_clock, .ff_icon_lock, .ff_icon_lock-open, .ff_icon_key, .ff_icon_cloud, .ff_icon_cloud-upload, .ff_icon_cloud-download, .ff_icon_lightbulb, .ff_icon_gift, .ff_icon_house, .ff_icon_camera, .ff_icon_mail, .ff_icon_cone, .ff_icon_ribbon, .ff_icon_bag, .ff_icon_cart, .ff_icon_tag, .ff_icon_tags, .ff_icon_trash, .ff_icon_cursor, .ff_icon_mic, .ff_icon_compass, .ff_icon_pin, .ff_icon_pushpin, .ff_icon_map, .ff_icon_drawer, .ff_icon_toolbox, .ff_icon_book, .ff_icon_contacts, .ff_icon_archive, .ff_icon_heart, .ff_icon_profile, .ff_icon_group, .ff_icon_grid-2x2, .ff_icon_grid-3x3, .ff_icon_music, .ff_icon_pause_alt, .ff_icon_phone, .ff_icon_upload, .ff_icon_download, .ff_social_facebook, .ff_social_twitter, .ff_social_pinterest, .ff_social_googleplus, .ff_social_tumblr, .ff_social_tumbleupon, .ff_social_wordpress, .ff_social_instagram, .ff_social_dribbble, .ff_social_vimeo, .ff_social_linkedin, .ff_social_rss, .ff_social_deviantart, .ff_social_share, .ff_social_myspace, .ff_social_skype, .ff_social_youtube, .ff_social_picassa, .ff_social_googledrive, .ff_social_flickr, .ff_social_blogger, .ff_social_spotify, .ff_social_delicious, .ff_social_facebook_circle, .ff_social_twitter_circle, .ff_social_pinterest_circle, .ff_social_googleplus_circle, .ff_social_tumblr_circle, .ff_social_stumbleupon_circle, .ff_social_wordpress_circle, .ff_social_instagram_circle, .ff_social_dribbble_circle, .ff_social_vimeo_circle, .ff_social_linkedin_circle, .ff_social_rss_circle, .ff_social_deviantart_circle, .ff_social_share_circle, .ff_social_myspace_circle, .ff_social_skype_circle, .ff_social_youtube_circle, .ff_social_picassa_circle, .ff_social_googledrive_alt2, .ff_social_flickr_circle, .ff_social_blogger_circle, .ff_social_spotify_circle, .ff_social_delicious_circle, .ff_social_facebook_square, .ff_social_twitter_square, .ff_social_pinterest_square, .ff_social_googleplus_square, .ff_social_tumblr_square, .ff_social_stumbleupon_square, .ff_social_wordpress_square, .ff_social_instagram_square, .ff_social_dribbble_square, .ff_social_vimeo_square, .ff_social_linkedin_square, .ff_social_rss_square, .ff_social_deviantart_square, .ff_social_share_square, .ff_social_myspace_square, .ff_social_skype_square, .ff_social_youtube_square, .ff_social_picassa_square, .ff_social_googledrive_square, .ff_social_flickr_square, .ff_social_blogger_square, .ff_social_spotify_square, .ff_social_delicious_square, .ff_icon_printer, .ff_icon_calulator, .ff_icon_building, .ff_icon_floppy, .ff_icon_drive, .ff_icon_search-2, .ff_icon_id, .ff_icon_id-2, .ff_icon_puzzle, .ff_icon_like, .ff_icon_dislike, .ff_icon_mug, .ff_icon_currency, .ff_icon_wallet, .ff_icon_pens, .ff_icon_easel, .ff_icon_flowchart, .ff_icon_datareport, .ff_icon_briefcase, .ff_icon_shield, .ff_icon_percent, .ff_icon_globe, .ff_icon_globe-2, .ff_icon_target, .ff_icon_hourglass, .ff_icon_balance, .ff_icon_rook, .ff_icon_printer-alt, .ff_icon_calculator_alt, .ff_icon_building_alt, .ff_icon_floppy_alt, .ff_icon_drive_alt, .ff_icon_search_alt, .ff_icon_id_alt, .ff_icon_id-2_alt, .ff_icon_puzzle_alt, .ff_icon_like_alt, .ff_icon_dislike_alt, .ff_icon_mug_alt, .ff_icon_currency_alt, .ff_icon_wallet_alt, .ff_icon_pens_alt, .ff_icon_easel_alt, .ff_icon_flowchart_alt, .ff_icon_datareport_alt, .ff_icon_briefcase_alt, .ff_icon_shield_alt, .ff_icon_percent_alt, .ff_icon_globe_alt, .ff_icon_clipboard {
 	font-family: 'ElegantIcons';
