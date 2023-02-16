@@ -398,7 +398,11 @@ const WsInstance = function (selector, options) {
 		const saveAllInstances = () => {
 			const isJSONFormat = _.saveField.data('format') === 'json';
 			let json = {};
-			json[_.saveField.data('template')] = [];
+			if ( _.saveField.data('template') !== "" ) {
+				json[_.saveField.data('template')] = [];
+			} else {
+				json = [];
+			}
 			// loop through all instances in the list
 			_.list.find('.WSmultipleTemplateInstance').each(function (i, instance) {
 				let valuesObj = {}
@@ -445,7 +449,11 @@ const WsInstance = function (selector, options) {
 					input.setAttribute('data-name', name)
 				})
 				if ( isJSONFormat ) {
-					json[_.saveField.data('template')].push(valuesObj);
+					if ( _.saveField.data('template') !== "" ) {
+						json[_.saveField.data('template')].push(valuesObj);
+					} else {
+						json.push(valuesObj);
+					}
 				} else {
 					saveString += createSaveStringForInstance(valuesObj)
 				}

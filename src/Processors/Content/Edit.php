@@ -401,6 +401,12 @@ class Edit {
 								);
 							}
 							$data[ $pid ][ $t ]['value'] = json_decode( $_POST[ $ff ], true );
+							if ( Config::isDebug() ) {
+								Debug::addToDebug(
+									'In instance and JSON added formield : ' . $ff,
+									$data
+								);
+							}
 						} else {
 							$data[ $pid ][ $t ]['value'] = $_POST[ $ff ];
 						}
