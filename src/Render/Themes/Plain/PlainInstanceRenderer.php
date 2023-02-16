@@ -197,7 +197,7 @@ class PlainInstanceRenderer implements InstanceRenderer {
 		$ret .= PHP_EOL . '<div class="' . $instance['list'] . '"></div>' . PHP_EOL;
 
 		if ( $instance['buttonBottom'] !== 'none' ) {
-			$ret .= PHP_EOL . '<p><button type="button" class="' . $instance['addButtonTopBottomClass'] . '" role="button">' . $instance['buttonBottom'] . '</button></p>';
+			$ret .= PHP_EOL . '<p><span class="' . $instance['addButtonTopBottomClass'] . '">' . $instance['buttonBottom'] . '</span></p>';
 		}
 
 		$ret .= '</div>' . PHP_EOL;
