@@ -128,6 +128,9 @@
 	"flexform-error-general-save-result-error" : "Save Result error: $1",
 	"flexform-error-invalid-page-title" : "Invalid title: $1",
 
+	"flexform-error-no-json-type": "JSON type not specified",
+	"flexform-error-invalid-json": "Invalid JSON format",
+
 	"flexform-captcha-missing-config" : "reCaptcha settings not found in Config",
 	"flexform-captcha-missing-details" : "no captcha details",
 	"flexform-captcha-score-to-low" : "Your Captcha score is too low. Your form is not submitted.",

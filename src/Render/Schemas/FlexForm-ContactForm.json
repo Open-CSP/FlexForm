@@ -1,5 +1,4 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://open-csp.org/extensions/FlexForm/src/Render/Schemas/FlexForm-Contact.json",
   "title": "A FlexForm Contact Form",
   "description": "Creates a simple Contact Form",
