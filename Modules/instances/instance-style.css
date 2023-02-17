@@ -60,9 +60,7 @@
 	box-shadow: inset 0px 11px 11px -18px #000000, inset 0px -11px 11px -18px #000000;
 }
 
-.wsform-instance-record:nth-child(odd) {
-	background-color: rgba( 30,144,255,.1);
-}
+
 .wsform-instance-record > p {
 	margin:0;
 	padding:0;
