@@ -9,6 +9,7 @@ use FlexForm\Processors\Content\Render;
 use FlexForm\Processors\Files\FilesCore;
 use FlexForm\Processors\Utilities\General;
 use FlexForm\Render\Helpers\Email;
+use FlexForm\Render\Helpers\Json;
 use FlexForm\Render\Helpers\MobileScreenShot;
 use MediaWiki\MediaWikiServices;
 use Parser;
@@ -175,7 +176,6 @@ class TagHooks {
 			return $this->returnNonValidatedResponse( $renderi18nErrorInsteadofImageForApprovedForms );
 		}
 		// && $allowAnonymous === false
-
 
 		if ( Config::isSecure() === true ) {
 			Core::includeInlineScript( "const wgFlexFormSecure = true;" );
@@ -409,10 +409,16 @@ class TagHooks {
 		}
 
 		$actionUrl = $formTarget ?? Core::getAPIurl();
-		$output    = $parser->recursiveTagParse(
-			trim( $input ),
-			$frame
-		);
+
+		if ( isset( $args['json'] ) ) {
+			$handleJSON = new Json();
+			$output = $handleJSON->handleJSON( $args['json'], $args, $parser, $frame, $this->themeStore );
+		} else {
+			$output = $parser->recursiveTagParse(
+				trim( $input ),
+				$frame
+			);
+		}
 
 		try {
 			$previousTheme = $this->themeStore->getFormThemeName();

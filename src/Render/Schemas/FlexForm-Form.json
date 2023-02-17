@@ -9,12 +9,16 @@
       "description": "Give the form a unique HTML id",
       "type": "string"
     },
-    "showmessageonsuccess":{
+    "showmessageonsuccess": {
       "description": "When the form is submitted successfully, show this message",
       "type": "string"
     },
     "action": {
-      "enum": ["addToWiki", "get", "email"],
+      "enum": [
+        "addToWiki",
+        "get",
+        "email"
+      ],
       "description": "What is the main action for this form, defaults to addToWiki",
       "type": "string"
     },
@@ -30,12 +34,32 @@
       "description": "Redirect to this page after submitting the form, defaults to the same page",
       "type": "string"
     },
+    "show-on-select": {
+      "description": "Add this if you have show on select fields in the form"
+    },
     "no_submit_on_return": {
       "description": "Disable enter key for submitting a form"
     },
     "recaptcha-v3-action": {
-      "description": "Use reCaptcha Version 3 on a flexform",
+      "description": "Use reCaptcha Version 3 on a FlexForm",
+      "type": "string"
+    },
+    "autosave": {
+      "description": "Auto save forms on interval, after change or both",
+      "type": "string"
+    },
+    "setwikicomment": {
+      "description": "Set the summary text shown in the recent changes and or contributions",
+      "type": "string"
+    },
+    "extension": {
+      "description": "Have an extension do additional tasks with form values",
       "type": "string"
     }
+  },
+  "dependentRequired": {
+    "autosave": [
+      "id"
+    ]
   }
 }

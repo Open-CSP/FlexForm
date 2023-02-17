@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://open-csp.org/extensions/FlexForm/src/Render/Schemas/FlexForm-Contact.json",
+  "title": "A FlexForm Contact Form",
+  "description": "Creates a simple Contact Form",
+  "type": "object",
+  "properties": {
+    "form": {
+      "type": "object",
+      "properties": {
+        "label_for_name": {
+          "type": "label",
+          "title": "Your full name",
+          "for": "name",
+          "behaviour": "inline",
+          "class": "ff-label"
+        },
+        "name": {
+          "type": "input",
+          "input-type": "text",
+          "class": "ff-input-text",
+          "behaviour": "break"
+        },
+        "label_for_email": {
+          "type": "label",
+          "for": "email",
+          "title": "Your email address",
+          "behaviour": "inline",
+          "class": "ff-label"
+        },
+        "email": {
+          "type": "input",
+          "input-type": "email",
+          "label": "Your email address",
+          "behaviour": "break"
+        },
+        "submit-button": {
+          "type": "input",
+          "input-type": "submit",
+          "value": "Submit the form",
+          "class": "btn btn-primary"
+        }
+      },
+      "required": [ "name", "email" ]
+    }
+  }
+}
