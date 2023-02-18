@@ -82,8 +82,8 @@ class Json {
 			case "title":
 				try {
 					$render = new Render();
-					$source = $render->getSlotContent( $args['source'] );
-					$this->json = json_decode( $source['content'] );
+					$source = $render->getSlotContent( $json );
+					$this->json = json_decode( $source['content'], true );
 				} catch ( Exception | FlexFormException $e ) {
 					return wfMessage( 'flexform-error-invalid-json' )->text() . ": " . $e->getMessage();
 				}
@@ -136,6 +136,15 @@ class Json {
 	}
 
 	/**
+	 * @param string $name
+	 *
+	 * @return bool
+	 */
+	private function checkRequired( string $name ): bool {
+		return in_array( $name, $this->json['properties']['form']['required'] );
+	}
+
+	/**
 	 * @param string $json
 	 * @param array $args
 	 * @param Parser $parser
@@ -168,6 +177,9 @@ class Json {
 			$functionType = $this->createFunctionType( $inputSingle );
 			$newArgs         = $inputSingle;
 			$newArgs['name'] = $name;
+			if ( $this->checkRequired( $name ) ) {
+				$newArgs['required'] = 'required';
+			}
 			$tagHook        = new TagHooks( $themeStore );
 			$functionName    = "render" . ucfirst( $functionType );
 			// var_dump( "Running $functionName" );
