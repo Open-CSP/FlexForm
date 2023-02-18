@@ -8,34 +8,38 @@
       "type": "object",
       "properties": {
         "label_for_name": {
-          "type": "label",
+          "htmlElement": "label",
+          "type": "text",
           "title": "Your full name",
           "for": "name",
           "behaviour": "inline",
           "class": "ff-label"
         },
         "name": {
-          "type": "input",
-          "input-type": "text",
+          "htmlElement": "input",
+          "inputType": "text",
+          "type": "text",
           "class": "ff-input-text",
           "behaviour": "break"
         },
         "label_for_email": {
-          "type": "label",
+          "inputType": "label",
+          "type": "text",
           "for": "email",
           "title": "Your email address",
           "behaviour": "inline",
           "class": "ff-label"
         },
         "email": {
-          "type": "input",
-          "input-type": "email",
+          "htmlElement": "input",
+          "type": "text",
+          "inputType": "email",
           "label": "Your email address",
           "behaviour": "break"
         },
         "submit-button": {
-          "type": "input",
-          "input-type": "submit",
+          "htmlElement": "input",
+          "inputType": "submit",
           "value": "Submit the form",
           "class": "btn btn-primary"
         }
