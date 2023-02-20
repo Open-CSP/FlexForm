@@ -31,6 +31,16 @@ class Json {
 	private PPFrame $frame;
 
 	/**
+	 * @var ThemeStore
+	 */
+	private ThemeStore $themeStore;
+
+	/**
+	 * @var int
+	 */
+	private int $level;
+
+	/**
 	 * @var array
 	 */
 	private array $json;
@@ -93,19 +103,22 @@ class Json {
 	}
 
 	/**
-	 * @param array &$inputSingle
+	 * @param array $inputSingle
 	 *
 	 * @return string
 	 */
-	private function createFunctionType( array &$inputSingle ) : string {
-		if ( $inputSingle['type'] === 'input' ) {
-			$functionType        = 'field';
-			$inputSingle['type'] = $inputSingle['input-type'];
-		} else {
-			$functionType = $inputSingle['type'];
-		}
+	private function createFunctionName( array $inputSingle ) : string {
+		$functionType = $inputSingle['htmlElement'] ?? 'field';
+		return "render" . ucfirst( $functionType );
+	}
 
-		return $functionType;
+	private function setFieldType( $data ) {
+		$inputType = "text";
+		if ( isset( $data['inputType'] ) ) {
+			$inputType = $data['inputType'];
+		} else {
+			switch
+		}
 	}
 
 	/**
@@ -115,22 +128,24 @@ class Json {
 	 */
 	private function createInput( array $data ): string {
 		$input = '';
-		switch ( $data['type'] ) {
-			case "label":
-				if ( isset( $data['title'] ) ) {
-					$input = $data['title'];
-				}
-				break;
-			case "textarea":
-				if ( isset( $data['content'] ) ) {
-					$input = $data['content'];
-				}
-				break;
-			case "option":
-				if ( isset( $data['label'] ) ) {
-					$input = $data['label'];
-				}
-				break;
+		if ( isset( $data['htmlElement'] ) ) {
+			switch ( $data['htmlElement'] ) {
+				case "label":
+					if ( isset( $data['title'] ) ) {
+						$input = $data['title'];
+					}
+					break;
+				case "textarea":
+					if ( isset( $data['content'] ) ) {
+						$input = $data['content'];
+					}
+					break;
+				case "option":
+					if ( isset( $data['label'] ) ) {
+						$input = $data['label'];
+					}
+					break;
+			}
 		}
 		return $input;
 	}
@@ -171,17 +186,27 @@ class Json {
 			return $status;
 		}
 
+		$this->parser = $parser;
+		$this->frame = $frame;
+		$this->themeStore = $themeStore;
+
+		// depth 1
+		if ( !isset( $this->json['type'] ) ) {
+			return "No type defined. Exiting.";
+		}
+
+		$this->handleElement( $this->json );
+
 		$inputs = $this->json['properties']['form']['properties'];
 		foreach ( $inputs as $name => $inputSingle ) {
 			$input = $this->createInput( $inputSingle );
-			$functionType = $this->createFunctionType( $inputSingle );
+			$functionName = $this->createFunctionName( $inputSingle );
 			$newArgs         = $inputSingle;
 			$newArgs['name'] = $name;
 			if ( $this->checkRequired( $name ) ) {
 				$newArgs['required'] = 'required';
 			}
 			$tagHook        = new TagHooks( $themeStore );
-			$functionName    = "render" . ucfirst( $functionType );
 			// var_dump( "Running $functionName" );
 			//var_dump( $newArgs );
 			//var_dump( $input );
@@ -199,6 +224,57 @@ class Json {
 
 		// }
 		return $this->content;
+	}
+
+	private function handleElement( $element ) {
+		switch ( $element['type'] ) {
+			case "object" :
+				if ( !isset( $element['properties'] ) ) {
+					return "No properties defined for " . $element['title'];
+				}
+				$this->handleJsonObject( $element['title'], $element['properties'] );
+				break;
+			case "array" :
+				break;
+		}
+	}
+
+
+	private function renderElement( $input, $functionName) {
+		$result  = $tagHook->$functionName(
+			$input,
+			$newArgs,
+			$this->$parser,
+			$this->$frame
+		);
+	}
+
+	private function handleJsonObject( $name, $properties ) {
+		foreach ( $properties as $propertyName => $property ) {
+			$this->handleElement( $property );
+		}
+
+		$functionName = $this->createFunctionName( $object );
+		$newArgs         = $object;
+		$newArgs['name'] = $name;
+		if ( $this->checkRequired( $name ) ) {
+			$newArgs['required'] = 'required';
+		}
+		$tagHook        = new TagHooks( $this->themeStore );
+		$functionName    = "render" . ucfirst( $functionType );
+		// var_dump( "Running $functionName" );
+		//var_dump( $newArgs );
+		//var_dump( $input );
+		$result  = $tagHook->$functionName(
+			$input,
+			$newArgs,
+			$parser,
+			$frame
+		);
+		$this->content .= $result[0];
+		if ( isset( $inputSingle['behaviour'] ) && $inputSingle['behaviour'] === 'break' ) {
+			$this->content .= '<br>';
+		}
 	}
 
 }
