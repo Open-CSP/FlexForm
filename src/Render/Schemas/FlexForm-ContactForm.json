@@ -9,7 +9,7 @@
       "properties": {
         "label_for_name": {
           "htmlElement": "label",
-          "type": "text",
+          "type": "string",
           "title": "Your full name",
           "for": "name",
           "behaviour": "inline",
@@ -18,13 +18,13 @@
         "name": {
           "htmlElement": "input",
           "inputType": "text",
-          "type": "text",
+          "type": "string",
           "class": "ff-input-text",
           "behaviour": "break"
         },
         "label_for_email": {
           "inputType": "label",
-          "type": "text",
+          "type": "string",
           "for": "email",
           "title": "Your email address",
           "behaviour": "inline",
@@ -32,7 +32,7 @@
         },
         "email": {
           "htmlElement": "input",
-          "type": "text",
+          "type": "string",
           "inputType": "email",
           "label": "Your email address",
           "behaviour": "break"

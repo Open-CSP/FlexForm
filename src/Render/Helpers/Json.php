@@ -117,7 +117,35 @@ class Json {
 		if ( isset( $data['inputType'] ) ) {
 			$inputType = $data['inputType'];
 		} else {
-			switch
+			switch ( $data['type'] ) {
+				case "string":
+					$inputType = "text";
+				case "number":
+				case "integer":
+					$inputType = "number";
+					break;
+				default:
+					$inputType = "text";
+					break;
+			}
+		}
+		return $inputType;
+	}
+
+	/**
+	 * @param array $data
+	 *
+	 * @return mixed|string
+	 */
+	private function setInputType( array $data ): string {
+		if ( isset( $data['htmlElemenent'] ) ) {
+			if ( $data['htmlElemenent'] === "input" ) {
+				return "field";
+			} else {
+				return $data['htmlElemenent'];
+			}
+		} else {
+			return "field";
 		}
 	}
 
@@ -152,11 +180,19 @@ class Json {
 
 	/**
 	 * @param string $name
+	 * @param array $properties
 	 *
 	 * @return bool
 	 */
-	private function checkRequired( string $name ): bool {
-		return in_array( $name, $this->json['properties']['form']['required'] );
+	private function checkRequired( string $name, array $properties ): bool {
+		if ( isset( $properties['required'] ) ) {
+			return in_array(
+				$name,
+				$properties['required']
+			);
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -195,85 +231,77 @@ class Json {
 			return "No type defined. Exiting.";
 		}
 
-		$this->handleElement( $this->json );
-
-		$inputs = $this->json['properties']['form']['properties'];
-		foreach ( $inputs as $name => $inputSingle ) {
-			$input = $this->createInput( $inputSingle );
-			$functionName = $this->createFunctionName( $inputSingle );
-			$newArgs         = $inputSingle;
-			$newArgs['name'] = $name;
-			if ( $this->checkRequired( $name ) ) {
-				$newArgs['required'] = 'required';
-			}
-			$tagHook        = new TagHooks( $themeStore );
-			// var_dump( "Running $functionName" );
-			//var_dump( $newArgs );
-			//var_dump( $input );
-			$result  = $tagHook->$functionName(
-				$input,
-				$newArgs,
-				$parser,
-				$frame
-			);
-			$this->content .= $result[0];
-			if ( isset( $inputSingle['behaviour'] ) && $inputSingle['behaviour'] === 'break' ) {
-				$this->content .= '<br>';
-			}
-		}
-
+		$this->walkThroughJson( $this->json );
 		// }
 		return $this->content;
 	}
 
-	private function handleElement( $element ) {
+	/**
+	 * @param array $element
+	 *
+	 * @return string|void
+	 */
+	private function walkThroughJson( $element ) {
 		switch ( $element['type'] ) {
 			case "object" :
 				if ( !isset( $element['properties'] ) ) {
-					return "No properties defined for " . $element['title'];
+					return "No properties defined for object " . $element['title'];
 				}
 				$this->handleJsonObject( $element['title'], $element['properties'] );
 				break;
 			case "array" :
 				break;
+			default:
+				break;
 		}
 	}
 
-
-	private function renderElement( $input, $functionName) {
-		$result  = $tagHook->$functionName(
+	/**
+	 * @param string $input
+	 * @param array $args
+	 * @param string $functionName
+	 *
+	 * @return mixed
+	 */
+	private function renderElement( string $input, array $args, string $functionName ) {
+		$tagHook = new TagHooks( $this->themeStore );
+		echo "<pre>";
+		var_dump( $input );
+		var_dump( $args );
+		var_dump( $functionName );
+		echo "</pre>";
+		return $tagHook->$functionName(
 			$input,
-			$newArgs,
-			$this->$parser,
-			$this->$frame
+			$args,
+			$this->parser,
+			$this->frame
 		);
 	}
 
-	private function handleJsonObject( $name, $properties ) {
+	/**
+	 * @param string $name
+	 * @param array $properties
+	 *
+	 * @return void
+	 */
+	private function handleJsonObject( string $name, array $properties ) {
 		foreach ( $properties as $propertyName => $property ) {
-			$this->handleElement( $property );
-		}
-
-		$functionName = $this->createFunctionName( $object );
-		$newArgs         = $object;
-		$newArgs['name'] = $name;
-		if ( $this->checkRequired( $name ) ) {
-			$newArgs['required'] = 'required';
-		}
-		$tagHook        = new TagHooks( $this->themeStore );
-		$functionName    = "render" . ucfirst( $functionType );
-		// var_dump( "Running $functionName" );
-		//var_dump( $newArgs );
-		//var_dump( $input );
-		$result  = $tagHook->$functionName(
-			$input,
-			$newArgs,
-			$parser,
-			$frame
-		);
-		$this->content .= $result[0];
-		if ( isset( $inputSingle['behaviour'] ) && $inputSingle['behaviour'] === 'break' ) {
-			$this->content .= '<br>';
+			if ( $property['type'] === 'object' ) {
+				$this->content .= "<h3>$propertyName</h3>";
+				$this->handleJsonObject( $propertyName, $property['properties'] );
+			}
+			$functionName = $this->createFunctionName( $property );
+			$input = $this->createInput( $property );
+			$newArgs         = $property;
+			$newArgs['name'] = $propertyName;
+			//$newArgs['type'] = $this->setFieldType()
+			if ( $this->checkRequired( $name, $properties ) ) {
+				$newArgs['required'] = 'required';
+			}
+			$this->content .= $this->renderElement( $input, $newArgs, $functionName )[0];
+			if ( isset( $property['behaviour'] ) && $property['behaviour'] === 'break' ) {
+				$this->content .= '<br>';
+			}
 		}
 	}
 
