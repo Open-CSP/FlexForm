@@ -108,45 +108,34 @@ class Json {
 	 * @return string
 	 */
 	private function createFunctionName( array $inputSingle ) : string {
-		$functionType = $inputSingle['htmlElement'] ?? 'field';
+		$functionType = 'field';
+		if ( isset( $inputSingle['htmlElement'] ) && $inputSingle['htmlElement'] !== 'input' ) {
+			$functionType = $inputSingle['htmlElement'];
+		}
 		return "render" . ucfirst( $functionType );
 	}
 
-	private function setFieldType( $data ) {
-		$inputType = "text";
+	/**
+	 * @param array $data
+	 *
+	 * @return string
+	 */
+	private function setFieldType( array $data ): string {
 		if ( isset( $data['inputType'] ) ) {
 			$inputType = $data['inputType'];
 		} else {
 			switch ( $data['type'] ) {
-				case "string":
-					$inputType = "text";
 				case "number":
 				case "integer":
 					$inputType = "number";
 					break;
+				case "string":
 				default:
 					$inputType = "text";
 					break;
 			}
 		}
 		return $inputType;
-	}
-
-	/**
-	 * @param array $data
-	 *
-	 * @return mixed|string
-	 */
-	private function setInputType( array $data ): string {
-		if ( isset( $data['htmlElemenent'] ) ) {
-			if ( $data['htmlElemenent'] === "input" ) {
-				return "field";
-			} else {
-				return $data['htmlElemenent'];
-			}
-		} else {
-			return "field";
-		}
 	}
 
 	/**
@@ -185,6 +174,9 @@ class Json {
 	 * @return bool
 	 */
 	private function checkRequired( string $name, array $properties ): bool {
+		//echo "<pre>";
+		//var_dump ("Checking required", $name, $properties  );
+		//echo "</pre>";
 		if ( isset( $properties['required'] ) ) {
 			return in_array(
 				$name,
@@ -233,6 +225,8 @@ class Json {
 
 		$this->walkThroughJson( $this->json );
 		// }
+		//var_dump ($this->content);
+		die( "test" );
 		return $this->content;
 	}
 
@@ -247,7 +241,7 @@ class Json {
 				if ( !isset( $element['properties'] ) ) {
 					return "No properties defined for object " . $element['title'];
 				}
-				$this->handleJsonObject( $element['title'], $element['properties'] );
+				$this->handleProperties( $element );
 				break;
 			case "array" :
 				break;
@@ -265,10 +259,10 @@ class Json {
 	 */
 	private function renderElement( string $input, array $args, string $functionName ) {
 		$tagHook = new TagHooks( $this->themeStore );
-		echo "<pre>";
-		var_dump( $input );
-		var_dump( $args );
-		var_dump( $functionName );
+		echo "<pre>RenderElement";
+		var_dump( "input:", $input );
+		var_dump( "args:", $args );
+		var_dump( "functionName:", $functionName );
 		echo "</pre>";
 		return $tagHook->$functionName(
 			$input,
@@ -278,29 +272,45 @@ class Json {
 		);
 	}
 
+	private function setFunctionAttributes( $name, $property ) {
+		$args = $property;
+		$args['name'] = $name;
+		$args['type'] = $this->setFieldType( $property );
+
+		return $args;
+	}
+
+	private function handleProperty( $name, $property, $element ) {
+		$functionName = $this->createFunctionName( $property );
+		$input = $this->createInput( $property );
+		$newArgs = $this->setFunctionAttributes( $name, $property );
+		if ( $this->checkRequired( $name, $element ) ) {
+			$newArgs['required'] = 'required';
+		}
+		$this->content .= $this->renderElement( $input, $newArgs, $functionName )[0];
+		if ( isset( $property['behaviour'] ) && $property['behaviour'] === 'break' ) {
+			$this->content .= '<br>';
+		}
+	}
+
 	/**
-	 * @param string $name
-	 * @param array $properties
+	 * @param array $element
 	 *
 	 * @return void
 	 */
-	private function handleJsonObject( string $name, array $properties ) {
-		foreach ( $properties as $propertyName => $property ) {
-			if ( $property['type'] === 'object' ) {
-				$this->content .= "<h3>$propertyName</h3>";
-				$this->handleJsonObject( $propertyName, $property['properties'] );
-			}
-			$functionName = $this->createFunctionName( $property );
-			$input = $this->createInput( $property );
-			$newArgs         = $property;
-			$newArgs['name'] = $propertyName;
-			//$newArgs['type'] = $this->setFieldType()
-			if ( $this->checkRequired( $name, $properties ) ) {
-				$newArgs['required'] = 'required';
-			}
-			$this->content .= $this->renderElement( $input, $newArgs, $functionName )[0];
-			if ( isset( $property['behaviour'] ) && $property['behaviour'] === 'break' ) {
-				$this->content .= '<br>';
+	private function handleProperties( array $element ) {
+		if ( isset( $element['properties' ] ) ) {
+			$properties = $element['properties' ];
+			foreach ( $properties as $propertyName => $property ) {
+				if ( $property['type'] === 'object' ) {
+					$this->content .= "<h3>$propertyName</h3>";
+					$this->handleProperties( $properties );
+				}
+				$this->handleProperty(
+					$propertyName,
+					$property,
+					$element
+				);
 			}
 		}
 	}
