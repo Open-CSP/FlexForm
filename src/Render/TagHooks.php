@@ -413,12 +413,12 @@ class TagHooks {
 		if ( isset( $args['json'] ) ) {
 			$handleJSON = new Json();
 			$output = $handleJSON->handleJSON( $args['json'], $args, $parser, $frame, $this->themeStore );
-		} else {
-			$output = $parser->recursiveTagParse(
-				trim( $input ),
-				$frame
-			);
 		}
+		$output .= $parser->recursiveTagParse(
+			trim( $input ),
+			$frame
+		);
+
 
 		try {
 			$previousTheme = $this->themeStore->getFormThemeName();

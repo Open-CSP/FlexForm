@@ -64,6 +64,23 @@ class Json {
 	}
 
 	/**
+	 * @param array $args
+	 *
+	 * @return array
+	 */
+	private function removeSchemeSpecificOptions( array $args ): array {
+		$schemeOptions = [
+			"enum", "htmlElement", "inputType", "input", '$id', 'description'
+		];
+		foreach ( $schemeOptions as $scheme_option ) {
+			if ( array_key_exists( $scheme_option, $args ) ) {
+				unset( $args[$scheme_option] );
+			}
+		}
+		return $args;
+	}
+
+	/**
 	 * @param string $json
 	 * @param array $args
 	 *
@@ -147,8 +164,11 @@ class Json {
 		$args = [];
 		$content = '';
 		foreach ( $names as $name ) {
+			//echo "args, $name :<br>";
 			$args['value'] = $name;
-			$content .= $this->renderElement( $name, $args, "option" );
+			//var_dump( $args );
+			//var_dump( $name );
+			$content .= $this->renderElement( $name, $args, "renderOption" );
 		}
 		return $content;
 	}
@@ -167,9 +187,9 @@ class Json {
 						$input = $this->renderOptionFields( $data['enum'] );
 					}
 					break;
-				case "fieldset":
-					if ( isset( $data['content'] ) ) {
-						$input = $data['content'];
+				case "instance":
+					if ( isset( $data['input'] ) ) {
+						$input = $data['input'];
 					}
 					break;
 				case "option":
@@ -225,7 +245,7 @@ class Json {
 			$args
 		);
 
-		echo "<pre>";
+		//echo "<pre>";
 		if ( $status !== true ) {
 			return $status;
 		}
@@ -242,7 +262,7 @@ class Json {
 		$this->walkThroughJson( $this->json );
 		// }
 		//var_dump ($this->content);
-		die( "test" );
+		//die( "test" );
 		return $this->content;
 	}
 
@@ -274,19 +294,40 @@ class Json {
 	 *
 	 * @return mixed
 	 */
-	private function renderElement( string $input, array $args, string $functionName ) {
-		$tagHook = new TagHooks( $this->themeStore );
-		echo "<pre>RenderElement";
-		var_dump( "input:", $input );
-		var_dump( "args:", $args );
-		var_dump( "functionName:", $functionName );
-		echo "</pre>";
-		return $tagHook->$functionName(
-			$input,
-			$args,
-			$this->parser,
-			$this->frame
-		);
+	private function renderElement( string $input, array $args, string $functionName, $renderWiki = false ) {
+		$args    = $this->removeSchemeSpecificOptions( $args );
+		if ( !$renderWiki ) {
+			$tagHook = new TagHooks( $this->themeStore );
+
+			//echo "<pre>RenderElement";
+			//var_dump( "input:", $input );
+			//var_dump( "args:", $args );
+			//var_dump( "functionName:", $functionName );
+			//echo "</pre>";
+
+			return $tagHook->$functionName(
+				$input,
+				$args,
+				$this->parser,
+				$this->frame
+			)[0];
+		} else {
+			$res = '';
+			$function = strtolower( str_replace( 'render', '', $functionName ) );
+			if ( $function === 'field' ) {
+				$function = "input";
+			}
+			$res .= '<' . $function;
+			foreach( $args as $k => $v ) {
+				$res .= ' ' . $k . '="' . $v . '"';
+			}
+			if ( $input !== '' ) {
+				$res .= '>' . $input . '</' . $function . '>';
+			} else {
+				$res .= '/>';
+			}
+			return $res;
+		}
 	}
 
 	private function setFunctionAttributes( $name, $property ) {
@@ -297,14 +338,14 @@ class Json {
 		return $args;
 	}
 
-	private function handleProperty( $name, $property, $element, $ret = false ) {
+	private function renderProperty( $name, $property, $element, $ret = false ) {
 		$functionName = $this->createFunctionName( $property );
 		$input = $this->createInput( $property );
 		$newArgs = $this->setFunctionAttributes( $name, $property );
 		if ( $this->checkRequired( $name, $element ) ) {
 			$newArgs['required'] = 'required';
 		}
-		$content = $this->renderElement( $input, $newArgs, $functionName )[0];
+		$content = $this->renderElement( $input, $newArgs, $functionName, $ret  );
 		if ( isset( $property['behaviour'] ) && $property['behaviour'] === 'break' ) {
 			$content .= '<br>';
 		}
@@ -312,6 +353,44 @@ class Json {
 			$this->content .= $content;
 		} else {
 			return $content;
+		}
+	}
+
+	private function renderInstance( $content, $args ) {
+		unset( $args['properties'] );
+		unset( $args['required'] );
+		$args = $this->removeSchemeSpecificOptions( $args );
+		return $this->renderElement( $content, $args, 'renderInstance' );
+	}
+
+	private function renderRadio( $name, $radios ) {
+		$args = [];
+		$args['type'] = "radio";
+		$args['name'] = $name;
+		$content = '';
+		foreach ( $radios as $radio ) {
+			$args['value'] = $radio;
+			$content .= $this->renderElement( $radio, $args, "renderField" ) . " " . $radio;
+		}
+		return $content;
+	}
+
+	private function handleProperty( $name, $property, $element, $ret = false ) {
+		$renderType = $this->setFieldType( $property );
+		$content = '';
+		switch( $renderType ) {
+			case "radio":
+				if ( isset( $property['enum'] ) ) {
+					$content .= $this->renderRadio( $name, $property['enum'] );
+				}
+				break;
+			default :
+				$content .= $this->renderProperty( $name, $property, $element, true );
+		}
+		if ( $ret ) {
+			return $content;
+		} else {
+			$this->content .= $content;
 		}
 	}
 
@@ -345,25 +424,48 @@ class Json {
 	/**
 	 * @param array $element
 	 *
-	 * @return void
+	 * @return mixed
 	 */
 	private function handleObject( array $element, $parentelement, $ret = false ) {
+		$htmlElement = false;
+		$content = '';
 		if ( isset( $element['properties' ] ) ) {
 			// in ons voorbeeld zijn properties dus "form" => {}
 			$properties = $element['properties' ];
+			if ( isset( $element['htmlElement'] ) && $element['htmlElement'] === 'instance' ) {
+				$htmlElement = $element['htmlElement'];
+				$ret = true;
+			}
 			foreach ( $properties as $propertyName => $property ) {
-				echo "Working on $propertyName";
+				//echo "Working on $propertyName";
 				//Property name is "instance" properties = "type", "properties", "required"
 				if ( $property['type'] === 'object' ) {
 					//echo "\ngoing recursive\n";
 					$this->content .= "<h3>$propertyName</h3>";
-					$this->handleObject( $property, $properties );
+					if ( $ret ) {
+						return $this->handleObject(
+							$property,
+							$element,
+							$ret
+						);
+					} else {
+						$this->handleObject(
+							$property,
+							$element,
+							$ret );
+					}
 				} else {
-					$this->handleProperty( $propertyName,
+					$content .= $this->handleProperty( $propertyName,
 						$property,
-						$properties,
-						$ret );
+						$element,
+						$ret
+						);
 				}
+			}
+			if ( $ret && $htmlElement === 'instance' ) {
+				//var_dump( $content );
+				//die();
+				$this->content = $this->renderInstance( $content, $element );
 			}
 		}
 	}
