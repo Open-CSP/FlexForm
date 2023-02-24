@@ -1,0 +1,68 @@
+{
+  "$id": "https://open-csp.org/extensions/FlexForm/src/Render/Schemas/FlexForm-CspParameterDefinitionsScheme.json",
+  "title": "Render an edit CspParameterDefinitions json",
+  "description": "Render an edit CspParameterDefinitions json",
+  "type": "object",
+  "htmlElement": "instance",
+  "properties": {
+    "name": {
+      "type": "string",
+      "htmlElement": "input",
+      "inputType": "text",
+      "title": "Name"
+    },
+    "required": {
+      "type": "string",
+      "htmlElement": "input",
+      "inputType": "radio",
+      "title": "Required",
+      "enum": [
+        "true",
+        "false"
+      ]
+    },
+    "slot": {
+      "type": "string",
+      "htmlElement": "input",
+      "inputType": "text",
+      "title": "Slotname"
+    },
+    "formfieldType": {
+      "type": "string",
+      "htmlElement": "select",
+      "title": "FormfieldType",
+      "enum": [
+        "token",
+        "datetimelocal",
+        "ask token",
+        "date",
+        "checkbox",
+        "textarea",
+        "number",
+        "select"
+      ]
+    },
+    "allowedValues": {
+      "type": "string",
+      "htmlElement": "input",
+      "inputType": "text",
+      "title": "Allowed Values"
+    },
+    "multiple": {
+      "type": "string",
+      "htmlElement": "input",
+      "inputType": "text",
+      "title": "Multiple"
+    },
+    "propertyName": {
+      "type": "string",
+      "htmlElement": "input",
+      "inputType": "text",
+      "title": "Property name"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}
+

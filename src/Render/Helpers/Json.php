@@ -139,6 +139,21 @@ class Json {
 	}
 
 	/**
+	 * @param array $names
+	 *
+	 * @return string
+	 */
+	private function renderOptionFields( array $names ):string  {
+		$args = [];
+		$content = '';
+		foreach ( $names as $name ) {
+			$args['value'] = $name;
+			$content .= $this->renderElement( $name, $args, "option" );
+		}
+		return $content;
+	}
+
+	/**
 	 * @param array $data
 	 *
 	 * @return string
@@ -147,12 +162,12 @@ class Json {
 		$input = '';
 		if ( isset( $data['htmlElement'] ) ) {
 			switch ( $data['htmlElement'] ) {
-				case "label":
-					if ( isset( $data['title'] ) ) {
-						$input = $data['title'];
+				case "select":
+					if ( isset( $data['enum'] ) ) {
+						$input = $this->renderOptionFields( $data['enum'] );
 					}
 					break;
-				case "textarea":
+				case "fieldset":
 					if ( isset( $data['content'] ) ) {
 						$input = $data['content'];
 					}
@@ -210,6 +225,7 @@ class Json {
 			$args
 		);
 
+		echo "<pre>";
 		if ( $status !== true ) {
 			return $status;
 		}
@@ -236,12 +252,13 @@ class Json {
 	 * @return string|void
 	 */
 	private function walkThroughJson( $element ) {
+
 		switch ( $element['type'] ) {
 			case "object" :
 				if ( !isset( $element['properties'] ) ) {
 					return "No properties defined for object " . $element['title'];
 				}
-				$this->handleProperties( $element );
+				$this->handleObject( $element, $element );
 				break;
 			case "array" :
 				break;
@@ -280,17 +297,49 @@ class Json {
 		return $args;
 	}
 
-	private function handleProperty( $name, $property, $element ) {
+	private function handleProperty( $name, $property, $element, $ret = false ) {
 		$functionName = $this->createFunctionName( $property );
 		$input = $this->createInput( $property );
 		$newArgs = $this->setFunctionAttributes( $name, $property );
 		if ( $this->checkRequired( $name, $element ) ) {
 			$newArgs['required'] = 'required';
 		}
-		$this->content .= $this->renderElement( $input, $newArgs, $functionName )[0];
+		$content = $this->renderElement( $input, $newArgs, $functionName )[0];
 		if ( isset( $property['behaviour'] ) && $property['behaviour'] === 'break' ) {
-			$this->content .= '<br>';
+			$content .= '<br>';
 		}
+		if ( !$ret ) {
+			$this->content .= $content;
+		} else {
+			return $content;
+		}
+	}
+
+	public function find_recursive( $obj, $key ) {
+		$found = array();
+		if ( is_object( $obj ) ) {
+			foreach ( $obj as $property => $value ) {
+				if ( $property === $key ) {
+					$found[] = $value;
+				} elseif ( is_array( $value ) || is_object( $value ) ) {
+					$found = array_merge( $found,
+						$this->find_recursive( $value,
+							$key ) );
+				}
+			}
+		} elseif ( is_array( $obj ) ) {
+			foreach ( $obj as $keyar => $value ) {
+				if ( $keyar === $key ) {
+					$found[] = $value;
+				} elseif ( is_array( $value ) || is_object( $value ) ) {
+					$found = array_merge( $found,
+						$this->find_recursive( $value,
+							$key ) );
+				}
+			}
+		}
+
+		return $found;
 	}
 
 	/**
@@ -298,19 +347,23 @@ class Json {
 	 *
 	 * @return void
 	 */
-	private function handleProperties( array $element ) {
+	private function handleObject( array $element, $parentelement, $ret = false ) {
 		if ( isset( $element['properties' ] ) ) {
+			// in ons voorbeeld zijn properties dus "form" => {}
 			$properties = $element['properties' ];
 			foreach ( $properties as $propertyName => $property ) {
+				echo "Working on $propertyName";
+				//Property name is "instance" properties = "type", "properties", "required"
 				if ( $property['type'] === 'object' ) {
+					//echo "\ngoing recursive\n";
 					$this->content .= "<h3>$propertyName</h3>";
-					$this->handleProperties( $properties );
+					$this->handleObject( $property, $properties );
+				} else {
+					$this->handleProperty( $propertyName,
+						$property,
+						$properties,
+						$ret );
 				}
-				$this->handleProperty(
-					$propertyName,
-					$property,
-					$element
-				);
 			}
 		}
 	}
