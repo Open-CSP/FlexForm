@@ -409,7 +409,7 @@ class TagHooks {
 		}
 
 		$actionUrl = $formTarget ?? Core::getAPIurl();
-
+		$output = '';
 		if ( isset( $args['json'] ) ) {
 			$handleJSON = new Json();
 			$output = $handleJSON->handleJSON( $args['json'], $args, $parser, $frame, $this->themeStore );
