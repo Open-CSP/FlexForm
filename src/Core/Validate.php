@@ -295,7 +295,7 @@ class Validate {
 			"canvas_source_id",
 			"canvas_render_id",
 			"template",
-			"convert_from",
+			"action",
 			"comment"
 		);
 		if ( $ret ) {

@@ -2382,7 +2382,7 @@ class TagHooks {
 		$use_label          = false;
 		$force              = false;
 		$parseContent       = false;
-		$convertFrom        = false;
+		$actionFields       = false;
 		$template			= false;
 		$multiple			= 'files';
 		$canvasSourceId     = false;
@@ -2417,8 +2417,8 @@ class TagHooks {
 					case "force":
 						$force = $v;
 						break;
-					case "convert_from":
-						$convertFrom = $v;
+					case "action":
+						$action = $v;
 						break;
 					case "id":
 						$id               = $v;
@@ -2494,7 +2494,7 @@ class TagHooks {
 			$uploadDetails["wsform_image_force"] = $force;
 		}
 		// When using convert, set accepted files to be the same
-		if ( $convertFrom ) {
+		if ( $action ) {
 			/*
 			if ( isset( $attributes['accept'] ) ) {
 				$attributes['accept'] .= ', .' . $convertFrom;
@@ -2503,7 +2503,7 @@ class TagHooks {
 			}
 			*/
 			//$hiddenFiles[] = '<input type="hidden" name="wsform_convert_from" value="' . $convertFrom . '">';
-			$uploadDetails["wsform_convert_from"] = $convertFrom;
+			$uploadDetails["wsform_action"] = $action;
 		}
 
 		// Normal file upload. No presentor

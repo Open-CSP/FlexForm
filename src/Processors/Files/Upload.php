@@ -88,7 +88,7 @@ class Upload {
 		 * ),
 		 * 'target'       => General::getPostString( 'wsform_file_target' ),
 		 * 'force'        => General::getPostArray( 'wsform_image_force' ),
-		 * 'convertFrom'        => General::getPostArray( 'wsform_convert_from' ),
+		 * 'convertFrom'        => General::getPostArray( 'wsform_action' ),
 		 * ];
 		 */ global $wgUser;
 
@@ -130,10 +130,24 @@ class Upload {
 			'wsform-upload-comment',
 			$fileDetails
 		);
-		$convertFrom   = General::getJsonValue(
-			'wsform_convert_from',
+		$fileAction    = General::getJsonValue(
+			'wsform_action',
 			$fileDetails
 		);
+
+		if ( $fileAction === false ) {
+			$fileAction = false;
+		} else {
+			if ( strtolower( $fileAction ) !== 'upload' && strtolower( $fileAction ) !== 'convertfromdocx' ) {
+				throw new FlexFormException(
+					'Unkown upload action',
+					0
+				);
+			}
+			if ( strtolower( $fileAction ) !== 'convertfromdocx' ) {
+				$fileAction = 'docx';
+			}
+		}
 
 		$nrOfFiles = count( $fileToProcess['name'] );
 		if ( Config::isDebug() ) {
@@ -372,7 +386,7 @@ class Upload {
 			);
 
 			// Not converting file, the add filename extension back
-			if ( $convertFrom === false ) {
+			if ( $fileAction === false ) {
 				$titleName .= "." . $fileNameExtension;
 			}
 
@@ -389,10 +403,11 @@ class Upload {
 				);
 			}
 
-			if ( $convertFrom !== false ) {
+			if ( $fileAction !== false ) {
+
 				// We need to do a Pandoc conversion
 				$convert = new Convert();
-				$convert->setConvertFrom( $convertFrom );
+				$convert->setConvertFrom( $fileAction );
 				$convert->setFileName( $storedFile );
 				$newContent               = $convert->convertFile();
 				$possibleImagesInDocument = $convert->getPossibleImagesFromConversion();
