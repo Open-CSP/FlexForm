@@ -360,7 +360,7 @@ class Json {
 		unset( $args['properties'] );
 		unset( $args['required'] );
 		$args = $this->removeSchemeSpecificOptions( $args );
-		return $this->renderElement( $content, $args, 'renderInstance' );
+		return $this->renderElement( "<div>".$content."</div>", $args, 'renderInstance' );
 	}
 
 	private function renderRadio( $name, $radios ) {
@@ -439,6 +439,9 @@ class Json {
 			foreach ( $properties as $propertyName => $property ) {
 				//echo "Working on $propertyName";
 				//Property name is "instance" properties = "type", "properties", "required"
+				if ( !isset( $property['type'] ) ) {
+					return "Error in schema. Missing type property in $propertyName";
+				}
 				if ( $property['type'] === 'object' ) {
 					//echo "\ngoing recursive\n";
 					$this->content .= "<h3>$propertyName</h3>";
