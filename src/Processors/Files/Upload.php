@@ -138,14 +138,14 @@ class Upload {
 		if ( $fileAction === false ) {
 			$fileAction = false;
 		} else {
-			if ( strtolower( $fileAction ) !== 'upload' && strtolower( $fileAction ) !== 'convertfromdocx' ) {
+			if ( strtolower( $fileAction ) !== 'upload' && strpos( strtolower( $fileAction ), 'convertfrom:' ) === false ) {
 				throw new FlexFormException(
 					'Unkown upload action',
 					0
 				);
 			}
-			if ( strtolower( $fileAction ) !== 'convertfromdocx' ) {
-				$fileAction = 'docx';
+			if ( strpos( strtolower( $fileAction ), 'convertfrom:' ) ) {
+				$fileAction = trim( str_replace( 'convertfrom:', '', strtolower( $fileAction ) ) );
 			}
 		}
 
