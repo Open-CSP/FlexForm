@@ -15,6 +15,7 @@ use FlexForm\FlexFormException;
 use FlexForm\Processors\Content\Render;
 use FlexForm\Render\TagHooks;
 use FlexForm\Render\ThemeStore;
+use FlexFormHooks;
 use Parser;
 use PPFrame;
 
@@ -127,7 +128,9 @@ class Json {
 	private function createFunctionName( array $inputSingle ) : string {
 		$functionType = 'field';
 		if ( isset( $inputSingle['htmlElement'] ) && $inputSingle['htmlElement'] !== 'input' ) {
-			$functionType = $inputSingle['htmlElement'];
+			if ( in_array( $inputSingle['htmlElement'], FlexFormHooks::availableHooks() ) ) {
+				$functionType = $inputSingle['htmlElement'];
+			}
 		}
 		return "render" . ucfirst( $functionType );
 	}
