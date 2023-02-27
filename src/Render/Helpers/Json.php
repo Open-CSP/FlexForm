@@ -15,6 +15,7 @@ use FlexForm\FlexFormException;
 use FlexForm\Processors\Content\Render;
 use FlexForm\Render\TagHooks;
 use FlexForm\Render\ThemeStore;
+use FlexFormHooks;
 use Parser;
 use PPFrame;
 
@@ -127,7 +128,9 @@ class Json {
 	private function createFunctionName( array $inputSingle ) : string {
 		$functionType = 'field';
 		if ( isset( $inputSingle['htmlElement'] ) && $inputSingle['htmlElement'] !== 'input' ) {
-			$functionType = $inputSingle['htmlElement'];
+			if ( in_array( $inputSingle['htmlElement'], FlexFormHooks::availableHooks() ) ) {
+				$functionType = $inputSingle['htmlElement'];
+			}
 		}
 		return "render" . ucfirst( $functionType );
 	}
@@ -360,7 +363,7 @@ class Json {
 		unset( $args['properties'] );
 		unset( $args['required'] );
 		$args = $this->removeSchemeSpecificOptions( $args );
-		return $this->renderElement( $content, $args, 'renderInstance' );
+		return $this->renderElement( "<div>".$content."</div>", $args, 'renderInstance' );
 	}
 
 	private function renderRadio( $name, $radios ) {
@@ -439,6 +442,9 @@ class Json {
 			foreach ( $properties as $propertyName => $property ) {
 				//echo "Working on $propertyName";
 				//Property name is "instance" properties = "type", "properties", "required"
+				if ( !isset( $property['type'] ) ) {
+					return "Error in schema. Missing type property in $propertyName";
+				}
 				if ( $property['type'] === 'object' ) {
 					//echo "\ngoing recursive\n";
 					$this->content .= "<h3>$propertyName</h3>";

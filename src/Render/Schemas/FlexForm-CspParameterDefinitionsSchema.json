@@ -3,11 +3,13 @@
   "title": "Render an edit CspParameterDefinitions json",
   "description": "Render an edit CspParameterDefinitions json",
   "type": "object",
-  "properties" : {
+  "properties": {
     "instance": {
       "htmlElement": "instance",
+      "default-content": "{{#slotdata:main|CspParameterDefinitions|CspParameterDefinitions}}",
       "name": "myInstance",
-      "template": "test",
+      "format": "json",
+      "template": "CspParameterDefinitions",
       "type": "object",
       "properties": {
         "name": {
@@ -71,5 +73,4 @@
       ]
     }
   }
-
 }
