@@ -79,6 +79,11 @@ class Config {
 		return self::$filterInputTags;
 	}
 
+	private static function setDefaultLoadScriptPath(){
+		global $IP;
+		self::$FlexFormConfig['loadScriptPath'] = $IP . '/extensions/FlexForm/Modules/customJS/loadScripts/';
+	}
+
 	/**
 	 * Add additional checks and default to loaded config
 	 */
@@ -94,6 +99,18 @@ class Config {
 		}
 		if ( self::getConfigVariable( 'filter_input_tags' ) !== null ) {
 			self::$filterInputTags = self::getConfigVariable( 'filter_input_tags' );
+		}
+		// get a possible localsetting for loadscriptpath
+		$loadScriptPath = self::getConfigVariable( 'loadScriptPath' );
+		// set the loadscriptpath setting to default
+		self::setDefaultLoadScriptPath();
+		// if a localsetting was set, check if the path exist
+		if ( $loadScriptPath !== null ) {
+			$loadScriptPath = rtrim( $loadScriptPath, '/' ) . '/';
+			if ( file_exists( self::getConfigVariable( 'loadScriptPath' ) ) ) {
+				// if it exists, set the loadscriptpath setting
+				self::$FlexFormConfig['loadScriptPath'] = $loadScriptPath;
+			}
 		}
 		$canonical = self::getConfigVariable( 'wgCanonicalServer' );
 		if ( is_null( $filePathFromConfig ) || $filePathFromConfig === '' ) {
