@@ -331,14 +331,15 @@ class TagHooks {
 
 			// Is this script already loaded?
 			if ( !Core::isLoaded( $scriptToLoad ) ) {
+				$loadScriptPath = Config::getConfigVariable( 'loadScriptPath' );
 				if ( !file_exists(
-					$IP . '/extensions/FlexForm/Modules/customJS/loadScripts/' . $scriptToLoad . '.js'
+					$loadScriptPath . $scriptToLoad . '.js'
 				) ) {
 					return [ 'The script specified in "loadscript" could not be loaded because it does not exist.' ];
 				}
 
 				$scriptContent = @file_get_contents(
-					$IP . '/extensions/FlexForm/Modules/customJS/loadScripts/' . $scriptToLoad . '.js'
+					$loadScriptPath . $scriptToLoad . '.js'
 				);
 
 				if ( $scriptContent === false ) {
