@@ -45,6 +45,7 @@ $wgFlexFormConfig['hideEdit']                                      = true; // De
 $wgFlexFormConfig['create-seo-titles']                             = true; // Defaults to false. Will filter any user input on creating a new page to be SEO friendly.
 $wgFlexFormConfig['auto_save_btn_on']                              = "Autosave On";
 $wgFlexFormConfig['auto_save_btn_off']                             = "Autosave Off";
+$wgFlexFormConfig['loadScriptPath']                                = ""; // Defaults to what is described by the loadscript form argument. When you change it do a different folder, then loadScript argument will be looking in this folder for its JavaScript file to load with the Form.
 $wgFlexFormConfig['use_smtp']                                      = false; // when sending email, should we use separate smtp ?
 $wgFlexFormConfig['smtp_host']                                     = "";
 $wgFlexFormConfig['smtp_authentication']                           = true;
