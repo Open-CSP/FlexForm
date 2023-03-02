@@ -1,5 +1,9 @@
 let idUnifier = 0
-
+if ( typeof ff_separator !== 'undefined' ) {
+	const ffSeparator = ff_separator;
+} else {
+	const ffSeparator = ',';
+}
 /**
  *
  * @param selector {object}
@@ -151,8 +155,8 @@ const WsInstance = function (selector, options) {
 
 
 			$(clone).find('select[name*="' + names[i] + '"]').each(function (index, select) {
-				if (values[i].indexOf(',') !== -1) {
-					let multipleSelect2Values = values[i].split(',')
+				if (values[i].indexOf(window.ffSeparator) !== -1) {
+					let multipleSelect2Values = values[i].split(window.ffSeparator)
 					let optionList = select.children
 
 					// check if token field
@@ -528,7 +532,7 @@ const WsInstance = function (selector, options) {
 
 		$.each(obj, function (k, v) {
 			if (typeof v === 'array') {
-				returnStr += `|${k}=${v.join(',')}\n`
+				returnStr += `|${k}=${v.join(window.ffSeparator)}\n`
 			} else {
 				returnStr += `|${k}=${v}\n`
 			}

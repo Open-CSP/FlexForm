@@ -61,7 +61,7 @@ class FilesCore {
 									$e->getMessage(),
 									0
 								);
-							} catch ( \MWContentSerializationException|\MWException $e ) {
+							} catch ( \MWContentSerializationException | \MWException $e ) {
 							}
 						}
 						break;
@@ -105,12 +105,12 @@ class FilesCore {
 	/**
 	 * Check if it is a single file and check if error check is set
 	 *
-	 * @param $file
+	 * @param array $file
 	 *
 	 * @return bool|string
 	 */
-	public function checkFileUploadForError( $file ) {
-		if ( ! isset( $file['error'] ) || is_array( $file['error'] ) ) {
+	public function checkFileUploadForError( array $file ) {
+		if ( !isset( $file['error'] ) || is_array( $file['error'] ) ) {
 			return "No file found or we received multiple files.";
 		} else {
 			return false;
@@ -172,9 +172,9 @@ class FilesCore {
 	 * @param string $target_dir [description]
 	 * @param string $target_name [name of the target file]
 	 * @param string $image [path to image]
-	 * @param integer $image_quality [0-100]
+	 * @param int $image_quality [0-100]
 	 *
-	 * @return string|bool                 [return path of new file or false if nothing can be worked out]
+	 * @return string|bool return path of new file or false if nothing can be worked out]
 	 */
 	public function convert_image(
 		string $convert_type,

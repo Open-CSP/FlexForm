@@ -379,11 +379,11 @@ class Edit {
 					if ( is_array( $_POST[$ff] ) ) {
 						$data[$pid][$t]['value'] = "";
 						foreach ( $_POST[$ff] as $multiple ) {
-							$data[$pid][$t]['value'] .= $multiple . ',';
+							$data[$pid][$t]['value'] .= $multiple . $fields['separator'];
 						}
 						$data[$pid][$t]['value'] = rtrim(
 							$data[$pid][$t]['value'],
-							','
+							$fields['separator']
 						);
 					} else { // it is not an array.
 						if ( Config::isDebug() ) {

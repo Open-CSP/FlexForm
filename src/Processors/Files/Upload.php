@@ -140,7 +140,7 @@ class Upload {
 		} else {
 			if ( strtolower( $fileAction ) !== 'upload' && strtolower( $fileAction ) !== 'convertfromdocx' ) {
 				throw new FlexFormException(
-					'Unkown upload action',
+					'Unknown upload action',
 					0
 				);
 			}

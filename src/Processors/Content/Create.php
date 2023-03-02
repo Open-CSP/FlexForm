@@ -548,7 +548,7 @@ class Create {
 					$json[$kField]['ffID'] = ContentCore::createRandom();
 				}
 				foreach ( $v as $multiple ) {
-					$this->content .= wsSecurity::cleanBraces( $multiple ) . ',';
+					$this->content .= wsSecurity::cleanBraces( $multiple ) . $fields['separator'];
 					if ( contentcore::isInstance( $kField ) === true ) {
 						$json[ $kField ][] = json_decode( $multiple, true );
 					} else {
@@ -557,7 +557,7 @@ class Create {
 				}
 				$this->content = rtrim(
 									 $this->content,
-									 ','
+									 $fields['separator']
 								 ) . PHP_EOL;
 			} else {
 				if ( !Definitions::isFlexFormSystemField( $k ) && $v != "" ) {

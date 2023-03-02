@@ -940,6 +940,8 @@ class TagHooks {
 				} else {
 					$showOnSelect = null;
 				}
+				$separator = $this->getSeparator( $args );
+				$sepField = $this->createSeparatorField( $separator );
 
 				// Check if a 'for' option is set, to determine whether the field should be rendered as 'selected'
 				if ( isset( $args['for'] ) ) {
@@ -947,7 +949,7 @@ class TagHooks {
 
 					$selectedValues = $_GET[$selectedParameterName] ?? '';
 					$selectedValues = explode(
-						',',
+						$separator,
 						$selectedValues
 					);
 					$selectedValues = array_map(
@@ -994,6 +996,7 @@ class TagHooks {
 					$isSelected,
 					$additionalArguments
 				);
+				$ret = $ret . $sepField;
 
 				break;
 			case 'submit':
@@ -1661,13 +1664,16 @@ class TagHooks {
 			$placeholder = null;
 		}
 
+		$separator = $this->getSeparator( $args );
+		$sepField = $this->createSeparatorField( $separator );
+
 		if ( isset( $args['selected'] ) ) {
 			$args['selected'] = $parser->recursiveTagParse(
 				$args['selected'],
 				$frame
 			);
 			$selectedValues = explode(
-				',',
+				$separator,
 				$args['selected']
 			);
 			$selectedValues = array_map(
@@ -1685,7 +1691,7 @@ class TagHooks {
 				$frame
 			);
 			$options = explode(
-				',',
+				$separator,
 				$args['options']
 			);
 			$options = array_map(
@@ -1729,7 +1735,7 @@ class TagHooks {
 		);
 
 		return [
-			$select,
+			$select . $sepField,
 			'markerType' => 'nowiki'
 		];
 	}
@@ -1888,13 +1894,17 @@ class TagHooks {
 			$allowSort = false;
 		}
 
+		$separator = $this->getSeparator( $args );
+		$sepField = $this->createSeparatorField( $separator );
+
+
 		if ( isset( $args['selected'] ) ) {
 			$args['selected'] = $parser->recursiveTagParse(
 				$args['selected'],
 				$frame
 			);
 			$selectedValues = explode(
-				',',
+				$separator,
 				$args['selected']
 			);
 			$selectedValues = array_map(
@@ -1912,7 +1922,7 @@ class TagHooks {
 				$frame
 			);
 			$options = explode(
-				',',
+				$separator,
 				$args['options']
 			);
 			$options = array_map(
@@ -1953,7 +1963,7 @@ class TagHooks {
 		self::addInlineJavaScriptAndCSS();
 
 		return [
-			$output,
+			$output . $sepField,
 			"markerType" => 'nowiki'
 		];
 	}
@@ -2352,6 +2362,34 @@ class TagHooks {
 
 			Core::cleanJavaScriptConfigVars();
 		}
+	}
+
+	/**
+	 * @param array $args
+	 *
+	 * @return string
+	 */
+	public function getSeparator( array $args ): string {
+		if ( isset( $args['separator'] ) ) {
+			return trim( $args['separator'] );
+		} else {
+			return ',';
+		}
+	}
+
+	/**
+	 * @param string $separator
+	 *
+	 * @return string
+	 */
+	public function createSeparatorField( string $separator ): string {
+		Core::includeJavaScriptConfig(
+			'ff_separator', $separator
+		);
+		return Core::createHiddenField(
+			'ff_separator',
+			$separator
+		);
 	}
 
 	/**
