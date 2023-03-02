@@ -105,10 +105,8 @@ class Definitions {
 			'template'     => General::getPostString( 'mwtemplate' ),
 			'writepage'    => General::getPostString( 'mwwrite' ),
 			'option'       => General::getPostString( 'mwoption' ),
-			'returnto'     => General::getPostString(
-				'mwreturn',
-				false
-			),
+			'returnto'     => General::getPostString( 'mwreturn',
+				false ),
 			'returnfalse'  => General::getPostString( 'mwreturnfalse' ),
 			'mwedit'       => General::getPostArray( 'mwedit' ),
 			'writepages'   => General::getPostArray( 'mwcreatemultiple' ),
@@ -119,7 +117,8 @@ class Definitions {
 			'slot'         => General::getPostString( 'mwslot' ),
 			'createuser'   => General::getPostString( 'mwcreateuser' ),
 			'nooverwrite'  => General::getPostString( 'mwnooverwrite' ),
-			'format'       => General::getPostString( 'mwformat' )
+			'format'       => General::getPostString( 'mwformat' ),
+			'separator'    => General::getPostString( 'ff_separator' )
 		];
 	}
 
@@ -170,7 +169,8 @@ class Definitions {
 			"mwnooverwrite",
 			"mwslot",
 			"mwformat",
-			"ff_upload_actions"
+			"ff_upload_actions",
+			'ff_separator'
 		];
 		if ( in_array(
 			strtolower( $field ),

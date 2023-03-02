@@ -121,9 +121,14 @@ class ContentCore {
 			self::$fields['overwrite'] = false;
 		}
 
+		if ( self::$fields['separator'] === false ) {
+			self::$fields['separator'] = ',';
+		}
+
 		if ( isset( $_POST['mwleadingzero'] ) ) {
 			self::$fields['leadByZero'] = true;
 		}
+
 
 		self::$fields['returnto'] = urldecode( self::$fields['returnto'] );
 
@@ -493,11 +498,11 @@ class ContentCore {
 				foreach ( $v as $multiple ) {
 					$cleanedBraces = wsSecurity::cleanBraces( $multiple );
 					$cleanedBracesArray[$uk][] = self::checkJsonValues( $cleanedBraces );
-					$ret .= $cleanedBraces . ',';
+					$ret .= $cleanedBraces . self::$fields['separator'];
 				}
 				$ret = rtrim(
 						   $ret,
-						   ','
+						   self::$fields['separator']
 					   ) . PHP_EOL;
 			} else {
 				if ( !Definitions::isFlexFormSystemField( $k ) && $v != "" ) {

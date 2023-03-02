@@ -24,6 +24,7 @@ class Get {
 	 * @return HandleResponse
 	 */
 	public function createGet( HandleResponse $responseHandler ): HandleResponse {
+		$fields = ContentCore::getFields();
 		$removeList = wsSecurity::getRemoveList();
 		$returnto = $responseHandler->getMwReturn();
 		if ( $returnto ) {
@@ -44,10 +45,10 @@ class Get {
 					if ( !Definitions::isFlexFormSystemField( $k ) ) {
 						$ret .= $delimiter . General::makeSpaceFromUnderscore( $k ) . "=";
 						foreach ( $v as $multiple ) {
-							$ret .= wsSecurity::cleanHTML( wsSecurity::cleanBraces( $multiple ) ) . ',';
+							$ret .= wsSecurity::cleanHTML( wsSecurity::cleanBraces( $multiple ) ) . $fields['separator'];
 						}
 						$ret = rtrim( $ret,
-									  ',' );
+							$fields['separator'] );
 					}
 				} else {
 					$resultDelete = in_array( $k, $removeList );
