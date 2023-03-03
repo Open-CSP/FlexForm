@@ -564,6 +564,7 @@ class ContentCore {
 	 * @return string
 	 */
 	public static function checkCapitalTitle( string $title ): string {
+		return $title; // TODO: Check why we do this!
 		$config = MediaWikiServices::getInstance()->getMainConfig();
 		if ( $config->has( 'CapitalLinks' ) ) {
 			if ( $config->get( 'CapitalLinks' ) === true ) {
