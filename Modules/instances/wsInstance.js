@@ -101,20 +101,17 @@ const WsInstance = function (selector, options) {
 			if ( !textarea_content ) return;
 
 			let textarea_json_array = JSON.parse( textarea_content );
-			$.each( textarea_json_array, function ( i, template ) {
-				Object.values( template ).forEach( function ( json ) {
-					$.each( json, ( name, value ) => {
-						name_array.push( name );
-						value_array.push( value );
-					} );
-
-					handlePredefinedData( name_array, value_array );
-					name_array = [];
-					value_array = [];
+			Object.values( textarea_json_array ).forEach( function ( json ) {
+				$.each( json, ( name, value ) => {
+					name_array.push( name );
+					value_array.push( value );
 				} );
 
-
+				handlePredefinedData( name_array, value_array );
+				name_array = [];
+				value_array = [];
 			} );
+
 		}
 
 		// check in which format the data is handed
@@ -443,7 +440,11 @@ const WsInstance = function (selector, options) {
 						case 'hidden':
 							return
 						default:
-							valuesObj[name] = input.value
+							if ( $(input).is('select') && input.multiple ) {
+								valuesObj[name] = $(input).val().join( window.ffSeparator )
+							} else {
+								valuesObj[name] = input.value
+							}
 							break
 					}
 					// remove name attr otherwise it will be send along with wsform
@@ -468,7 +469,6 @@ const WsInstance = function (selector, options) {
 			} else {
 				_.saveField.val(saveString)
 			}
-
 		}
 
 

@@ -20,6 +20,11 @@ class Core {
 	public static $showOnSelectSet = false;
 
 	/**
+	 * @var string
+	 */
+	public static $separator = ",";
+
+	/**
 	 * Globally set as a variable to check if the posting add a reCaptcha v3 and to disable ajax submit
 	 */
 	public static $reCaptcha = false;
@@ -68,8 +73,20 @@ class Core {
 		return \SpecialPage::getTitleFor( 'FlexForm' )->getFullUrlForRedirect();
 	}
 
+	/**
+	 * @return void
+	 */
 	public static function setShowOnSelectActive() {
 		self::$showOnSelectSet = true;
+	}
+
+	/**
+	 * @param string $sep
+	 *
+	 * @return void
+	 */
+	public static function setSeparator( string $sep ) {
+		self::$separator = $sep;
 	}
 
 	/**

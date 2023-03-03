@@ -23,7 +23,8 @@ class PlainFormRenderer implements FormRenderer {
 		?string $autosaveType,
 		?string $additionalClass,
 		bool $showOnSelect,
-		array $additionalArgs
+		array $additionalArgs,
+		string $separator
 	) : string {
 		$javascript     = '';
 		$formAttributes = array_merge(
@@ -105,6 +106,7 @@ class PlainFormRenderer implements FormRenderer {
 				''
 			);
 
+		$formContent .= $separator;
 		if ( Core::isShowOnSelectActive() ) {
 			$formContent .= Core::createHiddenField(
 				'showonselect',
