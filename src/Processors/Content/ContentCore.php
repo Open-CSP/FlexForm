@@ -13,6 +13,7 @@ use FlexForm\Processors\Definitions;
 use FlexForm\Processors\Utilities\General;
 use FlexForm\Processors\Files\FilesCore;
 use FlexForm\FlexFormException;
+use Title;
 use User;
 
 /**
@@ -564,13 +565,28 @@ class ContentCore {
 	 * @return string
 	 */
 	public static function checkCapitalTitle( string $title ): string {
-		return $title; // TODO: Check why we do this!
+		$titleObject = Title::newFromText( $title );
+		if ( $titleObject === null ) {
+			return $title;
+		}
+		$ns = $titleObject->getNamespace();
 		$config = MediaWikiServices::getInstance()->getMainConfig();
 		if ( $config->has( 'CapitalLinks' ) ) {
-			if ( $config->get( 'CapitalLinks' ) === true ) {
-				return ucfirst( $title );
-			}
+			$capLinks = $config->get( 'CapitalLinks' );
 		} else {
+			$capLinks = true;
+		}
+		if ( $config->has( 'CapitalLinkOverrides' ) ) {
+			$capLinkOverrides = $config->get( 'CapitalLinkOverrides' );
+		} else {
+			$capLinkOverrides = [];
+		}
+		if ( $capLinks === true ) {
+			if ( isset( $capLinkOverrides[$ns] ) ) {
+				if ( $capLinkOverrides[$ns] === false ) {
+					return $title;
+				}
+			}
 			return ucfirst( $title );
 		}
 		return $title;
