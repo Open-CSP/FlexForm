@@ -391,7 +391,7 @@ class ContentCore {
 			$title,
 			'/'
 		);
-		$serverUrl = wfGetServerUrl( null ) . '/' . 'index.php';
+
 		if ( self::$fields['mwfollow'] !== false ) {
 			if ( self::$fields['mwfollow'] === 'true' ) {
 				if ( strpos(
@@ -401,7 +401,7 @@ class ContentCore {
 										$title,
 										'::id::'
 									) === false ) {
-					self::$fields['returnto'] = $serverUrl . '/' . $title;
+					self::$fields['returnto'] = wfExpandUrl($title);
 				}
 			} else {
 				if ( strpos(
