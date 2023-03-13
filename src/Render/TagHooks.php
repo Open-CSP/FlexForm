@@ -2420,6 +2420,7 @@ class TagHooks {
 		$force              = false;
 		$parseContent       = false;
 		$actionFields       = false;
+		$action				= '';
 		$template			= false;
 		$multiple			= 'files';
 		$canvasSourceId     = false;

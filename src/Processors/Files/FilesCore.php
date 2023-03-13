@@ -37,6 +37,7 @@ class FilesCore {
 
 		foreach ( $fields['actions'] as $entry ) {
 			foreach ( $entry as $fileName => $fileDetails ) {
+				$fileName = General::makeUnderscoreFromSpace( $fileName );
 				switch ( General::getJsonValue(
 					'type',
 					$fileDetails
