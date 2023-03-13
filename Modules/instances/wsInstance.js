@@ -437,8 +437,6 @@ const WsInstance = function (selector, options) {
 								valuesObj[name] = input.value
 							}
 							break
-						case 'hidden':
-							return
 						default:
 							if ( $(input).is('select') && input.multiple ) {
 								valuesObj[name] = $(input).val().join( window.ffSeparator )
