@@ -416,7 +416,7 @@ class Upload {
 					$fCount = 1;
 					foreach ( $possibleImagesInDocument as $singleImage ) {
 						// find [filename] and replace
-						$newFname = $titleName . '-' . basename( $singleImage );
+						$newFname = $fileName . '-' . basename( $singleImage );
 						if ( Config::isDebug() ) {
 							Debug::addToDebug(
 								'Preparing to upload image file from document: ' . $fCount,
