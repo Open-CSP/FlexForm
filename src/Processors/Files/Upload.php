@@ -413,9 +413,22 @@ class Upload {
 				$newContent               = $convert->convertFile();
 				$possibleImagesInDocument = $convert->getPossibleImagesFromConversion();
 				if ( $possibleImagesInDocument !== false ) {
+					$fCount = 1;
 					foreach ( $possibleImagesInDocument as $singleImage ) {
 						// find [filename] and replace
 						$newFname = $titleName . '-' . basename( $singleImage );
+						if ( Config::isDebug() ) {
+							Debug::addToDebug(
+								'Preparing to upload image file from document: ' . $fCount,
+								[
+									'$newFname' => $newFname,
+									'$singleImage'      => $singleImage,
+									'stored file'        => $storedFile,
+									'details'            => $details,
+									'comment'            => $imageComment
+								]
+							);
+						}
 						if ( !Config::isDebug() ) {
 							$resultFileUpload = $this->uploadFileToWiki(
 								$singleImage,
@@ -440,6 +453,7 @@ class Upload {
 							$newContent
 						);
 						unlink( $singleImage );
+						$fCount++;
 					}
 				}
 				// Now create the page in the wiki

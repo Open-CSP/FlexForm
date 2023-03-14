@@ -185,7 +185,8 @@ class Convert {
 				if ( Config::isDebug() ) {
 					Debug::addToDebug( 'Found Pandoc Media in extra media map ' . time(),
 									   [
-										   'path' => $this->getPandocMediaPath()
+										   'path' => $this->getPandocMediaPath(),
+										   'foundfiles' => $foundFiles
 									   ] );
 				}
 			}
