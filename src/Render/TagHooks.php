@@ -1614,7 +1614,7 @@ class TagHooks {
 		$inputArguments = [];
 		foreach ( $args as $name => $value ) {
 			if ( Validate::validParameters( $name ) ) {
-				$inputArguments[$name] = $value;
+				$inputArguments[$name] = self::tagParseIfNeeded( $value, $parser, $frame );
 			}
 		}
 
