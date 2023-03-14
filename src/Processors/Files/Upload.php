@@ -144,7 +144,7 @@ class Upload {
 					0
 				);
 			}
-			if ( strpos( strtolower( $fileAction ), 'convertfrom:' ) ) {
+			if ( strpos( strtolower( $fileAction ), 'convertfrom:' ) !== false ) {
 				$fileAction = trim( str_replace( 'convertfrom:', '', strtolower( $fileAction ) ) );
 			}
 		}
@@ -205,6 +205,7 @@ class Upload {
 				Debug::addToDebug(
 					'File #' . $i,
 					[
+						"fileaction"  => $fileAction,
 						'tmp_name'    => $fileToProcess['tmp_name'][$i],
 						'name'        => $fileToProcess['name'][$i],
 						'is_uploaded' => $uploaded,
