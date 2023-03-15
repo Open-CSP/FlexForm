@@ -1610,11 +1610,11 @@ class TagHooks {
 			// A label MUST have a for according to the HTML specification
 			$for = '';
 		}
-
+		$for = self::tagParseIfNeeded( $for, $parser, $frame );
 		$inputArguments = [];
 		foreach ( $args as $name => $value ) {
 			if ( Validate::validParameters( $name ) ) {
-				$inputArguments[$name] = $value;
+				$inputArguments[$name] = self::tagParseIfNeeded( $value, $parser, $frame );
 			}
 		}
 

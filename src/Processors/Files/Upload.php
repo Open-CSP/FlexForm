@@ -146,7 +146,7 @@ class Upload {
 					0
 				);
 			}
-			if ( strpos( strtolower( $fileAction ), 'convertfrom:' ) ) {
+			if ( strpos( strtolower( $fileAction ), 'convertfrom:' ) !== false ) {
 				$fileAction = trim( str_replace( 'convertfrom:', '', strtolower( $fileAction ) ) );
 			}
 		}
@@ -207,6 +207,7 @@ class Upload {
 				Debug::addToDebug(
 					'File #' . $i,
 					[
+						"fileaction"  => $fileAction,
 						'tmp_name'    => $fileToProcess['tmp_name'][$i],
 						'name'        => $fileToProcess['name'][$i],
 						'is_uploaded' => $uploaded,
@@ -414,9 +415,22 @@ class Upload {
 				$newContent               = $convert->convertFile();
 				$possibleImagesInDocument = $convert->getPossibleImagesFromConversion();
 				if ( $possibleImagesInDocument !== false ) {
+					$fCount = 1;
 					foreach ( $possibleImagesInDocument as $singleImage ) {
 						// find [filename] and replace
-						$newFname = $titleName . '-' . basename( $singleImage );
+						$newFname = $fileName . '-' . basename( $singleImage );
+						if ( Config::isDebug() ) {
+							Debug::addToDebug(
+								'Preparing to upload image file from document: ' . $fCount,
+								[
+									'$newFname' => $newFname,
+									'$singleImage'      => $singleImage,
+									'stored file'        => $storedFile,
+									'details'            => $details,
+									'comment'            => $imageComment
+								]
+							);
+						}
 						if ( !Config::isDebug() ) {
 							$resultFileUpload = $this->uploadFileToWiki(
 								$singleImage,
@@ -441,6 +455,7 @@ class Upload {
 							$newContent
 						);
 						unlink( $singleImage );
+						$fCount++;
 					}
 				}
 				// Now create the page in the wiki
