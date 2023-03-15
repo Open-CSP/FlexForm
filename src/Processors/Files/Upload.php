@@ -90,7 +90,9 @@ class Upload {
 		 * 'force'        => General::getPostArray( 'wsform_image_force' ),
 		 * 'convertFrom'        => General::getPostArray( 'wsform_action' ),
 		 * ];
-		 */ global $wgUser;
+		 */
+
+		global $wgUser;
 
 		$fileName    = $this->getFileName();
 		$fileDetails = $this->getFileDetails();

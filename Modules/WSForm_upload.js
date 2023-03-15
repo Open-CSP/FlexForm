@@ -60,7 +60,7 @@ function wsfiles( id, verbose_id, error_id, hide ) {
 			if ( allowMultiple === false && i >= 1 || reset === true ) {
 				continue;
 			}
-			if ( validFileType( idfile, current_files[i] ) ) {
+
 				//console.log( current_files[i] )
 				if ( isImage( current_files[i].type ) ) {
 					del = ' <i class="fa fa-times wsform-reset-button" onClick="resetFile(\'' + id + '\', \'' + i + '\', \'' + verbose_id + '\' )"></i> '
@@ -83,10 +83,7 @@ function wsfiles( id, verbose_id, error_id, hide ) {
 					output += '<li>File name ' + current_files[i].name + '.</li>'
 				}
 
-			} else {
-				err += '<li>File name ' + current_files[i].name + ': Not a valid file type. Update your selection.</li>'
-				$( '#' + id ).val( '' )
-			}
+
 		}
 		output = del + output;
 		output += '</ol>'
@@ -184,5 +181,7 @@ function getFileType( ffile ) {
 		case 'png' :
 			return 'image/png'
 			break
+		case 'pdf' :
+			return 'application/pdf'
 	}
 }
