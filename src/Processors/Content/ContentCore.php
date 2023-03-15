@@ -393,11 +393,11 @@ class ContentCore {
 	 * @return void
 	 */
 	public static function checkFollowPage( $title ) : void {
-		$title     = ltrim(
+		$title = '/' . ltrim(
 			$title,
 			'/'
 		);
-
+		//$serverUrl = wfGetServerUrl( null ) . '/' . 'index.php';
 		if ( self::$fields['mwfollow'] !== false ) {
 			if ( self::$fields['mwfollow'] === 'true' ) {
 				if ( strpos(
@@ -407,7 +407,7 @@ class ContentCore {
 										$title,
 										'::id::'
 									) === false ) {
-					self::$fields['returnto'] = wfExpandUrl($title);
+					self::$fields['returnto'] = wfExpandUrl( $title, PROTO_RELATIVE );
 				}
 			} else {
 				if ( strpos(
