@@ -119,7 +119,13 @@ class Create {
 		}
 
 		if ( $fields['option'] == 'add_random' && $fields['writepage'] !== false ) {
+
 			$this->title = $fields['writepage'] . ContentCore::createRandom();
+			if ( Config::isDebug() ) {
+				Debug::addToDebug( 'Add random to title ' . time(),
+					['title' => $fields['writepage'],
+					 'new Title' => $this->title ] );
+			}
 		}
 
 		if ( !$fields['writepage'] ) {
@@ -408,6 +414,11 @@ class Create {
 
 			if ( strtolower( $this->pageData['option'] ) === 'add_random' && $this->pageData['title'] !== false ) {
 				$this->pageData['title'] = $this->pageData['title'] . ContentCore::createRandom();
+				if ( Config::isDebug() ) {
+					Debug::addToDebug( 'Add random to title ' . time(),
+						['title' => $this->pageData['title'],
+						 'new Title' => $this->pageData['title'] ] );
+				}
 			}
 
 			ContentCore::checkFollowPage( $this->pageData['title'] );

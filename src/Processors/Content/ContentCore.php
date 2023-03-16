@@ -146,6 +146,10 @@ class ContentCore {
 		self::checkInstances();
 	}
 
+	public function letMWCheckTitle( $title ) {
+
+	}
+
 	/**
 	 * @param HandleResponse $response_handler
 	 * @param string|bool $email

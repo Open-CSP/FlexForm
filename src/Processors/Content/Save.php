@@ -339,6 +339,12 @@ class Save {
 	 */
 	public function saveToWiki( string $title, array $contentArray, string $summary, bool $overWrite = true ) {
 		$user        = RequestContext::getMain()->getUser();
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'saveToWiki : ' . $title,
+				[]
+			);
+		}
 		$titleObject = Title::newFromText( $title );
 		if ( $titleObject === null ) {
 			throw new FlexFormException(
@@ -347,6 +353,12 @@ class Save {
 						   "Title is null" ),
 				0,
 				null
+			);
+		}
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'saveToWiki title from Title Object: ' . $titleObject->getFullText(),
+				[]
 			);
 		}
 		$editAllPagesConfig = Config::getConfigVariable( 'userscaneditallpages' );
