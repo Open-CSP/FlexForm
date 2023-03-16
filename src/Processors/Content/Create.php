@@ -17,6 +17,7 @@ use FlexForm\Processors\Definitions;
 use FlexForm\Processors\Security\wsSecurity;
 use FlexForm\Processors\Utilities\General;
 use FlexForm\FlexFormException;
+use MWException;
 
 class Create {
 
@@ -26,10 +27,11 @@ class Create {
 	private $pagesToSave;
 	private $pageData;
 
+
 	/**
 	 * @return array
 	 * @throws FlexFormException
-	 * @throws \MWException
+	 * @throws MWException
 	 */
 	public function writePage(): array {
 		$fields = ContentCore::getFields();
@@ -56,6 +58,15 @@ class Create {
 
 		$this->title = $fields['writepage'];
 
+		try {
+			$this->title = ContentCore::letMWCheckTitle( $this->title );
+		} catch ( FlexFormException $e ) {
+			throw new FlexFormException(
+				$e->getMessage(),
+				0,
+				$e
+			);
+		}
 
 		if ( strtolower( $fields['option'] ) == 'next_available' ) {
 			// get highest number
@@ -309,6 +320,17 @@ class Create {
 					$this->content
 				);
 			}
+
+			try {
+				$this->pageData['title'] = ContentCore::letMWCheckTitle( $this->pageData['title'] );
+			} catch ( FlexFormException $e ) {
+				throw new FlexFormException(
+					$e->getMessage(),
+					0,
+					$e
+				);
+			}
+
 			$this->addPostFieldsToContent();
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(

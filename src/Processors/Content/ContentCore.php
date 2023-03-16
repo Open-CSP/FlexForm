@@ -146,8 +146,24 @@ class ContentCore {
 		self::checkInstances();
 	}
 
-	public function letMWCheckTitle( $title ) {
-
+	/**
+	 * @param string $title
+	 *
+	 * @return string|null
+	 * @throws FlexFormException
+	 */
+	public static function letMWCheckTitle( string $title ) {
+		$titleObject = Title::newFromText( $title );
+		if ( $titleObject === null ) {
+			throw new FlexFormException(
+				wfMessage( 'flexform-error-could-not-create-page',
+						   $title,
+						   "Title is null" ),
+				0,
+				null
+			);
+		}
+		return $titleObject->getFullText();
 	}
 
 	/**
@@ -216,6 +232,7 @@ class ContentCore {
 				$result['content']
 			);
 			$save              = new Save();
+
 			try {
 				$save->saveToWiki(
 					$result['title'],
