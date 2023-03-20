@@ -321,14 +321,18 @@ class Create {
 				);
 			}
 
-			try {
-				$this->pageData['title'] = ContentCore::letMWCheckTitle( $this->pageData['title'] );
-			} catch ( FlexFormException $e ) {
-				throw new FlexFormException(
-					$e->getMessage(),
+			if ( substr( $this->pageData['title'],
 					0,
-					$e
-				);
+					6 ) !== '--id--' && substr( $this->pageData['title'],
+					0,
+					6 ) !== '::id::' ) {
+				try {
+					$this->pageData['title'] = ContentCore::letMWCheckTitle( $this->pageData['title'] );
+				} catch ( FlexFormException $e ) {
+					throw new FlexFormException( $e->getMessage(),
+						0,
+						$e );
+				}
 			}
 
 			$this->addPostFieldsToContent();
