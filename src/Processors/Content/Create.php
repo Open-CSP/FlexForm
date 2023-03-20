@@ -321,19 +321,7 @@ class Create {
 				);
 			}
 
-			if ( substr( $this->pageData['title'],
-					0,
-					6 ) !== '--id--' && substr( $this->pageData['title'],
-					0,
-					6 ) !== '::id::' ) {
-				try {
-					$this->pageData['title'] = ContentCore::letMWCheckTitle( $this->pageData['title'] );
-				} catch ( FlexFormException $e ) {
-					throw new FlexFormException( $e->getMessage(),
-						0,
-						$e );
-				}
-			}
+
 
 			$this->addPostFieldsToContent();
 			if ( Config::isDebug() ) {
@@ -368,6 +356,21 @@ class Create {
 			}
 
 			$this->pageData['title'] = ContentCore::checkCapitalTitle( $this->pageData['title'] );
+
+			if ( substr( $this->pageData['title'],
+						 0,
+						 6 ) !== '--id--' && substr( $this->pageData['title'],
+													 0,
+													 6 ) !== '::id::' ) {
+				try {
+					$this->pageData['title'] = ContentCore::letMWCheckTitle( $this->pageData['title'] );
+				} catch ( FlexFormException $e ) {
+					throw new FlexFormException( $e->getMessage(),
+												 0,
+												 $e );
+				}
+			}
+
 			if ( $this->pageData['option'] == 'next_available' ) {
 
 				$hnr = ContentCore::getNextAvailable( $this->pageData['title'] );
