@@ -219,7 +219,6 @@ class TagHooks {
 			$mwReturn = $parser->getTitle()->getLinkURL();
 		}
 
-
 		if ( isset( $args['formtarget'] ) ) {
 			$formTarget = $args['formtarget'];
 			unset( $args['formtarget'] );
