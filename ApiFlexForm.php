@@ -355,47 +355,74 @@ class ApiFlexForm extends ApiBase {
 	}
 
 	private function getNextAvailable( $nameStartsWith ) {
-		[$ns, $name] = $this->splitNamespace($nameStartsWith);
-
-		// Add an 'x' to prevent makeTitleSafe from erroring out.
-		// See also ApiQueryBase::titlePartToKey() on MW1.35
-		$t = Title::makeTitleSafe($ns, $name.'x');
-		if (!$t || $t->hasFragment() || $ns != $t->getNamespace() || $t->isExternal()) {
-			return $this->createResult(
-				'error',
-				wfMessage( 'flexform-api-error-bad-title' )
+		$number      = array();
+		$continue    = true;
+		$appContinue = false;
+		$cnt         = 0;
+		while ( $continue ) {
+			$result      = $this->getDataForWikiList(
+				$nameStartsWith,
+				$appContinue,
+				false
 			);
-		}
-		// Remove 'x' we added earlier.
-		$t = substr($t->getDBkey(), 0, -1);
+			$appContinue = $this->getApiContinue( $result );
 
-		$db = $this->getDB();
-		$res = $db->newSelectQueryBuilder(
-			)->select('page_title')->from('page')->where(
-				'page_title' . $db->buildLike($t, $db->anyString())
-			)->where(['page_namespace' => $ns])->orderBy(
-				['length(page_title)', 'page_title'], 'DESC'
-			)->fetchFieldValues();
-
-		$rtr = 1;
-		foreach ($res as $r) {
-			$r = substr($r, strlen($t));
-			if (empty($r)) {
-				// Because of sort on title length, we are done now.
-				break;
+			if ( ! isset( $result['query'] ) ) {
+				return $this->createResult(
+					'error',
+					wfMessage( 'flexform-api-error-noquery-response' )->text()
+				);
 			}
-			if (ctype_digit($r)) {
-				$r = intval($r);
-				if ($r >= $rtr) {
-					$rtr = $r+1;
+
+			$pages = $result['query']['allpages'];
+			if ( is_null( $pages ) || $pages === false ) {
+				return $this->createResult(
+					'error',
+					wfMessage( 'flexform-api-error-allpages' )->text()
+				);
+			}
+			if ( isset( $pages['_element'] ) ) {
+				unset( $pages['_element'] );
+			}
+
+			$thisCnt = count( $pages );
+
+			$cnt = $cnt + $thisCnt;
+			if ( $cnt < 1 && $appContinue === false ) {
+				return $this->createResult(
+					'ok',
+					"1"
+				);
+			}
+			if ( $thisCnt > 0 ) {
+				foreach ( $pages as $page ) {
+					$tempTitle = str_replace(
+						ltrim(
+							$nameStartsWith,
+							':'
+						),
+						'',
+						$page['title']
+					);
+					if ( is_numeric( $tempTitle ) ) {
+						$number[] = $tempTitle;
+					}
 				}
-				// Because of sort on title value, we are done now.
-				break;
+			}
+			if ( $appContinue === false ) {
+				$continue = false;
 			}
 		}
+		rsort( $number );
+		if ( isset( $number[0] ) ) {
+			$nr = intval( $number[0] );
+		} else {
+			$nr = 0;
+		}
+
 		return $this->createResult(
 			'ok',
-			$rtr
+			$nr + 1
 		);
 	}
 
@@ -518,29 +545,6 @@ class ApiFlexForm extends ApiBase {
 	}
 
 
-	private function splitNamespace(string $title): array {
-		if ( strpos(
-			$title,
-			':'
-		) !== false ) {
-                        $split = explode(
-                                ':',
-                                $title
-                        );
-
-                        $title = $split[1];
-                        $nameSpace      = $split[0];
-                        if ( empty( $nameSpace ) ) {
-                                $id = 0;
-                        } else {
-                                $id = $this->getIdForNameSpace( $nameSpace );
-                        }
-                } else {
-                        $id = 0;
-		}
-		return [$id, $title];
-	}
-
 	/**
 	 * Get a list of pages that start with a certain name and take multiple results into account
 	 *
@@ -551,7 +555,25 @@ class ApiFlexForm extends ApiBase {
 	 * @return mixed API results
 	 */
 	private function getDataForWikiList( $nameStartsWith, $appContinue, $range = false ) {
-		[$id, $nameStartsWith] = $this->splitNamespace($nameStartsWith);
+		if ( strpos(
+				 $nameStartsWith,
+				 ':'
+			 ) !== false ) {
+			$split = explode(
+				':',
+				$nameStartsWith
+			);
+
+			$nameStartsWith = $split[1];
+			$nameSpace      = $split[0];
+			if ( empty( $nameSpace ) ) {
+				$id = 0;
+			} else {
+				$id = $this->getIdForNameSpace( $nameSpace );
+			}
+		} else {
+			$id = 0;
+		}
 
 		if ( $id === false ) {
 			return false;
@@ -626,6 +648,11 @@ class ApiFlexForm extends ApiBase {
 			),
 			false // not write.
 		);
+		if ( !MediaWikiServices::getInstance()->getPermissionManager()->userCan( "read", $api->getUser() ) ) {
+			$newContext = new DerivativeContext( $api->getContext() );
+			$newContext->setUser( User::newSystemUser( 'FlexForm', [ 'steal' => true ] ) );
+			$api->setContext( $newContext );
+		}
 		$api->execute();
 		$data = $api->getResult()->getResultData();
 
