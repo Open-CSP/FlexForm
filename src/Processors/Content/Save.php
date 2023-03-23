@@ -365,7 +365,7 @@ class Save {
 		$canEdit = MediaWikiServices::getInstance()->getPermissionManager()->userCan( 'edit', $user, $titleObject );
 		$canCreate = MediaWikiServices::getInstance()->getPermissionManager()->userCan( 'create', $user, $titleObject );
 		if ( $editAllPagesConfig === false && ( $canCreate === false || $canEdit === false ) ) {
-			throw new FlexFormException( wfMessage( 'flexform-user-rights-not', $title )->text() );
+			throw new FlexFormException( wfMessage( 'flexform-user-rights-not', $titleObject->getFullText() )->text() );
 		}
 		if ( !$titleObject || $titleObject->hasFragment() ) {
 			throw new FlexFormException( wfMessage( 'flexform-savetowiki-title-invalid', $title )->text() );

@@ -138,7 +138,7 @@
 	"flexform-secure-not" : "not a secure form",
 	"flexform-secure-fields-incomplete" : "Secure fields not complete",
 	"flexform-rights-not" : "You do not have the rights to modify page ($1) containing a FlexForm.",
-	"flexform-user-rights-not" : "You do not have the rights to modify or create this page: ",
+	"flexform-user-rights-not" : "You do not have the rights to modify or create this page: $1",
 	"flexform-unvalidated-form" : "FORM CANNOT BE RENDERED, NOT VALIDATED",
 
 	"flexform-unsupported-database" : "FlexForm does not support $1",
