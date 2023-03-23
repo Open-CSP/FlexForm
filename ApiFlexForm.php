@@ -3,6 +3,7 @@
 use FlexForm\Core\Protect;
 use FlexForm\FlexFormException;
 use Wikimedia\ParamValidator\ParamValidator;
+use MediaWiki\MediaWikiServices;
 
 class ApiFlexForm extends ApiBase {
 
@@ -648,7 +649,7 @@ class ApiFlexForm extends ApiBase {
 			),
 			false // not write.
 		);
-		if ( !MediaWikiServices::getInstance()->getPermissionManager()->userCan( "read", $api->getUser() ) ) {
+		if ( !MediaWikiServices::getInstance()->getPermissionManager()->userHasRight( $api->getUser(), 'read' ) ) {
 			$newContext = new DerivativeContext( $api->getContext() );
 			$newContext->setUser( User::newSystemUser( 'FlexForm', [ 'steal' => true ] ) );
 			$api->setContext( $newContext );

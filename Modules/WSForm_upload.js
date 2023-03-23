@@ -185,4 +185,5 @@ function getFileType( ffile ) {
 			return 'image/png'
 			break
 	}
+	return ffile
 }
