@@ -1044,6 +1044,9 @@ async function addScreenshotToForm( canvas, pform ) {
 	}
 
 function showWeAreWorking (form) {
+	if ( typeof window.ffDoNotDisableSubmit !== 'undefined' ) {
+		return;
+	}
 	var btn = $(form).find(':submit')
 	var spinner = $(form).find('.flex-form-spinner')
 	$(spinner).addClass('active')
@@ -1052,6 +1055,9 @@ function showWeAreWorking (form) {
 }
 
 function weAreDoneWorking (form) {
+	if ( typeof window.ffDoNotDisableSubmit !== 'undefined' ) {
+		return;
+	}
 	var btn = $(form).find(':submit')
 	var spinner = $(form).find('.flex-form-spinner')
 	$(spinner).removeClass('active')
