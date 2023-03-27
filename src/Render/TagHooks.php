@@ -359,6 +359,10 @@ class TagHooks {
 			}
 		}
 
+		if ( isset( $args['no_disable_on_submit'] ) ) {
+			Core::includeJavaScriptConfig( 'ffDoNotDisableSubmit', true );
+		}
+
 		if ( isset( $args['no_submit_on_return'] ) ) {
 			unset( $args['no_submit_on_return'] );
 			if ( isset( $args['class'] ) ) {
