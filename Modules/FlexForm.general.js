@@ -538,7 +538,7 @@ function wsform (btn, callback = 0, preCallback = 0, showId = 0) {
 	}
 	$(btn).addClass('disabled')
 
-	if (typeof window.wgInstancesArray === 'object') {
+	if ( typeof window.wgInstancesArray === 'object' ) {
 		$.each(window.wgInstancesArray, (i, instance) => {
 			instance.save()
 		})
