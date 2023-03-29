@@ -95,6 +95,12 @@ class FilesCore {
 										0
 									);
 								}
+								if ( Config::isDebug() ) {
+									Debug::addToDebug(
+										'New _POST',
+										$_POST
+									);
+								}
 							}
 						}
 						break;
@@ -193,7 +199,7 @@ class FilesCore {
 				  'target_name' => $target_name,
 				  'target_dir' => $target_dir,
 				  'convert_type' => $convert_type,
-					'img_name' => $img_name]
+					'img_name' => $img_name ]
 			);
 		}
 		//to png

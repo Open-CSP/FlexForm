@@ -94,6 +94,8 @@ class Upload {
 
 		global $wgUser;
 
+		$processedFiles = [];
+
 		$fileName    = $this->getFileName();
 		$fileDetails = $this->getFileDetails();
 
@@ -107,6 +109,7 @@ class Upload {
 				]
 			);
 		}
+
 		$fileToProcess = $_FILES[$fileName];
 		$target        = General::getJsonValue(
 			'wsform_file_target',
@@ -191,6 +194,7 @@ class Upload {
 						  Config::getConfigVariable( 'file_temp_path' ),
 						  '/'
 					  ) . '/';
+
 		for ( $i = 0; $i < $nrOfFiles; $i++ ) {
 			if ( Config::isDebug() ) {
 				if ( is_uploaded_file( $fileToProcess['tmp_name'][$i] ) ) {
@@ -261,6 +265,7 @@ class Upload {
 					]
 				);
 			}
+
 			$filesSupported = Definitions::getImageHandler();
 			$fileType       = exif_imagetype( $tmpName );
 			if ( $convert !== false && $filesCore->getFileExtension(
@@ -280,6 +285,12 @@ class Upload {
 					$tmpName,
 					100
 				);
+				if ( Config::isDebug() ) {
+					Debug::addToDebug(
+						'NewFile for File #' . $i,
+						[ 'newFile' => $newFile ]
+					);
+				}
 				if ( $newFile === false ) {
 					throw new FlexFormException(
 						wfMessage(
@@ -338,7 +349,7 @@ class Upload {
 				// find [filename] and replace
 				if ( Config::isDebug() ) {
 					Debug::addToDebug(
-						'details before parseTarget' . time(),
+						'details before parseTarget file #' . $i,
 						$details
 					);
 				}
@@ -349,7 +360,7 @@ class Upload {
 				);
 				if ( Config::isDebug() ) {
 					Debug::addToDebug(
-						'details after parseTarget' . time(),
+						'details after parseTarget for file #' . $i,
 						$details
 					);
 				}
@@ -359,7 +370,7 @@ class Upload {
 				);
 				if ( Config::isDebug() ) {
 					Debug::addToDebug(
-						'details after parseTitle' . time(),
+						'details after parseTitle file #' . $i,
 						$details
 					);
 				}
@@ -368,14 +379,14 @@ class Upload {
 			// find any other form fields and put them into the title
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
-					'Title before parsetitle' . time(),
+					'Title before parsetitle file #' . $i,
 					$titleName
 				);
 			}
 			$titleName = ContentCore::parseTitle( $titleName );
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
-					'Title after parsetitle' . time(),
+					'Title after parsetitle file #' . $i,
 					$titleName
 				);
 			}
@@ -395,7 +406,7 @@ class Upload {
 
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
-					'Preparing to upload file',
+					'Preparing to upload file #' . $i,
 					[
 						'original file name' => $filename,
 						'new file name'      => $titleName,
@@ -405,6 +416,10 @@ class Upload {
 					]
 				);
 			}
+
+			$processedFiles[$fileName]['upload-name'][] = $filename;
+			$processedFiles[$fileName]['upload-base'][] = $fileNameBase;
+			$processedFiles[$fileName]['new-name'][] = $titleName;
 
 			if ( $fileAction !== false ) {
 
@@ -421,7 +436,7 @@ class Upload {
 						$newFname = $fileName . '-' . basename( $singleImage );
 						if ( Config::isDebug() ) {
 							Debug::addToDebug(
-								'Preparing to upload image file from document: ' . $fCount,
+								$i . ' - Preparing to upload image file from document: ' . $fCount,
 								[
 									'$newFname' => $newFname,
 									'$singleImage'      => $singleImage,
@@ -495,6 +510,25 @@ class Upload {
 				unlink( $upload_dir . $storedFile );
 			}
 		}
+		$separator = General::getPostString( 'ff_separator' );
+		if ( $separator === false ) {
+			$separator = ',';
+		}
+		$ffUploadedFile     = 'FFUploadedFile-UploadName_' . $fileName;
+		$ffUploadedFileBase = 'FFUploadedFile-UploadBase_' . $fileName;
+		$ffUploadedFileNew  = 'FFUploadedFile-NewName_' . $fileName;
+		$_POST[$ffUploadedFile] = implode(
+			$separator,
+			$processedFiles[$fileName]['upload-name']
+		);
+		$_POST[$ffUploadedFileBase] = implode(
+			$separator,
+			$processedFiles[$fileName]['upload-base']
+		);
+		$_POST[$ffUploadedFileNew] = implode(
+			$separator,
+			$processedFiles[$fileName]['new-name']
+		);
 
 		return true;
 	}
