@@ -510,10 +510,8 @@ class Upload {
 				unlink( $upload_dir . $storedFile );
 			}
 		}
-		$separator = General::getPostString( 'ff_separator' );
-		if ( $separator === false ) {
-			$separator = ',';
-		}
+		$separator = ',';
+
 		$ffUploadedFile     = 'FFUploadedFile-UploadName_' . $fileName;
 		$ffUploadedFileBase = 'FFUploadedFile-UploadBase_' . $fileName;
 		$ffUploadedFileNew  = 'FFUploadedFile-NewName_' . $fileName;
