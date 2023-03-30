@@ -178,8 +178,9 @@ class ContentCore {
 	public static function saveToWiki( HandleResponse $response_handler, $email = false ) : HandleResponse {
 		self::$fields = Definitions::createAndEditFields();
 		if ( Config::isDebug() ) {
+			$debugTitle = '<b>::' . get_class() . '::</b> ';
 			Debug::addToDebug(
-				'createandeditfields',
+				$debugTitle . 'createandeditfields',
 				self::$fields
 			);
 		}
@@ -188,7 +189,7 @@ class ContentCore {
 		self::checkFields();
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
-				'checkfields',
+				$debugTitle . 'checkfields',
 				self::$fields
 			);
 		}
@@ -203,7 +204,7 @@ class ContentCore {
 		// WSCreate single
 		if ( self::$fields['template'] !== false && self::$fields['writepage'] !== false ) {
 			if ( Config::isDebug() ) {
-				Debug::addToDebug( 'Writing single page',
+				Debug::addToDebug( $debugTitle . 'Writing single page',
 								   [] );
 			}
 			$create = new Create();
@@ -211,7 +212,7 @@ class ContentCore {
 				$result = $create->writePage();
 				if ( Config::isDebug() ) {
 					Debug::addToDebug(
-						'writepage result',
+						$debugTitle . 'writepage result',
 						$result
 					);
 				}
@@ -251,7 +252,7 @@ class ContentCore {
 			if ( !self::$fields['mwedit'] && !$email && !self::$fields['writepages'] ) {
 				if ( Config::isDebug() ) {
 					Debug::addToDebug(
-						'finished 1 wscreate value returnto is',
+						$debugTitle . 'finished 1 wscreate value returnto is',
 						self::$fields['returnto']
 					);
 				}
@@ -348,7 +349,7 @@ class ContentCore {
 			$pageContents = $edit->editPage();
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
-					'PageContent ',
+					$debugTitle . 'PageContent ',
 					$pageContents
 				);
 			}

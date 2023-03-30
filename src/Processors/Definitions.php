@@ -137,9 +137,6 @@ class Definitions {
 			'FFUploadedFile-NewName'
 		];
 		foreach ( $flexFormUploaderAddedFields as $uField ) {
-			echo "<pre>";
-			var_dump(  "checking if  " . $uField . " is inside " . $field );
-			echo "</pre>";
 			if ( strpos( $field, $uField ) !== false ) {
 				return true;
 			}
@@ -199,9 +196,6 @@ class Definitions {
 			"ff_upload_actions",
 			'ff_separator'
 		];
-		echo "<pre>";
-		var_dump(  "checkings:" . $field );
-		echo "</pre>";
 		if ( in_array(
 			strtolower( $field ),
 			$FlexFormSystemFields
