@@ -112,7 +112,7 @@ class PostHandler implements HandlerInterface {
 	private function apiPost( array $postData ) {
 		$postData['VerificationCodeX'] = '';
 		$postData['emailconfirm'] = $postData['email'];
-		$url = rtrim( '/' . self::PHP_LIST_URL ) . '/' . '?p=asubscribe&id=1';
+		$url = rtrim( self::PHP_LIST_URL, '/' ) . '/?p=asubscribe&id=1';
 		$data = http_build_query( $postData );
 		$curlOptions =
 			[
