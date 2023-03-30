@@ -20,13 +20,15 @@ class PostHandler implements HandlerInterface {
 	private const PHP_LIST_URL = '';
 	private const FIELD_EMAIL = 'email';
 	private const FIELD_NAME = 'name';
+	private const FIELD_AS_EMAIL = 'useFieldAsEmail';
+	private const FIELD_AS_NAME = 'useFieldAsName';
 	private const DEFAULT_LISTS = [
-		3,
-		4,
-		5,
-		6,
-		7,
-		8
+		3 => 'signup',
+		4 => 'signup',
+		5 => 'signup',
+		6 => 'signup',
+		7 => 'signup',
+		8 => 'signup'
 	];
 
 	/**
@@ -62,9 +64,18 @@ class PostHandler implements HandlerInterface {
 
 		// attribute1 field
 		$name = $this->getFieldFromFlexForm( self::FIELD_NAME );
-
+		if ( $this->getFieldFromFlexForm( self::FIELD_AS_NAME ) !== null ) {
+			if ( $this->getFieldFromFlexForm( $this->getFieldFromFlexForm( self::FIELD_AS_NAME ) ) !== null ) {
+				$name = $this->getFieldFromFlexForm( $this->getFieldFromFlexForm( self::FIELD_AS_NAME ) );
+			}
+		}
 		// subscribe-email field
 		$email = $this->getFieldFromFlexForm( self::FIELD_EMAIL );
+		if ( $this->getFieldFromFlexForm( self::FIELD_AS_EMAIL ) !== null ) {
+			if ( $this->getFieldFromFlexForm( $this->getFieldFromFlexForm( self::FIELD_AS_EMAIL ) ) !== null ) {
+				$email = $this->getFieldFromFlexForm( $this->getFieldFromFlexForm( self::FIELD_AS_EMAIL ) );
+			}
+		}
 
 		if ( $name === null || $email === null ) {
 			throw new FlexFormException(
@@ -84,36 +95,45 @@ class PostHandler implements HandlerInterface {
 
 		$postData['emailhtml'] = $emailHtml;
 		$postData['attribute1'] = $name;
-
+		$postData['email'] = $email;
+		$postData['list'] = $lists;
+		$ret = $this->apiPost( $postData );
+		$responseHandler->setReturnType( HandleResponse::TYPE_SUCCESS );
+		$responseHandler->setReturnData( $ret );
+		return $responseHandler;
 	}
 
-	private function apiPost( $transactions, $identifier ){
-		include __DIR__ . '/phabricator.config.php';
-		$data['api.token'] = $phabricatorToken;
-		$data['transactions']=$transactions;
-		if( $identifier !== false ) {
-			$data['objectIdentifier'] = $identifier;
-		}
-		$data=http_build_query($data);
-		$client = $phabricatorEditManifestURL;
+	/**
+	 * @param array $postData
+	 *
+	 * @return bool|string
+	 * @throws FlexFormException
+	 */
+	private function apiPost( array $postData ) {
+		$postData['VerificationCodeX'] = '';
+		$postData['emailconfirm'] = $postData['email'];
+		$data = http_build_query( $postData );
 		$curlOptions =
-			array(
+			[
 				CURLOPT_CONNECTTIMEOUT => 30,
 				CURLOPT_RETURNTRANSFER => 1,
 				CURLOPT_USERAGENT => "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)",
 				CURLOPT_SSL_VERIFYPEER => 0,
 				CURLOPT_FOLLOWLOCATION => 1,
 				CURLOPT_POST => true
-			);
+			];
 		$ch = curl_init();
-		curl_setopt_array($ch, $curlOptions);
+		curl_setopt_array( $ch, $curlOptions );
 
-		curl_setopt($ch, CURLOPT_URL, $client);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-		$result=curl_exec($ch);
-
-		if(curl_errno($ch)) {
-			die( curl_error( $ch ) );
+		curl_setopt( $ch, CURLOPT_URL, self::PHP_LIST_URL );
+		curl_setopt( $ch, CURLOPT_POSTFIELDS, $data );
+		$result = curl_exec( $ch );
+		if ( curl_errno( $ch ) ) {
+			throw new FlexFormException(
+				'phpList : ' . curl_error( $ch ),
+				0,
+				null
+			);
 		}
 		return $result;
 	}

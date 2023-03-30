@@ -184,7 +184,7 @@ class HandleResponse {
 		}
 		if ( is_array( $messageData ) ) {
 			$message = implode(
-				'<BR>',
+				"\n<br>",
 				$messageData
 			);
 		} else {
