@@ -123,14 +123,40 @@ class Definitions {
 	}
 
 	/**
+	 * @param string $field
+	 *
+	 * @return bool
+	 */
+	public static function isFlexFormUploaderVariables( string $field, $checkFileUploadVars ) : bool {
+		if ( $checkFileUploadVars === false ) {
+			return false;
+		}
+		$flexFormUploaderAddedFields = [
+			'FFUploadedFile-UploadName',
+			'FFUploadedFile-UploadBase',
+			'FFUploadedFile-NewName'
+		];
+		foreach ( $flexFormUploaderAddedFields as $uField ) {
+			echo "<pre>";
+			var_dump(  "checking if  " . $uField . " is inside " . $field );
+			echo "</pre>";
+			if ( strpos( $field, $uField ) !== false ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Check to see if a variable is a FlexForm variable
 	 *
 	 * @param string $field field to check
-	 *
+	 * @param bool $checkFileUploadVars field to check
 	 * @return bool true or false
 	 */
-	public static function isFlexFormSystemField( string $field ) : bool {
+	public static function isFlexFormSystemField( string $field, bool $checkFileUploadVars = true ) : bool {
 		$FlexFormSystemFields = [
+			"mwaction",
 			"mwtemplate",
 			"mwoption",
 			"mwwrite",
@@ -149,6 +175,7 @@ class Definitions {
 			"mwmailfooter",
 			"mwmailheader",
 			"mwmailcontent",
+			"mwmailhtml",
 			"mwmailhtml",
 			"mwmailattachment",
 			"mwmailtemplate",
@@ -172,10 +199,15 @@ class Definitions {
 			"ff_upload_actions",
 			'ff_separator'
 		];
+		echo "<pre>";
+		var_dump(  "checkings:" . $field );
+		echo "</pre>";
 		if ( in_array(
 			strtolower( $field ),
 			$FlexFormSystemFields
 		) ) {
+			return true;
+		} elseif ( self::isFlexFormUploaderVariables( $field, $checkFileUploadVars ) !== false ) {
 			return true;
 		} else {
 			return false;

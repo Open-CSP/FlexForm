@@ -512,9 +512,9 @@ class Upload {
 		}
 		$separator = ',';
 
-		$ffUploadedFile     = 'FFUploadedFile-UploadName_' . $fileName;
-		$ffUploadedFileBase = 'FFUploadedFile-UploadBase_' . $fileName;
-		$ffUploadedFileNew  = 'FFUploadedFile-NewName_' . $fileName;
+		$ffUploadedFile     = General::makeUnderscoreFromSpace( 'FFUploadedFile-UploadName-' . $fileName );
+		$ffUploadedFileBase = General::makeUnderscoreFromSpace( 'FFUploadedFile-UploadBase-' . $fileName );
+		$ffUploadedFileNew  = General::makeUnderscoreFromSpace( 'FFUploadedFile-NewName-' . $fileName );
 		$_POST[$ffUploadedFile] = implode(
 			$separator,
 			$processedFiles[$fileName]['upload-name']

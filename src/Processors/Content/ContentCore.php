@@ -511,7 +511,7 @@ class ContentCore {
 			$ret = "{{" . self::$fields['template'] . "\n";
 		}
 		foreach ( $_POST as $k => $v ) {
-			if ( is_array( $v ) && !Definitions::isFlexFormSystemField( $k ) ) {
+			if ( is_array( $v ) && !Definitions::isFlexFormSystemField( $k, false ) ) {
 				$uk = General::makeSpaceFromUnderscore( $k );
 				$ret .= "|" . $uk . "=";
 				if ( self::hasAssignedKeys( $v ) ) {
@@ -527,7 +527,7 @@ class ContentCore {
 						   self::$fields['separator']
 					   ) . PHP_EOL;
 			} else {
-				if ( !Definitions::isFlexFormSystemField( $k ) && $v != "" ) {
+				if ( !Definitions::isFlexFormSystemField( $k, false ) && $v != "" ) {
 					$uk = General::makeSpaceFromUnderscore( $k );
 					if ( !$noTemplate ) {
 						$cleanedBraces = wsSecurity::cleanBraces( $v );

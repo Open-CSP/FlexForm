@@ -570,10 +570,21 @@ class Create {
 						$k,
 						$this->pageData['formFields']
 					) ) {
+					if ( Config::isDebug() ) {
+						Debug::addToDebug(
+							'Field $k is not in formFields ',
+							[
+								'$k'                 => $k,
+								'Lower $k'                 => General::makeSpaceFromUnderscore( $k ),
+								'formfields' => $this->pageData['formFields'],
+								'$_POST' => $_POST
+							]
+						);
+					}
 					continue;
 				}
 			}
-			if ( is_array( $v ) && !Definitions::isFlexFormSystemField( $k ) ) {
+			if ( is_array( $v ) && !Definitions::isFlexFormSystemField( $k, false ) ) {
 				if ( array_key_exists(
 					$k,
 					$this->pageData['aliasFields']
@@ -600,7 +611,7 @@ class Create {
 									 $fields['separator']
 								 ) . PHP_EOL;
 			} else {
-				if ( !Definitions::isFlexFormSystemField( $k ) && $v != "" ) {
+				if ( !Definitions::isFlexFormSystemField( $k, false ) && $v != "" ) {
 					// if ( $k !== "mwtemplate" && $k !== "mwoption" && $k !== "mwwrite" &&
 					// $k !== "mwreturn" && $k !== "mwedit" && $v != "" ) {
 					if ( !$this->pageData['notemplate'] ) {
