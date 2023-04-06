@@ -45,6 +45,7 @@ $wgFlexFormConfig['hideEdit']                                      = true; // De
 $wgFlexFormConfig['create-seo-titles']                             = true; // Defaults to false. Will filter any user input on creating a new page to be SEO friendly.
 $wgFlexFormConfig['auto_save_btn_on']                              = "Autosave On";
 $wgFlexFormConfig['auto_save_btn_off']                             = "Autosave Off";
+$wgFlexFormConfig['loadScriptPath']                                = ""; // Defaults to what is described by the loadscript form argument. When you change it do a different folder, then loadScript argument will be looking in this folder for its JavaScript file to load with the Form.
 $wgFlexFormConfig['use_smtp']                                      = false; // when sending email, should we use separate smtp ?
 $wgFlexFormConfig['smtp_host']                                     = "";
 $wgFlexFormConfig['smtp_authentication']                           = true;
@@ -90,6 +91,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 2.1 : for details : https://wikibase-solutions.com/developer-logs/flexform-v2-1
 * 2.0.12 : Use wfExpandUrl to accommodate for non-null ArticlePath settings
 * 2.0.11 : Added loadscript config setting
 * 2.0.10 : TinyMCE selector change.

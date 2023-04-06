@@ -57,35 +57,39 @@ class Canvas {
 	 * @throws \MWContentSerializationException
 	 * @throws \MWException
 	 */
-	public static function upload( string $canvasFile ) {
+	public static function upload( string $canvasFile, array $fileDetails ) {
 		global $wgUser;
-		$fields = Definitions::fileUploadFields();
 		if ( Config::isDebug() ) {
 			Debug::addToDebug( 'File upload start',
 							   [
-								   'fields' => $fields,
-								   'post'   => $_POST
+								   'file details' => $fileDetails,
+								   'post'   => $_POST,
+								   'canvasFile' => $canvasFile
 							   ] );
 		}
 
-		if ( $fields['target'] === false || $fields['target'] === '' ) {
+		$target = General::getJsonValue( 'wsform_file_target', $fileDetails );
+
+		if ( $target === false || $target === '' ) {
 			throw new FlexFormException(
 				wfMessage( 'flexform-fileupload-no-target' )->text(),
 				0
 			);
 		}
 
-		if ( $fields['pagecontent'] === false ) {
-			$fields['pagecontent'] = '';
+		$pageContent = General::getJsonValue( 'wsform_page_content', $fileDetails );
+
+		if ( $pageContent === false ) {
+			$pageContent = '';
 		}
 
-		$fields['comment'] = self::getSummary();
+		$comment = self::getSummary();
 
 		$filesCore = new FilesCore();
 		$uploadPath = $filesCore->getUploadDir();
 		$canvasFile = $filesCore->getBase64Data( $canvasFile );
 		$pageName = $filesCore->remove_extension_from_image(
-				General::makeUnderscoreFromSpace( $fields['target'] )
+				General::makeUnderscoreFromSpace( $target )
 			) . ".jpg";
 
 		$tmpFileName = uniqid() . '.jpg';
@@ -102,36 +106,41 @@ class Canvas {
 			);
 		}
 
-		$details = trim( $fields['pagecontent'] );
+		$details = trim( $pageContent );
 
-		if ( $fields['pagetemplate'] && $fields['parsecontent'] !== false ) {
-			$filePageTemplate = trim( $fields['pagetemplate'] );
+		$pageTemplate = General::getJsonValue( 'wsform_file_template', $fileDetails );
+		$parseContent = General::getJsonValue( 'wsform_parse_content', $fileDetails );
+
+		if ( $pageTemplate && $parseContent !== false ) {
+			$filePageTemplate = trim( $pageTemplate );
 			$details = ContentCore::setFileTemplate( $filePageTemplate, $details );
 		}
 
-		if ( $fields['parsecontent'] !== false ) {
+		if ( $parseContent !== false ) {
 			$details = ContentCore::parseTitle( $details );
 		}
 
 		// find any other form fields and put them into the title
 		$pageName = ContentCore::parseTitle( $pageName );
-		$uploadFile = new Upload();
-		$resultFileUpload = $uploadFile->uploadFileToWiki(
-			$uploadPath . $tmpFileName,
-			$pageName,
-			$wgUser,
-			$details,
-			$fields['comment'],
-			wfTimestampNow()
-		);
-		if ( $resultFileUpload !== true ) {
-			throw new FlexFormException(
-				$resultFileUpload,
-				0
+		if ( !Config::isDebug() ) {
+			$uploadFile       = new Upload();
+			$resultFileUpload = $uploadFile->uploadFileToWiki(
+				$uploadPath . $tmpFileName,
+				$pageName,
+				$wgUser,
+				$details,
+				$comment,
+				wfTimestampNow()
 			);
-		}
+			if ( $resultFileUpload !== true ) {
+				throw new FlexFormException(
+					$resultFileUpload,
+					0
+				);
+			}
 
-		unlink( $uploadPath . $tmpFileName );
+			unlink( $uploadPath . $tmpFileName );
+		}
 
 		return true;
 	}

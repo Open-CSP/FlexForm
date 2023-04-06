@@ -6,130 +6,40 @@ use Wikimedia\ParamValidator\ParamValidator;
 
 class ApiFlexForm extends ApiBase {
 
+	/**
+	 * @param mixed $failure
+	 *
+	 * @return void
+	 */
 	private function returnFailure( $failure ) {
-		$ret            = array();
+		$ret            = [];
 		$ret['message'] = $failure;
-		$this->getResult()->addValue( null,
-									  $this->getModuleName(),
-									  array( 'error' => $ret ) );
+		$this->getResult()->addValue(
+			null,
+			$this->getModuleName(),
+			[ 'error' => $ret ]
+		);
 	}
 
-	private function createResult( $code, $result ) {
-		$ret           = array();
+	/**
+	 * @param mixed $code
+	 * @param mixed $result
+	 *
+	 * @return array
+	 */
+	private function createResult( $code, $result ): array {
+		$ret           = [];
 		$ret['status'] = $code;
 		$ret['data']   = $result;
 
 		return $ret;
 	}
 
-	private function excerpt( $text, $phrase, $radius = 100, $ending = "..." ) {
-		$phraseLen = strlen( $phrase );
-		if ( $radius < $phraseLen ) {
-			$radius = $phraseLen;
-		}
-
-		$phrases = explode(
-			' ',
-			$phrase
-		);
-
-		foreach ( $phrases as $phrase ) {
-			$pos = strpos(
-				strtolower( $text ),
-				strtolower( $phrase )
-			);
-			if ( $pos > -1 ) {
-				break;
-			}
-		}
-
-		$startPos = 0;
-		if ( $pos > $radius ) {
-			$startPos = $pos - $radius;
-		}
-
-		$textLen = strlen( $text );
-
-		$endPos = $pos + $phraseLen + $radius;
-		if ( $endPos >= $textLen ) {
-			$endPos = $textLen;
-		}
-
-		$excerpt = substr(
-			$text,
-			$startPos,
-			$endPos - $startPos
-		);
-		if ( $startPos != 0 ) {
-			$excerpt = substr_replace(
-				$excerpt,
-				$ending,
-				0,
-				$phraseLen
-			);
-		}
-
-		if ( $endPos != $textLen ) {
-			$excerpt = substr_replace(
-				$excerpt,
-				$ending,
-				-$phraseLen
-			);
-		}
-
-		return $this->highlight(
-			$excerpt,
-			$phrase
-		);
-	}
-
-	private function highlight( $c, $q ) {
-		$q = explode(
-			' ',
-			str_replace(
-				array(
-					'',
-					'\\',
-					'+',
-					'*',
-					'?',
-					'[',
-					'^',
-					']',
-					'$',
-					'(',
-					')',
-					'{',
-					'}',
-					'=',
-					'!',
-					'<',
-					'>',
-					'|',
-					':',
-					'#',
-					'-',
-					'_'
-				),
-				'',
-				$q
-			)
-		);
-		for ( $i = 0; $i < sizeOf( $q ); $i++ ) {
-			$c = preg_replace(
-				"/($q[$i])(?![^<]*>)/i",
-				"<span class=\"highlight\">\${1}</span>",
-				$c
-			);
-		}
-
-		return $c;
-	}
-
 	/**
 	 * @param string $txt
 	 *
 	 * @return array
+	 * @throws FlexFormException
 	 */
 	private function decrypt( string $txt ) : array {
 		\FlexForm\Core\Config::setConfigFromMW();
@@ -143,11 +53,14 @@ class ApiFlexForm extends ApiBase {
 			);
 		}
 
-		$json = json_decode( $txt, true );
+		$json = json_decode(
+			$txt,
+			true
+		);
 		if ( $json === null ) {
 			$json = $crypt::decrypt( $txt );
 		} elseif ( is_array( $json ) ) {
-			foreach ( $json as $k=>$v ){
+			foreach ( $json as $k => $v ) {
 				$json[$k] = $crypt::decrypt( $v );
 			}
 		} else {
@@ -160,106 +73,15 @@ class ApiFlexForm extends ApiBase {
 		);
 	}
 
-	private function searchDocs( $keyword ) {
-		global $IP, $wgScript;
-		$path     = $IP . '/extensions/FlexForm/docs/';
-		$realUrl  = str_replace(
-			'/index.php',
-			'',
-			$wgScript
-		);
-		$purl     = $realUrl . "/index.php/Special:FlexForm/Docs";
-		$fileList = glob( $path . '*.json' );
-		$data     = [];
-
-		foreach ( $fileList as $file ) {
-			$content = json_decode(
-				file_get_contents( $file ),
-				true
-			);
-
-			$type        = explode(
-				'_',
-				basename( $file ),
-				2
-			);
-			$t           = $type[0];
-			$n           = $type[1];
-			$textToSeach = $content['doc']['description'] . $content['doc']['synopsis'] . $content['doc']['parameters'];
-			$textToSeach .= $content['doc']['example'] . $content['doc']['note'] . $content['doc']['links'];
-			$pos         = stripos(
-				$textToSeach,
-				$keyword
-			);
-			if ( $pos !== false ) {
-				$pos            = (int) $pos;
-				$tmparr         = [];
-				$tmparr['name'] = substr(
-					$n,
-					0,
-					-5
-				);
-				$tmparr['type'] = $t;
-				$tmparr['link'] = $purl . '/' . substr(
-						basename( $file ),
-						0,
-						-5
-					) . "/" . $keyword;
-
-				$tmparr['snippet'] = $this->excerpt(
-					$textToSeach,
-					$keyword
-				);
-				//$tmparr['snippet'] = substr( $content['doc']['description'], (int) $start, (int) $end );
-
-				$data[] = $tmparr;
-			}
-		}
-		//$ret[] = $keyword;
-		$ret = $data;
-
-		//$ret =  $this->array_search_own( $keyword, $data );
-		return $ret;
-	}
-
-	private function array_search_own( $keyword, $data ) {
-		error_reporting( -1 );
-		ini_set(
-			'display_errors',
-			1
-		);
-		$newArr = [];
-		if ( strpos( $data ) ) {
-			return array_filter( $data,
-				function ( $subarray ) use ( $keyword ) {
-					if ( array_search(
-						$keyword,
-						$subarray
-					) ) {
-						return true;
-					} else {
-						return false;
-					}
-				} );
-		}
-
-		return null;
-	}
-
 	public function execute() {
 		$params = $this->extractRequestParams();
 		$action = $params['what'];
-		if ( ! $action || $action === null ) {
+		if ( !$action || $action === null ) {
 			$this->dieUsageMsg( 'missingparam' );
 		}
 
 		switch ( $action ) {
-			case "searchdocs":
-				$output = $this->searchDocs( $params['for'] );
-
-				break;
 			case "decrypt":
-
 				$output = $this->decrypt( $params['titleStartsWith'] );
 				if ( $output['status'] === "error" ) {
 					$this->returnFailure( $output['data'] );
@@ -275,13 +97,11 @@ class ApiFlexForm extends ApiBase {
 					break;
 				}
 				$output = $result['data'];
-				//echo "--$result--"; die();
-				//$this->getResult()->addValue(null, array('result' => "ok:" . $output) );
 				break;
 			case "getRange" :
 				$title = $params['titleStartsWith'];
 				$range = $params['range'];
-				if ( ! $range || $range === null ) {
+				if ( !$range || $range === null ) {
 					$this->returnFailure( wfMessage( 'flexform-api-error-parameter-range-missing' )->text() );
 					break;
 				}
@@ -290,18 +110,20 @@ class ApiFlexForm extends ApiBase {
 					$range
 				);
 
-				if ( ! ctype_digit( $range[0] ) || ! ctype_digit( $range[1] ) ) {
+				if ( !ctype_digit( $range[0] ) || !ctype_digit( $range[1] ) ) {
 					$this->returnFailure( wfMessage( 'flexform-api-error-bad-range' )->text() );
 					break;
 				}
-				$startRange = (int) $range[0];
-				$endRange   = (int) $range[1];
+				$startRange = (int)$range[0];
+				$endRange   = (int)$range[1];
 
-				$result = $this->getFromRange( $title,
-											   array(
-												   'start' => $startRange,
-												   'end'   => $endRange
-											   ) );
+				$result = $this->getFromRange(
+					$title,
+					[
+						'start' => $startRange,
+						'end'   => $endRange
+					]
+				);
 				if ( isset( $result['status'] ) && $result['status'] === "error" ) {
 					$this->returnFailure( $result['data'] );
 					break;
@@ -317,9 +139,11 @@ class ApiFlexForm extends ApiBase {
 				break;
 		}
 
-		$this->getResult()->addValue( null,
-									  $this->getModuleName(),
-									  array( 'result' => $output ) );
+		$this->getResult()->addValue(
+			null,
+			$this->getModuleName(),
+			[ 'result' => $output ]
+		);
 
 		return true;
 	}
@@ -336,26 +160,32 @@ class ApiFlexForm extends ApiBase {
 	 * @return array
 	 */
 	public function getAllowedParams() {
-		return array(
-			'what'            => array(
+		return [
+			'what'            => [
 				ParamValidator::PARAM_TYPE     => 'string',
 				ParamValidator::PARAM_REQUIRED => true
-			),
-			'titleStartsWith' => array(
+			],
+			'titleStartsWith' => [
 				ParamValidator::PARAM_TYPE     => 'string',
 				ParamValidator::PARAM_REQUIRED => true
-			),
-			'range'           => array(
+			],
+			'range'           => [
 				ParamValidator::PARAM_TYPE => 'string'
-			),
-			'for'             => array(
+			],
+			'for'             => [
 				ParamValidator::PARAM_TYPE => 'string'
-			)
-		);
+			]
+		];
 	}
 
-	private function getNextAvailable( $nameStartsWith ) {
-		$number      = array();
+	/**
+	 * @param string $nameStartsWith
+	 *
+	 * @return array
+	 * @throws MWException
+	 */
+	private function getNextAvailable( string $nameStartsWith ) : array {
+		$number      = [];
 		$continue    = true;
 		$appContinue = false;
 		$cnt         = 0;
@@ -367,7 +197,7 @@ class ApiFlexForm extends ApiBase {
 			);
 			$appContinue = $this->getApiContinue( $result );
 
-			if ( ! isset( $result['query'] ) ) {
+			if ( !isset( $result['query'] ) ) {
 				return $this->createResult(
 					'error',
 					wfMessage( 'flexform-api-error-noquery-response' )->text()
@@ -427,82 +257,35 @@ class ApiFlexForm extends ApiBase {
 	}
 
 	/**
-	 * Get the ID of the given namespace name
+	 * If there are more results from the API, get the next results
 	 *
-	 * @param string $ns
+	 * @param array $result of previous API results
 	 *
-	 * @return bool|mixed Either the ID of the namespace or false when not found
+	 * @return bool|string when no further results or where to start next API call
 	 */
-	private function getIdForNameSpace( $ns ) {
-		$ns       = strtolower( $ns );
-		$id       = false;
-		$postdata = [
-			"action" => "query",
-			"format" => "json",
-			"meta"   => "siteinfo",
-			"siprop" => "namespaces"
-		];
-		$lst      = $this->makeRequest(
-			$postdata,
-			true
-		);
-		if ( isset( $lst['query']['namespaces'] ) ) {
-			$lst = $lst['query']['namespaces'];
-		} else {
-			return false;
-		}
-		foreach ( $lst as $nameSpace ) {
-			if ( isset( $nameSpace['canonical'] ) ) {
-				$can   = strtolower( $nameSpace['canonical'] );
-				$alias = strtolower( $nameSpace['name'] );
-				if ( $can === $ns || $alias === $ns ) {
-					$id = $nameSpace['id'];
-					break;
-				}
-			}
-		}
-
-		return $id;
-		//echo "ns id is :" . $id;
-
+	public function getApiContinue( array $result ) {
+		return $result['continue']['apcontinue'] ?? false;
 	}
 
 	/**
-	 * If there are more results from the API, get the next results
+	 * @param string $nameStartsWith
+	 * @param $range
 	 *
-	 * @param $result array of previous API results
-	 *
-	 * @return bool when no further results
-	 * @return string where to start next API call
+	 * @return array|false|int|mixed
 	 */
-	function getApiContinue( $result ) {
-		if ( isset( $result['continue']['apcontinue'] ) ) {
-			$appContinue = $result['continue']['apcontinue'];
-		} else {
-			$appContinue = false;
-		}
-
-		return $appContinue;
-	}
-
-	function getFromRange( $nameStartsWith, $range = false ) {
-		$number      = array();
+	public function getFromRange( string $nameStartsWith, $range = false ) {
+		$number      = [];
 		$continue    = true;
 		$appContinue = false;
 		$cnt         = 0;
 		while ( $continue ) {
-			$result = $this->getDataForWikiList(
+			$result      = $this->getDataForWikiList(
 				$nameStartsWith,
 				$appContinue,
 				$range
 			);
-			//print_r($result);
-			//die();
 			$appContinue = $this->getApiContinue( $result );
-
-			//var_dump( $appContinue );
-			//die();
-			if ( ! isset( $result['query'] ) ) {
+			if ( !isset( $result['query'] ) ) {
 				return $this->createResult(
 					'error',
 					wfMessage( 'flexform-api-error-noquery-response' )->text()
@@ -521,8 +304,6 @@ class ApiFlexForm extends ApiBase {
 				unset( $pages['_element'] );
 			}
 
-			//print_r($pages);
-			//die();
 			$thisCnt = count( $pages );
 
 			$cnt = $cnt + $thisCnt;
@@ -559,7 +340,7 @@ class ApiFlexForm extends ApiBase {
 		$e = $range['end'];
 
 		for ( $t = $s; $t < $e; $t++ ) {
-			if ( ! in_array(
+			if ( !in_array(
 				$t,
 				$number
 			) ) {
@@ -574,17 +355,15 @@ class ApiFlexForm extends ApiBase {
 		return false;
 	}
 
-
 	/**
-	 * Get a list of pages that start with a certain name and take multiple results into account
+	 * @param string $nameStartsWith
+	 * @param mixed $appContinue
+	 * @param mixed $range
 	 *
-	 * @param $nameStartsWith string Start title of a page
-	 * @param $appContinue string returned from getApiContinue()
-	 * @param bool $range void
-	 *
-	 * @return mixed API results
+	 * @return false|mixed
+	 * @throws MWException
 	 */
-	private function getDataForWikiList( $nameStartsWith, $appContinue, $range = false ) {
+	private function getDataForWikiList( string $nameStartsWith, $appContinue, $range = false ) {
 		if ( strpos(
 				 $nameStartsWith,
 				 ':'
@@ -599,7 +378,7 @@ class ApiFlexForm extends ApiBase {
 			if ( empty( $nameSpace ) ) {
 				$id = 0;
 			} else {
-				$id = $this->getIdForNameSpace( $nameSpace );
+				$id = $this->getLanguage()->getNsIndex( $nameSpace );
 			}
 		} else {
 			$id = 0;
@@ -608,7 +387,7 @@ class ApiFlexForm extends ApiBase {
 		if ( $id === false ) {
 			return false;
 		}
-		if ( ! $range ) { // next available
+		if ( !$range ) { // next available
 			if ( $appContinue === false ) {
 				$postdata = [
 					"action"      => "query",
@@ -656,47 +435,21 @@ class ApiFlexForm extends ApiBase {
 				];
 			}
 		}
-		//echo "<pre>";
-		//print_r($postdata);
-		$result = $this->makeRequest(
-			$postdata,
-			true
+		$render = new \FlexForm\Processors\Content\Render();
+
+		return $render->makeRequest(
+			$postdata
 		);
-
-		//var_dump($result);
-		//die();
-		return $result;
-	}
-
-	private function makeRequest( $data, $useGet = false ) {
-		$api = new ApiMain(
-			new DerivativeRequest(
-								   $this->getRequest(),
-				// Fallback upon $wgRequest if you can't access context
-								   $data,
-				/*
-				array(
-					'action' => 'ask',
-					'query' => $query
-				),
-				*/ $useGet // treat this as a POST
-			),
-			false // not write.
-		);
-		$api->execute();
-		$data = $api->getResult()->getResultData();
-
-		return $data;
 	}
 
 	/**
 	 * @return array
 	 */
 	protected function getExamplesMessages() : array {
-		return array(
+		return [
 			'action=flexform&what=getRange&titleStartsWith=Invoice/&range=0000-9999' => 'apihelp-flexform-example-1',
 			'action=flexform&what=nextAvailable&&titleStartsWith=Invoice/'           => 'apihelp-flexform-example-2'
-		);
+		];
 	}
 
 }

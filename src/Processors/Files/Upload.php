@@ -27,15 +27,48 @@ use MediaWiki\MediaWikiServices;
 class Upload {
 
 	/**
+	 * @var string
+	 */
+	private string $fileName;
+
+	/**
+	 * @var array
+	 */
+	private array $fileDetails;
+
+	/**
 	 * @return string
 	 */
-	private function getSummary(): string {
+	private function getSummary() : string {
 		$summary = General::getPostString( 'mwwikicomment' );
 		if ( $summary === false ) {
 			return "Uploaded using FlexForm.";
 		} else {
 			return ContentCore::parseTitle( $summary );
 		}
+	}
+
+	/**
+	 * @param string $fileName
+	 * @param array $fileDetails
+	 */
+	public function __construct( string $fileName, array $fileDetails ) {
+		$this->fileName    = $fileName;
+		$this->fileDetails = $fileDetails;
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getFileName() {
+		return $this->fileName;
+	}
+
+	/**
+	 * @return array
+	 */
+	private function getFileDetails() {
+		return $this->fileDetails;
 	}
 
 	/**
@@ -54,19 +87,74 @@ class Upload {
 		 * false
 		 * ),
 		 * 'target'       => General::getPostString( 'wsform_file_target' ),
-		 * 'force'        => General::getPostArray( 'wsform_image_force' )
+		 * 'force'        => General::getPostArray( 'wsform_image_force' ),
+		 * 'convertFrom'        => General::getPostArray( 'wsform_action' ),
 		 * ];
-		 */ global $wgUser;
-		$fields = Definitions::fileUploadFields();
+		 */
+
+		global $wgUser;
+
+		$processedFiles = [];
+
+		$fileName    = $this->getFileName();
+		$fileDetails = $this->getFileDetails();
+
 		if ( Config::isDebug() ) {
-			Debug::addToDebug( 'File upload start',
-							   [
-								   'fields' => $fields,
-								   'post'   => $_POST
-							   ] );
+			Debug::addToDebug(
+				'File upload start',
+				[
+					'field'       => $fileName,
+					'fileDetails' => $fileDetails,
+					'post'        => $_POST
+				]
+			);
 		}
-		$fileToProcess = $fields['files'];
-		$nrOfFiles     = count( $fileToProcess['name'] );
+
+		$fileToProcess = $_FILES[$fileName];
+		$target        = General::getJsonValue(
+			'wsform_file_target',
+			$fileDetails
+		);
+		$pageContent   = General::getJsonValue(
+			'wsform_page_content',
+			$fileDetails
+		);
+		$pageTemplate  = General::getJsonValue(
+			'wsform_file_template',
+			$fileDetails
+		);
+		$parseContent  = General::getJsonValue(
+			'wsform_parse_content',
+			$fileDetails
+		);
+		$imageForce    = General::getJsonValue(
+			'wsform_image_force',
+			$fileDetails
+		);
+		$imageComment  = General::getJsonValue(
+			'wsform-upload-comment',
+			$fileDetails
+		);
+		$fileAction    = General::getJsonValue(
+			'wsform_action',
+			$fileDetails
+		);
+
+		if ( $fileAction === false ) {
+			$fileAction = false;
+		} else {
+			if ( strtolower( $fileAction ) !== 'upload' && strpos( strtolower( $fileAction ), 'convertfrom:' ) === false ) {
+				throw new FlexFormException(
+					'Unknown upload action',
+					0
+				);
+			}
+			if ( strpos( strtolower( $fileAction ), 'convertfrom:' ) !== false ) {
+				$fileAction = trim( str_replace( 'convertfrom:', '', strtolower( $fileAction ) ) );
+			}
+		}
+
+		$nrOfFiles = count( $fileToProcess['name'] );
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
 				'Number of files to process',
@@ -75,19 +163,22 @@ class Upload {
 		}
 		$errors    = [];
 		$filesCore = new FilesCore();
-		if ( $fields['target'] === false || $fields['target'] === '' ) {
+		if ( $target === false || $target === '' ) {
 			throw new FlexFormException(
 				wfMessage( 'flexform-fileupload-no-target' )->text(),
 				0
 			);
 		}
-		if ( $fields['pagecontent'] === false ) {
-			$fields['pagecontent'] = '';
+
+		if ( $pageContent === false ) {
+			$pageContent = '';
 		}
 
-		$fields['comment'] = $this->getSummary();
+		if ( $imageComment === false ) {
+			$imageComment = $this->getSummary();
+		}
 
-		if ( $fields['force'] === false || $fields['force'] === '' ) {
+		if ( $imageForce === false || $imageForce === '' ) {
 			$convert = false;
 		} else {
 			/*
@@ -97,12 +188,13 @@ class Upload {
 				$convert = $_POST['wsform_image_force'];
 			}
 			*/
-			$convert = $fields['force'];
+			$convert = $imageForce;
 		}
 		$upload_dir = rtrim(
 						  Config::getConfigVariable( 'file_temp_path' ),
 						  '/'
 					  ) . '/';
+
 		for ( $i = 0; $i < $nrOfFiles; $i++ ) {
 			if ( Config::isDebug() ) {
 				if ( is_uploaded_file( $fileToProcess['tmp_name'][$i] ) ) {
@@ -116,16 +208,19 @@ class Upload {
 					$exists = "no";
 				}
 
-				Debug::addToDebug( 'File #' . $i,
-								   [
-									   'tmp_name'    => $fileToProcess['tmp_name'][$i],
-									   'name'        => $fileToProcess['name'][$i],
-									   'is_uploaded' => $uploaded,
-									   'exists'      => $exists,
-									   'error'       => $fileToProcess['error'][$i]
-								   ] );
+				Debug::addToDebug(
+					'File #' . $i,
+					[
+						"fileaction"  => $fileAction,
+						'tmp_name'    => $fileToProcess['tmp_name'][$i],
+						'name'        => $fileToProcess['name'][$i],
+						'is_uploaded' => $uploaded,
+						'exists'      => $exists,
+						'error'       => $fileToProcess['error'][$i]
+					]
+				);
 			}
-			if ( ! file_exists( $fileToProcess['tmp_name'][$i] ) || ! is_uploaded_file(
+			if ( !file_exists( $fileToProcess['tmp_name'][$i] ) || ! is_uploaded_file(
 					$fileToProcess['tmp_name'][$i]
 				) ) {
 				throw new FlexFormException(
@@ -152,30 +247,35 @@ class Upload {
 
 			$targetFile = General::makeUnderscoreFromSpace( $filename );
 
-			$fileNameExtension = $filesCore->getFileExtension( $filename );
+			$fileNameExtension         = $filesCore->getFileExtension( $filename );
 			$originalFileNameExtension = $fileNameExtension;
-			$fileNameBase = $filesCore->remove_extension_from_image( $targetFile );
+			$fileNameBase              = $filesCore->remove_extension_from_image( $targetFile );
 
 			$fileNameBase = ContentCore::urlToSEO( $fileNameBase );
 
 			if ( Config::isDebug() ) {
-				Debug::addToDebug( 'File #' . $i . ' passed error checks',
-								   [
-									   'targetFile'             => $targetFile,
-									   'upload dir'             => $upload_dir,
-									   'convert'                => $convert,
-									   'current file extension' => $fileNameExtension,
-									   'current file basename'  => $fileNameBase
-								   ] );
+				Debug::addToDebug(
+					'File #' . $i . ' passed error checks',
+					[
+						'targetFile'             => $targetFile,
+						'upload dir'             => $upload_dir,
+						'convert'                => $convert,
+						'current file extension' => $fileNameExtension,
+						'current file basename'  => $fileNameBase
+					]
+				);
 			}
+
 			$filesSupported = Definitions::getImageHandler();
-			$fileType = exif_imagetype( $tmpName );
-			if ( $convert !== false &&
-				 $filesCore->getFileExtension( $filename ) !== $convert &&
-				 isset( $filesSupported[$fileType] ) ) {
+			$fileType       = exif_imagetype( $tmpName );
+			if ( $convert !== false && $filesCore->getFileExtension(
+					$filename
+				) !== $convert && isset( $filesSupported[$fileType] ) ) {
 				if ( Config::isDebug() ) {
-					Debug::addToDebug( 'Converting File #' . $i . ' to ' . $convert,
-									   [] );
+					Debug::addToDebug(
+						'Converting File #' . $i . ' to ' . $convert,
+						[]
+					);
 				}
 
 				$newFile = $filesCore->convert_image(
@@ -185,6 +285,12 @@ class Upload {
 					$tmpName,
 					100
 				);
+				if ( Config::isDebug() ) {
+					Debug::addToDebug(
+						'NewFile for File #' . $i,
+						[ 'newFile' => $newFile ]
+					);
+				}
 				if ( $newFile === false ) {
 					throw new FlexFormException(
 						wfMessage(
@@ -221,64 +327,206 @@ class Upload {
 			}
 			// find [filename] and replace
 			$titleName = $filesCore->parseTarget(
-				trim( $fields['target'] ),
+				trim( $target ),
 				$titleName
 			);
 
-			if ( $fields['parsecontent'] !== false ) {
-				$details = trim( $fields['pagecontent'] );
+			if ( $parseContent !== false ) {
+				$details = trim( $pageContent );
 			} else {
 				$details = "";
 			}
 
-			if ( $fields['pagetemplate'] && $fields['parsecontent'] !== false ) {
-				$filePageTemplate = trim( $fields['pagetemplate'] );
-				$details = ContentCore::setFileTemplate( $filePageTemplate, $details );
+			if ( $pageTemplate && $parseContent !== false ) {
+				$filePageTemplate = trim( $pageTemplate );
+				$details          = ContentCore::setFileTemplate(
+					$filePageTemplate,
+					$details
+				);
 			}
 
-			if ( $fields['parsecontent'] !== false ) {
-				$details = ContentCore::parseTitle( $details, true );
+			if ( $parseContent !== false ) {
+				// find [filename] and replace
+				if ( Config::isDebug() ) {
+					Debug::addToDebug(
+						'details before parseTarget file #' . $i,
+						$details
+					);
+				}
+				$details = $filesCore->parseTarget(
+					$details,
+					$titleName
+
+				);
+				if ( Config::isDebug() ) {
+					Debug::addToDebug(
+						'details after parseTarget for file #' . $i,
+						$details
+					);
+				}
+				$details = ContentCore::parseTitle(
+					$details,
+					true
+				);
+				if ( Config::isDebug() ) {
+					Debug::addToDebug(
+						'details after parseTitle file #' . $i,
+						$details
+					);
+				}
 			}
 
 			// find any other form fields and put them into the title
 			if ( Config::isDebug() ) {
-				Debug::addToDebug( 'Title before parsetitle', $titleName );
+				Debug::addToDebug(
+					'Title before parsetitle file #' . $i,
+					$titleName
+				);
 			}
 			$titleName = ContentCore::parseTitle( $titleName );
 			if ( Config::isDebug() ) {
-				Debug::addToDebug( 'Title after parsetitle', $titleName );
-			}
-
-			$titleName = $this->finalNameCleanUp( $titleName, [ $fileNameExtension, $originalFileNameExtension ] );
-			$titleName .= "." . $fileNameExtension;
-
-			if ( Config::isDebug() ) {
-				Debug::addToDebug( 'Preparing to upload file',
-								   [
-									   'original file name' => $filename,
-									   'new file name'      => $titleName,
-									   'stored file'        => $storedFile,
-									   'details'            => $details,
-									   'comment'            => $fields['comment']
-								   ] );
-			}
-
-			$resultFileUpload = $this->uploadFileToWiki(
-				$upload_dir . $storedFile,
-				$titleName,
-				$wgUser,
-				$details,
-				$fields['comment'],
-				wfTimestampNow()
-			);
-			if ( $resultFileUpload !== true ) {
-				throw new FlexFormException(
-					$resultFileUpload,
-					0
+				Debug::addToDebug(
+					'Title after parsetitle file #' . $i,
+					$titleName
 				);
 			}
-			unlink( $upload_dir . $storedFile );
+
+			$titleName = $this->finalNameCleanUp(
+				$titleName,
+				[
+					$fileNameExtension,
+					$originalFileNameExtension
+				]
+			);
+
+			// Not converting file, the add filename extension back
+			if ( $fileAction === false ) {
+				$titleName .= "." . $fileNameExtension;
+			}
+
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'Preparing to upload file #' . $i,
+					[
+						'original file name' => $filename,
+						'new file name'      => $titleName,
+						'stored file'        => $storedFile,
+						'details'            => $details,
+						'comment'            => $imageComment
+					]
+				);
+			}
+
+			$processedFiles[$fileName]['upload-name'][] = $filename;
+			$processedFiles[$fileName]['upload-base'][] = $fileNameBase;
+			$processedFiles[$fileName]['new-name'][] = $titleName;
+
+			if ( $fileAction !== false ) {
+
+				// We need to do a Pandoc conversion
+				$convert = new Convert();
+				$convert->setConvertFrom( $fileAction );
+				$convert->setFileName( $storedFile );
+				$newContent               = $convert->convertFile();
+				$possibleImagesInDocument = $convert->getPossibleImagesFromConversion();
+				if ( $possibleImagesInDocument !== false ) {
+					$fCount = 1;
+					foreach ( $possibleImagesInDocument as $singleImage ) {
+						// find [filename] and replace
+						$newFname = $fileName . '-' . basename( $singleImage );
+						if ( Config::isDebug() ) {
+							Debug::addToDebug(
+								$i . ' - Preparing to upload image file from document: ' . $fCount,
+								[
+									'$newFname' => $newFname,
+									'$singleImage'      => $singleImage,
+									'stored file'        => $storedFile,
+									'details'            => $details,
+									'comment'            => $imageComment
+								]
+							);
+						}
+						if ( !Config::isDebug() ) {
+							$resultFileUpload = $this->uploadFileToWiki(
+								$singleImage,
+								$newFname,
+								$wgUser,
+								$details,
+								$imageComment,
+								wfTimestampNow()
+							);
+							if ( $resultFileUpload !== true ) {
+								throw new FlexFormException(
+									$resultFileUpload,
+									0
+								);
+							}
+						}
+						$search     = $convert->pandocGetSearchFor() . basename( $singleImage );
+						$replace    = $convert->pandocGetReplaceWith( $newFname );
+						$newContent = str_replace(
+							$search,
+							$replace,
+							$newContent
+						);
+						unlink( $singleImage );
+						$fCount++;
+					}
+				}
+				// Now create the page in the wiki
+				if ( !Config::isDebug() ) {
+					$save = new Save();
+					try {
+						$save->saveToWiki(
+							$titleName,
+							[ 'main' => $newContent ],
+							$imageComment
+						);
+					} catch ( FlexFormException $e ) {
+						throw new FlexFormException(
+							$e->getMessage(),
+							0,
+							$e
+						);
+					}
+				}
+			} else {
+				if ( !Config::isDebug() ) {
+					$resultFileUpload = $this->uploadFileToWiki(
+						$upload_dir . $storedFile,
+						$titleName,
+						$wgUser,
+						$details,
+						$imageComment,
+						wfTimestampNow()
+					);
+					if ( $resultFileUpload !== true ) {
+						throw new FlexFormException(
+							$resultFileUpload,
+							0
+						);
+					}
+				}
+				unlink( $upload_dir . $storedFile );
+			}
 		}
+		$separator = ',';
+
+		$ffUploadedFile     = General::makeUnderscoreFromSpace( 'FFUploadedFile-UploadName-' . $fileName );
+		$ffUploadedFileBase = General::makeUnderscoreFromSpace( 'FFUploadedFile-UploadBase-' . $fileName );
+		$ffUploadedFileNew  = General::makeUnderscoreFromSpace( 'FFUploadedFile-NewName-' . $fileName );
+		$_POST[$ffUploadedFile] = implode(
+			$separator,
+			$processedFiles[$fileName]['upload-name']
+		);
+		$_POST[$ffUploadedFileBase] = implode(
+			$separator,
+			$processedFiles[$fileName]['upload-base']
+		);
+		$_POST[$ffUploadedFileNew] = implode(
+			$separator,
+			$processedFiles[$fileName]['new-name']
+		);
 
 		return true;
 	}
@@ -289,19 +537,29 @@ class Upload {
 	 *
 	 * @return string
 	 */
-	private function finalNameCleanUp( string $name, array $extensions ): string {
+	private function finalNameCleanUp( string $name, array $extensions ) : string {
 		if ( Config::isDebug() ) {
-			Debug::addToDebug( 'finalNameCleanup',
+			Debug::addToDebug(
+				'finalNameCleanup',
 				[
-					'name' => $name,
-					'extensions to remove'      => $extensions
-				] );
+					'name'                 => $name,
+					'extensions to remove' => $extensions
+				]
+			);
 		}
 		foreach ( $extensions as $extension ) {
-			if ( strpos( $name, '.' . $extension ) !== false ) {
-				$name = str_replace( '.' . $extension, '', $name );
+			if ( strpos(
+					 $name,
+					 '.' . $extension
+				 ) !== false ) {
+				$name = str_replace(
+					'.' . $extension,
+					'',
+					$name
+				);
 			}
 		}
+
 		return $name;
 	}
 
@@ -397,15 +655,17 @@ class Upload {
 		}
 		$commentText = $content;
 		if ( Config::isDebug() ) {
-			Debug::addToDebug( 'Uploading ' . $filename,
-							   [
-								   'archive value' => $archive->value,
-								   'summary'       => $summary,
-								   'content'       => $content,
-								   'props'         => $props,
-								   'base'          => $base,
-								   'commentText'   => $commentText
-							   ] );
+			Debug::addToDebug(
+				'Uploading ' . $filename,
+				[
+					'archive value' => $archive->value,
+					'summary'       => $summary,
+					'content'       => $content,
+					'props'         => $props,
+					'base'          => $base,
+					'commentText'   => $commentText
+				]
+			);
 		}
 
 		$state = $image->recordUpload3(
@@ -429,8 +689,10 @@ class Upload {
 				$summary
 			);
 			if ( Config::isDebug() ) {
-				Debug::addToDebug( 'Uploading state for ' . $filename,
-								   [ 'state' => $state ] );
+				Debug::addToDebug(
+					'Uploading state for ' . $filename,
+					[ 'state' => $state ]
+				);
 			}
 		}
 

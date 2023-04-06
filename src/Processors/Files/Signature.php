@@ -10,6 +10,7 @@
 
 namespace FlexForm\Processors\Files;
 
+use FlexForm\Core\Debug;
 use flexform\processors\api\mediawiki\render;
 use flexform\processors\api\mwApi;
 use FlexForm\Processors\Content\ContentCore;
@@ -39,25 +40,50 @@ class Signature {
 	}
 
 	/**
-	 * Takes care of uploading a signature file
-	 * @param $wsuid
-	 *
-	 * @return string|bool Either true on success or false
+	 * @return true
+	 * @throws FlexFormException
+	 * @throws \MWContentSerializationException
+	 * @throws \MWException
 	 */
-	public static function upload() {
+	public static function upload( $wsCanvasField, $fileDetails ) {
 		global $IP, $wgUser;
-		$allowedTypes = array(
+		$allowedTypes = [
 			'png',
 			'jpg',
 			'svg'
-		);
+		];
 
 		$fields = Definitions::fileUploadFields();
 
-		$wname    = General::getPostString( 'wsform_signature_filename' );
-		$data     = General::getPostString( 'wsform_signature' );
-		$fileType = General::getPostString( 'wsform_signature_type' );
-		$pcontent = General::getPostString( 'wsform_signature_page_content' );
+		if ( Config::isDebug() ) {
+			Debug::addToDebug( 'Signature File Upload',
+							   [
+								   'fields' => $fields,
+								   'post'   => $_POST
+							   ] );
+		}
+
+		$wname        = General::getJsonValue(
+			'wsform_signature_filename',
+			$fileDetails
+		);
+		$data         = $wsCanvasField;
+		$fileType     = General::getJsonValue(
+			'wsform_signature_type',
+			$fileDetails
+		);
+		$pcontent     = General::getJsonValue(
+			'wsform_signature_page_content',
+			$fileDetails
+		);
+		$pageTemplate = General::getJsonValue(
+			'pagetemplate',
+			$fileDetails
+		);
+		$parseContent = General::getJsonValue(
+			'parsecontent',
+			$fileDetails
+		);
 
 		if ( !$wname ) {
 			throw new FlexFormException( 'No target file for signature.', 0 );
@@ -74,12 +100,12 @@ class Signature {
 
 		$pcontent = trim( $pcontent );
 
-		if ( $fields['pagetemplate'] && $fields['parsecontent'] !== false ) {
-			$filePageTemplate = trim( $fields['pagetemplate'] );
+		if ( $pageTemplate !== false && $parseContent !== false ) {
+			$filePageTemplate = trim( $pageTemplate );
 			$pcontent = ContentCore::setFileTemplate( $filePageTemplate, $pcontent );
 		}
 
-		if ( $fields['parsecontent'] !== false ) {
+		if ( $parseContent !== false ) {
 			$pcontent = ContentCore::parseTitle( $pcontent );
 		}
 
@@ -90,17 +116,17 @@ class Signature {
 		}
 
 		// Test if directory already exists
-		if ( ! is_dir( $upload_dir ) ) {
+		if ( !is_dir( $upload_dir ) ) {
 			mkdir( $upload_dir, 0755, true );
 		}
 		$fname = $fileCore->sanitizeFileName( $wname ) . "." . $fileType;
 		//echo $fname;
-		if ( ! file_put_contents( $upload_dir . $fname, $data ) ) {
+		if ( !file_put_contents( $upload_dir . $fname, $data ) ) {
 			throw new FlexFormException( 'Could not save file.', 0 );
 		}
 		$fileCore = new FilesCore();
 		$url     = Config::getConfigVariable( 'wgCanonicalServer' ) . 'extensions/FlexForm/uploads/' . $fname;
-		$pname   = trim( $wname );
+		$pname   = trim( $wname . "." . $fileType );
 		$comment = self::getSummary();
 		//$result  = $api->uploadFileToWiki( $pname, $url, $pcontent, $comment, $upload_dir . $fname );
 		$uploadFile = new Upload();

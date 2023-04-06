@@ -13,6 +13,7 @@ use FlexForm\Processors\Definitions;
 use FlexForm\Processors\Utilities\General;
 use FlexForm\Processors\Files\FilesCore;
 use FlexForm\FlexFormException;
+use Title;
 use User;
 
 /**
@@ -121,9 +122,14 @@ class ContentCore {
 			self::$fields['overwrite'] = false;
 		}
 
+		if ( self::$fields['separator'] === false ) {
+			self::$fields['separator'] = ',';
+		}
+
 		if ( isset( $_POST['mwleadingzero'] ) ) {
 			self::$fields['leadByZero'] = true;
 		}
+
 
 		self::$fields['returnto'] = urldecode( self::$fields['returnto'] );
 
@@ -141,6 +147,26 @@ class ContentCore {
 	}
 
 	/**
+	 * @param string $title
+	 *
+	 * @return string|null
+	 * @throws FlexFormException
+	 */
+	public static function letMWCheckTitle( string $title ) {
+		$titleObject = Title::newFromText( $title );
+		if ( $titleObject === null ) {
+			throw new FlexFormException(
+				wfMessage( 'flexform-error-could-not-create-page',
+						   $title,
+						   "Title is null" ),
+				0,
+				null
+			);
+		}
+		return $titleObject->getFullText();
+	}
+
+	/**
 	 * @param HandleResponse $response_handler
 	 * @param string|bool $email
 	 *
@@ -152,8 +178,9 @@ class ContentCore {
 	public static function saveToWiki( HandleResponse $response_handler, $email = false ) : HandleResponse {
 		self::$fields = Definitions::createAndEditFields();
 		if ( Config::isDebug() ) {
+			$debugTitle = '<b>::' . get_class() . '::</b> ';
 			Debug::addToDebug(
-				'createandeditfields',
+				$debugTitle . 'createandeditfields',
 				self::$fields
 			);
 		}
@@ -162,7 +189,7 @@ class ContentCore {
 		self::checkFields();
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
-				'checkfields',
+				$debugTitle . 'checkfields',
 				self::$fields
 			);
 		}
@@ -177,7 +204,7 @@ class ContentCore {
 		// WSCreate single
 		if ( self::$fields['template'] !== false && self::$fields['writepage'] !== false ) {
 			if ( Config::isDebug() ) {
-				Debug::addToDebug( 'Writing single page',
+				Debug::addToDebug( $debugTitle . 'Writing single page',
 								   [] );
 			}
 			$create = new Create();
@@ -185,7 +212,7 @@ class ContentCore {
 				$result = $create->writePage();
 				if ( Config::isDebug() ) {
 					Debug::addToDebug(
-						'writepage result',
+						$debugTitle . 'writepage result',
 						$result
 					);
 				}
@@ -206,6 +233,7 @@ class ContentCore {
 				$result['content']
 			);
 			$save              = new Save();
+
 			try {
 				$save->saveToWiki(
 					$result['title'],
@@ -224,7 +252,7 @@ class ContentCore {
 			if ( !self::$fields['mwedit'] && !$email && !self::$fields['writepages'] ) {
 				if ( Config::isDebug() ) {
 					Debug::addToDebug(
-						'finished 1 wscreate value returnto is',
+						$debugTitle . 'finished 1 wscreate value returnto is',
 						self::$fields['returnto']
 					);
 				}
@@ -321,7 +349,7 @@ class ContentCore {
 			$pageContents = $edit->editPage();
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
-					'PageContent ',
+					$debugTitle . 'PageContent ',
 					$pageContents
 				);
 			}
@@ -387,11 +415,11 @@ class ContentCore {
 	 * @return void
 	 */
 	public static function checkFollowPage( $title ) : void {
-		$title     = ltrim(
+		$title = '/' . ltrim(
 			$title,
 			'/'
 		);
-
+		//$serverUrl = wfGetServerUrl( null ) . '/' . 'index.php';
 		if ( self::$fields['mwfollow'] !== false ) {
 			if ( self::$fields['mwfollow'] === 'true' ) {
 				if ( strpos(
@@ -401,7 +429,7 @@ class ContentCore {
 										$title,
 										'::id::'
 									) === false ) {
-					self::$fields['returnto'] = wfExpandUrl($title);
+					self::$fields['returnto'] = wfExpandUrl( $title, PROTO_RELATIVE );
 				}
 			} else {
 				if ( strpos(
@@ -484,7 +512,7 @@ class ContentCore {
 			$ret = "{{" . self::$fields['template'] . "\n";
 		}
 		foreach ( $_POST as $k => $v ) {
-			if ( is_array( $v ) && !Definitions::isFlexFormSystemField( $k ) ) {
+			if ( is_array( $v ) && !Definitions::isFlexFormSystemField( $k, false ) ) {
 				$uk = General::makeSpaceFromUnderscore( $k );
 				$ret .= "|" . $uk . "=";
 				if ( self::hasAssignedKeys( $v ) ) {
@@ -493,14 +521,14 @@ class ContentCore {
 				foreach ( $v as $multiple ) {
 					$cleanedBraces = wsSecurity::cleanBraces( $multiple );
 					$cleanedBracesArray[$uk][] = self::checkJsonValues( $cleanedBraces );
-					$ret .= $cleanedBraces . ',';
+					$ret .= $cleanedBraces . self::$fields['separator'];
 				}
 				$ret = rtrim(
 						   $ret,
-						   ','
+						   self::$fields['separator']
 					   ) . PHP_EOL;
 			} else {
-				if ( !Definitions::isFlexFormSystemField( $k ) && $v != "" ) {
+				if ( !Definitions::isFlexFormSystemField( $k, false ) && $v != "" ) {
 					$uk = General::makeSpaceFromUnderscore( $k );
 					if ( !$noTemplate ) {
 						$cleanedBraces = wsSecurity::cleanBraces( $v );
@@ -559,12 +587,28 @@ class ContentCore {
 	 * @return string
 	 */
 	public static function checkCapitalTitle( string $title ): string {
+		$titleObject = Title::newFromText( $title );
+		if ( $titleObject === null ) {
+			return $title;
+		}
+		$ns = $titleObject->getNamespace();
 		$config = MediaWikiServices::getInstance()->getMainConfig();
 		if ( $config->has( 'CapitalLinks' ) ) {
-			if ( $config->get( 'CapitalLinks' ) === true ) {
-				return ucfirst( $title );
-			}
+			$capLinks = $config->get( 'CapitalLinks' );
 		} else {
+			$capLinks = true;
+		}
+		if ( $config->has( 'CapitalLinkOverrides' ) ) {
+			$capLinkOverrides = $config->get( 'CapitalLinkOverrides' );
+		} else {
+			$capLinkOverrides = [];
+		}
+		if ( $capLinks === true ) {
+			if ( isset( $capLinkOverrides[$ns] ) ) {
+				if ( $capLinkOverrides[$ns] === false ) {
+					return $title;
+				}
+			}
 			return ucfirst( $title );
 		}
 		return $title;
@@ -584,7 +628,7 @@ class ContentCore {
 		);
 		$t = time();
 		if ( Config::isDebug() ) {
-			Debug::addToDebug( 'Parsetitle ' . $t, $tmp );
+			Debug::addToDebug( 'Parsetitle ' . $title, $tmp );
 		}
 		foreach ( $tmp as $fieldname ) {
 			if ( $fieldname == 'mwrandom' ) {

@@ -538,7 +538,7 @@ function wsform (btn, callback = 0, preCallback = 0, showId = 0) {
 	}
 	$(btn).addClass('disabled')
 
-	if (typeof window.wgInstancesArray === 'object') {
+	if ( typeof window.wgInstancesArray === 'object' ) {
 		$.each(window.wgInstancesArray, (i, instance) => {
 			instance.save()
 		})
@@ -998,25 +998,11 @@ function addTokenInfo () {
 				//showWeAreWorking(this);
 				var canvas = pform.find('div[id*="canvas_"]' );
 				if( canvas.length > 0 ) {
-					//console.log( "We have a canvas!" );
-					var sourceId =  $(canvas[0]).data('canvas-source');
-					//console.log( 'id to get = ' + sourceId );
-
-					var exportId = $(canvas)[0].id;
-					//console.log( 'id to export = ' + exportId );
-					let htmlDiv = document.getElementById( sourceId );
-					html2canvas(htmlDiv).then(
-						function (canvas) {
-							$('<input />')
-								.attr('type', 'hidden')
-								.attr('name', 'ff_canvas_file')
-								.attr('value', canvas.toDataURL( "image/jpeg", 100 ) )
-								.appendTo(pform);
-							//document.getElementById( exportId ).appendChild(canvas);
-							weAreDoneWorking(pform);
-							pform.submit();
-						})
-
+					addScreenshotToForm( canvas, pform ).then(function(){
+						//weAreDoneWorking(pform);
+						//console.log( "DONE DONE DONE");
+						//pform.submit();
+					});
 				} else {
 					pform.submit();
 				}
@@ -1029,7 +1015,38 @@ function addTokenInfo () {
 
 }
 
+async function makeScreenShot( htmlDiv ) {
+	const screenshot = await html2canvas( htmlDiv );
+	return screenshot.toDataURL( "image/jpeg", 100 );
+}
+
+async function addScreenshotToForm( canvas, pform ) {
+		//console.log( "We have a canvas!" );
+		canvas.length;
+		for( let i = 0; i < canvas.length; ++i ) {
+		var sourceId = $(canvas[i]).data('canvas-source');
+		var canvasName = $(canvas[i]).data('canvas-name');
+		console.log( 'id to get = ' + sourceId );
+
+		var exportId = $(canvas[i]).id;
+		console.log( 'canvasName = ' + canvasName );
+		let htmlDiv = document.getElementById( sourceId );
+		const screenshot = await makeScreenShot( htmlDiv );
+		$('<input />')
+			.attr('type', 'hidden' )
+			.attr('name', canvasName )
+			.attr('value', screenshot )
+			.appendTo(pform);
+		}
+			weAreDoneWorking(pform);
+			console.log( "DONE DONE DONE");
+			pform.submit();
+	}
+
 function showWeAreWorking (form) {
+	if ( typeof window.ffDoNotDisableSubmit !== 'undefined' ) {
+		return;
+	}
 	var btn = $(form).find(':submit')
 	var spinner = $(form).find('.flex-form-spinner')
 	$(spinner).addClass('active')
@@ -1038,6 +1055,9 @@ function showWeAreWorking (form) {
 }
 
 function weAreDoneWorking (form) {
+	if ( typeof window.ffDoNotDisableSubmit !== 'undefined' ) {
+		return;
+	}
 	var btn = $(form).find(':submit')
 	var spinner = $(form).find('.flex-form-spinner')
 	$(spinner).removeClass('active')

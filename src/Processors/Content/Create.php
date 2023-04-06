@@ -17,6 +17,7 @@ use FlexForm\Processors\Definitions;
 use FlexForm\Processors\Security\wsSecurity;
 use FlexForm\Processors\Utilities\General;
 use FlexForm\FlexFormException;
+use MWException;
 
 class Create {
 
@@ -26,10 +27,11 @@ class Create {
 	private $pagesToSave;
 	private $pageData;
 
+
 	/**
 	 * @return array
 	 * @throws FlexFormException
-	 * @throws \MWException
+	 * @throws MWException
 	 */
 	public function writePage(): array {
 		$fields = ContentCore::getFields();
@@ -56,6 +58,15 @@ class Create {
 
 		$this->title = $fields['writepage'];
 
+		try {
+			$this->title = ContentCore::letMWCheckTitle( $this->title );
+		} catch ( FlexFormException $e ) {
+			throw new FlexFormException(
+				$e->getMessage(),
+				0,
+				$e
+			);
+		}
 
 		if ( strtolower( $fields['option'] ) == 'next_available' ) {
 			// get highest number
@@ -119,7 +130,13 @@ class Create {
 		}
 
 		if ( $fields['option'] == 'add_random' && $fields['writepage'] !== false ) {
+
 			$this->title = $fields['writepage'] . ContentCore::createRandom();
+			if ( Config::isDebug() ) {
+				Debug::addToDebug( 'Add random to title ' . time(),
+					['title' => $fields['writepage'],
+					 'new Title' => $this->title ] );
+			}
 		}
 
 		if ( !$fields['writepage'] ) {
@@ -172,7 +189,7 @@ class Create {
 			if ( strpos( $field, '::' ) !== false ) {
 				// We have Aliases
 				$exploded = explode( '::', $field );
-				$originalName = $exploded[0];
+				$originalName = General::makeUnderscoreFromSpace( $exploded[0] );
 				$templateName = $exploded[1];
 				$this->pageData['aliasFields'][$originalName] = $templateName;
 				$this->pageData['formFields'][$k] = $originalName;
@@ -277,15 +294,17 @@ class Create {
 		$pageTitleToLinkTo = [];
 		$json = [];
 		if ( Config::isDebug() ) {
-			Debug::addToDebug( 'Write several page activated ' . time(), $fields );
+			$debugTitle = '<b>::' . get_class() . '::</b> ';
+			Debug::addToDebug( $debugTitle . 'Write several page activated ' . time(), $fields );
 		}
 		foreach ( $fields['writepages'] as $singlePage ) {
 			$pageCount++;
 			$this->content = '';
 			$this->setPageDataMultiple( $singlePage );
 			if ( Config::isDebug() ) {
+				$debugTitle .= $pageCount . ' ';
 				Debug::addToDebug(
-					'Working on page ' . $pageCount,
+					$debugTitle . 'Working on page ' . $pageCount,
 					[ 'pageinfo' => $singlePage,
 						'after setpageDataMultiple' => $this->pageData ]
 				);
@@ -299,24 +318,25 @@ class Create {
 			}
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
-					'Content original ' . $pageCount,
+					$debugTitle . 'Content original ' . $pageCount,
 					$this->content
 				);
 			}
+
 			$this->addPostFieldsToContent();
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
-					'PageData after adding form fields ' . $pageCount,
+					$debugTitle . 'PageData after adding form fields ' . $pageCount,
 					$this->pageData
 				);
 				if ( $this->pageData['format'] === 'wiki' ) {
 					Debug::addToDebug(
-						'Content after adding form fields ' . $pageCount,
+						$debugTitle . 'Content after adding form fields ' . $pageCount,
 						$this->content
 					);
 				} else {
 					Debug::addToDebug(
-						'JSONContent after adding form fields ' . $pageCount,
+						$debugTitle . 'JSONContent after adding form fields ' . $pageCount,
 						$this->JSONContent
 					);
 				}
@@ -336,12 +356,27 @@ class Create {
 			}
 
 			$this->pageData['title'] = ContentCore::checkCapitalTitle( $this->pageData['title'] );
+
+			if ( substr( $this->pageData['title'],
+						 0,
+						 6 ) !== '--id--' && substr( $this->pageData['title'],
+													 0,
+													 6 ) !== '::id::' ) {
+				try {
+					$this->pageData['title'] = ContentCore::letMWCheckTitle( $this->pageData['title'] );
+				} catch ( FlexFormException $e ) {
+					throw new FlexFormException( $e->getMessage(),
+												 0,
+												 $e );
+				}
+			}
+
 			if ( $this->pageData['option'] == 'next_available' ) {
 
 				$hnr = ContentCore::getNextAvailable( $this->pageData['title'] );
 				if ( Config::isDebug() ) {
 					Debug::addToDebug(
-						'next available',
+						$debugTitle . 'next available',
 						$hnr
 					);
 				}
@@ -395,7 +430,7 @@ class Create {
 					);
 					if ( Config::isDebug() ) {
 						Debug::addToDebug(
-							'lead by zero active ' . time(),
+							$debugTitle . 'lead by zero active ' . time(),
 							[ 'rangeCheck' => $rangeCheck,
 							'endrangeLenth' => $endrangeLength,
 							'rangeResult' => $rangeResult ]
@@ -408,6 +443,11 @@ class Create {
 
 			if ( strtolower( $this->pageData['option'] ) === 'add_random' && $this->pageData['title'] !== false ) {
 				$this->pageData['title'] = $this->pageData['title'] . ContentCore::createRandom();
+				if ( Config::isDebug() ) {
+					Debug::addToDebug( $debugTitle . 'Add random to title ' . time(),
+						['title' => $this->pageData['title'],
+						 'new Title' => $this->pageData['title'] ] );
+				}
 			}
 
 			ContentCore::checkFollowPage( $this->pageData['title'] );
@@ -430,22 +470,23 @@ class Create {
 		}
 
 		if ( Config::isDebug() ) {
+			$debugTitle = '<b>::' . get_class() . '::</b> ';
 			Debug::addToDebug(
-				'$pagesToSave',
+				$debugTitle . '$pagesToSave',
 				$pagesToSave
 			);
 		}
 		if ( Config::isDebug() ) {
-			Debug::addToDebug( 'Pages to save before addCreatToTile ' . time(), $pagesToSave );
+			Debug::addToDebug( $debugTitle . 'Pages to save before addCreatToTile ' . time(), $pagesToSave );
 		}
 		$pagesToSave = $this->addCreateToTitle( $pagesToSave, $pageTitleToLinkTo );
 		if ( Config::isDebug() ) {
-			Debug::addToDebug( 'Pages to save after addCreatToTitle ' . time(), $pagesToSave );
+			Debug::addToDebug( $debugTitle . 'Pages to save after addCreatToTitle ' . time(), $pagesToSave );
 		}
 		$finalPages = $this->createFinalPages( $pagesToSave );
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
-				'$finalPages',
+				$debugTitle . '$finalPages',
 				$finalPages
 			);
 		}
@@ -521,7 +562,20 @@ class Create {
 		$json = [];
 		$this->JSONContent = [];
 		$json['ffID'] = ContentCore::createRandom();
+		$nrOfPostAttr = 0;
 		foreach ( $_POST as $k => $v ) {
+			if ( Config::isDebug() ) {
+				$debugtitle = '<b>::' . get_class() . '::</b> ' . $nrOfPostAttr . ' ';
+				Debug::addToDebug(
+					$debugtitle . '. Checking field $k',
+					[
+						'$k'                 => $k,
+						'Lower $k'                 => General::makeSpaceFromUnderscore( $k ),
+						'formfields' => $this->pageData['formFields'],
+						'$_POST' => $_POST
+					]
+				);
+			}
 			if ( is_array( $this->pageData['formFields'] ) ) {
 				if ( !in_array(
 						General::makeSpaceFromUnderscore( $k ),
@@ -530,10 +584,20 @@ class Create {
 						$k,
 						$this->pageData['formFields']
 					) ) {
+					if ( Config::isDebug() ) {
+						Debug::addToDebug(
+							$debugtitle . '. Field $k is not in formFields ',
+							[
+								'$k'                 => $k,
+								'formfields' => $this->pageData['formFields']
+							]
+						);
+					}
+					$nrOfPostAttr++;
 					continue;
 				}
 			}
-			if ( is_array( $v ) && !Definitions::isFlexFormSystemField( $k ) ) {
+			if ( is_array( $v ) && !Definitions::isFlexFormSystemField( $k, false ) ) {
 				if ( array_key_exists(
 					$k,
 					$this->pageData['aliasFields']
@@ -548,7 +612,7 @@ class Create {
 					$json[$kField]['ffID'] = ContentCore::createRandom();
 				}
 				foreach ( $v as $multiple ) {
-					$this->content .= wsSecurity::cleanBraces( $multiple ) . ',';
+					$this->content .= wsSecurity::cleanBraces( $multiple ) . $fields['separator'];
 					if ( contentcore::isInstance( $kField ) === true ) {
 						$json[ $kField ][] = json_decode( $multiple, true );
 					} else {
@@ -557,13 +621,37 @@ class Create {
 				}
 				$this->content = rtrim(
 									 $this->content,
-									 ','
+									 $fields['separator']
 								 ) . PHP_EOL;
 			} else {
-				if ( !Definitions::isFlexFormSystemField( $k ) && $v != "" ) {
+				if ( Config::isDebug() ) {
+					if ( Definitions::isFlexFormSystemField( $k, false ) ) {
+						$isFF = "yes";
+					} else {
+						$isFF = "no";
+					}
+					Debug::addToDebug(
+						$debugtitle . '. Value is not an array ',
+						[
+							'$k'                 => $k,
+							'$v' => $v,
+							'Is FlexFormField?' => $isFF
+						]
+					);
+				}
+				if ( !Definitions::isFlexFormSystemField( $k, false ) && $v != "" ) {
 					// if ( $k !== "mwtemplate" && $k !== "mwoption" && $k !== "mwwrite" &&
 					// $k !== "mwreturn" && $k !== "mwedit" && $v != "" ) {
-					if ( !$this->pageData['notemplate'] ) {
+						if ( !$this->pageData['notemplate'] ) {
+						if ( Config::isDebug() ) {
+							Debug::addToDebug(
+								$debugtitle . '. Checking if we have aliasfields ',
+								[
+									'$k'                 => $k,
+									'aliasfields' => $this->pageData['aliasFields']
+								]
+							);
+						}
 						if ( array_key_exists(
 							$k,
 							$this->pageData['aliasFields']
@@ -580,6 +668,15 @@ class Create {
 						} else {
 							$kField = General::makeSpaceFromUnderscore(	$k );
 							$vField = wsSecurity::cleanBraces( $v );
+							if ( Config::isDebug() ) {
+								Debug::addToDebug(
+									$debugtitle . '. Adding to content ',
+									[
+										'$kField'                 => $kField,
+										'$vField' => $vField
+									]
+								);
+							}
 							$this->content .= '|' . $kField . '=' . $vField . PHP_EOL;
 							if ( contentcore::isInstance( $kField ) === true ) {
 								$json[$kField] = json_decode( $vField,	true );
@@ -592,6 +689,7 @@ class Create {
 					}
 				}
 			}
+			$nrOfPostAttr++;
 		}
 		if ( !$this->pageData['notemplate'] ) {
 			$this->content .= "}}";

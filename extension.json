@@ -1,6 +1,6 @@
 {
   "name": "FlexForm",
-  "version": "2.0.12",
+  "version": "2.1.0",
   "author": [
     "[https://www.wikibase-solutions.com/author/charlot Sen-Sai]",
     "[https://www.wikibase-solutions.com/author/marijn Marijn]"
@@ -71,7 +71,6 @@
       "smtp_secure": "TLS",
       "smtp_port": 587,
       "debug": false,
-      "loadScriptPath" : "",
       "FlexFormDefaultTheme": "Plain",
       "can_create_user": false,
       "create-seo-titles": false,
@@ -80,7 +79,8 @@
       "renderi18nErrorInsteadofImageForApprovedForms" : true,
       "userscaneditallpages" : false,
       "allowedGroups" : [ "sysop" ],
-      "hideEdit" : true
+      "hideEdit" : true,
+      "pandoc-install-path" : ""
     }
 
   },

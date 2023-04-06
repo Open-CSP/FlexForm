@@ -379,11 +379,11 @@ class Edit {
 					if ( is_array( $_POST[$ff] ) ) {
 						$data[$pid][$t]['value'] = "";
 						foreach ( $_POST[$ff] as $multiple ) {
-							$data[$pid][$t]['value'] .= $multiple . ',';
+							$data[$pid][$t]['value'] .= $multiple . $fields['separator'];
 						}
 						$data[$pid][$t]['value'] = rtrim(
 							$data[$pid][$t]['value'],
-							','
+							$fields['separator']
 						);
 					} else { // it is not an array.
 						if ( Config::isDebug() ) {
@@ -401,6 +401,12 @@ class Edit {
 								);
 							}
 							$data[ $pid ][ $t ]['value'] = json_decode( $_POST[ $ff ], true );
+							if ( Config::isDebug() ) {
+								Debug::addToDebug(
+									'In instance and JSON added formield : ' . $ff,
+									$data
+								);
+							}
 						} else {
 							$data[ $pid ][ $t ]['value'] = $_POST[ $ff ];
 						}

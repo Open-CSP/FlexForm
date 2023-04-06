@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://open-csp.org/extensions/FlexForm/src/Render/Schemas/FlexForm-Input.json",
+  "title": "FlexForm Inputs",
+  "description": "Definitions FlexForm input types",
+  "type": "object",
+  "properties": {
+    "text": {
+      "description": "HTML input type of text",
+      "type": "string"
+    },
+    "number": {
+      "description": "HTML input type of number",
+      "type": "number"
+    },
+    "button": {
+    },
+    "checkbox": {
+    },
+    "color": {
+    },
+    "date": {
+    },
+    "datetime-local": {
+    },
+    "email": {
+    },
+    "file": {
+    },
+    "hidden": {
+    },
+    "image": {
+    },
+    "month": {
+    },
+    "password": {
+    },
+    "radio": {
+    },
+    "range": {
+    },
+    "reset": {
+    },
+    "search": {
+    },
+    "secure": {
+    },
+    "signature": {
+    },
+    "submit": {
+    },
+    "tel": {
+    },
+    "textarea": {
+    },
+    "time": {
+    },
+    "url": {
+    },
+    "week": {
+    }
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "$id": "https://open-csp.org/extensions/FlexForm/src/Render/Schemas/FlexForm-CspParameterDefinitionsScheme.json",
+  "title": "Render a edit CspParameterDefinitions json",
+  "description": "Render a edit CspParameterDefinitions json",
+  "type": "object",
+  "properties": {
+    "form": {
+      "type": "object",
+      "properties": {
+        "naming": {
+          "type": "object",
+          "htmlElement": "fieldset",
+          "title": "Name details",
+          "properties": {
+            "label_for_name": {
+              "htmlElement": "label",
+              "type": "string",
+              "title": "Your full name",
+              "for": "name",
+              "behaviour": "inline",
+              "class": "ff-label"
+            },
+            "name": {
+              "htmlElement": "input",
+              "inputType": "text",
+              "type": "string",
+              "class": "ff-input-text",
+              "behaviour": "break"
+            }
+          }
+        },
+        "label_for_name": {
+          "htmlElement": "label",
+          "type": "string",
+          "title": "Your full name",
+          "for": "name",
+          "behaviour": "inline",
+          "class": "ff-label"
+        },
+        "name": {
+          "htmlElement": "input",
+          "inputType": "text",
+          "type": "string",
+          "class": "ff-input-text",
+          "behaviour": "break"
+        },
+        "label_for_email": {
+          "htmlElement": "label",
+          "type": "string",
+          "for": "email",
+          "title": "Your email address",
+          "behaviour": "inline",
+          "class": "ff-label"
+        },
+        "email": {
+          "htmlElement": "input",
+          "type": "string",
+          "inputType": "email",
+          "label": "Your email address",
+          "behaviour": "break"
+        },
+        "submit-button": {
+          "htmlElement": "input",
+          "inputType": "submit",
+          "type": null,
+          "value": "Submit the form",
+          "class": "btn btn-primary"
+        }
+      },
+      "required": [
+        "name",
+        "email"
+      ]
+    }
+  }
+}

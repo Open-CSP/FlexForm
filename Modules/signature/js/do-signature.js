@@ -1,7 +1,18 @@
 
+function doWSformActions() {
+	if ( typeof ff_signature === 'undefined' ) {
+		return;
+	}
+	console.log( ff_signature.length );
+	for( let i = 0; i < ff_signature.length; ++i ) {
+		let name = ff_signature[i].name;
+		let func = "signature_" + name;
+		window[func]();
+	}
 
+}
 
-function wachtff(method) {
+function holdOnSignature(method) {
 	//console.log('wacht ff op jQuery..');
 	if (window.jQuery) {
 		//console.log('ok JQuery active.. lets go!');
@@ -34,5 +45,5 @@ function doSignature() {
 
 
 document.addEventListener("DOMContentLoaded", function() {
-	wachtff(doSignature);
+	holdOnSignature(doSignature);
 });

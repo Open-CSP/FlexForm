@@ -6,6 +6,7 @@ use FlexForm\Core\Config;
 use FlexForm\Core\Debug;
 use FlexForm\Core\HandleResponse;
 use FlexForm\FlexFormException;
+use FlexForm\Processors\Definitions;
 use FlexForm\Processors\Utilities\General;
 use FlexForm\Processors\Files;
 use Symfony\Component\Security\Acl\Exception\Exception;
@@ -21,72 +22,102 @@ class FilesCore {
 	 * @throws FlexFormException
 	 */
 	public function handleFileUploads(): void {
-		$wsSignature = General::getPostString(
-			self::SIGNATURE_FILENAME,
-			false
-		);
 
-		$wsCanvas = General::getPostString(
-			self::CANVAS_FILENAME,
-			false
-		);
-
-		if ( $wsSignature !== false ) {
-			$res = Signature::upload();
-		}
-
-		if ( $wsCanvas !== false ) {
-			try {
-				$res = Canvas::upload( $wsCanvas );
-			} catch ( FlexFormException $e ) {
-				throw new FlexFormException( $e->getMessage(), 0 );
-			} catch ( \MWContentSerializationException|\MWException $e ) {
-			}
-		}
-
-		if ( Config::isDebug() ) {
-			Debug::addToDebug(
-				'File upload class',
-				['Looking for ' . self::FILENAME, $_FILES]
-			);
-		}
-		if ( isset( $_FILES[self::FILENAME] ) ) {
+		$fields = Definitions::fileUploadFields();
+		if ( $fields['actions'] === null ) {
 			if ( Config::isDebug() ) {
-				Debug::addToDebug(
-					'Checking for files to upload',
-					$_FILES[self::FILENAME]
-				);
+				Debug::addToDebug( 'No file uploads',
+								   [
+									   'fields' => $fields,
+									   'post'   => $_POST
+								   ] );
 			}
-			if ( file_exists( $_FILES[self::FILENAME]['tmp_name'][0] ) ) {
-				$fileUpload = new Upload();
-				try {
-					$res = $fileUpload->fileUpload();
-				} catch ( FlexFormException $e ) {
-					throw new FlexFormException( $e->getMessage(), 0 );
+			return;
+		}
+
+		foreach ( $fields['actions'] as $entry ) {
+			foreach ( $entry as $fileName => $fileDetails ) {
+				$fileName = General::makeUnderscoreFromSpace( $fileName );
+				switch ( General::getJsonValue(
+					'type',
+					$fileDetails
+				) ) {
+					case "signature":
+						$wsSignature = General::getPostString(
+							$fileName,
+							false
+						);
+						$res = Signature::upload( $wsSignature, $fileDetails );
+						break;
+					case "canvas":
+						$wsCanvas = General::getPostString(
+							$fileName,
+							false
+						);
+						if ( $wsCanvas !== false ) {
+							try {
+								$res = Canvas::upload( $wsCanvas, $fileDetails );
+							} catch ( FlexFormException $e ) {
+								throw new FlexFormException(
+									$e->getMessage(),
+									0
+								);
+							} catch ( \MWContentSerializationException | \MWException $e ) {
+							}
+						}
+						break;
+					case "file":
+						if ( Config::isDebug() ) {
+							Debug::addToDebug(
+								'File upload class',
+								[
+									'Looking for ' . $fileName,
+									$_FILES
+								]
+							);
+						}
+						if ( isset( $_FILES[$fileName] ) ) {
+							if ( Config::isDebug() ) {
+								Debug::addToDebug(
+									'Checking for files to upload',
+									$_FILES
+								);
+							}
+							if ( ( is_array( $_FILES[$fileName]['tmp_name'] ) && file_exists(
+										$_FILES[$fileName]['tmp_name'][0]
+									) ) || ( file_exists( $_FILES[$fileName]['tmp_name'] ) ) ) {
+								$fileUpload = new Upload( $fileName, $fileDetails );
+								try {
+									$res = $fileUpload->fileUpload();
+								} catch ( FlexFormException $e ) {
+									throw new FlexFormException(
+										$e->getMessage(),
+										0
+									);
+								}
+								if ( Config::isDebug() ) {
+									Debug::addToDebug(
+										'New _POST',
+										$_POST
+									);
+								}
+							}
+						}
+						break;
 				}
-
 			}
 		}
-
-		/*
-		if ( isset( $_POST['wsformfile_slim'] ) ) {
-			$ret = upload::fileUploadSlim( $api );
-			if ( isset( $ret['status'] ) && $ret['status'] === 'error' ) {
-				$messages->doDie( ' slim : ' . $ret['msg'] );
-			}
-		}
-		*/
 	}
 
 	/**
 	 * Check if it is a single file and check if error check is set
 	 *
-	 * @param $file
+	 * @param array $file
 	 *
 	 * @return bool|string
 	 */
-	public function checkFileUploadForError( $file ) {
-		if ( ! isset( $file['error'] ) || is_array( $file['error'] ) ) {
+	public function checkFileUploadForError( array $file ) {
+		if ( !isset( $file['error'] ) || is_array( $file['error'] ) ) {
 			return "No file found or we received multiple files.";
 		} else {
 			return false;
@@ -148,9 +179,9 @@ class FilesCore {
 	 * @param string $target_dir [description]
 	 * @param string $target_name [name of the target file]
 	 * @param string $image [path to image]
-	 * @param integer $image_quality [0-100]
+	 * @param int $image_quality [0-100]
 	 *
-	 * @return string|bool                 [return path of new file or false if nothing can be worked out]
+	 * @return string|bool return path of new file or false if nothing can be worked out]
 	 */
 	public function convert_image(
 		string $convert_type,
@@ -168,7 +199,7 @@ class FilesCore {
 				  'target_name' => $target_name,
 				  'target_dir' => $target_dir,
 				  'convert_type' => $convert_type,
-					'img_name' => $img_name]
+					'img_name' => $img_name ]
 			);
 		}
 		//to png

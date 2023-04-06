@@ -8,6 +8,9 @@ use FlexForm\Core\Sql;
 use FlexForm\Processors\Content\Render;
 use FlexForm\Processors\Files\FilesCore;
 use FlexForm\Processors\Utilities\General;
+use FlexForm\Render\Helpers\Email;
+use FlexForm\Render\Helpers\Json;
+use FlexForm\Render\Helpers\MobileScreenShot;
 use MediaWiki\MediaWikiServices;
 use Parser;
 use PPFrame;
@@ -101,6 +104,7 @@ class TagHooks {
 				$formContent = $input;
 			}
 			$this->setOfficialForm( (int)$id, $formContent );
+
 		}
 
 		// Do we have some messages to show?
@@ -108,7 +112,6 @@ class TagHooks {
 			if ( !isset ( $_COOKIE['wsform'] ) ) {
 				return '';
 			}
-
 
 			$alertTag = \Xml::tags(
 				'div',
@@ -174,7 +177,6 @@ class TagHooks {
 		}
 		// && $allowAnonymous === false
 
-
 		if ( Config::isSecure() === true ) {
 			Core::includeInlineScript( "const wgFlexFormSecure = true;" );
 		} else {
@@ -216,7 +218,6 @@ class TagHooks {
 		} else {
 			$mwReturn = $parser->getTitle()->getLinkURL();
 		}
-
 
 		if ( isset( $args['formtarget'] ) ) {
 			$formTarget = $args['formtarget'];
@@ -358,6 +359,10 @@ class TagHooks {
 			}
 		}
 
+		if ( isset( $args['no_disable_on_submit'] ) ) {
+			Core::includeJavaScriptConfig( 'ffDoNotDisableSubmit', true );
+		}
+
 		if ( isset( $args['no_submit_on_return'] ) ) {
 			unset( $args['no_submit_on_return'] );
 			if ( isset( $args['class'] ) ) {
@@ -408,10 +413,17 @@ class TagHooks {
 		}
 
 		$actionUrl = $formTarget ?? Core::getAPIurl();
-		$output    = $parser->recursiveTagParse(
+		$output = '';
+		if ( isset( $args['json'] ) ) {
+			$handleJSON = new Json();
+			$output = $handleJSON->handleJSON( $args['json'], $args, $parser, $frame, $this->themeStore );
+		}
+		$output .= $parser->recursiveTagParse(
 			trim( $input ),
 			$frame
 		);
+
+		$separator = $this->createSeparatorField( Core::$separator );
 
 		try {
 			$previousTheme = $this->themeStore->getFormThemeName();
@@ -442,7 +454,8 @@ class TagHooks {
 				$autosaveType,
 				$additionalClass,
 				$showOnSelect,
-				$additionalArgs
+				$additionalArgs,
+				$separator
 			);
 		} finally {
 			$this->themeStore->setFormThemeName( $previousTheme );
@@ -932,6 +945,7 @@ class TagHooks {
 				} else {
 					$showOnSelect = null;
 				}
+				Core::setSeparator( $this->getSeparator( $args ) );
 
 				// Check if a 'for' option is set, to determine whether the field should be rendered as 'selected'
 				if ( isset( $args['for'] ) ) {
@@ -939,7 +953,7 @@ class TagHooks {
 
 					$selectedValues = $_GET[$selectedParameterName] ?? '';
 					$selectedValues = explode(
-						',',
+						Core::$separator,
 						$selectedValues
 					);
 					$selectedValues = array_map(
@@ -1219,10 +1233,17 @@ class TagHooks {
 
 				break;
 			case 'signature':
+				$uploadDetails = [];
 				if ( isset( $args['fname'] ) ) {
 					$fileName = $args['fname'];
 				} else {
 					return [ 'Missing attribute "fname" for signature field.' ];
+				}
+
+				if ( isset( $args['name'] ) ) {
+					$name = General::makeUnderscoreFromSpace( trim( $args['name'] ) );
+				} else {
+					return [ 'Missing attribute "name" for signature field.' ];
 				}
 
 				if ( isset( $args['pagecontent'] ) ) {
@@ -1235,10 +1256,12 @@ class TagHooks {
 				$class            = $args['class'] ?? null;
 				$clearButtonClass = $args['clearbuttonclass'] ?? null;
 				$clearButtonText  = $args['clearbuttontext'] ?? 'Clear';
+				$parseContent     = $args['parsecontent'] ?? null;
+				$pageTemplate     = $args['template'] ?? null;
 				$required         = isset( $args['required'] ) && $args['required'] === 'required';
 
 				$javascriptOptions = [
-					'syncField: "#wsform_signature_data"',
+					'syncField: "#' . $name . '_signature_data"',
 					'syncFormat: "' . htmlspecialchars( strtoupper( $fileType ) ) . '"'
 				];
 
@@ -1316,49 +1339,62 @@ class TagHooks {
 					}
 				}
 
+
 				$javascriptOptions = implode(
 					',',
 					$javascriptOptions
 				);
+				/*
+				$jsOptions = [];
+				foreach ( $javascriptOptions as $singleOption ) {
+					foreach ( $singleOption as $k => $v ) {
+						$jsOptions[$k] = $v;
+					}
+				}
+
+				$jsOptions = json_encode( $jsOptions );
+				*/
+				Core::includeJavaScriptConfig( 'ff_signature', [ 'name' => $name ] );
 				Core::includeInlineScript(
 					<<<SCRIPT
-                    function doWSformActions() {
-                        $("#wsform-signature").signature({
+                    function signature_$name() {
+                        $("#$name-signature").signature({
                             $javascriptOptions
                         });
                         
-                        $("#wsform_signature_clear").click(function() {
-                            $("#wsform-signature").signature("clear");
+                        $("#$name-signature-clear").click(function() {
+                            $("#$name-signature").signature("clear");
                         });
                     }
                 SCRIPT
 				);
 
-				if ( ! file_exists( $IP . '/extensions/FlexForm/Modules/signature/css/jquery.signature.css' ) ) {
-					throw new FlexFormException( 'Missing jquery.signature.css' );
+				if ( !Core::isLoaded( 'jquery.signature.css' ) ) {
+					Core::addAsLoaded( 'jquery.signature.css' );
+					Core::includeTagsCSS( Core::getRealUrl() . '/Modules/signature/css/jquery.signature.css' );
 				}
 
-				Core::includeInlineCSS(
-					file_get_contents( $IP . '/extensions/FlexForm/Modules/signature/css/jquery.signature.css' )
-				);
+				if ( !Core::isLoaded( 'jquery.ui.css' ) ) {
+					Core::addAsLoaded( 'jquery.ui.css' );
+					Core::includeTagsCSS(
+						'https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/south-street/jquery-ui.css'
+					);
+				}
 
-				$ret = '<link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/south-street/jquery-ui.css" rel="stylesheet">';
-				$ret .= '<script type="text/javascript" charset="UTF-8" src="/extensions/FlexForm/Modules/signature/js/do-signature.js"></script>';
-				$ret .= \Xml::input( 'wsform_signature_filename',
-									 false,
-									 $fileName,
-									 [ 'type' => 'hidden' ] );
-				$ret .= \Xml::input( 'wsform_signature_type',
-									 false,
-									 $fileType,
-									 [ 'type' => 'hidden' ] );
-				$ret .= \Xml::input( 'wsform_signature_page_content',
-									 false,
-									 $pageContent,
-									 [ 'type' => 'hidden' ] );
+				if ( !Core::isLoaded( 'do-signature.js' ) ) {
+					Core::addAsLoaded( 'do-signature.js' );
+					Core::includeTagsScript( Core::getRealUrl() . '/Modules/signature/js/do-signature.js' );
+				}
+
+				$uploadDetails['wsform_signature_filename'] = $fileName;
+				$uploadDetails['wsform_signature_type'] = $fileType;
+				$uploadDetails['wsform_signature_page_content'] = $pageContent;
+				$uploadDetails['parsecontent'] = $parseContent ?? false;
+				$uploadDetails['pagetemplate'] = $pageTemplate ?? false;
+				$uploadDetails['type'] = 'signature';
 
 				$signatureDataAttributes = [
-					'id'   => 'wsform_signature_data',
+					'id'   => $name . '_signature_data',
 					'type' => 'hidden'
 				];
 
@@ -1366,8 +1402,8 @@ class TagHooks {
 					$signatureDataAttributes['required'] = 'required';
 				}
 
-				$ret .= \Xml::input(
-					'wsform_signature',
+				$ret = \Xml::input(
+					$name,
 					false,
 					'',
 					$signatureDataAttributes
@@ -1375,7 +1411,7 @@ class TagHooks {
 				$ret .= \Xml::tags(
 					'div',
 					[
-						'id'    => 'wsform-signature',
+						'id'    => $name . '-signature',
 						'class' => 'wsform-signature ' . $class ?? ''
 					],
 					''
@@ -1384,11 +1420,14 @@ class TagHooks {
 					'button',
 					[
 						'type'  => 'button',
-						'id'    => 'wsform_signature_clear',
+						'id'    => $name . '-signature-clear',
 						'class' => 'wsform-signature-clear ' . $clearButtonClass ?? ''
 					],
 					htmlspecialchars( $clearButtonText )
 				);
+				$actionFields = [];
+				$actionFields[$name] = $uploadDetails;
+				Core::includeFileAction( $actionFields );
 
 				// TODO: Make this theme-able
 
@@ -1574,11 +1613,11 @@ class TagHooks {
 			// A label MUST have a for according to the HTML specification
 			$for = '';
 		}
-
+		$for = self::tagParseIfNeeded( $for, $parser, $frame );
 		$inputArguments = [];
 		foreach ( $args as $name => $value ) {
 			if ( Validate::validParameters( $name ) ) {
-				$inputArguments[$name] = $value;
+				$inputArguments[$name] = self::tagParseIfNeeded( $value, $parser, $frame );
 			}
 		}
 
@@ -1628,13 +1667,15 @@ class TagHooks {
 			$placeholder = null;
 		}
 
+		Core::setSeparator( $this->getSeparator( $args ) );
+
 		if ( isset( $args['selected'] ) ) {
 			$args['selected'] = $parser->recursiveTagParse(
 				$args['selected'],
 				$frame
 			);
 			$selectedValues = explode(
-				',',
+				Core::$separator,
 				$args['selected']
 			);
 			$selectedValues = array_map(
@@ -1652,7 +1693,7 @@ class TagHooks {
 				$frame
 			);
 			$options = explode(
-				',',
+				Core::$separator,
 				$args['options']
 			);
 			$options = array_map(
@@ -1855,13 +1896,16 @@ class TagHooks {
 			$allowSort = false;
 		}
 
+		Core::setSeparator( $this->getSeparator( $args ) );
+
+
 		if ( isset( $args['selected'] ) ) {
 			$args['selected'] = $parser->recursiveTagParse(
 				$args['selected'],
 				$frame
 			);
 			$selectedValues = explode(
-				',',
+				Core::$separator,
 				$args['selected']
 			);
 			$selectedValues = array_map(
@@ -1879,7 +1923,7 @@ class TagHooks {
 				$frame
 			);
 			$options = explode(
-				',',
+				Core::$separator,
 				$args['options']
 			);
 			$options = array_map(
@@ -2194,120 +2238,11 @@ class TagHooks {
 	 * @return array send to the MediaWiki Parser or
 	 * @throws FlexFormException
 	 */
-	public function renderEmail( $input, array $args, Parser $parser, PPFrame $frame ) {
-		$mailArguments = [];
-
-		if ( isset( $args['to'] ) ) {
-			$mailArguments["mwmailto"] = $parser->recursiveTagParse(
-				$args['to'],
-				$frame
-			);
-		}
-
-		if ( isset( $args['from'] ) ) {
-			$mailArguments["mwmailfrom"] = $parser->recursiveTagParse(
-				$args['from'],
-				$frame
-			);
-		}
-
-		if ( isset( $args['cc'] ) ) {
-			$mailArguments["mwmailcc"] = $parser->recursiveTagParse(
-				$args['cc'],
-				$frame
-			);
-		}
-
-		if ( isset( $args['bcc'] ) ) {
-			$mailArguments["mwmailbcc"] = $parser->recursiveTagParse(
-				$args['bcc'],
-				$frame
-			);
-		}
-
-		if ( isset( $args['replyto'] ) ) {
-			$mailArguments["mwmailreplyto"] = $parser->recursiveTagParse(
-				$args['replyto'],
-				$frame
-			);
-		}
-
-		if ( isset( $args['subject'] ) ) {
-			$mailArguments["mwmailsubject"] = $parser->recursiveTagParse(
-				$args['subject'],
-				$frame
-			);
-		}
-
-		if ( isset( $args['type'] ) ) {
-			$mailArguments["mwmailtype"] = $parser->recursiveTagParse(
-				$args['type'],
-				$frame
-			);
-		}
-
-		if ( isset( $args['content'] ) ) {
-			$mailArguments["mwmailcontent"] = $parser->recursiveTagParse(
-				$args['content'],
-				$frame
-			);
-		}
-
-		if ( isset( $args['job'] ) ) {
-			$mailArguments["mwmailjob"] = $parser->recursiveTagParse(
-				$args['job'],
-				$frame
-			);
-		}
-
-		if ( isset( $args['header'] ) ) {
-			$mailArguments["mwmailheader"] = $parser->recursiveTagParse(
-				$args['header'],
-				$frame
-			);
-		}
-
-		if ( isset( $args['footer'] ) ) {
-			$mailArguments["mwmailfooter"] = $parser->recursiveTagParse(
-				$args['footer'],
-				$frame
-			);
-		}
-
-		if ( isset( $args['html'] ) ) {
-			$mailArguments["mwmailhtml"] = $parser->recursiveTagParse(
-				$args['html'],
-				$frame
-			);
-		}
-
-		if ( isset( $args['attachment'] ) ) {
-			$mailArguments["mwmailattachment"] = $parser->recursiveTagParse(
-				$args['attachment'],
-				$frame
-			);
-		}
-
-		if ( isset( $args['template'] ) ) {
-			$mailArguments["mwmailtemplate"] = $parser->recursiveTagParse(
-				$args['template'],
-				$frame
-			);
-		}
-
-		if ( isset( $args['parselast'] ) ) {
-			$mailArguments["mwparselast"] = "true";
-		}
-
-		$base64content = base64_encode(
-			$parser->recursiveTagParse(
-				$input,
-				$frame
-			)
-		);
+	public function renderEmail( $input, array $args, Parser $parser, PPFrame $frame ): array {
+		$mailArguments = Email::getEmailParameters( $args, $parser, $frame );
 		$output        = $this->themeStore->getFormTheme()->getEmailRenderer()->render_mail(
 			$mailArguments,
-			$base64content
+			''
 		);
 
 		return [
@@ -2328,7 +2263,7 @@ class TagHooks {
 	 * @return array send to the MediaWiki Parser or
 	 * @throws FlexFormException
 	 */
-	public function renderInstance( $input, array $args, Parser $parser, PPFrame $frame ) {
+	public function renderInstance( $input, array $args, Parser $parser, PPFrame $frame ): array {
 		global $IP, $wgScript;
 
 		// Add move, delete and add button with classes
@@ -2339,10 +2274,10 @@ class TagHooks {
 			Core::addAsLoaded( 'wsinstance-initiated' );
 		}
 
-		$content = $parser->recursiveTagParseFully(
+		$content = trim( $parser->recursiveTagParseFully(
 			$input,
 			$frame
-		);
+		) );
 
 		if( isset( $args['default-content'] ) ) {
 			//var_dump( "parsing content", $args['default-content'] );
@@ -2433,6 +2368,34 @@ class TagHooks {
 	/**
 	 * @param array $args
 	 *
+	 * @return string
+	 */
+	public function getSeparator( array $args ): string {
+		if ( isset( $args['separator'] ) ) {
+			return trim( $args['separator'] );
+		} else {
+			return ',';
+		}
+	}
+
+	/**
+	 * @param string $separator
+	 *
+	 * @return string
+	 */
+	public function createSeparatorField( string $separator ): string {
+		Core::includeJavaScriptConfig(
+			'ff_separator', $separator
+		);
+		return Core::createHiddenField(
+			'ff_separator',
+			$separator
+		);
+	}
+
+	/**
+	 * @param array $args
+	 *
 	 * @return array|string
 	 */
 	private function renderFileUpload( array $args ) {
@@ -2445,7 +2408,9 @@ class TagHooks {
 		$br                 = "\n";
 		$attributes         = [];
 		$hiddenFiles        = [];
-		$attributes['name'] = FilesCore::FILENAME . '[]';
+		$uploadDetails      = [];
+		//$attributes['name'] = FilesCore::FILENAME . '[]';
+		$name				= false;
 		$id                 = false;
 		$target             = false;
 		$drop               = false;
@@ -2457,11 +2422,14 @@ class TagHooks {
 		$use_label          = false;
 		$force              = false;
 		$parseContent       = false;
+		$actionFields       = false;
+		$action				= '';
 		$template			= false;
 		$multiple			= 'files';
 		$canvasSourceId     = false;
 		$canvasRenderId     = uniqid();
 		$canvasDiv			= '';
+		$mobileScreenshot   = '';
 		foreach ( $args as $k => $v ) {
 			if ( validate::validParameters( $k ) || validate::validFileParameters( $k ) ) {
 				// going through specific extra's.
@@ -2490,11 +2458,19 @@ class TagHooks {
 					case "force":
 						$force = $v;
 						break;
+					case "action":
+						$action = $v;
+						break;
 					case "id":
 						$id               = $v;
 						$attributes['id'] = $v;
 						break;
 					case "name":
+						$name = $v;
+						if ( strpos( $v, '[]' ) === false ) {
+							$v .= '[]';
+						}
+						$attributes[$k] = $v;
 						break;
 					case "verbose_id":
 						$verbose_id = $v;
@@ -2524,33 +2500,56 @@ class TagHooks {
 
 			return $ret;
 		}
+		if ( !$name ) {
+			$ret = 'Uploading files without a name will not work.';
+			return $ret;
+		}
 		if ( !$target ) {
 			$ret = 'You cannot upload files without a target.';
 
 			return $ret;
 		} else {
 			//$hiddenFiles[] = '<input type="hidden" name="wsform_file_target" value="' . $target . '">';
-			$hiddenFiles[] = Core::createHiddenField( "wsform_file_target", $target );
+			//$hiddenFiles[] = Core::createHiddenField( "wsform_file_target", $target );
+			$uploadDetails['wsform_file_target'] = $target;
 		}
 		if ( $pagecontent ) {
 			//$hiddenFiles[] = '<input type="hidden" name="wsform_page_content" value="' . $pagecontent . '">';
-			$hiddenFiles[] = Core::createHiddenField( "wsform_page_content", $pagecontent );
+			//$hiddenFiles[] = Core::createHiddenField( "wsform_page_content", $pagecontent );
+			$uploadDetails["wsform_page_content"] = $pagecontent;
 		}
 		if ( $comment ) {
-			$hiddenFiles[] = '<input type="hidden" name="wsform-upload-comment" value="' . $comment . '">';
+			//$hiddenFiles[] = '<input type="hidden" name="wsform-upload-comment" value="' . $comment . '">';
+			$uploadDetails["wsform-upload-comment"] = $comment;
 		}
 		if ( $parseContent ) {
-			$hiddenFiles[] = '<input type="hidden" name="wsform_parse_content" value="true">';
+			//$hiddenFiles[] = '<input type="hidden" name="wsform_parse_content" value="true">';
+			$uploadDetails["wsform_parse_content"] = true;
 		}
 		if ( $template ) {
-			$hiddenFiles[] = '<input type="hidden" name="wsform_file_template" value="' . $template . '">';
+			//$hiddenFiles[] = '<input type="hidden" name="wsform_file_template" value="' . $template . '">';
+			$uploadDetails["wsform_file_template"] = $template;
 		}
 		if ( $force ) {
-			$hiddenFiles[] = '<input type="hidden" name="wsform_image_force" value="' . $force . '">';
+			//$hiddenFiles[] = '<input type="hidden" name="wsform_image_force" value="' . $force . '">';
+			$uploadDetails["wsform_image_force"] = $force;
+		}
+		// When using convert, set accepted files to be the same
+		if ( $action ) {
+			/*
+			if ( isset( $attributes['accept'] ) ) {
+				$attributes['accept'] .= ', .' . $convertFrom;
+			} else {
+				$attributes['accept'] = '.' . $convertFrom;
+			}
+			*/
+			//$hiddenFiles[] = '<input type="hidden" name="wsform_convert_from" value="' . $convertFrom . '">';
+			$uploadDetails["wsform_action"] = $action;
 		}
 
 		// Normal file upload. No presentor
 		if ( !$presentor ) {
+			$uploadDetails['type'] = 'file';
 			// If we do not have a verbose id, then create our own preview from the form ID
 			if ( $verbose_id === false ) {
 				$verbose_id       = 'verbose_' . $id;
@@ -2568,7 +2567,7 @@ class TagHooks {
 			}
 
 			// If we do not have an error id, then create our own error element from the form id.
-			if ( ! $error_id ) {
+			if ( !$error_id ) {
 				$error_id          = 'error_' . $id;
 				$errorDiv['id']    = $error_id;
 				$errorDiv['class'] = [ "wsform-error" ];
@@ -2582,7 +2581,7 @@ class TagHooks {
 			$onChangeScript = 'function WSFile' . $random . '(){' . "\n" . '$("#' . $id . '").on("change", function(){' . "\n" . 'wsfiles( "';
 			$onChangeScript .= $id . '", "' . $verbose_id . '", "' . $error_id . '", "' . $use_label;
 			$onChangeScript .= '");' . "\n" . '});' . "\n";
-			if ( $drop && ! $use_label ) {
+			if ( $drop && !$use_label ) {
 				$onChangeScript .= "\n" . '$("#' . $verbose_id . '").on("dragleave", function(e) {
 				event.preventDefault();
     			$(".br_dropzone").removeClass("dragover");
@@ -2613,26 +2612,30 @@ class TagHooks {
 			$jsChange       = $onChangeScript . "\n";
 			//$ret .= "<script>\n" . $onChangeScript . "\n";
 			$jsChange .= "\n" . "wachtff(WSFile" . $random . ");\n";
-			$addjsChange = "\n" . 'var ffNoFileSelected = "';
-			$addjsChange .= wfMessage( "flexform-fileupload-no-files-selected" )->plain() . '";' . "\n";
+			if ( !Core::isLoaded( 'ffNoFileSelected' ) ) {
+				$addjsChange = "\n" . 'var ffNoFileSelected = "';
+				$addjsChange .= wfMessage( "flexform-fileupload-no-files-selected" )->plain() . '";' . "\n";
+			} else {
+				$addjsChange = '';
+			}
 			$jsChange = $addjsChange . $jsChange;
 			Core::includeInlineScript( $jsChange );
 			//$ret     .= '<script>$( document ).ready(function() { $("#' . $random . '").on("change", function(){ wsfiles( "' . $id . '", "' . $verbose_id . '", "' . $error_id . '", "' . $use_label . '", "' . $verbose_custom . '", "' . $error_custom . '");});});</script>';
 			$css     = file_get_contents( "$IP/extensions/FlexForm/Modules/WSForm_upload.css" );
-			$replace = array(
+			$replace = [
 				'{{verboseid}}',
 				'{{errorid}}',
 				'{{dropfiles}}',
 				'<style>',
 				'</style>'
-			);
-			$with    = array(
+			];
+			$with    = [
 				$verbose_id,
 				$error_id,
 				wfMessage( "flexform-fileupload-dropfiles" )->plain(),
 				'',
 				''
-			); //wsfiles( "file-upload2", "hiddendiv2", "error_file-upload2", "", "yes", "none");
+			]; //wsfiles( "file-upload2", "hiddendiv2", "error_file-upload2", "", "yes", "none");
 			$css     = str_replace(
 				$replace,
 				$with,
@@ -2640,7 +2643,7 @@ class TagHooks {
 			);
 			Core::includeInlineCSS( $css );
 			//$ret     .= $css;
-			if ( ! Core::isLoaded( 'WSFORM_upload.js' ) ) {
+			if ( !Core::isLoaded( 'WSFORM_upload.js' ) ) {
 				Core::addAsLoaded( 'WSFORM_upload.js' );
 				Core::includeTagsScript( Core::getRealUrl() . '/Modules/WSForm_upload.js' );
 				//$js = file_get_contents( "$IP/extensions/FlexForm/Modules/WSForm_upload.js" );
@@ -2676,6 +2679,7 @@ class TagHooks {
 			if ( !$canvasSourceId || !$canvasRenderId ) {
 				return "Missing canvas_source_id and/or canvas_render_id";
 			}
+			$uploadDetails['type'] = 'canvas';
 			$verboseDiv = '';
 			$errorDiv = '';
 			if ( ! Core::isLoaded( 'WSFORM_upload.js' ) ) {
@@ -2686,13 +2690,26 @@ class TagHooks {
 				Core::addAsLoaded( 'htmltocanvas' );
 				Core::includeTagsScript( Core::getRealUrl() . '/Modules/htmlToCanvas/html2canvas.min.js' );
 			}
-			$canvasDiv = '<div style="display:none;" data-canvas-source="' . $canvasSourceId . '" id="canvas_' . $canvasRenderId . '"></div>';
+			$canvasDiv = '<div style="display:none;" data-canvas-source="';
+			$canvasDiv .= $canvasSourceId . '" id="canvas_' . $canvasRenderId . '" ';
+			$canvasDiv .= 'data-canvas-name="' . $name . '"></div>';
+		} elseif ( $presentor === 'mobilescreenshot' ) {
+			$verboseDiv = '';
+			$errorDiv = '';
+			$uploadDetails['type'] = 'mobile-screenshot';
+			$mobileScreenshot = MobileScreenShot::renderHtml( $args );
+
 		}
-		$result['verbose_div']     = $verboseDiv;
-		$result['error_div']       = $errorDiv;
-		$result['attributes']      = $attributes;
-		$result['function_fields'] = $hiddenFiles;
-		$result['canvas']          = $canvasDiv;
+		$result['verbose_div'] = $verboseDiv;
+		$result['error_div']   = $errorDiv;
+		$result['attributes']  = $attributes;
+		//$result['function_fields'] = $hiddenFiles;
+		$actionFields        = [];
+		$actionFields[$name] = $uploadDetails;
+		Core::includeFileAction( $actionFields );
+		//$result['action_fields'] = Core::createHiddenField( "ff_upload_actions", json_encode( $actionFields ) );
+		$result['canvas']           = $canvasDiv;
+		$result['mobileScreenshot'] = $mobileScreenshot;
 
 		return $result;
 	}

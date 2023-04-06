@@ -14,7 +14,12 @@ use Exception;
 
 class FlexFormException extends \Exception {
 
-	public function __construct( $msg, $val = 0, Exception $old = null ){
+	/**
+	 * @param $msg
+	 * @param $val
+	 * @param Exception|null $old
+	 */
+	public function __construct( $msg, $val = 0, Exception $old = null ) {
 		parent::__construct( $msg, $val, $old );
 	}
 

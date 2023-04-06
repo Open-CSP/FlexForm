@@ -48,6 +48,7 @@ class SpecialFlexForm extends \SpecialPage {
 	 * @return void
 	 */
 	public function makeMessage( string $msg, string $type = "danger" ) {
+		die();
 		$wR = new \WebResponse();
 		$wR->setCookie( "wsform[type]",
 						$type,

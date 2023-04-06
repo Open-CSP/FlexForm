@@ -20,6 +20,11 @@ class Core {
 	public static $showOnSelectSet = false;
 
 	/**
+	 * @var string
+	 */
+	public static $separator = ",";
+
+	/**
 	 * Globally set as a variable to check if the posting add a reCaptcha v3 and to disable ajax submit
 	 */
 	public static $reCaptcha = false;
@@ -68,8 +73,20 @@ class Core {
 		return \SpecialPage::getTitleFor( 'FlexForm' )->getFullUrlForRedirect();
 	}
 
+	/**
+	 * @return void
+	 */
 	public static function setShowOnSelectActive() {
 		self::$showOnSelectSet = true;
+	}
+
+	/**
+	 * @param string $sep
+	 *
+	 * @return void
+	 */
+	public static function setSeparator( string $sep ) {
+		self::$separator = $sep;
 	}
 
 	/**
@@ -261,6 +278,19 @@ class Core {
 		//self::$javaScript[] = $src;
 	}
 
+
+	/**
+	 * @brief Add Files upload information
+	 *
+	 * @param string $fileInfo File information array
+	 */
+	public static function includeFileAction( array $fileInfo ) {
+		global $wgFlexFormConfig;
+		//echo round( microtime( true ) * 1000 ) . "_add <pre>$src</pre>";
+		$wgFlexFormConfig['loaders']['files'][] = $fileInfo;
+		//self::$javaScript[] = $src;
+	}
+
 	/**
 	 * @brief Add JavaScript tags to be included
 	 *
@@ -293,6 +323,16 @@ class Core {
 	public static function getJavaScriptToBeIncluded(): array {
 		global $wgFlexFormConfig;
 		return $wgFlexFormConfig['loaders']['javascript'];
+	}
+
+	/**
+	 * Retrieve list of Files to be loaded added
+	 *
+	 * @return array
+	 */
+	public static function getFileActions():array {
+		global $wgFlexFormConfig;
+		return $wgFlexFormConfig['loaders']['files'];
 	}
 
 	/**
@@ -350,6 +390,11 @@ class Core {
 		global $wgFlexFormConfig;
 		$wgFlexFormConfig['loaders']['javascript'] = [];
 		//self::$javaScript = array();
+	}
+
+	public static function cleanFileActions(){
+		global $wgFlexFormConfig;
+		$wgFlexFormConfig['loaders']['files'] = [];
 	}
 
 	/**

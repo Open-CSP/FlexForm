@@ -1,5 +1,9 @@
 let idUnifier = 0
-
+if ( typeof ff_separator !== 'undefined' ) {
+	const ffSeparator = ff_separator;
+} else {
+	const ffSeparator = ',';
+}
 /**
  *
  * @param selector {object}
@@ -97,20 +101,17 @@ const WsInstance = function (selector, options) {
 			if ( !textarea_content ) return;
 
 			let textarea_json_array = JSON.parse( textarea_content );
-			$.each( textarea_json_array, function ( i, template ) {
-				Object.values( template ).forEach( function ( json ) {
-					$.each( json, ( name, value ) => {
-						name_array.push( name );
-						value_array.push( value );
-					} );
-
-					handlePredefinedData( name_array, value_array );
-					name_array = [];
-					value_array = [];
+			Object.values( textarea_json_array ).forEach( function ( json ) {
+				$.each( json, ( name, value ) => {
+					name_array.push( name );
+					value_array.push( value );
 				} );
 
-
+				handlePredefinedData( name_array, value_array );
+				name_array = [];
+				value_array = [];
 			} );
+
 		}
 
 		// check in which format the data is handed
@@ -151,8 +152,8 @@ const WsInstance = function (selector, options) {
 
 
 			$(clone).find('select[name*="' + names[i] + '"]').each(function (index, select) {
-				if (values[i].indexOf(',') !== -1) {
-					let multipleSelect2Values = values[i].split(',')
+				if (values[i].indexOf(window.ffSeparator) !== -1) {
+					let multipleSelect2Values = values[i].split(window.ffSeparator)
 					let optionList = select.children
 
 					// check if token field
@@ -398,7 +399,11 @@ const WsInstance = function (selector, options) {
 		const saveAllInstances = () => {
 			const isJSONFormat = _.saveField.data('format') === 'json';
 			let json = {};
-			json[_.saveField.data('template')] = [];
+			if ( _.saveField.data('template') !== "" ) {
+				json[_.saveField.data('template')] = [];
+			} else {
+				json = [];
+			}
 			// loop through all instances in the list
 			_.list.find('.WSmultipleTemplateInstance').each(function (i, instance) {
 				let valuesObj = {}
@@ -432,10 +437,12 @@ const WsInstance = function (selector, options) {
 								valuesObj[name] = input.value
 							}
 							break
-						case 'hidden':
-							return
 						default:
-							valuesObj[name] = input.value
+							if ( $(input).is('select') && input.multiple ) {
+								valuesObj[name] = $(input).val().join( window.ffSeparator )
+							} else {
+								valuesObj[name] = input.value
+							}
 							break
 					}
 					// remove name attr otherwise it will be send along with wsform
@@ -445,7 +452,11 @@ const WsInstance = function (selector, options) {
 					input.setAttribute('data-name', name)
 				})
 				if ( isJSONFormat ) {
-					json[_.saveField.data('template')].push(valuesObj);
+					if ( _.saveField.data('template') !== "" ) {
+						json[_.saveField.data('template')].push(valuesObj);
+					} else {
+						json.push(valuesObj);
+					}
 				} else {
 					saveString += createSaveStringForInstance(valuesObj)
 				}
@@ -456,7 +467,6 @@ const WsInstance = function (selector, options) {
 			} else {
 				_.saveField.val(saveString)
 			}
-
 		}
 
 
@@ -520,7 +530,7 @@ const WsInstance = function (selector, options) {
 
 		$.each(obj, function (k, v) {
 			if (typeof v === 'array') {
-				returnStr += `|${k}=${v.join(',')}\n`
+				returnStr += `|${k}=${v.join(window.ffSeparator)}\n`
 			} else {
 				returnStr += `|${k}=${v}\n`
 			}

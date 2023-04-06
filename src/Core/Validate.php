@@ -294,8 +294,34 @@ class Validate {
 			"dropzone",
 			"canvas_source_id",
 			"canvas_render_id",
-			"template"
+			"template",
+			"action",
+			"comment"
 		);
+		if ( $ret ) {
+			return $validParameters;
+		}
+		if ( in_array( $check, $validParameters ) ) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * @param string $check
+	 * @param bool $ret
+	 *
+	 * @return bool|string[]
+	 */
+	public static function validFileMobileScreenshotParameters( string $check, bool $ret = false ) {
+		$validParameters = [
+			"video-class",
+			"screenshot-width",
+			"screenshot-height",
+			"capture-button-text",
+			"capture-button-class"
+		];
 		if ( $ret ) {
 			return $validParameters;
 		}

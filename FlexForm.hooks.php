@@ -30,19 +30,18 @@ class FlexFormHooks {
 	 */
 	public static function availableHooks() {
 		$data = array(
-			'wsform',
-			'wsfield',
-			'wsfieldset',
-			'wslegend',
-			'wslabel',
-			'wsselect',
-			'wstoken',
-			'wstoken2',
-			'wsedit',
-			'wscreate',
-			'wsemail',
+			'form',
+			'input',
+			'fieldset',
+			'legen',
+			'label',
+			'select',
+			'_token',
+			'_edit',
+			'_create',
+			'_email',
 			'extension',
-			'wsinstance'
+			'_instance'
 		);
 
 		return $data;
@@ -207,6 +206,7 @@ class FlexFormHooks {
 		$wgFlexFormConfig['loaders']['jsconfigvars']  = [];
 		$wgFlexFormConfig['loaders']['javascripttag'] = [];
 		$wgFlexFormConfig['loaders']['csstag']        = [];
+		$wgFlexFormConfig['loaders']['files']         = [];
 
 		$formTags = [
 			'wsform',

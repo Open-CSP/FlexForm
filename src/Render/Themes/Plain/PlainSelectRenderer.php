@@ -32,7 +32,7 @@ class PlainSelectRenderer implements SelectRenderer {
 		}
 
 		foreach ( $options as $option ) {
-			if ( ! strpos(
+			if ( !strpos(
 				$option,
 				self::OPTION_SEPARATOR
 			) ) {

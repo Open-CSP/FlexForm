@@ -339,6 +339,12 @@ class Save {
 	 */
 	public function saveToWiki( string $title, array $contentArray, string $summary, bool $overWrite = true ) {
 		$user        = RequestContext::getMain()->getUser();
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'saveToWiki : ' . $title,
+				[]
+			);
+		}
 		$titleObject = Title::newFromText( $title );
 		if ( $titleObject === null ) {
 			throw new FlexFormException(
@@ -349,11 +355,17 @@ class Save {
 				null
 			);
 		}
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'saveToWiki title from Title Object: ' . $titleObject->getFullText(),
+				[]
+			);
+		}
 		$editAllPagesConfig = Config::getConfigVariable( 'userscaneditallpages' );
 		$canEdit = MediaWikiServices::getInstance()->getPermissionManager()->userCan( 'edit', $user, $titleObject );
 		$canCreate = MediaWikiServices::getInstance()->getPermissionManager()->userCan( 'create', $user, $titleObject );
 		if ( $editAllPagesConfig === false && ( $canCreate === false || $canEdit === false ) ) {
-			throw new FlexFormException( wfMessage( 'flexform-user-rights-not', $title )->text() );
+			throw new FlexFormException( wfMessage( 'flexform-user-rights-not', $titleObject->getFullText() )->text() );
 		}
 		if ( !$titleObject || $titleObject->hasFragment() ) {
 			throw new FlexFormException( wfMessage( 'flexform-savetowiki-title-invalid', $title )->text() );

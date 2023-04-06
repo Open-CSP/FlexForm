@@ -11,7 +11,9 @@ class PlainLabelRenderer implements LabelRenderer {
 	 */
 	public function render_label( string $input, string $for, array $args ) : string {
 		//if ( isset( $args['style'] ) ) {
-		$args['for'] = $for;
+		if ( !empty( $for ) ) {
+			$args['for'] = $for;
+		}
 		$ret         = '<label ';
 		foreach ( $args as $k => $v ) {
 			$ret .= $k . '="' . $v . '" ';

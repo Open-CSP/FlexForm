@@ -61,9 +61,20 @@ class Definitions {
 		];
 	}
 
-	public static function fileUploadFields(): array {
-		$files = $_FILES[FilesCore::FILENAME] ?? false;
 
+	public static function fileUploadFields(): array {
+		$files = $_FILES ?? false;
+		$uploadActions = General::getPostString( 'ff_upload_actions', false );
+		if ( $uploadActions !== false ) {
+			$uploadActions = json_decode( base64_decode( $uploadActions ), true );
+		} else {
+			$uploadActions = null;
+		}
+		return [
+			'files' => $files,
+			'actions' => $uploadActions
+		];
+		/*
 		return [
 			'files'        => $files,
 			'pagetemplate' => General::getPostString( 'wsform_file_template' ),
@@ -75,8 +86,10 @@ class Definitions {
 				false
 			),
 			'target'       => General::getPostString( 'wsform_file_target' ),
-			'force'        => General::getPostString( 'wsform_image_force' )
+			'force'        => General::getPostString( 'wsform_image_force' ),
+			'convertFrom'  => General::getPostString( 'wsform_convert_from' )
 		];
+		*/
 	}
 
 	/**
@@ -92,10 +105,8 @@ class Definitions {
 			'template'     => General::getPostString( 'mwtemplate' ),
 			'writepage'    => General::getPostString( 'mwwrite' ),
 			'option'       => General::getPostString( 'mwoption' ),
-			'returnto'     => General::getPostString(
-				'mwreturn',
-				false
-			),
+			'returnto'     => General::getPostString( 'mwreturn',
+				false ),
 			'returnfalse'  => General::getPostString( 'mwreturnfalse' ),
 			'mwedit'       => General::getPostArray( 'mwedit' ),
 			'writepages'   => General::getPostArray( 'mwcreatemultiple' ),
@@ -106,19 +117,43 @@ class Definitions {
 			'slot'         => General::getPostString( 'mwslot' ),
 			'createuser'   => General::getPostString( 'mwcreateuser' ),
 			'nooverwrite'  => General::getPostString( 'mwnooverwrite' ),
-			'format'       => General::getPostString( 'mwformat' )
+			'format'       => General::getPostString( 'mwformat' ),
+			'separator'    => General::getPostString( 'ff_separator' )
 		];
+	}
+
+	/**
+	 * @param string $field
+	 *
+	 * @return bool
+	 */
+	public static function isFlexFormUploaderVariables( string $field, $checkFileUploadVars ) : bool {
+		if ( $checkFileUploadVars === false ) {
+			return false;
+		}
+		$flexFormUploaderAddedFields = [
+			'FFUploadedFile-UploadName',
+			'FFUploadedFile-UploadBase',
+			'FFUploadedFile-NewName'
+		];
+		foreach ( $flexFormUploaderAddedFields as $uField ) {
+			if ( strpos( $field, $uField ) !== false ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
 	 * Check to see if a variable is a FlexForm variable
 	 *
 	 * @param string $field field to check
-	 *
+	 * @param bool $checkFileUploadVars field to check
 	 * @return bool true or false
 	 */
-	public static function isFlexFormSystemField( string $field ) : bool {
+	public static function isFlexFormSystemField( string $field, bool $checkFileUploadVars = true ) : bool {
 		$FlexFormSystemFields = [
+			"mwaction",
 			"mwtemplate",
 			"mwoption",
 			"mwwrite",
@@ -138,6 +173,7 @@ class Definitions {
 			"mwmailheader",
 			"mwmailcontent",
 			"mwmailhtml",
+			"mwmailhtml",
 			"mwmailattachment",
 			"mwmailtemplate",
 			"mwmailjob",
@@ -156,12 +192,16 @@ class Definitions {
 			"mwcreateuser",
 			"mwnooverwrite",
 			"mwslot",
-			"mwformat"
+			"mwformat",
+			"ff_upload_actions",
+			'ff_separator'
 		];
 		if ( in_array(
 			strtolower( $field ),
 			$FlexFormSystemFields
 		) ) {
+			return true;
+		} elseif ( self::isFlexFormUploaderVariables( $field, $checkFileUploadVars ) !== false ) {
 			return true;
 		} else {
 			return false;

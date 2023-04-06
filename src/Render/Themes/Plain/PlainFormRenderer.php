@@ -23,7 +23,8 @@ class PlainFormRenderer implements FormRenderer {
 		?string $autosaveType,
 		?string $additionalClass,
 		bool $showOnSelect,
-		array $additionalArgs
+		array $additionalArgs,
+		string $separator
 	) : string {
 		$javascript     = '';
 		$formAttributes = array_merge(
@@ -105,11 +106,20 @@ class PlainFormRenderer implements FormRenderer {
 				''
 			);
 
+		$formContent .= $separator;
 		if ( Core::isShowOnSelectActive() ) {
 			$formContent .= Core::createHiddenField(
 				'showonselect',
 				'1'
 			);
+		}
+
+		$fileActions = Core::getFileActions();
+		if ( !empty( $fileActions ) ) {
+			$formContent .= Core::createHiddenField(
+				"ff_upload_actions",
+				base64_encode( json_encode( $fileActions ) ) );
+			Core::cleanFileActions();
 		}
 
 		if ( Config::isSecure() ) {
