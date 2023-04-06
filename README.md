@@ -91,6 +91,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 2.1 : for details : https://wikibase-solutions.com/developer-logs/flexform-v2-1
 * 2.0.12 : Use wfExpandUrl to accommodate for non-null ArticlePath settings
 * 2.0.11 : Added loadscript config setting
 * 2.0.10 : TinyMCE selector change.
