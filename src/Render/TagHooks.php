@@ -2279,6 +2279,7 @@ class TagHooks {
 			$frame
 		) );
 
+		/*
 		if( isset( $args['default-content'] ) ) {
 			//var_dump( "parsing content", $args['default-content'] );
 			$args['default-content'] = $parser->recursiveTagParse(
@@ -2286,6 +2287,7 @@ class TagHooks {
 				$frame
 			);
 		}
+		*/
 
 		// TODO: Move some of the logic from "render_instance" to here
 		$ret = $this->themeStore->getFormTheme()->getInstanceRenderer()->render_instance(
