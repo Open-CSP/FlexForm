@@ -16,34 +16,40 @@ use FlexForm\Modules\Handlers\HandlerInterface;
 
 class PostHandler implements HandlerInterface {
 
-	private const HTML = 1;
-	private const PHP_LIST_URL = '';
-	private const FIELD_EMAIL = 'email';
-	private const FIELD_NAME = 'name';
-	private const FIELD_AS_EMAIL = 'useFieldAsEmail';
-	private const FIELD_AS_NAME = 'useFieldAsName';
-	private const DEFAULT_LISTS = [
-		3 => 'signup',
-		4 => 'signup',
-		5 => 'signup',
-		6 => 'signup',
-		7 => 'signup',
-		8 => 'signup'
-	];
-
 	/**
 	 * @var array
 	 */
 	private array $fields;
 
 	/**
+	 * @var array
+	 */
+	private array $config;
+
+	/**
+	 * @param string|null $name
+	 *
+	 * @return mixed|null
+	 */
+	private function getFieldFromFlexForm( ?string $name ) {
+		if ( $name === null ) {
+			return null;
+		}
+		if ( isset( $this->fields[$name] ) && !empty( $this->fields[$name] ) ) {
+			return $this->fields[$name];
+		} else {
+			return null;
+		}
+	}
+
+	/**
 	 * @param string $name
 	 *
 	 * @return mixed|null
 	 */
-	private function getFieldFromFlexForm( string $name ) {
-		if ( isset( $this->fields[$name] ) && !empty( $this->fields[$name] ) ) {
-			return $this->fields[$name];
+	private function getConfigValue( string $name ) {
+		if ( isset( $this->config[$name] ) && !empty( $this->config[$name] ) ) {
+			return $this->config[$name];
 		} else {
 			return null;
 		}
@@ -53,9 +59,16 @@ class PostHandler implements HandlerInterface {
 	 * @inerhitDoc
 	 * @throws FlexFormException
 	 */
-	public function execute( array $flexFormFields, HandleResponse $responseHandler ) : HandleResponse {
+	public function execute( array $flexFormFields, ?array $config, HandleResponse $responseHandler ) : HandleResponse {
 		$this->fields = $flexFormFields;
-
+		if ( $config === null ) {
+			throw new FlexFormException(
+				'phpList : Configuration is missing. Please read the documentation',
+				0,
+				null
+			);
+		}
+		$this->config = $config;
 		// Lists to subscribe to
 		$lists = $this->getFieldFromFlexForm( 'list' );
 
@@ -63,34 +76,47 @@ class PostHandler implements HandlerInterface {
 		$emailHtml = $this->getFieldFromFlexForm( 'emailhtml' );
 
 		// attribute1 field
-		$name = $this->getFieldFromFlexForm( self::FIELD_NAME );
-		if ( $this->getFieldFromFlexForm( self::FIELD_AS_NAME ) !== null ) {
-			if ( $this->getFieldFromFlexForm( $this->getFieldFromFlexForm( self::FIELD_AS_NAME ) ) !== null ) {
-				$name = $this->getFieldFromFlexForm( $this->getFieldFromFlexForm( self::FIELD_AS_NAME ) );
-			}
+		$name = $this->getFieldFromFlexForm( $this->getConfigValue( 'FIELD_NAME' ) );
+		if ( $this->getFieldFromFlexForm( $this->getConfigValue( 'FIELD_AS_NAME' ) ) !== null ) {
+			$name = $this->getFieldFromFlexForm(
+				$this->getFieldFromFlexForm( $this->getConfigValue( 'FIELD_AS_NAME' ) )
+			);
 		}
 		// subscribe-email field
-		$email = $this->getFieldFromFlexForm( self::FIELD_EMAIL );
-		if ( $this->getFieldFromFlexForm( self::FIELD_AS_EMAIL ) !== null ) {
-			if ( $this->getFieldFromFlexForm( $this->getFieldFromFlexForm( self::FIELD_AS_EMAIL ) ) !== null ) {
-				$email = $this->getFieldFromFlexForm( $this->getFieldFromFlexForm( self::FIELD_AS_EMAIL ) );
-			}
+		$email = $this->getFieldFromFlexForm( $this->getConfigValue( 'FIELD_EMAIL' ) );
+		if ( $this->getFieldFromFlexForm( $this->getConfigValue( 'FIELD_AS_EMAIL' ) ) !== null ) {
+			$email = $this->getFieldFromFlexForm(
+				$this->getFieldFromFlexForm( $this->getConfigValue( 'FIELD_AS_EMAIL' ) )
+			);
 		}
 
 		if ( $name === null || $email === null ) {
+			if ( $name === null ) {
+				$field = "name";
+			} else {
+				$field = "email";
+			}
 			throw new FlexFormException(
-				'phpList : Essential fields missing',
+				'phpList : Essential fields missing: ' . $field,
 				0,
 				null
 			);
 		}
 
-		if ( $emailHtml === null ) {
-			$emailHtml = self::HTML;
+		if ( $emailHtml === null && $this->getConfigValue( 'HTML' ) !== null ) {
+			$emailHtml = $this->getConfigValue( 'HTML' );
+		} else {
+			$emailHtml = 1;
 		}
 
-		if ( $lists === null ) {
-			$lists = self::DEFAULT_LISTS;
+		if ( $lists === null && $this->getConfigValue( 'DEFAULT_LISTS' ) !== null ) {
+			$lists = $this->getConfigValue( 'DEFAULT_LISTS' );
+		} else {
+			throw new FlexFormException(
+				'phpList : Missing subscriber lists',
+				0,
+				null
+			);
 		}
 
 		$postData['emailhtml'] = $emailHtml;
@@ -112,7 +138,15 @@ class PostHandler implements HandlerInterface {
 	private function apiPost( array $postData ) {
 		$postData['VerificationCodeX'] = '';
 		$postData['emailconfirm'] = $postData['email'];
-		$url = rtrim( self::PHP_LIST_URL, '/' ) . '/?p=asubscribe&id=1';
+		$phpUrl = $this->getConfigValue( 'PHP_LIST_URL' );
+		if ( $phpUrl === null ) {
+			throw new FlexFormException(
+				'phpList : Missing PHPList Url',
+				0,
+				null
+			);
+		}
+		$url = rtrim( $phpUrl, '/' ) . '/?p=asubscribe&id=1';
 		$data = http_build_query( $postData );
 		$curlOptions =
 			[

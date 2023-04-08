@@ -134,7 +134,13 @@ class Handlers {
 				$handler = new $class;
 				if ( method_exists( $handler, 'execute' ) ) {
 					if ( $this->isPostHandler === true ) {
-						$responseHandler = $handler->execute( $this->setFFPostFields(), $responseHandler );
+						$extensionsConfig = Config::getConfigVariable( 'extensions' );
+						$config           = $extensionsConfig[$name] ?? null;
+						$responseHandler  = $handler->execute(
+							$this->setFFPostFields(),
+							$config,
+							$responseHandler
+						);
 					} else {
 						$handler->execute( $responseHandler );
 					}

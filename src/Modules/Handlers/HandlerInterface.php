@@ -32,10 +32,11 @@ use FlexForm\FlexFormException;
 interface HandlerInterface {
 	/**
 	 * @param array $flexFormFields
+	 * @param array|null $config
 	 * @param HandleResponse $responseHandler
 	 *
 	 * @return HandleResponse
 	 * @throws FlexFormException
 	 */
-	public function execute( array $flexFormFields, HandleResponse $responseHandler ): HandleResponse;
+	public function execute( array $flexFormFields, ?array $config, HandleResponse $responseHandler ): HandleResponse;
 }
