@@ -28,17 +28,26 @@ class PostHandler implements HandlerInterface {
 
 	/**
 	 * @param string|null $name
+	 * @param bool $checkIfEmpty
 	 *
 	 * @return mixed|null
 	 */
-	private function getFieldFromFlexForm( ?string $name ) {
+	private function getFieldFromFlexForm( ?string $name, bool $checkIfEmpty = true ) {
 		if ( $name === null ) {
 			return null;
 		}
-		if ( isset( $this->fields[$name] ) && !empty( $this->fields[$name] ) ) {
-			return $this->fields[$name];
+		if ( $checkIfEmpty ) {
+			if ( isset( $this->fields[ $name ] ) && !empty( $this->fields[ $name ] ) ) {
+				return $this->fields[ $name ];
+			} else {
+				return null;
+			}
 		} else {
-			return null;
+			if ( isset( $this->fields[ $name ] ) ) {
+				return true;
+			} else {
+				return null;
+			}
 		}
 	}
 
@@ -48,8 +57,8 @@ class PostHandler implements HandlerInterface {
 	 * @return mixed|null
 	 */
 	private function getConfigValue( string $name ) {
-		if ( isset( $this->config[$name] ) && !empty( $this->config[$name] ) ) {
-			return $this->config[$name];
+		if ( isset( $this->config[ $name ] ) && ! empty( $this->config[ $name ] ) ) {
+			return $this->config[ $name ];
 		} else {
 			return null;
 		}
@@ -62,13 +71,21 @@ class PostHandler implements HandlerInterface {
 	public function execute( array $flexFormFields, ?array $config, HandleResponse $responseHandler ) : HandleResponse {
 		$this->fields = $flexFormFields;
 		if ( $config === null ) {
-			throw new FlexFormException(
-				'phpList : Configuration is missing. Please read the documentation',
+			throw new FlexFormException( 'phpList : Configuration is missing. Please read the documentation',
 				0,
-				null
-			);
+				null );
 		}
 		$this->config = $config;
+
+		// Do we have a field needs to exist to perform our actions?
+		$fieldExists = $this->getConfigValue( 'NEEDS_THIS_FIELD' );
+		if ( $fieldExists !== null ) {
+			$fieldInForm = $this->getFieldFromFlexForm( $fieldExists, false );
+			if ( $fieldInForm === null ) {
+				return $responseHandler;
+			}
+		}
+
 		// Lists to subscribe to
 		$lists = $this->getFieldFromFlexForm( 'list' );
 
@@ -96,11 +113,9 @@ class PostHandler implements HandlerInterface {
 			} else {
 				$field = "email";
 			}
-			throw new FlexFormException(
-				'phpList : Essential fields missing: ' . $field,
+			throw new FlexFormException( 'phpList : Essential fields missing: ' . $field,
 				0,
-				null
-			);
+				null );
 		}
 
 		if ( $emailHtml === null && $this->getConfigValue( 'HTML' ) !== null ) {
@@ -112,20 +127,19 @@ class PostHandler implements HandlerInterface {
 		if ( $lists === null && $this->getConfigValue( 'DEFAULT_LISTS' ) !== null ) {
 			$lists = $this->getConfigValue( 'DEFAULT_LISTS' );
 		} else {
-			throw new FlexFormException(
-				'phpList : Missing subscriber lists',
+			throw new FlexFormException( 'phpList : Missing subscriber lists',
 				0,
-				null
-			);
+				null );
 		}
 
-		$postData['emailhtml'] = $emailHtml;
+		$postData['emailhtml']  = $emailHtml;
 		$postData['attribute1'] = $name;
-		$postData['email'] = $email;
-		$postData['list'] = $lists;
-		$ret = $this->apiPost( $postData );
+		$postData['email']      = $email;
+		$postData['list']       = $lists;
+		$ret                    = $this->apiPost( $postData );
 		$responseHandler->setReturnType( HandleResponse::TYPE_SUCCESS );
 		$responseHandler->setReturnData( $ret );
+
 		return $responseHandler;
 	}
 
@@ -137,39 +151,41 @@ class PostHandler implements HandlerInterface {
 	 */
 	private function apiPost( array $postData ) {
 		$postData['VerificationCodeX'] = '';
-		$postData['emailconfirm'] = $postData['email'];
-		$phpUrl = $this->getConfigValue( 'PHP_LIST_URL' );
+		$postData['emailconfirm']      = $postData['email'];
+		$phpUrl                        = $this->getConfigValue( 'PHP_LIST_URL' );
 		if ( $phpUrl === null ) {
-			throw new FlexFormException(
-				'phpList : Missing PHPList Url',
+			throw new FlexFormException( 'phpList : Missing PHPList Url',
 				0,
-				null
-			);
+				null );
 		}
-		$url = rtrim( $phpUrl, '/' ) . '/?p=asubscribe&id=1';
-		$data = http_build_query( $postData );
-		$curlOptions =
-			[
-				CURLOPT_CONNECTTIMEOUT => 30,
-				CURLOPT_RETURNTRANSFER => 1,
-				CURLOPT_USERAGENT => "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)",
-				CURLOPT_SSL_VERIFYPEER => 0,
-				CURLOPT_FOLLOWLOCATION => 1,
-				CURLOPT_POST => true
-			];
-		$ch = curl_init();
-		curl_setopt_array( $ch, $curlOptions );
+		$url         = rtrim( $phpUrl,
+				'/' ) . '/?p=asubscribe&id=1';
+		$data        = http_build_query( $postData );
+		$curlOptions = [
+			CURLOPT_CONNECTTIMEOUT => 30,
+			CURLOPT_RETURNTRANSFER => 1,
+			CURLOPT_USERAGENT      => "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)",
+			CURLOPT_SSL_VERIFYPEER => 0,
+			CURLOPT_FOLLOWLOCATION => 1,
+			CURLOPT_POST           => true
+		];
+		$ch          = curl_init();
+		curl_setopt_array( $ch,
+			$curlOptions );
 
-		curl_setopt( $ch, CURLOPT_URL, $url );
-		curl_setopt( $ch, CURLOPT_POSTFIELDS, $data );
+		curl_setopt( $ch,
+			CURLOPT_URL,
+			$url );
+		curl_setopt( $ch,
+			CURLOPT_POSTFIELDS,
+			$data );
 		$result = curl_exec( $ch );
 		if ( curl_errno( $ch ) ) {
-			throw new FlexFormException(
-				'phpList : ' . curl_error( $ch ),
+			throw new FlexFormException( 'phpList : ' . curl_error( $ch ),
 				0,
-				null
-			);
+				null );
 		}
+
 		return $result;
 	}
 }
