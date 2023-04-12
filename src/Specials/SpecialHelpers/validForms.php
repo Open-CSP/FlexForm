@@ -326,6 +326,9 @@ class validForms {
 		$pidsForm = [];
 		foreach ( $formsData as $k => $pageInfo ) {
 			$validated = true;
+			if ( !isset( $pageInfo['forms'] ) ) {
+				continue;
+			}
 			foreach ( $pageInfo['forms'] as $formsInfo ) {
 				if ( $formsInfo['isValid'] === 'no' ) {
 					$validated = false;

@@ -91,6 +91,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 2.1.3 : Managed approved forms bug fixed
 * 2.1.2 : Added a required field for the PHPList extension ( like a checkbox to allow to register ).
 * 2.1.1 : Some changes to the extension handler and the PHPList extension to support localsetting configuration for an extension
 * 2.1 : for details : https://wikibase-solutions.com/developer-logs/flexform-v2-1
