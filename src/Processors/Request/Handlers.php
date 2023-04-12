@@ -15,6 +15,7 @@ use FlexForm\Core\Debug;
 use FlexForm\Core\HandleResponse;
 use FlexForm\FlexFormException;
 use FlexForm\Processors\Definitions;
+use FlexForm\Processors\Security\wsSecurity;
 use FlexForm\Processors\Utilities\General;
 
 class Handlers {
@@ -81,6 +82,17 @@ class Handlers {
 		foreach ( $_POST as $k => $v ) {
 			if ( Definitions::isFlexFormSystemField( $k ) ) {
 				unset( $_POST[$k] );
+			} else {
+				if ( is_array( $_POST[$k] ) ) {
+					foreach ( $_POST[$k] as $key => $val ) {
+						$_POST[$k][$key] = wsSecurity::cleanBraces( wsSecurity::cleanHTML( $val ) );
+					}
+				} else {
+					$clean_html = wsSecurity::cleanHTML( $_POST[ $k ],
+						$k );
+
+					$_POST[ $k ] = wsSecurity::cleanBraces( $clean_html );
+				}
 			}
 		}
 		$wsPostFields = $_POST;
