@@ -131,16 +131,28 @@ class PostHandler implements HandlerInterface {
 				0,
 				null );
 		}
-
 		$postData['emailhtml']  = $emailHtml;
 		$postData['attribute1'] = $name;
 		$postData['email']      = $email;
-		$postData['list']       = $lists;
+		$postData['list']       = $this->readyListsForPosting( $lists );
 		$ret                    = $this->apiPost( $postData );
 		$responseHandler->setReturnType( HandleResponse::TYPE_SUCCESS );
 		$responseHandler->setReturnData( $ret );
 
 		return $responseHandler;
+	}
+
+	/**
+	 * @param array $lists
+	 *
+	 * @return array
+	 */
+	private function readyListsForPosting( array $lists ): array {
+		$ret = [];
+		foreach ( $lists as $list ) {
+			$ret[$list] = 'signup';
+		}
+		return $ret;
 	}
 
 	/**
