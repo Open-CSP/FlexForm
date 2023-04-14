@@ -14,11 +14,9 @@ use FlexForm\Core\Debug;
 use flexform\processors\api\mediawiki\render;
 use flexform\processors\api\mwApi;
 use FlexForm\Processors\Content\ContentCore;
-use FlexForm\Processors\Definitions;
 use FlexForm\Processors\Utilities\General;
 use FlexForm\FlexFormException;
 use FlexForm\Core\Config;
-use FlexForm\Processors\Files\FilesCore;
 
 /**
  * Class canvas
@@ -50,7 +48,7 @@ class Canvas {
 	}
 
 	/**
-	 * @param string $canvasfile
+	 * @param string $canvasFile
 	 *
 	 * @return bool
 	 * @throws FlexFormException
@@ -58,7 +56,7 @@ class Canvas {
 	 * @throws \MWException
 	 */
 	public static function upload( string $canvasFile, array $fileDetails ) {
-		global $wgUser;
+		$thisUser = \RequestContext::getMain()->getUser();
 		if ( Config::isDebug() ) {
 			Debug::addToDebug( 'File upload start',
 							   [
@@ -127,7 +125,7 @@ class Canvas {
 			$resultFileUpload = $uploadFile->uploadFileToWiki(
 				$uploadPath . $tmpFileName,
 				$pageName,
-				$wgUser,
+				$thisUser,
 				$details,
 				$comment,
 				wfTimestampNow()

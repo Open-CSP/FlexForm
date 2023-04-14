@@ -100,14 +100,14 @@ class Rights {
 	 * @return bool
 	 * @throws Exception
 	 */
-	public static function hideSource( SkinTemplate &$sktemplate, array &$links ) : bool {
+	public static function hideSource( SkinTemplate &$sktemplate, array &$links ): bool {
 		// always remove viewsource tab
 
 		if ( self::getConfigVariable( 'hideEdit' ) !== true ) {
 			return true;
 		}
 		$title = $sktemplate->getTitle();
-		if ( $title->isSpecialPage() || ! $title->exists() ) {
+		if ( $title->isSpecialPage() || !$title->exists() ) {
 			return true;
 		}
 		$user = RequestContext::getMain()->getUser();

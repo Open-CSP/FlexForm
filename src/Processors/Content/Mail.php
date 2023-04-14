@@ -526,8 +526,7 @@ class Mail {
 				//die ( substr($this->fields['attachment'], 5 ) );
 				$fileRepo = MediaWikiServices::getInstance()->getRepoGroup();
 				$fTitle = Title::newFromText( substr( $this->fields['attachment'], 5 ) );
-				global $wgUser;
-				$user = $wgUser;
+				$user = \RequestContext::getMain()->getUser();
 				if ( !MediaWikiServices::getInstance()->getPermissionManager()->userCan( "read", $user, $fTitle ) ) {
 					if ( Config::isDebug() ) {
 						Debug::addToDebug(

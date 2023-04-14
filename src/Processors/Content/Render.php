@@ -172,10 +172,10 @@ class Render {
 	 */
 	public function makeRequest( array $data ) {
 		global $wgRequest;
-		$wgUser = RequestContext::getMain()->getUser();
+		$thisUser = RequestContext::getMain()->getUser();
 		// TODO: Add switch to only allow this when it is safe.
-		if ( $wgUser->isAnon() ) {
-			$wgUser = User::newSystemUser( 'FlexForm', [ 'steal' => true ] );
+		if ( $thisUser->isAnon() ) {
+			$thisUser = User::newSystemUser( 'FlexForm', [ 'steal' => true ] );
 		}
 		$apiRequest = new FauxRequest(
 			$data,
@@ -184,7 +184,7 @@ class Render {
 		);
 		$context    = new DerivativeContext( new RequestContext() );
 		$context->setRequest( $apiRequest );
-		$context->setUser( $wgUser );
+		$context->setUser( $thisUser );
 		$api = new ApiMain(
 			$context,
 			true

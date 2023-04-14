@@ -83,7 +83,8 @@ class TagHooks {
 	 * @throws FlexFormException
 	 */
 	public function renderForm( $input, array $args, Parser $parser, PPFrame $frame ) {
-		global $wgUser, $wgEmailConfirmToEdit, $IP, $wgScript;
+		global $wgEmailConfirmToEdit, $IP, $wgScript;
+		$thisUser = \RequestContext::getMain()->getUser();
 		$ret = '';
 		$addFFJS = '';
 		//$parser->getOutput()->addModuleStyles( 'ext.wsForm.general.styles' );
@@ -392,13 +393,13 @@ class TagHooks {
 		}
 
 		// Block the request if the user is not logged in and anonymous users are not allowed
-		if ( $allowAnonymous === false && !$wgUser->isRegistered() ) {
+		if ( $allowAnonymous === false && !$thisUser->isRegistered() ) {
 			return wfMessage( "flexform-anonymous-user" )->parse();
 		}
 
 		// If the action is add to wiki, make sure the user has confirmed their email address
-		if ( $action === 'addToWiki' && $wgEmailConfirmToEdit === true && $wgUser->isRegistered(
-			) && ! $wgUser->isEmailConfirmed() ) {
+		if ( $action === 'addToWiki' && $wgEmailConfirmToEdit === true && $thisUser->isRegistered(
+			) && !$thisUser->isEmailConfirmed() ) {
 			return wfMessage( "flexform-unverified-email1" )->parse() . wfMessage(
 					"flexform-unverified-email2"
 				)->parse();

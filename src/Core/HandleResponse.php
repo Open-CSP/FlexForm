@@ -13,6 +13,7 @@ namespace FlexForm\Core;
 use Database;
 use FlexForm\FlexFormException;
 use FlexForm\Processors\Content\ContentCore;
+use MediaWiki\MediaWikiServices;
 use Wikimedia\Rdbms\DBError;
 use Wikimedia\Rdbms\DBUnexpectedError;
 use Wikimedia\Rdbms\IDatabase;
@@ -206,7 +207,7 @@ class HandleResponse {
 		}
 
 
-		$database = wfGetDB( DB_PRIMARY );
+		$database = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 
 		if ( $database->writesPending() ) {
 

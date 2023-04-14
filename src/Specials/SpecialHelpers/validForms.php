@@ -229,7 +229,7 @@ class validForms {
 	 */
 	public function doSearchQuery( string $search ): IResultWrapper {
 		$namespaces = $this->getNamespaces();
-		$dbr = wfGetDB( DB_REPLICA );
+		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 		$tables = [ 'page', 'revision', 'text', 'slots', 'content' ];
 		$vars = [ 'page_id', 'page_namespace', 'page_title', 'old_text' ];
 		$any = $dbr->anyString();

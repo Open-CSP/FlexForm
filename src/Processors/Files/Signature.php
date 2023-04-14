@@ -46,7 +46,8 @@ class Signature {
 	 * @throws \MWException
 	 */
 	public static function upload( $wsCanvasField, $fileDetails ) {
-		global $IP, $wgUser;
+		global $IP;
+		$thisUser = \RequestContext::getMain()->getUser();
 		$allowedTypes = [
 			'png',
 			'jpg',
@@ -133,7 +134,7 @@ class Signature {
 		$resultFileUpload = $uploadFile->uploadFileToWiki(
 			$upload_dir . $fname,
 			$pname,
-			$wgUser,
+			$thisUser,
 			$pcontent,
 			$comment,
 			wfTimestampNow()

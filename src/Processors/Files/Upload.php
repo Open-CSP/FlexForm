@@ -92,7 +92,7 @@ class Upload {
 		 * ];
 		 */
 
-		global $wgUser;
+		$thisUser = \RequestContext::getMain()->getUser();
 
 		$processedFiles = [];
 
@@ -450,7 +450,7 @@ class Upload {
 							$resultFileUpload = $this->uploadFileToWiki(
 								$singleImage,
 								$newFname,
-								$wgUser,
+								$thisUser,
 								$details,
 								$imageComment,
 								wfTimestampNow()
@@ -495,7 +495,7 @@ class Upload {
 					$resultFileUpload = $this->uploadFileToWiki(
 						$upload_dir . $storedFile,
 						$titleName,
-						$wgUser,
+						$thisUser,
 						$details,
 						$imageComment,
 						wfTimestampNow()
