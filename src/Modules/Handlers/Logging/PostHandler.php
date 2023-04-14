@@ -10,7 +10,7 @@ class PostHandler implements HandlerInterface {
 	/**
 	 * @inerhitDoc
 	 */
-	public function execute( array $flexFormFields, HandleResponse $responseHandler ): HandleResponse {
+	public function execute( array $flexFormFields, ?array $config, HandleResponse $responseHandler ): HandleResponse {
 		// TODO: Implement execute() method.
 		//echo "<h2>Logging</h2>";
 		//print_r( $flexFormFields );

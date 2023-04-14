@@ -10,6 +10,8 @@
 
 namespace FlexForm\Core;
 
+use MediaWiki\MediaWikiServices;
+
 class Core {
 
 	public const DIVIDER = '-^^-';
@@ -454,7 +456,8 @@ class Core {
 	 */
 	public static function getRealUrl(): string {
 		global $wgExtensionAssetsPath;
-		$uri = wfGetServerUrl( null ) . $wgExtensionAssetsPath . '/FlexForm';
+		$uri = MediaWikiServices::getInstance()->getUrlUtils()->getServer( null );
+		$uri .= $wgExtensionAssetsPath . '/FlexForm';
 		/*
 		$uri = str_replace(
 			'/index.php',

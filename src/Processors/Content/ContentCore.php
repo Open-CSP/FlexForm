@@ -14,7 +14,6 @@ use FlexForm\Processors\Utilities\General;
 use FlexForm\Processors\Files\FilesCore;
 use FlexForm\FlexFormException;
 use Title;
-use User;
 
 /**
  * Class Content core
@@ -429,7 +428,10 @@ class ContentCore {
 										$title,
 										'::id::'
 									) === false ) {
-					self::$fields['returnto'] = wfExpandUrl( $title, PROTO_RELATIVE );
+					self::$fields['returnto'] = MediaWikiServices::getInstance()->getUrlUtils()->expand(
+						$title,
+						PROTO_RELATIVE
+					);
 				}
 			} else {
 				if ( strpos(

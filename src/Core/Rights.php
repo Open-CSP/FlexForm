@@ -146,11 +146,11 @@ class Rights {
 	// If a user has no edit rights, then make sure it is hard for him to view
 	// the source of a document
 	public static function disableActions( Title $title, User $user, $action, &$result ) {
-		if ( $title->isSpecialPage() || ! $title->exists() ) {
+		if ( $title->isSpecialPage() || !$title->exists() ) {
 			return true;
 		}
 
-		$wikipage = WikiPage::newFromID( $title->getArticleID() );
+		$wikipage = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromID( $title->getArticleID() );
 
 		if ( self::doesPageContentFlexForm(
 			$wikipage,

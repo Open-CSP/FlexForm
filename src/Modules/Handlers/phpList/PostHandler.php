@@ -57,7 +57,7 @@ class PostHandler implements HandlerInterface {
 	 * @return mixed|null
 	 */
 	private function getConfigValue( string $name ) {
-		if ( isset( $this->config[ $name ] ) && ! empty( $this->config[ $name ] ) ) {
+		if ( isset( $this->config[ $name ] ) && !empty( $this->config[ $name ] ) ) {
 			return $this->config[ $name ];
 		} else {
 			return null;
@@ -68,7 +68,7 @@ class PostHandler implements HandlerInterface {
 	 * @inerhitDoc
 	 * @throws FlexFormException
 	 */
-	public function execute( array $flexFormFields, ?array $config, HandleResponse $responseHandler ) : HandleResponse {
+	public function execute( array $flexFormFields, ?array $config, HandleResponse $responseHandler ): HandleResponse {
 		$this->fields = $flexFormFields;
 		if ( $config === null ) {
 			throw new FlexFormException( 'phpList : Configuration is missing. Please read the documentation',

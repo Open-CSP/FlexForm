@@ -11,13 +11,9 @@
 namespace FlexForm\Specials\SpecialHelpers;
 
 use FlexForm\Core\Sql;
-use FlexForm\Processors\Content\Render;
 use MediaWiki\MediaWikiServices;
-use MWNamespace;
-use NamespaceInfo;
 use Title;
 use Wikimedia\Rdbms\IResultWrapper;
-use WikiPage;
 
 class validForms {
 
@@ -63,7 +59,7 @@ class validForms {
 	 * @return string
 	 */
 	private function getTitleFromId( int $id ): string {
-		$page = WikiPage::newFromId( $id );
+		$page = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromID( $id );
 		if ( $page === false || $page === null ) {
 			return "invalid page";
 		}
@@ -87,7 +83,6 @@ class validForms {
 	 * @return string
 	 */
 	private function renderTable( array $formInfo, $pid ): string {
-		global $wgScript;
 		$title = wfMessage( 'flexform-validforms-valid-list-title' )->text();
 		if ( $pid !== false ) {
 			$alert = '<div class="uk-alert-success" uk-alert>';
@@ -132,7 +127,7 @@ class validForms {
 			$data[$rowCount][1]['value'] = $this->makeLinkFromTitle( $tTitle );
 			$data[$rowCount][1]['class'] = false;
 			$data[$rowCount][2]['value'] = $count;
-			$data[$rowCount][2]['class'] ='uk-text-center';
+			$data[$rowCount][2]['class'] = 'uk-text-center';
 			$data[$rowCount][3]['value'] = $form;
 			$data[$rowCount][3]['class'] = 'uk-text-center';
 			$rowCount++;
@@ -162,7 +157,7 @@ class validForms {
 		array $data,
 		?array $footer,
 		?string $alert
-	) : string {
+	): string {
 		$table = '';
 		if ( $title !== null ) {
 			$table .= '<h2>' . $title . '</h2><br>';
@@ -213,7 +208,7 @@ class validForms {
 	}
 
 	/**
-	 * @param $pid
+	 * @param mixed $pid
 	 *
 	 * @return string
 	 */
@@ -434,7 +429,7 @@ class validForms {
 		string $icon = '',
 		string $title = '',
 		string $class = ''
-	) : string {
+	): string {
 		$ret = '<button style="border:none;" type="submit" class="uk-button uk-button-default ff-del">';
 		$ret .= '<span class="uk-icon-button ' . $class . '" uk-icon="' . $icon . '" title="' . $title . '"></span>';
 

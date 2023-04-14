@@ -169,15 +169,15 @@ class Save {
 		}
 
 		if ( Config::isDebug() ) {
-			if ( $page_updater->isUnchanged() ) {
+			if ( !$page_updater->wasRevisionCreated() ) {
 				Debug::addToDebug(
 					'EDIT SLOTS PAGE SAVED IS UNCHANGED ' . time(),
-					$page_updater->isUnchanged()
+					$page_updater->wasRevisionCreated()
 				);
 			} else {
 				Debug::addToDebug(
 					'EDIT SLOTS PAGE SAVED IS CHANGED ' . time(),
-					$page_updater->isUnchanged()
+					$page_updater->wasRevisionCreated()
 				);
 			}
 		}
@@ -198,7 +198,7 @@ class Save {
 		$wikipage_object->doPurge();
 */
 
-		if ( !$page_updater->isUnchanged() ) {
+		if ( $page_updater->wasRevisionCreated() ) {
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
 					'Page has changed, lets do a null edit! ' . time(),
@@ -231,7 +231,7 @@ class Save {
 	private function doNullEdit( User $user, WikiPage $wikiPageObject, $content ) {
 		$title = $wikiPageObject->getTitle()->getFullText();
 		$titleObject = Title::newFromText( $title );
-		$wikiPageObject = WikiPage::factory( $titleObject );
+		$wikiPageObject = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromTitle( $titleObject );
 		//https://nw-wsform.wikibase.nl/api.php?action=edit&format=json&title=Displaytitle_test&appendtext=%20ola&token=4eed6b0237ae86236a9640a795bb52bb6256cbbe%2B%5C
 		/*
 		$content = rtrim( $content, " " );
@@ -376,7 +376,7 @@ class Save {
 		}
 		// $slot is now an array as of v0.8.0.9.8.8
 		try {
-			$wikiPageObject = WikiPage::factory( $titleObject );
+			$wikiPageObject = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromTitle( $titleObject );
 		} catch ( MWException $e ) {
 			throw new FlexFormException(
 				wfMessage( 'flexform-error-could-not-create-page',

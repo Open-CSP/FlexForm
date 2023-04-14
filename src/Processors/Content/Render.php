@@ -11,15 +11,11 @@
 namespace FlexForm\Processors\Content;
 
 use \ApiMain, \DerivativeContext, \FauxRequest, \DerivativeRequest, MWException, RequestContext, FlexForm\Processors\Utilities\General;
-use ContentHandler;
 use FlexForm\Core\Config;
 use FlexForm\Core\Debug;
-use MediaWiki\Content\ContentHandlerFactory;
 use MediaWiki\MediaWikiServices;
-use MWUnknownContentModelException;
 use Title;
 use User;
-use WikiPage;
 use FlexForm\FlexFormException;
 
 class Render {
@@ -30,7 +26,7 @@ class Render {
 	 * @return array|false
 	 */
 	public function getSlotNamesForPageAndRevision( int $id ) {
-		$page = WikiPage::newFromId( $id );
+		$page = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromID( $id );
 		if ( $page === false || $page === null ) {
 			return false;
 		}
@@ -102,7 +98,7 @@ class Render {
 		}
 		$ret = [];
 		if ( is_int( $id ) ) {
-			$page = WikiPage::newFromId( $id );
+			$page = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromID( $id );
 			if ( $page === null ) {
 				throw new FlexFormException(
 					"Could not create a WikiPage Object from id: " . $id . '. Message ',
@@ -113,7 +109,7 @@ class Render {
 		} elseif ( is_string( $id ) ) {
 			$titleObject = Title::newFromText( $id );
 			try {
-				$page = WikiPage::factory( $titleObject );
+				$page = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromTitle( $titleObject );
 			} catch ( MWException $e ) {
 				throw new FlexFormException(
 					"Could not create a WikiPage Object from title " . $titleObject->getText(
