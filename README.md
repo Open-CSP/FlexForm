@@ -91,6 +91,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 2.1.5 : Fixed possible wrong smw query path ( thnx to @Bovine-collab ). This closes https://github.com/Open-CSP/FlexForm/pull/30. Also added array checks not being empty.
 * 2.1.4 : Simplified phpList mailing ids
 * 2.1.3 : Managed approved forms bug fixed
 * 2.1.2 : Added a required field for the PHPList extension ( like a checkbox to allow to register ).

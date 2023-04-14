@@ -191,7 +191,7 @@ class PlainTokenRenderer implements TokenRenderer {
 
 		global $wgScriptPath, $wgServer;
 		if ( $wgScriptPath !== "" ) {
-			$smwQueryUrl = "/" . $wgScriptPath . '/index.php/Special:FlexForm';
+			$smwQueryUrl = "/" . ltrim( $wgScriptPath, '/' ) . '/index.php/Special:FlexForm';
 		} else {
 			$smwQueryUrl = '/index.php/Special:FlexForm';
 		}

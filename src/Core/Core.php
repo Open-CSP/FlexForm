@@ -322,7 +322,7 @@ class Core {
 	 */
 	public static function getJavaScriptToBeIncluded(): array {
 		global $wgFlexFormConfig;
-		return $wgFlexFormConfig['loaders']['javascript'];
+		return $wgFlexFormConfig['loaders']['javascript'] ?? [];
 	}
 
 	/**
@@ -332,7 +332,7 @@ class Core {
 	 */
 	public static function getFileActions():array {
 		global $wgFlexFormConfig;
-		return $wgFlexFormConfig['loaders']['files'];
+		return $wgFlexFormConfig['loaders']['files'] ?? [];
 	}
 
 	/**
@@ -342,7 +342,7 @@ class Core {
 	 */
 	public static function getJavaScriptTagsToBeIncluded():array {
 		global $wgFlexFormConfig;
-		return $wgFlexFormConfig['loaders']['javascripttag'];
+		return $wgFlexFormConfig['loaders']['javascripttag'] ?? [];
 	}
 
 	/**
@@ -352,7 +352,7 @@ class Core {
 	 */
 	public static function getCSSTagsToBeIncluded():array {
 		global $wgFlexFormConfig;
-		return $wgFlexFormConfig['loaders']['csstag'];
+		return $wgFlexFormConfig['loaders']['csstag'] ?? [];
 	}
 
 	/**
@@ -362,7 +362,7 @@ class Core {
 	 */
 	public static function getCSSToBeIncluded():array {
 		global $wgFlexFormConfig;
-		return $wgFlexFormConfig['loaders']['css'];
+		return $wgFlexFormConfig['loaders']['css'] ?? [];
 	}
 
 	/**
