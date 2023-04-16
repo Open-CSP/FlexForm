@@ -123,7 +123,7 @@ class Canvas {
 		// find any other form fields and put them into the title
 		$pageName = ContentCore::parseTitle( $pageName );
 		if ( !Config::isDebug() ) {
-			$uploadFile       = new Upload();
+			$uploadFile       = new Upload( "", [] );
 			$resultFileUpload = $uploadFile->uploadFileToWiki(
 				$uploadPath . $tmpFileName,
 				$pageName,

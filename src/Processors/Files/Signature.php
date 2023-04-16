@@ -124,12 +124,12 @@ class Signature {
 		if ( !file_put_contents( $upload_dir . $fname, $data ) ) {
 			throw new FlexFormException( 'Could not save file.', 0 );
 		}
-		$fileCore = new FilesCore();
-		$url     = Config::getConfigVariable( 'wgCanonicalServer' ) . 'extensions/FlexForm/uploads/' . $fname;
+		//$fileCore = new FilesCore();
+		//$url     = Config::getConfigVariable( 'wgCanonicalServer' ) . 'extensions/FlexForm/uploads/' . $fname;
 		$pname   = trim( $wname . "." . $fileType );
 		$comment = self::getSummary();
 		//$result  = $api->uploadFileToWiki( $pname, $url, $pcontent, $comment, $upload_dir . $fname );
-		$uploadFile = new Upload();
+		$uploadFile = new Upload( "", [] );
 		$resultFileUpload = $uploadFile->uploadFileToWiki(
 			$upload_dir . $fname,
 			$pname,
