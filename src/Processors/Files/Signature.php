@@ -107,6 +107,7 @@ class Signature {
 
 		if ( $parseContent !== false ) {
 			$pcontent = ContentCore::parseTitle( $pcontent );
+			$wname = ContentCore::parseTitle( $wname );
 		}
 
 		$upload_dir = Config::getConfigVariable( 'file_temp_path' );
