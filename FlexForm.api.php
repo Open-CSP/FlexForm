@@ -74,6 +74,7 @@ if ( $getAction === 'handleExternalRequest' ) {
 		$responseHandler->setIdentifier( 'ajax' );
 		try {
 			$responseHandler->exitResponse();
+			return;
 		} catch ( FlexFormException $e ) {
 			die( $e->getMessage() );
 		}
@@ -109,6 +110,7 @@ if ( Config::isDebug() ) {
 if ( $responseHandler->getReturnStatus() === "error" ) {
 	try {
 		$responseHandler->exitResponse();
+		return false;
 	} catch ( FlexFormException $e ) {
 		return $e->getMessage();
 	}
@@ -123,6 +125,7 @@ try {
 	$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
 	try {
 		$responseHandler->exitResponse();
+		return false;
 	} catch ( FlexFormException $e ) {
 		return $e->getMessage();
 	}
@@ -159,6 +162,7 @@ try {
 	$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
 	try {
 		$responseHandler->exitResponse();
+		return false;
 	} catch ( FlexFormException $e ) {
 		die( $e->getMessage() );
 	}
@@ -199,6 +203,7 @@ switch ( $action ) {
 			$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
 			try {
 				$responseHandler->exitResponse();
+				return false;
 			} catch ( FlexFormException $e ) {
 				return $e->getMessage();
 			}
@@ -230,6 +235,7 @@ if ( General::getPostString( 'mwextension' ) !== false ) {
 		$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
 		try {
 			$responseHandler->exitResponse();
+			return false;
 		} catch ( FlexFormException $e ) {
 			die( $e->getMessage() );
 		}

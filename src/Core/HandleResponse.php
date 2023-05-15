@@ -10,7 +10,6 @@
 
 namespace FlexForm\Core;
 
-use Database;
 use FlexForm\FlexFormException;
 use FlexForm\Processors\Content\ContentCore;
 use Wikimedia\Rdbms\DBError;
@@ -286,8 +285,20 @@ class HandleResponse {
 			sleep( $this->getPauseBeforeRefresh() );
 		}
 		if ( !$this->apiAjax ) {
-			header( 'Location: ' . $this->getMwReturn() );
-			die();
+			//header( 'Location: ' . $this->getMwReturn() );
+			//die();
+			/*
+			$returnto = Title::newFromText( $this->getMwReturn() );
+			if ( $returnto !== null ) {
+				// Purge the returnto page
+				$returntoPage = WikiPage::factory( $returnto );
+				if ( $returntoPage && $returntoPage->exists() ) {
+					$returntoPage->doPurge();
+				}
+			}
+			*/
+			global $wgOut;
+			$wgOut->redirect( $this->getMwReturn() );
 		} else {
 			$fields = ContentCore::getFields();
 			if ( $fields['mwfollow'] === "true" ) {
