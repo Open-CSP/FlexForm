@@ -397,6 +397,7 @@ class Validate {
         // TODO: Make this function return an array of key-value pairs with the parameters instead of a string
 		$name  = false;
 		$value = false;
+		$checked = false;
 		$val   = '';
 		$html = self::validHTML( $args );
 		$secure = Config::isSecure();
@@ -426,6 +427,9 @@ class Validate {
 						$v = $val; // set value to be purified
 					}
 				}
+				if ( $k == "checked" && $type="radio" ) {
+					$checked = true;
+				}
 				if ( self::check_disable_readonly_required_selected( $k, $v ) ) {
 					continue;
 				}
@@ -433,6 +437,21 @@ class Validate {
 				$preparedArguments[$k] = $v;
 			}
 		}
+
+		if ( $name && $val && !$checked && $type === "radio" ) {
+			if ( $html === "nohtml" ) {
+				$clean = true;
+			} else {
+				$clean = false;
+			}
+			$tmp = Core::getValue( $name, $clean );
+			if ( $tmp !== "" ) {
+				if ( $tmp == $val ) {
+					$preparedArguments['checked'] = '';
+				}
+			}
+		}
+
 		if ( $name && ! $value ) {
 			if ( $html === "nohtml" ) {
 				$clean = true;
