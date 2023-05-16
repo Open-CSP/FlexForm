@@ -375,16 +375,16 @@ class HandleResponse {
 	 * Used when there is no mwreturn
 	 */
 	public function outputMsg() {
+		global $wgOut;
+		$message = "";
 		$numargs = func_num_args();
 		$args    = func_get_args();
 		if ( ! $this->apiAjax ) {
 			for ( $i = 0; $i < $numargs; $i++ ) {
 				if ( is_array( $args[$i] ) ) {
-					echo "<pre>";
-					print_r( $args[$i] );
-					echo "</pre>";
+					$message .= "<p>" . print_r( $args[$i], true ) . "</p>";
 				} else {
-					echo "<p>" . $args[$i] . "</p>";
+					$message .= "<p>" . $args[$i] . "</p>";
 				}
 			}
 		} else {
@@ -404,6 +404,8 @@ class HandleResponse {
 				$tmp
 			);
 		}
+		$message .= "<br><a href=\"##\" onClick=\"history.back(); return false;\">Go back</a>";
+		$wgOut->addHTML( $message );
 	}
 
 }

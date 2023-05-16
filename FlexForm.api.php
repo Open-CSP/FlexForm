@@ -102,13 +102,14 @@ $responseHandler->setPauseBeforeRefresh( General::getPostString( 'mwpause' ) );
 if ( Config::isDebug() ) {
 	Debug::addToDebug(
 		'first set of mwreturn',
-		$responseHandler->getMwReturn()
+		[ "mwreturn" => $responseHandler->getMwReturn(), "returnstatus" => $responseHandler->getReturnStatus() ]
 	);
 }
 
 // Do we have any errors so far ?
-if ( $responseHandler->getReturnStatus() === "error" ) {
+if ( $responseHandler->getReturnType() === $responseHandler::TYPE_ERROR ) {
 	try {
+		$responseHandler->setMwReturn( false );
 		$responseHandler->exitResponse();
 		return false;
 	} catch ( FlexFormException $e ) {
