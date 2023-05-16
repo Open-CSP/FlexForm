@@ -74,6 +74,7 @@ if ( $getAction === 'handleExternalRequest' ) {
 		$responseHandler->setIdentifier( 'ajax' );
 		try {
 			$responseHandler->exitResponse();
+			return;
 		} catch ( FlexFormException $e ) {
 			die( $e->getMessage() );
 		}
@@ -101,14 +102,16 @@ $responseHandler->setPauseBeforeRefresh( General::getPostString( 'mwpause' ) );
 if ( Config::isDebug() ) {
 	Debug::addToDebug(
 		'first set of mwreturn',
-		$responseHandler->getMwReturn()
+		[ "mwreturn" => $responseHandler->getMwReturn(), "returnstatus" => $responseHandler->getReturnStatus() ]
 	);
 }
 
 // Do we have any errors so far ?
-if ( $responseHandler->getReturnStatus() === "error" ) {
+if ( $responseHandler->getReturnType() === $responseHandler::TYPE_ERROR ) {
 	try {
+		$responseHandler->setMwReturn( false );
 		$responseHandler->exitResponse();
+		return false;
 	} catch ( FlexFormException $e ) {
 		return $e->getMessage();
 	}
@@ -123,6 +126,7 @@ try {
 	$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
 	try {
 		$responseHandler->exitResponse();
+		return false;
 	} catch ( FlexFormException $e ) {
 		return $e->getMessage();
 	}
@@ -159,6 +163,7 @@ try {
 	$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
 	try {
 		$responseHandler->exitResponse();
+		return false;
 	} catch ( FlexFormException $e ) {
 		die( $e->getMessage() );
 	}
@@ -199,6 +204,7 @@ switch ( $action ) {
 			$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
 			try {
 				$responseHandler->exitResponse();
+				return false;
 			} catch ( FlexFormException $e ) {
 				return $e->getMessage();
 			}
@@ -230,6 +236,7 @@ if ( General::getPostString( 'mwextension' ) !== false ) {
 		$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
 		try {
 			$responseHandler->exitResponse();
+			return false;
 		} catch ( FlexFormException $e ) {
 			die( $e->getMessage() );
 		}

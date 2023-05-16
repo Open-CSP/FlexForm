@@ -287,8 +287,20 @@ class HandleResponse {
 			sleep( $this->getPauseBeforeRefresh() );
 		}
 		if ( !$this->apiAjax ) {
-			header( 'Location: ' . $this->getMwReturn() );
-			die();
+			//header( 'Location: ' . $this->getMwReturn() );
+			//die();
+			/*
+			$returnto = Title::newFromText( $this->getMwReturn() );
+			if ( $returnto !== null ) {
+				// Purge the returnto page
+				$returntoPage = WikiPage::factory( $returnto );
+				if ( $returntoPage && $returntoPage->exists() ) {
+					$returntoPage->doPurge();
+				}
+			}
+			*/
+			global $wgOut;
+			$wgOut->redirect( $this->getMwReturn() );
 		} else {
 			$fields = ContentCore::getFields();
 			if ( $fields['mwfollow'] === "true" ) {
@@ -365,16 +377,16 @@ class HandleResponse {
 	 * Used when there is no mwreturn
 	 */
 	public function outputMsg() {
+		global $wgOut;
+		$message = "";
 		$numargs = func_num_args();
 		$args    = func_get_args();
 		if ( ! $this->apiAjax ) {
 			for ( $i = 0; $i < $numargs; $i++ ) {
 				if ( is_array( $args[$i] ) ) {
-					echo "<pre>";
-					print_r( $args[$i] );
-					echo "</pre>";
+					$message .= "<p>" . print_r( $args[$i], true ) . "</p>";
 				} else {
-					echo "<p>" . $args[$i] . "</p>";
+					$message .= "<p>" . $args[$i] . "</p>";
 				}
 			}
 		} else {
@@ -394,6 +406,8 @@ class HandleResponse {
 				$tmp
 			);
 		}
+		$message .= "<br><a href=\"##\" onClick=\"history.back(); return false;\">Go back</a>";
+		$wgOut->addHTML( $message );
 	}
 
 }
