@@ -167,7 +167,8 @@ class SpecialFlexForm extends \SpecialPage {
 	 *  [[Special:HelloWorld/subpage]].
 	 */
 	public function execute( $sub ) {
-		global $IP, $wgUser, $wgExtensionCredits, $wgScript, $wgServer;
+		global $IP, $wgExtensionCredits, $wgScript, $wgServer;
+		$user = $this->getUser();
 
 		if ( $this->getPostString(
 				'mwtoken'
@@ -190,7 +191,7 @@ class SpecialFlexForm extends \SpecialPage {
 		$userAllowed = true;
 		if ( empty( array_intersect(
 			$groups,
-			MediaWikiServices::getInstance()->getUserGroupManager()->getUserEffectiveGroups( $wgUser )
+			MediaWikiServices::getInstance()->getUserGroupManager()->getUserEffectiveGroups( $user )
 		) ) ) {
 			$userAllowed = false;
 		}
@@ -268,7 +269,9 @@ class SpecialFlexForm extends \SpecialPage {
 			$headerPage
 		);
 
-		if ( ! $wgUser->isLoggedIn() ) {
+		// For MW 1.36+, use User::isRegistered
+		$isUserRegistered = ( method_exists( 'User', 'isRegistered' ) ) ? $user->isRegistered() : $user->isLoggedIn();
+		if ( ! $isUserRegistered ) {
 			$out->addHTML( '<p>' . $this->msg( "flexform-docs-log-in" )->text() . '</p>' );
 
 			return;
