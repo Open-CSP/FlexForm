@@ -1818,7 +1818,7 @@ class TagHooks {
 		}
 
 		if ( isset( $args['query'] ) ) {
-			$smwQuery = $args['query'];
+			$smwQuery = $parser->replaceVariables( $args['query'], $frame, true );
 			unset( $args['query'] );
 		} else {
 			$smwQuery = null;

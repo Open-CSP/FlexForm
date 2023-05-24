@@ -163,7 +163,6 @@ class SemanticAsk {
 
 			//[[Class::Organization]][[Name::~*ik*]]|?Name|?Contact|limit=99999
 			//Process~*hallo*|?Name|?Name|limit=50
-			//echo $query;
 
 			$postdata = [
 				"action" => "ask",
