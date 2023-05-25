@@ -91,6 +91,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 2.1.11 : Added tokens rendering to json schema
 * 2.1.10 : Redirect issue fixed
 * 2.1.9 : Added replacevariables parser options on semantic ask query
 * 2.1.8 : Setting display title in a MCR slot fix

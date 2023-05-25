@@ -186,6 +186,7 @@ class Json {
 		if ( isset( $data['htmlElement'] ) ) {
 			switch ( $data['htmlElement'] ) {
 				case "select":
+				case "_token":
 					if ( isset( $data['enum'] ) ) {
 						$input = $this->renderOptionFields( $data['enum'] );
 					}
