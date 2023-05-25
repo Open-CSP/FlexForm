@@ -213,7 +213,7 @@ class ContentCore {
 				if ( Config::isDebug() ) {
 					Debug::addToDebug(
 						$debugTitle . 'writepage result',
-						$result
+						[]
 					);
 				}
 			} catch ( FlexFormException $e ) {
@@ -222,6 +222,10 @@ class ContentCore {
 					0,
 					$e
 				);
+			}
+			if ( Config::isDebug() ) {
+				Debug::addToDebug( $debugTitle . 'Result creating single page',
+					$result );
 			}
 			if ( self::$fields['slot'] === false ) {
 				$slot = "main";
@@ -429,7 +433,9 @@ class ContentCore {
 										$title,
 										'::id::'
 									) === false ) {
-					self::$fields['returnto'] = wfExpandUrl( $title, PROTO_RELATIVE );
+					$title = ltrim( $title, '/' );
+					$titleObject = MediaWikiServices::getInstance()->getTitleFactory()->newFromText( $title );
+					self::$fields['returnto'] = $titleObject->getFullUrlForRedirect();
 				}
 			} else {
 				if ( strpos(
