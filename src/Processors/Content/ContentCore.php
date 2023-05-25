@@ -222,6 +222,10 @@ class ContentCore {
 					$e
 				);
 			}
+			if ( Config::isDebug() ) {
+				Debug::addToDebug( $debugTitle . 'Result creating single page',
+					$result );
+			}
 			if ( self::$fields['slot'] === false ) {
 				$slot = "main";
 			} else {
@@ -428,10 +432,9 @@ class ContentCore {
 										$title,
 										'::id::'
 									) === false ) {
-					self::$fields['returnto'] = MediaWikiServices::getInstance()->getUrlUtils()->expand(
-						$title,
-						PROTO_RELATIVE
-					);
+					$title = ltrim( $title, '/' );
+					$titleObject = MediaWikiServices::getInstance()->getTitleFactory()->newFromText( $title );
+					self::$fields['returnto'] = $titleObject->getFullUrlForRedirect();
 				}
 			} else {
 				if ( strpos(
