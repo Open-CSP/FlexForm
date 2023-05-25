@@ -185,6 +185,7 @@ class Json {
 		$input = '';
 		if ( isset( $data['htmlElement'] ) ) {
 			switch ( $data['htmlElement'] ) {
+				case "_token":
 				case "select":
 					if ( isset( $data['enum'] ) ) {
 						$input = $this->renderOptionFields( $data['enum'] );
@@ -348,6 +349,7 @@ class Json {
 		if ( $this->checkRequired( $name, $element ) ) {
 			$newArgs['required'] = 'required';
 		}
+		//echo "RENDER: Name: $name, Function Name: $functionName<br>";
 		$content = $this->renderElement( $input, $newArgs, $functionName, $ret  );
 		if ( isset( $property['behaviour'] ) && $property['behaviour'] === 'break' ) {
 			$content .= '<br>';
@@ -440,7 +442,7 @@ class Json {
 				$ret = true;
 			}
 			foreach ( $properties as $propertyName => $property ) {
-				//echo "Working on $propertyName";
+				//echo "Working on $propertyName<br>";
 				//Property name is "instance" properties = "type", "properties", "required"
 				if ( !isset( $property['type'] ) ) {
 					return "Error in schema. Missing type property in $propertyName";
