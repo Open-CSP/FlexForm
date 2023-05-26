@@ -168,6 +168,13 @@ class Render {
 	 */
 	public function makeRequest( array $data ) {
 		global $wgRequest;
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'FauxRequest init' . time(),
+				[ 'post-data' => $data ]
+
+			);
+		}
 		$thisUser = RequestContext::getMain()->getUser();
 		// TODO: Add switch to only allow this when it is safe.
 		if ( $thisUser->isAnon() ) {
@@ -185,9 +192,12 @@ class Render {
 			$context,
 			true
 		);
-		$api->execute();
-
-		$result = $api->getResult()->getResultData();
+		try {
+			$api->execute();
+			$result = $api->getResult()->getResultData();
+		} catch ( MWException $e ) {
+			$result['error']['info'] = $e->getMessage();
+		}
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
 				'FauxRequest ' . time(),

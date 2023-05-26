@@ -110,6 +110,13 @@ class Mail {
 	 * @throws \MWException
 	 */
 	private function parseWikiPageByTitle( string $title ) : string {
+		$debugTitle = '<b>::' . get_class() . '::</b> ';
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				$debugTitle . 'ParseWikiPage ' . time(),
+				$title
+			);
+		}
 		$render   = new Render();
 		$postdata = [
 			"action"                    => "parse",
@@ -129,8 +136,14 @@ class Mail {
 			);
 		}
 		if ( isset( $result['error'] ) ) {
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					$debugTitle.'ParseWikitextErrorException ' . time(),
+					$result
+				);
+			}
 			throw new FlexFormException(
-				$result['error']['info'],
+				"Error getting mail template($title):" . $result['error']['info'],
 				0
 			);
 		}
