@@ -189,9 +189,12 @@ class Render {
 			$context,
 			true
 		);
-		$api->execute();
-
-		$result = $api->getResult()->getResultData();
+		try {
+			$api->execute();
+			$result = $api->getResult()->getResultData();
+		} catch ( MWException $e ) {
+			$result['error']['info'] = $e->getMessage();
+		}
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
 				'FauxRequest ' . time(),
