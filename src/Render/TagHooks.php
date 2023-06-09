@@ -84,6 +84,7 @@ class TagHooks {
 	 */
 	public function renderForm( $input, array $args, Parser $parser, PPFrame $frame ) {
 		global $wgEmailConfirmToEdit, $IP, $wgScript;
+		$fPermissions = null;
 		$thisUser = \RequestContext::getMain()->getUser();
 		$ret = '';
 		$addFFJS = '';
