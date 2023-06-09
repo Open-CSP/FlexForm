@@ -136,7 +136,7 @@ class Validate {
 			"setwikicomment",
 			"mwreturn",
 			"extension",
-			"post-as-user",
+			"permissions",
 			"lock",
 			"recaptcha-v3-action",
             "autosave",

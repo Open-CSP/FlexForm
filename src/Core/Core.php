@@ -12,6 +12,8 @@ namespace FlexForm\Core;
 
 class Core {
 
+	private const FORMPERMISSION = [ 'can-edit', 'can-create' ];
+
 	public const DIVIDER = '-^^-';
 
 	/**
@@ -106,6 +108,41 @@ class Core {
 	public static function getPreSavedKey( string $name ) {
 		if ( array_key_exists( $name, self::$presavedValues ) ) {
 			return self::$presavedValues[$name];
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * @param string $permission
+	 *
+	 * @return bool
+	 */
+	public static function isAllowedFormPermission( string $permission ): bool {
+		return in_array( $permission, self::FORMPERMISSION );
+	}
+
+	/**
+	 * @param string|array $permissions
+	 *
+	 * @return bool
+	 */
+	public static function isAllowedToOverideEdit( $permissions ): bool {
+		if ( strpos( 'can-edit', $permissions !== false ) ) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * @param string|array $permissions
+	 *
+	 * @return bool
+	 */
+	public static function isAllowedToOverideCreate( $permissions ): bool {
+		if ( strpos( 'can-create', $permissions !== false ) ) {
+			return true;
 		} else {
 			return false;
 		}

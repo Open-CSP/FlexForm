@@ -24,7 +24,8 @@ class PlainFormRenderer implements FormRenderer {
 		?string $additionalClass,
 		bool $showOnSelect,
 		array $additionalArgs,
-		string $separator
+		string $separator,
+		?string $fPermissions
 	) : string {
 		$javascript     = '';
 		$formAttributes = array_merge(
@@ -36,6 +37,11 @@ class PlainFormRenderer implements FormRenderer {
 			],
 			$additionalArgs
 		);
+
+		$fPermissions = $fPermissions !== null ? Core::createHiddenField(
+			'mwformpermissions',
+			htmlspecialchars( $fPermissions )
+		) : '';
 
 		$messageOnSuccess = $messageOnSuccess !== null ? Core::createHiddenField(
 			'mwonsuccess',
@@ -92,7 +98,7 @@ class PlainFormRenderer implements FormRenderer {
 			Core::includeInlineCSS( '.flex-form-hide { opacity:0; }' );
 		}
 
-		$formContent = $mwReturn . $action . $messageOnSuccess . $wikiComment . $extension . \Xml::tags(
+		$formContent = $mwReturn . $action . $messageOnSuccess . $wikiComment . $extension . $fPermissions . \Xml::tags(
 				'input',
 				[
 					'type'  => 'hidden',

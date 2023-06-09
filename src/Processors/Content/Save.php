@@ -361,9 +361,18 @@ class Save {
 				[]
 			);
 		}
-		$editAllPagesConfig = Config::getConfigVariable( 'userscaneditallpages' );
 		$canEdit = MediaWikiServices::getInstance()->getPermissionManager()->userCan( 'edit', $user, $titleObject );
 		$canCreate = MediaWikiServices::getInstance()->getPermissionManager()->userCan( 'create', $user, $titleObject );
+		$fields = ContentCore::getFields();
+		if ( isset( $fields['mwformpermissions'] ) ) {
+			if ( Core::isAllowedToOverideCreate( $fields['formpermissions'] ) === true ) {
+				$canCreate = true;
+			}
+			if ( Core::isAllowedToOverideEdit( $fields['formpermissions'] ) === true ) {
+				$canEdit = true;
+			}
+		}
+		$editAllPagesConfig = Config::getConfigVariable( 'userscaneditallpages' );
 		if ( $editAllPagesConfig === false && ( $canCreate === false || $canEdit === false ) ) {
 			throw new FlexFormException( wfMessage( 'flexform-user-rights-not', $titleObject->getFullText() )->text() );
 		}

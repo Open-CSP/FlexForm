@@ -363,6 +363,13 @@ class TagHooks {
 			Core::includeJavaScriptConfig( 'ffDoNotDisableSubmit', true );
 		}
 
+		$fPermissions = null;
+		if ( isset( $args['permissions'] ) ) {
+			if ( Core::isAllowedFormPermission( $args['permissions'] ) ) {
+				$fPermissions = $args['permissions'];
+			}
+		}
+
 		if ( isset( $args['no_submit_on_return'] ) ) {
 			unset( $args['no_submit_on_return'] );
 			if ( isset( $args['class'] ) ) {
@@ -455,7 +462,8 @@ class TagHooks {
 				$additionalClass,
 				$showOnSelect,
 				$additionalArgs,
-				$separator
+				$separator,
+				$fPermissions
 			);
 		} finally {
 			$this->themeStore->setFormThemeName( $previousTheme );
