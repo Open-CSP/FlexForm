@@ -14,7 +14,7 @@ use MediaWiki\MediaWikiServices;
 
 class Core {
 
-	private const FORMPERMISSION = [ 'post-as-logged-in-user' ];
+	private const FORMPERMISSION = [ 'can-edit', 'can-create' ];
 
 	public const DIVIDER = '-^^-';
 
@@ -122,6 +122,32 @@ class Core {
 	 */
 	public static function isAllowedFormPermission( string $permission ): bool {
 		return in_array( $permission, self::FORMPERMISSION );
+	}
+
+	/**
+	 * @param string|array $permissions
+	 *
+	 * @return bool
+	 */
+	public static function isAllowedToOverideEdit( $permissions ): bool {
+		if ( strpos( $permissions, 'can-edit' ) !== false ) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * @param string|array $permissions
+	 *
+	 * @return bool
+	 */
+	public static function isAllowedToOverideCreate( $permissions ): bool {
+		if ( strpos( $permissions, 'can-create' ) !== false ) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	public static function isShowOnSelectActive() {

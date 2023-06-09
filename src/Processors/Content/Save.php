@@ -361,33 +361,37 @@ class Save {
 				[]
 			);
 		}
+		$canEdit = MediaWikiServices::getInstance()->getPermissionManager()->userCan( 'edit', $user, $titleObject );
+		$canCreate = MediaWikiServices::getInstance()->getPermissionManager()->userCan( 'create', $user, $titleObject );
 		$fields = ContentCore::getFields();
-		if ( isset( $fields['formpermissions'] ) && $fields['formpermissions'] === 'post-as-logged-in-user' ) {
-			$pau = true;
-		} else {
-			$pau = false;
-		}
-		if ( Config::isDebug() ) {
-			if ( $pau ) {
-				Debug::addToDebug( 'post-as-logged-in-user is set ' . time(),
-					[] );
-			} else {
-				Debug::addToDebug( 'No form permissions founds' . time(),
-					[] );
+		if ( isset( $fields['formpermissions'] ) ) {
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'Form permissions override: ' . time(),
+					[ 'fields' => $fields, 'can edit' => Core::isAllowedToOverideEdit( $fields['formpermissions'] ) ,
+					  'can create' => Core::isAllowedToOverideCreate( $fields['formpermissions'] ) ]
+				);
+			}
+			if ( Core::isAllowedToOverideCreate( $fields['formpermissions'] ) === true ) {
+				$canCreate = true;
+				if ( Config::isDebug() ) {
+					Debug::addToDebug(
+						'Form Permissions found to always allow create: ' . time(),
+						[]
+					);
+				}
+			}
+			if ( Core::isAllowedToOverideEdit( $fields['formpermissions'] ) === true ) {
+				$canEdit = true;
+				if ( Config::isDebug() ) {
+					Debug::addToDebug(
+						'Form Permissions found to always allow edit: ' . time(),
+						[]
+					);
+				}
 			}
 		}
 		$editAllPagesConfig = Config::getConfigVariable( 'userscaneditallpages' );
-		if ( $pau ) {
-			$canEdit = true;
-			$canCreate = true;
-		} else {
-			$canEdit   = MediaWikiServices::getInstance()->getPermissionManager()->userCan( 'edit',
-				$user,
-				$titleObject );
-			$canCreate = MediaWikiServices::getInstance()->getPermissionManager()->userCan( 'create',
-				$user,
-				$titleObject );
-		}
 		if ( $editAllPagesConfig === false && ( $canCreate === false || $canEdit === false ) ) {
 			throw new FlexFormException( wfMessage( 'flexform-user-rights-not', $titleObject->getFullText() )->text() );
 		}
