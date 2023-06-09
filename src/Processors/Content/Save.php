@@ -361,9 +361,24 @@ class Save {
 				[]
 			);
 		}
+		$fields = ContentCore::getFields();
+		if ( isset( $fields['mwformpermissions'] ) && $fields['mwformpermissions'] === 'post-as-logged-in-user' ) {
+			$pau = true;
+		} else {
+			$pau = false;
+		}
 		$editAllPagesConfig = Config::getConfigVariable( 'userscaneditallpages' );
-		$canEdit = MediaWikiServices::getInstance()->getPermissionManager()->userCan( 'edit', $user, $titleObject );
-		$canCreate = MediaWikiServices::getInstance()->getPermissionManager()->userCan( 'create', $user, $titleObject );
+		if ( $pau ) {
+			$canEdit = true;
+			$canCreate = true;
+		} else {
+			$canEdit   = MediaWikiServices::getInstance()->getPermissionManager()->userCan( 'edit',
+				$user,
+				$titleObject );
+			$canCreate = MediaWikiServices::getInstance()->getPermissionManager()->userCan( 'create',
+				$user,
+				$titleObject );
+		}
 		if ( $editAllPagesConfig === false && ( $canCreate === false || $canEdit === false ) ) {
 			throw new FlexFormException( wfMessage( 'flexform-user-rights-not', $titleObject->getFullText() )->text() );
 		}

@@ -27,6 +27,7 @@ interface FormRenderer {
 	 * @param bool $showOnSelect
 	 * @param array $additionalArgs
 	 * @param string $separator
+	 * @param string|null $fPermissions
 	 *
 	 * @return string Rendered HTML
 	 */
@@ -43,6 +44,7 @@ interface FormRenderer {
 		?string $additionalClass,
 		bool $showOnSelect,
 		array $additionalArgs,
-		string $separator
+		string $separator,
+		?string $fPermissions
 	) : string;
 }

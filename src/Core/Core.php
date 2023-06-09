@@ -14,6 +14,8 @@ use MediaWiki\MediaWikiServices;
 
 class Core {
 
+	private const FORMPERMISSION = [ 'post-as-logged-in-user' ];
+
 	public const DIVIDER = '-^^-';
 
 	/**
@@ -111,6 +113,15 @@ class Core {
 		} else {
 			return false;
 		}
+	}
+
+	/**
+	 * @param string $permission
+	 *
+	 * @return bool
+	 */
+	public static function isAllowedFormPermission( string $permission ): bool {
+		return in_array( $permission, self::FORMPERMISSION );
 	}
 
 	public static function isShowOnSelectActive() {
