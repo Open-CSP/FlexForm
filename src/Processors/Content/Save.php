@@ -367,6 +367,15 @@ class Save {
 		} else {
 			$pau = false;
 		}
+		if ( Config::isDebug() ) {
+			if ( $pau ) {
+				Debug::addToDebug( 'post-as-logged-in-user is set ' . time(),
+					[] );
+			} else {
+				Debug::addToDebug( 'No form permissions founds' . time(),
+					[] );
+			}
+		}
 		$editAllPagesConfig = Config::getConfigVariable( 'userscaneditallpages' );
 		if ( $pau ) {
 			$canEdit = true;
