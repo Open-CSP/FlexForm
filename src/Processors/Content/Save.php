@@ -364,12 +364,31 @@ class Save {
 		$canEdit = MediaWikiServices::getInstance()->getPermissionManager()->userCan( 'edit', $user, $titleObject );
 		$canCreate = MediaWikiServices::getInstance()->getPermissionManager()->userCan( 'create', $user, $titleObject );
 		$fields = ContentCore::getFields();
-		if ( isset( $fields['mwformpermissions'] ) ) {
+		if ( isset( $fields['formpermissions'] ) ) {
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'Form permissions override: ' . time(),
+					[ 'fields' => $fields, 'can edit' => Core::isAllowedToOverideEdit( $fields['formpermissions'] ) ,
+						'can create' => Core::isAllowedToOverideCreate( $fields['formpermissions'] ) ]
+				);
+			}
 			if ( Core::isAllowedToOverideCreate( $fields['formpermissions'] ) === true ) {
 				$canCreate = true;
+				if ( Config::isDebug() ) {
+					Debug::addToDebug(
+						'Form Permissions found to always allow create: ' . time(),
+						[]
+					);
+				}
 			}
 			if ( Core::isAllowedToOverideEdit( $fields['formpermissions'] ) === true ) {
 				$canEdit = true;
+				if ( Config::isDebug() ) {
+					Debug::addToDebug(
+						'Form Permissions found to always allow edit: ' . time(),
+						[]
+					);
+				}
 			}
 		}
 		$editAllPagesConfig = Config::getConfigVariable( 'userscaneditallpages' );

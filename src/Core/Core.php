@@ -128,7 +128,7 @@ class Core {
 	 * @return bool
 	 */
 	public static function isAllowedToOverideEdit( $permissions ): bool {
-		if ( strpos( 'can-edit', $permissions !== false ) ) {
+		if ( strpos( $permissions, 'can-edit' ) !== false ) {
 			return true;
 		} else {
 			return false;
@@ -141,7 +141,7 @@ class Core {
 	 * @return bool
 	 */
 	public static function isAllowedToOverideCreate( $permissions ): bool {
-		if ( strpos( 'can-create', $permissions !== false ) ) {
+		if ( strpos( $permissions, 'can-create' ) !== false ) {
 			return true;
 		} else {
 			return false;

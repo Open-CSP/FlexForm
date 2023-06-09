@@ -365,9 +365,7 @@ class TagHooks {
 
 		$fPermissions = null;
 		if ( isset( $args['permissions'] ) ) {
-			if ( Core::isAllowedFormPermission( $args['permissions'] ) ) {
-				$fPermissions = $args['permissions'];
-			}
+			$fPermissions = $args['permissions'];
 		}
 
 		if ( isset( $args['no_submit_on_return'] ) ) {
