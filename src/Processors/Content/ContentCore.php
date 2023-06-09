@@ -178,7 +178,7 @@ class ContentCore {
 	public static function saveToWiki( HandleResponse $response_handler, $email = false ) : HandleResponse {
 		self::$fields = Definitions::createAndEditFields();
 		if ( Config::isDebug() ) {
-			$debugTitle = '<b>::' . get_class() . '::</b> ';
+			$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
 			Debug::addToDebug(
 				$debugTitle . 'createandeditfields',
 				self::$fields

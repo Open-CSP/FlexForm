@@ -70,12 +70,13 @@ class Save {
 		// loop through all slots we need to edit/create
 		foreach ( $text as $slot_name => $content ) {
 			if ( Config::isDebug() ) {
+				$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
 				Debug::addToDebug(
-					'edit slot slot name' . time(),
+					$debugTitle . 'edit slot slot name' . time(),
 					$slot_name
 				);
 				Debug::addToDebug(
-					'edit slot slot content' . time(),
+					$debugTitle . 'edit slot slot content' . time(),
 					$content
 				);
 			}
@@ -129,7 +130,7 @@ class Save {
 			// The 'main' content slot MUST be set when creating a new page
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
-					'We only have a slot to write, we need to create main as well! -- ' . time(),
+					$debugTitle . 'We only have a slot to write, we need to create main as well! -- ' . time(),
 					$slot_name
 				);
 			}
@@ -157,7 +158,7 @@ class Save {
 				$res = "false";
 			}
 			Debug::addToDebug(
-				'SaveRevision result -- ' . time(),
+				$debugTitle . 'SaveRevision result -- ' . time(),
 				[ 'true or false' => $res ]
 			);
 		}
@@ -171,12 +172,12 @@ class Save {
 		if ( Config::isDebug() ) {
 			if ( $page_updater->isUnchanged() ) {
 				Debug::addToDebug(
-					'EDIT SLOTS PAGE SAVED IS UNCHANGED ' . time(),
+					$debugTitle . 'EDIT SLOTS PAGE SAVED IS UNCHANGED ' . time(),
 					$page_updater->isUnchanged()
 				);
 			} else {
 				Debug::addToDebug(
-					'EDIT SLOTS PAGE SAVED IS CHANGED ' . time(),
+					$debugTitle . 'EDIT SLOTS PAGE SAVED IS CHANGED ' . time(),
 					$page_updater->isUnchanged()
 				);
 			}
@@ -201,7 +202,7 @@ class Save {
 		if ( !$page_updater->isUnchanged() ) {
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
-					'Page has changed, lets do a null edit! ' . time(),
+					$debugTitle . 'Page has changed, lets do a null edit! ' . time(),
 					"no further info"
 				);
 			}
@@ -338,10 +339,11 @@ class Save {
 	 * @throws MWContentSerializationException
 	 */
 	public function saveToWiki( string $title, array $contentArray, string $summary, bool $overWrite = true ) {
-		$user        = RequestContext::getMain()->getUser();
+		$user = RequestContext::getMain()->getUser();
 		if ( Config::isDebug() ) {
+			$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
 			Debug::addToDebug(
-				'saveToWiki : ' . $title,
+				$debugTitle . $title,
 				[]
 			);
 		}
@@ -357,7 +359,7 @@ class Save {
 		}
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
-				'saveToWiki title from Title Object: ' . $titleObject->getFullText(),
+				$debugTitle . ' title from Title Object: ' . $titleObject->getFullText(),
 				[]
 			);
 		}
@@ -367,7 +369,7 @@ class Save {
 		if ( isset( $fields['formpermissions'] ) ) {
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
-					'Form permissions override: ' . time(),
+					$debugTitle . 'Form permissions override: ' . time(),
 					[ 'fields' => $fields, 'can edit' => Core::isAllowedToOverideEdit( $fields['formpermissions'] ) ,
 						'can create' => Core::isAllowedToOverideCreate( $fields['formpermissions'] ) ]
 				);
@@ -376,7 +378,7 @@ class Save {
 				$canCreate = true;
 				if ( Config::isDebug() ) {
 					Debug::addToDebug(
-						'Form Permissions found to always allow create: ' . time(),
+						$debugTitle . 'Form Permissions found to always allow create: ' . time(),
 						[]
 					);
 				}
@@ -385,7 +387,7 @@ class Save {
 				$canEdit = true;
 				if ( Config::isDebug() ) {
 					Debug::addToDebug(
-						'Form Permissions found to always allow edit: ' . time(),
+						$debugTitle . 'Form Permissions found to always allow edit: ' . time(),
 						[]
 					);
 				}
@@ -416,7 +418,7 @@ class Save {
 		}
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
-				'sending to edit slots $contentArray',
+				$debugTitle . 'sending to edit slots $contentArray',
 				$contentArray
 			);
 		}
@@ -428,7 +430,7 @@ class Save {
 		);
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
-				'Save result',
+				$debugTitle . 'Save result',
 				$saveResult
 			);
 		}
