@@ -99,26 +99,27 @@ class Definitions {
 	 */
 	public static function createAndEditFields() : array {
 		return [
-			'parsePost'    => General::getPostArray( 'wsparsepost' ),
-			'parseLast'    => General::getPostString( 'mwparselast' ),
-			'etoken'       => General::getPostString( 'wsedittoken' ),
-			'template'     => General::getPostString( 'mwtemplate' ),
-			'writepage'    => General::getPostString( 'mwwrite' ),
-			'option'       => General::getPostString( 'mwoption' ),
-			'returnto'     => General::getPostString( 'mwreturn',
+			'parsePost'       => General::getPostArray( 'wsparsepost' ),
+			'parseLast'       => General::getPostString( 'mwparselast' ),
+			'etoken'          => General::getPostString( 'wsedittoken' ),
+			'template'        => General::getPostString( 'mwtemplate' ),
+			'writepage'       => General::getPostString( 'mwwrite' ),
+			'option'          => General::getPostString( 'mwoption' ),
+			'returnto'        => General::getPostString( 'mwreturn',
 				false ),
-			'returnfalse'  => General::getPostString( 'mwreturnfalse' ),
-			'mwedit'       => General::getPostArray( 'mwedit' ),
-			'writepages'   => General::getPostArray( 'mwcreatemultiple' ),
-			'msgOnSuccess' => General::getPostString( 'mwonsuccess' ),
-			'mwfollow'     => General::getPostString( 'mwfollow' ),
-			'leadByZero'   => false,
-			'summary'      => General::getPostString( 'mwwikicomment' ),
-			'slot'         => General::getPostString( 'mwslot' ),
-			'createuser'   => General::getPostString( 'mwcreateuser' ),
-			'nooverwrite'  => General::getPostString( 'mwnooverwrite' ),
-			'format'       => General::getPostString( 'mwformat' ),
-			'separator'    => General::getPostString( 'ff_separator' )
+			'returnfalse'     => General::getPostString( 'mwreturnfalse' ),
+			'mwedit'          => General::getPostArray( 'mwedit' ),
+			'writepages'      => General::getPostArray( 'mwcreatemultiple' ),
+			'msgOnSuccess'    => General::getPostString( 'mwonsuccess' ),
+			'mwfollow'        => General::getPostString( 'mwfollow' ),
+			'leadByZero'      => false,
+			'summary'         => General::getPostString( 'mwwikicomment' ),
+			'slot'            => General::getPostString( 'mwslot' ),
+			'createuser'      => General::getPostString( 'mwcreateuser' ),
+			'nooverwrite'     => General::getPostString( 'mwnooverwrite' ),
+			'format'          => General::getPostString( 'mwformat' ),
+			'formpermissions' => General::getPostString( 'mwformpermissions' ),
+			'separator'       => General::getPostString( 'ff_separator' )
 		];
 	}
 
@@ -194,7 +195,8 @@ class Definitions {
 			"mwslot",
 			"mwformat",
 			"ff_upload_actions",
-			'ff_separator'
+			'ff_separator',
+			'mwformpermissions'
 		];
 		if ( in_array(
 			strtolower( $field ),

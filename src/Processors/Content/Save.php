@@ -362,7 +362,7 @@ class Save {
 			);
 		}
 		$fields = ContentCore::getFields();
-		if ( isset( $fields['mwformpermissions'] ) && $fields['mwformpermissions'] === 'post-as-logged-in-user' ) {
+		if ( isset( $fields['formpermissions'] ) && $fields['formpermissions'] === 'post-as-logged-in-user' ) {
 			$pau = true;
 		} else {
 			$pau = false;
