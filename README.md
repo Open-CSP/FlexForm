@@ -91,6 +91,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 2.1.13 : Added non predefined value to show up in token instances. Added valid JSON schema check.
 * 2.1.12 : Added form permissions argument
 * 2.1.11 : Added tokens rendering to json schema
 * 2.1.10 : Redirect issue fixed
