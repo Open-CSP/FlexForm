@@ -174,7 +174,7 @@ const WsInstance = function (selector, options) {
 						}
 					} else if ($(select).data('inputtype') === 'ws-select2') {
 						if (!$(select).children().val() && values[i]) {
-							// $(select).append(`<option value="${values[i]}" selected="selected">${values[i]}</option>`)
+							$(select).append(`<option value="${values[i]}" selected="selected">${values[i]}</option>`)
 							getPredefinedOptionsTokenField(select, [values[i]]);
 						}
 					}
@@ -196,7 +196,13 @@ const WsInstance = function (selector, options) {
 	const getPredefinedOptionsTokenField = (select, values) => {
 		let query = $(select).next().val()
 		query = query.slice((query.indexOf('query=') + 6), query.indexOf("';"))
-		query = atob(query)
+		var tmpQuery = "";
+		try {
+			tmpQuery = atob( query )
+		} catch ( error ) {
+			tmpQuery = query;
+		}
+		query = tmpQuery;
 
 		let return_text = ''
 		if ( query.indexOf('returntext') > -1 ) {

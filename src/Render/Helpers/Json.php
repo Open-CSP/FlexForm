@@ -111,7 +111,16 @@ class Json {
 				try {
 					$render = new Render();
 					$source = $render->getSlotContent( $json );
-					$this->json = json_decode( $source['content'], true );
+					$tJson = json_decode( $source['content'], true );
+					if ( $tJson !== null ) {
+						$this->json = $tJson;
+					} else {
+						throw new FlexFormException(
+							'Invalid JSON Schema',
+							null,
+							1
+						);
+					}
 				} catch ( Exception | FlexFormException $e ) {
 					return wfMessage( 'flexform-error-invalid-json' )->text() . ": " . $e->getMessage();
 				}

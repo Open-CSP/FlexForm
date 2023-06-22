@@ -1,4 +1,5 @@
 # <img alt="FlexForm" width="200" src="FlexForm-logo.png">
+MW1.39 branch
 
 FlexForm is an enhanced HTML5 rendering engine.
 
@@ -91,6 +92,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 2.1.13 : Added non predefined value to show up in token instances. Added valid JSON schema check.
 * 2.1.12 : Added form permission argument
 * 2.1.11 : Added tokens rendering to json schema
 * 2.1.10 : Redirect issue fixed
