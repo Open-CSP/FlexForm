@@ -603,10 +603,14 @@ class Create {
 					$this->pageData['aliasFields']
 				) ) {
 					$kField = General::makeSpaceFromUnderscore( $this->pageData['aliasFields'][$k] );
-					$this->content .= "|" . $kField . "=";
+					if ( !$this->pageData['notemplate'] ) {
+						$this->content .= "|" . $kField . "=";
+					}
 				} else {
 					$kField = General::makeSpaceFromUnderscore( $k );
-					$this->content .= "|" . $kField . "=";
+					if ( !$this->pageData['notemplate'] ) {
+						$this->content .= "|" . $kField . "=";
+					}
 				}
 				if ( ContentCore::hasAssignedKeys( $v ) ) {
 					$json[$kField]['ffID'] = ContentCore::createRandom();
@@ -642,7 +646,7 @@ class Create {
 				if ( !Definitions::isFlexFormSystemField( $k, false ) && $v != "" ) {
 					// if ( $k !== "mwtemplate" && $k !== "mwoption" && $k !== "mwwrite" &&
 					// $k !== "mwreturn" && $k !== "mwedit" && $v != "" ) {
-						if ( !$this->pageData['notemplate'] ) {
+					if ( !$this->pageData['notemplate'] ) {
 						if ( Config::isDebug() ) {
 							Debug::addToDebug(
 								$debugtitle . '. Checking if we have aliasfields ',
