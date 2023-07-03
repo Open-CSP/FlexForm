@@ -1945,6 +1945,9 @@ class TagHooks {
 
 		foreach ( $args as $name => $value ) {
 			if ( Validate::validParameters( $name ) ) {
+				if ( Validate::check_disable_readonly_required_selected( $name, $value ) ) {
+					continue;
+				}
 				$additionalArguments[$name] = $parser->recursiveTagParse( $value, $frame );
 			}
 		}
