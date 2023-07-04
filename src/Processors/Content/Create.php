@@ -603,10 +603,14 @@ class Create {
 					$this->pageData['aliasFields']
 				) ) {
 					$kField = General::makeSpaceFromUnderscore( $this->pageData['aliasFields'][$k] );
-					$this->content .= "|" . $kField . "=";
+					if ( !$this->pageData['notemplate'] ) {
+						$this->content .= "|" . $kField . "=";
+					}
 				} else {
 					$kField = General::makeSpaceFromUnderscore( $k );
-					$this->content .= "|" . $kField . "=";
+					if ( !$this->pageData['notemplate'] ) {
+						$this->content .= "|" . $kField . "=";
+					}
 				}
 				if ( ContentCore::hasAssignedKeys( $v ) ) {
 					$json[$kField]['ffID'] = ContentCore::createRandom();

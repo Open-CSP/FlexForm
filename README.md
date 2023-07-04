@@ -92,6 +92,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 2.1.15 : Creating a page not using a template fix for array values
 * 2.1.14 : Have tokens use the same required="required" options as normal input fields
 * 2.1.13 : Added non predefined value to show up in token instances. Added valid JSON schema check.
 * 2.1.12 : Added form permission argument
