@@ -75,12 +75,13 @@ class Save {
 		// loop through all slots we need to edit/create
 		foreach ( $text as $slot_name => $content ) {
 			if ( Config::isDebug() ) {
+				$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
 				Debug::addToDebug(
-					'edit slot slot name' . time(),
+					$debugTitle . 'edit slot slot name' . time(),
 					$slot_name
 				);
 				Debug::addToDebug(
-					'edit slot slot content' . time(),
+					$debugTitle . 'edit slot slot content' . time(),
 					$content
 				);
 			}
@@ -131,7 +132,7 @@ class Save {
 
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
-				'Setting up slots duration',
+				$debugTitle . 'Setting up slots duration',
 				[],
 				$timer->getDuration()
 			);
@@ -145,7 +146,7 @@ class Save {
 			// The 'main' content slot MUST be set when creating a new page
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
-					'We only have a slot to write, we need to create main as well! -- ' . time(),
+					$debugTitle . 'We only have a slot to write, we need to create main as well! -- ' . time(),
 					$slot_name
 				);
 			}
@@ -160,7 +161,7 @@ class Save {
 			);
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
-					'Creating missing main slot duration',
+					$debugTitle . 'Creating missing main slot duration',
 					[],
 					$timer->getDuration()
 				);
@@ -197,12 +198,12 @@ class Save {
 		if ( Config::isDebug() ) {
 			if ( !$page_updater->wasRevisionCreated() ) {
 				Debug::addToDebug(
-					'EDIT SLOTS PAGE SAVED IS UNCHANGED ' . time(),
+					$debugTitle . 'EDIT SLOTS PAGE SAVED IS UNCHANGED ' . time(),
 					$page_updater->wasRevisionCreated()
 				);
 			} else {
 				Debug::addToDebug(
-					'EDIT SLOTS PAGE SAVED IS CHANGED ' . time(),
+					$debugTitle . 'EDIT SLOTS PAGE SAVED IS CHANGED ' . time(),
 					$page_updater->wasRevisionCreated()
 				);
 			}
@@ -227,7 +228,7 @@ class Save {
 		if ( $page_updater->wasRevisionCreated() ) {
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
-					'Page has changed, lets do a null edit! ' . time(),
+					$debugTitle . 'Page has changed, lets do a null edit! ' . time(),
 					"no further info"
 				);
 			}
@@ -246,7 +247,7 @@ class Save {
 			$this->doNullEdit( $user, $wikipage_object, $mainContentText );
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
-					'SMW Props refresh / Null edit duration',
+					$debugTitle . 'SMW Props refresh / Null edit duration',
 					[],
 					$timerSMW->getDuration() . ' / ' . $timerNull->getDuration()
 				);
@@ -381,8 +382,9 @@ class Save {
 		$user = RequestContext::getMain()->getUser();
 
 		if ( Config::isDebug() ) {
+			$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
 			Debug::addToDebug(
-				'saveToWiki : ' . $title,
+				$debugTitle . $title,
 				[]
 			);
 		}
@@ -412,7 +414,7 @@ class Save {
 		if ( isset( $fields['formpermissions'] ) ) {
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
-					'Form permissions override: ' . time(),
+					$debugTitle . 'Form permissions override: ' . time(),
 					[ 'fields' => $fields, 'can edit' => Core::isAllowedToOverideEdit( $fields['formpermissions'] ) ,
 					  'can create' => Core::isAllowedToOverideCreate( $fields['formpermissions'] ) ]
 				);
@@ -421,7 +423,7 @@ class Save {
 				$canCreate = true;
 				if ( Config::isDebug() ) {
 					Debug::addToDebug(
-						'Form Permissions found to always allow create: ' . time(),
+						$debugTitle . 'Form Permissions found to always allow create: ' . time(),
 						[]
 					);
 				}
@@ -430,7 +432,7 @@ class Save {
 				$canEdit = true;
 				if ( Config::isDebug() ) {
 					Debug::addToDebug(
-						'Form Permissions found to always allow edit: ' . time(),
+						$debugTitle . 'Form Permissions found to always allow edit: ' . time(),
 						[]
 					);
 				}
@@ -461,7 +463,7 @@ class Save {
 		}
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
-				'sending to edit slots $contentArray',
+				$debugTitle . 'sending to edit slots $contentArray',
 				$contentArray
 			);
 		}
