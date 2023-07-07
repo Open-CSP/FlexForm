@@ -13,6 +13,7 @@
  */
 
 use FlexForm\Core\Debug;
+use FlexForm\Core\DebugTimer;
 use FlexForm\Core\HandleResponse;
 use FlexForm\Core\Config;
 use FlexForm\Processors\Content\ContentCore;
@@ -50,6 +51,10 @@ try {
 }
 
 if ( Config::isDebug() ) {
+	$fullTimer = new DebugTimer();
+}
+
+if ( Config::isDebug() ) {
 	ERROR_REPORTING( E_ALL );
 	ini_set(
 		'display_errors',
@@ -63,6 +68,9 @@ if ( Config::isDebug() ) {
 
 $getAction = General::getGetString( 'action', true, false );
 
+if ( Config::isDebug() ) {
+	$externalTimer = new DebugTimer();
+}
 if ( $getAction === 'handleExternalRequest' ) {
 	try {
 
@@ -80,13 +88,25 @@ if ( $getAction === 'handleExternalRequest' ) {
 		}
 	}
 }
+if ( Config::isDebug() ) {
+	Debug::addToDebug(
+		'handleExternalRequest duration',
+		[],
+		$externalTimer->getDuration()
+	);
+}
+
+if ( Config::isDebug() ) {
+	$timer = new DebugTimer();
+}
 
 try {
 	$securityResult = wsSecurity::resolvePosts();
 	if ( Config::isDebug() ) {
 		Debug::addToDebug(
 			'$_POST after checks',
-			$_POST
+			$_POST,
+			$timer->getDuration()
 		);
 	}
 } catch ( FlexFormException $e ) {
@@ -132,14 +152,20 @@ try {
 	}
 }
 
+if ( Config::isDebug() ) {
+	$timer = new DebugTimer();
+}
+
 wsSecurity::cleanPosts();
 
 if ( Config::isDebug() ) {
 	Debug::addToDebug(
 		'$_POST after cleaned html',
-		$_POST
+		$_POST,
+		$timer->getDuration()
 	);
 }
+
 General::handleDefaultValues();
 if ( Config::isDebug() ) {
 	Debug::addToDebug(
@@ -153,6 +179,11 @@ $wsuid = General::getPostString( 'wsuid' );
 if ( $wsuid !== false ) {
 	unset( $_POST['wsuid'] );
 }
+
+if ( Config::isDebug() ) {
+	$timer = new DebugTimer();
+}
+
 $fileHandler = new FilesCore();
 
 try {
@@ -169,6 +200,14 @@ try {
 	}
 }
 
+if ( Config::isDebug() ) {
+	Debug::addToDebug(
+		'Handling files duration',
+		[],
+		$timer->getDuration()
+	);
+}
+
 // Add default action is addToWiki
 $action = General::getPostString( 'mwaction' );
 if ( $action === false ) {
@@ -176,6 +215,10 @@ if ( $action === false ) {
 }
 
 unset( $_POST['mwaction'] );
+
+if ( Config::isDebug() ) {
+	$addToWikiTimer = new DebugTimer();
+}
 
 switch ( $action ) {
 	case "addToWiki" :
@@ -220,6 +263,14 @@ switch ( $action ) {
 		break;
 }
 
+if ( Config::isDebug() ) {
+	Debug::addToDebug(
+		'Handling action duration',
+		[],
+		$addToWikiTimer->getDuration()
+	);
+}
+
 // Handle extensions
 if ( General::getPostString( 'mwextension' ) !== false ) {
 	if ( Config::isDebug() ) {
@@ -254,6 +305,11 @@ if ( Config::isDebug() ) {
 			$responseHandler->getReturnData()
 		);
 	}
+	Debug::addToDebug(
+		'Total time passed',
+		[],
+		$fullTimer->getDuration()
+	);
 }
 
 try {

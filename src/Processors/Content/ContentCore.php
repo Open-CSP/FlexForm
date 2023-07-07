@@ -2,6 +2,7 @@
 
 namespace FlexForm\Processors\Content;
 
+use FlexForm\Core\DebugTimer;
 use MediaWiki\MediaWikiServices;
 use MWException;
 use RequestContext;
@@ -176,31 +177,52 @@ class ContentCore {
 	 * @throws \MWContentSerializationException
 	 */
 	public static function saveToWiki( HandleResponse $response_handler, $email = false ) : HandleResponse {
+		if ( Config::isDebug() ) {
+			$timer = new DebugTimer();
+		}
 		self::$fields = Definitions::createAndEditFields();
 		if ( Config::isDebug() ) {
 			$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
 			Debug::addToDebug(
 				$debugTitle . 'createandeditfields',
-				self::$fields
+				self::$fields,
+				$timer->getDuration()
 			);
 		}
 
+		if ( Config::isDebug() ) {
+			$timer = new DebugTimer();
+		}
 		// Check and set default self::$fields. Also check for instances input
 		self::checkFields();
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
 				$debugTitle . 'checkfields',
-				self::$fields
+				self::$fields,
+				$timer->getDuration()
 			);
 		}
 
 		// mwcreateuser
 		if ( self::$fields['createuser'] !== false && self::$fields['createuser'] !== '' ) {
+			if ( Config::isDebug() ) {
+				$timer = new DebugTimer();
+			}
 			$createUser = new CreateUser();
 			$user       = $createUser->addUser();
 			$createUser->sendPassWordAndConfirmationLink( $user );
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'Handling creeate user duration',
+					[],
+					$timer->getDuration()
+				);
+			}
 		}
 
+		if ( Config::isDebug() ) {
+			$timer = new DebugTimer();
+		}
 		// WSCreate single
 		if ( self::$fields['template'] !== false && self::$fields['writepage'] !== false ) {
 			if ( Config::isDebug() ) {
@@ -213,7 +235,8 @@ class ContentCore {
 				if ( Config::isDebug() ) {
 					Debug::addToDebug(
 						$debugTitle . 'writepage result',
-						[]
+						[],
+						$timer->getDuration()
 					);
 				}
 			} catch ( FlexFormException $e ) {
@@ -225,7 +248,7 @@ class ContentCore {
 			}
 			if ( Config::isDebug() ) {
 				Debug::addToDebug( $debugTitle . 'Result creating single page',
-					$result );
+					$result, $timer->getDuration() );
 			}
 			if ( self::$fields['slot'] === false ) {
 				$slot = "main";
@@ -257,7 +280,7 @@ class ContentCore {
 				if ( Config::isDebug() ) {
 					Debug::addToDebug(
 						$debugTitle . 'finished 1 wscreate value returnto is',
-						self::$fields['returnto']
+						self::$fields['returnto'], $timer->getDuration()
 					);
 				}
 				$response_handler->setMwReturn( self::$fields['returnto'] );
@@ -341,7 +364,13 @@ class ContentCore {
 				if ( self::$fields['msgOnSuccess'] !== false ) {
 					$response_handler->setReturnData( self::$fields['msgOnSuccess'] );
 				}
-
+				if ( Config::isDebug() ) {
+					Debug::addToDebug(
+						'Handling WSCreate multiple duration',
+						[],
+						$timer->getDuration()
+					);
+				}
 				return $response_handler;
 			}
 		}
@@ -354,7 +383,8 @@ class ContentCore {
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
 					$debugTitle . 'PageContent ',
-					$pageContents
+					$pageContents,
+					$timer->getDuration()
 				);
 			}
 			foreach ( $pageContents as $pageContent ) {
@@ -382,6 +412,13 @@ class ContentCore {
 			}
 		}
 		$response_handler->setMwReturn( self::$fields['returnto'] );
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'Handling Edits duration',
+				[],
+				$timer->getDuration()
+			);
+		}
 
 		if ( $email === "yes" ) {
 			$mail = new Mail();

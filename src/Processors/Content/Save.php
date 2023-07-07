@@ -6,6 +6,7 @@ use CommentStoreComment;
 use ContentHandler;
 use ExtensionRegistry;
 use FlexForm\Core\Core;
+use FlexForm\Core\DebugTimer;
 use FlexForm\Core\Validate;
 use FlexForm\Processors\Definitions;
 use MediaWiki\MediaWikiServices;
@@ -67,6 +68,10 @@ class Save {
 		$slot_role_registry  = MediaWikiServices::getInstance()->getSlotRoleRegistry();
 		$mainContentText     = '';
 
+		if ( Config::isDebug() ) {
+			$timer = new DebugTimer();
+		}
+
 		// loop through all slots we need to edit/create
 		foreach ( $text as $slot_name => $content ) {
 			if ( Config::isDebug() ) {
@@ -125,8 +130,19 @@ class Save {
 			}
 		}
 
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'Setting up slots duration',
+				[],
+				$timer->getDuration()
+			);
+		}
+
 		// Are we creating a new page while filling a slot other than main?
 		if ( $old_revision_record === null && !isset( $text[SlotRecord::MAIN] ) ) {
+			if ( Config::isDebug() ) {
+				$timer = new DebugTimer();
+			}
 			// The 'main' content slot MUST be set when creating a new page
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
@@ -143,8 +159,17 @@ class Save {
 				SlotRecord::MAIN,
 				$main_content
 			);
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'Creating missing main slot duration',
+					[],
+					$timer->getDuration()
+				);
+			}
 		}
-
+		if ( Config::isDebug() ) {
+			$timer = new DebugTimer();
+		}
 		$comment = CommentStoreComment::newUnsavedComment( $summary );
 		$result = $page_updater->saveRevision(
 			$comment,
@@ -159,7 +184,8 @@ class Save {
 			}
 			Debug::addToDebug(
 				$debugTitle . 'SaveRevision result -- ' . time(),
-				[ 'true or false' => $res ]
+				[ 'true or false' => $res ],
+				$timer->getDuration()
 			);
 		}
 
@@ -208,11 +234,24 @@ class Save {
 			}
 			$title = $wikipage_object->getTitle();
 
+			if ( Config::isDebug() ) {
+				$timerSMW = new DebugTimer();
+			}
 			// Refresh SMW properties if applicable
 			$this->refreshSMWProperties( $title );
 
+			if ( Config::isDebug() ) {
+				$timerNull = new DebugTimer();
+			}
 			// Perform an additional null-edit to make sure all page properties are up-to-date
 			$this->doNullEdit( $user, $wikipage_object, $mainContentText );
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'SMW Props refresh / Null edit duration',
+					[],
+					$timerSMW->getDuration() . ' / ' . $timerNull->getDuration()
+				);
+			}
 		}
 
 		if ( $status === true ) {
@@ -281,7 +320,8 @@ class Save {
 	 * @param Title $title
 	 */
 	private function refreshSMWProperties( Title $title ) {
-		sleep( 1 );
+		// Sleep for 1/2 a second
+		usleep( 500000 );
 		if ( !ExtensionRegistry::getInstance()->isLoaded( 'SemanticMediaWiki' ) ) {
 			return;
 		}
@@ -340,6 +380,7 @@ class Save {
 	 */
 	public function saveToWiki( string $title, array $contentArray, string $summary, bool $overWrite = true ) {
 		$user = RequestContext::getMain()->getUser();
+
 		if ( Config::isDebug() ) {
 			$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
 			Debug::addToDebug(
@@ -358,9 +399,13 @@ class Save {
 			);
 		}
 		if ( Config::isDebug() ) {
+			$timer = new DebugTimer();
+		}
+		if ( Config::isDebug() ) {
 			Debug::addToDebug(
 				$debugTitle . ' title from Title Object: ' . $titleObject->getFullText(),
-				[]
+				[],
+				$timer->getDuration()
 			);
 		}
 		$canEdit = MediaWikiServices::getInstance()->getPermissionManager()->userCan( 'edit', $user, $titleObject );
@@ -422,6 +467,9 @@ class Save {
 				$contentArray
 			);
 		}
+		if ( Config::isDebug() ) {
+			$timer = new DebugTimer();
+		}
 		$saveResult = $this->editSlots(
 			$user,
 			$wikiPageObject,
@@ -431,7 +479,8 @@ class Save {
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
 				$debugTitle . 'Save result',
-				$saveResult
+				$saveResult,
+				$timer->getDuration()
 			);
 		}
 		if ( $saveResult !== true ) {

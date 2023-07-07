@@ -13,6 +13,7 @@ namespace FlexForm\Processors\Content;
 use FlexForm\Core\Config;
 use FlexForm\Core\Core;
 use FlexForm\Core\Debug;
+use FlexForm\Core\DebugTimer;
 use FlexForm\Processors\Definitions;
 use FlexForm\Processors\Security\wsSecurity;
 use FlexForm\Processors\Utilities\General;
@@ -294,6 +295,9 @@ class Create {
 		$pageTitleToLinkTo = [];
 		$json = [];
 		if ( Config::isDebug() ) {
+			$timer = new DebugTimer();
+		}
+		if ( Config::isDebug() ) {
 			$debugTitle = '<b>::' . get_class() . '::</b> ';
 			Debug::addToDebug( $debugTitle . 'Write several page activated ' . time(), $fields );
 		}
@@ -327,17 +331,20 @@ class Create {
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
 					$debugTitle . 'PageData after adding form fields ' . $pageCount,
-					$this->pageData
+					$this->pageData,
+					$timer->getDuration()
 				);
 				if ( $this->pageData['format'] === 'wiki' ) {
 					Debug::addToDebug(
 						$debugTitle . 'Content after adding form fields ' . $pageCount,
-						$this->content
+						$this->content,
+						$timer->getDuration()
 					);
 				} else {
 					Debug::addToDebug(
 						$debugTitle . 'JSONContent after adding form fields ' . $pageCount,
-						$this->JSONContent
+						$this->JSONContent,
+						$timer->getDuration()
 					);
 				}
 			}
@@ -377,7 +384,8 @@ class Create {
 				if ( Config::isDebug() ) {
 					Debug::addToDebug(
 						$debugTitle . 'next available',
-						$hnr
+						$hnr,
+						$timer->getDuration()
 					);
 				}
 				if ( $hnr['status'] !== 'error' ) {
@@ -433,7 +441,8 @@ class Create {
 							$debugTitle . 'lead by zero active ' . time(),
 							[ 'rangeCheck' => $rangeCheck,
 							'endrangeLenth' => $endrangeLength,
-							'rangeResult' => $rangeResult ]
+							'rangeResult' => $rangeResult ],
+							$timer->getDuration()
 						);
 					}
 
@@ -446,7 +455,7 @@ class Create {
 				if ( Config::isDebug() ) {
 					Debug::addToDebug( $debugTitle . 'Add random to title ' . time(),
 						['title' => $this->pageData['title'],
-						 'new Title' => $this->pageData['title'] ] );
+						 'new Title' => $this->pageData['title'] ], $timer->getDuration() );
 				}
 			}
 
@@ -487,7 +496,8 @@ class Create {
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
 				$debugTitle . '$finalPages',
-				$finalPages
+				$finalPages,
+				$timer->getDuration()
 			);
 		}
 
