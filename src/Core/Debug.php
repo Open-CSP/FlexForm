@@ -11,13 +11,32 @@
 namespace FlexForm\Core;
 
 class Debug {
-	private static $debugMessages = array();
 
-	public static function addToDebug( $title, $details ) {
+	/**
+	 * @var array
+	 */
+	private static $debugMessages = [];
+
+	/**
+	 * @param string $title
+	 * @param mixed $details
+	 * @param mixed $duration
+	 *
+	 * @return void
+	 */
+	public static function addToDebug( string $title, $details, $duration = false ) {
+		if ( $duration !== false ) {
+			$newTitle = '<span class="ff-debug-title">' . $title . '</span>';
+			$newTitle .= '<span class="ff-debug-duration">' . $duration . '</span>';
+			$title = $newTitle;
+		}
 		self::$debugMessages[$title] = $details;
 	}
 
-	private static function debugCSS(){
+	/**
+	 * @return string
+	 */
+	private static function debugCSS(): string {
 		$ret = <<<ENDING
 <style>
 .wsform-debug {
@@ -40,6 +59,20 @@ class Debug {
 .wsform-debug details div {
       padding: 1rem 1.5rem;
     }
+    
+.ff-debug-title {
+     text-align:left;
+}
+
+.ff-debug-duration {
+     float:right;
+     color: blue;
+}
+
+.ff-debug-duration:after {
+     content: " millisecs";
+}
+
 
 </style>
 
@@ -47,13 +80,16 @@ ENDING;
 		return $ret;
 	}
 
-	public static function createDebugOutput() {
+	/**
+	 * @return string
+	 */
+	public static function createDebugOutput(): string {
 		$ret = self::debugCSS();
 		$ret .= '<h2>FlexForm Debug</h2><div class="wsform-debug">';
-		foreach( self::$debugMessages as $title=>$message ) {
-			$ret .= '<details><summary>'.$title.'</summary>';
+		foreach ( self::$debugMessages as $title => $message ) {
+			$ret .= '<details><summary>' . $title . '</summary>';
 			$ret .= '<div>';
-			if( is_array( $message ) ) {
+			if ( is_array( $message ) ) {
 				$ret .= "<pre>" . print_r( $message, true ) . '</pre>';
 			} else {
 				$ret .= '<p>' . $message . '</p>';
