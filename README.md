@@ -91,6 +91,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 2.1.17 : Changed null edit to remove smwproperties refresh.
 * 2.1.16 : Added timing information on debug
 * 2.1.15 : Creating a page not using a template fix for array values
 * 2.1.14 : Have tokens use the same required="required" options as normal input fields

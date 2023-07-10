@@ -238,7 +238,7 @@ class Save {
 				$timerSMW = new DebugTimer();
 			}
 			// Refresh SMW properties if applicable
-			$this->refreshSMWProperties( $title );
+			// $this->refreshSMWProperties( $title );
 
 			if ( Config::isDebug() ) {
 				$timerNull = new DebugTimer();
