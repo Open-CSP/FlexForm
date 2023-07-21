@@ -104,6 +104,9 @@ class wsSecurity {
 					try {
 						$newK = $crypt::decrypt( $secure['name'] );
 						$newV = $crypt::decrypt( $tmpName );
+						if ( $newK === false || $newV === false || $tmpName !== $secure['value'] ) {
+							throw new FlexFormException( wfMessage( 'flexform-secure-fields-incomplete' ) );
+						}
 					} catch ( FlexFormException $exception ) {
 						throw new FlexFormException(
 							$exception->getMessage(),

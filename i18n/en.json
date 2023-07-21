@@ -14,6 +14,7 @@
 	"flexform-mwcreate-wrong-title" : "No page title could be made (parser responded as not possible)",
 	"flexform-mwcreate-wrong-title2" : "No page title could be made (parser responded as not possible)",
 	"flexform-mwcreate-page-exists" : "Page create failed. Page already exists : $1",
+	"flexform-mwcreate-mixed_creates" : "When using multiple creates, every _create must have non empty mwfields.",
 	"flexform-savetowiki-title-invalid" : "Could not create page $1. Invalid title.",
 
 

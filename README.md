@@ -92,6 +92,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 2.1.18 : Show error with incorrect use of multiple _creates in one form. Added 2nd check for incomplete secure fields.
 * 2.1.17 : Changed null edit to remove smwproperties refresh.
 * 2.1.16 : Added timing information on debug
 * 2.1.15 : Creating a page not using a template fix for array values

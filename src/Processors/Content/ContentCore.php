@@ -228,6 +228,13 @@ class ContentCore {
 				Debug::addToDebug( $debugTitle . 'Writing single page',
 								   [] );
 			}
+			if ( self::$fields['writepages'] !== false ) {
+				throw new FlexFormException(
+					wfMessage( 'flexform-mwcreate-mixed_creates' ),
+					0,
+					null
+				);
+			}
 			$create = new Create();
 			try {
 				$result = $create->writePage();
