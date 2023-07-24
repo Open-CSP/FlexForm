@@ -284,6 +284,24 @@ class Edit {
 	}
 
 	/**
+	 * @param string $path
+	 *
+	 * @return string
+	 */
+	private function setJsonPathPrefix( string $path ): string {
+		$firstChar = substr( $path, 0, 1 );
+
+		switch ( $firstChar ) {
+			case '$':
+				return $path;
+			case '[':
+				return '$' . $path;
+			default:
+				return '$.' . $path;
+		}
+	}
+
+	/**
 	 * @return array
 	 */
 	private function createEditData() : array {
@@ -318,9 +336,7 @@ class Edit {
 							$templateExplode = explode( '|', $data[$pid][$t]['template'] );
 							$data[$pid][$t]['template'] = $templateExplode[0];
 							if ( $templateExplode[0] === 'jsonk' ) {
-								if ( substr( $templateExplode[1], 0, 2 ) !== '$.' ) {
-									$templateExplode[1] = '$.' . $templateExplode[1];
-								}
+								$templateExplode[1] = $this->setJsonPathPrefix( $templateExplode[1] );
 								$data[$pid][$t]['find'] = $templateExplode[1];
 							} else {
 								$data[$pid][$t]['find'] = explode(
@@ -562,7 +578,6 @@ class Edit {
 				$newTemplateContent,
 				$pageContents[ $pid ][ $slotToEdit ]['content']
 			);
-
 	}
 
 	/**
