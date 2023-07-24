@@ -91,6 +91,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 2.1.19 : False positive check on secure forms. Added support for quoted json path keys.
 * 2.1.18 : Show error with incorrect use of multiple _creates in one form.
 * 2.1.17 : Changed null edit to remove smwproperties refresh.
 * 2.1.16 : Added timing information on debug
