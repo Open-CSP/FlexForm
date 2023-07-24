@@ -284,16 +284,34 @@ class Edit {
 	}
 
 	/**
+	 * @param string $path
+	 *
+	 * @return string
+	 */
+	private function setJsonPathPrefix( string $path ): string {
+		$firstChar = substr( $path, 0, 1 );
+
+		switch ( $firstChar ) {
+			case '$':
+				return $path;
+			case '[':
+				return '$' . $path;
+			default:
+				return '$.' . $path;
+		}
+	}
+
+	/**
 	 * @return array
 	 */
 	private function createEditData() : array {
-		//edit = [0]pid [1]template [2]Form field [3]Use field [4]Value [5]Slot
-		$data   = array();
+		// edit = [0]pid [1]template [2]Form field [3]Use field [4]Value [5]Slot
+		$data   = [];
 		$t      = 0;
 		$fields = ContentCore::getFields();
 		foreach ( $fields['mwedit'] as $edits ) {
 			$this->editCount++;
-			//[0]target:[1]template:[2]formfields:[3]usefields:[4]value:[5]slot
+			// [0]target:[1]template:[2]formfields:[3]usefields:[4]value:[5]slot
 			$edit = explode(
 				Core::DIVIDER,
 				$edits
@@ -318,9 +336,7 @@ class Edit {
 							$templateExplode = explode( '|', $data[$pid][$t]['template'] );
 							$data[$pid][$t]['template'] = $templateExplode[0];
 							if ( $templateExplode[0] === 'jsonk' ) {
-								if ( substr( $templateExplode[1], 0, 2 ) !== '$.' ) {
-									$templateExplode[1] = '$.' . $templateExplode[1];
-								}
+								$templateExplode[1] = $this->setJsonPathPrefix( $templateExplode[1] );
 								$data[$pid][$t]['find'] = $templateExplode[1];
 							} else {
 								$data[$pid][$t]['find'] = explode(
