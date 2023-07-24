@@ -188,6 +188,10 @@ class Sql {
 	public static function addPageFromId( int $id ) {
 		$render = new Render();
 		$content = $render->getSlotsContentForPage(	$id	);
+		// Page has no content, does not exist or any other weird stuff
+		if ( $content === false ) {
+			return true;
+		}
 		$hashes = self::createFormHashes( $content );
 		$result = self::addPageId( $id, $hashes );
 		if ( $result === false ) {
