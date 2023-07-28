@@ -11,7 +11,7 @@ Version 1 was a complete rewrite and stripped down version from the previous WSF
 
 ## Installation
 
-Grab in instance from https://github.com/WikibaseSolutions/FlexForm. Create a "FlexForm" folder in your Wiki extensions
+Grab in instance from https://github.com/Open-CSP/FlexForm Create a "FlexForm" folder in your Wiki extensions
 folder and extract the files there.
 
 Or install using Composer. Read more here: https://www.mediawiki.org/wiki/Composer/For_extensions
