@@ -1,5 +1,5 @@
 {
-  "name": "wikibase-solutions/flex-form",
+  "name": "open-csp/flex-form",
   "type": "mediawiki-extension",
   "description": "HTML5 Forms",
   "keywords": [
@@ -12,6 +12,7 @@
   "require": {
     "galbar/jsonpath": "^2.1",
     "ryakad/pandoc-php": "~1.0",
+    "phpmailer/phpmailer": "^6.8.0",
     "php": "7.4.3 - 8.2.2",
     "ext-json": "*",
     "ext-exif": "*",
@@ -33,5 +34,10 @@
       "minus-x fix .",
       "phpcbf"
     ]
+  },
+  "config": {
+    "allow-plugins": {
+      "composer/installers": true
+    }
   }
 }

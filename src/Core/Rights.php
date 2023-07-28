@@ -56,7 +56,7 @@ class Rights {
 	 *
 	 * @return bool
 	 */
-	private static function doesPageContentContainsFlexForm( WikiPage $wikiPageObject, User $user ) {
+	private static function isThereAFlexFormInThePageContent( WikiPage $wikiPageObject, User $user ) {
 		$content = $wikiPageObject->getContent(
 			RevisionRecord::RAW,
 			$user
@@ -112,7 +112,7 @@ class Rights {
 		}
 		$user = RequestContext::getMain()->getUser();
 		// grab user permissions
-		if ( self::doesPageContentContainsFlexForm(
+		if ( self::isThereAFlexFormInThePageContent(
 			$sktemplate->getWikiPage(),
 			$user
 		) ) {
@@ -152,7 +152,7 @@ class Rights {
 
 		$wikipage = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromID( $title->getArticleID() );
 
-		if ( self::doesPageContentContainsFlexForm(
+		if ( self::isThereAFlexFormInThePageContent(
 			$wikipage,
 			$user
 		) ) {

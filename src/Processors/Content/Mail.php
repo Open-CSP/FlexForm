@@ -13,6 +13,7 @@ namespace FlexForm\Processors\Content;
 use MediaWiki\MediaWikiServices;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
 use FlexForm\Core\Config;
 use FlexForm\Core\Debug;
 use FlexForm\Processors\Definitions;
@@ -388,37 +389,10 @@ class Mail {
 
 	/**
 	 * @return void
-	 * @throws FlexFormException
+	 * @throws FlexFormException|Exception
 	 */
 	private function sendMail() {
 		global $IP;
-		if ( file_exists( $IP . '/extensions/FlexForm/Modules/pm/src/Exception.php' ) ) {
-			require_once $IP . '/extensions/FlexForm/Modules/pm/src/Exception.php';
-		} else {
-			throw new FlexFormException(
-				wfMessage( 'flexform-mail-no-phpmailer' )->text(),
-				0
-			);
-		}
-		if ( file_exists( $IP . '/extensions/FlexForm/Modules/pm/src/PHPMailer.php' ) ) {
-			require_once $IP . '/extensions/FlexForm/Modules/pm/src/PHPMailer.php';
-		} else {
-			throw new FlexFormException(
-				wfMessage( 'flexform-mail-no-phpmailer' )->text(),
-				0
-			);
-		}
-		if ( Config::getConfigVariable( 'use_smtp' ) !== false ) {
-			if ( file_exists( $IP . '/extensions/FlexForm/Modules/pm/src/SMTP.php' ) ) {
-				require_once $IP . '/extensions/FlexForm/Modules/pm/src/SMTP.php';
-			} else {
-				throw new FlexFormException(
-					wfMessage( 'flexform-mail-no-smtp-library' )->text(),
-					0
-				);
-			}
-		}
-
 		$mail                 = new PHPMailer( true );
 		$this->fields['to']   = $this->createEmailArray(
 			$this->fields['to'],

@@ -92,6 +92,8 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 2.1.21 : Fixed error in instances
+* 2.1.20 : Mail update using composer. Changed organization. Instances not using relaxed search.
 * 2.1.19 : False positive check on secure forms. Added support for quoted json path keys.
 * 2.1.18 : Show error with incorrect use of multiple _creates in one form. Added 2nd check for incomplete secure fields.
 * 2.1.17 : Changed null edit to remove smwproperties refresh.
