@@ -130,7 +130,7 @@ const WsInstance = function (selector, options) {
 		let clone = _.getCloneInstance()
 
 		for (let i = 0; i < names.length; i++) {
-			$(clone).find('input[name="' + names[i] + '"]').each(function (index, input) {
+			$(clone).find('input[name*="' + names[i] + '"]').each(function (index, input) {
 				switch (input.getAttribute('type')) {
 					case 'radio':
 						input.checked = input.value === values[i]
@@ -144,13 +144,15 @@ const WsInstance = function (selector, options) {
 				}
 			})
 
-			$(clone).find('textarea[name="' + names[i] + '"]').each(function (index, textarea) {
+			$(clone).find('textarea[name*="' + names[i] + '"]').each(function (index, textarea) {
 				textarea.value = values[i]
 				textarea.setAttribute('value', values[i])
 			})
+			console.log ( "finding " + names[i] );
+			console.log( clone );
 
-
-			$(clone).find('select[name="' + names[i] + '"]').each(function (index, select) {
+			$(clone).find('select[name="' + names[i] + '[]"]').each(function (index, select) {
+				console.log ( "found " );
 				if (values[i].indexOf(window.ffSeparator) !== -1) {
 					let multipleSelect2Values = values[i].split(window.ffSeparator)
 					let optionList = select.children
@@ -164,7 +166,9 @@ const WsInstance = function (selector, options) {
 						}
 					}
 				} else {
+					console.log ( "searching for value " + values[i]);
 					let optionSelected = $(select).find('option[value=\'' + values[i] + '\']')
+					console.log( optionSelected );
 					if (optionSelected.length > 0 && values[i] !== '') {
 						optionSelected.prop('selected', 'selected')
 					} else if (optionSelected.length === 0 && $(select).data('inputtype') !== 'ws-select2') {
