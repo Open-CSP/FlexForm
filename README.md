@@ -10,12 +10,14 @@ Version 1 was a complete rewrite and stripped down version from the previous WSF
 
 ## Installation
 
-Grab in instance from https://github.com/WikibaseSolutions/FlexForm. Create a "FlexForm" folder in your Wiki extensions
+Grab in instance from https://github.com/Open-CSP/FlexForm. Create a "FlexForm" folder in your Wiki extensions
 folder and extract the files there.
 
 Or install using Composer. Read more here: https://www.mediawiki.org/wiki/Composer/For_extensions
 
-The Composer required name is: wikibase-solutions/flex-form
+The Composer required name is: open-csp/flex-form
+
+If you are not installing FlexForm using composer, then you still need to run ```php composer --update``` inside extensions/Flex-Form
 
 ```
 composer require wikibase-solutions/flex-form
