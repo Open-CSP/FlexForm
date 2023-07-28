@@ -393,8 +393,8 @@ class Mail {
 	 */
 	private function sendMail() {
 		global $wgSMTP;
-		var_dump( $wgSMTP );
-		die();
+		//var_dump( $wgSMTP );
+		//die();
 		$mail                 = new PHPMailer( true );
 		$this->fields['to']   = $this->createEmailArray(
 			$this->fields['to'],
