@@ -130,7 +130,7 @@ const WsInstance = function (selector, options) {
 		let clone = _.getCloneInstance()
 
 		for (let i = 0; i < names.length; i++) {
-			$(clone).find('input[name*="' + names[i] + '"]').each(function (index, input) {
+			$(clone).find('input[name="' + names[i] + '"]').each(function (index, input) {
 				switch (input.getAttribute('type')) {
 					case 'radio':
 						input.checked = input.value === values[i]
@@ -144,13 +144,13 @@ const WsInstance = function (selector, options) {
 				}
 			})
 
-			$(clone).find('textarea[name*="' + names[i] + '"]').each(function (index, textarea) {
+			$(clone).find('textarea[name="' + names[i] + '"]').each(function (index, textarea) {
 				textarea.value = values[i]
 				textarea.setAttribute('value', values[i])
 			})
 
 
-			$(clone).find('select[name*="' + names[i] + '"]').each(function (index, select) {
+			$(clone).find('select[name="' + names[i] + '"]').each(function (index, select) {
 				if (values[i].indexOf(window.ffSeparator) !== -1) {
 					let multipleSelect2Values = values[i].split(window.ffSeparator)
 					let optionList = select.children
