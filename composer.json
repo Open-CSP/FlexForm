@@ -1,5 +1,5 @@
 {
-  "name": "wikibase-solutions/flex-form",
+  "name": "open-csp/flex-form",
   "type": "mediawiki-extension",
   "description": "HTML5 Form renderer",
   "keywords": [
