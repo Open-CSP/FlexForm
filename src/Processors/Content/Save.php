@@ -192,7 +192,7 @@ class Save {
 		if ( !$page_updater->getStatus()->isOK() ) {
 			// If the update failed, reflect this in the status
 			$status = false;
-			$errors[] = $page_updater->getStatus()->getMessage()->toString();
+			$errors[] = $page_updater->getStatus()->getMessage()->toString( "text" );
 		}
 
 		if ( Config::isDebug() ) {
