@@ -94,6 +94,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 2.1.22 : Fixed: Ajax calls end routine handling; clean post values are now recursive
 * 2.1.21 : Fixed error in instances
 * 2.1.20 : Mail update using composer. Changed organization. Instances not using relaxed search.
 * 2.1.19 : False positive check on secure forms. Added support for quoted json path keys.

@@ -146,30 +146,28 @@ class wsSecurity {
 		return true;
 	}
 
+	/**
+	 * @param array $values
+	 *
+	 * @return void
+	 */
+	private static function cleanValues( array &$values ) {
+		foreach ( $values as $key => $value ) {
+			if ( !Processors\Definitions::isFlexFormSystemField( $key ) ) {
+				if ( is_array( $value ) ) {
+					self::cleanValues( $value );
+				} else {
+					$values[$key] = self::cleanHTML( $value, $key );
+				}
+			}
+		}
+	}
 
 	/**
 	 * return nothing
 	 */
 	public static function cleanPosts() {
-		foreach ( $_POST as $k => $v ) {
-			if ( ! Processors\Definitions::isFlexFormSystemField( $k ) ) {
-				if ( is_array( $v ) ) {
-					$newArray = array();
-					foreach ( $v as $multiple ) {
-						$newArray[] = self::cleanHTML(
-							$multiple,
-							$k
-						);
-					}
-					$_POST[$k] = $newArray;
-				} else {
-					$_POST[$k] = self::cleanHTML(
-						$v,
-						$k
-					);
-				}
-			}
-		}
+		self::cleanValues( $_POST );
 	}
 
 	/**
@@ -218,11 +216,11 @@ class wsSecurity {
 	/**
 	 * Remove all curly braces
 	 *
-	 * @param string $value
+	 * @param mixed $value
 	 *
-	 * @return string cleaned text
+	 * @return mixed cleaned text
 	 */
-	public static function cleanBraces( string $value ) : string {
+	public static function cleanBraces( $value ) {
 		return $value;
 		global $wsuid;
 		if ( $wsuid !== false && ! is_null( $wsuid ) ) {

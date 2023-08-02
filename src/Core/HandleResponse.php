@@ -256,7 +256,7 @@ class HandleResponse {
 					$e
 				);
 			}
-		} else {
+		} elseif( $status === 'ok' && $mwReturn === false ) {
 			// Status not ok.. and no redirect
 			$logger->error( $message );
 			$this->outputMsg( $message ); // show error on screen or do json output
@@ -333,7 +333,8 @@ class HandleResponse {
 			$ret,
 			JSON_PRETTY_PRINT
 		);
-		die();
+		global $wgOut;
+		$wgOut->disable();
 	}
 
 	/**
