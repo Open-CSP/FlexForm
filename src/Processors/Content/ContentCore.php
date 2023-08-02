@@ -505,11 +505,11 @@ class ContentCore {
 	}
 
 	/**
-	 * @param string $JSONValue
+	 * @param mixed $JSONValue
 	 *
-	 * @return bool|int|string
+	 * @return mixed
 	 */
-	public static function checkJsonValues( string $JSONValue ) {
+	public static function checkJsonValues( $JSONValue ) {
 		return $JSONValue;
 		switch ( $JSONValue ) {
 			case "true" :

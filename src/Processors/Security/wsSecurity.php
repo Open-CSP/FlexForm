@@ -216,11 +216,11 @@ class wsSecurity {
 	/**
 	 * Remove all curly braces
 	 *
-	 * @param string $value
+	 * @param mixed $value
 	 *
-	 * @return string cleaned text
+	 * @return mixed cleaned text
 	 */
-	public static function cleanBraces( string $value ) : string {
+	public static function cleanBraces( $value ) {
 		return $value;
 		global $wsuid;
 		if ( $wsuid !== false && ! is_null( $wsuid ) ) {
