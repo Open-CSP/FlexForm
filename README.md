@@ -93,6 +93,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 2.1.23 : Edit config option to toggle null edits (forceNullEdit)
 * 2.1.22 : Fixed: Ajax calls end routine handling; clean post values are now recursive
 * 2.1.21 : Fixed error in instances
 * 2.1.20 : Mail update using composer. Changed organization. Instances not using relaxed search.
