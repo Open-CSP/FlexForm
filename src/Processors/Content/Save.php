@@ -269,6 +269,9 @@ class Save {
 	 * @throws MWException
 	 */
 	private function doNullEdit( User $user, WikiPage $wikiPageObject, $content ) {
+		if ( Config::getConfigVariable( 'forceNullEdit' ) === false ) {
+			return;
+		}
 		$title = $wikiPageObject->getTitle()->getFullText();
 		$titleObject = Title::newFromText( $title );
 		$wikiPageObject = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromTitle( $titleObject );

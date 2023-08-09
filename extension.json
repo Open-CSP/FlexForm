@@ -1,6 +1,6 @@
 {
   "name": "FlexForm",
-  "version": "2.1.22",
+  "version": "2.1.23",
   "author": [
     "[https://www.wikibase-solutions.com/author/charlot Sen-Sai]",
     "[https://www.wikibase-solutions.com/author/marijn Marijn]"
@@ -80,7 +80,8 @@
       "userscaneditallpages" : false,
       "allowedGroups" : [ "sysop" ],
       "hideEdit" : true,
-      "pandoc-install-path" : ""
+      "pandoc-install-path" : "",
+      "forceNullEdit" : true
     }
 
   },
