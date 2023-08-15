@@ -1,9 +1,8 @@
 let idUnifier = 0
-if ( typeof ff_separator !== 'undefined' ) {
-	const ffSeparator = ff_separator;
-} else {
-	const ffSeparator = ',';
+if ( typeof window.ff_separator === 'undefined' ) {
+	window.ff_separator = ',';
 }
+
 /**
  *
  * @param selector {object}
@@ -152,12 +151,12 @@ const WsInstance = function (selector, options) {
 
 
 			$(clone).find('select[name="' + names[i] + '[]"]').each(function (index, select) {
-				if (values[i].indexOf(window.ffSeparator) !== -1) {
-					let multipleSelect2Values = values[i].split(window.ffSeparator)
+				if (values[i].indexOf(window.ff_separator) !== -1) {
+					let multipleSelect2Values = values[i].split(window.ff_separator)
 					let optionList = select.children
 
 					// check if token field
-					if ( $(select).children().val() === '' && $(select).data('inputtype') === 'ws-select2' ) {
+					if ( ( $(select).children().val() === '' || $(select).children().val() === undefined ) && $(select).data('inputtype') === 'ws-select2' ) {
 						getPredefinedOptionsTokenField(select, multipleSelect2Values);
 					} else {
 						for (let k = 0; k < optionList.length; k++) {
@@ -174,7 +173,9 @@ const WsInstance = function (selector, options) {
 						}
 					} else if ($(select).data('inputtype') === 'ws-select2') {
 						if (!$(select).children().val() && values[i]) {
-							$(select).append(`<option value="${values[i]}" selected="selected">${values[i]}</option>`)
+							if( $(select).data( "allowtags") ) {
+								$(select).append(`<option value="${values[i]}" selected="selected">${values[i]}</option>`)
+							}
 							getPredefinedOptionsTokenField(select, [values[i]]);
 						}
 					}
@@ -445,7 +446,7 @@ const WsInstance = function (selector, options) {
 							break
 						default:
 							if ( $(input).is('select') && input.multiple ) {
-								valuesObj[name] = $(input).val().join( window.ffSeparator )
+								valuesObj[name] = $(input).val().join( window.ff_separator )
 							} else {
 								valuesObj[name] = input.value
 							}
@@ -536,7 +537,7 @@ const WsInstance = function (selector, options) {
 
 		$.each(obj, function (k, v) {
 			if (typeof v === 'array') {
-				returnStr += `|${k}=${v.join(window.ffSeparator)}\n`
+				returnStr += `|${k}=${v.join(window.ff_separator)}\n`
 			} else {
 				returnStr += `|${k}=${v}\n`
 			}

@@ -8,7 +8,6 @@ use Xml;
 
 class PlainTokenRenderer implements TokenRenderer {
 
-
 	const OPTION_SEPARATOR = '::';
 
 	/**
@@ -38,7 +37,8 @@ class PlainTokenRenderer implements TokenRenderer {
 			$multiple,
 			$selectedValues,
 			$options,
-			$additionalArguments
+			$additionalArguments,
+			$allowTags
 		);
 		$selectJavascript = $this->renderSelectJavascript(
 			$id,
@@ -70,6 +70,7 @@ class PlainTokenRenderer implements TokenRenderer {
 	 * @param array $selectedValues
 	 * @param array $options
 	 * @param array $attribs
+	 * @param bool $allowTags
 	 *
 	 * @return string
 	 */
@@ -80,7 +81,8 @@ class PlainTokenRenderer implements TokenRenderer {
 		bool $multiple,
 		array $selectedValues,
 		array $options,
-		array $attribs
+		array $attribs,
+		bool $allowTags
 	) : string {
 		$attribs = array_merge(
 			$attribs,
@@ -96,6 +98,10 @@ class PlainTokenRenderer implements TokenRenderer {
 
 		if ( Core::isLoaded( 'wsinstance-initiated' ) ) {
 			$attribs['data-wsselect2id'] = $id;
+		}
+
+		if ( $allowTags ) {
+			$attribs['data-allowtags'] = "yes";
 		}
 
 		$contents = '';
