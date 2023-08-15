@@ -38,7 +38,8 @@ class PlainTokenRenderer implements TokenRenderer {
 			$multiple,
 			$selectedValues,
 			$options,
-			$additionalArguments
+			$additionalArguments,
+			$allowTags
 		);
 		$selectJavascript = $this->renderSelectJavascript(
 			$id,
@@ -80,7 +81,8 @@ class PlainTokenRenderer implements TokenRenderer {
 		bool $multiple,
 		array $selectedValues,
 		array $options,
-		array $attribs
+		array $attribs,
+		bool $allowTags
 	) : string {
 		$attribs = array_merge(
 			$attribs,
@@ -96,6 +98,10 @@ class PlainTokenRenderer implements TokenRenderer {
 
 		if ( Core::isLoaded( 'wsinstance-initiated' ) ) {
 			$attribs['data-wsselect2id'] = $id;
+		}
+
+		if ( $allowTags ) {
+			$attribs['data-allowtags'] = "yes";
 		}
 
 		$contents = '';
@@ -301,7 +307,6 @@ class PlainTokenRenderer implements TokenRenderer {
 		$javascript .= $callbackJavascript;
 
 		$javascript .= "$('#" . $id . "').trigger('change');\n;";
-
 		$format = '<input type="hidden" id="%s" value="%s" />';
 
 		return sprintf(
