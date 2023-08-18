@@ -57,6 +57,13 @@ class Rights {
 	 * @return bool
 	 */
 	private static function isThereAFlexFormInThePageContent( WikiPage $wikiPageObject, User $user ) {
+		if ( $wikiPageObject === null ) {
+			return false;
+		}
+		$title = $wikiPageObject->getTitle();
+		if ( !$title->isKnown() ) {
+			return false;
+		}
 		$content = $wikiPageObject->getContent(
 			RevisionRecord::RAW,
 			$user
