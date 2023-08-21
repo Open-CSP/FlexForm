@@ -145,6 +145,7 @@
 	"flexform-unsupported-database" : "FlexForm does not support $1",
 
 	"flexform-api-error-allpages" : "No allpages result from MediaWiki API",
+	"flexform-api-error-unkown-namespace" : "Could not resolve namespace",
 	"flexform-api-error-noquery-response" : "No query result from MediaWiki API",
 	"flexform-api-error-parameter-range-missing" : "Range parameter is missing",
 	"flexform-api-error-bad-range" : "Bad range",
