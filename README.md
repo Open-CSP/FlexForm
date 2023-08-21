@@ -93,6 +93,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 2.1.26 : Could not resolve namespace check added
 * 2.1.25 : Check to see if a page has a form has been updated to make it only check relevant pages
 * 2.1.24 : Instances with multiple tokens bug fixed.
 * 2.1.23 : Edit config option to toggle null edits (forceNullEdit)
