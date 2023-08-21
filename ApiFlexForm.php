@@ -195,6 +195,12 @@ class ApiFlexForm extends ApiBase {
 				$appContinue,
 				false
 			);
+			if ( $result === false ) {
+				return $this->createResult(
+					'error',
+					wfMessage( 'flexform-api-error-unkown-namespace' )->text()
+				);
+			}
 			$appContinue = $this->getApiContinue( $result );
 
 			if ( !isset( $result['query'] ) ) {
@@ -279,11 +285,17 @@ class ApiFlexForm extends ApiBase {
 		$appContinue = false;
 		$cnt         = 0;
 		while ( $continue ) {
-			$result      = $this->getDataForWikiList(
+			$result = $this->getDataForWikiList(
 				$nameStartsWith,
 				$appContinue,
 				$range
 			);
+			if ( $result === false ) {
+				return $this->createResult(
+					'error',
+					wfMessage( 'flexform-api-error-unkown-namespace' )->text()
+				);
+			}
 			$appContinue = $this->getApiContinue( $result );
 			if ( !isset( $result['query'] ) ) {
 				return $this->createResult(
