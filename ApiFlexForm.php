@@ -397,7 +397,7 @@ class ApiFlexForm extends ApiBase {
 		}
 
 		if ( $id === false ) {
-			return false;
+			$id = 0;
 		}
 		if ( !$range ) { // next available
 			if ( $appContinue === false ) {
