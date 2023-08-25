@@ -394,11 +394,11 @@ class ApiFlexForm extends ApiBase {
 			}
 		} else {
 			$id = 0;
-			$nameStartsWith_withoutNamespace = $nameStartsWith;
 		}
 
 		if ( $id === false ) {
 			$id = 0;
+			$nameStartsWith_withoutNamespace = $nameStartsWith;
 		}
 		if ( !$range ) { // next available
 			if ( $appContinue === false ) {
