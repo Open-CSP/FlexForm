@@ -94,6 +94,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 2.1.28 : getWikitextForTransclusion double check for nulled content. Fix for instances and form fields arrays
 * 2.1.27 : When using an unknown namespace when creating a page, use main namespace
 * 2.1.25 : Check to see if a page has a form has been updated to make it only check relevant pages
 * 2.1.24 : Instances with multiple tokens bug fixed.

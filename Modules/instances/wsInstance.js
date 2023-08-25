@@ -150,7 +150,7 @@ const WsInstance = function (selector, options) {
 			})
 
 
-			$(clone).find('select[name="' + names[i] + '[]"]').each(function (index, select) {
+			$(clone).find('select[name="' + names[i] + '[]"], select[name="' + names[i] + '"]').each(function (index, select) {
 				if (values[i].indexOf(window.ff_separator) !== -1) {
 					let multipleSelect2Values = values[i].split(window.ff_separator)
 					let optionList = select.children
