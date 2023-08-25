@@ -385,7 +385,7 @@ class ApiFlexForm extends ApiBase {
 				$nameStartsWith
 			);
 
-			$nameStartsWith = $split[1];
+			$nameStartsWith_withoutNamespace = $split[1];
 			$nameSpace      = $split[0];
 			if ( empty( $nameSpace ) ) {
 				$id = 0;
@@ -394,6 +394,7 @@ class ApiFlexForm extends ApiBase {
 			}
 		} else {
 			$id = 0;
+			$nameStartsWith_withoutNamespace = $nameStartsWith;
 		}
 
 		if ( $id === false ) {
@@ -406,7 +407,7 @@ class ApiFlexForm extends ApiBase {
 					"format"      => "json",
 					"list"        => "allpages",
 					"aplimit"     => 5,
-					"apprefix"    => $nameStartsWith,
+					"apprefix"    => $nameStartsWith_withoutNamespace,
 					"apnamespace" => $id
 				];
 			} else {
@@ -416,7 +417,7 @@ class ApiFlexForm extends ApiBase {
 					"aplimit"     => 5,
 					"apcontinue"  => $appContinue,
 					"list"        => "allpages",
-					"apprefix"    => $nameStartsWith,
+					"apprefix"    => $nameStartsWith_withoutNamespace,
 					"apnamespace" => $id
 				];
 			}
@@ -433,7 +434,7 @@ class ApiFlexForm extends ApiBase {
 					"aplimit"     => "max",
 					"list"        => "allpages",
 					"apnamespace" => $id,
-					"apprefix"    => $nameStartsWith
+					"apprefix"    => $nameStartsWith_withoutNamespace
 				];
 			} else {
 				$postdata = [
@@ -443,7 +444,7 @@ class ApiFlexForm extends ApiBase {
 					"aplimit"     => "max",
 					"apcontinue"  => $appContinue,
 					"apnamespace" => $id,
-					"apprefix"    => $nameStartsWith
+					"apprefix"    => $nameStartsWith_withoutNamespace
 				];
 			}
 		}
