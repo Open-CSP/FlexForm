@@ -93,6 +93,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 2.1.29 : Next available namespace issue fix
 * 2.1.28 : getWikitextForTransclusion double check for nulled content. Fix for instances and form fields arrays
 * 2.1.27 : When using an unknown namespace when creating a page, use main namespace
 * 2.1.26 : Could not resolve namespace check added
