@@ -67,7 +67,11 @@ class Rights {
 		$content = $wikiPageObject->getContent(
 			RevisionRecord::RAW,
 			$user
-		)->getWikitextForTransclusion();
+		);
+		if ( $content === null ) {
+			return false;
+		}
+		$content = $content->getWikitextForTransclusion();
 		$formTags = [ '<wsform', '<_form', '<form' ];
 		foreach ( $formTags as $tag ) {
 			if ( strpos( $content, $tag ) !== false ) {
