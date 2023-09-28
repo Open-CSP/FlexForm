@@ -156,12 +156,26 @@ class Rights {
 
 	// If a user has no edit rights, then make sure it is hard for him to view
 	// the source of a document
+
+	/**
+	 * @param Title $title
+	 * @param User $user
+	 * @param $action
+	 * @param $result
+	 *
+	 * @return bool
+	 * @throws FlexFormException
+	 */
 	public static function disableActions( Title $title, User $user, $action, &$result ) {
 		if ( $title->isSpecialPage() || !$title->exists() ) {
 			return true;
 		}
 
 		$wikipage = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromID( $title->getArticleID() );
+
+		if ( $wikipage === null ) {
+			return true;
+		}
 
 		if ( self::isThereAFlexFormInThePageContent(
 			$wikipage,
