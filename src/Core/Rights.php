@@ -10,10 +10,12 @@
 
 namespace FlexForm\Core;
 
+use EditPage;
 use Exception;
 use FlexForm\FlexFormException;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionRecord;
+use OutputPage;
 use RequestContext;
 use SkinTemplate;
 use Title;
@@ -155,12 +157,26 @@ class Rights {
 
 	// If a user has no edit rights, then make sure it is hard for him to view
 	// the source of a document
+
+	/**
+	 * @param Title $title
+	 * @param User $user
+	 * @param $action
+	 * @param $result
+	 *
+	 * @return bool
+	 * @throws FlexFormException
+	 */
 	public static function disableActions( Title $title, User $user, $action, &$result ) {
-		if ( $title->isSpecialPage() || ! $title->exists() ) {
+		if ( $title->isSpecialPage() || !$title->exists() ) {
 			return true;
 		}
 
 		$wikipage = WikiPage::newFromID( $title->getArticleID() );
+
+		if ( $wikipage === null ) {
+			return true;
+		}
 
 		if ( self::isThereAFlexFormInThePageContent(
 			$wikipage,
@@ -199,8 +215,12 @@ class Rights {
 		return true;
 	}
 
-	// prevent ShowReadOnly form to be shown
-	// We should never get here anymore, but just in case.
+	/**
+	 * @param EditPage $editPage
+	 * @param OutputPage $output
+	 *
+	 * @return OutputPage
+	 */
 	public static function doNotShowReadOnlyForm( EditPage $editPage, OutputPage $output ) {
 		if ( method_exists(
 			$editPage,
