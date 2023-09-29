@@ -828,10 +828,10 @@ const ffTempex = (element = null, isPredefined = false) => {
 				if ( isPredefined ) return;
 				// check if field type is number, to cast text to numeric
 				if ( field.type === 'number' ) {
-					$(field).val(+$(data).find('p').text());
+					$(field).val(+$(data).find('p').text().trim());
 				} else {
 					// Get the wanted text from the parser output
-					$(field).val($(data).find('p').text());
+					$(field).val($(data).find('p').text().trim());
 				}
 			});
 
