@@ -59,8 +59,7 @@
 	"flexform-session-no-token" : "Error message when a FlexForm token is not found",
 	"flexform-session-no-equal-host" : "Error message when a form host is not to equal to the submitter",
 
-	"flexform-unverified-email1" : "<br><div class=\"alert alert-warning\" role=\"alert\">\n<p>You need to confirm your email account first.</p>\n",
-	"flexform-unverified-email2" : "<p>Please do it now by clicking on [[Special:ConfirmEmail|this link]]</p>\n</div>",
+	"flexform-unverified-email" : "<br><div class=\"alert alert-warning\" role=\"alert\">\n<p>You need to confirm your email account first.</p>\n<p>Please do it now by clicking on [[Special:ConfirmEmail|this link]]</p>\n</div>",
 	"flexform-anonymous-user" : "<br><div class=\"alert alert-warning\" role=\"alert\">\n <p>Please log in first.</p></div>",
 
 	"flexform-mail-no-to" : "Cannot send message. No TO",

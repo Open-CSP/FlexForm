@@ -404,9 +404,7 @@ class TagHooks {
 		// If the action is add to wiki, make sure the user has confirmed their email address
 		if ( $action === 'addToWiki' && $wgEmailConfirmToEdit === true && $wgUser->isRegistered(
 			) && ! $wgUser->isEmailConfirmed() ) {
-			return wfMessage( "flexform-unverified-email1" )->parse() . wfMessage(
-					"flexform-unverified-email2"
-				)->parse();
+			return wfMessage( "flexform-unverified-email" )->parse();
 		}
 
 		if ( Core::getRun() === false ) {
