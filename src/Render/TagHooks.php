@@ -236,7 +236,7 @@ class TagHooks {
 			$action = null;
 		}
 
-		if ( isset( $args['extension'] ) ) {
+		if ( isset( $args['extension'] ) && !empty( $args['extension'] ) ) {
 			$extension = $parser->recursiveTagParse(
 				$args['extension'],
 				$frame
@@ -245,6 +245,7 @@ class TagHooks {
 		} else {
 			$extension = null;
 		}
+
 
 		if ( isset( $args['autosave'] ) ) {
 			$autosaveType = $parser->recursiveTagParse(

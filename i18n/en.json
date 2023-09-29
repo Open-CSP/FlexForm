@@ -64,7 +64,7 @@
 	"flexform-session-no-equal-host" : "Form host and api host are not equal.",
 
 	"flexform-unverified-email1" : "<br><div class=\"alert alert-warning\" role=\"alert\">\n<p>You need to confirm your email account first.</p>\n",
-	"flexform-unverified-email2" : "<p>Please do it now by clicking on <a href=\"/index.php/Special:ConfirmEmail\">this link</a></p>\n</div>",
+	"flexform-unverified-email2" : "<p>Please do it now by clicking on [[Special:ConfirmEmail|this link]]</p>\n</div>",
 	"flexform-anonymous-user" : "<br><div class=\"alert alert-warning\" role=\"alert\">\n <p>Please log in first.</p></div>",
 
 	"flexform-mail-no-to" : "Cannot send message. No TO",
