@@ -94,6 +94,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 2.1.31 : Fixed an issue where extension argument is empty. i18n update. ( https://github.com/Open-CSP/FlexForm/pull/35/commits )
 * 2.1.30 : Fixed https://github.com/Open-CSP/FlexForm/issues/34.
 * 2.1.29 : Next available namespace issue fix
 * 2.1.28 : getWikitextForTransclusion double check for nulled content. Fix for instances and form fields arrays
