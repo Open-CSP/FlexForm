@@ -10,6 +10,8 @@
 
 namespace FlexForm\Processors\Request;
 
+use FlexForm\Core\Config;
+use FlexForm\Core\Debug;
 use FlexForm\Core\HandleResponse;
 use FlexForm\Processors\Security\wsSecurity;
 use FlexForm\Processors\Utilities\General;
@@ -45,7 +47,7 @@ class External {
 	public static function runHook( string $external, HandleResponse $responseHandler ) {
 		$hookContainer = MediaWikiServices::getInstance()->getHookContainer();
 		$handler = new Handlers();
-		$hookContainer->run( 'FFAfterFormHandling', [ $external, $handler->setFFPostFields(), &$responseHandler ] );
+		$res = $hookContainer->run( 'FFAfterFormHandling', [ $external, $handler->setFFPostFields(), &$responseHandler ] );
 	}
 
 	/**
@@ -74,6 +76,12 @@ class External {
 		if ( $external !== false ) {
 			$external = wsSecurity::cleanHTML( $external );
 			if ( $handler->handlerExist( $external ) ) {
+				if ( Config::isDebug() ) {
+					Debug::addToDebug(
+						'Found extension file handler. Executing',
+						$external
+					);
+				}
 				$handler->handlerExecute(
 					$external,
 					$responseHandler
@@ -85,8 +93,13 @@ class External {
 					0
 				);
 				*/
-
 				// We cannot find the extension in the extension folder, so let's run the hook
+				if ( Config::isDebug() ) {
+					Debug::addToDebug(
+						'Extension not found. Running Hook',
+						$external
+					);
+				}
 				self::runHook( $external, $responseHandler );
 
 			}
