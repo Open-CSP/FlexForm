@@ -236,13 +236,16 @@ class TagHooks {
 			$action = null;
 		}
 
-		if ( isset( $args['extension'] ) && !empty( $args['extension'] ) ) {
+		if ( !empty( $args['extension'] ) ) {
 			$extension = $parser->recursiveTagParse(
 				$args['extension'],
 				$frame
 			);
 			unset( $args['extension'] );
 		} else {
+			if ( isset( $args['extension'] ) ) {
+				unset( $args['extension'] );
+			}
 			$extension = null;
 		}
 
