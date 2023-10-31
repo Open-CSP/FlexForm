@@ -10,6 +10,7 @@
 
 namespace FlexForm\Core;
 
+use DeferredUpdates;
 use FlexForm\FlexFormException;
 use FlexForm\Processors\Content\ContentCore;
 use Wikimedia\Rdbms\DBError;
@@ -204,7 +205,6 @@ class HandleResponse {
 			); // set cookies
 		}
 
-
 		$database = wfGetDB( DB_PRIMARY );
 
 		if ( $database->writesPending() ) {
@@ -223,7 +223,7 @@ class HandleResponse {
 				);
 			}
 		}
-
+		DeferredUpdates::tryOpportunisticExecute();
 		try {
 			if ( $status === 'ok' && $mwReturn !== false ) {
 				$this->redirect();
