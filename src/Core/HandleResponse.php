@@ -11,6 +11,7 @@
 namespace FlexForm\Core;
 
 use Database;
+use DeferredUpdates;
 use FlexForm\FlexFormException;
 use FlexForm\Processors\Content\ContentCore;
 use MediaWiki\MediaWikiServices;
@@ -225,6 +226,8 @@ class HandleResponse {
 				);
 			}
 		}
+
+		DeferredUpdates::tryOpportunisticExecute();
 
 		try {
 			if ( $status === 'ok' && $mwReturn !== false ) {
