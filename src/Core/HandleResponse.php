@@ -223,7 +223,7 @@ class HandleResponse {
 				);
 			}
 		}
-		DeferredUpdates::tryOpportunisticExecute();
+
 		try {
 			if ( $status === 'ok' && $mwReturn !== false ) {
 				$this->redirect();
@@ -282,7 +282,8 @@ class HandleResponse {
 		}
 		// redirect
 		if ( $this->getPauseBeforeRefresh() !== false ) {
-			sleep( $this->getPauseBeforeRefresh() );
+			DeferredUpdates::tryOpportunisticExecute();
+			//sleep( $this->getPauseBeforeRefresh() );
 		}
 		if ( !$this->apiAjax ) {
 			//header( 'Location: ' . $this->getMwReturn() );
