@@ -54,17 +54,6 @@ class PlainInstanceRenderer implements InstanceRenderer {
 		if ( $pageWikiObject->exists() ) {
 			$pageContent = $pageWikiObject->getContent( RevisionRecord::RAW )->getText();
 			$edit        = new Edit();
-			$tParser = new Parse();
-			echo "<pre>";
-			$result = $tParser->parseArticle( $pageContent );
-			var_dump ( $tParser->parseArticle( $pageContent ) );
-			die();
-			if ( $instance['templateParent'] !== 'none' ) {
-				if ( isset( $result[$instance['templateParent']] ) ) {
-
-				}
-			}
-			die();
 			if ( $instance['templateParent'] !== 'none' ) {
 				$templateContent = $edit->getTemplate(
 					$pageContent,
