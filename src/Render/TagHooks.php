@@ -237,10 +237,14 @@ class TagHooks {
 		}
 
 		if ( !empty( $args['extension'] ) ) {
+
 			$extension = $parser->recursiveTagParse(
 				$args['extension'],
 				$frame
 			);
+			if ( empty( $extension ) ) {
+				$extension = null;
+			}
 			unset( $args['extension'] );
 		} else {
 			if ( isset( $args['extension'] ) ) {
@@ -1769,6 +1773,10 @@ class TagHooks {
 			$frame
 		);
 
+		echo "<pre>";
+		var_dump( $args );
+		echo "</pre>";
+
 		if ( isset( $args['placeholder'] ) ) {
 			$placeholder = $parser->recursiveTagParse(
 				$args['placeholder'],
@@ -1826,7 +1834,6 @@ class TagHooks {
 		} else {
 			$inputLengthTrigger = 3;
 		}
-
 		if ( isset( $args['query'] ) ) {
 			$smwQuery = $parser->replaceVariables( $args['query'], $frame, true );
 			unset( $args['query'] );

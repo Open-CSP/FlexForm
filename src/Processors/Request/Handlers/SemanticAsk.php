@@ -169,6 +169,7 @@ class SemanticAsk {
 				"format" => "json",
 				"query"  => $query
 			];
+
 			$mRequest = new \FlexForm\Processors\Content\Render();
 			$data     = $mRequest->makeRequest( $postdata );
 
