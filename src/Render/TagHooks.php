@@ -683,11 +683,8 @@ class TagHooks {
 
 		// We always parse the input, unless noparse is set.
 		if ( !isset( $args['noparse'] ) ) {
+			$input = self::recursiveParseMe( $parser, $frame, $input );
 			$noParse = false;
-			$input = $parser->recursiveTagParse(
-				$input,
-				$frame
-			);
 		} else {
 			unset( $args['noparse'] );
 			$noParse = true;
@@ -1638,10 +1635,7 @@ class TagHooks {
 		// We always parse the input, unless noparse is set.
 		if ( ! isset( $args['noparse'] ) ) {
 			$noParse = false;
-			$input = $parser->recursiveTagParse(
-				$input,
-				$frame
-			);
+			$input = self::recursiveParseMe( $parser, $frame, $input );
 		} else {
 			unset( $args['noparse'] );
 			$noParse = true;
@@ -2384,6 +2378,22 @@ class TagHooks {
 			}
 
 			Core::cleanJavaScriptConfigVars();
+		}
+	}
+
+	/**
+	 * @param Parser $parser
+	 * @param PPFrame $frame
+	 * @param string|null $input
+	 *
+	 * @return string
+	 */
+	private function recursiveParseMe( Parser $parser, PPFrame $frame, ?string $input ): string {
+		if ( $input !== null ) {
+			return $parser->recursiveTagParse( $input,
+				$frame );
+		} else {
+			return "";
 		}
 	}
 
