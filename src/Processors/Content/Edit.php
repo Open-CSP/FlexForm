@@ -40,9 +40,11 @@ class Edit {
 		$tParser = new Parse();
 
 		$result = $tParser->parseArticle( $source, true );
+
 		$multiple = 0;
 		foreach ( $result as $k => $foundTemplate ) {
-			if ( substr( $foundTemplate, 0, strlen( $template ) + 2 ) === '{{' . $template ) {
+			$exploded = explode( '|', $foundTemplate );
+			if ( trim( $exploded[0] ) === '{{' . $template ) {
 				$multiple++;
 			}
 		}

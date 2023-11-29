@@ -237,10 +237,14 @@ class TagHooks {
 		}
 
 		if ( !empty( $args['extension'] ) ) {
+
 			$extension = $parser->recursiveTagParse(
 				$args['extension'],
 				$frame
 			);
+			if ( empty( $extension ) ) {
+				$extension = null;
+			}
 			unset( $args['extension'] );
 		} else {
 			if ( isset( $args['extension'] ) ) {
@@ -679,11 +683,8 @@ class TagHooks {
 
 		// We always parse the input, unless noparse is set.
 		if ( !isset( $args['noparse'] ) ) {
+			$input = self::recursiveParseMe( $parser, $frame, $input );
 			$noParse = false;
-			$input = $parser->recursiveTagParse(
-				$input,
-				$frame
-			);
 		} else {
 			unset( $args['noparse'] );
 			$noParse = true;
@@ -1634,10 +1635,7 @@ class TagHooks {
 		// We always parse the input, unless noparse is set.
 		if ( ! isset( $args['noparse'] ) ) {
 			$noParse = false;
-			$input = $parser->recursiveTagParse(
-				$input,
-				$frame
-			);
+			$input = self::recursiveParseMe( $parser, $frame, $input );
 		} else {
 			unset( $args['noparse'] );
 			$noParse = true;
@@ -1769,6 +1767,10 @@ class TagHooks {
 			$frame
 		);
 
+		echo "<pre>";
+		var_dump( $args );
+		echo "</pre>";
+
 		if ( isset( $args['placeholder'] ) ) {
 			$placeholder = $parser->recursiveTagParse(
 				$args['placeholder'],
@@ -1826,7 +1828,6 @@ class TagHooks {
 		} else {
 			$inputLengthTrigger = 3;
 		}
-
 		if ( isset( $args['query'] ) ) {
 			$smwQuery = $parser->replaceVariables( $args['query'], $frame, true );
 			unset( $args['query'] );
@@ -2377,6 +2378,22 @@ class TagHooks {
 			}
 
 			Core::cleanJavaScriptConfigVars();
+		}
+	}
+
+	/**
+	 * @param Parser $parser
+	 * @param PPFrame $frame
+	 * @param string|null $input
+	 *
+	 * @return string
+	 */
+	private function recursiveParseMe( Parser $parser, PPFrame $frame, ?string $input ): string {
+		if ( $input !== null ) {
+			return $parser->recursiveTagParse( $input,
+				$frame );
+		} else {
+			return "";
 		}
 	}
 
