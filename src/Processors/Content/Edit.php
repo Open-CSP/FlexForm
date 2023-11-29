@@ -36,12 +36,21 @@ class Edit {
 	 * @return false|string
 	 */
 	public function getTemplate( string $source, string $template, $find = false, $value = false ) {
-		$multiple = substr_count(
-			$source,
-			'{{' . $template
-		);
+
+		$tParser = new Parse();
+
+		$result = $tParser->parseArticle( $source, true );
+
+		$multiple = 0;
+		foreach ( $result as $k => $foundTemplate ) {
+			$exploded = explode( '|', $foundTemplate );
+			if ( trim( $exploded[0] ) === '{{' . $template ) {
+				$multiple++;
+			}
+		}
+
 		// template not found
-		if ( $multiple == 0 ) {
+		if ( $multiple === 0 ) {
 			return false;
 		}
 

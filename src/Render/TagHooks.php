@@ -243,6 +243,9 @@ class TagHooks {
 				$args['extension'],
 				$frame
 			);
+			if ( empty( $extension ) ) {
+				$extension = null;
+			}
 			unset( $args['extension'] );
 		} else {
 			if ( isset( $args['extension'] ) ) {
@@ -681,10 +684,7 @@ class TagHooks {
 		// We always parse the input, unless noparse is set.
 		if ( !isset( $args['noparse'] ) ) {
 			$noParse = false;
-			$input = $parser->recursiveTagParse(
-				$input,
-				$frame
-			);
+			$input = self::recursiveParseMe( $parser, $frame, $input );
 		} else {
 			unset( $args['noparse'] );
 			$noParse = true;
@@ -1635,10 +1635,7 @@ class TagHooks {
 		// We always parse the input, unless noparse is set.
 		if ( ! isset( $args['noparse'] ) ) {
 			$noParse = false;
-			$input = $parser->recursiveTagParse(
-				$input,
-				$frame
-			);
+			$input = self::recursiveParseMe( $parser, $frame, $input );
 		} else {
 			unset( $args['noparse'] );
 			$noParse = true;
@@ -2407,6 +2404,22 @@ class TagHooks {
 			'ff_separator',
 			$separator
 		);
+	}
+
+	/**
+	 * @param Parser $parser
+	 * @param PPFrame $frame
+	 * @param string|null $input
+	 *
+	 * @return string
+	 */
+	private function recursiveParseMe( Parser $parser, PPFrame $frame, ?string $input ): string {
+		if ( $input !== null ) {
+			return $parser->recursiveTagParse( $input,
+											   $frame );
+		} else {
+			return "";
+		}
 	}
 
 	/**
