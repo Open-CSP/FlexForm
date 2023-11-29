@@ -93,6 +93,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 2.1.34 : Adjusted code to handle similar template names.
 * 2.1.33 : Force update DeferredUpdate
 * 2.1.32 : Tempex fields trimmed
 * 2.1.31 : Fixed an issue where extension argument is empty. i18n update. ( https://github.com/Open-CSP/FlexForm/pull/35/commits )
