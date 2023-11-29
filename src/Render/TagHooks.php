@@ -1767,10 +1767,6 @@ class TagHooks {
 			$frame
 		);
 
-		echo "<pre>";
-		var_dump( $args );
-		echo "</pre>";
-
 		if ( isset( $args['placeholder'] ) ) {
 			$placeholder = $parser->recursiveTagParse(
 				$args['placeholder'],
