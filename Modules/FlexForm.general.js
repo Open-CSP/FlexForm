@@ -1165,9 +1165,17 @@ function createAlertsIfNeeded () {
 
 			} else {
 				if ( title !== undefined || title !== '' ) {
-					mw.notify($(this).text(), { autoHide: false, type: type, title: title })
+					if ( type === 'html' ) {
+							mw.notify( $($(this).html()), { autoHide: false, type: type, title: title })
+					} else {
+						mw.notify($(this).text(), { autoHide: false, type: type, title: title })
+					}
 				} else {
-					mw.notify($(this).text(), { autoHide: false, type: type })
+					if ( type === 'html' ) {
+						mw.notify( $($(this).html()), { autoHide: false, type: type })
+					} else {
+						mw.notify($(this).text(), { autoHide: false, type: type })
+					}
 				}
 			}
 		});

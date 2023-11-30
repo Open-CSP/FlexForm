@@ -4,6 +4,7 @@ namespace FlexForm\Core;
 
 use FlexForm\FlexFormException;
 use FlexForm\Processors\Content\ContentCore;
+use FlexForm\Processors\Content\Mail;
 use FlexForm\Processors\Utilities\General;
 use MediaWiki\MediaWikiServices;
 use RequestContext;
@@ -34,11 +35,12 @@ class Messaging {
 	public function setMessages( $ffMessages ) {
 		$separator = General::getPostString( 'ff_separator' );
 		$sep = '^^-^^';
+		$mail = new Mail();
 		foreach ( $ffMessages as $singleMessage ) {
 			$exploded = explode( $sep, $singleMessage );
 			$user = ContentCore::parseTitle( trim( $exploded[0] ), true );
 			$type = ContentCore::parseTitle( trim( $exploded[1] ), true );
-			$message = ContentCore::parseTitle( trim( $exploded[2] ), true );
+			$message = $mail->parseWikiText( ContentCore::parseTitle( trim( $exploded[2] ), true ) );
 			$title = ContentCore::parseTitle( trim( $exploded[3] ), true );
 			if ( strpos( $user, $separator ) !== false ) {
 				$users = explode( $separator, $user );
@@ -47,14 +49,16 @@ class Messaging {
 			}
 			foreach ( $users as $singleUser ) {
 				$newUser = User::newFromName( $singleUser );
-				$id = $newUser->getId();
-				if ( $id !== 0 ) {
-					$this->addMessage(
-						$type,
-						$message,
-						$title,
-						$id
-					);
+				if ( $newUser !== false ) {
+					$id = $newUser->getId();
+					if ( $id !== 0 ) {
+						$this->addMessage(
+							$type,
+							$message,
+							$title,
+							$id
+						);
+					}
 				}
 			}
 		}

@@ -77,7 +77,7 @@ class Mail {
 	 * @throws FlexFormException
 	 * @throws \MWException
 	 */
-	private function parseWikiText( string $content ) : string {
+	public function parseWikiText( string $content ) : string {
 		$render   = new Render();
 		$postdata = [
 			"action"             => "parse",
@@ -99,8 +99,7 @@ class Mail {
 				0
 			);
 		}
-
-		return $result['parse']['text']['*'];
+		return $result['parse']['text'];
 	}
 
 	/**
