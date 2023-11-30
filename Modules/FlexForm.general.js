@@ -1137,29 +1137,32 @@ function checkForTinyMCE () {
 function createAlertsIfNeeded () {
 	let alert = $('[class^="wsform alert-"]')
 	if (alert !== null && alert.length > 0) {
-		let type = alert.attr('class').split('-')[1]
-		if (type === 'danger') type = 'error'
-		if (type === 'warning') type = 'warn'
-		if ( typeof mwMessageAttach !== 'undefined' ) {
-			if (typeof $.notify === 'undefined') {
-				var u = mw.config.get('wgScriptPath')
+		alert.each( function () {
+			let type = $(this).attr('class').split('-')[1]
+			if (type === 'danger') type = 'error'
+			if (type === 'warning') type = 'warn'
+			if ( typeof mwMessageAttach !== 'undefined' ) {
+				if (typeof $.notify === 'undefined') {
+					var u = mw.config.get('wgScriptPath')
 
-				if (u === 'undefined') {
-					u = ''
+					if (u === 'undefined') {
+						u = ''
+					}
+
+					$.getScript(u + '/extensions/FlexForm/Modules/notify.js').done( function() {
+						setTimeout(function(){
+							showMessage( $(this).text(), type, $(mwMessageAttach), true );
+							//console.log( alert.text(), type, $(mwMessageAttach) );
+						}, 500);
+
+					})
 				}
 
-				$.getScript(u + '/extensions/FlexForm/Modules/notify.js').done( function() {
-					setTimeout(function(){
-						showMessage( alert.text(), type, $(mwMessageAttach), true );
-						//console.log( alert.text(), type, $(mwMessageAttach) );
-					}, 500);
-
-				})
+			} else {
+				mw.notify( $(this).text(), {autoHide: false, type: type} )
 			}
+		});
 
-		} else {
-			mw.notify( alert.text(), {autoHide: false, type: type} )
-		}
 	}
 }
 

@@ -2,6 +2,7 @@
 
 namespace FlexForm\Core;
 
+use FlexForm\FlexFormException;
 use MediaWiki\MediaWikiServices;
 use RequestContext;
 use User;
@@ -57,6 +58,70 @@ class Messaging {
 		}
 
 		return true;
+	}
+
+	/**
+	 * @param int $userId
+	 *
+	 * @return array
+	 * @throws FlexFormException
+	 */
+	public function getMessagesForUser( int $userId = 0 ): array {
+		if ( $userId === 0 ) {
+			$userId = $this->user->getId();
+		}
+		if ( $userId === 0 ) {
+			return [];
+		}
+		$dbr         = $this->lb->getConnectionRef( DB_REPLICA );
+		$select      = [ '*' ];
+		$selectWhere = [
+			"user = '" . $userId . "'"
+		];
+		$res = $dbr->select(
+			self::DBTABLE,
+			$select,
+			$selectWhere,
+			__METHOD__,
+			[]
+		);
+
+		$messages = [];
+		if ( $res->numRows() > 0 ) {
+			$t = 0;
+			while ( $row = $res->fetchRow() ) {
+				$messages[$t]['type'] = $row['type'];
+				$messages[$t]['message'] = $row['message'];
+				$t++;
+			}
+			$this->removeUserMessages( $userId );
+		}
+		return $messages;
+	}
+
+	/**
+	 * @param int $uId
+	 *
+	 * @return bool
+	 * @throws FlexFormException
+	 */
+	public function removeUserMessages( int $uId ): bool {
+		$dbw = $this->lb->getConnectionRef( DB_PRIMARY );
+		try {
+			$res = $dbw->delete(
+				self::DBTABLE,
+				"user = " . $uId,
+				__METHOD__
+			);
+		} catch ( \Exception $e ) {
+			throw new FlexFormException( 'Database error : ' . $e );
+		}
+
+		if ( $res ) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 }

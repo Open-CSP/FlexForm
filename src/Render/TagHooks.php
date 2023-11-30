@@ -4,6 +4,7 @@ namespace FlexForm\Render;
 
 use Composer\Command\ScriptAliasCommand;
 use ExtensionRegistry;
+use FlexForm\Core\Messaging;
 use FlexForm\Core\Sql;
 use FlexForm\Processors\Content\Render;
 use FlexForm\Processors\Files\FilesCore;
@@ -109,29 +110,51 @@ class TagHooks {
 
 		// Do we have some messages to show?
 		if ( isset( $args['showmessages'] ) ) {
-			if ( !isset ( $_COOKIE['wsform'] ) ) {
-				return '';
+			if ( $wgUser->getId() === 0 ) {
+				if ( ! isset ( $_COOKIE['wsform'] ) ) {
+					return '';
+				}
+
+				$alertTag = \Xml::tags(
+					'div',
+					[
+						'class' => 'wsform alert-' . $_COOKIE['wsform']['type'],
+						'style' => 'display:none;height:0px;'
+					],
+					$_COOKIE['wsform']['txt']
+				);
+
+				setcookie(
+					"wsform[type]",
+					"",
+					time() - 3600,
+					'/'
+				);
+				setcookie(
+					"wsform[txt]",
+					"",
+					time() - 3600,
+					'/'
+				);
+			} else {
+				$messaging = new Messaging();
+				$storedMessages = $messaging->getMessagesForUser();
+				if ( !empty( $storedMessages ) ) {
+					$alertTag = '';
+					foreach ( $storedMessages as $message ) {
+						$alertTag .= \Xml::tags(
+							'div',
+							[
+								'class' => 'wsform alert-' . $message['type'],
+								'style' => 'display:none;height:0px;'
+							],
+							$message['message']
+						);
+					}
+				} else {
+					return '';
+				}
 			}
-
-			$alertTag = \Xml::tags(
-				'div',
-				[ 'class' => 'wsform alert-' . $_COOKIE['wsform']['type'],
-				  'style' => 'display:none;height:0px;' ],
-				$_COOKIE['wsform']['txt']
-			);
-
-			setcookie(
-				"wsform[type]",
-				"",
-				time() - 3600,
-				'/'
-			);
-			setcookie(
-				"wsform[txt]",
-				"",
-				time() - 3600,
-				'/'
-			);
 
 			return [
 				$alertTag,
@@ -740,6 +763,23 @@ class TagHooks {
 					"hidden"
 				);
 				$ret               = $renderer->render_hidden( $preparedArguments );
+
+				break;
+			case 'message':
+				if ( ! Config::isSecure() ) {
+					return [ wfMessage( 'flexform-field-secure-not-available' )->parse() ];
+				}
+
+				$toUser = $args['name'];
+				$userMessage = $args['value'];
+				$args['name'] = 'ff-message[]';
+				$args['value'] = $toUser . '^^-^^' . $userMessage;
+
+				$preparedArguments = Validate::doSimpleParameters(
+					$args,
+					"secure"
+				);
+				$ret               = $renderer->render_message( $preparedArguments );
 
 				break;
 			case 'secure':

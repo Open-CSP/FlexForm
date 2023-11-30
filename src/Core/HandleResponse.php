@@ -202,7 +202,8 @@ class HandleResponse {
 		if ( $status === 'ok' && $this->apiAjax === false ) {
 			$this->setCookieMessage(
 				$message,
-				$type
+				$type,
+				$messageData
 			); // set cookies
 		}
 
@@ -342,8 +343,9 @@ class HandleResponse {
 	 *
 	 * @param string $msg
 	 * @param string $type
+	 * @param array|string $mData
 	 */
-	public function setCookieMessage( string $msg, string $type = "danger" ) {
+	public function setCookieMessage( string $msg, string $type = "danger", $mData = '' ) {
 		$usr = RequestContext::getMain()->getUser();
 		if ( $usr->getId() === 0 ) {
 			$wR = new \WebResponse();
@@ -369,8 +371,22 @@ class HandleResponse {
 			}
 			return;
 		}
-		$message = new Messaging();
-		$message->addMessage( $type, $msg );
+		if ( $msg !== '' ) {
+			$message = new Messaging();
+			if ( is_array( $mData ) && !empty( $mData ) ) {
+				foreach( $mData as $singleMessage ) {
+					$message->addMessage(
+						$type,
+						$singleMessage
+					);
+				}
+			} else {
+				$message->addMessage(
+					$type,
+					$msg
+				);
+			}
+		}
 	}
 
 	/**

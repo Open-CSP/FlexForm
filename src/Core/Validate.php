@@ -372,7 +372,8 @@ class Validate {
 			"option",
 			"token",
 			"signature",
-			"mobilescreenshot"
+			"mobilescreenshot",
+			"message"
 		);
 		if ( $ret ) {
 			return $validInputFields;
