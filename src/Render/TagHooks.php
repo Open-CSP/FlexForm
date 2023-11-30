@@ -119,6 +119,7 @@ class TagHooks {
 					'div',
 					[
 						'class' => 'wsform alert-' . $_COOKIE['wsform']['type'],
+						'data-title' => '',
 						'style' => 'display:none;height:0px;'
 					],
 					$_COOKIE['wsform']['txt']
@@ -146,6 +147,7 @@ class TagHooks {
 							'div',
 							[
 								'class' => 'wsform alert-' . $message['type'],
+								'data-title' => $message['title'],
 								'style' => 'display:none;height:0px;'
 							],
 							$message['message']
@@ -771,6 +773,7 @@ class TagHooks {
 				}
 				$toUser = '';
 				$userMessage = '';
+				$messageTitle = '';
 
 				if ( isset( $args['user'] ) ) {
 					$toUser = $args['user'];
@@ -778,8 +781,12 @@ class TagHooks {
 
 				$messageType = $args['message-type'] ?? 'danger';
 
-				if ( isset( $args['user'] ) ) {
+				if ( isset( $args['message'] ) ) {
 					$userMessage = $args['message'];
+				}
+
+				if ( isset( $args['message-title'] ) ) {
+					$messageTitle = $args['message-title'];
 				}
 
 				if ( $userMessage === '' || $toUser === '' ) {
@@ -787,7 +794,8 @@ class TagHooks {
 				}
 
 				$args['name'] = 'ff-message[]';
-				$args['value'] = $toUser . '^^-^^' . $messageType . '^^-^^' . $userMessage ;
+				$args['value'] = $toUser . '^^-^^' . $messageType . '^^-^^' . $userMessage;
+				$args['value'] .= '^^-^^' . $messageTitle;
 
 				$preparedArguments = Validate::doSimpleParameters(
 					$args,

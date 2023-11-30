@@ -18,7 +18,7 @@ var wsAjax = false
  * @param  {Boolean} [stick=false] [wether popup must be sticky or not]
  * @return
  */
-function showMessage (msg, type, where = false, stick = false) {
+function showMessage (msg, type, where = false, stick = false, title = false ) {
 	if (typeof $.notify === 'undefined') {
 		var u = mw.config.get('wgScriptPath')
 
@@ -27,6 +27,9 @@ function showMessage (msg, type, where = false, stick = false) {
 		}
 
 		$.getScript(u + '/extensions/FlexForm/Modules/notify.js')
+	}
+	if ( title !== false ) {
+		msg = title + "\n\n" + msg;
 	}
 	if (where !== false) {
 		if (stick) {
@@ -1141,6 +1144,8 @@ function createAlertsIfNeeded () {
 			let type = $(this).attr('class').split('-')[1]
 			if (type === 'danger') type = 'error'
 			if (type === 'warning') type = 'warn'
+			let title = $(this).data('title');
+			let msg = $(this).text();
 			if ( typeof mwMessageAttach !== 'undefined' ) {
 				if (typeof $.notify === 'undefined') {
 					var u = mw.config.get('wgScriptPath')
@@ -1151,7 +1156,7 @@ function createAlertsIfNeeded () {
 
 					$.getScript(u + '/extensions/FlexForm/Modules/notify.js').done( function() {
 						setTimeout(function(){
-							showMessage( $(this).text(), type, $(mwMessageAttach), true );
+							showMessage( msg, type, $(mwMessageAttach), true, title );
 							//console.log( alert.text(), type, $(mwMessageAttach) );
 						}, 500);
 
@@ -1159,7 +1164,11 @@ function createAlertsIfNeeded () {
 				}
 
 			} else {
-				mw.notify( $(this).text(), {autoHide: false, type: type} )
+				if ( title !== undefined || title !== '' ) {
+					mw.notify($(this).text(), { autoHide: false, type: type, title: title })
+				} else {
+					mw.notify($(this).text(), { autoHide: false, type: type })
+				}
 			}
 		});
 

@@ -3,6 +3,7 @@
 namespace FlexForm\Core;
 
 use FlexForm\FlexFormException;
+use FlexForm\Processors\Content\ContentCore;
 use FlexForm\Processors\Utilities\General;
 use MediaWiki\MediaWikiServices;
 use RequestContext;
@@ -35,9 +36,10 @@ class Messaging {
 		$sep = '^^-^^';
 		foreach ( $ffMessages as $singleMessage ) {
 			$exploded = explode( $sep, $singleMessage );
-			$user = $exploded[0];
-			$type = $exploded[1];
-			$message = $exploded[2];
+			$user = ContentCore::parseTitle( trim( $exploded[0] ), true );
+			$type = ContentCore::parseTitle( trim( $exploded[1] ), true );
+			$message = ContentCore::parseTitle( trim( $exploded[2] ), true );
+			$title = ContentCore::parseTitle( trim( $exploded[3] ), true );
 			if ( strpos( $user, $separator ) !== false ) {
 				$users = explode( $separator, $user );
 			} else {
@@ -50,6 +52,7 @@ class Messaging {
 					$this->addMessage(
 						$type,
 						$message,
+						$title,
 						$id
 					);
 				}
@@ -60,11 +63,12 @@ class Messaging {
 	/**
 	 * @param string $type
 	 * @param string $message
+	 * @param string $title
 	 * @param int $userId
 	 *
 	 * @return bool
 	 */
-	public function addMessage( string $type, string $message, int $userId = 0 ) : bool {
+	public function addMessage( string $type, string $message, string $title = '', int $userId = 0 ) : bool {
 		$dbw = $this->lb->getConnectionRef( DB_PRIMARY );
 		if ( $userId === 0 ) {
 			$userId = $this->user->getId();
@@ -76,6 +80,7 @@ class Messaging {
 			$dbw->insert( self::DBTABLE,
 				[ 'user' => $userId,
 					'type' => $type,
+					'title' => $title,
 					'message' => $message ],
 				__METHOD__ );
 		} catch ( \Exception $e ) {
@@ -119,6 +124,7 @@ class Messaging {
 			while ( $row = $res->fetchRow() ) {
 				$messages[$t]['type'] = $row['type'];
 				$messages[$t]['message'] = $row['message'];
+				$messages[$t]['title'] = $row['title'];
 				$t++;
 			}
 			$this->removeUserMessages( $userId );

@@ -1,5 +1,6 @@
 CREATE TABLE /*_*/flexformmsg (
   `user` int(11),
   `type` varchar(20),
+  `title` varchar(60),
   `message` varchar(20000)
 ) /*$wgDBTableOptions*/;
