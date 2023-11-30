@@ -3,6 +3,7 @@
 namespace FlexForm\Core;
 
 use FlexForm\FlexFormException;
+use FlexForm\Processors\Utilities\General;
 use MediaWiki\MediaWikiServices;
 use RequestContext;
 use User;
@@ -29,6 +30,32 @@ class Messaging {
 		$this->user = RequestContext::getMain()->getUser();
 	}
 
+	public function setMessages( $ffMessages ) {
+		$separator = General::getPostString( 'ff_separator' );
+		$sep = '^^-^^';
+		foreach ( $ffMessages as $singleMessage ) {
+			$exploded = explode( $sep, $singleMessage );
+			$user = $exploded[0];
+			$type = $exploded[1];
+			$message = $exploded[2];
+			if ( strpos( $user, $separator ) !== false ) {
+				$users = explode( $separator, $user );
+			} else {
+				$users = [ $user ];
+			}
+			foreach ( $users as $singleUser ) {
+				$newUser = User::newFromName( $singleUser );
+				$id = $newUser->getId();
+				if ( $id !== 0 ) {
+					$this->addMessage(
+						$type,
+						$message,
+						$id
+					);
+				}
+			}
+		}
+	}
 
 	/**
 	 * @param string $type

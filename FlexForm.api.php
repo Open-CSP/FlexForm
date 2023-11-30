@@ -214,6 +214,14 @@ if ( $action === false ) {
 	$action = "addToWiki";
 }
 
+$ffMessages =  General::getPostArray( 'ff-message' );
+
+if ( $ffMessages !== false ) {
+	$messaging = new \FlexForm\Core\Messaging();
+	$messaging->setMessages( $ffMessages );
+	unset( $_POST['ff-message'] );
+}
+
 unset( $_POST['mwaction'] );
 
 if ( Config::isDebug() ) {
