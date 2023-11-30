@@ -13,6 +13,7 @@ namespace FlexForm\Core;
 use DeferredUpdates;
 use FlexForm\FlexFormException;
 use FlexForm\Processors\Content\ContentCore;
+use RequestContext;
 use Wikimedia\Rdbms\DBError;
 use Wikimedia\Rdbms\DBUnexpectedError;
 use Wikimedia\Rdbms\IDatabase;
@@ -342,33 +343,33 @@ class HandleResponse {
 	 * @param string $type
 	 */
 	public function setCookieMessage( string $msg, string $type = "danger" ) {
-		$wR = new \WebResponse();
-		if ( $msg !== '' ) {
-			$wR->setCookie(
-				"wsform[type]",
-				$type,
-				0,
-				[ 'path' => '/' ,
-				  'prefix' => '' ]
-			);
-			if ( $type !== "danger" ) {
-				$wR->setCookie(
-					"wsform[txt]",
-					$msg,
+		$usr = RequestContext::getMain()->getUser();
+		if ( $usr->getId() === 0 ) {
+			$wR = new \WebResponse();
+			if ( $msg !== '' ) {
+				$wR->setCookie( "wsform[type]",
+					$type,
 					0,
 					[ 'path' => '/',
-					  'prefix' => '' ]
-				);
-			} else {
-				$wR->setCookie(
-					"wsform[txt]",
-					$msg,
-					0,
-					[ 'path' => '/' ,
-					  'prefix' => '' ]
-				);
+						'prefix' => '' ] );
+				if ( $type !== "danger" ) {
+					$wR->setCookie( "wsform[txt]",
+						$msg,
+						0,
+						[ 'path' => '/',
+							'prefix' => '' ] );
+				} else {
+					$wR->setCookie( "wsform[txt]",
+						$msg,
+						0,
+						[ 'path' => '/',
+							'prefix' => '' ] );
+				}
 			}
+			return;
 		}
+		$message = new Messaging();
+		$message->addMessage( $type, $msg, $usr->getId() );
 	}
 
 	/**
