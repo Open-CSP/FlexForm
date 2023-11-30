@@ -337,7 +337,8 @@ class HandleResponse {
 	}
 
 	/**
-	 * Set message for after page reload using cookies
+	 * Set message for after page reload using cookies for anonymous users
+	 * Set message for after page reload using DataBase for known users
 	 *
 	 * @param string $msg
 	 * @param string $type
@@ -369,7 +370,7 @@ class HandleResponse {
 			return;
 		}
 		$message = new Messaging();
-		$message->addMessage( $type, $msg, $usr->getId() );
+		$message->addMessage( $type, $msg );
 	}
 
 	/**

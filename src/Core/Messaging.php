@@ -9,10 +9,17 @@ use Wikimedia\Rdbms\ILoadBalancer;
 
 class Messaging {
 
+
 	private const DBTABLE = 'flexformmsg';
 
+	/**
+	 * @var ILoadBalancer
+	 */
 	private ILoadBalancer $lb;
 
+	/**
+	 * @var User
+	 */
 	private User $user;
 
 
