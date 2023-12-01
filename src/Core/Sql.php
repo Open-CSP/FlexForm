@@ -16,6 +16,7 @@ use WikiPage;
 class Sql {
 
 	private const DBTABLE = 'flexform';
+	private const DBTABLEMSG = 'flexformmsg';
 
 	/**
 	 * @param DatabaseUpdater $updater
@@ -36,6 +37,23 @@ class Sql {
 			$updater->addExtensionUpdate( [
 											  'addTable',
 											  self::DBTABLE,
+											  $tables,
+											  true
+										  ] );
+		} else {
+			throw new MWException(
+				wfMessage(
+					'flexform-unsupported-database',
+					$dbt
+				)
+			);
+		}
+
+		$tables = __DIR__ . "/../../sql/FlexFormMsg.$dbt";
+		if ( file_exists( $tables ) ) {
+			$updater->addExtensionUpdate( [
+											  'addTable',
+											  self::DBTABLEMSG,
 											  $tables,
 											  true
 										  ] );

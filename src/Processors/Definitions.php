@@ -196,7 +196,8 @@ class Definitions {
 			"mwformat",
 			"ff_upload_actions",
 			'ff_separator',
-			'mwformpermissions'
+			'mwformpermissions',
+			'ff-message'
 		];
 		if ( in_array(
 			strtolower( $field ),

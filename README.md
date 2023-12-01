@@ -94,6 +94,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 2.2.0 : Added Messaging system
 * 2.1.34 : Adjusted code to handle similar template names.
 * 2.1.33 : Force update DeferredUpdates
 * 2.1.32 : Tempex fields trimmed

@@ -77,14 +77,18 @@ class Mail {
 	 * @throws FlexFormException
 	 * @throws \MWException
 	 */
-	private function parseWikiText( string $content ) : string {
+	public function parseWikiText( string $content ) : string {
 		$render   = new Render();
 		$postdata = [
 			"action"             => "parse",
 			"format"             => "json",
 			"text"               => $content,
 			"contentmodel"       => "wikitext",
-			"disablelimitreport" => "1"
+			"disablelimitreport" => "1",
+			"disablestylededuplication" => "1",
+			"disabletoc" => "1",
+			"disableeditsection" => "1",
+			"wrapoutputclass" => '',
 		];
 		$result   = $render->makeRequest( $postdata );
 		if ( Config::isDebug() ) {
@@ -100,7 +104,7 @@ class Mail {
 			);
 		}
 
-		return $result['parse']['text']['*'];
+		return $result['parse']['text'];
 	}
 
 	/**
