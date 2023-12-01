@@ -216,6 +216,15 @@ if ( $action === false ) {
 
 unset( $_POST['mwaction'] );
 
+$ffMessages =  General::getPostArray( 'ff-message' );
+
+if ( $ffMessages !== false ) {
+	$messaging = new \FlexForm\Core\Messaging();
+	$messaging->setMessages( $ffMessages );
+	unset( $_POST['ff-message'] );
+}
+
+
 if ( Config::isDebug() ) {
 	$addToWikiTimer = new DebugTimer();
 }

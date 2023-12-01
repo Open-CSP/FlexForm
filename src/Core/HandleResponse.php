@@ -15,6 +15,7 @@ use DeferredUpdates;
 use FlexForm\FlexFormException;
 use FlexForm\Processors\Content\ContentCore;
 use MediaWiki\MediaWikiServices;
+use RequestContext;
 use Wikimedia\Rdbms\DBError;
 use Wikimedia\Rdbms\DBUnexpectedError;
 use Wikimedia\Rdbms\IDatabase;
@@ -203,7 +204,8 @@ class HandleResponse {
 		if ( $status === 'ok' && $this->apiAjax === false ) {
 			$this->setCookieMessage(
 				$message,
-				$type
+				$type,
+				$messageData
 			); // set cookies
 		}
 
@@ -229,7 +231,7 @@ class HandleResponse {
 
 		try {
 			if ( $status === 'ok' && $mwReturn !== false ) {
-				$this->redirect();
+				$this->redirect( 'ok', $message );
 			}
 		} catch ( FlexFormException $e ) {
 			throw new FlexFormException(
@@ -340,36 +342,52 @@ class HandleResponse {
 	}
 
 	/**
-	 * Set message for after page reload using cookies
+	 * Set message for after page reload using cookies for anonymous users
+	 * Set message for after page reload using DataBase for known users
 	 *
 	 * @param string $msg
 	 * @param string $type
+	 * @param array|string $mData
 	 */
-	public function setCookieMessage( string $msg, string $type = "danger" ) {
-		$wR = new \WebResponse();
+	public function setCookieMessage( string $msg, string $type = "danger", $mData = '' ) {
+		$usr = RequestContext::getMain()->getUser();
+		if ( $usr->getId() === 0 ) {
+			$wR = new \WebResponse();
+			if ( $msg !== '' ) {
+				$wR->setCookie( "wsform[type]",
+								$type,
+								0,
+								[ 'path' => '/',
+								  'prefix' => '' ] );
+				if ( $type !== "danger" ) {
+					$wR->setCookie( "wsform[txt]",
+									$msg,
+									0,
+									[ 'path' => '/',
+									  'prefix' => '' ] );
+				} else {
+					$wR->setCookie( "wsform[txt]",
+									$msg,
+									0,
+									[ 'path' => '/',
+									  'prefix' => '' ] );
+				}
+			}
+			return;
+		}
 		if ( $msg !== '' ) {
-			$wR->setCookie(
-				"wsform[type]",
-				$type,
-				0,
-				[ 'path' => '/' ,
-				  'prefix' => '' ]
-			);
-			if ( $type !== "danger" ) {
-				$wR->setCookie(
-					"wsform[txt]",
-					$msg,
-					0,
-					[ 'path' => '/',
-					  'prefix' => '' ]
-				);
+			$message = new Messaging();
+			if ( is_array( $mData ) && !empty( $mData ) ) {
+				foreach( $mData as $singleMessage ) {
+					$message->addMessage(
+						$type,
+						$singleMessage
+					);
+				}
 			} else {
-				$wR->setCookie(
-					"wsform[txt]",
-					$msg,
-					0,
-					[ 'path' => '/' ,
-					  'prefix' => '' ]
+				$message->addMessage(
+					$type,
+					$msg
 				);
 			}
 		}
