@@ -30,7 +30,16 @@ interface FieldRenderer {
 	public function render_hidden( array $args ) : string;
 
 	/**
-	 * @brief Render hidden input field
+	 * @brief Render message input field
+	 *
+	 * @param array $args Arguments for the field
+	 *
+	 * @return string Rendered HTML
+	 */
+	public function render_message( array $args ) : string;
+
+	/**
+	 * @brief Render hidden secure input field
 	 *
 	 * @param array $args Arguments for the field
 	 *

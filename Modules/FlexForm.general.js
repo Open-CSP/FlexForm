@@ -18,7 +18,7 @@ var wsAjax = false
  * @param  {Boolean} [stick=false] [wether popup must be sticky or not]
  * @return
  */
-function showMessage (msg, type, where = false, stick = false) {
+function showMessage (msg, type, where = false, stick = false, title = false ) {
 	if (typeof $.notify === 'undefined') {
 		var u = mw.config.get('wgScriptPath')
 
@@ -27,6 +27,9 @@ function showMessage (msg, type, where = false, stick = false) {
 		}
 
 		$.getScript(u + '/extensions/FlexForm/Modules/notify.js')
+	}
+	if ( title !== false ) {
+		msg = title + "\n\n" + msg;
 	}
 	if (where !== false) {
 		if (stick) {
@@ -621,7 +624,11 @@ function wsform (btn, callback = 0, preCallback = 0, showId = 0) {
 			let attachTo = false;
 			if (result.status === 'ok') {
 				statusType = 'success';
-				statusMsg = mwonsuccess;
+				if ( mwonsuccess === 'Saved successfully' ) {
+					statusMsg = result.message;
+				} else {
+					statusMsg = mwonsuccess;
+				}
 			} else {
 				statusType = 'error';
 				statusMsg = result.message;
@@ -754,6 +761,13 @@ const fetchAllDecrypt = async () => {
 		}
 	});
 
+	/* TODO: Code below throws a TypeError: mw.Api is not a constructor
+	This needs to be wrapped inside the mw loader
+	like :
+	mw.loader.using('mediawiki.api', function() {
+  // Call to the function that uses mw.Api
+} );
+	 */
 	const result = await new mw.Api().get({
 		action: 'flexform',
 		what: 'decrypt',
@@ -1134,32 +1148,52 @@ function checkForTinyMCE () {
 	}
 }
 
+
 function createAlertsIfNeeded () {
+	console.log ( "SHOWMESSAGES" );
 	let alert = $('[class^="wsform alert-"]')
 	if (alert !== null && alert.length > 0) {
-		let type = alert.attr('class').split('-')[1]
-		if (type === 'danger') type = 'error'
-		if (type === 'warning') type = 'warn'
-		if ( typeof mwMessageAttach !== 'undefined' ) {
-			if (typeof $.notify === 'undefined') {
-				var u = mw.config.get('wgScriptPath')
+		alert.each( function () {
+			let type = $(this).attr('class').split('-')[1]
+			if (type === 'danger') type = 'error'
+			if (type === 'warning') type = 'warn'
+			let title = $(this).data('title');
+			let msg = $(this).text();
+			if ( typeof mwMessageAttach !== 'undefined' ) {
+				if (typeof $.notify === 'undefined') {
+					var u = mw.config.get('wgScriptPath')
 
-				if (u === 'undefined') {
-					u = ''
+					if (u === 'undefined') {
+						u = ''
+					}
+
+					$.getScript(u + '/extensions/FlexForm/Modules/notify.js').done( function() {
+						setTimeout(function(){
+							showMessage( msg, type, $(mwMessageAttach), true, title );
+							//console.log( alert.text(), type, $(mwMessageAttach) );
+						}, 500);
+
+					})
 				}
 
-				$.getScript(u + '/extensions/FlexForm/Modules/notify.js').done( function() {
-					setTimeout(function(){
-						showMessage( alert.text(), type, $(mwMessageAttach), true );
-						//console.log( alert.text(), type, $(mwMessageAttach) );
-					}, 500);
-
-				})
+			} else {
+				console.log ( "alert: " + $(this).text() );
+				if ( title !== undefined || title !== '' ) {
+					if ( type === 'html' ) {
+							mw.notify( $($(this).html()), { autoHide: false, type: type, title: title })
+					} else {
+						mw.notify($(this).text(), { autoHide: false, type: type, title: title })
+					}
+				} else {
+					if ( type === 'html' ) {
+						mw.notify( $($(this).html()), { autoHide: false, type: type })
+					} else {
+						mw.notify($(this).text(), { autoHide: false, type: type })
+					}
+				}
 			}
+		});
 
-		} else {
-			mw.notify( alert.text(), {autoHide: false, type: type} )
-		}
 	}
 }
 

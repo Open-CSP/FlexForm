@@ -27,6 +27,13 @@ class PlainFieldRenderer implements FieldRenderer {
 	/**
 	 * @inheritDoc
 	 */
+	public function render_message( array $args ) : string {
+		return $this->renderSimpelInput( 'hidden', $args );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public function render_secure( array $args ) : string {
 		return $this->renderSimpelInput( 'hidden', $args );
 	}
