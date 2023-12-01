@@ -761,6 +761,13 @@ const fetchAllDecrypt = async () => {
 		}
 	});
 
+	/* TODO: Code below throws a TypeError: mw.Api is not a constructor
+	This needs to be wrapped inside the mw loader
+	like :
+	mw.loader.using('mediawiki.api', function() {
+  // Call to the function that uses mw.Api
+} );
+	 */
 	const result = await new mw.Api().get({
 		action: 'flexform',
 		what: 'decrypt',
