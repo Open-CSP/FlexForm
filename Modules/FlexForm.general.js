@@ -624,7 +624,11 @@ function wsform (btn, callback = 0, preCallback = 0, showId = 0) {
 			let attachTo = false;
 			if (result.status === 'ok') {
 				statusType = 'success';
-				statusMsg = mwonsuccess;
+				if ( mwonsuccess === 'Saved successfully' ) {
+					statusMsg = result.message;
+				} else {
+					statusMsg = mwonsuccess;
+				}
 			} else {
 				statusType = 'error';
 				statusMsg = result.message;

@@ -228,7 +228,7 @@ class HandleResponse {
 
 		try {
 			if ( $status === 'ok' && $mwReturn !== false ) {
-				$this->redirect();
+				$this->redirect( 'ok', $message );
 			}
 		} catch ( FlexFormException $e ) {
 			throw new FlexFormException(
