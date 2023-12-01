@@ -7,6 +7,7 @@ use FlexForm\Processors\Content\ContentCore;
 use FlexForm\Processors\Content\Mail;
 use FlexForm\Processors\Utilities\General;
 use MediaWiki\MediaWikiServices;
+use MWException;
 use RequestContext;
 use User;
 use Wikimedia\Rdbms\ILoadBalancer;
@@ -32,7 +33,14 @@ class Messaging {
 		$this->user = RequestContext::getMain()->getUser();
 	}
 
-	public function setMessages( $ffMessages ) {
+	/**
+	 * @param array $ffMessages
+	 *
+	 * @return void
+	 * @throws FlexFormException
+	 * @throws MWException
+	 */
+	public function setMessages( array $ffMessages ) {
 		$separator = General::getPostString( 'ff_separator' );
 		$sep = '^^-^^';
 		$mail = new Mail();
