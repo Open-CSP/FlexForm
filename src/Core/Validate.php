@@ -333,6 +333,28 @@ class Validate {
 	}
 
 	/**
+	 * @param string $check
+	 * @param bool $ret
+	 *
+	 * @return bool|string[]
+	 */
+	public static function validMessageParameters( string $check, bool $ret = false ) {
+		$validParameters = [
+			"user",
+			"message-type",
+			"message"
+		];
+		if ( $ret ) {
+			return $validParameters;
+		}
+		if ( in_array( $check, $validParameters ) ) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
 	 * Check for valid input type when using wsfield
 	 *
 	 * @param $check string Holds parameter to check
@@ -372,7 +394,8 @@ class Validate {
 			"option",
 			"token",
 			"signature",
-			"mobilescreenshot"
+			"mobilescreenshot",
+			"message"
 		);
 		if ( $ret ) {
 			return $validInputFields;

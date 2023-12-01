@@ -4,6 +4,7 @@ namespace FlexForm\Render;
 
 use Composer\Command\ScriptAliasCommand;
 use ExtensionRegistry;
+use FlexForm\Core\Messaging;
 use FlexForm\Core\Sql;
 use FlexForm\Processors\Content\Render;
 use FlexForm\Processors\Files\FilesCore;
@@ -109,32 +110,60 @@ class TagHooks {
 
 		// Do we have some messages to show?
 		if ( isset( $args['showmessages'] ) ) {
-			if ( !isset ( $_COOKIE['wsform'] ) ) {
-				return '';
+			if ( $wgUser->getId() === 0 ) {
+				if ( ! isset ( $_COOKIE['wsform'] ) ) {
+					return '';
+				}
+
+				$alertTag = \Xml::tags(
+					'div',
+					[
+						'class' => 'wsform alert-' . $_COOKIE['wsform']['type'],
+						'data-title' => '',
+						'style' => 'display:none;height:0px;'
+					],
+					$_COOKIE['wsform']['txt']
+				);
+
+				setcookie(
+					"wsform[type]",
+					"",
+					time() - 3600,
+					'/'
+				);
+				setcookie(
+					"wsform[txt]",
+					"",
+					time() - 3600,
+					'/'
+				);
+			} else {
+				$messaging = new Messaging();
+				$storedMessages = $messaging->getMessagesForUser();
+				if ( !empty( $storedMessages ) ) {
+					$alertTag = '';
+					foreach ( $storedMessages as $message ) {
+						$alertTag .= \Xml::tags(
+							'div',
+							[
+								'class' => 'flexform alert-' . $message['type'],
+								'data-title' => $message['title'],
+								'style' => 'display:none;height:0px;'
+							],
+							$message['message']
+						);
+					}
+				} else {
+					return '';
+				}
 			}
-
-			$alertTag = \Xml::tags(
-				'div',
-				[ 'class' => 'wsform alert-' . $_COOKIE['wsform']['type'],
-				  'style' => 'display:none;height:0px;' ],
-				$_COOKIE['wsform']['txt']
-			);
-
-			setcookie(
-				"wsform[type]",
-				"",
-				time() - 3600,
-				'/'
-			);
-			setcookie(
-				"wsform[txt]",
-				"",
-				time() - 3600,
-				'/'
-			);
-
+			$addMessagingJS = '';
+			if ( !Core::isLoaded( 'FlexFormMessaging' ) ) {
+				$addMessagingJS  = '<script type="text/javascript" charset="UTF-8" src="' . Core::getRealUrl() . '/Modules/FlexForm.messaging.js"></script>' . "\n";
+				Core::addAsLoaded( 'FlexFormMessaging' );
+			}
 			return [
-				$alertTag,
+				$addMessagingJS . $alertTag,
 				'noparse'    => true,
 				'markerType' => 'nowiki'
 			];
@@ -740,6 +769,43 @@ class TagHooks {
 					"hidden"
 				);
 				$ret               = $renderer->render_hidden( $preparedArguments );
+
+				break;
+			case 'message':
+				if ( ! Config::isSecure() ) {
+					return [ wfMessage( 'flexform-field-secure-not-available' )->parse() ];
+				}
+				$toUser = '';
+				$userMessage = '';
+				$messageTitle = '';
+
+				if ( isset( $args['user'] ) ) {
+					$toUser = $args['user'];
+				}
+
+				$messageType = $args['message-type'] ?? 'danger';
+
+				if ( isset( $args['message'] ) ) {
+					$userMessage = $args['message'];
+				}
+
+				if ( isset( $args['message-title'] ) ) {
+					$messageTitle = $args['message-title'];
+				}
+
+				if ( $userMessage === '' || $toUser === '' ) {
+					return [ '' ];
+				}
+
+				$args['name'] = 'ff-message[]';
+				$args['value'] = $toUser . '^^-^^' . $messageType . '^^-^^' . $userMessage;
+				$args['value'] .= '^^-^^' . $messageTitle;
+
+				$preparedArguments = Validate::doSimpleParameters(
+					$args,
+					"secure"
+				);
+				$ret               = $renderer->render_message( $preparedArguments );
 
 				break;
 			case 'secure':
