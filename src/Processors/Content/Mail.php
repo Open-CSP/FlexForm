@@ -84,7 +84,14 @@ class Mail {
 			"format"             => "json",
 			"text"               => $content,
 			"contentmodel"       => "wikitext",
-			"disablelimitreport" => "1"
+			"disablelimitreport" => "1",
+			"disablestylededuplication" => "1",
+			"disabletoc" => "1",
+			"disableeditsection" => "1",
+			"wrapoutputclass" => '',
+
+
+
 		];
 		$result   = $render->makeRequest( $postdata );
 		if ( Config::isDebug() ) {

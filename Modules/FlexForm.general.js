@@ -1141,7 +1141,9 @@ function checkForTinyMCE () {
 	}
 }
 
+
 function createAlertsIfNeeded () {
+	console.log ( "SHOWMESSAGES" );
 	let alert = $('[class^="wsform alert-"]')
 	if (alert !== null && alert.length > 0) {
 		alert.each( function () {
@@ -1168,6 +1170,7 @@ function createAlertsIfNeeded () {
 				}
 
 			} else {
+				console.log ( "alert: " + $(this).text() );
 				if ( title !== undefined || title !== '' ) {
 					if ( type === 'html' ) {
 							mw.notify( $($(this).html()), { autoHide: false, type: type, title: title })

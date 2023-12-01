@@ -146,7 +146,7 @@ class TagHooks {
 						$alertTag .= \Xml::tags(
 							'div',
 							[
-								'class' => 'wsform alert-' . $message['type'],
+								'class' => 'flexform alert-' . $message['type'],
 								'data-title' => $message['title'],
 								'style' => 'display:none;height:0px;'
 							],
@@ -157,9 +157,13 @@ class TagHooks {
 					return '';
 				}
 			}
-
+			$addMessagingJS = '';
+			if ( !Core::isLoaded( 'FlexFormMessaging' ) ) {
+				$addMessagingJS  = '<script type="text/javascript" charset="UTF-8" src="' . Core::getRealUrl() . '/Modules/FlexForm.messaging.js"></script>' . "\n";
+				Core::addAsLoaded( 'FlexFormMessaging' );
+			}
 			return [
-				$alertTag,
+				$addMessagingJS . $alertTag,
 				'noparse'    => true,
 				'markerType' => 'nowiki'
 			];
