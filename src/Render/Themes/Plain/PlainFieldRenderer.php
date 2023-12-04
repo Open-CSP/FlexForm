@@ -280,7 +280,7 @@ class PlainFieldRenderer implements FieldRenderer {
 	) : string {
 		$optionAttributes = array_merge(
 			[
-				'value' => htmlspecialchars( $value )
+				'value' => $value
 			],
 			$additionalArgs
 		);
@@ -296,7 +296,7 @@ class PlainFieldRenderer implements FieldRenderer {
 		return Xml::tags(
 			'option',
 			$optionAttributes,
-			htmlspecialchars( $input )
+			$input
 		);
 	}
 

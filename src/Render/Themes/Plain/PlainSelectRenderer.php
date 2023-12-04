@@ -50,7 +50,7 @@ class PlainSelectRenderer implements SelectRenderer {
 				$selectedValues
 			);
 			$tagContent .= Xml::option(
-				htmlspecialchars( $text ),
+				$text,
 				$valueName,
 				$isSelected
 			);
