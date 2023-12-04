@@ -280,13 +280,13 @@ class PlainFieldRenderer implements FieldRenderer {
 	) : string {
 		$optionAttributes = array_merge(
 			[
-				'value' => htmlspecialchars( $value )
+				'value' => $value
 			],
 			$additionalArgs
 		);
 
 		if ( $showOnSelect !== null ) {
-			$optionAttributes['data-wssos-show'] = htmlspecialchars( $showOnSelect );
+			$optionAttributes['data-wssos-show'] = $showOnSelect;
 		}
 
 		if ( $isSelected ) {
