@@ -60,6 +60,7 @@ class SemanticAsk {
 		$q              = General::getGetString( 'q', true, false );
 		$returnId       = General::getGetString( 'returnid', true, false );
 		$returnText     = General::getGetString( 'returntext', true, false );
+		$template       = General::getGetString( 'template', true, false );
 		$limit          = General::getGetString( 'limit', true, false );
 
 		// if( strlen( $q ) < 3 ) return $ret;
@@ -91,6 +92,14 @@ class SemanticAsk {
 					$returnText = Core::get_string_between( $query, '(returntext=', ')' );
 					$query = str_replace(
 						'(returntext=' . $returnText . ')',
+						'',
+						$query
+					);
+				}
+				if ( strpos( $query, '(template=' ) !== false ) {
+					$template = Core::get_string_between( $query, '(template=', ')' );
+					$query = str_replace(
+						'(template=' . $template . ')',
 						'',
 						$query
 					);
@@ -157,6 +166,9 @@ class SemanticAsk {
 				$query .= '|limit=' . $limit;
 			} else {
 				$query .= '|limit=50';
+			}
+			if ( $template !== false ) {
+				$query .= '|template=' . $template;
 			}
 
 			// echo $query."<BR>";
