@@ -56,7 +56,7 @@ class Messaging {
 				$users = [ $user ];
 			}
 			foreach ( $users as $singleUser ) {
-				$newUser = User::newFromName( $singleUser );
+				$newUser = User::newFromName( trim( $singleUser ) );
 				if ( $newUser !== false ) {
 					$id = $newUser->getId();
 					if ( $id !== 0 ) {
