@@ -6,6 +6,7 @@
 # @License: Mine
 # @Copyright: 2018
 
+use FlexForm\Core\Messaging;
 use MediaWiki\MediaWikiServices;
 use FlexForm\Core\Core;
 use FlexForm\Render\TagHooks;
@@ -97,6 +98,55 @@ class FlexFormHooks {
 	 * @return true
 	 */
 	public static function onAfterFinalPageOutput( OutputPage $out ) {
+		$wgUser = $out->getUser();
+		$alertTag = '';
+		if ( $wgUser->getId() === 0 ) {
+			if ( !isset ( $_COOKIE['wsform'] ) ) {
+				$alertTag = '';
+			} else {
+
+				$alertTag = \Xml::tags( 'div',
+					[ 'class' => 'wsform alert-' . $_COOKIE['wsform']['type'],
+						'data-title' => '',
+						'style' => 'display:none;height:0px;' ],
+					$_COOKIE['wsform']['txt'] );
+
+				setcookie( "wsform[type]",
+					"",
+					time() - 3600,
+					'/' );
+				setcookie( "wsform[txt]",
+					"",
+					time() - 3600,
+					'/' );
+			}
+		} else {
+			$messaging = new Messaging();
+			$storedMessages = $messaging->getMessagesForUser();
+			if ( !empty( $storedMessages ) ) {
+				$alertTag = '';
+				foreach ( $storedMessages as $message ) {
+					$alertTag .= \Xml::tags(
+						'div',
+						[
+							'class' => 'flexform alert-' . $message['type'],
+							'data-title' => $message['title'],
+							'style' => 'display:none;height:0px;'
+						],
+						$message['message']
+					);
+				}
+			} else {
+				$alertTag =  '';
+			}
+		}
+		$addMessagingJS = '';
+		if ( !Core::isLoaded( 'FlexFormMessaging' ) ) {
+			$addMessagingJS  = '<script type="text/javascript" charset="UTF-8" src="' . Core::getRealUrl() . '/Modules/FlexForm.messaging.js"></script>' . "\n";
+			Core::addAsLoaded( 'FlexFormMessaging' );
+		}
+		$alertOut = $addMessagingJS . $alertTag;
+
 		$scripts    = array_unique( Core::getJavaScriptToBeIncluded() );
 		$scriptTags = array_unique( Core::getJavaScriptTagsToBeIncluded() );
 		$csss       = array_unique( Core::getCSSToBeIncluded() );
@@ -162,7 +212,7 @@ class FlexFormHooks {
 		}
 
 		$out = ob_get_clean();
-		$out .= $cssTagsOut . $jsTags;
+		$out .= $alertOut . $cssTagsOut . $jsTags;
 		if ( ! empty( $csOut ) ) {
 			$out .= "<style>\n" . $csOut . "\n</style>\n";
 		}

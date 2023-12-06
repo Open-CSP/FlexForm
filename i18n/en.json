@@ -144,6 +144,8 @@
 
 	"flexform-unsupported-database" : "FlexForm does not support $1",
 
+	"flexform-showmessages-depracated" : "FlexForm showmessages is depracated",
+
 	"flexform-api-error-allpages" : "No allpages result from MediaWiki API",
 	"flexform-api-error-unkown-namespace" : "Could not resolve namespace",
 	"flexform-api-error-noquery-response" : "No query result from MediaWiki API",
