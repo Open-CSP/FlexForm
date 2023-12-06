@@ -94,6 +94,10 @@ class TagHooks {
 		$renderi18nErrorInsteadofImageForApprovedForms = Config::getConfigVariable(
 			'renderi18nErrorInsteadofImageForApprovedForms'
 		);
+
+		if ( isset( $args['showmessages'] ) ) {
+			return '<!--' . wfMessage( 'flexform-showmessages-deprecated' )->text() . '-->';
+		}
 		$this->officialForm = null;
 		if ( $renderonlyapprovedforms === false ) {
 			$this->officialForm = true;
@@ -109,68 +113,6 @@ class TagHooks {
 			$this->setOfficialForm( (int)$id, $formContent );
 
 		}
-
-		// Do we have some messages to show?
-		if ( isset( $args['showmessages'] ) ) {
-			if ( $thisUser->getId() === 0 ) {
-				if ( ! isset ( $_COOKIE['wsform'] ) ) {
-					return '';
-				}
-
-				$alertTag = \Xml::tags(
-					'div',
-					[
-						'class' => 'wsform alert-' . $_COOKIE['wsform']['type'],
-						'data-title' => '',
-						'style' => 'display:none;height:0px;'
-					],
-					$_COOKIE['wsform']['txt']
-				);
-
-				setcookie(
-					"wsform[type]",
-					"",
-					time() - 3600,
-					'/'
-				);
-				setcookie(
-					"wsform[txt]",
-					"",
-					time() - 3600,
-					'/'
-				);
-			} else {
-				$messaging = new Messaging();
-				$storedMessages = $messaging->getMessagesForUser();
-				if ( !empty( $storedMessages ) ) {
-					$alertTag = '';
-					foreach ( $storedMessages as $message ) {
-						$alertTag .= \Xml::tags(
-							'div',
-							[
-								'class' => 'flexform alert-' . $message['type'],
-								'data-title' => $message['title'],
-								'style' => 'display:none;height:0px;'
-							],
-							$message['message']
-						);
-					}
-				} else {
-					return '';
-				}
-			}
-			$addMessagingJS = '';
-			if ( !Core::isLoaded( 'FlexFormMessaging' ) ) {
-				$addMessagingJS  = '<script type="text/javascript" charset="UTF-8" src="' . Core::getRealUrl() . '/Modules/FlexForm.messaging.js"></script>' . "\n";
-				Core::addAsLoaded( 'FlexFormMessaging' );
-			}
-			return [
-				$addMessagingJS . $alertTag,
-				'noparse'    => true,
-				'markerType' => 'nowiki'
-			];
-		}
-
 		if ( isset( $_COOKIE['ffSaveFields'] ) ) {
 			Core::addPreSaved( json_decode( base64_decode( $_COOKIE['ffSaveFields'] ), true ) );
 			setcookie(

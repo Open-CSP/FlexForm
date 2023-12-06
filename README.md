@@ -94,6 +94,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 2.2.2 : Deprecated showmessages https://www.open-csp.org/DevOps:Doc/FlexForm/2.0/Installation_of_FlexForm#Notification.2FMessages
 * 2.2.1 : Removed HTML Special character on option fields.
 * 2.2.0 : Added Messaging system
 * 2.1.34 : Adjusted code to handle similar template names.
