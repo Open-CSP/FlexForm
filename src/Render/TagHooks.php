@@ -94,7 +94,7 @@ class TagHooks {
 		);
 		// Do we have some messages to show?
 		if ( isset( $args['showmessages'] ) ) {
-			return wfMessage( 'flexform-showmessages-depracated' )->text();
+			return '<!--' . wfMessage( 'flexform-showmessages-deprecated' )->text() . '-->';
 		}
 		$this->officialForm = null;
 		if ( $renderonlyapprovedforms === false ) {
