@@ -312,7 +312,7 @@ class Upload {
 					$newFile = $targetFile;
 				} else {
 					throw new FlexFormException(
-						wfMessage( 'flexform-fileupload-filemove-error' )->text(),
+						wfMessage( 'flexform-fileupload-file-move-error' )->text(),
 						0
 					);
 				}
