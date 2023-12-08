@@ -101,7 +101,7 @@ class Canvas {
 
 		if ( !file_put_contents( $uploadPath . $tmpFileName, $canvasFile ) ) {
 			throw new FlexFormException(
-				wfMessage( 'flexform-fileupload-filemove-error' )->text(),
+				wfMessage( 'flexform-fileupload-file-move-error' )->text(),
 				0
 			);
 		}
