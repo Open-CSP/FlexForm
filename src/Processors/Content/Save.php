@@ -243,7 +243,7 @@ class Save {
 			// Refresh SMW properties if applicable. Removed in 2.1.17
 
 			//if ( $wgPauseBeforeRefresh !== false ) {
-				$this->refreshSMWProperties( $title );
+				//$this->refreshSMWProperties( $title );
 			//}
 
 			if ( Config::isDebug() ) {
