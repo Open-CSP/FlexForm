@@ -285,7 +285,7 @@ class HandleResponse {
 		// redirect
 		if ( $this->getPauseBeforeRefresh() !== false ) {
 			//DeferredUpdates::tryOpportunisticExecute();
-			//sleep( $this->getPauseBeforeRefresh() );
+			sleep( $this->getPauseBeforeRefresh() );
 		}
 		if ( !$this->apiAjax ) {
 			//header( 'Location: ' . $this->getMwReturn() );

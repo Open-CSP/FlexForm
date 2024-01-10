@@ -62,7 +62,6 @@ class Save {
 		array $text,
 		string $summary
 	) {
-		global $wgPauseBeforeRefresh;
 		$status              = true;
 		$errors              = [];
 		$title_object        = $wikipage_object->getTitle();
@@ -241,9 +240,7 @@ class Save {
 				$timerSMW = new DebugTimer();
 			}
 			// Refresh SMW properties if applicable
-			if ( $wgPauseBeforeRefresh !== false ) {
-				$this->refreshSMWProperties( $title );
-			}
+			$this->refreshSMWProperties( $title );
 
 			if ( Config::isDebug() ) {
 				$timerNull = new DebugTimer();
@@ -329,7 +326,7 @@ class Save {
 	 */
 	private function refreshSMWProperties( Title $title ) {
 		// Sleep for 1/2 a second
-		usleep( 500000 );
+		//usleep( 500000 );
 		if ( !ExtensionRegistry::getInstance()->isLoaded( 'SemanticMediaWiki' ) ) {
 			return;
 		}
