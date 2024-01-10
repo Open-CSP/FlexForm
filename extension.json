@@ -41,8 +41,7 @@
     ],
     "getUserPermissionsErrors": [
       "FlexForm\\Core\\Rights::disableActions"
-    ],
-    "SMW::Store::BeforeDataUpdateComplete": "FlexFormHooks::onBeforeDataUpdateComplete"
+    ]
   },
   "MessagesDirs": {
     "FlexForm": [
