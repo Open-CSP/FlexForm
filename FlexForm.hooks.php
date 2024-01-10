@@ -250,7 +250,7 @@ class FlexFormHooks {
 		$store->setOption( Store::OPT_CREATE_UPDATE_JOB, false );
 
 		$dataRebuilder = new DataRebuilder( $store, ServicesFactory::getInstance()->newTitleFactory() );
-		$dataRebuilder->setOptions( new Options( [ 'page' => $title ] ) );
+		$dataRebuilder->setOptions( new Options( [ 'page' => $title->getFullText() ] ) );
 		$dataRebuilder->rebuild();
 
 	}
