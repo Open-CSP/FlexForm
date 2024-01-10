@@ -118,6 +118,8 @@ try {
 $responseHandler->setIdentifier( General::getPostString( "mwidentifier" ) );
 $responseHandler->setMwReturn( urldecode( General::getPostString( "mwreturn" ) ) );
 $responseHandler->setPauseBeforeRefresh( General::getPostString( 'mwpause' ) );
+$wgPauseBeforeRefresh = General::getPostString( 'mwpause' );
+
 
 if ( Config::isDebug() ) {
 	Debug::addToDebug(

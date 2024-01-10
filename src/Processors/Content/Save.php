@@ -14,6 +14,8 @@ use MediaWiki\Revision\SlotRecord;
 use MWContentSerializationException;
 use MWException;
 use RequestContext;
+use SMW\Maintenance\DataRebuilder;
+use SMW\Services\ServicesFactory;
 use Title;
 use User;
 use WikiPage;
@@ -60,6 +62,7 @@ class Save {
 		array $text,
 		string $summary
 	) {
+		global $wgPauseBeforeRefresh;
 		$status              = true;
 		$errors              = [];
 		$title_object        = $wikipage_object->getTitle();
@@ -238,7 +241,10 @@ class Save {
 				$timerSMW = new DebugTimer();
 			}
 			// Refresh SMW properties if applicable. Removed in 2.1.17
-			//$this->refreshSMWProperties( $title );
+
+			if ( $wgPauseBeforeRefresh !== false ) {
+				$this->refreshSMWProperties( $title );
+			}
 
 			if ( Config::isDebug() ) {
 				$timerNull = new DebugTimer();
@@ -335,10 +341,7 @@ class Save {
 			false
 		);
 
-		$rebuilder = new \SMW\Maintenance\DataRebuilder(
-			$store,
-			ApplicationFactory::getInstance()->newTitleFactory()
-		);
+		$rebuilder = new DataRebuilder( $store, ServicesFactory::getInstance()->newTitleFactory() );
 
 		$rebuilder->setOptions(
 		// Tell SMW to only rebuild the current page
