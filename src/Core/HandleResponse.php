@@ -287,7 +287,7 @@ class HandleResponse {
 		}
 		// redirect
 		if ( $this->getPauseBeforeRefresh() !== false ) {
-			//sleep( $this->getPauseBeforeRefresh() );
+			sleep( $this->getPauseBeforeRefresh() );
 			//DeferredUpdates::tryOpportunisticExecute();
 		}
 		if ( !$this->apiAjax ) {

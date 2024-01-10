@@ -10,14 +10,7 @@ use FlexForm\Core\Messaging;
 use MediaWiki\MediaWikiServices;
 use FlexForm\Core\Core;
 use FlexForm\Render\TagHooks;
-use FlexForm\Render\Validate;
 use FlexForm\FlexFormException;
-use SMW\Maintenance\DataRebuilder;
-use SMW\Options;
-use SMW\SemanticData;
-use SMW\Services\ServicesFactory;
-use SMW\Store;
-use SMW\StoreFactory;
 use Wikimedia\Services\NoSuchServiceException;
 
 /**
@@ -229,30 +222,6 @@ class FlexFormHooks {
 		echo $out;
 
 		return true;
-	}
-
-
-	/**
-	 * Hook to process information after an update has been completed.
-	 *
-	 * @param Store $store
-	 * @param SemanticData $semanticData
-	 * @return void
-	 * @link https://github.com/SemanticMediaWiki/SemanticMediaWiki/blob/master/docs/technical/hooks/hook.store.afterdataupdatecomplete.md
-	 */
-	public static function onAfterDataUpdateComplete( Store $store, SemanticData $semanticData ): void {
-		$title = $semanticData->getSubject()->getTitle();
-
-		if ( $title === null ) {
-			return;
-		}
-
-		$store->setOption( Store::OPT_CREATE_UPDATE_JOB, false );
-
-		$dataRebuilder = new DataRebuilder( $store, ServicesFactory::getInstance()->newTitleFactory() );
-		$dataRebuilder->setOptions( new Options( [ 'page' => $title->getFullText() ] ) );
-		$dataRebuilder->rebuild();
-
 	}
 
 	/**
