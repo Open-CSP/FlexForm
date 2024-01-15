@@ -266,11 +266,15 @@ class Core {
 	/**
 	 * @return string
 	 */
-	public static function addShowOnSelectJS(): string {
-		if ( ! self::isLoaded( 'ShowOnSelect' ) ) {
+	public static function addShowOnSelectJS( $useWachtff ): string {
+		if ( !self::isLoaded( 'ShowOnSelect' ) ) {
 			$out = \RequestContext::getMain()->getOutput();
 			$out->addJsConfigVars( array( "WSFormShowOnSelect" => true ) );
-			$js = 'wachtff( WsShowOnSelect, true );';
+			if ( $useWachtff ) {
+				$js = 'wachtff( WsShowOnSelect, true );';
+			} else {
+				$js = 'WsShowOnSelect();';
+			}
 			//wsform::includeInlineScript( $js );
 			$jsFile  = '<script type="text/javascript" charset="UTF-8" src="' . Core::getRealUrl() . '/Modules/showOnSelect/WSShowOnSelect.js"></script>' . "\n";
 			$jsFile  .= '<script>' . $js . '</script>';

@@ -89,6 +89,8 @@ class TagHooks {
 		$thisUser = \RequestContext::getMain()->getUser();
 		$ret = '';
 		$addFFJS = '';
+		$showOnSelect = false;
+		$showOnSelectWait = true;
 		//$parser->getOutput()->addModuleStyles( 'ext.wsForm.general.styles' );
 		$renderonlyapprovedforms = Config::getConfigVariable( 'renderonlyapprovedforms' );
 		$renderi18nErrorInsteadofImageForApprovedForms = Config::getConfigVariable(
@@ -255,19 +257,27 @@ class TagHooks {
 			$additionalClass = null;
 		}
 
-		if ( isset( $args['show-on-select'] ) && strtolower(
-													 $parser->recursiveTagParse(
-														 $args['show-on-select'],
-														 $frame
-													 )
-												 ) === 'show-on-select' ) {
+		if ( isset( $args['show-on-select'] ) && strtolower( $parser->recursiveTagParse( $args['show-on-select'],
+				$frame ) ) === 'show-on-select' ) {
 			$showOnSelect = true;
+			$showOnSelectWait = true;
 			unset( $args['show-on-select'] );
 
 			Core::setShowOnSelectActive();
 			$input = Core::checkForShowOnSelectValueAndType( $input );
-		} else {
-			$showOnSelect = false;
+		}
+		if ( isset( $args['show-on-select'] ) && strtolower(
+				$parser->recursiveTagParse(
+					$args['show-on-select'],
+					$frame
+				)
+			) === 'show-on-select2' ) {
+			$showOnSelect = true;
+			$showOnSelectWait = false;
+			unset( $args['show-on-select'] );
+
+			Core::setShowOnSelectActive();
+			$input = Core::checkForShowOnSelectValueAndType( $input );
 		}
 
 		if ( isset( $args['id'] ) ) {
@@ -276,7 +286,7 @@ class TagHooks {
 				$frame
 			);
 
-			if ( ! $this->checkValidInput( $formId ) ) {
+			if ( !$this->checkValidInput( $formId ) ) {
 				return [ 'Invalid form ID.' ];
 			}
 
@@ -459,7 +469,7 @@ class TagHooks {
 		$ret .= $addFFJS;
 
 		if ( Core::isShowOnSelectActive() ) {
-			$ret .= Core::addShowOnSelectJS();
+			$ret .= Core::addShowOnSelectJS( $showOnSelectWait );
 		}
 
 		if ( Core::$reCaptcha !== false && ! Core::isLoaded( 'google-captcha' ) ) {
