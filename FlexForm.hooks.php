@@ -10,7 +10,6 @@ use FlexForm\Core\Messaging;
 use MediaWiki\MediaWikiServices;
 use FlexForm\Core\Core;
 use FlexForm\Render\TagHooks;
-use FlexForm\Render\Validate;
 use FlexForm\FlexFormException;
 use Wikimedia\Services\NoSuchServiceException;
 
