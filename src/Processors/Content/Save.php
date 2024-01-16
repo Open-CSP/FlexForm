@@ -346,7 +346,7 @@ class Save {
 			$rebuilder->rebuild();
 		} catch ( \Exception $e ) {
 			throw new FlexFormException(
-				'SWM Refresh error for title' . $title->getText() . ". Message: " .
+				'SWM Refresh error for title' . $title->getFullText() . ". Message: " .
 				$e->getMessage(), 0, $e	);
 		}
 	}
