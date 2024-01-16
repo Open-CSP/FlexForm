@@ -322,6 +322,8 @@ class Save {
 
 	/**
 	 * @param Title $title
+	 *
+	 * @throws FlexFormException
 	 */
 	private function refreshSMWProperties( Title $title ) {
 		// Sleep for 1/2 a second
@@ -330,20 +332,23 @@ class Save {
 			return;
 		}
 
-		$store = StoreFactory::getStore();
-		$store->setOption(
-			Store::OPT_CREATE_UPDATE_JOB,
-			false
-		);
+		try {
+			$store = StoreFactory::getStore();
+			$store->setOption( Store::OPT_CREATE_UPDATE_JOB,
+				false );
 
-		$rebuilder = new DataRebuilder( $store, ServicesFactory::getInstance()->newTitleFactory() );
+			$rebuilder = new DataRebuilder( $store,
+				ServicesFactory::getInstance()->newTitleFactory() );
 
-		$rebuilder->setOptions(
-		// Tell SMW to only rebuild the current page
-			new Options( [ 'page' => $title ] )
-		);
+			$rebuilder->setOptions( // Tell SMW to only rebuild the current page
+				new Options( [ 'page' => $title->getFullText() ] ) );
 
-		$rebuilder->rebuild();
+			$rebuilder->rebuild();
+		} catch ( \Exception $e ) {
+			throw new FlexFormException(
+				'SWM Refresh error for title' . $title->getText() . ". Message: " .
+				$e->getMessage(), 0, $e	);
+		}
 	}
 
 	/**
