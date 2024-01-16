@@ -40,6 +40,7 @@ class Edit {
 		$tParser = new Parse();
 
 		$result = $tParser->parseArticle( $source, true );
+		$resultParsed = $tParser->parseArticle( $source );
 
 		if ( Config::isDebug() ) {
 			$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
@@ -47,15 +48,22 @@ class Edit {
 				$debugTitle . 'Parsed article result',
 				[ "result" => $result,
 					"template" => $template,
-					"source" => $source ]
+					"source" => $source,
+				  	"resultParsed" => $resultParsed ]
 			);
 		}
 
 		$multiple = 0;
 		foreach ( $result as $k => $foundTemplate ) {
-			$tLength = strlen( '{{' . $template );
-			if ( substr( $foundTemplate, 0, $tLength  ) === '{{' . $template ) {
-				$multiple++;
+			if ( key_exists( $template, $resultParsed ) ) {
+				$tLength = strlen( '{{' . $template );
+				if ( substr(
+						 $foundTemplate,
+						 0,
+						 $tLength
+					 ) === '{{' . $template ) {
+					$multiple++;
+				}
 			}
 		}
 
