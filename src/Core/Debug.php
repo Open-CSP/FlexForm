@@ -25,6 +25,7 @@ class Debug {
 	 * @return void
 	 */
 	public static function addToDebug( string $title, $details, $duration = false ) {
+		$title .= ' (' . microtime() . ')';
 		if ( $duration !== false ) {
 			$newTitle = '<span class="ff-debug-title">' . $title . '</span>';
 			$newTitle .= '<span class="ff-debug-duration">' . $duration . '</span>';

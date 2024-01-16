@@ -169,7 +169,7 @@ class Convert {
 	 */
 	public function getPossibleImagesFromConversion() {
 		if ( Config::isDebug() ) {
-			Debug::addToDebug( 'Checking for Pandoc Media ' . time(),
+			Debug::addToDebug( 'Checking for Pandoc Media ',
 							   [
 								   'path' => $this->getPandocMediaPath()
 							   ] );
@@ -183,7 +183,7 @@ class Convert {
 				}
 				$this->pandocPathAdditions = '/media';
 				if ( Config::isDebug() ) {
-					Debug::addToDebug( 'Found Pandoc Media in extra media map ' . time(),
+					Debug::addToDebug( 'Found Pandoc Media in extra media map ',
 									   [
 										   'path' => $this->getPandocMediaPath(),
 										   'foundfiles' => $foundFiles

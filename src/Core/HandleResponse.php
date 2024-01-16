@@ -193,7 +193,7 @@ class HandleResponse {
 		}
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
-				"exitResponse messagedata after implode " . time(),
+				"exitResponse messagedata after implode ",
 				$message
 			);
 			echo Debug::createDebugOutput();

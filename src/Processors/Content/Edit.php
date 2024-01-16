@@ -708,7 +708,7 @@ class Edit {
 			$cur = null;
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
-					'array search result ' . time(),
+					'array search result ',
 					[
 						"findKey"    => $findKey,
 						"findValue"  => $findValue,
@@ -723,7 +723,7 @@ class Edit {
 			} else {
 				if ( Config::isDebug() ) {
 					Debug::addToDebug(
-						'array search result error. Not found' . time(),
+						'array search result error. Not found',
 						[
 							"findKey"    => $findKey,
 							"findValue"  => $findValue,
