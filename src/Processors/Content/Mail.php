@@ -93,7 +93,7 @@ class Mail {
 		$result   = $render->makeRequest( $postdata );
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
-				'textparse result ' . time(),
+				'textparse result ',
 				$result
 			);
 		}
@@ -118,7 +118,7 @@ class Mail {
 		$debugTitle = '<b>::' . get_class() . '::</b> ';
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
-				$debugTitle . 'ParseWikiPage ' . time(),
+				$debugTitle . 'ParseWikiPage ',
 				$title
 			);
 		}
@@ -136,14 +136,14 @@ class Mail {
 		$result   = $render->makeRequest( $postdata );
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
-				'Parse result ' . time(),
+				'Parse result ',
 				$result
 			);
 		}
 		if ( isset( $result['error'] ) ) {
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
-					$debugTitle.'ParseWikitextErrorException ' . time(),
+					$debugTitle.'ParseWikitextErrorException ',
 					$result
 				);
 			}
@@ -531,7 +531,7 @@ class Mail {
 				if ( $searchedFile === false ) {
 					if ( Config::isDebug() ) {
 						Debug::addToDebug(
-							"File does not exists" . time(),
+							"File does not exists",
 							substr( $this->fields['attachment'], 5 )
 						);
 					}

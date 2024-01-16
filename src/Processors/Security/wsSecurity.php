@@ -86,7 +86,7 @@ class wsSecurity {
 
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
-				'Decrypt checksum' . time(),
+				'Decrypt checksum',
 				$checksum
 			);
 		}

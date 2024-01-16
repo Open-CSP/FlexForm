@@ -809,7 +809,7 @@ class ContentCore {
 		$result   = $render->makeRequest( $postdata );
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
-				'NextAvailable result ' . time(),
+				'NextAvailable result ',
 				$result
 			);
 		}
@@ -851,7 +851,7 @@ class ContentCore {
 		$result   = $render->makeRequest( $postdata );
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
-				'getFromRange result ' . time(),
+				'getFromRange result ',
 				$result
 			);
 		}

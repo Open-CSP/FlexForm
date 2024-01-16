@@ -91,7 +91,7 @@ class Render {
 	public function getSlotContent( $id, string $slotName = 'main' ) : array {
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
-				'Getting Content for ' . time(),
+				'Getting Content for ',
 				[ 'id' => $id,
 					'slotname' => $slotName ]
 			);
@@ -170,7 +170,7 @@ class Render {
 		global $wgRequest;
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
-				'FauxRequest init' . time(),
+				'FauxRequest init',
 				[ 'post-data' => $data ]
 
 			);
@@ -200,7 +200,7 @@ class Render {
 		}
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
-				'FauxRequest ' . time(),
+				'FauxRequest ',
 				[ 'result' => $result,
 				 'post-data' => $data ]
 

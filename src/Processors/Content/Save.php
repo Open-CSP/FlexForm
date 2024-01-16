@@ -79,11 +79,11 @@ class Save {
 			if ( Config::isDebug() ) {
 				$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
 				Debug::addToDebug(
-					$debugTitle . 'edit slot slot name' . time(),
+					$debugTitle . 'edit slot slot name',
 					$slot_name
 				);
 				Debug::addToDebug(
-					$debugTitle . 'edit slot slot content' . time(),
+					$debugTitle . 'edit slot slot content',
 					$content
 				);
 			}
@@ -148,7 +148,7 @@ class Save {
 			// The 'main' content slot MUST be set when creating a new page
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
-					$debugTitle . 'We only have a slot to write, we need to create main as well! -- ' . time(),
+					$debugTitle . 'We only have a slot to write, we need to create main as well! -- ',
 					$slot_name
 				);
 			}
@@ -185,7 +185,7 @@ class Save {
 				$res = "false";
 			}
 			Debug::addToDebug(
-				$debugTitle . 'SaveRevision result -- ' . time(),
+				$debugTitle . 'SaveRevision result -- ',
 				[ 'true or false' => $res ],
 				$timer->getDuration()
 			);
@@ -200,12 +200,12 @@ class Save {
 		if ( Config::isDebug() ) {
 			if ( !$page_updater->wasRevisionCreated() ) {
 				Debug::addToDebug(
-					$debugTitle . 'EDIT SLOTS PAGE SAVED IS UNCHANGED ' . time(),
+					$debugTitle . 'EDIT SLOTS PAGE SAVED IS UNCHANGED ',
 					$page_updater->wasRevisionCreated()
 				);
 			} else {
 				Debug::addToDebug(
-					$debugTitle . 'EDIT SLOTS PAGE SAVED IS CHANGED ' . time(),
+					$debugTitle . 'EDIT SLOTS PAGE SAVED IS CHANGED ',
 					$page_updater->wasRevisionCreated()
 				);
 			}
@@ -230,7 +230,7 @@ class Save {
 		if ( $page_updater->wasRevisionCreated() ) {
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
-					$debugTitle . 'Page has changed, lets do a null edit! ' . time(),
+					$debugTitle . 'Page has changed, lets do a null edit! ',
 					"no further info"
 				);
 			}
@@ -314,7 +314,7 @@ class Save {
 				$res = "error";
 			}
 			Debug::addToDebug(
-				'Null edit result -- ' . time(),
+				'Null edit result -- ',
 				$res
 			);
 		}
@@ -420,7 +420,7 @@ class Save {
 		if ( isset( $fields['formpermissions'] ) ) {
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
-					$debugTitle . 'Form permissions override: ' . time(),
+					$debugTitle . 'Form permissions override: ',
 					[ 'fields' => $fields, 'can edit' => Core::isAllowedToOverideEdit( $fields['formpermissions'] ) ,
 					  'can create' => Core::isAllowedToOverideCreate( $fields['formpermissions'] ) ]
 				);
@@ -429,7 +429,7 @@ class Save {
 				$canCreate = true;
 				if ( Config::isDebug() ) {
 					Debug::addToDebug(
-						$debugTitle . 'Form Permissions found to always allow create: ' . time(),
+						$debugTitle . 'Form Permissions found to always allow create: ',
 						[]
 					);
 				}
@@ -438,7 +438,7 @@ class Save {
 				$canEdit = true;
 				if ( Config::isDebug() ) {
 					Debug::addToDebug(
-						$debugTitle . 'Form Permissions found to always allow edit: ' . time(),
+						$debugTitle . 'Form Permissions found to always allow edit: ',
 						[]
 					);
 				}

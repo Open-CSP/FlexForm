@@ -37,7 +37,7 @@ class Create {
 	public function writePage(): array {
 		$fields = ContentCore::getFields();
 		if ( Config::isDebug() ) {
-			Debug::addToDebug( 'Write page activated ' . time(),
+			Debug::addToDebug( 'Write page activated ',
 							   [ "fields" => $fields,
 								"_post" => $_POST ] );
 		}
@@ -45,7 +45,7 @@ class Create {
 		$this->content = ContentCore::createContent( true );
 
 		if ( Config::isDebug() ) {
-			Debug::addToDebug( 'Write page activated CONTENT ' . time(),
+			Debug::addToDebug( 'Write page activated CONTENT ',
 							   $this->content );
 		}
 		if ( strpos(
@@ -134,7 +134,7 @@ class Create {
 
 			$this->title = $fields['writepage'] . ContentCore::createRandom();
 			if ( Config::isDebug() ) {
-				Debug::addToDebug( 'Add random to title ' . time(),
+				Debug::addToDebug( 'Add random to title ',
 					['title' => $fields['writepage'],
 					 'new Title' => $this->title ] );
 			}
@@ -299,7 +299,7 @@ class Create {
 		}
 		if ( Config::isDebug() ) {
 			$debugTitle = '<b>::' . get_class() . '::</b> ';
-			Debug::addToDebug( $debugTitle . 'Write several page activated ' . time(), $fields );
+			Debug::addToDebug( $debugTitle . 'Write several page activated ', $fields );
 		}
 		foreach ( $fields['writepages'] as $singlePage ) {
 			$pageCount++;
@@ -438,7 +438,7 @@ class Create {
 					);
 					if ( Config::isDebug() ) {
 						Debug::addToDebug(
-							$debugTitle . 'lead by zero active ' . time(),
+							$debugTitle . 'lead by zero active ',
 							[ 'rangeCheck' => $rangeCheck,
 							'endrangeLenth' => $endrangeLength,
 							'rangeResult' => $rangeResult ],
@@ -453,7 +453,7 @@ class Create {
 			if ( strtolower( $this->pageData['option'] ) === 'add_random' && $this->pageData['title'] !== false ) {
 				$this->pageData['title'] = $this->pageData['title'] . ContentCore::createRandom();
 				if ( Config::isDebug() ) {
-					Debug::addToDebug( $debugTitle . 'Add random to title ' . time(),
+					Debug::addToDebug( $debugTitle . 'Add random to title ',
 						['title' => $this->pageData['title'],
 						 'new Title' => $this->pageData['title'] ], $timer->getDuration() );
 				}
@@ -486,11 +486,11 @@ class Create {
 			);
 		}
 		if ( Config::isDebug() ) {
-			Debug::addToDebug( $debugTitle . 'Pages to save before addCreatToTile ' . time(), $pagesToSave );
+			Debug::addToDebug( $debugTitle . 'Pages to save before addCreatToTile ', $pagesToSave );
 		}
 		$pagesToSave = $this->addCreateToTitle( $pagesToSave, $pageTitleToLinkTo );
 		if ( Config::isDebug() ) {
-			Debug::addToDebug( $debugTitle . 'Pages to save after addCreatToTitle ' . time(), $pagesToSave );
+			Debug::addToDebug( $debugTitle . 'Pages to save after addCreatToTitle ', $pagesToSave );
 		}
 		$finalPages = $this->createFinalPages( $pagesToSave );
 		if ( Config::isDebug() ) {
