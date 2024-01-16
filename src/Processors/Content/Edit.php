@@ -41,12 +41,29 @@ class Edit {
 
 		$result = $tParser->parseArticle( $source, true );
 
+		if ( Config::isDebug() ) {
+			$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
+			Debug::addToDebug(
+				$debugTitle . 'Parsed article result',
+				[ "result" => $result,
+					"template" => $template,
+					"source" => $source ]
+			);
+		}
+
 		$multiple = 0;
 		foreach ( $result as $k => $foundTemplate ) {
 			$tLength = strlen( '{{' . $template );
 			if ( substr( $foundTemplate, 0, $tLength  ) === '{{' . $template ) {
 				$multiple++;
 			}
+		}
+
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				$debugTitle . 'How many times did we find the template?',
+				$multiple
+			);
 		}
 
 		// template not found
