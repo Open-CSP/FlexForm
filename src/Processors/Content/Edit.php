@@ -429,23 +429,24 @@ class Edit {
 						);
 					} else { // it is not an array.
 						if ( Config::isDebug() ) {
+							$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
 							$tof = ( contentcore::isInstance( $ff ) === true ) ? "true" : "false";
 							Debug::addToDebug(
-								'Create and edit data NOT ARRAY for : ' . $ff,
+								$debugTitle . 'Create and edit data NOT ARRAY for : ' . $ff,
 								[ 'inInstance' => $tof, 'instances' => contentcore::getAllInstances() ]
 							);
 						}
 						if ( contentcore::isInstance( $ff ) && $data[$pid][$t]['format'] === 'json' ) {
 							if ( Config::isDebug() ) {
 								Debug::addToDebug(
-									'This is an instance and in JSON format : ' . $ff,
+									$debugTitle . 'This is an instance and in JSON format : ' . $ff,
 									$data
 								);
 							}
 							$data[ $pid ][ $t ]['value'] = json_decode( $_POST[ $ff ], true );
 							if ( Config::isDebug() ) {
 								Debug::addToDebug(
-									'In instance and JSON added formield : ' . $ff,
+									$debugTitle . 'In instance and JSON added formield : ' . $ff,
 									$data
 								);
 							}
@@ -507,15 +508,16 @@ class Edit {
 			);
 		}
 		if ( Config::isDebug() ) {
+			$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
 			Debug::addToDebug(
-				'Template content for ' . $pid,
+				$debugTitle . 'Template content for ' . $pid,
 				$templateContent
 			);
 		}
 		if ( $templateContent === false ) {
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
-					'Skipping this edit. Template content is false for ' .
+					$debugTitle . 'Skipping this edit. Template content is false for ' .
 					$edit['template'],
 					$templateContent
 				);
@@ -528,7 +530,7 @@ class Edit {
 		if ( empty( trim( $templateContent ) ) ) {
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
-					'The template is found, but it contains no key->values',
+					$debugTitle . 'The template is found, but it contains no key->values',
 					[ "Template" => $edit['template'],
 					"Template Content" => $templateContent ]
 				);
@@ -541,7 +543,7 @@ class Edit {
 
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
-				'Exploded Template',
+				$debugTitle . 'Exploded Template',
 				[ "Template exploded" => $expl ]
 			);
 		}
@@ -553,7 +555,7 @@ class Edit {
 			$usedVariables[] = $edit['variable'];
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
-					'Exploded empty Template',
+					$debugTitle . 'Exploded empty Template',
 					[ "Template exploded" => $expl ]
 				);
 			}
@@ -581,7 +583,7 @@ class Edit {
 		$cnt                = count( $expl );
 		$t                  = 0;
 		if ( Config::isDebug() ) {
-			Debug::addToDebug( 'Creating new template content for ' . $pid,
+			Debug::addToDebug( $debugTitle . 'Creating new template content for ' . $pid,
 							   [
 								   'cnt expl'          => $cnt,
 								   'expl'              => $expl,
@@ -830,8 +832,9 @@ class Edit {
 
 		$data = $this->createEditData();
 		if ( Config::isDebug() ) {
+			$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
 			Debug::addToDebug(
-				'edit data accumulation ' . $this->editCount,
+				$debugTitle . 'edit data accumulation ' . $this->editCount,
 				$data
 			);
 		}
@@ -854,7 +857,7 @@ class Edit {
 					);
 					if ( Config::isDebug() ) {
 						Debug::addToDebug(
-							'Content for ' . $pid,
+							$debugTitle . 'Content for ' . $pid,
 							$content
 						);
 					}
@@ -871,7 +874,7 @@ class Edit {
 					$pageContents[$pid]['main'] = $render->getSlotContent( $pid );
 					if ( Config::isDebug() ) {
 						Debug::addToDebug(
-							'Content for ' . $pid,
+							$debugTitle . 'Content for ' . $pid,
 							$pageContents
 						);
 					}
@@ -880,7 +883,7 @@ class Edit {
 
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
-					'edit data page formation before edit',
+					$debugTitle . 'edit data page formation before edit',
 					[ 'pagecontents' => $pageContents ]
 				);
 			}
