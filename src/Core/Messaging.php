@@ -50,6 +50,12 @@ class Messaging {
 			$type = ContentCore::parseTitle( trim( $exploded[1] ), true );
 			$message = $mail->parseWikiText( ContentCore::parseTitle( trim( $exploded[2] ), true ) );
 			$title = ContentCore::parseTitle( trim( $exploded[3] ), true );
+			$persistent = ContentCore::parseTitle( trim( $exploded[4] ), true );
+			if ( $persistent === 'yes' ) {
+				$persistent = true;
+			} else {
+				$persistent = false;
+			}
 			if ( strpos( $user, $separator ) !== false ) {
 				$users = explode( $separator, $user );
 			} else {
@@ -64,7 +70,8 @@ class Messaging {
 							$type,
 							$message,
 							$title,
-							$id
+							$id,
+							$persistent
 						);
 					}
 				}
@@ -77,18 +84,33 @@ class Messaging {
 	 * @param string $message
 	 * @param string $title
 	 * @param int $userId
+	 * @param bool $persistent
 	 *
 	 * @return bool
 	 */
-	public function addMessage( string $type, string $message, string $title = '', int $userId = 0 ) : bool {
+	public function addMessage(
+		string $type,
+		string $message,
+		string $title = '',
+		int $userId = 0,
+		bool $persistent = false
+	) : bool {
+		if ( $persistent ) {
+			$persistent = 1;
+		} else {
+			$persistent = 0;
+		}
 		if ( Config::isDebug() ) {
 			$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
 			Debug::addToDebug(
 				$debugTitle . 'Adding message to database',
-				[ "type" => $type,
-				  "message" => $message,
-				  "title" => $title,
-				  "userid" => $userId ]
+				[
+					"type"       => $type,
+					"message"    => $message,
+					"title"      => $title,
+					"userid"     => $userId,
+					"persistent" => $persistent
+				]
 			);
 		}
 		$dbw = $this->lb->getConnectionRef( DB_PRIMARY );
@@ -99,15 +121,19 @@ class Messaging {
 			return false;
 		}
 		try {
-			$dbw->insert( self::DBTABLE,
-				[ 'user' => $userId,
-					'type' => $type,
-					'title' => $title,
-					'message' => $message ],
-				__METHOD__ );
+			$dbw->insert(
+				self::DBTABLE,
+				[
+					'user'       => $userId,
+					'type'       => $type,
+					'title'      => $title,
+					'message'    => $message,
+					'persistent' => $persistent
+				],
+				__METHOD__
+			);
 		} catch ( \Exception $e ) {
 			die( $e );
-
 			return false;
 		}
 
@@ -144,9 +170,11 @@ class Messaging {
 		if ( $res->numRows() > 0 ) {
 			$t = 0;
 			while ( $row = $res->fetchRow() ) {
+				$messages[$t]['id'] = $row['id'];
 				$messages[$t]['type'] = $row['type'];
 				$messages[$t]['message'] = $row['message'];
 				$messages[$t]['title'] = $row['title'];
+				$messages[$t]['persistent'] = $row['persistent'];
 				$t++;
 			}
 			$this->removeUserMessages( $userId );
@@ -165,7 +193,7 @@ class Messaging {
 		try {
 			$res = $dbw->delete(
 				self::DBTABLE,
-				"user = " . $uId,
+				[ "user = " . $uId, "persistent = 0" ],
 				__METHOD__
 			);
 		} catch ( \Exception $e ) {

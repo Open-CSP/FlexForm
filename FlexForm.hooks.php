@@ -130,6 +130,7 @@ class FlexFormHooks {
 						[
 							'class' => 'flexform alert-' . $message['type'],
 							'data-title' => $message['title'],
+							'data-persistent' => $message['persistent'],
 							'style' => 'display:none;height:0px;'
 						],
 						$message['message']
