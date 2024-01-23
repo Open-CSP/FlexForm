@@ -734,9 +734,6 @@ class TagHooks {
 
 				break;
 			case 'message':
-				if ( ! Config::isSecure() ) {
-					return [ wfMessage( 'flexform-field-secure-not-available' )->parse() ];
-				}
 				$toUser = '';
 				$userMessage = '';
 				$messageTitle = '';
@@ -763,11 +760,18 @@ class TagHooks {
 				$args['value'] = $toUser . '^^-^^' . $messageType . '^^-^^' . $userMessage;
 				$args['value'] .= '^^-^^' . $messageTitle;
 
-				$preparedArguments = Validate::doSimpleParameters(
-					$args,
-					"secure"
-				);
-				$ret               = $renderer->render_message( $preparedArguments );
+				if ( !Config::isSecure() ) {
+					$preparedArguments = Validate::doSimpleParameters(
+						$args,
+						"hidden"
+					);
+				} else {
+					$preparedArguments = Validate::doSimpleParameters(
+						$args,
+						"secure"
+					);
+				}
+				$ret = $renderer->render_message( $preparedArguments );
 
 				break;
 			case 'secure':

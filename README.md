@@ -94,6 +94,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 2.2.4 : Input type=message now also if secure setting is false.
 * 2.2.3 : Refresh SMW props changed and Debug options changed
 * 2.2.2 : Deprecated showmessages https://www.open-csp.org/DevOps:Doc/FlexForm/2.0/Installation_of_FlexForm#Notification.2FMessages
 * 2.2.1 : Removed HTML Special character on option fields.
