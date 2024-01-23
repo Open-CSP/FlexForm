@@ -81,6 +81,16 @@ class Messaging {
 	 * @return bool
 	 */
 	public function addMessage( string $type, string $message, string $title = '', int $userId = 0 ) : bool {
+		if ( Config::isDebug() ) {
+			$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
+			Debug::addToDebug(
+				$debugTitle . 'Adding message to database',
+				[ "type" => $type,
+				  "message" => $message,
+				  "title" => $title,
+				  "userid" => $userId ]
+			);
+		}
 		$dbw = $this->lb->getConnectionRef( DB_PRIMARY );
 		if ( $userId === 0 ) {
 			$userId = $this->user->getId();
@@ -96,7 +106,7 @@ class Messaging {
 					'message' => $message ],
 				__METHOD__ );
 		} catch ( \Exception $e ) {
-			echo $e;
+			die( $e );
 
 			return false;
 		}
