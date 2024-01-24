@@ -54,6 +54,19 @@ class Edit {
 		}
 
 		$multiple = 0;
+		echo "<pre>";
+		$tmpSource = str_replace( [ "\r\n", "\r", "\n", " " ], '', $source );
+		$tLength = strlen( '{{' . $template );
+		$found = strpos( $tmpSource, '{{' . $template );
+		var_dump(General::get_all_string_between( $tmpSource, '{{' . $template , "|" ) );
+
+		$nextChar = substr( $tmpSource, $found + $tLength -1, 1);
+		//var_dump( $nextChar );
+		//var_dump(General::get_all_string_between( $source, '{{' . $template , "\n" ) );
+		//var_dump(General::get_all_string_between( $source, '{{' . $template , "|" ) );
+		//var_dump(General::get_all_string_between( $source, '{{' . $template , "}}" ) );
+		//var_dump( explode( "\n", $source, 1 ) );
+		echo "</pre>";
 
 		foreach ( $result as $k => $foundTemplate ) {
 			if ( key_exists( $template, $resultParsed ) ) {
