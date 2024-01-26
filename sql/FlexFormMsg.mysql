@@ -5,5 +5,6 @@ CREATE TABLE /*_*/flexformmsg (
   `title` varchar(60),
   `message` varchar(20000),
   `persistent` tinyint(1) NOT NULL,
+  `initiator` int(11),
   `added` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) /*$wgDBTableOptions*/;

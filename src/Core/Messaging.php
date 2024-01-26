@@ -100,6 +100,7 @@ class Messaging {
 		} else {
 			$persistent = 0;
 		}
+
 		if ( Config::isDebug() ) {
 			$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
 			Debug::addToDebug(
@@ -109,7 +110,8 @@ class Messaging {
 					"message"    => $message,
 					"title"      => $title,
 					"userid"     => $userId,
-					"persistent" => $persistent
+					"persistent" => $persistent,
+					"initiator"  => $this->user->getId()
 				]
 			);
 		}
@@ -128,7 +130,8 @@ class Messaging {
 					'type'       => $type,
 					'title'      => $title,
 					'message'    => $message,
-					'persistent' => $persistent
+					'persistent' => $persistent,
+					'initiator'  => $this->user->getId()
 				],
 				__METHOD__
 			);
@@ -175,6 +178,7 @@ class Messaging {
 				$messages[$t]['message'] = $row['message'];
 				$messages[$t]['title'] = $row['title'];
 				$messages[$t]['persistent'] = $row['persistent'];
+				$messages[$t]['from'] = $row['from'];
 				$t++;
 			}
 			$this->removeUserMessages( $userId );

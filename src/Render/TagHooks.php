@@ -718,6 +718,7 @@ class TagHooks {
 				$toUser = '';
 				$userMessage = '';
 				$messageTitle = '';
+				$messagePersistent = "no";
 
 				if ( isset( $args['user'] ) ) {
 					$toUser = $args['user'];
@@ -732,8 +733,6 @@ class TagHooks {
 				if ( isset( $args['message-title'] ) ) {
 					$messageTitle = $args['message-title'];
 				}
-
-				$messagePersistent = "no";
 
 				if ( isset( $args['message-confirm'] ) ) {
 					$messagePersistent = "yes";
