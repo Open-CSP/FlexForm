@@ -105,6 +105,21 @@
 	"flexform-special-documentation-title" : "update using Git",
 	"flexform-special-documentation-text" : "Documentation",
 
+	"flexform-messaging-list-title" : "Current messages in Database",
+	"flexform-messaging-list-header-user" : "To",
+	"flexform-messaging-list-header-from" : "From",
+	"flexform-messaging-list-header-type" : "Type",
+	"flexform-messaging-list-header-message-title" : "Message title",
+	"flexform-messaging-list-header-message" : "Message",
+	"flexform-messaging-list-header-persistent" : "Persistent",
+	"flexform-messaging-list-header-added" : "Date",
+	"flexform-messaging-list-header-action" : "Action",
+	"flexform-messaging-list-action-delete" : "Delete",
+	"flexform-messaging-list-yes" : "Yes",
+	"flexform-messaging-list-no" : "No",
+	"flexform-messaging-list-caption" : "Total of $1 messages",
+
+
 	"flexform-validforms-invalid-list-title" : "All unvalidated FlexForm forms",
 	"flexform-validforms-invalid-list-caption" : "There are $1 Pages with FlexForm forms",
 	"flexform-validforms-invalid-list-footer" : "Total of $1 unvalidated FlexForm form(s) found on $2 page(s)",

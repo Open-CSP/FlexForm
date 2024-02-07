@@ -196,8 +196,10 @@ class SpecialFlexForm extends \SpecialPage {
 		}
 		$ver                   = "";
 		//TODO: Needs to be set to final destination
-		$bitbucketSource    = 'https://raw.githubusercontent.com/WikibaseSolutions/FlexForm/main/extension.json';
-		$bitbucketChangelog = 'https://raw.githubusercontent.com/WikibaseSolutions/FlexForm/main/README.md';
+		$mwVersion = explode( '.', MW_VERSION );
+		$branch = "REL" . $mwVersion[0] . '_' . $mwVersion[1];
+		$bitbucketSource    = 'https://raw.githubusercontent.com/Open-CSP/FlexForm/' . $branch . '/extension.json';
+		$bitbucketChangelog = 'https://raw.githubusercontent.com/Open-CSP/FlexForm/' . $branch . '/README.md';
 		$extJson            = file_get_contents( $bitbucketSource );
 		$sourceVersion      = false;
 		if ( $extJson !== false ) {
@@ -221,7 +223,7 @@ class SpecialFlexForm extends \SpecialPage {
 					true
 				);
 				$currentVersion      = $myJson['version'];
-				$ver                 = "v<strong>" . $currentVersion . "</strong>";
+				$ver                 = "v<strong>" . $currentVersion . "</strong> " . $branch;
 				if ( $sourceVersion != $currentVersion ) {
 					$ver                 .= ' <br><span style="font-size:11px; color:red;">';
 					$ver .= $this->msg( 'flexform-special-new-version', $sourceVersion )->text() . '</span>';
@@ -256,7 +258,7 @@ class SpecialFlexForm extends \SpecialPage {
 			$headerPage .= '<a href=" ' . $approvedPageUrl . ' ">';
 			$headerPage .= $this->msg( 'flexform-special-menu-approved-forms' )->text() . '</a></div></div>';
 		}
-		$headerPage .= '<br>' . $this->msg( 'flexform-special-version', $currentVersion )->text();
+		$headerPage .= '<br>' . $this->msg( 'flexform-special-version', $currentVersion . " " . $branch )->text();
 		$headerPage .= '</div>';
 
 		$headerPage .= '<div class="flex-form-special-top-right"><a target="_blank" title="';
@@ -277,6 +279,11 @@ class SpecialFlexForm extends \SpecialPage {
 		$args = $this->getArgumentsFromSpecialPage( $sub );
 		if ( $args !== false ) {
 			switch ( $args[0] ) {
+				case "messages":
+					$messaging = new FlexForm\Specials\SpecialHelpers\SpecialMessages( $vF );
+					$out->addHTML( $messaging->renderTable() );
+					return true;
+					break;
 				case "valid_forms":
 					if ( $userAllowed ) {
 						$pId = $this->getPostString( 'pId' );
@@ -372,7 +379,7 @@ class SpecialFlexForm extends \SpecialPage {
 							return;
 						}
 						$terminalOutput .= $git->implodeResponse( $result['output'] );
-						$cmd = 'checkout tags/v' . $sourceVersion;
+						$cmd = 'checkout tags/' . $branch . '-v' . $sourceVersion;
 						$result = $git->executeGitCmd( $cmd );
 						$result['output'] = $git->implodeResponse( $result['output'] );
 						if ( $git->checkResponseForError( $result['output'] ) !== 'ok' ) {

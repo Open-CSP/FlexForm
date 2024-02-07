@@ -144,6 +144,37 @@ class Messaging {
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getAllMessages(): array {
+		$dbr         = $this->lb->getConnectionRef( DB_REPLICA );
+		$select      = [ '*' ];
+		$res = $dbr->select(
+			self::DBTABLE,
+			$select,
+			'',
+			__METHOD__,
+			[]
+		);
+		$messages = [];
+		if ( $res->numRows() > 0 ) {
+			$t = 0;
+			while ( $row = $res->fetchRow() ) {
+				$messages[$t]['id'] = $row['id'];
+				$messages[$t]['user'] = $row['user'];
+				$messages[$t]['type'] = $row['type'];
+				$messages[$t]['message'] = $row['message'];
+				$messages[$t]['title'] = $row['title'];
+				$messages[$t]['persistent'] = $row['persistent'];
+				$messages[$t]['from'] = $row['initiator'];
+				$messages[$t]['added'] = $row['added'];
+				$t++;
+			}
+		}
+		return $messages;
+	}
+
+	/**
 	 * @param int $userId
 	 *
 	 * @return array
@@ -178,7 +209,8 @@ class Messaging {
 				$messages[$t]['message'] = $row['message'];
 				$messages[$t]['title'] = $row['title'];
 				$messages[$t]['persistent'] = $row['persistent'];
-				$messages[$t]['from'] = $row['from'];
+				$messages[$t]['from'] = $row['initiator'];
+				$messages[$t]['date'] = $row['added'];
 				$t++;
 			}
 			$this->removeUserMessages( $userId );
