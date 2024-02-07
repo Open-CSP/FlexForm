@@ -237,6 +237,7 @@ class SpecialFlexForm extends \SpecialPage {
 		$installUrl4real = $realUrl . '/index.php/Special:FlexForm/Install_step-2/';
 		$purl            = $realUrl . "/index.php/Special:FlexForm/Docs";
 		$approvedPageUrl = $realUrl . "/index.php/Special:FlexForm/valid_forms";
+		$messagesUrl 	 = $realUrl . "/index.php/Special:FlexForm/messages";
 		$setupUrl        = $realUrl . "/index.php/Special:FlexForm/Setup";
 		$statusUrl       = $realUrl . "/index.php/Special:FlexForm/Status";
 		$eurl            = $realUrl . "/index.php/Special:FlexForm/Docs/examples";
@@ -256,7 +257,9 @@ class SpecialFlexForm extends \SpecialPage {
 			$headerPage .= '<a href=" ' . $homeUrl . ' ">';
 			$headerPage .= $this->msg( 'flexform-special-menu-home' )->text() . '</a><br>';
 			$headerPage .= '<a href=" ' . $approvedPageUrl . ' ">';
-			$headerPage .= $this->msg( 'flexform-special-menu-approved-forms' )->text() . '</a></div></div>';
+			$headerPage .= $this->msg( 'flexform-special-menu-approved-forms' )->text() . '</a><br>';
+			$headerPage .= '<a href=" ' . $messagesUrl . ' ">';
+			$headerPage .= $this->msg( 'flexform-special-menu-messages' )->text() . '</a></div></div>';
 		}
 		$headerPage .= '<br>' . $this->msg( 'flexform-special-version', $currentVersion . " " . $branch )->text();
 		$headerPage .= '</div>';
@@ -280,6 +283,11 @@ class SpecialFlexForm extends \SpecialPage {
 		if ( $args !== false ) {
 			switch ( $args[0] ) {
 				case "messages":
+					$mId = $this->getPostString( 'mId' );
+					if ( $mId !== false ) {
+						$messagesClass = new FlexForm\Core\Messaging();
+						$messagesClass->removeUserMessageById( (int)$mId );
+					}
 					$messaging = new FlexForm\Specials\SpecialHelpers\SpecialMessages( $vF );
 					$out->addHTML( $messaging->renderTable() );
 					return true;

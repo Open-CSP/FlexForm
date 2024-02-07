@@ -39,6 +39,18 @@ class Definitions {
 	}
 
 	/**
+	 * @return array[]
+	 */
+	public static function alertColor(): array {
+		return [
+			'success' => [ 'background' => '#d4edda', 'color' => '#155724' ],
+			'warn' => [ 'background' => '#fff3cd', 'color' => '#856404' ],
+			'error' => [ 'background' => '#721c24;', 'color' => '#f8d7da' ],
+			'info' => [ 'background' => '#d1ecf1', 'color' => '#0c5460' ]
+		];
+	}
+
+	/**
 	 * Return fields needed for sending emails
 	 *
 	 * @return array
@@ -60,7 +72,6 @@ class Definitions {
 			'subject'    => false
 		];
 	}
-
 
 	public static function fileUploadFields(): array {
 		$files = $_FILES ?? false;

@@ -81,6 +81,21 @@ class ApiFlexForm extends ApiBase {
 		}
 
 		switch ( $action ) {
+			case "acknowledge":
+				$mId = $params['mId'];
+				if ( !$mId || $mId === null ) {
+					$this->returnFailure( wfMessage( 'flexform-api-error-parameter-mid-missing' )->text() );
+					break;
+				}
+				$messaging = new \FlexForm\Core\Messaging();
+				$mId = intval( $mId );
+				if ( $mId === 0 ) {
+					$this->returnFailure( wfMessage( 'flexform-api-error-parameter-mid-missing' )->text() );
+					break;
+				}
+				$result = $messaging->removeUserMessageById( $mId, true );
+				$output = $this->createResult( "ok", "ok" );
+				break;
 			case "decrypt":
 				$output = $this->decrypt( $params['titleStartsWith'] );
 				if ( $output['status'] === "error" ) {
@@ -173,6 +188,9 @@ class ApiFlexForm extends ApiBase {
 				ParamValidator::PARAM_TYPE => 'string'
 			],
 			'for'             => [
+				ParamValidator::PARAM_TYPE => 'string'
+			],
+			'mId'             => [
 				ParamValidator::PARAM_TYPE => 'string'
 			]
 		];

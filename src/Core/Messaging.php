@@ -175,6 +175,33 @@ class Messaging {
 	}
 
 	/**
+	 * @param int $mId
+	 *
+	 * @return int
+	 */
+	public function getUserIdFromMessageId( int $mId ): int {
+		$dbr         = $this->lb->getConnectionRef( DB_REPLICA );
+		$select      = [ 'user' ];
+		$selectWhere = [
+			"id = '" . $mId . "'"
+		];
+		$res = $dbr->select(
+			self::DBTABLE,
+			$select,
+			$selectWhere,
+			__METHOD__,
+			[]
+		);
+
+		if ( $res->numRows() > 0 ) {
+			$row = $res->fetchRow();
+			return $row['user'];
+		} else {
+			return 0;
+		}
+	}
+
+	/**
 	 * @param int $userId
 	 *
 	 * @return array
@@ -216,6 +243,39 @@ class Messaging {
 			$this->removeUserMessages( $userId );
 		}
 		return $messages;
+	}
+
+	/**
+	 * @param int $mId
+	 * @param int|null $userId
+	 *
+	 * @return bool
+	 * @throws FlexFormException
+	 */
+	public function removeUserMessageById( int $mId, bool $checkUser ): bool {
+		if ( $checkUser ) {
+			$userForMId = $this->getUserIdFromMessageId( $mId );
+			$userId = $this->user->getId();
+			if ( $userId !== $userForMId ) {
+				return false;
+			}
+		}
+		$dbw = $this->lb->getConnectionRef( DB_PRIMARY );
+		try {
+			$res = $dbw->delete(
+				self::DBTABLE,
+				[ "id = " . $mId ],
+				__METHOD__
+			);
+		} catch ( \Exception $e ) {
+			throw new FlexFormException( 'Database error : ' . $e );
+		}
+
+		if ( $res ) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/**

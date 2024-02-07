@@ -125,11 +125,19 @@ class FlexFormHooks {
 			if ( !empty( $storedMessages ) ) {
 				$alertTag = '';
 				foreach ( $storedMessages as $message ) {
+					if ( $message['persistent'] == 1 ) {
+						$approve = "\n";
+						$approve .= '<br><button class="btn btn-primary" onClick="ffMsgAck(' . $message['id'] . ')">';
+						$approve .= wfMessage( 'flexform-messaging-acknowledge-btn' ) . '</button>';
+						$message['message'] .= $approve;
+					}
 					$alertTag .= \Xml::tags(
 						'div',
 						[
 							'class' => 'flexform alert-' . $message['type'],
 							'data-title' => $message['title'],
+							'data-id' => $message['id'],
+							'data-date' => $message['date'],
 							'data-persistent' => $message['persistent'],
 							'style' => 'display:none;height:0px;'
 						],
