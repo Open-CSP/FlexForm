@@ -50,6 +50,12 @@ class Messaging {
 			$type = ContentCore::parseTitle( trim( $exploded[1] ), true );
 			$message = $mail->parseWikiText( ContentCore::parseTitle( trim( $exploded[2] ), true ) );
 			$title = ContentCore::parseTitle( trim( $exploded[3] ), true );
+			$persistent = ContentCore::parseTitle( trim( $exploded[4] ), true );
+			if ( $persistent === 'yes' ) {
+				$persistent = true;
+			} else {
+				$persistent = false;
+			}
 			if ( strpos( $user, $separator ) !== false ) {
 				$users = explode( $separator, $user );
 			} else {
@@ -64,7 +70,8 @@ class Messaging {
 							$type,
 							$message,
 							$title,
-							$id
+							$id,
+							$persistent
 						);
 					}
 				}
@@ -77,19 +84,32 @@ class Messaging {
 	 * @param string $message
 	 * @param string $title
 	 * @param int $userId
+	 * @param bool $persistent
 	 *
 	 * @return bool
 	 */
-	public function addMessage( string $type, string $message, string $title = '', int $userId = 0 ) : bool {
+	public function addMessage(
+		string $type,
+		string $message,
+		string $title = '',
+		int $userId = 0,
+		bool $persistent = false
+	): bool {
+		if ( $persistent ) {
+			$persistent = 1;
+		} else {
+			$persistent = 0;
+		}
 		if ( Config::isDebug() ) {
 			$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
-			Debug::addToDebug(
-				$debugTitle . 'Adding message to database',
+			Debug::addToDebug( $debugTitle . 'Adding message to database',
 				[ "type" => $type,
-				  "message" => $message,
-				  "title" => $title,
-				  "userid" => $userId ]
-			);
+					"message" => $message,
+					"title" => $title,
+					"userid"     => $userId,
+					"persistent" => $persistent,
+					"initiator"  => $this->user->getId()
+				] );
 		}
 		$dbw = $this->lb->getConnectionRef( DB_PRIMARY );
 		if ( $userId === 0 ) {
@@ -100,11 +120,13 @@ class Messaging {
 		}
 		try {
 			$dbw->insert( self::DBTABLE,
-						  [ 'user' => $userId,
-							'type' => $type,
-							'title' => $title,
-							'message' => $message ],
-						  __METHOD__ );
+				[ 'user' => $userId,
+					'type' => $type,
+					'title' => $title,
+					'message' => $message,
+					'persistent' => $persistent,
+					'initiator' => $this->user->getId() ],
+				__METHOD__ );
 		} catch ( \Exception $e ) {
 			echo $e;
 
@@ -112,6 +134,64 @@ class Messaging {
 		}
 
 		return true;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getAllMessages(): array {
+		$dbr         = $this->lb->getConnectionRef( DB_REPLICA );
+		$select      = [ '*' ];
+		$res = $dbr->select(
+			self::DBTABLE,
+			$select,
+			'',
+			__METHOD__,
+			[]
+		);
+		$messages = [];
+		if ( $res->numRows() > 0 ) {
+			$t = 0;
+			while ( $row = $res->fetchRow() ) {
+				$messages[$t]['id'] = $row['id'];
+				$messages[$t]['user'] = $row['user'];
+				$messages[$t]['type'] = $row['type'];
+				$messages[$t]['message'] = $row['message'];
+				$messages[$t]['title'] = $row['title'];
+				$messages[$t]['persistent'] = $row['persistent'];
+				$messages[$t]['from'] = $row['initiator'];
+				$messages[$t]['added'] = $row['added'];
+				$t++;
+			}
+		}
+		return $messages;
+	}
+
+	/**
+	 * @param int $mId
+	 *
+	 * @return int
+	 */
+	public function getUserIdFromMessageId( int $mId ): int {
+		$dbr         = $this->lb->getConnectionRef( DB_REPLICA );
+		$select      = [ 'user' ];
+		$selectWhere = [
+			"id = '" . $mId . "'"
+		];
+		$res = $dbr->select(
+			self::DBTABLE,
+			$select,
+			$selectWhere,
+			__METHOD__,
+			[]
+		);
+
+		if ( $res->numRows() > 0 ) {
+			$row = $res->fetchRow();
+			return $row['user'];
+		} else {
+			return 0;
+		}
 	}
 
 	/**
@@ -144,14 +224,51 @@ class Messaging {
 		if ( $res->numRows() > 0 ) {
 			$t = 0;
 			while ( $row = $res->fetchRow() ) {
+				$messages[$t]['id'] = $row['id'];
 				$messages[$t]['type'] = $row['type'];
 				$messages[$t]['message'] = $row['message'];
 				$messages[$t]['title'] = $row['title'];
+				$messages[$t]['persistent'] = $row['persistent'];
+				$messages[$t]['from'] = $row['initiator'];
+				$messages[$t]['date'] = $row['added'];
 				$t++;
 			}
 			$this->removeUserMessages( $userId );
 		}
 		return $messages;
+	}
+
+	/**
+	 * @param int $mId
+	 * @param bool $checkUser
+	 *
+	 * @return bool
+	 * @throws FlexFormException
+	 */
+	public function removeUserMessageById( int $mId, bool $checkUser ): bool {
+		if ( $checkUser ) {
+			$userForMId = $this->getUserIdFromMessageId( $mId );
+			$userId = $this->user->getId();
+			if ( $userId !== $userForMId ) {
+				return false;
+			}
+		}
+		$dbw = $this->lb->getConnectionRef( DB_PRIMARY );
+		try {
+			$res = $dbw->delete(
+				self::DBTABLE,
+				[ "id = " . $mId ],
+				__METHOD__
+			);
+		} catch ( \Exception $e ) {
+			throw new FlexFormException( 'Database error : ' . $e );
+		}
+
+		if ( $res ) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -165,7 +282,7 @@ class Messaging {
 		try {
 			$res = $dbw->delete(
 				self::DBTABLE,
-				"user = " . $uId,
+				[ "user = " . $uId, "persistent = 0" ],
 				__METHOD__
 			);
 		} catch ( \Exception $e ) {

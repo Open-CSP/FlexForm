@@ -424,7 +424,7 @@ class validForms {
 	 *
 	 * @return string
 	 */
-	private function renderGenericBtn(
+	public function renderGenericBtn(
 		string $text = '',
 		string $icon = '',
 		string $title = '',

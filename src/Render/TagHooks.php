@@ -737,6 +737,7 @@ class TagHooks {
 				$toUser = '';
 				$userMessage = '';
 				$messageTitle = '';
+				$messagePersistent = "no";
 
 				if ( isset( $args['user'] ) ) {
 					$toUser = $args['user'];
@@ -752,13 +753,17 @@ class TagHooks {
 					$messageTitle = $args['message-title'];
 				}
 
+				if ( isset( $args['message-confirm'] ) ) {
+					$messagePersistent = "yes";
+				}
+
 				if ( $userMessage === '' || $toUser === '' ) {
 					return [ '' ];
 				}
 
 				$args['name'] = 'ff-message[]';
 				$args['value'] = $toUser . '^^-^^' . $messageType . '^^-^^' . $userMessage;
-				$args['value'] .= '^^-^^' . $messageTitle;
+				$args['value'] .= '^^-^^' . $messageTitle . '^^-^^' . $messagePersistent;
 
 				if ( !Config::isSecure() ) {
 					$preparedArguments = Validate::doSimpleParameters(

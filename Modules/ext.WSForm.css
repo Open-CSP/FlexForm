@@ -1,6 +1,31 @@
 .wsform.alert-danger, .wsform.alert-success, .wsform.alert-warning, .wsform.alert-info, .wsform.attach {
 	display:none;
 }
+
+.ff-msg-info {
+	color: #0c5460;
+	background-color: #d1ecf1;
+	border-color: #bee5eb;
+}
+
+.ff-msg-warning, .ff-msg-warn {
+	color: #856404;
+	background-color: #fef6e7;
+	border-color: #fc3;
+}
+
+.ff-msg-success {
+	color: #000;
+	background-color: #d5fdf4;
+	border-color: #14866d;
+}
+
+.ff-msg-danger, .ff-msg-error {
+	color: #000;
+	background-color: #fee7e6;
+	border-color: #d33;
+}
+
 .hidden {
 	display: none;
 }
