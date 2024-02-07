@@ -33,16 +33,13 @@ function createMessagesIfNeeded () {
 			} else {
 				var newHtml = '<div class="flexform alert-' + type + '">' + $(this).html() + '</div>';
 				if ( title !== undefined || title !== '' ) {
-					console.log ( "type :" + type, "persistent: " + persistent );
 					if ( type === 'html' || persistent == '1' ) {
 						if ( persistent == '1' ) {
-							console.log ( "persistent" );
 							mw.notify($(newHtml), { autoHide: false, type: "html", title: title })
 						} else {
 							mw.notify($($(this).html()), { autoHide: false, type: type, title: title })
 						}
 					} else {
-						console.log ( "not persistent" );
 						mw.notify($(this).text(), { autoHide: false, type: type, title: title })
 					}
 				} else {
@@ -70,7 +67,7 @@ function ffMsgAck( mId ) {
 		mId: mId,
 	})
 		.then(function (data) {
-			console.log ( data );
+			console.log ( "Message acknowledged", data );
 		})
 		.fail(function () {
 			alert('error removing message, see console')
