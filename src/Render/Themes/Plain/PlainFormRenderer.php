@@ -28,6 +28,7 @@ class PlainFormRenderer implements FormRenderer {
 		?string $fPermissions
 	) : string {
 		$javascript     = '';
+
 		$formAttributes = array_merge(
 			[
 				'action' => $actionUrl,
@@ -63,7 +64,6 @@ class PlainFormRenderer implements FormRenderer {
 			'mwreturn',
 			urlencode( $mwReturn )
 		);
-
 		if ( $additionalClass !== null ) {
 			$formAttributes['class'] .= ' ' . htmlspecialchars( $additionalClass );
 		}
@@ -92,6 +92,7 @@ class PlainFormRenderer implements FormRenderer {
 				htmlspecialchars( Config::getConfigVariable( 'auto_save_btn_off' ) ?? 'Autosave off' )
 			);
 		}
+
 
 		if ( $showOnSelect ) {
 			$formAttributes['class'] .= ' WSShowOnSelect flex-form-hide';

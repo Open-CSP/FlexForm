@@ -235,7 +235,6 @@ class TagHooks {
 		} else {
 			$autosaveType = null;
 		}
-
 		if ( isset( $args['class'] ) ) {
 			$additionalClass = $parser->recursiveTagParse(
 				$args['class'],
@@ -245,7 +244,6 @@ class TagHooks {
 		} else {
 			$additionalClass = null;
 		}
-
 		if ( isset( $args['show-on-select'] ) && strtolower(
 													 $parser->recursiveTagParse(
 														 $args['show-on-select'],
@@ -350,10 +348,10 @@ class TagHooks {
 
 		if ( isset( $args['no_submit_on_return'] ) ) {
 			unset( $args['no_submit_on_return'] );
-			if ( isset( $args['class'] ) ) {
-				$args['class'] .= ' ff-nosubmit-onreturn';
+			if ( isset( $additionalClass ) ) {
+				$additionalClass .= ' ff-nosubmit-onreturn';
 			} else {
-				$args['class'] = 'ff-nosubmit-onreturn';
+				$additionalClass = 'ff-nosubmit-onreturn';
 			}
 			//Core::includeJavaScriptConfig( 'noSubmit', $formId );
 			if ( !Core::isLoaded( 'keypress' ) ) {
@@ -1195,15 +1193,11 @@ class TagHooks {
 					}
 					*/
 					// We want to purify the input based on the form's HTML type
-					//echo "<pre>";
-					//var_dump( $input );
 					$input = Protect::purify(
 						$input,
 						$htmlType,
 						Config::isSecure()
 					);
-					//var_dump( $input );
-					//echo "</pre>";
 				} elseif ( Core::getValue( $tagName ) !== '' ) {
 					// No input is given in the field, but we might have input through GET parameters
 					$input = Protect::purify(
@@ -2699,7 +2693,6 @@ class TagHooks {
 				$js = '';
 			}
 			// As of MW 1.35+ we get errors here. It's replacing spaces with &#160; So now we put the js in the header
-			//echo "\n<script>" . $js . "</script>";
 
 			$js           = "";
 			$wsFileScript = "\nfunction wsfilesFunc" . $random . "(){\n";
