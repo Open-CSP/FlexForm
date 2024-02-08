@@ -51,7 +51,7 @@ class Messaging {
 			$message = $mail->parseWikiText( ContentCore::parseTitle( trim( $exploded[2] ), true ) );
 			$title = ContentCore::parseTitle( trim( $exploded[3] ), true );
 			$persistent = ContentCore::parseTitle( trim( $exploded[4] ), true );
-			if ( $persistent === 'yes' ) {
+			if ( $persistent === 'message-confirm' ) {
 				$persistent = true;
 			} else {
 				$persistent = false;
