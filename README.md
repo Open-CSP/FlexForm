@@ -92,7 +92,7 @@ Visit this documentation page https://www.open-csp.org/DevOps:Doc/FlexForm/2.0/V
 Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
-
+* 2.2.6 : Changed some implementations for messaging and fixes
 * 2.2.5 : Added persistent messages, a Messaging special page and update FlexForm per branch
 * 2.2.4 : Input type=message now also if secure setting is false.
 * 2.2.3 : Refresh SMW props changed and Debug options changed.
