@@ -18,6 +18,13 @@ class Sql {
 	private const DBTABLE = 'flexform';
 	private const DBTABLEMSG = 'flexformmsg';
 
+	private const UPDATEFIELDS = [
+		'id' => 'update_table_flexformmsg_id',
+		'added' => 'update_table_flexformmsg_added',
+		'persistent' => 'update_table_flexformmsg_persistent',
+		'initiator' => 'update_table_flexformmsg_initiator'
+	];
+
 	/**
 	 * @param DatabaseUpdater $updater
 	 *
@@ -32,7 +39,8 @@ class Sql {
 		if ( $dbt === 'sqlite' ) {
 			$dbt = 'sql';
 		}
-		$tables = __DIR__ . "/../../sql/FlexForm.$dbt";
+		$directory = __DIR__ . "/../../sql";
+		$tables = $directory . "/FlexForm.$dbt";
 		if ( file_exists( $tables ) ) {
 			$updater->addExtensionUpdate( [
 											  'addTable',
@@ -49,7 +57,7 @@ class Sql {
 			);
 		}
 
-		$tables = __DIR__ . "/../../sql/FlexFormMsg.$dbt";
+		$tables = $directory . "/FlexFormMsg.$dbt";
 		if ( file_exists( $tables ) ) {
 			$updater->addExtensionUpdate( [
 											  'addTable',
@@ -64,6 +72,11 @@ class Sql {
 					$dbt
 				)
 			);
+		}
+
+		foreach ( self::UPDATEFIELDS as $column => $file ) {
+			$sqlFile = sprintf( "%s/%s/%s.sql", $directory, $dbt, $file );
+			$updater->addExtensionField( 'flexformmsg', $column, $sqlFile );
 		}
 
 		return true;

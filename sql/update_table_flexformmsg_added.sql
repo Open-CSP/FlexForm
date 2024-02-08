@@ -1,0 +1,2 @@
+ALTER TABLE /*_*/flexformmsg
+    ADD COLUMN added datetime NOT NULL DEFAULT CURRENT_TIMESTAMP;

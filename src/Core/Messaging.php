@@ -245,7 +245,7 @@ class Messaging {
 	 * @return bool
 	 * @throws FlexFormException
 	 */
-	public function removeUserMessageById( int $mId, bool $checkUser ): bool {
+	public function removeUserMessageById( int $mId, bool $checkUser = false ): bool {
 		if ( $checkUser ) {
 			$userForMId = $this->getUserIdFromMessageId( $mId );
 			$userId = $this->user->getId();
