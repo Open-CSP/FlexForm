@@ -75,8 +75,12 @@ class Sql {
 		}
 
 		foreach ( self::UPDATEFIELDS as $column => $file ) {
-			$sqlFile = sprintf( "%s/%s/%s.sql", $directory, $dbt, $file );
-			$updater->addExtensionField( 'flexformmsg', $column, $sqlFile );
+			$sqlFile = sprintf( "%s/%s.%s", $directory, $file, $dbt );
+			if ( file_exists( $sqlFile ) ) {
+				$updater->addExtensionField( 'flexformmsg',
+					$column,
+					$sqlFile );
+			}
 		}
 
 		return true;
