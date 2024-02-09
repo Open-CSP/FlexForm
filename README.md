@@ -92,6 +92,7 @@ Visit this documentation page https://www.open-csp.org/DevOps:Doc/FlexForm/2.0/V
 Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
+* 2.2.8 : Added some addition CSS to instances. Changed no-disable-on-submit to work per form
 * 2.2.7 : Fixed no_submit_on_return and disabling submit button
 * 2.2.6 : Changed some implementations for messaging and fixes
 * 2.2.5 : Added persistent messages, a Messaging special page and update FlexForm per branch

@@ -614,7 +614,9 @@ function wsform (btn, callback = 0, preCallback = 0, showId = 0) {
 			$(btn).removeClass('disabled')
 			frm.removeClass('wsform-submitting')
 			frm.addClass('wsform-submitted')
-			weAreDoneWorking(frm);
+			if ( !frm.hasClass( 'ff-nodisable-on-submit' ) ) {
+				weAreDoneWorking(frm);
+			}
 			//alert(result);
 			if (window.wsAjax === false) {
 				$(frm).find('input[name="mwidentifier"]')[0].remove()
@@ -1058,7 +1060,7 @@ async function addScreenshotToForm( canvas, pform ) {
 	}
 
 function showWeAreWorking (form) {
-	if ( typeof window.ffDoNotDisableSubmit !== 'undefined' ) {
+	if ( $(form).hasClass( 'ff-nodisable-on-submit' ) ) {
 		return;
 	}
 	var btn = $(form).find(':submit')
@@ -1069,7 +1071,7 @@ function showWeAreWorking (form) {
 }
 
 function weAreDoneWorking (form) {
-	if ( typeof window.ffDoNotDisableSubmit !== 'undefined' ) {
+	if ( $(form).hasClass( 'ff-nodisable-on-submit' ) ) {
 		return;
 	}
 	var btn = $(form).find(':submit')
