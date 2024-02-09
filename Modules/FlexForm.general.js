@@ -1058,7 +1058,7 @@ async function addScreenshotToForm( canvas, pform ) {
 	}
 
 function showWeAreWorking (form) {
-	if ( typeof window.ffDoNotDisableSubmit !== 'undefined' ) {
+	if ( $(form).hasClass( 'ff-nodisable-on-submit' ) ) {
 		return;
 	}
 	var btn = $(form).find(':submit')
@@ -1069,7 +1069,7 @@ function showWeAreWorking (form) {
 }
 
 function weAreDoneWorking (form) {
-	if ( typeof window.ffDoNotDisableSubmit !== 'undefined' ) {
+	if ( $(form).hasClass( 'ff-nodisable-on-submit' ) ) {
 		return;
 	}
 	var btn = $(form).find(':submit')
