@@ -50,11 +50,15 @@ abstract class Convert {
 	}
 
 	/**
+	 * @param bool $onlyPath
 	 *
-	 * @return bool|string
+	 * @return false|string
 	 */
-	protected function getFile() {
+	protected function getFile( bool $onlyPath = false ) {
 		if ( $this->fileExists() ) {
+			if ( $onlyPath ) {
+				return $this->getTempDir() . $this->fileToConvert;
+			}
 			return file_get_contents( $this->getTempDir() . $this->fileToConvert );
 		} else {
 			return false;

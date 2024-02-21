@@ -10,6 +10,8 @@
 
 namespace FlexForm\Processors\Convert;
 
+use FlexForm\Core\Config;
+use FlexForm\Core\Debug;
 use FlexForm\FlexFormException;
 use FlexForm\Processors\Files\Convert;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
@@ -57,10 +59,19 @@ class SpreadsheetConverter extends Convert {
 	 * @throws FlexFormException
 	 */
 	public function convertFile(): string {
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'Preparing to Convert',
+				[
+					'reader' => $this->reader,
+					'file and path'      => $this->getFile( true )
+				]
+			);
+		}
 		try {
 			$reader = IOFactory::createReader( $this->reader );
 			$reader->setReadDataOnly( true );
-			$spreadsheet = $reader->load( $this->fileToConvert );
+			$spreadsheet = $reader->load( $this->getFile( true ) );
 			$sheetData = $spreadsheet->getActiveSheet()->
 			toArray( null, true, true, true );
 			$worksheet = $spreadsheet->getSheet( 0 );
