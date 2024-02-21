@@ -37,10 +37,12 @@ class SpreadsheetConverter extends Convert {
 	 */
 	public function setReader( string $reader ) {
 		if ( strtolower( $reader ) === 'xls' ) {
-			$this->reader = IOFactory::READER_XLS;
+			$this->reader = 'Xls';
+			//$this->reader = IOFactory::READER_XLS;
 		}
 		if ( strtolower( $reader ) === 'xlsx' ) {
-			$this->reader = IOFactory::READER_XLSX;
+			$this->reader = 'Xlsx';
+			//$this->reader = IOFactory::READER_XLSX;
 		}
 	}
 
@@ -52,7 +54,6 @@ class SpreadsheetConverter extends Convert {
 	public function setSlot( string $slot ) {
 		$this->slot = $slot;
 	}
-
 
 	/**
 	 * @return string
