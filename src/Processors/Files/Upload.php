@@ -15,6 +15,8 @@ use FlexForm\Core\Debug;
 use FlexForm\FlexFormException;
 use FlexForm\Processors\Content\ContentCore;
 use FlexForm\Processors\Content\Save;
+use FlexForm\Processors\Convert\PandocConverter;
+use FlexForm\Processors\Convert\SpreadsheetConverter;
 use FlexForm\Processors\Definitions;
 use FlexForm\Processors\Utilities\General;
 use MediaHandler;
@@ -399,7 +401,7 @@ class Upload {
 				]
 			);
 
-			// Not converting file, the add filename extension back
+			// Not converting file, then add filename extension back
 			if ( $fileAction === false ) {
 				$titleName .= "." . $fileNameExtension;
 			}
@@ -423,72 +425,108 @@ class Upload {
 
 			if ( $fileAction !== false ) {
 
-				// We need to do a Pandoc conversion
-				$convert = new Convert();
-				$convert->setConvertFrom( $fileAction );
-				$convert->setFileName( $storedFile );
-				$newContent               = $convert->convertFile();
-				$possibleImagesInDocument = $convert->getPossibleImagesFromConversion();
-				if ( $possibleImagesInDocument !== false ) {
-					$fCount = 1;
-					foreach ( $possibleImagesInDocument as $singleImage ) {
-						// find [filename] and replace
-						$newFname = $titleName . '-' . basename( $singleImage );
-						if ( Config::isDebug() ) {
-							Debug::addToDebug(
-								$i . ' - Preparing to upload image file from document: ' . $fCount,
-								[
-									'$newFname' => $newFname,
-									'$singleImage'      => $singleImage,
-									'stored file'        => $storedFile,
-									'details'            => $details,
-									'comment'            => $imageComment
-								]
-							);
+				switch ( $fileAction ) {
+					case "xls":
+					case "xlsx":
+
+						$fileSlot    = General::getJsonValue(
+							'wsform_slot',
+							$fileDetails
+						);
+						if ( $fileSlot === false ) {
+							$fileSlot = 'main';
 						}
+						$convert = new SpreadsheetConverter();
+						$convert->setReader( $fileAction );
+						$convert->setFileName( $storedFile );
+						$json = $convert->convertFile();
+						// Now create the page in the wiki
 						if ( !Config::isDebug() ) {
-							$resultFileUpload = $this->uploadFileToWiki(
-								$singleImage,
-								$newFname,
-								$wgUser,
-								$details,
-								$imageComment,
-								wfTimestampNow()
-							);
-							if ( $resultFileUpload !== true ) {
+							$save = new Save();
+							try {
+								$save->saveToWiki(
+									$titleName,
+									[ $fileSlot => $json ],
+									$imageComment
+								);
+							} catch ( FlexFormException $e ) {
 								throw new FlexFormException(
-									$resultFileUpload,
-									0
+									$e->getMessage(),
+									0,
+									$e
 								);
 							}
 						}
-						$search     = $convert->pandocGetSearchFor() . basename( $singleImage );
-						$replace    = $convert->pandocGetReplaceWith( $newFname );
-						$newContent = str_replace(
-							$search,
-							$replace,
-							$newContent
-						);
-						unlink( $singleImage );
-						$fCount++;
-					}
-				}
-				// Now create the page in the wiki
-				if ( !Config::isDebug() ) {
-					$save = new Save();
-					try {
-						$save->saveToWiki(
-							$titleName,
-							[ 'main' => $newContent ],
-							$imageComment
-						);
-					} catch ( FlexFormException $e ) {
-						throw new FlexFormException(
-							$e->getMessage(),
-							0,
-							$e
-						);
-					}
+						break;
+					default:
+						// We need to do a Pandoc conversion
+						$convert = new PandocConverter();
+						$convert->setConvertFrom( $fileAction );
+						$convert->setFileName( $storedFile );
+						$newContent               = $convert->convertFile();
+						$possibleImagesInDocument = $convert->getPossibleImagesFromConversion();
+						if ( $possibleImagesInDocument !== false ) {
+							$fCount = 1;
+							foreach ( $possibleImagesInDocument as $singleImage ) {
+								// find [filename] and replace
+								$newFname = $titleName . '-' . basename( $singleImage );
+								if ( Config::isDebug() ) {
+									Debug::addToDebug(
+										$i . ' - Preparing to upload image file from document: ' . $fCount,
+										[
+											'$newFname' => $newFname,
+											'$singleImage'      => $singleImage,
+											'stored file'        => $storedFile,
+											'details'            => $details,
+											'comment'            => $imageComment
+										]
+									);
+								}
+								if ( !Config::isDebug() ) {
+									$resultFileUpload = $this->uploadFileToWiki(
+										$singleImage,
+										$newFname,
+										$wgUser,
+										$details,
+										$imageComment,
+										wfTimestampNow()
+									);
+									if ( $resultFileUpload !== true ) {
+										throw new FlexFormException(
+											$resultFileUpload,
+											0
+										);
+									}
+								}
+								$search     = $convert->pandocGetSearchFor() . basename( $singleImage );
+								$replace    = $convert->pandocGetReplaceWith( $newFname );
+								$newContent = str_replace(
+									$search,
+									$replace,
+									$newContent
+								);
+								unlink( $singleImage );
+								$fCount++;
+							}
+						}
+						// Now create the page in the wiki
+						if ( !Config::isDebug() ) {
+							$save = new Save();
+							try {
+								$save->saveToWiki(
+									$titleName,
+									[ 'main' => $newContent ],
+									$imageComment
+								);
+							} catch ( FlexFormException $e ) {
+								throw new FlexFormException(
+									$e->getMessage(),
+									0,
+									$e
+								);
+							}
+						}
+						break;
 				}
 			} else {
 				if ( !Config::isDebug() ) {
