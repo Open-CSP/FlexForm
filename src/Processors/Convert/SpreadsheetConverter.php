@@ -85,7 +85,7 @@ class SpreadsheetConverter extends Convert {
 			for ( $row = 1; $row <= $highestRow; $row++ ) {
 				$riga = [];
 				for ( $col = 1; $col <= $highestColumnIndex; $col++ ) {
-					$riga[] = $worksheet->getCellByColumnAndRow( $col, $row )->getValue();
+					$riga[] = $worksheet->getCellByColumnAndRow( $col, $row )->getValue() ?? "";
 				}
 				if ( 1 === $row ) {
 					// Header row. Save it in "$keys".
@@ -95,6 +95,13 @@ class SpreadsheetConverter extends Convert {
 				// This is not the first row; so it is a data row.
 				// Transform $riga into a dictionary and add it to $data.
 				$data[] = array_combine( $keys, $riga );
+			}
+			foreach ( $data as $key => $entry ) {
+				foreach ( $entry as $k => $v ) {
+					if ( $v === "" ) {
+						unset( $data[$key][$k] );
+					}
+				}
 			}
 			return json_encode( $data, JSON_PRETTY_PRINT );
 
