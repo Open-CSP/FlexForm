@@ -2538,8 +2538,10 @@ class TagHooks {
 						break;
 					case "multiple":
 						$multiple = 'files';
+						break;
 					case "slot":
 						$uploadDetails["wsform_slot"] = $v;
+						break;
 					default:
 						$attributes[$k] = $v;
 				}
