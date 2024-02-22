@@ -94,6 +94,7 @@ Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
 
+* 2.2.9 : Added convert from xls/xlsx to JSON. Added slot support for conversions.
 * 2.2.8 : Added some addition CSS to instances. Changed no-disable-on-submit to work per form
 * 2.2.7 : Fixed no_submit_on_return and disabling submit button
 * 2.2.6 : Changed some implementations for messaging and fixes

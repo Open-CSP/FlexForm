@@ -2490,12 +2490,16 @@ class TagHooks {
 		$parseContent       = false;
 		$actionFields       = false;
 		$action				= '';
+		$toSlot 			= 'main';
 		$template			= false;
 		$multiple			= 'files';
 		$canvasSourceId     = false;
 		$canvasRenderId     = uniqid();
 		$canvasDiv			= '';
 		$mobileScreenshot   = '';
+
+		$uploadDetails[ "wsform_slot" ] = 'main';
+
 		foreach ( $args as $k => $v ) {
 			if ( validate::validParameters( $k ) || validate::validFileParameters( $k ) ) {
 				// going through specific extra's.
@@ -2553,8 +2557,12 @@ class TagHooks {
 					case "template":
 						$template = $v;
 						break;
+					case "slot":
+						$uploadDetails["wsform_slot"] = $v;
+						break;
 					case "multiple":
 						$multiple = 'files';
+						break;
 					default:
 						$attributes[$k] = $v;
 				}

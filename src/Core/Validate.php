@@ -295,7 +295,9 @@ class Validate {
 			"canvas_render_id",
 			"template",
 			"action",
-			"comment"
+			"comment",
+			'',
+			'slot'
 		);
 		if ( $ret ) {
 			return $validParameters;
