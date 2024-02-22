@@ -424,18 +424,13 @@ class Upload {
 			$processedFiles[$fileName]['new-name'][] = $titleName;
 
 			if ( $fileAction !== false ) {
-
+				$fileSlot = General::getJsonValue( 'wsform_slot', $fileDetails );
+				if ( $fileSlot === false ) {
+					$fileSlot = 'main';
+				}
 				switch ( $fileAction ) {
 					case "xls":
 					case "xlsx":
-
-						$fileSlot    = General::getJsonValue(
-							'wsform_slot',
-							$fileDetails
-						);
-						if ( $fileSlot === false ) {
-							$fileSlot = 'main';
-						}
 						$convert = new SpreadsheetConverter();
 						$convert->setReader( $fileAction );
 						$convert->setFileName( $storedFile );
@@ -515,7 +510,7 @@ class Upload {
 							try {
 								$save->saveToWiki(
 									$titleName,
-									[ 'main' => $newContent ],
+									[ $fileSlot => $newContent ],
 									$imageComment
 								);
 							} catch ( FlexFormException $e ) {
