@@ -70,7 +70,7 @@ class SpreadsheetConverter extends Convert {
 			);
 		}
 		try {
-			$reader = IOFactory::createReader( $this->reader );
+			$reader = IOFactory::createReaderForFile( $this->getFile( true ) );
 			$reader->setReadDataOnly( true );
 			$spreadsheet = $reader->load( $this->getFile( true ) );
 			$sheetData = $spreadsheet->getActiveSheet()->
