@@ -180,6 +180,9 @@ class ContentCore {
 			$timer = new DebugTimer();
 		}
 		self::$fields = Definitions::createAndEditFields();
+		if ( self::$fields['msgOnSuccess'] !== false ) {
+			self::$fields['msgOnSuccess'] = self::parseTitle( self::$fields['msgOnSuccess'], true );
+		}
 		if ( Config::isDebug() ) {
 			$debugTitle = '<b>::' . get_class() . '::</b> ';
 			Debug::addToDebug(
