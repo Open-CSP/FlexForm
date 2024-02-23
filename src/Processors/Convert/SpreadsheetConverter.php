@@ -37,10 +37,10 @@ class SpreadsheetConverter extends Convert {
 	 */
 	public function setReader( string $reader ) {
 		if ( strtolower( $reader ) === 'xls' ) {
-			$this->reader = IOFactory::READER_XLS;
+			$this->reader = 'Xls';
 		}
 		if ( strtolower( $reader ) === 'xlsx' ) {
-			$this->reader = IOFactory::READER_XLSX;
+			$this->reader = 'Xlsx';
 		}
 	}
 
