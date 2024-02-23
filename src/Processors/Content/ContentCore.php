@@ -711,19 +711,7 @@ class ContentCore {
 						$fn,
 						$title
 					);
-				} else {
-					$title = str_replace(
-						'[' . $fieldname . ']',
-						'',
-						$title
-					);
 				}
-			} else {
-				$title = str_replace(
-					'[' . $fieldname . ']',
-					'',
-					$title
-				);
 			}
 		}
 		if ( Config::isDebug() ) {
