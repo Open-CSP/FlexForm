@@ -181,6 +181,9 @@ class ContentCore {
 			$timer = new DebugTimer();
 		}
 		self::$fields = Definitions::createAndEditFields();
+		if ( self::$fields['msgOnSuccess'] !== false ) {
+			self::$fields['msgOnSuccess'] = self::parseTitle( self::$fields['msgOnSuccess'], true );
+		}
 		if ( Config::isDebug() ) {
 			$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
 			Debug::addToDebug(
@@ -724,7 +727,9 @@ class ContentCore {
 			}
 		}
 		if ( Config::isDebug() ) {
-			Debug::addToDebug( 'Parsetitle result' . $t, $title );
+			Debug::addToDebug( 'Parsetitle result' . $t,
+							   [ 'title' => $title,
+								   'post' => $_POST ] );
 		}
 		return $title;
 	}
