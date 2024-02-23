@@ -15,7 +15,6 @@ use FlexForm\Processors\Utilities\General;
 use FlexForm\Processors\Files\FilesCore;
 use FlexForm\FlexFormException;
 use Title;
-use User;
 
 /**
  * Class Content core
@@ -185,7 +184,7 @@ class ContentCore {
 			self::$fields['msgOnSuccess'] = self::parseTitle( self::$fields['msgOnSuccess'], true );
 		}
 		if ( Config::isDebug() ) {
-			$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
+			$debugTitle = '<b>::' . get_class() . '::</b> ';
 			Debug::addToDebug(
 				$debugTitle . 'createandeditfields',
 				self::$fields,
@@ -711,13 +710,23 @@ class ContentCore {
 						$fn,
 						$title
 					);
+				} else {
+					$title = str_replace(
+						'[' . $fieldname . ']',
+						'',
+						$title
+					);
 				}
+			} else {
+				$title = str_replace(
+					'[' . $fieldname . ']',
+					'',
+					$title
+				);
 			}
 		}
 		if ( Config::isDebug() ) {
-			Debug::addToDebug( 'Parsetitle result' . $t,
-							   [ 'title' => $title,
-								   'post' => $_POST ] );
+			Debug::addToDebug( 'Parsetitle result' . $t, $title );
 		}
 		return $title;
 	}
