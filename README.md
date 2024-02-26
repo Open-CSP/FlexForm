@@ -21,7 +21,7 @@ The Composer required name is: open-csp/flex-form
 If you are not installing FlexForm using composer, then you still need to run ```php composer --update``` inside extensions/Flex-Form
 
 ```
-composer require wikibase-solutions/flex-form
+composer require open-csp/flex-form
 ```
 ---
 
@@ -73,16 +73,9 @@ Run the [update script](https://www.mediawiki.org/wiki/Manual:Update.php) which 
 Navigate to Special:Version on your wiki to verify that the extension is successfully installed.
 
 ---
-FlexForm has a notification system build in. This is used to show possible errors or success / custom messages.
 
-To enable this.. add to your header page :
 
-```html
-
-<form showmessages />
-```
-
-==== Migrate from version 1.x to 2.0 ====
+#### Migrate from version 1.x to 2.0
 Please notice the changes in the config settings.
 Also, by default, the setting renderonlyapprovedforms will be true. Meaning that once you install FlexForm v2.0 all your 
 existing FlexForm forms in your wiki will be shown as unvalidated. 
