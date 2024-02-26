@@ -26,6 +26,30 @@ class Edit {
 	private $editCount = 0;
 
 	/**
+	 * @param $search
+	 * @param array $array
+	 *
+	 * @return array
+	 */
+	public function searchForKey( $search, array $array, &$found = [] ) {
+		foreach ( $array as $k => $v ) {
+			if ( $k === $search ) {
+				$found[$k] = $v;
+				break;
+			} else {
+				if ( is_array( $v ) ) {
+					$this->searchForKey(
+						$search,
+						$v,
+						$found
+					);
+				}
+			}
+		}
+		return $found;
+	}
+
+	/**
 	 * Function used by the Edit page functions
 	 *
 	 * @param string $source
@@ -38,39 +62,19 @@ class Edit {
 	public function getTemplate( string $source, string $template, $find = false, $value = false ) {
 
 		$tParser = new Parse();
-
-		$result = $tParser->parseArticle( $source, true );
-		$resultParsed = $tParser->parseArticle( $source );
+		$resultParsed = $tParser->parse( $source );
+		$foundTemplate = $this->searchForKey( $template, $resultParsed );
+		$multiple = count( $foundTemplate[ $template ] );
 
 		if ( Config::isDebug() ) {
 			$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
 			Debug::addToDebug(
 				$debugTitle . 'Parsed article result',
-				[ "result" => $result,
-					"template" => $template,
-					"source" => $source,
-				  	"resultParsed" => $resultParsed ]
-			);
-		}
-
-		$multiple = 0;
-		foreach ( $result as $k => $foundTemplate ) {
-			if ( key_exists( $template, $resultParsed ) ) {
-				$tLength = strlen( '{{' . $template );
-				if ( substr(
-						 $foundTemplate,
-						 0,
-						 $tLength
-					 ) === '{{' . $template ) {
-					$multiple++;
-				}
-			}
-		}
-
-		if ( Config::isDebug() ) {
-			Debug::addToDebug(
-				$debugTitle . 'How many times did we find the template?',
-				$multiple
+				[ "foundTemplate" => $foundTemplate,
+				  "template" => $template,
+				  "source" => $source,
+				  "resultParsed" => $resultParsed,
+				  "multiple value" => $multiple ]
 			);
 		}
 

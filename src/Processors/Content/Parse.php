@@ -1,234 +1,305 @@
 <?php
-/**
- * Created by  : Wikibase Solutions B.V.
- * Project     : MWWSForm
- * Filename    : Parse.php
- * Description :
- * Date        : 29-11-2023
- * Time        : 15:24
- */
 
 namespace FlexForm\Processors\Content;
 
 class Parse {
+	public const TEXT_KEY = '_text';
+
+	private const TEMPLATE_START = '{{';
+	private const PARAM_START = '{{{';
+	private const TABLE_START = '{{{!}}';
+
+	private const TEMPLATE_END = '}}';
+	private const PARAM_END = '}}}';
+	private const TABLE_END = '{{!}}}';
+
 	/**
-	 * @param string $pageContent
+	 * Parses the given wikitext.
 	 *
-	 * @return array|string
+	 * @param string $source
+	 *
+	 * @return array
 	 */
-	public function parseArticle( string $pageContent, $returnSourceOnly = false ) {
-		$templateSources = $this->findTemplates( $pageContent );
-		if ( $returnSourceOnly ) {
-			return $templateSources;
-		}
-		$templates = $this->parseTemplates( $templateSources );
+	public function parse( string $source ) : array {
+		$templates                 = $this->findTemplates( $source );
+		$templates                 = $this->parseTemplates( $templates );
+		$templates[self::TEXT_KEY] = trim( $source );
 
 		return $templates;
 	}
 
 	/**
-	 * Finds all the templates on a page. This function takes nested templates into account.
+	 * Parses the given templates into an associative array.
 	 *
-	 * @param string $articleSource
-	 *
-	 * @return array
-	 */
-	protected function findTemplates( string $articleSource ) : array {
-		$templateSources = [];
-
-		if ( version_compare( PHP_VERSION,
-							  "7.4" ) >= 0 ) {
-			$characters = mb_str_split( $articleSource );
-		} else {
-			$characters = str_split( $articleSource );
-		}
-
-		$templateSource = '';
-		$openBrackets = 0;
-
-		for ( $idx = 0; $idx < count( $characters ); $idx++ ) {
-			$currentCharacter = $characters[$idx];
-			$nextCharacter = isset( $characters[$idx + 1] ) ? $characters[$idx + 1] : "\0";
-
-			if ( $currentCharacter === "{" && $nextCharacter === "{" ) {
-				$openBrackets++;
-				$idx++;
-
-				// Add the "{" we skipped
-				$templateSource .= $currentCharacter;
-			} else {
-				if ( $currentCharacter === "}" && $nextCharacter === "}" ) {
-					$openBrackets--;
-					$idx++;
-
-					// Add the "}" we skipped
-					$templateSource .= $currentCharacter;
-				}
-			}
-
-			if ( $openBrackets > 0 ) {
-				$templateSource .= $currentCharacter;
-			}
-
-			if ( $openBrackets === 0 && strlen( $templateSource ) > 0 ) {
-				// We are done parsing a template
-				$templateSource .= $currentCharacter;
-
-				if ( $this->isValidTemplate( $templateSource ) ) {
-					array_push( $templateSources, $templateSource );
-				}
-
-				$templateSource = '';
-			}
-		}
-
-		return $templateSources;
-	}
-
-	/**
-	 * Check if this is a valid template.
-	 *
-	 * @param string $templateSource
-	 *
-	 * @return bool
-	 */
-	private function isValidTemplate( string $templateSource ) : bool {
-		if ( strlen( $templateSource ) < 5 ) {
-			return false;
-		}
-
-		if ( $templateSource[0] !== '{' || $templateSource[1] !== '{' ) {
-			return false;
-		}
-
-		if ( $templateSource[strlen( $templateSource ) - 1] !== '}' || $templateSource[strlen( $templateSource ) - 2] !== '}' ) {
-			return false;
-		}
-
-		if ( isset( $templateSource[2] ) && $templateSource[2] === "#" ) {
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
-	 * Parses the given template sources.
-	 *
-	 * @param array $templateSources
+	 * @param string[] $sources The sources of the templates to parse
 	 *
 	 * @return array
 	 */
-	protected function parseTemplates( array $templateSources ) : array {
+	private function parseTemplates( array $sources ) : array {
 		$templates = [];
 
-		foreach ( $templateSources as $template ) {
-			list( $name, $arguments ) = $this->parseTemplate( $template );
-			$templates[$name] = $arguments;
+		foreach ( $sources as $source ) {
+			// Remove the braces around the template
+			$source = substr(
+				$source,
+				2,
+				-2
+			);
+
+			// Tokenize the template
+			$templateParts = $this->splitArguments( $source );
+			$templateName  = trim( array_shift( $templateParts ) );
+
+			// We need to name our anonymous arguments using their numeric identifier
+			$argPointer = 1;
+			$arguments  = [];
+
+			foreach ( $templateParts as $argument ) {
+				$argumentParts = explode(
+					'=',
+					$argument,
+					2
+				);
+				$argumentName  = count( $argumentParts ) === 1 ? strval( $argPointer++ ) : trim(
+					array_shift( $argumentParts )
+				);
+
+				$arguments[$argumentName] = $this->parse( $argumentParts[0] );
+			}
+
+			$templates[$templateName][] = $arguments;
 		}
 
 		return $templates;
 	}
 
 	/**
-	 * Parses a single template. It first removes the accolades from the template, then splits the template by
-	 * arguments.
+	 * Parses a template and splits it based on arguments, while respecting nested templates.
 	 *
 	 * @param string $template
 	 *
-	 * @return array
+	 * @return string[] The arguments in the array
 	 */
-	protected function parseTemplate( string $template ) : array {
-		// Reset the anonymous argument pointer
-		$this->anonymousArgumentPointer = 1;
+	private function splitArguments( string $template ) : array {
+		$numChars = strlen( $template );
 
-		$template = substr( $template,
-							2 );
-		$template = substr( $template,
-							0,
-							-2 );
-
-		$templateParts = $this->tokenizeTemplate( $template );
-		$templateName = trim( array_shift( $templateParts ) );
-		$templateArguments = [];
-
-		foreach ( $templateParts as $argument ) {
-			list( $name, $value ) = $this->parseArgument( $argument );
-			$templateArguments[$name] = $value;
-		}
-
-		return [ $templateName,
-			$templateArguments ];
-	}
-
-	/**
-	 * Parses a template and splits it based on arguments, while respecting (nesting) multiple-instance templates.
-	 *
-	 * @param string $template
-	 *
-	 * @return array
-	 */
-	protected function tokenizeTemplate( string $template ) : array {
-		$template = str_split( $template );
+		$idx       = 0;
 		$arguments = [];
+		$argument  = '';
 
-		$buffer = '';
-		$nestingDepth = 0;
-
-		foreach ( $template as $index => $char ) {
-			if ( $char === "{" && $template[$index + 1] === "{" ) { // Check if a template starts
-				$nestingDepth++;
+		while ( $idx < $numChars ) {
+			if ( substr(
+					 $template,
+					 $idx,
+					 6
+				 ) === self::TABLE_START ) {
+				// We found a table on which we should split, and thus we should not see it as the start of a parameter
+				// or a template. This check therefore skips the template start and then continues parsing the parameter
+				// body as normal.
+				$idx      += 5;
+				$argument .= self::TABLE_START;
+			} elseif ( substr(
+						   $template,
+						   $idx,
+						   3
+					   ) === self::PARAM_START ) {
+				// We found a parameter on which we should not split
+				$argument .= $this->match(
+					$template,
+					$numChars,
+					$idx,
+					self::PARAM_START,
+					self::PARAM_END
+				);
+			} elseif ( substr(
+						   $template,
+						   $idx,
+						   2
+					   ) === self::TEMPLATE_START ) {
+				// We found a template on which we should not split
+				$argument .= $this->match(
+					$template,
+					$numChars,
+					$idx,
+					self::TEMPLATE_START,
+					self::TEMPLATE_END
+				);
+			} elseif ( $template[$idx] === '|' ) {
+				// Split when we encounter the delimiter
+				$arguments[] = $argument;
+				$argument    = '';
 			} else {
-				if ( $nestingDepth > 0 && $char === "}" && $template[$index + 1] === "}" ) {
-					// Check if a template ends
-					$nestingDepth--;
-				} else {
-					if ( $nestingDepth === 0 && $char === "|" ) {
-						$arguments[] = $buffer;
-						$buffer = '';
-
-						continue;
-					}
-				}
+				// Add the character if we didn't encounter anything special
+				$argument .= $template[$idx];
 			}
 
-			$buffer .= $char;
+			$idx++;
 		}
 
-		$arguments[] = $buffer;
+		$arguments[] = $argument;
 
 		return $arguments;
 	}
 
 	/**
-	 * Parses a template argument.
-	 *
-	 * @param string $argument
+	 * @param string $source The source to find templates in
 	 *
 	 * @return array
 	 */
-	protected function parseArgument( string $argument ) : array {
-		$parts = explode( "=",
-						  $argument,
-						  2 );
+	private function findTemplates( string $source ) : array {
+		$numChars = strlen( $source );
 
-		if ( substr( $argument, -1 ) === "=" ) {
-			$parts[0] = trim( $parts[0], "=" );
-			$parts[1] = ""; // Empty value named argument
+		$idx       = 0;
+		$templates = [];
+
+		while ( $idx < $numChars ) {
+			if ( substr(
+					 $source,
+					 $idx,
+					 6
+				 ) === self::TABLE_START ) {
+				// We found a table which we need to consume first
+				$this->match(
+					$source,
+					$numChars,
+					$idx,
+					self::TABLE_START,
+					self::TABLE_END
+				);
+			} elseif ( substr(
+						   $source,
+						   $idx,
+						   3
+					   ) === self::PARAM_START ) {
+				// Skip the parameter (and possibly any nested templates inside it)
+				$this->match(
+					$source,
+					$numChars,
+					$idx,
+					self::PARAM_START,
+					self::PARAM_END
+				);
+			} elseif ( substr(
+						   $source,
+						   $idx,
+						   2
+					   ) === self::TEMPLATE_START ) {
+				// We are at the start of a template, consume it and continue
+				$template = $this->match(
+					$source,
+					$numChars,
+					$idx,
+					self::TEMPLATE_START,
+					self::TEMPLATE_END
+				);
+
+				// Check if it is actually a template and not something like a parser function
+				if ( $this->isTemplate( $template ) ) {
+					$templates[] = $template;
+				}
+			}
+
+			$idx++;
 		}
 
-		if ( count( $parts ) === 1 ) {
-			// Anonymous argument
-			return [ strval( $this->anonymousArgumentPointer++ ),
-				trim( $parts[0] ) ];
+		return $templates;
+	}
+
+	/**
+	 * Matches the number of braces and returns the result. This function expects the given index to start at the
+	 * specified number of braces in the given source.
+	 *
+	 * @param string $source The source to match braces in
+	 * @param int $numChars The number of characters in $source
+	 * @param int $idx The index to start matching
+	 * @param string $start
+	 * @param string $end
+	 *
+	 * @return string
+	 */
+	private function match( string $source, int $numChars, int &$idx, string $start, string $end ) : string {
+		$lenStart = strlen( $start );
+		$lenEnd   = strlen( $end );
+
+		$idx   += $lenStart;
+		$match = $start;
+
+		while ( $idx < $numChars ) {
+			if ( substr(
+					 $source,
+					 $idx,
+					 $lenEnd
+				 ) === $end ) {
+				// We're at the end of the braces, break
+				break;
+			}
+
+			if ( substr(
+					 $source,
+					 $idx,
+					 6
+				 ) === self::TABLE_START ) {
+				// We found a table which we need to consume first
+				$match .= $this->match(
+					$source,
+					$numChars,
+					$idx,
+					self::TABLE_START,
+					self::TABLE_END
+				);
+			} elseif ( substr(
+						   $source,
+						   $idx,
+						   3
+					   ) === self::PARAM_START ) {
+				// We found a parameter which we need to consume first
+				$match .= $this->match(
+					$source,
+					$numChars,
+					$idx,
+					self::PARAM_START,
+					self::PARAM_END
+				);
+			} elseif ( substr(
+						   $source,
+						   $idx,
+						   2
+					   ) === self::TEMPLATE_START ) {
+				// We found a template which we need to consume first
+				$match .= $this->match(
+					$source,
+					$numChars,
+					$idx,
+					self::TEMPLATE_START,
+					self::TEMPLATE_END
+				);
+			} else {
+				// We didn't encounter anything special
+				$match .= $source[$idx];
+			}
+
+			$idx++;
 		}
 
-		// Named argument
-		$argument_name = trim( array_shift( $parts ) );
-		$argument_value = trim( implode( "=",
-										 $parts ) );
+		// End at the last brace
+		$idx   += $lenEnd - 1;
+		$match .= $end;
 
-		return [ $argument_name,
-			$argument_value ];
+		return $match;
+	}
+
+	/**
+	 * Checks if the given source is a valid template.
+	 *
+	 * @param string $source
+	 *
+	 * @return bool
+	 */
+	private function isTemplate( string $source ) : bool {
+		return strlen( $source ) >= 5 && // Check if it as least five characters ({{<identifier>}})
+			   $source !== '{{!}}' && // The pipe 'template' is actually a very special magic word
+			   $source[0] === '{' && $source[1] === '{' && // Check if it starts with "{{"
+			   $source[-1] === '}' && $source[-2] === '}' && // Check if it ends with "}}"
+			   $source[2] !== "#"; // Check if it is not a parser function
 	}
 }

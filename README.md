@@ -93,7 +93,7 @@ Visit this documentation page https://www.open-csp.org/DevOps:Doc/FlexForm/2.0/V
 Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
-
+* 2.2.10 : Added recursive parsing of content to find templates and values.
 * 2.2.9 : Added convert from xls/xlsx to JSON. Added slot support for conversions.
 * 2.2.8 : Added some addition CSS to instances. Changed no-disable-on-submit to work per form
 * 2.2.7 : Fixed no_submit_on_return and disabling submit button
