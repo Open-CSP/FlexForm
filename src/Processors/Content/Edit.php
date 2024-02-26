@@ -61,10 +61,18 @@ class Edit {
 	 */
 	public function getTemplate( string $source, string $template, $find = false, $value = false ) {
 
+		if ( empty( $template ) ) {
+			return false;
+		}
+
 		$tParser = new Parse();
 		$resultParsed = $tParser->parse( $source );
 		$foundTemplate = $this->searchForKey( $template, $resultParsed );
-		$multiple = count( $foundTemplate[ $template ] );
+		if ( !isset( $foundTemplate[ $template ] ) ) {
+			$multiple = 0;
+		} else {
+			$multiple = count( $foundTemplate[$template] );
+		}
 
 		if ( Config::isDebug() ) {
 			$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
