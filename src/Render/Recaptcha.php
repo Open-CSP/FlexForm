@@ -16,20 +16,45 @@ use FlexForm\Core\Config;
 class Recaptcha {
 	// TODO: Add to mwapi !!
 	public static $rc_site_key = '';
-	public static $rc_secret_key = '';
+	private static $rc_secret_key = '';
+
+	public static $rc_enterprise_project = "";
+
+	public static $rc_enterprise_siteKey = "";
+
+	public static $rc_enterprise_apiKey = "";
 
 	/**
 	 * @return void
 	 */
 	public static function loadSettings() {
-		self::$rc_site_key = Config::getConfigVariable( 'rc_site_key' );
-		self::$rc_secret_key = Config::getConfigVariable( 'rc_secret_key' );
-		if ( empty( self::$rc_site_key ) ) {
-			self::$rc_site_key = null;
+		$type = Config::getConfigVariable( 'rc_use' );
+		if ( $type === "v3" ) {
+			self::$rc_site_key = Config::getConfigVariable( 'rc_site_key' );
+			self::$rc_secret_key = Config::getConfigVariable( 'rc_secret_key' );
+			if ( empty( self::$rc_site_key ) ) {
+				self::$rc_site_key = null;
+			}
+			if ( empty( self::$rc_secret_key ) ) {
+				self::$rc_secret_key = null;
+			}
 		}
-		if ( empty( self::$rc_secret_key ) ) {
-			self::$rc_secret_key = null;
+		if ( $type === "enterprise" ) {
+			self::$rc_enterprise_project = Config::getConfigVariable( 'rce_project' );
+			self::$rc_enterprise_siteKey  = Config::getConfigVariable( 'rce_site_key' );
+			self::$rc_enterprise_apiKey = Config::getConfigVariable( 'rce_api_key' );
+
+			if ( empty( self::$rc_enterprise_project ) ) {
+				self::$rc_enterprise_project = null;
+			}
+			if ( empty( self::$rc_enterprise_siteKey ) ) {
+				self::$rc_enterprise_siteKey = null;
+			}
+			if ( empty( self::$rc_enterprise_siteKey ) ) {
+				self::$rc_enterprise_siteKey = null;
+			}
 		}
+
 	}
 
 	/**

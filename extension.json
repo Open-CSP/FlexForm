@@ -54,8 +54,12 @@
   "config": {
     "FlexFormConfig": {
       "file_temp_path": "",
+      "rc_use": "v3",
       "rc_site_key": "",
       "rc_secret_key": "",
+      "rce_project": "",
+      "rce_site_key": "",
+      "rce_api_key": "",
       "sec_key": "",
       "secure": true,
       "auto_save_interval": 30000,

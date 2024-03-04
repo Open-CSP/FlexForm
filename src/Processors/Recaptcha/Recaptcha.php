@@ -22,58 +22,82 @@ use FlexForm\FlexFormException;
  */
 class Recaptcha {
 
+	private const RECAPTCHA_V3_URL = 'https://www.google.com/recaptcha/api/siteverify';
+	private const RECAPTCHA_ENTERPRISE_URL = 'https://recaptchaenterprise.googleapis.com/v1/projects/';
+
 	/**
-	 * @param $secret
-	 * @param $token
-	 * @param $action
+	 * @param string $token
+	 * @param string $action
+	 * @param string|bool $type
 	 *
 	 * @return array
 	 */
-	public static function googleSiteVerify( $secret, $token, $action ) : array {
-		$ch = curl_init();
-		curl_setopt(
-			$ch,
-			CURLOPT_URL,
-			"https://www.google.com/recaptcha/api/siteverify"
-		);
-		curl_setopt(
-			$ch,
-			CURLOPT_POST,
-			1
-		);
-		curl_setopt(
-			$ch,
-			CURLOPT_POSTFIELDS,
-			http_build_query(
-				array(
-					'secret'   => $secret,
-					'response' => $token
-				)
-			)
-		);
-		curl_setopt(
-			$ch,
-			CURLOPT_RETURNTRANSFER,
-			true
-		);
-		$response = curl_exec( $ch );
-		curl_close( $ch );
-		$result = json_decode(
-			$response,
-			true
-		);
-		// verify the response
-		if ( $result["success"] == '1' && $result["action"] == $action && $result["score"] >= 0.5 ) {
-			return array(
-				"status" => true,
-				"result" => $result
-			);
+	public static function googleSiteVerify( string $token, string $action, $type ) : array {
+		if ( $type !== false ) {
+			$project = Config::getConfigVariable( 'rce_project' );
+			$siteKey = Config::getConfigVariable( 'rce_site_key' );
+			$apiKey = Config::getConfigVariable( 'rce_api_key' );
+			$jsonBody = self::createJSONBody( $token, $action, $siteKey );
+			$url = self::RECAPTCHA_ENTERPRISE_URL . $project . '/assessments?key=' . $apiKey;
+			$ch = curl_init();
+			curl_setopt( $ch, CURLOPT_URL, $url );
+			curl_setopt( $ch, CURLOPT_POST, 1 );
+			curl_setopt( $ch, CURLOPT_POSTFIELDS, http_build_query( [ 'request.json' => $jsonBody ] ) );
+			curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+			$response = curl_exec( $ch );
+			curl_close( $ch );
+			$result = json_decode( $response, true );
+			$result['score'] = $result['riskAnalysis']["score"];
+			$result['error-codes'] = $result['riskAnalysis']["reasons"];
+			if ( $result['tokenProperties']['valid'] === false ) {
+				return [ "status" => false,	"result" => $result, ];
+			} elseif ( $result["tokenProperties"]['action'] == $action && $result['riskAnalysis']["score"] >= 0.5 ) {
+				return [ "status" => true, "result" => $result ];
+			} else {
+				return [ "status" => false,	"result" => $result ];
+			}
 		} else {
-			return array(
-				"status" => false,
-				"result" => $result
-			);
+			$secret = Config::getConfigVariable( 'rc_secret_key' );
+			$ch = curl_init();
+			curl_setopt( $ch,
+				CURLOPT_URL,
+				self::RECAPTCHA_V3_URL );
+			curl_setopt( $ch,
+				CURLOPT_POST,
+				1 );
+			curl_setopt( $ch,
+				CURLOPT_POSTFIELDS,
+				http_build_query( array( 'secret' => $secret,
+						'response' => $token ) ) );
+			curl_setopt( $ch,
+				CURLOPT_RETURNTRANSFER,
+				true );
+			$response = curl_exec( $ch );
+			curl_close( $ch );
+			$result = json_decode( $response,
+				true );
+			// verify the response
+			if ( $result["success"] == '1' && $result["action"] == $action && $result["score"] >= 0.5 ) {
+				return array( "status" => true,
+					"result" => $result );
+			} else {
+				return array( "status" => false,
+					"result" => $result );
+			}
 		}
+	}
+
+	/**
+	 * @param string $token
+	 * @param string $action
+	 * @param string $siteKey
+	 *
+	 * @return false|string
+	 */
+	private static function createJSONBody( string $token, string $action, string $siteKey ) {
+		$event = [];
+		$event['event'] = [ "token" => $token, "expectedAction" => $action, "siteKey" => $siteKey ];
+		return json_encode( $event );
 	}
 
 	/**
@@ -89,6 +113,10 @@ class Recaptcha {
 			'mw-captcha-token',
 			false
 		);
+		$captchaType  = General::getPostString(
+			'mw-captcha-type',
+			false
+		);
 		if ( $captchaAction === false ) {
 			return true;
 		}
@@ -97,12 +125,10 @@ class Recaptcha {
 			throw new FlexFormException( wfMessage( 'flexform-captcha-missing-details' )->text() );
 		}
 
-		$rc_secret_key = Config::getConfigVariable( 'rc_secret_key' );
-
 		$captchaResult = self::googleSiteVerify(
-			$rc_secret_key,
 			$captchaToken,
-			$captchaAction
+			$captchaAction,
+			$captchaType
 		);
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
