@@ -62,10 +62,20 @@ class Recaptcha {
 	 */
 	public static function render() {
 		self::loadSettings();
-		if ( self::$rc_site_key === null || self::$rc_secret_key === null ) {
-			return false;
+		$type = Config::getConfigVariable( 'rc_use' );
+		if ( $type == "v3" ) {
+			if ( self::$rc_site_key === null || self::$rc_secret_key === null ) {
+				return false;
+			}
+			$ret = '<script src="https://www.google.com/recaptcha/api.js?render=' . self::$rc_site_key . '"></script> ';
+		} else {
+			if ( self::$rc_enterprise_project === null || self::$rc_enterprise_siteKey === null ||
+				 self::$rc_enterprise_apiKey === null ) {
+				return false;
+			}
+			$ret = '<script src="https://www.google.com/recaptcha/enterprise.js?render=' . self::$rc_enterprise_siteKey . '"></script> ';
 		}
-		$ret = '<script src="https://www.google.com/recaptcha/api.js?render=' . self::$rc_site_key . '"></script> ';
+
 		return $ret;
 	}
 

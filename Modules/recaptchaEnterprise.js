@@ -1,8 +1,6 @@
 function setupRecaptchaEnterprise() {
 	$( '#%%id%%' ).submit( function ( event ) {
 		event.preventDefault();
-
-		grecaptcha.ready( function () {
 			grecaptcha.enterprise.ready(async () => {
 				grecaptcha.enterprise.execute( '%%reCaptchaEnterpriseID%%', { action: '%%action%%' } ).then( function ( token ) {
 					$( '#%%id%%' ).prepend( '<input type="hidden" name="mw-captcha-token" value="' + token + '">' );
@@ -11,7 +9,6 @@ function setupRecaptchaEnterprise() {
 					$( '#%%id%%' ).unbind( 'submit' ).submit();
 				});
 			});
-		});
 	});
 }
 
