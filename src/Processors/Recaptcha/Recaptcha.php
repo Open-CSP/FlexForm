@@ -63,7 +63,7 @@ class Recaptcha {
 			true
 		);
 		// verify the response
-		if ( $result["success"] == '1' && $result["action"] == $action && $result["score"] >= 0.5 ) {
+		if ( $result["success"] == '1' && $result["action"] == $action && $result["score"] >= 0.7 ) {
 			return array(
 				"status" => true,
 				"result" => $result
