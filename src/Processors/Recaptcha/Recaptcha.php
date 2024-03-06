@@ -38,11 +38,21 @@ class Recaptcha {
 			$siteKey = Config::getConfigVariable( 'rce_site_key' );
 			$apiKey = Config::getConfigVariable( 'rce_api_key' );
 			$jsonBody = self::createJSONBody( $token, $action, $siteKey );
+			$jsonFile = 'data://application/octet-stream; charset=utf-8; base64,' . base64_encode( $jsonBody );
+			$txt_curlfile = new \CURLFile( $jsonFile, 'application/json', 'request.json' );
 			$url = self::RECAPTCHA_ENTERPRISE_URL . $project . '/assessments?key=' . $apiKey;
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'Sending to recaptcha',
+					[ "url" => $url,
+						"json" => $jsonBody,
+					"jsonFile" => $jsonFile ]
+				);
+			}
 			$ch = curl_init();
 			curl_setopt( $ch, CURLOPT_URL, $url );
 			curl_setopt( $ch, CURLOPT_POST, 1 );
-			curl_setopt( $ch, CURLOPT_POSTFIELDS, http_build_query( [ 'request.json' => $jsonBody ] ) );
+			curl_setopt( $ch, CURLOPT_POSTFIELDS, [ 'file' => $txt_curlfile ] );
 			curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
 			$response = curl_exec( $ch );
 			curl_close( $ch );

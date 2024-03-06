@@ -478,30 +478,46 @@ class TagHooks {
 				if ( file_exists( $IP . '/extensions/FlexForm/Modules/recaptcha.js' ) ) {
 					$rcaptcha = file_get_contents( $IP . '/extensions/FlexForm/Modules/recaptcha.js' );
 
-					$replace = array(
-						'%%id%%',
+					$replace = array( '%%id%%',
 						'%%action%%',
-						'%%sitekey%%',
-					);
+						'%%sitekey%%', );
 
-					$with = array(
-						$formId,
+					$with = array( $formId,
 						Core::$reCaptcha,
-						Recaptcha::$rc_site_key
-					);
+						Recaptcha::$rc_site_key );
 
-					$rcaptcha = str_replace(
-						$replace,
+					$rcaptcha = str_replace( $replace,
 						$with,
-						$rcaptcha
-					);
-			}
+						$rcaptcha );
 
-				Core::includeInlineScript( $rcaptcha );
-				Core::$reCaptcha = false;
+					Core::includeInlineScript( $rcaptcha );
+					Core::$reCaptcha = false;
+				} else {
+
+					return wfMessage( "flexform-recaptcha-no-js" )->parse();
+				}
 			} else {
+				if ( file_exists( $IP . '/extensions/FlexForm/Modules/recaptchaEnterprise.js' ) ) {
+					$rcaptcha = file_get_contents( $IP . '/extensions/FlexForm/Modules/recaptchaEnterprise.js' );
 
-				return wfMessage( "flexform-recaptcha-no-js" )->parse();
+					$replace = array( '%%id%%',
+						'%%action%%',
+						'%%reCaptchaEnterpriseID%%', );
+
+					$with = array( $formId,
+						Core::$reCaptcha,
+						Recaptcha::$rc_enterprise_siteKey );
+
+					$rcaptcha = str_replace( $replace,
+						$with,
+						$rcaptcha );
+
+					Core::includeInlineScript( $rcaptcha );
+					Core::$reCaptcha = false;
+				} else {
+
+					return wfMessage( "flexform-recaptcha-no-js" )->parse();
+				}
 			}
 		}
 
