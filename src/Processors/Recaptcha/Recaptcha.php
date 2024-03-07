@@ -38,22 +38,21 @@ class Recaptcha {
 			$siteKey = Config::getConfigVariable( 'rce_site_key' );
 			$apiKey = Config::getConfigVariable( 'rce_api_key' );
 			$jsonBody = self::createJSONBody( $token, $action, $siteKey );
-			$jsonFile = 'data://application/octet-stream; charset=utf-8; base64,' . base64_encode( $jsonBody );
-			$txt_curlfile = new \CURLFile( $jsonFile, 'application/json', 'request.json' );
 			$url = self::RECAPTCHA_ENTERPRISE_URL . $project . '/assessments?key=' . $apiKey;
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
 					'Sending to recaptcha',
 					[ "url" => $url,
 						"json" => $jsonBody,
-					"jsonFile" => $jsonFile ]
+					"jsonFile" => '' ]
 				);
 			}
 			$ch = curl_init();
 			curl_setopt( $ch, CURLOPT_URL, $url );
 			curl_setopt( $ch, CURLOPT_POST, 1 );
-			curl_setopt( $ch, CURLOPT_POSTFIELDS, [ 'file' => $txt_curlfile ] );
+			curl_setopt( $ch, CURLOPT_POSTFIELDS, $jsonBody );
 			curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+			curl_setopt( $ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json'] );
 			$response = curl_exec( $ch );
 			curl_close( $ch );
 			$result = json_decode( $response, true );
@@ -61,7 +60,7 @@ class Recaptcha {
 			$result['error-codes'] = $result['riskAnalysis']["reasons"];
 			if ( $result['tokenProperties']['valid'] === false ) {
 				return [ "status" => false,	"result" => $result, ];
-			} elseif ( $result["tokenProperties"]['action'] == $action && $result['riskAnalysis']["score"] >= 0.5 ) {
+			} elseif ( $result["tokenProperties"]['action'] == $action && $result['riskAnalysis']["score"] >= 0.7 ) {
 				return [ "status" => true, "result" => $result ];
 			} else {
 				return [ "status" => false,	"result" => $result ];
@@ -77,8 +76,7 @@ class Recaptcha {
 				1 );
 			curl_setopt( $ch,
 				CURLOPT_POSTFIELDS,
-				http_build_query( array( 'secret' => $secret,
-						'response' => $token ) ) );
+				http_build_query( array( 'secret' => $secret, 'response' => $token ) ) );
 			curl_setopt( $ch,
 				CURLOPT_RETURNTRANSFER,
 				true );
@@ -87,7 +85,7 @@ class Recaptcha {
 			$result = json_decode( $response,
 				true );
 			// verify the response
-			if ( $result["success"] == '1' && $result["action"] == $action && $result["score"] >= 0.5 ) {
+			if ( $result["success"] == '1' && $result["action"] == $action && $result["score"] >= 0.7 ) {
 				return array( "status" => true,
 					"result" => $result );
 			} else {
