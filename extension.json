@@ -1,6 +1,6 @@
 {
   "name": "FlexForm",
-  "version": "2.2.10",
+  "version": "2.2.11",
   "author": [
     "[https://www.wikibase-solutions.com/author/charlot Sen-Sai]"
   ],
@@ -54,8 +54,12 @@
   "config": {
     "FlexFormConfig": {
       "file_temp_path": "",
+      "rc_use": "v3",
       "rc_site_key": "",
       "rc_secret_key": "",
+      "rce_project": "",
+      "rce_site_key": "",
+      "rce_api_key": "",
       "sec_key": "",
       "secure": true,
       "auto_save_interval": 30000,
@@ -111,6 +115,10 @@
     },
     "ext.wsForm.general.styles": {
       "styles": "ext.WSForm.css",
+      "position": "top"
+    },
+    "ext.flexform.recaptcha.v2.styles": {
+      "styles": "reCaptcha.css",
       "position": "top"
     },
     "ext.FlexForm.Instance.styles": {
