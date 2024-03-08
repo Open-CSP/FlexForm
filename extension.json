@@ -117,6 +117,10 @@
       "styles": "ext.WSForm.css",
       "position": "top"
     },
+    "ext.flexform.recaptcha.v2.styles": {
+      "styles": "reCaptcha.css",
+      "position": "top"
+    },
     "ext.FlexForm.Instance.styles": {
       "styles": "instances/instance-style.css",
       "position": "top"

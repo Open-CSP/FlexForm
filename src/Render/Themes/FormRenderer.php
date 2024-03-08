@@ -28,6 +28,7 @@ interface FormRenderer {
 	 * @param array $additionalArgs
 	 * @param string $separator
 	 * @param string|null $fPermissions
+	 * @param string|null $reCaptcha
 	 *
 	 * @return string Rendered HTML
 	 */
@@ -45,6 +46,7 @@ interface FormRenderer {
 		bool $showOnSelect,
 		array $additionalArgs,
 		string $separator,
-		?string $fPermissions
+		?string $fPermissions,
+		?string $reCaptcha
 	) : string;
 }

@@ -22,6 +22,7 @@ use FlexForm\FlexFormException;
  */
 class Recaptcha {
 
+	private const RECAPTCHA_V2_URL = 'https://www.google.com/recaptcha/api/secret=';
 	private const RECAPTCHA_V3_URL = 'https://www.google.com/recaptcha/api/siteverify';
 	private const RECAPTCHA_ENTERPRISE_URL = 'https://recaptchaenterprise.googleapis.com/v1/projects/';
 
@@ -33,66 +34,88 @@ class Recaptcha {
 	 * @return array
 	 */
 	public static function googleSiteVerify( string $token, string $action, $type ) : array {
-		if ( $type !== false ) {
-			$project = Config::getConfigVariable( 'rce_project' );
-			$siteKey = Config::getConfigVariable( 'rce_site_key' );
-			$apiKey = Config::getConfigVariable( 'rce_api_key' );
-			$jsonBody = self::createJSONBody( $token, $action, $siteKey );
-			$url = self::RECAPTCHA_ENTERPRISE_URL . $project . '/assessments?key=' . $apiKey;
-			if ( Config::isDebug() ) {
-				Debug::addToDebug(
-					'Sending to recaptcha',
-					[ "url" => $url,
-						"json" => $jsonBody,
-					"jsonFile" => '' ]
+		switch ( $type ) {
+			case false:
+				break;
+			case "enterprise":
+				$project = Config::getConfigVariable( 'rce_project' );
+				$siteKey = Config::getConfigVariable( 'rce_site_key' );
+				$apiKey = Config::getConfigVariable( 'rce_api_key' );
+				$jsonBody = self::createJSONBody( $token, $action, $siteKey );
+				$url = self::RECAPTCHA_ENTERPRISE_URL . $project . '/assessments?key=' . $apiKey;
+				if ( Config::isDebug() ) {
+					Debug::addToDebug(
+						'Sending to recaptcha',
+						[ "url" => $url,
+							"json" => $jsonBody,
+							"jsonFile" => '' ]
+					);
+				}
+				$ch = curl_init();
+				curl_setopt( $ch, CURLOPT_URL, $url );
+				curl_setopt( $ch, CURLOPT_POST, 1 );
+				curl_setopt( $ch, CURLOPT_POSTFIELDS, $jsonBody );
+				curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+				curl_setopt( $ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json'] );
+				$response = curl_exec( $ch );
+				curl_close( $ch );
+				$result = json_decode( $response, true );
+				$result['score'] = $result['riskAnalysis']["score"];
+				$result['error-codes'] = $result['riskAnalysis']["reasons"];
+				if ( $result['tokenProperties']['valid'] === false ) {
+					return [ "status" => false,	"result" => $result, ];
+				} elseif ( $result["tokenProperties"]['action'] == $action && $result['riskAnalysis']["score"] >= 0.7 ) {
+					return [ "status" => true, "result" => $result ];
+				} else {
+					return [ "status" => false,	"result" => $result ];
+				}
+				break;
+			case "v2":
+				$captchaResponse = General::getPostString(
+					'g-recaptcha-response',
+					false
 				);
-			}
-			$ch = curl_init();
-			curl_setopt( $ch, CURLOPT_URL, $url );
-			curl_setopt( $ch, CURLOPT_POST, 1 );
-			curl_setopt( $ch, CURLOPT_POSTFIELDS, $jsonBody );
-			curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-			curl_setopt( $ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json'] );
-			$response = curl_exec( $ch );
-			curl_close( $ch );
-			$result = json_decode( $response, true );
-			$result['score'] = $result['riskAnalysis']["score"];
-			$result['error-codes'] = $result['riskAnalysis']["reasons"];
-			if ( $result['tokenProperties']['valid'] === false ) {
-				return [ "status" => false,	"result" => $result, ];
-			} elseif ( $result["tokenProperties"]['action'] == $action && $result['riskAnalysis']["score"] >= 0.7 ) {
-				return [ "status" => true, "result" => $result ];
-			} else {
-				return [ "status" => false,	"result" => $result ];
-			}
-		} else {
-			$secret = Config::getConfigVariable( 'rc_secret_key' );
-			$ch = curl_init();
-			curl_setopt( $ch,
-				CURLOPT_URL,
-				self::RECAPTCHA_V3_URL );
-			curl_setopt( $ch,
-				CURLOPT_POST,
-				1 );
-			curl_setopt( $ch,
-				CURLOPT_POSTFIELDS,
-				http_build_query( array( 'secret' => $secret, 'response' => $token ) ) );
-			curl_setopt( $ch,
-				CURLOPT_RETURNTRANSFER,
-				true );
-			$response = curl_exec( $ch );
-			curl_close( $ch );
-			$result = json_decode( $response,
-				true );
-			// verify the response
-			if ( $result["success"] == '1' && $result["action"] == $action && $result["score"] >= 0.7 ) {
-				return array( "status" => true,
-					"result" => $result );
-			} else {
-				return array( "status" => false,
-					"result" => $result );
-			}
+				if ( $captchaResponse === false || empty( $captchaResponse ) ) {
+					return [ "status" => false,	"result" => "Empty v2 captcha response", ];
+				}
+				$secret = Config::getConfigVariable( 'rc_secret_key' );
+				$ch = curl_init();
+				curl_setopt( $ch,
+					CURLOPT_URL,
+					self::RECAPTCHA_V2_URL . $secret . '&response=' . $captchaResponse );
+				curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+				$response = curl_exec( $ch );
+				curl_close( $ch );
+				$result = json_decode( $response );
+				if ( $result->success ) {
+					return [ "status" => true, "result" => "success" ];
+				} else {
+					return [ "status" => true, "result" => "reCaptcha v2 failed" ];
+				}
+				break;
+			case "v3":
+				$secret = Config::getConfigVariable( 'rc_secret_key' );
+				$ch = curl_init();
+				curl_setopt( $ch, CURLOPT_URL, self::RECAPTCHA_V3_URL );
+				curl_setopt( $ch, CURLOPT_POST, 1 );
+				curl_setopt( $ch, CURLOPT_POSTFIELDS,
+					http_build_query( [ 'secret' => $secret, 'response' => $token ] ) );
+				curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+				$response = curl_exec( $ch );
+				curl_close( $ch );
+				$result = json_decode( $response,
+					true );
+				// verify the response
+				if ( $result["success"] == '1' && $result["action"] == $action && $result["score"] >= 0.7 ) {
+					return array( "status" => true,
+						"result" => $result );
+				} else {
+					return array( "status" => false,
+						"result" => $result );
+				}
+				break;
 		}
+		return [ "status" => false,	"result" => "Unknown reCaptcha handler", ];
 	}
 
 	/**
@@ -125,11 +148,11 @@ class Recaptcha {
 			'mw-captcha-type',
 			false
 		);
-		if ( $captchaAction === false ) {
+		if ( $captchaAction === false && $captchaType !== "v2" ) {
 			return true;
 		}
 
-		if ( $captchaToken === '' || $captchaAction === '' ) {
+		if ( ( $captchaToken === '' || $captchaAction === '' ) && $captchaType !== "v2" ) {
 			throw new FlexFormException( wfMessage( 'flexform-captcha-missing-details' )->text() );
 		}
 

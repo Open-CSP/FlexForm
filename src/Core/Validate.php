@@ -139,6 +139,7 @@ class Validate {
 			"permissions",
 			"lock",
 			"recaptcha-v3-action",
+			"recaptcha-action",
             "autosave",
 			"show-on-select",
 			"autocomplete"

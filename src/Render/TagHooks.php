@@ -87,6 +87,7 @@ class TagHooks {
 		global $wgUser, $wgEmailConfirmToEdit, $IP, $wgScript;
 		$ret = '';
 		$addFFJS = '';
+		$recaptchaDiv = null;
 		//$parser->getOutput()->addModuleStyles( 'ext.wsForm.general.styles' );
 		$renderonlyapprovedforms = Config::getConfigVariable( 'renderonlyapprovedforms' );
 		$renderi18nErrorInsteadofImageForApprovedForms = Config::getConfigVariable(
@@ -280,6 +281,11 @@ class TagHooks {
 			unset( $args['recaptcha-v3-action'] );
 		}
 
+		if ( isset( $args['recaptcha-action'] ) ) {
+			Core::$reCaptcha = $args['recaptcha-action'];
+			unset( $args['recaptcha-action'] );
+		}
+
 		if ( isset( $args['changetrigger'] ) ) {
 			$changeCall = $parser->recursiveTagParse(
 				$args['changetrigger'],
@@ -413,6 +419,76 @@ class TagHooks {
 
 		$separator = $this->createSeparatorField( Core::$separator );
 
+		if ( Core::$reCaptcha !== false && !Core::isLoaded( 'google-captcha' ) ) {
+			$captcha = Recaptcha::render();
+
+			if ( $captcha !== false ) {
+				Core::addAsLoaded( 'google-captcha' );
+				$ret = $captcha . $ret;
+			} else {
+				return wfMessage( "flexform-captcha-missing-config" )->parse();
+			}
+		}
+		if ( Core::$reCaptcha !== false ) {
+			if ( $formId === null ) {
+				return wfMessage( "flexform-recaptcha-no-form-id" )->parse();
+			}
+
+			$rcType = Config::getConfigVariable( 'rc_use' );
+			switch ( $rcType) {
+				case "v3":
+					if ( file_exists( $IP . '/extensions/FlexForm/Modules/recaptcha.js' ) ) {
+						$rcaptcha = file_get_contents( $IP . '/extensions/FlexForm/Modules/recaptcha.js' );
+
+						$replace = array( '%%id%%',
+							'%%action%%',
+							'%%sitekey%%', );
+
+						$with = array( $formId,
+							Core::$reCaptcha,
+							Recaptcha::$rc_site_key );
+
+						$rcaptcha = str_replace( $replace,
+							$with,
+							$rcaptcha );
+
+						Core::includeInlineScript( $rcaptcha );
+						Core::$reCaptcha = false;
+					} else {
+
+						return wfMessage( "flexform-recaptcha-no-js" )->parse();
+					}
+					break;
+				case "v2":
+					$recaptchaDiv = '<div class="g-recaptcha" data-sitekey="' . Recaptcha::$rc_site_key . '"></div>';
+					$parser->getOutput()->addModuleStyles( 'ext.flexform.recaptcha.v2.styles' );
+					break;
+				case "enterprise":
+					if ( file_exists( $IP . '/extensions/FlexForm/Modules/recaptchaEnterprise.js' ) ) {
+						$rcaptcha = file_get_contents( $IP . '/extensions/FlexForm/Modules/recaptchaEnterprise.js' );
+
+						$replace = array( '%%id%%',
+							'%%action%%',
+							'%%reCaptchaEnterpriseID%%', );
+
+						$with = array( $formId,
+							Core::$reCaptcha,
+							Recaptcha::$rc_enterprise_siteKey );
+
+						$rcaptcha = str_replace( $replace,
+							$with,
+							$rcaptcha );
+
+						Core::includeInlineScript( $rcaptcha );
+						Core::$reCaptcha = false;
+					} else {
+
+						return wfMessage( "flexform-recaptcha-no-js" )->parse();
+					}
+					break;
+			}
+		}
+
 		try {
 			$previousTheme = $this->themeStore->getFormThemeName();
 
@@ -444,7 +520,8 @@ class TagHooks {
 				$showOnSelect,
 				$additionalArgs,
 				$separator,
-				$fPermissions
+				$fPermissions,
+				$recaptchaDiv
 			);
 		} finally {
 			$this->themeStore->setFormThemeName( $previousTheme );
@@ -454,71 +531,6 @@ class TagHooks {
 
 		if ( Core::isShowOnSelectActive() ) {
 			$ret .= Core::addShowOnSelectJS();
-		}
-
-		if ( Core::$reCaptcha !== false && !Core::isLoaded( 'google-captcha' ) ) {
-			$captcha = Recaptcha::render();
-
-			if ( $captcha !== false ) {
-				Core::addAsLoaded( 'google-captcha' );
-				$ret = $captcha . $ret;
-			} else {
-				return wfMessage( "flexform-captcha-missing-config" )->parse();
-			}
-		}
-
-		if ( Core::$reCaptcha !== false ) {
-			if ( $formId === null ) {
-				return wfMessage( "flexform-recaptcha-no-form-id" )->parse();
-			}
-
-			$rcType = Config::getConfigVariable( 'rc_use' );
-			if ( $rcType == "v3" ) {
-
-				if ( file_exists( $IP . '/extensions/FlexForm/Modules/recaptcha.js' ) ) {
-					$rcaptcha = file_get_contents( $IP . '/extensions/FlexForm/Modules/recaptcha.js' );
-
-					$replace = array( '%%id%%',
-						'%%action%%',
-						'%%sitekey%%', );
-
-					$with = array( $formId,
-						Core::$reCaptcha,
-						Recaptcha::$rc_site_key );
-
-					$rcaptcha = str_replace( $replace,
-						$with,
-						$rcaptcha );
-
-					Core::includeInlineScript( $rcaptcha );
-					Core::$reCaptcha = false;
-				} else {
-
-					return wfMessage( "flexform-recaptcha-no-js" )->parse();
-				}
-			} else {
-				if ( file_exists( $IP . '/extensions/FlexForm/Modules/recaptchaEnterprise.js' ) ) {
-					$rcaptcha = file_get_contents( $IP . '/extensions/FlexForm/Modules/recaptchaEnterprise.js' );
-
-					$replace = array( '%%id%%',
-						'%%action%%',
-						'%%reCaptchaEnterpriseID%%', );
-
-					$with = array( $formId,
-						Core::$reCaptcha,
-						Recaptcha::$rc_enterprise_siteKey );
-
-					$rcaptcha = str_replace( $replace,
-						$with,
-						$rcaptcha );
-
-					Core::includeInlineScript( $rcaptcha );
-					Core::$reCaptcha = false;
-				} else {
-
-					return wfMessage( "flexform-recaptcha-no-js" )->parse();
-				}
-			}
 		}
 
 		self::addInlineJavaScriptAndCSS();
