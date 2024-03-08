@@ -144,6 +144,9 @@ try {
 	$responseHandler->setReturnData( $e->getMessage() );
 	$responseHandler->setReturnStatus( 'recaptch error' );
 	$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
+	if ( !empty( $_SERVER['HTTP_REFERER'] ) ) {
+		$responseHandler->setMwReturn( $_SERVER['HTTP_REFERER'] );
+	}
 	try {
 		$responseHandler->exitResponse();
 		return false;
