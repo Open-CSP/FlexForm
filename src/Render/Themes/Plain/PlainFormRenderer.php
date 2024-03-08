@@ -25,7 +25,8 @@ class PlainFormRenderer implements FormRenderer {
 		bool $showOnSelect,
 		array $additionalArgs,
 		string $separator,
-		?string $fPermissions
+		?string $fPermissions,
+		?string $reCaptcha
 	) : string {
 		$javascript     = '';
 
@@ -129,11 +130,15 @@ class PlainFormRenderer implements FormRenderer {
 			Core::cleanFileActions();
 		}
 
+		if ( $reCaptcha !== null ) {
+			$formContent .= Core::createHiddenField( 'mw-captcha-type', 'v2' );
+		}
+
 		if ( Config::isSecure() ) {
 			// FIXME: Move some of this logic to the caller
 			Protect::setCrypt( Core::$checksumKey );
 			$checksumName = Protect::encrypt( 'checksum' );
-			if ( ! empty( Core::$chkSums ) ) {
+			if ( !empty( Core::$chkSums ) ) {
 				$checksumValue = Protect::encrypt( serialize( Core::$chkSums ) );
 				$formContent .= \Xml::input(
 					$checksumName,
@@ -152,6 +157,10 @@ class PlainFormRenderer implements FormRenderer {
 
 		if ( $javascript !== '' ) {
 			Core::includeInlineScript( $javascript );
+		}
+
+		if ( $reCaptcha !== null ) {
+			$input .= $reCaptcha;
 		}
 
 		return \Xml::tags(

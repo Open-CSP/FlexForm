@@ -49,6 +49,10 @@
       "description": "Use reCaptcha Version 3 on a FlexForm",
       "type": "string"
     },
+    "recaptcha-action": {
+      "description": "Use reCaptcha on a FlexForm",
+      "type": "string"
+    },
     "autosave": {
       "description": "Auto save forms on interval, after change or both",
       "type": "string"
