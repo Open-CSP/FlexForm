@@ -131,6 +131,8 @@ class ApiFlexForm extends ApiBase {
 				}
 				$startRange = (int)$range[0];
 				$endRange   = (int)$range[1];
+				$params['setrange']['start'] = $startRange;
+				$params['setrange']['end'] = $endRange;
 
 				$result = $this->getFromRange(
 					$title,
@@ -154,10 +156,12 @@ class ApiFlexForm extends ApiBase {
 				break;
 		}
 
+
 		$this->getResult()->addValue(
 			null,
 			$this->getModuleName(),
-			[ 'result' => $output ]
+			[ 'result' => $output,
+				'request' => $params ]
 		);
 
 		return true;
@@ -339,7 +343,10 @@ class ApiFlexForm extends ApiBase {
 			$cnt = $cnt + $thisCnt;
 
 			if ( $cnt < 1 && $appContinue === false ) {
-				return $range['start'] + 1;
+				return $this->createResult(
+					'ok',
+					$range['start']
+				);
 			}
 
 			if ( $thisCnt > 0 ) {
@@ -364,7 +371,10 @@ class ApiFlexForm extends ApiBase {
 		}
 
 		if ( count( $pages ) < 1 ) {
-			return $range['start'] + 1;
+			return $this->createResult(
+				'ok',
+				$range['start']
+			);
 		}
 		$s = $range['start'];
 		$e = $range['end'];
@@ -394,17 +404,11 @@ class ApiFlexForm extends ApiBase {
 	 * @throws MWException
 	 */
 	private function getDataForWikiList( string $nameStartsWith, $appContinue, $range = false ) {
-		if ( strpos(
-				 $nameStartsWith,
-				 ':'
-			 ) !== false ) {
-			$split = explode(
-				':',
-				$nameStartsWith
-			);
+		if ( strpos( $nameStartsWith, ':' ) !== false ) {
+			$split = explode( ':', $nameStartsWith );
 
 			$nameStartsWith_withoutNamespace = $split[1];
-			$nameSpace      = $split[0];
+			$nameSpace = $split[0];
 			if ( empty( $nameSpace ) ) {
 				$id = 0;
 			} else {

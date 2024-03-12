@@ -639,11 +639,19 @@ class ContentCore {
 	 * @return string
 	 */
 	public static function checkCapitalTitle( string $title ): string {
+		if ( Config::isDebug() ) {
+			Debug::addToDebug( 'checkCapitalTitle function',
+							   [ "title" => $title ] );
+		}
 		$titleObject = Title::newFromText( $title );
 		if ( $titleObject === null ) {
 			return $title;
 		}
 		$ns = $titleObject->getNamespace();
+		if ( Config::isDebug() ) {
+			Debug::addToDebug( 'checkCapitalTitle function',
+							   [ "namespace" => $ns ] );
+		}
 		$config = MediaWikiServices::getInstance()->getMainConfig();
 		if ( $config->has( 'CapitalLinks' ) ) {
 			$capLinks = $config->get( 'CapitalLinks' );

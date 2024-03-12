@@ -37,7 +37,10 @@ class Create {
 	public function writePage(): array {
 		$fields = ContentCore::getFields();
 		if ( Config::isDebug() ) {
-			Debug::addToDebug( 'Write page activated ',
+			$debugTitle = '<b>::' . get_class() . '::</b> ';
+		}
+		if ( Config::isDebug() ) {
+			Debug::addToDebug( $debugTitle . 'Write page activated ',
 							   [ "fields" => $fields,
 								"_post" => $_POST ] );
 		}
@@ -46,7 +49,8 @@ class Create {
 
 		if ( Config::isDebug() ) {
 			Debug::addToDebug( 'Write page activated CONTENT ',
-							   $this->content );
+							   [ "content" => $this->content,
+								   "title" => $fields['writepage'] ] );
 		}
 		if ( strpos(
 				 $fields['writepage'],
@@ -55,19 +59,49 @@ class Create {
 			$fields['writepage'] = ContentCore::parseTitle( $fields['writepage'] );
 		}
 
-		$fields['writepage'] = ContentCore::checkCapitalTitle( $fields['writepage'] );
-
 		$this->title = $fields['writepage'];
 
-		try {
-			$this->title = ContentCore::letMWCheckTitle( $this->title );
-		} catch ( FlexFormException $e ) {
-			throw new FlexFormException(
-				$e->getMessage(),
-				0,
-				$e
-			);
+		// Checking for range option
+		if ( substr( strtolower( $fields['option'] ), 0, 6 ) === 'range:' ) {
+			$range = substr( $fields['option'], 6 );
+			$rangeCheck = explode( '-', $range );
+
+			if ( !ctype_digit( $rangeCheck[0] ) || !ctype_digit( $rangeCheck[1] ) ) {
+				throw new FlexFormException( wfMessage( 'flexform-mwoption-bad-range' ) );
+			}
+
+			// $startRange = (int)$range[0];
+			//$endRange = (int)$range[1];
+
+			//$tmp  = $api->getWikiListNumber($title, array('start' => $startRange, 'end' => $endRange) );
+			$rangeResult = ContentCore::getFromRange( $this->title, $range );
+			if ( $rangeResult['status'] === 'error' ) {
+				// echo $tmp['message'];
+				throw new FlexFormException( $rangeResult['message'] );
+				// return wbHandleResponses::createMsg( $tmp['message'], 'error', $returnto);
+			}
+			$rangeResult = $rangeResult['result'];
+
+			if ( $fields['leadByZero'] === true ) {
+				$endrangeLength = strlen( $rangeCheck[1] );
+				$rangeResult    = str_pad(
+					$rangeResult,
+					$endrangeLength,
+					'0',
+					STR_PAD_LEFT
+				);
+				if ( Config::isDebug() ) {
+					Debug::addToDebug(
+						$debugTitle . 'lead by zero active ',
+						[ 'rangeCheck' => $rangeCheck,
+						  'endrangeLenth' => $endrangeLength,
+						  'rangeResult' => $rangeResult ]
+					);
+				}
+			}
+			$this->title = $fields['writepage'] . $rangeResult;
 		}
+
 
 		if ( strtolower( $fields['option'] ) == 'next_available' ) {
 			// get highest number
@@ -85,50 +119,6 @@ class Create {
 				throw new FlexFormException( wfMessage( 'flexform-mwcreate-wrong-title2' )->text() );
 			}
 		}
-		if ( substr(
-				 strtolower( $fields['option'] ),
-				 0,
-				 6
-			 ) === 'range:' ) {
-			$range      = substr(
-				$fields['option'],
-				6
-			);
-			$rangeCheck = explode(
-				'-',
-				$range
-			);
-
-			if ( !ctype_digit( $rangeCheck[0] ) || !ctype_digit( $rangeCheck[1] ) ) {
-				throw new FlexFormException( wfMessage( 'flexform-mwoption-bad-range' ) );
-			}
-
-			// $startRange = (int)$range[0];
-			//$endRange = (int)$range[1];
-
-			//$tmp  = $api->getWikiListNumber($title, array('start' => $startRange, 'end' => $endRange) );
-			$rangeResult = ContentCore::getFromRange(
-				$this->title,
-				$range
-			);
-			if ( $rangeResult['status'] === 'error' ) {
-				// echo $tmp['message'];
-				throw new FlexFormException( $rangeResult['message'] );
-				// return wbHandleResponses::createMsg( $tmp['message'], 'error', $returnto);
-			}
-			$rangeResult = $rangeResult['result'];
-
-			if ( $fields['leadByZero'] === true ) {
-				$endrangeLength = strlen( $rangeCheck[1] );
-				$rangeResult    = str_pad(
-					$rangeResult,
-					$endrangeLength,
-					'0',
-					STR_PAD_LEFT
-				);
-			}
-			$this->title = $fields['writepage'] . $rangeResult;
-		}
 
 		if ( $fields['option'] == 'add_random' && $fields['writepage'] !== false ) {
 
@@ -138,6 +128,18 @@ class Create {
 					['title' => $fields['writepage'],
 					 'new Title' => $this->title ] );
 			}
+		}
+
+		$fields['writepage'] = ContentCore::checkCapitalTitle( $this->title );
+
+		try {
+			$this->title = ContentCore::letMWCheckTitle( $this->title );
+		} catch ( FlexFormException $e ) {
+			throw new FlexFormException(
+				$e->getMessage(),
+				0,
+				$e
+			);
 		}
 
 		if ( !$fields['writepage'] ) {
@@ -362,22 +364,6 @@ class Create {
 				throw new FlexFormException( wfMessage( 'flexform-mwcreate-wrong-title2' )->text() );
 			}
 
-			$this->pageData['title'] = ContentCore::checkCapitalTitle( $this->pageData['title'] );
-
-			if ( substr( $this->pageData['title'],
-						 0,
-						 6 ) !== '--id--' && substr( $this->pageData['title'],
-													 0,
-													 6 ) !== '::id::' ) {
-				try {
-					$this->pageData['title'] = ContentCore::letMWCheckTitle( $this->pageData['title'] );
-				} catch ( FlexFormException $e ) {
-					throw new FlexFormException( $e->getMessage(),
-												 0,
-												 $e );
-				}
-			}
-
 			if ( $this->pageData['option'] == 'next_available' ) {
 
 				$hnr = ContentCore::getNextAvailable( $this->pageData['title'] );
@@ -397,19 +383,9 @@ class Create {
 			}
 
 
-			if ( substr(
-					 strtolower( $this->pageData['option'] ),
-					 0,
-					 6
-				 ) === 'range:' ) {
-				$range      = substr(
-					$this->pageData['option'],
-					6
-				);
-				$rangeCheck = explode(
-					'-',
-					$range
-				);
+			if ( substr( strtolower( $this->pageData['option'] ), 0,6 ) === 'range:' ) {
+				$range      = substr( $this->pageData['option'], 6 );
+				$rangeCheck = explode( '-', $range );
 				if ( !ctype_digit( $rangeCheck[0] ) || !ctype_digit( $rangeCheck[1] ) ) {
 					throw new FlexFormException( wfMessage( 'flexform-mwoption-bad-range' ) );
 				}
@@ -456,6 +432,22 @@ class Create {
 					Debug::addToDebug( $debugTitle . 'Add random to title ',
 						['title' => $this->pageData['title'],
 						 'new Title' => $this->pageData['title'] ], $timer->getDuration() );
+				}
+			}
+
+			$this->pageData['title'] = ContentCore::checkCapitalTitle( $this->pageData['title'] );
+
+			if ( substr( $this->pageData['title'],
+						 0,
+						 6 ) !== '--id--' && substr( $this->pageData['title'],
+													 0,
+													 6 ) !== '::id::' ) {
+				try {
+					$this->pageData['title'] = ContentCore::letMWCheckTitle( $this->pageData['title'] );
+				} catch ( FlexFormException $e ) {
+					throw new FlexFormException( $e->getMessage(),
+												 0,
+												 $e );
 				}
 			}
 
