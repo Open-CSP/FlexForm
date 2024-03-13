@@ -350,10 +350,7 @@ class Create {
 					);
 				}
 			}
-			if ( strpos(
-					 $this->pageData['title'],
-					 '['
-				 ) !== false ) {
+			if ( strpos( $this->pageData['title'], '[' ) !== false ) {
 				$this->pageData['title'] = ContentCore::parseTitle(
 					$this->pageData['title'],
 					$this->pageData['noseo']
@@ -420,7 +417,16 @@ class Create {
 
 			if ( $this->pageData['option'] == 'next_available' ) {
 
-				$hnr = ContentCore::getNextAvailable( $this->pageData['title'] );
+				if ( $lastNextAvailable !== false &&
+					 $lastTitle !== false &&
+					 $lastTitle === $this->pageData['title']
+				) {
+					$hnr = $lastNextAvailable;
+					$hnr['result'] = (string)( intval( $hnr['result'] ) + 1 );
+				} else {
+					$hnr = ContentCore::getNextAvailable( $this->pageData['title'] );
+				}
+				$lastNextAvailable = $hnr;
 				if ( Config::isDebug() ) {
 					Debug::addToDebug(
 						$debugTitle . 'next available',
@@ -440,18 +446,15 @@ class Create {
 				$this->pageData['title'] = $this->pageData['title'] . ContentCore::createRandom();
 				if ( Config::isDebug() ) {
 					Debug::addToDebug( $debugTitle . 'Add random to title ',
-						['title' => $this->pageData['title'],
+						[ 'title' => $this->pageData['title'],
 							'new Title' => $this->pageData['title'] ], $timer->getDuration() );
 				}
 			}
 
 			$this->pageData['title'] = ContentCore::checkCapitalTitle( $this->pageData['title'] );
 
-			if ( substr( $this->pageData['title'],
-						 0,
-						 6 ) !== '--id--' && substr( $this->pageData['title'],
-													 0,
-													 6 ) !== '::id::' ) {
+			if ( substr( $this->pageData['title'], 0, 6 ) !== '--id--' &&
+				 substr( $this->pageData['title'], 0, 6 ) !== '::id::' ) {
 				try {
 					$this->pageData['title'] = ContentCore::letMWCheckTitle( $this->pageData['title'] );
 				} catch ( FlexFormException $e ) {
@@ -460,7 +463,6 @@ class Create {
 												 $e );
 				}
 			}
-
 
 			ContentCore::checkFollowPage( $this->pageData['title'] );
 
