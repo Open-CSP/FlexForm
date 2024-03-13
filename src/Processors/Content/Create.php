@@ -291,6 +291,10 @@ class Create {
 		$pageCount = 0;
 		$fields    = ContentCore::getFields();
 		$pageTitleToLinkTo = [];
+		$lastTitle = false;
+		$lastNextAvailable = false;
+		$lastRangeResult = false;
+		$lastRangeRequest = false;
 		$json = [];
 		if ( Config::isDebug() ) {
 			$timer = new DebugTimer();
@@ -367,10 +371,20 @@ class Create {
 					throw new FlexFormException( wfMessage( 'flexform-mwoption-bad-range' ) );
 				}
 
-				$rangeResult = ContentCore::getFromRange(
-					$this->pageData['title'],
-					$range
-				);
+				if ( $lastRangeResult !== false &&
+					$lastTitle !== false &&
+					$lastRangeRequest !== false &&
+					$lastTitle === $this->pageData['title'] &&
+					$range === $lastRangeRequest
+					) {
+					$rangeResult = $lastRangeResult;
+					$rangeResult['result'] = (string)( intval( $rangeResult['result'] ) + 1 );
+				} else {
+					$rangeResult = ContentCore::getFromRange( $this->pageData['title'],
+						$range );
+				}
+				$lastRangeResult = $rangeResult;
+				$lastRangeRequest = $range;
 				if ( $rangeResult['status'] === 'error' ) {
 					// echo $tmp['message'];
 					throw new FlexFormException( $rangeResult['message'] );
@@ -400,6 +414,7 @@ class Create {
 					}
 
 				}
+				$lastTitle = $this->pageData['title'];
 				$this->pageData['title'] = $this->pageData['title'] . $rangeResult;
 			}
 
