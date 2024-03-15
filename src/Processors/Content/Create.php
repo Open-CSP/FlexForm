@@ -426,6 +426,7 @@ class Create {
 				} else {
 					$hnr = ContentCore::getNextAvailable( $this->pageData['title'] );
 				}
+				$lastTitle = $this->pageData['title'];
 				$lastNextAvailable = $hnr;
 				if ( Config::isDebug() ) {
 					Debug::addToDebug(
