@@ -126,7 +126,7 @@ class Create {
 			}
 		}
 
-		$fields['writepage'] = ContentCore::checkCapitalTitle( $fields['writepage'] );
+		$fields['writepage'] = ContentCore::checkCapitalTitle( $this->title );
 
 		try {
 			$this->title = ContentCore::letMWCheckTitle( $this->title );
