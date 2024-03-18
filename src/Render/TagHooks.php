@@ -534,7 +534,7 @@ class TagHooks {
 		}
 
 		self::addInlineJavaScriptAndCSS();
-
+		Core::$reCaptcha = false;
 		return [
 			$ret,
 			"markerType" => 'nowiki'
