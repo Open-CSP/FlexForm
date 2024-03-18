@@ -156,7 +156,6 @@ class ApiFlexForm extends ApiBase {
 				break;
 		}
 
-
 		$this->getResult()->addValue(
 			null,
 			$this->getModuleName(),
