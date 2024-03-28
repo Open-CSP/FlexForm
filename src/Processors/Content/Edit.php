@@ -58,6 +58,13 @@ class Edit {
 		if ( empty( $toCheck ) || ctype_space( $toCheck ) ) {
 			return true;
 		}
+		$toCheck = trim( $toCheck );
+		if ( substr( $toCheck, 0, 1 ) === '|' ) {
+			return true;
+		}
+		if ( substr( $toCheck, 0, 2 ) === '}}' ) {
+			return true;
+		}
 		return false;
 	}
 
@@ -147,6 +154,18 @@ class Edit {
 				$source,
 				'{{' . $template
 			);
+			$tillEndOfLine = $this->onlyWhiteSpaceChars( $source, $startPos );
+			while ( $tillEndOfLine !== true && $startPos !== false ) {
+				$startPos = $this->getStartPos(
+					$source,
+					'{{' . $template,
+					$startPos
+				);
+				$tillEndOfLine = $this->onlyWhiteSpaceChars( $source, $startPos );
+			}
+			if ( $startPos === false || $startPos > strlen( $source ) ) {
+				return false;
+			}
 			$endPos   = $this->getEndPos(
 				$startPos,
 				$source
@@ -186,7 +205,19 @@ class Edit {
 					'{{' . $template,
 					$offset
 				);
-				$endPos   = $this->getEndPos(
+				$tillEndOfLine = $this->onlyWhiteSpaceChars( $source, $startPos );
+				while ( $tillEndOfLine !== true && $startPos !== false ) {
+					$startPos = $this->getStartPos(
+						$source,
+						'{{' . $template,
+						$startPos
+					);
+					$tillEndOfLine = $this->onlyWhiteSpaceChars( $source, $startPos );
+				}
+				if ( $startPos === false || $startPos > strlen( $source ) ) {
+					return false;
+				}
+				$endPos = $this->getEndPos(
 					$startPos,
 					$source
 				);
