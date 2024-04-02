@@ -147,7 +147,6 @@ class Edit {
 				return false;
 			}
 		}
-		echo "</pre>";
 		// 1 template found, but we need to check for argument=value
 		if ( $multiple == 1 && $find !== false && $value !== false ) {
 			$startPos = $this->getStartPos(
@@ -342,7 +341,6 @@ class Edit {
 			$start,
 			$offset
 		);
-		var_dump( "getting strpos(string, '" . $start . "', " . $offset .")");
 		if ( $ini === false ) {
 			return false;
 		}
