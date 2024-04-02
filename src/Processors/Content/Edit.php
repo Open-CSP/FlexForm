@@ -50,6 +50,27 @@ class Edit {
 	}
 
 	/**
+	 * @param string $source
+	 * @param int $pos
+	 *
+	 * @return bool
+	 */
+	public function onlyWhiteSpaceChars( string $source, int $pos ): bool {
+		$toCheck = substr( $source, $pos, ( strpos( $source, PHP_EOL, $pos ) ) - $pos );
+		if ( empty( $toCheck ) || ctype_space( $toCheck ) ) {
+			return true;
+		}
+		$toCheck = trim( $toCheck );
+		if ( substr( $toCheck, 0, 1 ) === '|' ) {
+			return true;
+		}
+		if ( substr( $toCheck, 0, 2 ) === '}}' ) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
 	 * Function used by the Edit page functions
 	 *
 	 * @param string $source
@@ -97,7 +118,20 @@ class Edit {
 				$source,
 				'{{' . $template
 			);
-			$endPos   = $this->getEndPos(
+			$tillEndOfLine = $this->onlyWhiteSpaceChars( $source, $startPos );
+			while ( $tillEndOfLine !== true && $startPos !== false ) {
+				$startPos = $this->getStartPos(
+					$source,
+					'{{' . $template,
+					$startPos
+				);
+				$tillEndOfLine = $this->onlyWhiteSpaceChars( $source, $startPos );
+			}
+			if ( $startPos === false || $startPos > strlen( $source ) ) {
+				return false;
+			}
+
+			$endPos = $this->getEndPos(
 				$startPos,
 				$source
 			);
@@ -118,7 +152,19 @@ class Edit {
 				$source,
 				'{{' . $template
 			);
-			$endPos   = $this->getEndPos(
+			$tillEndOfLine = $this->onlyWhiteSpaceChars( $source, $startPos );
+			while ( $tillEndOfLine !== true && $startPos !== false ) {
+				$startPos = $this->getStartPos(
+					$source,
+					'{{' . $template,
+					$startPos
+				);
+				$tillEndOfLine = $this->onlyWhiteSpaceChars( $source, $startPos );
+			}
+			if ( $startPos === false || $startPos > strlen( $source ) ) {
+				return false;
+			}
+			$endPos = $this->getEndPos(
 				$startPos,
 				$source
 			);
@@ -157,7 +203,20 @@ class Edit {
 					'{{' . $template,
 					$offset
 				);
-				$endPos   = $this->getEndPos(
+
+				$tillEndOfLine = $this->onlyWhiteSpaceChars( $source, $startPos );
+				while ( $tillEndOfLine !== true && $startPos !== false ) {
+					$startPos = $this->getStartPos(
+						$source,
+						'{{' . $template,
+						$startPos
+					);
+					$tillEndOfLine = $this->onlyWhiteSpaceChars( $source, $startPos );
+				}
+				if ( $startPos === false || $startPos > strlen( $source ) ) {
+					return false;
+				}
+				$endPos = $this->getEndPos(
 					$startPos,
 					$source
 				);

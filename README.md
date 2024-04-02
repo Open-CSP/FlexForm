@@ -86,6 +86,7 @@ Visit this documentation page https://www.open-csp.org/DevOps:Doc/FlexForm/2.0/V
 Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
+* 2.2.14 : Fix for finding templates on a page with spaces
 * 2.2.12 : Fix for creating pages with ranges. Fix reCaptcha on multiple forms.
 * 2.2.11 : Added reCaptcha Enterprise and Recaptcha v2 I'm not a Robot support
 * 2.2.10 : Added recursive parsing of content to find templates and values.
