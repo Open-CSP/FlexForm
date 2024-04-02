@@ -47,6 +47,27 @@ class Edit {
 		return $found;
 	}
 
+	/**
+	 * @param string $source
+	 * @param int $pos
+	 *
+	 * @return bool
+	 */
+	public function onlyWhiteSpaceChars( string $source, int $pos ): bool {
+		$toCheck = substr( $source, $pos, ( strpos( $source, PHP_EOL, $pos ) ) - $pos );
+		if ( empty( $toCheck ) || ctype_space( $toCheck ) ) {
+			return true;
+		}
+		$toCheck = trim( $toCheck );
+		if ( substr( $toCheck, 0, 1 ) === '|' ) {
+			return true;
+		}
+		if ( substr( $toCheck, 0, 2 ) === '}}' ) {
+			return true;
+		}
+		return false;
+	}
+
 	private $editCount = 0;
 
 	/**
@@ -99,7 +120,20 @@ class Edit {
 				$source,
 				'{{' . $template
 			);
-			$endPos   = $this->getEndPos(
+			$tillEndOfLine = $this->onlyWhiteSpaceChars( $source, $startPos );
+			while ( $tillEndOfLine !== true && $startPos !== false ) {
+				$startPos = $this->getStartPos(
+					$source,
+					'{{' . $template,
+					$startPos
+				);
+				$tillEndOfLine = $this->onlyWhiteSpaceChars( $source, $startPos );
+			}
+			if ( $startPos === false || $startPos > strlen( $source ) ) {
+				return false;
+			}
+
+			$endPos = $this->getEndPos(
 				$startPos,
 				$source
 			);
@@ -113,13 +147,25 @@ class Edit {
 				return false;
 			}
 		}
-
+		echo "</pre>";
 		// 1 template found, but we need to check for argument=value
 		if ( $multiple == 1 && $find !== false && $value !== false ) {
 			$startPos = $this->getStartPos(
 				$source,
 				'{{' . $template
 			);
+			$tillEndOfLine = $this->onlyWhiteSpaceChars( $source, $startPos );
+			while ( $tillEndOfLine !== true && $startPos !== false ) {
+				$startPos = $this->getStartPos(
+					$source,
+					'{{' . $template,
+					$startPos
+				);
+				$tillEndOfLine = $this->onlyWhiteSpaceChars( $source, $startPos );
+			}
+			if ( $startPos === false || $startPos > strlen( $source ) ) {
+				return false;
+			}
 			$endPos   = $this->getEndPos(
 				$startPos,
 				$source
@@ -159,7 +205,19 @@ class Edit {
 					'{{' . $template,
 					$offset
 				);
-				$endPos   = $this->getEndPos(
+				$tillEndOfLine = $this->onlyWhiteSpaceChars( $source, $startPos );
+				while ( $tillEndOfLine !== true && $startPos !== false ) {
+					$startPos = $this->getStartPos(
+						$source,
+						'{{' . $template,
+						$startPos
+					);
+					$tillEndOfLine = $this->onlyWhiteSpaceChars( $source, $startPos );
+				}
+				if ( $startPos === false || $startPos > strlen( $source ) ) {
+					return false;
+				}
+				$endPos = $this->getEndPos(
 					$startPos,
 					$source
 				);
@@ -284,6 +342,7 @@ class Edit {
 			$start,
 			$offset
 		);
+		var_dump( "getting strpos(string, '" . $start . "', " . $offset .")");
 		if ( $ini === false ) {
 			return false;
 		}
