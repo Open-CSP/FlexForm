@@ -2264,13 +2264,6 @@ class TagHooks {
 			];
 		}
 
-		if ( !MediaWikiServices::getInstance()->getUserNameUtils()->isValid( $username ) ) {
-			return [
-				'Not a valid username according to MediaWiki',
-				'noparse' => true
-			];
-		}
-
 		$output = $this->themeStore->getFormTheme()->getCreateUserRenderer()->render_createUser(
 			$username,
 			$emailAddress,
