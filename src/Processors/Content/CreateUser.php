@@ -151,14 +151,6 @@ class CreateUser {
 		$template = str_replace( $searchFor, $replaceWith, $template );
 		*/
 		$template = wfMessage( 'flexform-createuser-email', $rName, $this->getUserName(), $this->passWord )->plain();
-		$status = $user->sendConfirmationMail();
-		if ( Config::isDebug() ) {
-			Debug::addToDebug(
-				'sendConfirmationMail status',
-				[ 'status' => (array)$status ]
-			);
-		}
-		sleep( 1 );
 		$status = $user->sendMail( 'Account registration', $template );
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
@@ -169,6 +161,15 @@ class CreateUser {
 		if ( !$status->isGood() ) {
 			throw new FlexFormException( $status->getMessage() );
 		}
+		$status = $user->sendConfirmationMail();
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'sendConfirmationMail status',
+				[ 'status' => (array)$status ]
+			);
+		}
+		sleep( 1 );
+
 	}
 
 	/**
