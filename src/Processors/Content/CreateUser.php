@@ -125,6 +125,7 @@ class CreateUser {
 	 */
 	public function sendPassWordAndConfirmationLink( User $user ) {
 		$user = $this->setPassword( $user );
+		sleep( 1 );
 		/*
 		$template = file_get_contents(
 			$IP . '/extensions/FlexForm/src/Templates/createUserEmailConfirmation.tpl'
