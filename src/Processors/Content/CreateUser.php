@@ -2,7 +2,9 @@
 
 namespace FlexForm\Processors\Content;
 
+use FlexForm\Core\Config;
 use FlexForm\Core\Core;
+use FlexForm\Core\Debug;
 use FlexForm\FlexFormException;
 use MediaWiki\HookContainer\HookRunner;
 use MediaWiki\MediaWikiServices;
@@ -46,6 +48,12 @@ class CreateUser {
 		}
 		if ( isset( $explodedContent[2] ) && $explodedContent[2] !== '' ) {
 			$this->realName = ContentCore::parseTitle( $explodedContent[2], true );
+		}
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'Creatuser Construct',
+				[ 'user' => $this->userName, 'emailAddress' => $this->emailAddress, 'realName' => $this->realName ]
+			);
 		}
 	}
 
@@ -142,8 +150,20 @@ class CreateUser {
 		$template = str_replace( $searchFor, $replaceWith, $template );
 		*/
 		$template = wfMessage( 'flexform-createuser-email', $rName, $this->getUserName(), $this->passWord )->plain();
-		$user->sendConfirmationMail();
+		$status = $user->sendConfirmationMail();
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'sendConfirmationMail status',
+				[ 'status' => (array)$status ]
+			);
+		}
 		$status = $user->sendMail( 'Account registration', $template );
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'sendmail status',
+				[ 'status' => (array)$status ]
+			);
+		}
 		if ( !$status->isGood() ) {
 			throw new FlexFormException( $status->getMessage() );
 		}
