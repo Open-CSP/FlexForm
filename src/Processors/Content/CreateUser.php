@@ -31,15 +31,24 @@ class CreateUser {
 	 */
 	private $passWord;
 
+	/**
+	 * @throws FlexFormException
+	 */
 	public function __construct() {
 		$fields    = ContentCore::getFields();
 		$explodedContent = explode( Core::DIVIDER, $fields['createuser'] );
 		if ( isset( $explodedContent[0] ) && isset( $explodedContent[1] ) ) {
-			$this->userName     = $explodedContent[0];
-			$this->emailAddress = $explodedContent[1];
+			$this->userName = ucfirst( ContentCore::parseTitle( $explodedContent[0], true ) );
+			if ( !MediaWikiServices::getInstance()->getUserNameUtils()->isValid( $this->userName ) ) {
+				throw new FlexFormException(
+					wfMessage( 'flexform-createuser-invalid-name', $this->getUserName() )->text(),
+					0
+				);
+			}
+			$this->emailAddress = ContentCore::parseTitle( $explodedContent[1], true );
 		}
 		if ( isset( $explodedContent[2] ) && $explodedContent[2] !== '' ) {
-			$this->realName = $explodedContent[2];
+			$this->realName = ContentCore::parseTitle( $explodedContent[2], true );
 		}
 	}
 
