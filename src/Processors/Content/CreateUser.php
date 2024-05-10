@@ -157,6 +157,7 @@ class CreateUser {
 				[ 'status' => (array)$status ]
 			);
 		}
+		sleep( 1 );
 		$status = $user->sendMail( 'Account registration', $template );
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(

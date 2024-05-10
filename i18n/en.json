@@ -55,7 +55,7 @@
 	"flexform-createuser-invalid-name" : "Invalid username: $1",
 	"flexform-createuser-disabled" : "FlexForm user creation is disabled in LocalSettings",
 	"flexform-createuser-username-exists" : "Account for $1 already exists",
-	"flexform-createuser-email": "Dear $1,\\n\\nWe have created a new account for you.\\n\\nThis is one of two emails you will receive.\\nThe other email will be your email address confirmation.\\n\\n\nOnce you have confirmed, you can then login with the following credentials.\\n\\nUsername:\\n$2\\n\\nPassword:\\n$3\\n\\nYou should log in and choose a new password.",
+	"flexform-createuser-email": "Dear $1,\n\nWe have created a new account for you.\n\nThis is one of two emails you will receive.\nThe other email will be your email address confirmation.\n\n\nOnce you have confirmed, you can then login with the following credentials.\n\nUsername:\n$2\n\nPassword:\n$3\n\nYou should log in and choose a new password.",
 
 	"flexform-norequest-made" : "No requests",
 	"flexform-noreturn-found" : "No return found",
