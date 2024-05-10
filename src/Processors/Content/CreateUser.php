@@ -143,7 +143,10 @@ class CreateUser {
 		*/
 		$template = wfMessage( 'flexform-createuser-email', $rName, $this->getUserName(), $this->passWord )->plain();
 		$user->sendConfirmationMail();
-		$user->sendMail( 'Account registration', $template );
+		$status = $user->sendMail( 'Account registration', $template );
+		if ( !$status->isGood() ) {
+			throw new FlexFormException( $status->getMessage() );
+		}
 	}
 
 	/**
