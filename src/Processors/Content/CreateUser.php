@@ -161,7 +161,7 @@ class CreateUser {
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
 				'sendmail status',
-				[ 'status' => (array)$status ]
+				[ 'template' => $template, 'status' => (array)$status ]
 			);
 		}
 		if ( !$status->isGood() ) {
