@@ -10,6 +10,7 @@
 
 namespace FlexForm\Processors\Content;
 
+use MailAddress;
 use MediaWiki\MediaWikiServices;
 use FlexForm\Core\Config;
 use FlexForm\Core\Debug;
@@ -391,6 +392,50 @@ class Mail {
 
 		$this->checkFieldsNeeded();
 		$this->sendMail();
+	}
+
+	public function sendMailTo( string $to, string $name, string $subject, string $body ): bool {
+		global $wgPasswordSender;
+		$from = $wgPasswordSender;
+		$mail = new PHPMailer( true );
+
+		try {
+			if ( Config::getConfigVariable( 'use_smtp' ) === true ) {
+				$mail->isSMTP();
+				$mail->Host       = Config::getConfigVariable( 'smtp_host' );
+				$mail->SMTPAuth   = Config::getConfigVariable( 'smtp_authentication' );
+				$mail->Username   = Config::getConfigVariable( 'smtp_username' );
+				$mail->Password   = Config::getConfigVariable( 'smtp_password' );
+				$mail->SMTPSecure = Config::getConfigVariable( 'smtp_secure' );
+				$mail->Port       = Config::getConfigVariable( 'smtp_port' );
+			} else {
+				$mail->isMail();
+			}
+			$mail->CharSet = 'UTF-8';
+
+			$mail->setFrom(	$from, wfMessage( 'emailsender' )->inContentLanguage()->text() );
+
+			$mail->addAddress( $to, $name );
+
+
+			$mail->isHTML( true );
+			$mail->Subject = $subject;
+			$mail->Body    = $body;
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'Debug on, not sending mail',
+					$this->fields
+				);
+			} else {
+				$mail->send();
+			}
+		} catch ( Exception $e ) {
+			throw new FlexFormException(
+				$e->getMessage(),
+				0
+			);
+		}
+		return true;
 	}
 
 	/**

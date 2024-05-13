@@ -124,8 +124,7 @@ class CreateUser {
 	 * @throws FlexFormException
 	 */
 	public function sendPassWordAndConfirmationLink( User $user ) {
-		//$user = $this->setPassword( $user );
-		//sleep( 1 );
+		$user = $this->setPassword( $user );
 		/*
 		$template = file_get_contents(
 			$IP . '/extensions/FlexForm/src/Templates/createUserEmailConfirmation.tpl'
@@ -151,19 +150,19 @@ class CreateUser {
 		$template = str_replace( $searchFor, $replaceWith, $template );
 		*/
 		$template = wfMessage( 'flexform-createuser-email', $rName, $this->getUserName(), $this->passWord )->plain();
-		/*
-		$status = $user->sendMail( 'Account registration', $template );
+		$mail = new Mail();
+		$status = $mail->sendMailTo( $user->getEmail(), $rName, 'Account registration', $template );
+
+		//$status = $user->sendMail( 'Account registration', $template );
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
 				'sendmail status',
 				[ 'template' => $template, 'status' => (array)$status ]
 			);
 		}
-
-		if ( !$status->isGood() ) {
-			throw new FlexFormException( $status->getMessage() );
+		if ( !$status ) {
+			throw new FlexFormException( "Error sending email account registrtion email" );
 		}
-		*/
 		$status = $user->sendConfirmationMail();
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
@@ -171,11 +170,6 @@ class CreateUser {
 				[ 'status' => (array)$status ]
 			);
 		}
-		if ( !$status->isGood() ) {
-			throw new FlexFormException( $status->getMessage() );
-		}
-		//sleep( 1 );
-
 	}
 
 	/**
