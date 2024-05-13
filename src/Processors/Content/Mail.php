@@ -418,7 +418,7 @@ class Mail {
 			$mail->addAddress( $to, $name );
 
 
-			$mail->isHTML( true );
+			$mail->isHTML( false );
 			$mail->Subject = $subject;
 			$mail->Body    = $body;
 			if ( Config::isDebug() ) {
