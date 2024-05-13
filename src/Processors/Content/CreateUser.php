@@ -171,6 +171,9 @@ class CreateUser {
 				[ 'status' => (array)$status ]
 			);
 		}
+		if ( !$status->isGood() ) {
+			throw new FlexFormException( $status->getMessage() );
+		}
 		//sleep( 1 );
 
 	}
