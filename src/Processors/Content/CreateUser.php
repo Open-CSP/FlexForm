@@ -151,7 +151,12 @@ class CreateUser {
 		*/
 		$template = wfMessage( 'flexform-createuser-email', $rName, $this->getUserName(), $this->passWord )->plain();
 		$mail = new Mail();
-		$status = $mail->sendMailTo( $user->getEmail(), $rName, 'Account registration', $template );
+		$status = $mail->sendMailTo(
+			$user->getEmail(),
+			$rName,
+			wfMessage( 'flexform-createuser-email-subject' ),
+			$template
+		);
 
 		//$status = $user->sendMail( 'Account registration', $template );
 		if ( Config::isDebug() ) {
@@ -161,8 +166,9 @@ class CreateUser {
 			);
 		}
 		if ( !$status ) {
-			throw new FlexFormException( "Error sending email account registrtion email" );
+			throw new FlexFormException( wfMessage( 'flexform-createuser-error-sending-mail' ) );
 		}
+		/*
 		$status = $user->sendConfirmationMail();
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
@@ -170,6 +176,7 @@ class CreateUser {
 				[ 'status' => (array)$status ]
 			);
 		}
+		*/
 	}
 
 	/**
