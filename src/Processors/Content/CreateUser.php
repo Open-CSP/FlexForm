@@ -2,7 +2,9 @@
 
 namespace FlexForm\Processors\Content;
 
+use FlexForm\Core\Config;
 use FlexForm\Core\Core;
+use FlexForm\Core\Debug;
 use FlexForm\FlexFormException;
 use MediaWiki\HookContainer\HookRunner;
 use MediaWiki\MediaWikiServices;
@@ -49,6 +51,12 @@ class CreateUser {
 		}
 		if ( isset( $explodedContent[2] ) && $explodedContent[2] !== '' ) {
 			$this->realName = ContentCore::parseTitle( $explodedContent[2], true );
+		}
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'Creatuser Construct',
+				[ 'user' => $this->userName, 'emailAddress' => $this->emailAddress, 'realName' => $this->realName ]
+			);
 		}
 	}
 
@@ -120,33 +128,28 @@ class CreateUser {
 	 */
 	public function sendPassWordAndConfirmationLink( User $user ) {
 		$user = $this->setPassword( $user );
-		/*
-		$template = file_get_contents(
-			$IP . '/extensions/FlexForm/src/Templates/createUserEmailConfirmation.tpl'
-		);
-		$searchFor = [
-			'%%realname%%',
-			'%%username%%',
-			'%%password%%'
-		];
-		*/
-
 		if ( $this->getRealName() === null || $this->getRealName() === '' ) {
 			$rName = $this->getUserName();
 		} else {
 			$rName = $this->getRealName();
 		}
-		/*
-		$replaceWith = [
-			$rName,
-			$this->getUserName(),
-			$this->passWord
-		];
-		$template = str_replace( $searchFor, $replaceWith, $template );
-		*/
 		$template = wfMessage( 'flexform-createuser-email', $rName, $this->getUserName(), $this->passWord )->plain();
-		$user->sendConfirmationMail();
-		$user->sendMail( 'Account registration', $template );
+		$mail = new Mail();
+		$status = $mail->sendMailTo(
+			$user->getEmail(),
+			$rName,
+			wfMessage( 'flexform-createuser-email-subject' ),
+			$template
+		);
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'sendmail status',
+				[ 'template' => $template, 'status' => (array)$status ]
+			);
+		}
+		if ( !$status ) {
+			throw new FlexFormException( wfMessage( 'flexform-createuser-error-sending-mail' ) );
+		}
 	}
 
 	/**
