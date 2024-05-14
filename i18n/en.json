@@ -57,7 +57,7 @@
 	"flexform-createuser-error-sending-mail" : "Error sending email account registration email.",
 	"flexform-createuser-disabled" : "FlexForm user creation is disabled in LocalSettings",
 	"flexform-createuser-username-exists" : "Account for $1 already exists",
-	"flexform-createuser-email": "Dear $1,<br><br>We have created a new account for you.<br><br>You can now login with the following credentials.<br><br>Username:<br>>$2<br><br>Password:<br>>$3<br><br>You should log in and choose a new password.",
+	"flexform-createuser-email": "Dear $1,<br><br>We have created a new account for you.<br><br>You can now login with the following credentials.<br><br>Username:<br>$2<br><br>Password:<br>$3<br><br>You should log in and choose a new password.",
 
 
 	"flexform-norequest-made" : "No requests",
