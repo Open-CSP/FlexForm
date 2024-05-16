@@ -83,9 +83,9 @@ class FilesCore {
 									$_FILES
 								);
 							}
-							if ( ( is_array( $_FILES[$fileName]['tmp_name'] ) && file_exists(
-										$_FILES[$fileName]['tmp_name'][0]
-									) ) || ( file_exists( $_FILES[$fileName]['tmp_name'] ) ) ) {
+							if ( is_array( $_FILES[$fileName]['tmp_name'] ) &&
+								 file_exists( $_FILES[$fileName]['tmp_name'][0] )
+							) {
 								$fileUpload = new Upload( $fileName, $fileDetails );
 								try {
 									$res = $fileUpload->fileUpload();
