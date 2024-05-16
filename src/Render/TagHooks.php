@@ -2563,6 +2563,7 @@ class TagHooks {
 						break;
 					case "multiple":
 						$multiple = 'files';
+						$attributes['multiple'] = 'multiple';
 						break;
 					case "slot":
 						$uploadDetails["wsform_slot"] = $v;
@@ -2655,7 +2656,8 @@ class TagHooks {
 				$errorDiv['id']    = false;
 				$errorDiv['class'] = false;
 			}
-			$random         = round( microtime( true ) * 1000 );
+			//$random         = round( microtime( true ) * 1000 );
+			$random         = $id;
 			$onChangeScript = 'function WSFile' . $random . '(){' . "\n" . '$("#' . $id . '").on("change", function(){' . "\n" . 'wsfiles( "';
 			$onChangeScript .= $id . '", "' . $verbose_id . '", "' . $error_id . '", "' . $use_label;
 			$onChangeScript .= '");' . "\n" . '});' . "\n";
@@ -2693,6 +2695,7 @@ class TagHooks {
 			if ( !Core::isLoaded( 'ffNoFileSelected' ) ) {
 				$addjsChange = "\n" . 'var ffNoFileSelected = "';
 				$addjsChange .= wfMessage( "flexform-fileupload-no-files-selected" )->plain() . '";' . "\n";
+				Core::addAsLoaded( 'ffNoFileSelected' );
 			} else {
 				$addjsChange = '';
 			}

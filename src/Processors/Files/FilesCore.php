@@ -83,25 +83,24 @@ class FilesCore {
 									$_FILES
 								);
 							}
-							if ( ( is_array( $_FILES[$fileName]['tmp_name'] ) && file_exists(
-										$_FILES[$fileName]['tmp_name'][0]
-									) ) || ( file_exists( $_FILES[$fileName]['tmp_name'] ) ) ) {
-								$fileUpload = new Upload( $fileName, $fileDetails );
-								try {
-									$res = $fileUpload->fileUpload();
-								} catch ( FlexFormException $e ) {
-									throw new FlexFormException(
-										$e->getMessage(),
-										0
-									);
+							if ( is_array( $_FILES[$fileName]['tmp_name'] ) &&
+								 file_exists( $_FILES[$fileName]['tmp_name'][0] ) ) {
+									$fileUpload = new Upload( $fileName, $fileDetails );
+										try {
+											$res = $fileUpload->fileUpload();
+										} catch ( FlexFormException $e ) {
+											throw new FlexFormException(
+												$e->getMessage(),
+												0
+											);
+										}
+										if ( Config::isDebug() ) {
+											Debug::addToDebug(
+												'New _POST',
+												$_POST
+											);
+										}
 								}
-								if ( Config::isDebug() ) {
-									Debug::addToDebug(
-										'New _POST',
-										$_POST
-									);
-								}
-							}
 						}
 						break;
 				}
