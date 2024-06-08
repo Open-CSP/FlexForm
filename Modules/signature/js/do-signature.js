@@ -18,7 +18,7 @@ function holdOnSignature(method) {
 		//console.log('ok JQuery active.. lets go!');
 		method();
 	} else {
-		setTimeout(function() { wachtff(method) }, 50);
+		setTimeout(function() { ffHoldTillReady(method) }, 50);
 	}
 }
 

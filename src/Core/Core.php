@@ -271,7 +271,7 @@ class Core {
 			$out = \RequestContext::getMain()->getOutput();
 			$out->addJsConfigVars( array( "WSFormShowOnSelect" => true ) );
 			if ( $useWachtff ) {
-				$js = 'wachtff( WsShowOnSelect, true );';
+				$js = 'ffHoldTillReady( WsShowOnSelect, true );';
 			} else {
 				$js = 'WsShowOnSelect();';
 			}

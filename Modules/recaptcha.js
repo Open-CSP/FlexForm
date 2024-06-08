@@ -12,4 +12,4 @@ function setupRecaptcha() {
 	} );
 }
 
-wachtff( setupRecaptcha );
+ffHoldTillReady( setupRecaptcha );
