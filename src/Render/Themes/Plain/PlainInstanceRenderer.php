@@ -109,7 +109,7 @@ class PlainInstanceRenderer implements InstanceRenderer {
 		);
 
 		if ( ! Core::isLoaded( 'wsinstance' ) ) {
-			$js = 'wachtff( startInstance, true );';
+			$js = 'ffHoldTillReady( startInstance, true );';
 			Core::includeInlineScript( $js );
 			Core::addAsLoaded( 'wsinstance' );
 		}

@@ -56,7 +56,7 @@ class PlainTokenRenderer implements TokenRenderer {
 
 		// FIXME: Rename 'wachtff' to something that makes more sense
 		if ( !Core::isLoaded( 'attachTokens' ) ) {
-			Core::includeInlineScript( 'wachtff(attachTokens, true );' );
+			Core::includeInlineScript( 'ffHoldTillReady(attachTokens, true );' );
 			Core::addAsLoaded( 'attachTokens' );
 		}
 		//return $selectTag . $selectJavascript . "<script>wachtff(attachTokens, true );</script>";

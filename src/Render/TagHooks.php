@@ -367,7 +367,7 @@ class TagHooks {
 			//Core::includeJavaScriptConfig( 'noSubmit', $formId );
 			if ( !Core::isLoaded( 'keypress' ) ) {
 				$noEnter = <<<SCRIPT
-                wachtff( noReturnOnEnter ); 
+                ffHoldTillReady( noReturnOnEnter ); 
                 SCRIPT;
 
 				Core::includeInlineScript( $noEnter );
@@ -398,10 +398,12 @@ class TagHooks {
 				)->parse();
 		}
 
+		$addFFJS = '<script type="text/javascript" charset="UTF-8" src="' . Core::getRealUrl() . '/Modules/ffHoldTillReady.js"></script>' . "\n";
+
 		if ( Core::getRun() === false ) {
 			// FIXME: Move to ResourceLoader
 			//Core::includeTagsScript( Core::getRealUrl() . '/Modules/FlexForm.general.js' );
-			$addFFJS  = '<script type="text/javascript" charset="UTF-8" src="' . Core::getRealUrl() . '/Modules/FlexForm.general.js"></script>' . "\n";
+			$addFFJS .= '<script type="text/javascript" charset="UTF-8" src="' . Core::getRealUrl() . '/Modules/FlexForm.general.js"></script>' . "\n";
 
 			Core::setRun( true );
 		}
@@ -2691,7 +2693,7 @@ class TagHooks {
 			$onChangeScript .= '};';
 			$jsChange       = $onChangeScript . "\n";
 			//$ret .= "<script>\n" . $onChangeScript . "\n";
-			$jsChange .= "\n" . "wachtff(WSFile" . $random . ");\n";
+			$jsChange .= "\n" . "ffHoldTillReady(WSFile" . $random . ");\n";
 			if ( !Core::isLoaded( 'ffNoFileSelected' ) ) {
 				$addjsChange = "\n" . 'var ffNoFileSelected = "';
 				$addjsChange .= wfMessage( "flexform-fileupload-no-files-selected" )->plain() . '";' . "\n";
@@ -2741,7 +2743,7 @@ class TagHooks {
 			$wsFileScript .= "}\n";
 			//$ret .= '<script>'. "\n".'wsfiles( "' . $id . '", "' . $verbose_id . '", "' . $error_id . '", "' . $use_label . '");</script>';
 
-			Core::includeInlineScript( "\n" . $wsFileScript . "\n" . 'wachtff(wsfilesFunc' . $random . ');' );
+			Core::includeInlineScript( "\n" . $wsFileScript . "\n" . 'ffHoldTillReady(wsfilesFunc' . $random . ');' );
 		} elseif ( $presentor == "slim" ) {
 			/*
 			if ( $slim_image !== false ) {

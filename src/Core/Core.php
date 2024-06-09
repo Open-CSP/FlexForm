@@ -268,7 +268,7 @@ class Core {
 		if ( ! self::isLoaded( 'ShowOnSelect' ) ) {
 			$out = \RequestContext::getMain()->getOutput();
 			$out->addJsConfigVars( array( "WSFormShowOnSelect" => true ) );
-			$js = 'wachtff( WsShowOnSelect, true );';
+			$js = 'ffHoldTillReady( WsShowOnSelect, true );';
 			//wsform::includeInlineScript( $js );
 			$jsFile  = '<script type="text/javascript" charset="UTF-8" src="' . Core::getRealUrl() . '/Modules/showOnSelect/WSShowOnSelect.js"></script>' . "\n";
 			$jsFile  .= '<script>' . $js . '</script>';
