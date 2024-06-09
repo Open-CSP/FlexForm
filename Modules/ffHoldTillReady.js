@@ -17,6 +17,7 @@ function ffHoldTillReady( method, both= true ) {
 			if ( window.mw ) {
 				var scriptPath = mw.config.get( 'wgScript' )
 				if ( scriptPath !== null && scriptPath !== false ) {
+					scriptPath = scriptPath.replace ('/index.php', '' )
 					if ( window.wsform ) {
 						method();
 					} else {
@@ -41,3 +42,9 @@ function ffHoldTillReady( method, both= true ) {
 		}, 50 )
 	}
 }
+
+function ffDummyInit(){
+
+}
+
+ffHoldTillReady( ffDummyInit );
