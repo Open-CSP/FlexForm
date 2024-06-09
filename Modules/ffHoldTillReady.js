@@ -41,3 +41,9 @@ function ffHoldTillReady( method, both= true ) {
 		}, 50 )
 	}
 }
+
+function ffDummyInit(){
+
+}
+
+ffHoldTillReady( ffDummyInit );
