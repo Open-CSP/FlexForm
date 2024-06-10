@@ -745,8 +745,10 @@ const ffCalc = (element = null) => {
 		});
 	}
 }
+if (typeof ffDecryptObj === "undefined") {
+	let ffDecryptObj = {};
+}
 
-let ffDecryptObj = {};
 const fetchAllDecrypt = async () => {
 	if ( wgFlexFormSecure === false ) {
 		return;

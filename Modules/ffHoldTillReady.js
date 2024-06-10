@@ -25,9 +25,14 @@ function ffHoldTillReady( method, both= true ) {
 						method();
 					} else {
 						if ( window.FFAlreadyRun === false ) {
+							window.FFAlreadyRun = true;
 							$.getScript(scriptPath + '/extensions/FlexForm/Modules/FlexForm.general.js').done(function () {
 								method()
 							});
+						} else {
+								setTimeout( function () {
+								ffHoldTillReady( method, true )
+							}, 250 )
 						}
 					}
 				} else {

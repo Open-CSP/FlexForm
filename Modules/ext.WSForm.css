@@ -7,7 +7,7 @@
 	border: 1px solid grey;
 }
 
-.ff-instance-edit input {
+.ff-instance-edit input, .ff-instance-edit textarea {
 	outline: none;
 	border: none;
 	display:block;
