@@ -3,6 +3,10 @@
  * @param method string Name of the method to call once jQuery is ready
  * @param both bool if true it will also wait until MW is loaded.
  */
+
+var FFAlreadyRun = false;
+
+
 function ffHoldTillReady( method, both= true ) {
 	if ( window.jQuery ) {
 		if ( both === false ) {
@@ -21,9 +25,16 @@ function ffHoldTillReady( method, both= true ) {
 					if ( window.wsform ) {
 						method();
 					} else {
-						$.getScript( scriptPath + '/extensions/FlexForm/Modules/FlexForm.general.js' ).done(function () {
-							method()
-						});
+						if ( window.FFAlreadyRun === false ) {
+							window.FFAlreadyRun = true;
+							$.getScript(scriptPath + '/extensions/FlexForm/Modules/FlexForm.general.js').done(function () {
+								method()
+							});
+						} else {
+							setTimeout( function () {
+								ffHoldTillReady( method, true )
+							}, 250 )
+						}
 					}
 				} else {
 					setTimeout( function () {
@@ -44,7 +55,7 @@ function ffHoldTillReady( method, both= true ) {
 }
 
 function ffDummyInit(){
-
+	window.FFAlreadyRun = true;
 }
 
 ffHoldTillReady( ffDummyInit );
