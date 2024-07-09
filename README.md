@@ -86,6 +86,7 @@ Visit this documentation page https://www.open-csp.org/DevOps:Doc/FlexForm/2.0/V
 Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
+* 2.2.19 : changed token behaviour for allowsort, allowclear and allowtags. Backwards compatible.
 * 2.2.18 : re-write of loading necessary JavaScript
 * 2.2.17 : Bug fixes in file upload
 * 2.2.15 : Allow for field substitution when using _createuser.

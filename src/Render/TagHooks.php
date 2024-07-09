@@ -1956,22 +1956,27 @@ class TagHooks {
 		}
 
 		if ( isset( $args['allowtags'] ) ) {
-			$allowTags = true;
-			unset( $args['allowtags'] );
+			if ( $args['allowtags'] === "" || $args['allowtags'] === "allowtags" ) {
+				$allowTags = true;
+				unset( $args['allowtags'] );
+			}
 		} else {
 			$allowTags = false;
 		}
-
 		if ( isset( $args['allowclear'] ) ) {
-			$allowClear = true;
-			unset( $args['allowclear'] );
+			if ( $args['allowclear'] === "" || $args['allowclear'] === "allowclear" ) {
+				$allowClear = true;
+				unset( $args['allowclear'] );
+			}
 		} else {
 			$allowClear = false;
 		}
 
 		if ( isset( $args['allowsort'] ) ) {
-			$allowSort = true;
-			unset( $args['allowsort'] );
+			if ( $args['allowsort'] === "" || $args['allowsort'] === "allowsort" ) {
+				$allowSort = true;
+				unset( $args['allowsort'] );
+			}
 		} else {
 			$allowSort = false;
 		}
