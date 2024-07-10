@@ -1955,34 +1955,31 @@ class TagHooks {
 			$template = null;
 		}
 
+		$allowTags = false;
 		if ( isset( $args['allowtags'] ) ) {
 			if ( $args['allowtags'] === "" || $args['allowtags'] === "allowtags" ) {
 				$allowTags = true;
 				unset( $args['allowtags'] );
 			}
-		} else {
-			$allowTags = false;
 		}
+
+		$allowClear = false;
 		if ( isset( $args['allowclear'] ) ) {
 			if ( $args['allowclear'] === "" || $args['allowclear'] === "allowclear" ) {
 				$allowClear = true;
 				unset( $args['allowclear'] );
 			}
-		} else {
-			$allowClear = false;
 		}
 
+		$allowSort = false;
 		if ( isset( $args['allowsort'] ) ) {
 			if ( $args['allowsort'] === "" || $args['allowsort'] === "allowsort" ) {
 				$allowSort = true;
 				unset( $args['allowsort'] );
 			}
-		} else {
-			$allowSort = false;
 		}
 
 		Core::setSeparator( $this->getSeparator( $args ) );
-
 
 		if ( isset( $args['selected'] ) ) {
 			$args['selected'] = $parser->recursiveTagParse(
