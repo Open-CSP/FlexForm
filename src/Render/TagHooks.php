@@ -1787,7 +1787,7 @@ class TagHooks {
 
 		$additionalArgs = [];
 		foreach ( $args as $name => $value ) {
-			if ( ! Validate::validParameters( $name ) ) {
+			if ( !Validate::validParameters( $name ) ) {
 				continue;
 			}
 

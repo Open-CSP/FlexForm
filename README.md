@@ -86,6 +86,7 @@ Visit this documentation page https://www.open-csp.org/DevOps:Doc/FlexForm/2.0/V
 Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
+* 2.2.21 : check mwreturn changes to take server port in host into account.
 * 2.2.20 : Token bugfix
 * 2.2.19 : changed token behaviour for allowsort, allowclear and allowtags. Backwards compatible.
 * 2.2.18 : re-write of loading necessary JavaScript

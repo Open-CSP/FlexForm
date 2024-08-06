@@ -282,7 +282,12 @@ class HandleResponse {
 				$serverToCheck = $serverToCheck . ':' . $parsed['port'];
 			}
 			if ( $_SERVER['HTTP_HOST'] !== $serverToCheck ) {
-				throw new FlexFormException( wfMessage( 'flexform-return-outside-domain' )->text() );
+				if ( isset( $_SERVER['port'] ) && !empty( $_SERVER['port'] ) ) {
+					$serverToCheck = $serverToCheck . ':' . $_SERVER['port'];
+					if ( $_SERVER['HTTP_HOST'] !== $serverToCheck ) {
+						throw new FlexFormException( wfMessage( 'flexform-return-outside-domain' )->text() );
+					}
+				}
 			}
 		}
 		// redirect
