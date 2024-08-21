@@ -1766,10 +1766,9 @@ class TagHooks {
 
 		$additionalArgs = [];
 		foreach ( $args as $name => $value ) {
-			if ( ! Validate::validParameters( $name ) ) {
+			if ( Validate::check_disable_readonly_required_selected( $name, $value ) ) {
 				continue;
 			}
-
 			if ( $name === "name" && strpos(
 										 $value,
 										 '[]'
@@ -1935,7 +1934,10 @@ class TagHooks {
 
 		$allowTags = false;
 		if ( isset( $args['allowtags'] ) ) {
-			if ( $args['allowtags'] === "" || $args['allowtags'] === "allowtags" ) {
+			$args['allowtags'] = $parser->recursiveTagParse( $args['allowtags'], $frame );
+			// if ( $args['allowtags'] === "" || $args['allowtags'] === "allowtags" ) {
+			// Changed in 2.3.0 as discussed with Liselot to get consistency.
+			if ( $args['allowtags'] === "allowtags" ) {
 				$allowTags = true;
 				unset( $args['allowtags'] );
 			}
