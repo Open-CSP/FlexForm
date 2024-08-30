@@ -88,9 +88,8 @@ class ContentCore {
 						$_POST
 					);
 				}
-				$temp = $lookFor . General::makeSpaceFromUnderscore( $k );
+				$temp = $lookFor . $k;
 				if ( isset( $_POST[ $temp ] ) ) {
-
 					self::$instances[] = $k;
 					unset( $_POST[ $temp ] );
 					if ( Config::isDebug() ) {
@@ -99,6 +98,13 @@ class ContentCore {
 							$_POST
 						);
 					}
+				}
+			} else {
+				if ( Config::isDebug() ) {
+					Debug::addToDebug(
+						'Not checking Instance, is systemfield: ' . $k,
+						$_POST
+					);
 				}
 			}
 		}

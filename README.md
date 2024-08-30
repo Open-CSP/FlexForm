@@ -84,6 +84,7 @@ Visit this documentation page https://www.open-csp.org/DevOps:Doc/FlexForm/2.0/V
 Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
+* 2.3.1 : _create with instances and JSON fix 
 * 2.3.0 : To get consistency: Added parsing of value of allowtags and added required=required to select attribute. 
 * 2.2.21 : check mwreturn changes to take server port in host into account.
 * 2.2.20 : Token bugfix

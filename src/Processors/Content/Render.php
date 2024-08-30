@@ -116,11 +116,10 @@ class Render {
 				$page = WikiPage::factory( $titleObject );
 			} catch ( MWException $e ) {
 				throw new FlexFormException(
-					"Could not create a WikiPage Object from title " . $titleObject->getText(
-					) . '. Message ' . $e->getMessage(),
-					0,
-					$e
-				);
+					wfMessage(
+						'flexform-error-could-not-create-page',
+						$titleObject->getText(),
+					$e->getMessage() ), 0, $e );
 			}
 		}
 
