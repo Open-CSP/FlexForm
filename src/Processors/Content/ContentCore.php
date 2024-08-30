@@ -88,7 +88,7 @@ class ContentCore {
 						$_POST
 					);
 				}
-				$temp = $lookFor . General::makeSpaceFromUnderscore( $k );
+				$temp = $lookFor . $k;
 				if ( isset( $_POST[ $temp ] ) ) {
 
 					self::$instances[] = $k;

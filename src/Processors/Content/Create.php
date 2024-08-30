@@ -664,7 +664,7 @@ class Create {
 				if ( !Definitions::isFlexFormSystemField( $k, false ) && $v != "" ) {
 					// if ( $k !== "mwtemplate" && $k !== "mwoption" && $k !== "mwwrite" &&
 					// $k !== "mwreturn" && $k !== "mwedit" && $v != "" ) {
-						if ( !$this->pageData['notemplate'] ) {
+					if ( !$this->pageData['notemplate'] ) {
 						if ( Config::isDebug() ) {
 							Debug::addToDebug(
 								$debugtitle . '. Checking if we have aliasfields ',
@@ -674,10 +674,7 @@ class Create {
 								]
 							);
 						}
-						if ( array_key_exists(
-							$k,
-							$this->pageData['aliasFields']
-						) ) {
+						if ( array_key_exists( $k, $this->pageData['aliasFields'] ) ) {
 							$kField = General::makeSpaceFromUnderscore( $this->pageData['aliasFields'][$k] );
 							$this->content .= '|' . $kField . '=' . wsSecurity::cleanBraces(
 									$v
@@ -708,6 +705,13 @@ class Create {
 						}
 					} else {
 						$this->content = $v;
+						$kField = General::makeSpaceFromUnderscore(	$k );
+						$vField = wsSecurity::cleanBraces( $v );
+						if ( contentcore::isInstance( $kField ) === true ) {
+							$json[$kField] = json_decode( $vField,	true );
+						} else {
+							$json[ $kField ] = ContentCore::checkJsonValues( $vField );
+						}
 					}
 				}
 			}
