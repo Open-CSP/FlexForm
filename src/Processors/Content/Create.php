@@ -706,6 +706,13 @@ class Create {
 						}
 					} else {
 						$this->content = $v;
+						$kField = General::makeSpaceFromUnderscore(	$k );
+						$vField = wsSecurity::cleanBraces( $v );
+						if ( contentcore::isInstance( $kField ) === true ) {
+							$json[$kField] = json_decode( $vField,	true );
+						} else {
+							$json[ $kField ] = ContentCore::checkJsonValues( $vField );
+						}
 					}
 				}
 			}
