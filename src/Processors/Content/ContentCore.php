@@ -130,7 +130,6 @@ class ContentCore {
 			self::$fields['leadByZero'] = true;
 		}
 
-
 		self::$fields['returnto'] = urldecode( self::$fields['returnto'] );
 
 		if ( self::$fields['parsePost'] !== false && is_array( self::$fields['parsePost'] ) ) {

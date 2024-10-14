@@ -27,6 +27,10 @@ class Messaging {
 	 */
 	private User $user;
 
+	public static $messageTypes = [ 'danger', 'warning', 'success', 'info', 'html' ];
+
+	public static $messagePersistance = [ 'yes', 'no' ];
+
 
 	public function __construct() {
 		$this->lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
@@ -48,9 +52,15 @@ class Messaging {
 			$exploded = explode( $sep, $singleMessage );
 			$user = ContentCore::parseTitle( trim( $exploded[0] ), true );
 			$type = ContentCore::parseTitle( trim( $exploded[1] ), true );
+			if ( !in_array( strtolower( $type ), self::$messageTypes ) ) {
+				continue;
+			}
 			$message = $mail->parseWikiText( ContentCore::parseTitle( trim( $exploded[2] ), true ) );
-			$title = ContentCore::parseTitle( trim( $exploded[3] ), true );
+			$title = $mail->parseWikiText( ContentCore::parseTitle( trim( $exploded[3] ), true ) );
 			$persistent = ContentCore::parseTitle( trim( $exploded[4] ), true );
+			if ( !in_array( strtolower( $persistent ), self::$messagePersistance ) ) {
+				continue;
+			}
 			if ( $persistent === 'message-confirm' ) {
 				$persistent = true;
 			} else {

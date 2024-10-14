@@ -749,7 +749,6 @@ class TagHooks {
 			$args[$name] = $tempValue;
 		}
 
-
 		$renderer = $this->themeStore->getFormTheme()->getFieldRenderer();
 		switch ( $fieldType ) {
 			case 'text':
