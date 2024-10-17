@@ -86,6 +86,7 @@ Visit this documentation page https://www.open-csp.org/DevOps:Doc/FlexForm/2.0/V
 Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
+* 2.3.3 : Composer update for PHPSpreadsheet to version 1.29.1
 * 2.3.2 : Added new security checks for the Messaging functions
 * 2.3.1 : _create with instances and JSON fix and i18n Fix from Pull request #47.
 * 2.3.0 : To get consistency: Added parsing of value of allowtags and added required=required to select attribute.
