@@ -1,5 +1,7 @@
 <?php
 
+use FlexForm\Core\Config;
+use FlexForm\Core\Debug;
 use FlexForm\Core\Protect;
 use FlexForm\FlexFormException;
 use Wikimedia\ParamValidator\ParamValidator;
@@ -358,6 +360,13 @@ class ApiFlexForm extends ApiBase {
 						'',
 						$page['title']
 					);
+					if ( Config::isDebug() ) {
+						Debug::addToDebug(
+							'getFromRange results ' ,
+							[ 'tempTitle' => $tempTitle ]
+
+						);
+					}
 
 					if ( is_numeric( $tempTitle ) ) {
 						$number[] = $tempTitle;
@@ -377,7 +386,14 @@ class ApiFlexForm extends ApiBase {
 		}
 		$s = $range['start'];
 		$e = $range['end'];
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'getFromRange ' ,
+				[ 'results for number' => $number,
+					'range' => $range ]
 
+			);
+		}
 		for ( $t = $s; $t < $e; $t++ ) {
 			if ( !in_array(
 				$t,
@@ -403,6 +419,7 @@ class ApiFlexForm extends ApiBase {
 	 * @throws MWException
 	 */
 	private function getDataForWikiList( string $nameStartsWith, $appContinue, $range = false ) {
+		$nameStartsWith_withoutNamespace = $nameStartsWith;
 		if ( strpos( $nameStartsWith, ':' ) !== false ) {
 			$split = explode( ':', $nameStartsWith );
 

@@ -637,11 +637,12 @@ function wsform (btn, callback = 0, preCallback = 0, showId = 0) {
 			}
 			if (showId !== 0) {
 				attachTo = $( '#' + showId );
-			} else if ( typeof mwMessageAttach !== 'undefined' ) {
-				attachTo = $( mwMessageAttach );
+			} else if ( typeof window.mwMessageAttach !== 'undefined' ) {
+				attachTo = $( window.mwMessageAttach );
 			} else {
 				attachTo = $( btn );
 			}
+			console.log( attachTo );
 			showMessage( statusMsg, statusType, attachTo );
 			if (result.status === 'ok') {
 				if (callback !== 0 && typeof callback !== 'undefined') {
