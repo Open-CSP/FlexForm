@@ -86,6 +86,7 @@ Visit this documentation page https://www.open-csp.org/DevOps:Doc/FlexForm/2.0/V
 Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
+* 2.3.5 : Fixed Tempex JS issue.
 * 2.3.4 : Fixed bug in create using next available option
 * 2.3.3 : Composer update for PHPSpreadsheet to version 1.29.1
 * 2.3.2 : Added new security checks for the Messaging functions

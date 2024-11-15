@@ -625,7 +625,11 @@ function wsform (btn, callback = 0, preCallback = 0, showId = 0) {
 			if (result.status === 'ok') {
 				statusType = 'success';
 				if ( mwonsuccess === 'Saved successfully' ) {
-					statusMsg = result.message;
+					if ( result.message !== "" ) {
+						statusMsg = result.message;
+					} else {
+						statusMsg = mwonsuccess;
+					}
 				} else {
 					statusMsg = mwonsuccess;
 				}
@@ -745,8 +749,8 @@ const ffCalc = (element = null) => {
 		});
 	}
 }
-if (typeof ffDecryptObj === "undefined") {
-	let ffDecryptObj = {};
+if (typeof window.ffDecryptObj === "undefined") {
+	var ffDecryptObj = {};
 }
 
 const fetchAllDecrypt = async () => {
@@ -779,14 +783,14 @@ const fetchAllDecrypt = async () => {
 	const data = await result;
 	const res = data.flexform.result.data;
 	for (let i = 0; i < res.length; i++ ) {
-		ffDecryptObj[jsonObj[i]] = res[i];
+		window.ffDecryptObj[jsonObj[i]] = res[i];
 	}
 }
 
 const getDecrypt = ( txt ) => {
 	if ( wgFlexFormSecure === false ) return txt;
-	if ( !ffDecryptObj[txt] ) return txt;
-	return ffDecryptObj[txt];
+	if ( !window.ffDecryptObj[txt] ) return txt;
+	return window.ffDecryptObj[txt];
 }
 
 /**
