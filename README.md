@@ -84,6 +84,7 @@ Visit this documentation page https://www.open-csp.org/DevOps:Doc/FlexForm/2.0/V
 Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
+* 2.3.5 : Request https://github.com/Open-CSP/FlexForm/issues/50 added. Parsing of value for attachmessageto. Fixed Tempex JS issue.
 * 2.3.4 : Fixed bug in create using next available option
 * 2.3.3 : Version bump to keep in-line with REL1.39
 * 2.3.2 : Added new security checks for the Messaging functions
