@@ -169,8 +169,9 @@ class TagHooks {
 		}
 
 		if ( isset( $args['attachmessageto'] ) && $args['attachmessageto'] !== '' ) {
+			$attachMessageTo = $parser->recursiveTagParse( $args['attachmessageto'], $frame );
 			Core::includeInlineScript(
-				'var mwMessageAttach = "' . htmlspecialchars( $args['attachmessageto'] ) . '";'
+				'var mwMessageAttach = "' . htmlspecialchars( $attachMessageTo ) . '";'
 			);
 		}
 

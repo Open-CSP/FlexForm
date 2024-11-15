@@ -627,7 +627,11 @@ function wsform (btn, callback = 0, preCallback = 0, showId = 0) {
 			if (result.status === 'ok') {
 				statusType = 'success';
 				if ( mwonsuccess === 'Saved successfully' ) {
-					statusMsg = result.message;
+					if ( result.message !== "" ) {
+						statusMsg = result.message;
+					} else {
+						statusMsg = mwonsuccess;
+					}
 				} else {
 					statusMsg = mwonsuccess;
 				}
@@ -642,7 +646,6 @@ function wsform (btn, callback = 0, preCallback = 0, showId = 0) {
 			} else {
 				attachTo = $( btn );
 			}
-			console.log( attachTo );
 			showMessage( statusMsg, statusType, attachTo );
 			if (result.status === 'ok') {
 				if (callback !== 0 && typeof callback !== 'undefined') {
