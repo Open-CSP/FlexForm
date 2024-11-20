@@ -52,6 +52,11 @@
 	"flexform-fileupload-file-convert-error" : "Error while converting file from $1 to $2",
 	"flexform-fileupload-file-move-error" : "PHP move uploaded file error (file-handling)",
 
+	"flexform-filerender-no-id" : "You cannot upload files without adding an unique id.",
+	"flexform-filerender-no-name" : "Uploading files without a name will not work.",
+	"flexform-filerender-no-target" : "You cannot upload files without a target.",
+	"flexform-filerender-id-forbidden-characters" : "File upload ID error: Do not use \"-\", \"_\", any special characters ( also no spaces )",
+
 	"flexform-createuser-invalid-name" : "Invalid username: $1",
 	"flexform-createuser-email-subject" : "Account registration",
 	"flexform-createuser-error-sending-mail" : "Error sending email account registration email.",
