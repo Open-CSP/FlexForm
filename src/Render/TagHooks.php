@@ -2582,16 +2582,20 @@ class TagHooks {
 		}
 		global $IP;
 		if ( !$id ) {
-			$ret = 'You cannot upload files without adding an unique id.';
+			$ret = wfMessage( "flexform-filerender-no-id" )->plain();
 
 			return $ret;
 		}
+		if ( strpbrk( $id, '- _' ) ) {
+			$ret = wfMessage( "flexform-filerender-id-forbidden-characters" )->plain();
+			return $ret;
+		}
 		if ( !$name ) {
-			$ret = 'Uploading files without a name will not work.';
+			$ret = wfMessage( "flexform-filerender-no-name" )->plain();
 			return $ret;
 		}
 		if ( !$target ) {
-			$ret = 'You cannot upload files without a target.';
+			$ret = wfMessage( "flexform-filerender-no-target" )->plain();
 
 			return $ret;
 		} else {
