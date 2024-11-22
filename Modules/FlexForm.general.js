@@ -754,7 +754,7 @@ if (typeof window.ffDecryptObj === "undefined") {
 }
 
 const fetchAllDecrypt = async () => {
-	if ( wgFlexFormSecure === false ) {
+	if ( window.wgFlexFormSecure === false ) {
 		return;
 	}
 
@@ -788,7 +788,7 @@ const fetchAllDecrypt = async () => {
 }
 
 const getDecrypt = ( txt ) => {
-	if ( wgFlexFormSecure === false ) return txt;
+	if ( window.wgFlexFormSecure === false ) return txt;
 	if ( !window.ffDecryptObj[txt] ) return txt;
 	return window.ffDecryptObj[txt];
 }
