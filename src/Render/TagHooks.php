@@ -2604,54 +2604,44 @@ class TagHooks {
 		}
 		global $IP;
 		if ( !$id ) {
-			$ret = 'You cannot upload files without adding an unique id.';
+			$ret = wfMessage( "flexform-filerender-no-id" )->plain();
 
 			return $ret;
 		}
+
+		if ( strpbrk( $id, '- _' ) ) {
+			$ret = wfMessage( "flexform-filerender-id-forbidden-characters" )->plain();
+			return $ret;
+		}
+
 		if ( !$name ) {
-			$ret = 'Uploading files without a name will not work.';
+			$ret = wfMessage( "flexform-filerender-no-name" )->plain();
 			return $ret;
 		}
 		if ( !$target ) {
-			$ret = 'You cannot upload files without a target.';
+			$ret = wfMessage( "flexform-filerender-no-target" )->plain();
 
 			return $ret;
 		} else {
-			//$hiddenFiles[] = '<input type="hidden" name="wsform_file_target" value="' . $target . '">';
-			//$hiddenFiles[] = Core::createHiddenField( "wsform_file_target", $target );
 			$uploadDetails['wsform_file_target'] = $target;
 		}
 		if ( $pagecontent ) {
-			//$hiddenFiles[] = '<input type="hidden" name="wsform_page_content" value="' . $pagecontent . '">';
-			//$hiddenFiles[] = Core::createHiddenField( "wsform_page_content", $pagecontent );
 			$uploadDetails["wsform_page_content"] = $pagecontent;
 		}
 		if ( $comment ) {
-			//$hiddenFiles[] = '<input type="hidden" name="wsform-upload-comment" value="' . $comment . '">';
 			$uploadDetails["wsform-upload-comment"] = $comment;
 		}
 		if ( $parseContent ) {
-			//$hiddenFiles[] = '<input type="hidden" name="wsform_parse_content" value="true">';
 			$uploadDetails["wsform_parse_content"] = true;
 		}
 		if ( $template ) {
-			//$hiddenFiles[] = '<input type="hidden" name="wsform_file_template" value="' . $template . '">';
 			$uploadDetails["wsform_file_template"] = $template;
 		}
 		if ( $force ) {
-			//$hiddenFiles[] = '<input type="hidden" name="wsform_image_force" value="' . $force . '">';
 			$uploadDetails["wsform_image_force"] = $force;
 		}
 		// When using convert, set accepted files to be the same
 		if ( $action ) {
-			/*
-			if ( isset( $attributes['accept'] ) ) {
-				$attributes['accept'] .= ', .' . $convertFrom;
-			} else {
-				$attributes['accept'] = '.' . $convertFrom;
-			}
-			*/
-			//$hiddenFiles[] = '<input type="hidden" name="wsform_convert_from" value="' . $convertFrom . '">';
 			$uploadDetails["wsform_action"] = $action;
 		}
 
@@ -2667,7 +2657,6 @@ class TagHooks {
 					$verboseDiv['class'][] = 'wsform-dropzone';
 				}
 				$verboseDiv['class'][] = 'wsform-verbose';
-				// $ret .= '<div id="' . $verbose_id . '" class="wsform-verbose"></div>';
 			} else {
 				// If we have our own verbose element, then set the create verbose element to false
 				$verboseDiv['id']    = false;
@@ -2679,13 +2668,11 @@ class TagHooks {
 				$error_id          = 'error_' . $id;
 				$errorDiv['id']    = $error_id;
 				$errorDiv['class'] = [ "wsform-error" ];
-				//$ret      .= '<div id="' . $error_id . '" class="wsform-error"></div>';
 			} else {
 				// If we do have a error element, then set create new error element to false.
 				$errorDiv['id']    = false;
 				$errorDiv['class'] = false;
 			}
-			//$random         = round( microtime( true ) * 1000 );
 			$random = $id;
 			$onChangeScript = 'function WSFile' . $random . '(){' . "\n" . '$("#' . $id . '").on("change", function(){' . "\n" . 'wsfiles( "';
 			$onChangeScript .= $id . '", "' . $verbose_id . '", "' . $error_id . '", "' . $use_label;
@@ -2719,7 +2706,6 @@ class TagHooks {
 			}
 			$onChangeScript .= '};';
 			$jsChange       = $onChangeScript . "\n";
-			//$ret .= "<script>\n" . $onChangeScript . "\n";
 			$jsChange .= "\n" . "ffHoldTillReady(WSFile" . $random . ");\n";
 			if ( !Core::isLoaded( 'ffNoFileSelected' ) ) {
 				$addjsChange = "\n" . 'var ffNoFileSelected = "';
@@ -2730,7 +2716,6 @@ class TagHooks {
 			}
 			$jsChange = $addjsChange . $jsChange;
 			Core::includeInlineScript( $jsChange );
-			//$ret     .= '<script>$( document ).ready(function() { $("#' . $random . '").on("change", function(){ wsfiles( "' . $id . '", "' . $verbose_id . '", "' . $error_id . '", "' . $use_label . '", "' . $verbose_custom . '", "' . $error_custom . '");});});</script>';
 			$css     = file_get_contents( "$IP/extensions/FlexForm/Modules/WSForm_upload.css" );
 			$replace = [
 				'{{verboseid}}',
@@ -2745,20 +2730,16 @@ class TagHooks {
 				wfMessage( "flexform-fileupload-dropfiles" )->plain(),
 				'',
 				''
-			]; //wsfiles( "file-upload2", "hiddendiv2", "error_file-upload2", "", "yes", "none");
+			];
 			$css     = str_replace(
 				$replace,
 				$with,
 				$css
 			);
 			Core::includeInlineCSS( $css );
-			//$ret     .= $css;
 			if ( !Core::isLoaded( 'WSFORM_upload.js' ) ) {
 				Core::addAsLoaded( 'WSFORM_upload.js' );
 				Core::includeTagsScript( Core::getRealUrl() . '/Modules/WSForm_upload.js' );
-				//$js = file_get_contents( "$IP/extensions/FlexForm/Modules/WSForm_upload.js" );
-				$js = '';
-				//Core::includeInlineScript( $js );
 			} else {
 				$js = '';
 			}
@@ -2812,11 +2793,9 @@ class TagHooks {
 		$result['verbose_div'] = $verboseDiv;
 		$result['error_div']   = $errorDiv;
 		$result['attributes']  = $attributes;
-		//$result['function_fields'] = $hiddenFiles;
 		$actionFields        = [];
 		$actionFields[$name] = $uploadDetails;
 		Core::includeFileAction( $actionFields );
-		//$result['action_fields'] = Core::createHiddenField( "ff_upload_actions", json_encode( $actionFields ) );
 		$result['canvas']           = $canvasDiv;
 		$result['mobileScreenshot'] = $mobileScreenshot;
 

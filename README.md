@@ -86,6 +86,7 @@ Visit this documentation page https://www.open-csp.org/DevOps:Doc/FlexForm/2.0/V
 Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
+* 2.3.6 : Added error message for input type is file where id is incorrect. FlexForm Secure JS changes.
 * 2.3.5 : Fixed Tempex JS issue and parse messageonsuccess
 * 2.3.4 : Fixed bug in create using next available option
 * 2.3.3 : Composer update for PHPSpreadsheet to version 1.29.1
