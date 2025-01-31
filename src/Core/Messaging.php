@@ -7,7 +7,7 @@ use FlexForm\Processors\Content\ContentCore;
 use FlexForm\Processors\Content\Mail;
 use FlexForm\Processors\Utilities\General;
 use MediaWiki\MediaWikiServices;
-use MWException;
+use Exception;
 use RequestContext;
 use User;
 use Wikimedia\Rdbms\ILoadBalancer;
@@ -15,7 +15,7 @@ use Wikimedia\Rdbms\ILoadBalancer;
 class Messaging {
 
 
-	private const DBTABLE = 'flexformmsg';
+	private const string DBTABLE = 'flexformmsg';
 
 	/**
 	 * @var ILoadBalancer
@@ -42,7 +42,7 @@ class Messaging {
 	 *
 	 * @return void
 	 * @throws FlexFormException
-	 * @throws MWException
+	 * @throws Exception
 	 */
 	public function setMessages( array $ffMessages ) {
 		$separator = General::getPostString( 'ff_separator' );
@@ -72,7 +72,7 @@ class Messaging {
 				$users = [ $user ];
 			}
 			foreach ( $users as $singleUser ) {
-				$newUser = User::newFromName( trim( $singleUser ) );
+				$newUser = MediaWikiServices::getInstance()->getUserFactory()->newFromName( trim( $singleUser ) );
 				if ( $newUser !== false ) {
 					$id = $newUser->getId();
 					if ( $id !== 0 ) {
@@ -111,7 +111,7 @@ class Messaging {
 			$persistent = 0;
 		}
 		if ( Config::isDebug() ) {
-			$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
+			$debugTitle = '<b>' . get_class( $this ) . '<br>Function: ' . __FUNCTION__ . '<br></b>';
 			Debug::addToDebug( $debugTitle . 'Adding message to database',
 				[ "type" => $type,
 					"message" => $message,
@@ -137,7 +137,7 @@ class Messaging {
 					'persistent' => $persistent,
 					'initiator' => $this->user->getId() ],
 				__METHOD__ );
-		} catch ( \Exception $e ) {
+		} catch ( Exception $e ) {
 			echo $e;
 
 			return false;
@@ -150,7 +150,8 @@ class Messaging {
 	 * @return array
 	 */
 	public function getAllMessages(): array {
-		$dbr         = $this->lb->getConnectionRef( DB_REPLICA );
+		$dbr = MediaWikiServices::getInstance()->getConnectionProvider()->getReplicaDatabase();
+		//$dbr         = $this->lb->getConnectionRef( DB_REPLICA );
 		$select      = [ '*' ];
 		$res = $dbr->select(
 			self::DBTABLE,
@@ -217,7 +218,8 @@ class Messaging {
 		if ( $userId === 0 ) {
 			return [];
 		}
-		$dbr         = $this->lb->getConnectionRef( DB_REPLICA );
+		$dbr = MediaWikiServices::getInstance()->getConnectionProvider()->getReplicaDatabase();
+		//$dbr         = $this->lb->getConnectionRef( DB_REPLICA );
 		$select      = [ '*' ];
 		$selectWhere = [
 			"user = '" . $userId . "'"
@@ -263,14 +265,15 @@ class Messaging {
 				return false;
 			}
 		}
-		$dbw = $this->lb->getConnectionRef( DB_PRIMARY );
+		$dbw = MediaWikiServices::getInstance()->getConnectionProvider()->getPrimaryDatabase();
+		// $dbw = $this->lb->getConnectionRef( DB_PRIMARY );
 		try {
 			$res = $dbw->delete(
 				self::DBTABLE,
 				[ "id = " . $mId ],
 				__METHOD__
 			);
-		} catch ( \Exception $e ) {
+		} catch ( Exception $e ) {
 			throw new FlexFormException( 'Database error : ' . $e );
 		}
 
@@ -288,14 +291,16 @@ class Messaging {
 	 * @throws FlexFormException
 	 */
 	public function removeUserMessages( int $uId ): bool {
-		$dbw = $this->lb->getConnectionRef( DB_PRIMARY );
+
+		// $dbw = $this->lb->getConnectionRef( DB_PRIMARY );
+		$dbw = MediaWikiServices::getInstance()->getConnectionProvider()->getPrimaryDatabase();
 		try {
 			$res = $dbw->delete(
 				self::DBTABLE,
 				[ "user = " . $uId, "persistent = 0" ],
 				__METHOD__
 			);
-		} catch ( \Exception $e ) {
+		} catch ( Exception $e ) {
 			throw new FlexFormException( 'Database error : ' . $e );
 		}
 

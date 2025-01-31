@@ -10,7 +10,6 @@ use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Storage\EditResult;
 use MediaWiki\User\UserIdentity;
-use MWException;
 use WikiPage;
 
 class Sql {
@@ -29,7 +28,7 @@ class Sql {
 	 * @param DatabaseUpdater $updater
 	 *
 	 * @return bool
-	 * @throws MWException
+	 * @throws Exception
 	 */
 	public static function addTables( DatabaseUpdater $updater ): bool {
 		$dbt = $updater->getDB()->getType();
@@ -49,7 +48,7 @@ class Sql {
 											  true
 										  ] );
 		} else {
-			throw new MWException(
+			throw new Exception(
 				wfMessage(
 					'flexform-unsupported-database',
 					$dbt
@@ -66,7 +65,7 @@ class Sql {
 											  true
 										  ] );
 		} else {
-			throw new MWException(
+			throw new Exception(
 				wfMessage(
 					'flexform-unsupported-database',
 					$dbt
@@ -168,29 +167,25 @@ class Sql {
 		EditResult $editResult
 	) : bool {
 		$id = $article->getId();
-		try {
-			if ( Rights::isUserAllowedToEditorCreateForms() ) {
-				self::removePageId( $id );
-				$render = new Render();
-				$content = $render->getSlotsContentForPage( $id );
-				$hashes = self::createFormHashes( $content );
-				$result = self::addPageId(
-					$id,
-					$hashes
-				);
-				if ( $result === false ) {
-					throw new FlexFormException( 'Can\'t save to Database [add]' );
-				}
-			} else {
-				$result = self::removePageId( $id );
-				if ( $result === false ) {
-					throw new FlexFormException( 'Can\'t save to Database [remove]' );
-				}
+		if ( Rights::isUserAllowedToEditorCreateForms() ) {
+			self::removePageId( $id );
+			$render = new Render();
+			$content = $render->getSlotsContentForPage( $id );
+			$hashes = self::createFormHashes( $content );
+			$result = self::addPageId(
+				$id,
+				$hashes
+			);
+			if ( $result === false ) {
+				throw new FlexFormException( 'Can\'t save to Database [add]' );
 			}
-		} catch ( Exception $e ) {
-			var_dump( $e->getMessage());
-			die();
+		} else {
+			$result = self::removePageId( $id );
+			if ( $result === false ) {
+				throw new FlexFormException( 'Can\'t save to Database [remove]' );
+			}
 		}
+
 		return true;
 	}
 
@@ -271,8 +266,9 @@ class Sql {
 	 * @throws FlexFormException
 	 */
 	public static function removePageId( int $pId ): bool {
-		$lb          = MediaWikiServices::getInstance()->getDBLoadBalancer();
-		$dbw         = $lb->getConnectionRef( DB_PRIMARY );
+		//$lb          = MediaWikiServices::getInstance()->getDBLoadBalancer();
+		$dbw = MediaWikiServices::getInstance()->getConnectionProvider()->getPrimaryDatabase();
+		//$dbw         = $lb->getConnectionRef( DB_PRIMARY );
 		try {
 			$res = $dbw->delete(
 				self::DBTABLE,
@@ -326,8 +322,9 @@ class Sql {
 	 * @return bool
 	 */
 	public static function exists( int $pageId, string $hash ):bool {
-		$lb          = MediaWikiServices::getInstance()->getDBLoadBalancer();
-		$dbr         = $lb->getConnectionRef( DB_REPLICA );
+		//$lb          = MediaWikiServices::getInstance()->getDBLoadBalancer();
+		//$dbr         = $lb->getConnectionRef( DB_REPLICA );
+		$dbr = MediaWikiServices::getInstance()->getConnectionProvider()->getReplicaDatabase();
 		$select      = [ 'page_id', "count" => 'COUNT(*)' ];
 		$selectOptions    = [
 			'LIMIT'    => 1
