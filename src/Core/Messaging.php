@@ -29,9 +29,6 @@ class Messaging {
 
 	public static $messageTypes = [ 'danger', 'warning', 'success', 'info', 'html' ];
 
-	public static $messagePersistance = [ 'yes', 'no' ];
-
-
 	public function __construct() {
 		$this->lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
 		$this->user = RequestContext::getMain()->getUser();
@@ -57,10 +54,11 @@ class Messaging {
 			}
 			$message = $mail->parseWikiText( ContentCore::parseTitle( trim( $exploded[2] ), true ) );
 			$title = $mail->parseWikiText( ContentCore::parseTitle( trim( $exploded[3] ), true ) );
-			$persistent = ContentCore::parseTitle( trim( $exploded[4] ), true );
-			if ( !in_array( strtolower( $persistent ), self::$messagePersistance ) ) {
-				continue;
+			if ( $type !== 'html' ) {
+				$message = str_replace( ['<p>','</p>'], '', $message );
+				$title = str_replace( ['<p>','</p>'], '', $title );
 			}
+			$persistent = ContentCore::parseTitle( trim( $exploded[4] ), true );
 			if ( $persistent === 'message-confirm' ) {
 				$persistent = true;
 			} else {
@@ -110,39 +108,47 @@ class Messaging {
 		} else {
 			$persistent = 0;
 		}
+		$dat = [ "type" => $type,
+				 "message" => $message,
+				 "title" => $title,
+				 "user"     => $userId,
+				 "persistent" => $persistent,
+				 "initiator"  => $this->user->getId()
+		];
 		if ( Config::isDebug() ) {
 			$debugTitle = '<b>' . get_class( $this ) . '<br>Function: ' . __FUNCTION__ . '<br></b>';
-			Debug::addToDebug( $debugTitle . 'Adding message to database',
-				[ "type" => $type,
-					"message" => $message,
-					"title" => $title,
-					"userid"     => $userId,
-					"persistent" => $persistent,
-					"initiator"  => $this->user->getId()
-				] );
+
+			Debug::addToDebug( $debugTitle . 'Adding message to database', $dat );
 		}
-		$dbw = $this->lb->getConnectionRef( DB_PRIMARY );
+		$dbw = MediaWikiServices::getInstance()->getConnectionProvider()->getPrimaryDatabase();
 		if ( $userId === 0 ) {
 			$userId = $this->user->getId();
 		}
 		if ( $userId === 0 || empty( $message ) ) {
 			return false;
 		}
+		$dat = [ 'user' => $userId,
+				 'type' => $type,
+				 'title' => $title,
+				 'message' => $message,
+				 'persistent' => $persistent,
+				 'initiator' => $this->user->getId() ];
 		try {
-			$dbw->insert( self::DBTABLE,
-				[ 'user' => $userId,
-					'type' => $type,
-					'title' => $title,
-					'message' => $message,
-					'persistent' => $persistent,
-					'initiator' => $this->user->getId() ],
+			$result = $dbw->insert( self::DBTABLE,
+				$dat,
 				__METHOD__ );
 		} catch ( Exception $e ) {
-			echo $e;
+			echo $e->getMessage();
+			if ( Config::isDebug() ) {
+				Debug::addToDebug( "Cannot add message to database", $e->getMessage() );
+			}
 
 			return false;
 		}
-
+		if ( Config::isDebug() ) {
+			Debug::addToDebug( "Adding message to database result", $result );
+		}
+		global $IP;
 		return true;
 	}
 
@@ -151,7 +157,6 @@ class Messaging {
 	 */
 	public function getAllMessages(): array {
 		$dbr = MediaWikiServices::getInstance()->getConnectionProvider()->getReplicaDatabase();
-		//$dbr         = $this->lb->getConnectionRef( DB_REPLICA );
 		$select      = [ '*' ];
 		$res = $dbr->select(
 			self::DBTABLE,
@@ -184,7 +189,7 @@ class Messaging {
 	 * @return int
 	 */
 	public function getUserIdFromMessageId( int $mId ): int {
-		$dbr         = $this->lb->getConnectionRef( DB_REPLICA );
+		$dbr = MediaWikiServices::getInstance()->getConnectionProvider()->getReplicaDatabase();
 		$select      = [ 'user' ];
 		$selectWhere = [
 			"id = '" . $mId . "'"
@@ -219,7 +224,6 @@ class Messaging {
 			return [];
 		}
 		$dbr = MediaWikiServices::getInstance()->getConnectionProvider()->getReplicaDatabase();
-		//$dbr         = $this->lb->getConnectionRef( DB_REPLICA );
 		$select      = [ '*' ];
 		$selectWhere = [
 			"user = '" . $userId . "'"
@@ -266,7 +270,6 @@ class Messaging {
 			}
 		}
 		$dbw = MediaWikiServices::getInstance()->getConnectionProvider()->getPrimaryDatabase();
-		// $dbw = $this->lb->getConnectionRef( DB_PRIMARY );
 		try {
 			$res = $dbw->delete(
 				self::DBTABLE,
@@ -291,8 +294,6 @@ class Messaging {
 	 * @throws FlexFormException
 	 */
 	public function removeUserMessages( int $uId ): bool {
-
-		// $dbw = $this->lb->getConnectionRef( DB_PRIMARY );
 		$dbw = MediaWikiServices::getInstance()->getConnectionProvider()->getPrimaryDatabase();
 		try {
 			$res = $dbw->delete(

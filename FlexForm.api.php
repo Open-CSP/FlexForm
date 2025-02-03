@@ -16,6 +16,7 @@ use FlexForm\Core\Debug;
 use FlexForm\Core\DebugTimer;
 use FlexForm\Core\HandleResponse;
 use FlexForm\Core\Config;
+use FlexForm\Core\Messaging;
 use FlexForm\Processors\Content\ContentCore;
 use FlexForm\Processors\Files\FilesCore;
 use FlexForm\Processors\Recaptcha\Recaptcha;
@@ -222,11 +223,16 @@ unset( $_POST['mwaction'] );
 $ffMessages =  General::getPostArray( 'ff-message' );
 
 if ( $ffMessages !== false ) {
-	$messaging = new \FlexForm\Core\Messaging();
+	if ( Config::isDebug() ) {
+		Debug::addToDebug(
+			'Handling Messages',
+			[ 'Messages' => $ffMessages ]
+		);
+	}
+	$messaging = new Messaging();
 	$messaging->setMessages( $ffMessages );
 	unset( $_POST['ff-message'] );
 }
-
 
 if ( Config::isDebug() ) {
 	$addToWikiTimer = new DebugTimer();

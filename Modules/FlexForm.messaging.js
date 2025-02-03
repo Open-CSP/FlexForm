@@ -89,8 +89,7 @@ function waitASec (method, both = false) {
 			method()
 		} else {
 			if (window.mw) {
-				var scriptPath = mw.config.get('wgScript')
-				if (scriptPath !== null && scriptPath !== false) {
+				if (mw.notify) {
 					method()
 				} else {
 					setTimeout(function () {
