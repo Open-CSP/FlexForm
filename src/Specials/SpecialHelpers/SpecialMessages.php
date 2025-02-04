@@ -1,7 +1,7 @@
 <?php
 /**
- * Created by  : Wikibase Solutions B.V.
- * Project     : MWWSForm
+ * Created by  : Open CSP
+ * Project     : FlexForm
  * Filename    : SpecialMessages.php
  * Description :
  * Date        : 7-2-2024
@@ -27,7 +27,10 @@ class SpecialMessages {
 		$this->vf = $vF;
 	}
 
-	public function renderTable() {
+	/**
+	 * @return string
+	 */
+	public function renderTable(): string {
 		$messaging = new Messaging();
 		$messages = $messaging->getAllMessages();
 		$title = wfMessage( 'flexform-messaging-list-title' )->text();
@@ -58,8 +61,7 @@ class SpecialMessages {
 			$form .= $this->vf->renderGenericBtn(
 				'',
 				'minus-circle',
-				wfMessage( 'flexform-messaging-list-action-delete' )->text(),
-				''
+				wfMessage( 'flexform-messaging-list-action-delete' )->text()
 			);
 			$form .= '</form> ';
 			$fUser = MediaWikiServices::getInstance()->getUserFactory()->newFromId( $singleMessage['user'] );

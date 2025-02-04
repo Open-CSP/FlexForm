@@ -7,7 +7,7 @@ use FlexForm\FlexFormException;
 
 /**
  * Created by  : Designburo.nl
- * Project     : MWWSForm
+ * Project     : FlexForm
  * Filename    : HandlerInterface.php
  * Description :
  * Date        : 30-3-2022

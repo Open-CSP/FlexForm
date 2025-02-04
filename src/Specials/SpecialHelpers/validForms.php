@@ -1,7 +1,7 @@
 <?php
 /**
- * Created by  : Wikibase Solutions BV
- * Project     : MWWSForm
+ * Created by  : Open CSP
+ * Project     : FlexForm
  * Filename    : validForms.php
  * Description :
  * Date        : 19-12-2022
@@ -23,7 +23,7 @@ class validForms {
 	private string $homeUrl;
 
 	/**
-	 * @var string
+	 * @var array
 	 */
 	private array $uiKit;
 
@@ -82,7 +82,7 @@ class validForms {
 	 *
 	 * @return string
 	 */
-	private function renderTable( array $formInfo, $pid ): string {
+	private function renderTable( array $formInfo, bool|int $pid ): string {
 		$title = wfMessage( 'flexform-validforms-valid-list-title' )->text();
 		if ( $pid !== false ) {
 			$alert = '<div class="uk-alert-success" uk-alert>';
@@ -115,8 +115,7 @@ class validForms {
 			$form .= $this->renderGenericBtn(
 				'',
 				'minus-circle',
-				wfMessage( 'flexform-validforms-invalid-list-action-delete' )->text(),
-				''
+				wfMessage( 'flexform-validforms-invalid-list-action-delete' )->text()
 			);
 			$form .= '</form> ';
 			$counter = $counter + $count;
@@ -212,7 +211,7 @@ class validForms {
 	 *
 	 * @return string
 	 */
-	public function renderApprovedFormsInformation( $pid = false ): string {
+	public function renderApprovedFormsInformation( mixed $pid = false ): string {
 		$formInfo = Sql::getAllApprovedForms();
 		return $this->renderTable( $formInfo, $pid );
 	}
@@ -262,7 +261,6 @@ class validForms {
 			}
 			$content = $row->old_text;
 			$formTags = sql::getAllFormTags( $content, $name );
-			$hashes = [];
 			$id = $title->getArticleID();
 			$ret[$t]['title'] = $title->getFullText();
 			$ret[$t]['id'] = $id;
@@ -270,11 +268,10 @@ class validForms {
 			$ret[$t]['numberOfForms'] = count( $formTags );
 			foreach ( $formTags as $k => $singleForm ) {
 				$hash = sql::createHash( trim( $singleForm ) );
+				$ret[$t]['forms'][$k]['tag'] = $name;
 				if ( !sql::exists( $id, $hash ) ) {
-					$ret[$t]['forms'][$k]['tag'] = $name;
 					$ret[$t]['forms'][$k]['isValid'] = "no";
 				} else {
-					$ret[$t]['forms'][$k]['tag'] = $name;
 					$ret[$t]['forms'][$k]['isValid'] = "yes";
 				}
 			}
@@ -289,7 +286,7 @@ class validForms {
 	 * @param int $dir
 	 *
 	 */
-	public function arraySortByColumn( &$arr, string $col, int $dir = SORT_ASC ) {
+	public function arraySortByColumn( &$arr, string $col, int $dir = SORT_ASC ): void {
 		$sort_col = [];
 		foreach ( $arr as $key => $row ) {
 			$sort_col[$key] = $row[$col];
@@ -297,7 +294,12 @@ class validForms {
 		array_multisort( $sort_col, $dir, $arr );
 	}
 
-	public function renderAllFormsInWiki( $formsData ) {
+	/**
+	 * @param array $formsData
+	 *
+	 * @return string
+	 */
+	public function renderAllFormsInWiki( array $formsData ): string {
 		$headers = [];
 		$headers['#'] = false;
 		//$headers['Validated'] = 'uk-text-center';
@@ -330,8 +332,6 @@ class validForms {
 				}
 			}
 			if ( $validated ) {
-				//$foundNrOfForms = $foundNrOfForms + $pageInfo['numberOfForms'];
-				//$count++;
 				continue;
 			}
 			$pids[] = $pageInfo['id'];
@@ -339,30 +339,19 @@ class validForms {
 			$formUnvalidate .= $this->renderGenericBtn(
 				'',
 				'minus-circle',
-				wfMessage( 'flexform-validforms-invalid-list-action-delete' )->text(),
-				''
+				wfMessage( 'flexform-validforms-invalid-list-action-delete' )->text()
 			);
 			$formUnvalidate .= '</form> ';
 			$formValidate = $formHeader . '<input type="hidden" name="pIdA" value="' . $pageInfo['id'] . '">';
 			$formValidate .= $this->renderGenericBtn(
 				'',
 				'plus-circle',
-				wfMessage( 'flexform-validforms-invalid-list-action-validate' )->text(),
-				''
+				wfMessage( 'flexform-validforms-invalid-list-action-validate' )->text()
 			);
 			$formValidate .= '</form> ';
 			$data[$k][0]['value'] = $count;
 
 			$data[$k][0]['class'] = false;
-
-			/*
-			if ( $validated ) {
-				$data[$k][1]['value'] = '<span class="uk-margin-small-right uk-text-success" uk-icon="check"></span>';
-			} else {
-				$data[$k][1]['value'] = '<span class="uk-margin-small-right uk-text-danger" uk-icon="ban"></span>';
-			}
-			$data[$k][1]['class'] = 'uk-text-center';
-			*/
 			$data[$k][1]['value'] = $pageInfo['id'];
 			$data[$k][1]['class'] = false;
 			$data[$k][2]['value'] = $this->makeLinkFromTitle( $pageInfo['title'] );

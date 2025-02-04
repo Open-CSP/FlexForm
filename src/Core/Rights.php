@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by  : Designburo.nl
- * Project     : MWWSForm
+ * Project     : FlexForm
  * Filename    : Rights.php
  * Description :
  * Date        : 19-4-2022

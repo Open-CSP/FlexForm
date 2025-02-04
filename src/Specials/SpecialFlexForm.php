@@ -297,6 +297,7 @@ class SpecialFlexForm extends \SpecialPage {
 						$pId = $this->getPostString( 'pId' );
 						if ( $pId !== false ) {
 							FlexForm\Core\Sql::removePageId( (int)$pId );
+							$pId = (int)$pId;
 						}
 						$pIdA = $this->getPostString( 'pIdA' );
 						if ( $pIdA !== false ) {

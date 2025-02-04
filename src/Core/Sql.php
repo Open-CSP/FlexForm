@@ -237,8 +237,7 @@ class Sql {
 	 * @return bool
 	 */
 	private static function addPageId( int $pageId, array $hashes ): bool {
-		$lb          = MediaWikiServices::getInstance()->getDBLoadBalancer();
-		$dbw         = $lb->getConnectionRef( DB_PRIMARY );
+		$dbw = MediaWikiServices::getInstance()->getConnectionProvider()->getPrimaryDatabase();
 		try {
 			foreach ( $hashes as $hash ) {
 				if ( !self::exists( $pageId, $hash ) ) {
@@ -266,9 +265,7 @@ class Sql {
 	 * @throws FlexFormException
 	 */
 	public static function removePageId( int $pId ): bool {
-		//$lb          = MediaWikiServices::getInstance()->getDBLoadBalancer();
 		$dbw = MediaWikiServices::getInstance()->getConnectionProvider()->getPrimaryDatabase();
-		//$dbw         = $lb->getConnectionRef( DB_PRIMARY );
 		try {
 			$res = $dbw->delete(
 				self::DBTABLE,
@@ -287,8 +284,7 @@ class Sql {
 	}
 
 	public static function getAllApprovedForms() {
-		$lb          = MediaWikiServices::getInstance()->getDBLoadBalancer();
-		$dbr         = $lb->getConnectionRef( DB_REPLICA );
+		$dbr = MediaWikiServices::getInstance()->getConnectionProvider()->getReplicaDatabase();
 		$select      = [ 'page_id', "count" => 'COUNT(*)' ];
 		$selectOptions = [
 			'GROUP BY' => 'page_id',
@@ -322,8 +318,6 @@ class Sql {
 	 * @return bool
 	 */
 	public static function exists( int $pageId, string $hash ):bool {
-		//$lb          = MediaWikiServices::getInstance()->getDBLoadBalancer();
-		//$dbr         = $lb->getConnectionRef( DB_REPLICA );
 		$dbr = MediaWikiServices::getInstance()->getConnectionProvider()->getReplicaDatabase();
 		$select      = [ 'page_id', "count" => 'COUNT(*)' ];
 		$selectOptions    = [
