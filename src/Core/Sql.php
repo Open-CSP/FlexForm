@@ -14,10 +14,10 @@ use WikiPage;
 
 class Sql {
 
-	private const DBTABLE = 'flexform';
-	private const DBTABLEMSG = 'flexformmsg';
+	private const string DBTABLE = 'flexform';
+	private const string DBTABLEMSG = 'flexformmsg';
 
-	private const UPDATEFIELDS = [
+	private const array UPDATEFIELDS = [
 		'id' => 'update_table_flexformmsg_id',
 		'added' => 'update_table_flexformmsg_added',
 		'persistent' => 'update_table_flexformmsg_persistent',
@@ -96,10 +96,11 @@ class Sql {
 
 	/**
 	 * @param string $content
+	 * @param string|bool $specific
 	 *
-	 * @return mixed
+	 * @return array|mixed
 	 */
-	public static function getAllFormTags( string $content, $specific = false ) {
+	public static function getAllFormTags( string $content, string|bool $specific = false ): mixed {
 		if ( !$specific ) {
 			preg_match_all( '/<form[^>]*>([\s\S]*)<\/form>/U', $content, $result1 );
 			preg_match_all( '/<wsform[^>]*>([\s\S]*)<\/wsform>/U', $content, $result2 );
@@ -212,10 +213,10 @@ class Sql {
 	/**
 	 * @param int $id
 	 *
-	 * @return true
+	 * @return bool
 	 * @throws FlexFormException
 	 */
-	public static function addPageFromId( int $id ) {
+	public static function addPageFromId( int $id ): bool {
 		$render = new Render();
 		$content = $render->getSlotsContentForPage(	$id	);
 		// Page has no content, does not exist or any other weird stuff
@@ -283,7 +284,10 @@ class Sql {
 		}
 	}
 
-	public static function getAllApprovedForms() {
+	/**
+	 * @return array
+	 */
+	public static function getAllApprovedForms(): array {
 		$dbr = MediaWikiServices::getInstance()->getConnectionProvider()->getReplicaDatabase();
 		$select      = [ 'page_id', "count" => 'COUNT(*)' ];
 		$selectOptions = [

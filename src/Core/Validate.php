@@ -21,7 +21,7 @@ class Validate {
 	 *
 	 * @return array|bool List of valid parameters, bool true when "$check" is valid, false if not
 	 */
-	public static function validEmailParameters ( $check, $ret = false ) {
+	public static function validEmailParameters ( $check, $ret = false ): bool|array {
 
 		$validEmailElements = array(
 			"to",
@@ -56,9 +56,9 @@ class Validate {
 	 * @param $check string Holds parameter to check
 	 * @param bool $ret If set to true it will not check the "check" parameter but rather returns an array of valid parameters
 	 *
-	 * @return array|bool List of valid paramters bool true when "$check" is valid, false if not
+	 * @return array|bool List of valid parameters bool true when "$check" is valid, false if not
 	 */
-	public static function validSignatureParameters ( $check, $ret = false ) {
+	public static function validSignatureParameters ( $check, $ret = false ): bool|array {
 
 		$validEmailElements = array(
 			"fname",
@@ -92,7 +92,7 @@ class Validate {
 	 *
 	 * @return array|bool List of valid parameters bool true when "$check" is valid, false if not
 	 */
-	public static function validInstanceParameters ( $check, $ret = false ) {
+	public static function validInstanceParameters ( $check, $ret = false ): bool|array {
 
 		$validInstanceElements = array(
 			"id",
@@ -117,7 +117,7 @@ class Validate {
 	 *
 	 * @return array|bool List of valid paramters, bool true when "$check" is valid, false if not
 	 */
-	public static function validFormParameters( $check, $ret = false ) {
+	public static function validFormParameters( $check, $ret = false ): bool|array {
 		$validFormElements = array(
 			"alt",
 			"class",
@@ -154,7 +154,12 @@ class Validate {
 	}
 
 
-	public static function validHTML( $args ) {
+	/**
+	 * @param array $args
+	 *
+	 * @return string
+	 */
+	public static function validHTML( array $args ): string {
 		if ( isset( $args['html'] ) ) {
 			$tmp = explode( '=', $args['html'] );
 			$html = $tmp[0];
@@ -182,7 +187,7 @@ class Validate {
 	 *
 	 * @return array|bool List of valid parameters,  bool true when "$check" is valid, false if not
 	 */
-	public static function validParameters( $check, $ret = false ) {
+	public static function validParameters( $check, $ret = false ): bool|array {
 
 		$unsafeParameters = [
 			"onfocus",
@@ -253,7 +258,7 @@ class Validate {
 	 *
 	 * @return array|bool List of valid parameters, bool true when "$check" is valid, false if not
 	 */
-	public static function validButtonParameters( string $check, bool $ret = false ) {
+	public static function validButtonParameters( string $check, bool $ret = false ): bool|array {
 		$validParameters = [
 			"formnovalidate",
 			"formaction",
@@ -280,7 +285,7 @@ class Validate {
 	 *
 	 * @return array|bool List of valid parameters, bool true when "$check" is valid, false if not
 	 */
-	public static function validFileParameters( string $check, bool $ret = false ) {
+	public static function validFileParameters( string $check, bool $ret = false ): bool|array {
 		$validParameters = array(
 			"target",
 			"accept",
@@ -316,7 +321,7 @@ class Validate {
 	 *
 	 * @return bool|string[]
 	 */
-	public static function validFileMobileScreenshotParameters( string $check, bool $ret = false ) {
+	public static function validFileMobileScreenshotParameters( string $check, bool $ret = false ): bool|array {
 		$validParameters = [
 			"video-class",
 			"screenshot-width",
@@ -340,7 +345,7 @@ class Validate {
 	 *
 	 * @return bool|string[]
 	 */
-	public static function validMessageParameters( string $check, bool $ret = false ) {
+	public static function validMessageParameters( string $check, bool $ret = false ): bool|array {
 		$validParameters = [
 			"user",
 			"message-type",
@@ -359,12 +364,12 @@ class Validate {
 	/**
 	 * Check for valid input type when using wsfield
 	 *
-	 * @param $check string Holds parameter to check
+	 * @param string $check Holds parameter to check
 	 * @param bool $ret If set to true it will not check the "check" parameter but rather returns an array of valid parameters
 	 *
 	 * @return array|bool List of valid parameters, bool true when "$check" is valid, false if not
 	 */
-	public static function validInputTypes( $check, $ret = false ) {
+	public static function validInputTypes( string $check, bool $ret = false ): bool|array {
 		$validInputFields = array(
 			"search",
 			"email",
@@ -410,15 +415,14 @@ class Validate {
 
 	}
 
-    /**
-     * General function for parameters validation
-     *
-     * @param array $args List of parameters
-     *
-     * @return string[] of formatted arguments
-     * @throws FlexFormException
-     */
-	public static function doSimpleParameters( $args, $type = false ) {
+	/**
+	 * @param array $args
+	 * @param string|bool $type
+	 *
+	 * @return array
+	 * @throws FlexFormException
+	 */
+	public static function doSimpleParameters( array $args, string|bool $type = false ): array {
 		// TODO: Make this function return an array of key-value pairs with the parameters instead of a string
 		$name  = false;
 		$value = false;
@@ -481,7 +485,6 @@ class Validate {
 			if ( $html === "nohtml" ) {
 				$clean = true;
 			} else $clean = false;
-			//$tmp = \wsform\protect\protect::purify( \wsform\wsform::getValue( $name, $clean ), $html, $secure );
 			$tmp = Core::getValue( $name, $clean );
 
 			if ( $tmp !== "" ) {

@@ -7,14 +7,12 @@
 # @Copyright: 2018
 # @version : 0.6.9.3.7
 
-//namespace wsform\special;
 namespace FlexForm\Specials;
 
 use MediaWiki\MediaWikiServices;
 use SpecialPage;
 
 use FlexForm;
-use FlexForm\validate\validate as validate;
 use FlexFormHooks;
 
 use function setcookie;
@@ -28,7 +26,7 @@ use const PHP_EOL;
  * @file
  * @ingroup Extensions
  */
-class SpecialFlexForm extends \SpecialPage {
+class SpecialFlexForm extends SpecialPage {
 
 	public function __construct() {
 		parent::__construct( 'FlexForm' );
@@ -111,7 +109,14 @@ class SpecialFlexForm extends \SpecialPage {
 		}
 	}
 
-	private function get_string_between( $string, $start, $end = "" ) {
+	/**
+	 * @param string $string
+	 * @param string $start
+	 * @param string $end
+	 *
+	 * @return string
+	 */
+	private function get_string_between( string $string, string $start, string $end = "" ): string {
 		$r = explode(
 			$start,
 			$string
@@ -132,7 +137,13 @@ class SpecialFlexForm extends \SpecialPage {
 		return "";
 	}
 
-	private function getChangeLog( $bitbucketChangelog, $currentVersion ) {
+	/**
+	 * @param string $bitbucketChangelog
+	 * @param string $currentVersion
+	 *
+	 * @return string
+	 */
+	private function getChangeLog(string  $bitbucketChangelog, string $currentVersion ): string {
 		$readme = @file_get_contents( $bitbucketChangelog );
 		if ( $readme === false ) {
 			return "not found";
@@ -150,13 +161,11 @@ class SpecialFlexForm extends \SpecialPage {
 				'* ' . $currentVersion
 			);
 		}
-		$changeLog = ltrim(
+
+		return ltrim(
 			$changeLog,
 			"\n"
 		);
-
-		//$changeLog = str_replace( "\n", "<br>", $changeLog);
-		return $changeLog;
 	}
 
 	/**
@@ -481,6 +490,11 @@ class SpecialFlexForm extends \SpecialPage {
 		return true;
 	}
 
+	/**
+	 * @param $sub
+	 *
+	 * @return false|string[]
+	 */
 	public function getArgumentsFromSpecialPage( $sub ) {
 		if ( isset( $sub ) && $sub !== "" ) {
 			$args = explode(
@@ -494,6 +508,11 @@ class SpecialFlexForm extends \SpecialPage {
 		}
 	}
 
+	/**
+	 * @param $name
+	 *
+	 * @return mixed|string
+	 */
 	private function getPostSetup( $name ) {
 		$value = $this->getPostString( $name );
 		if ( $value === false ) {
