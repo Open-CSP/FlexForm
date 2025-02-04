@@ -133,7 +133,7 @@ class SpecialFlexForm extends \SpecialPage {
 	}
 
 	private function getChangeLog( $bitbucketChangelog, $currentVersion ) {
-		$readme = file_get_contents( $bitbucketChangelog );
+		$readme = @file_get_contents( $bitbucketChangelog );
 		if ( $readme === false ) {
 			return "not found";
 		}
@@ -200,7 +200,7 @@ class SpecialFlexForm extends \SpecialPage {
 		$branch = "REL" . $mwVersion[0] . '_' . $mwVersion[1];
 		$bitbucketSource    = 'https://raw.githubusercontent.com/Open-CSP/FlexForm/' . $branch . '/extension.json';
 		$bitbucketChangelog = 'https://raw.githubusercontent.com/Open-CSP/FlexForm/' . $branch . '/README.md';
-		$extJson            = file_get_contents( $bitbucketSource );
+		$extJson            = @file_get_contents( $bitbucketSource );
 		$sourceVersion      = false;
 		if ( $extJson !== false ) {
 			$extJson = json_decode(
@@ -429,51 +429,49 @@ class SpecialFlexForm extends \SpecialPage {
 			}
 		} else {
 			if ( $userAllowed ) {
-				if ( $sourceVersion !== $currentVersion ) {
-					$installForm     = '<form method="post" action="' . $installUrl . '">' . PHP_EOL;
-					$installForm     .= '<input type="submit" value="';
-					$installForm     .= $this->msg( 'flexform-special-godo-update-btn' )->text();
-					$installForm     .= '" class="flex-form-special-install-btn"></form>' . PHP_EOL;
-					$changeLogText   = $this->msg(
-						"flexform-docs-new-version-notice",
-						$sourceVersion
-					)->text();
-					$changeLogText   .= " " . $this->msg( "flexform-docs-new-version-install" )->text();
-					$changeLogText   .= $installForm;
-					$tableHead       = $this->msg( "flexform-docs-new-version-table" )->text();
-					$changelogDetail = $this->getChangeLog(
-						$bitbucketChangelog,
-						$currentVersion
-					);
-				} else {
-					$changeLogText   = $this->msg( "flexform-docs-no-new-version-notice" )->text();
-					$tableHead       = $this->msg( "flexform-docs-no-new-version-table" )->text();
-					$changelogDetail = $this->getChangeLog(
-						$bitbucketChangelog,
-						''
+				if ( $sourceVersion !== false ) {
+					if ( $sourceVersion !== $currentVersion ) {
+						if ( $sourceVersion !== false ) {
+							$changeLogText = $this->msg(
+								"flexform-docs-new-version-notice",
+								$sourceVersion
+							)->text();
+							$tableHead = $this->msg( "flexform-docs-new-version-table" )->text();
+							$changelogDetail = $this->getChangeLog(
+								$bitbucketChangelog,
+								$currentVersion
+							);
+						}
+					} else {
+						$changeLogText = $this->msg( "flexform-docs-no-new-version-notice" )->text();
+						$tableHead = $this->msg( "flexform-docs-no-new-version-table" )->text();
+						$changelogDetail = $this->getChangeLog(
+							$bitbucketChangelog,
+							''
+						);
+					}
+
+					$changeLogTemplate = file_get_contents( $path . 'changelog.html' );
+					$repl = [
+						'%changelogdescr%',
+						'%tablehead%',
+						'%version%',
+						'%changelog%'
+					];
+					$with = [
+						$changeLogText,
+						$tableHead,
+						$sourceVersion,
+						'<pre>' . $changelogDetail . '</pre>'
+					];
+					$out->addHTML(
+						str_replace(
+							$repl,
+							$with,
+							$changeLogTemplate
+						)
 					);
 				}
-
-				$changeLogTemplate = file_get_contents( $path . 'changelog.html' );
-				$repl              = [
-					'%changelogdescr%',
-					'%tablehead%',
-					'%version%',
-					'%changelog%'
-				];
-				$with              = [
-					$changeLogText,
-					$tableHead,
-					$sourceVersion,
-					'<pre>' . $changelogDetail . '</pre>'
-				];
-				$out->addHTML(
-					str_replace(
-						$repl,
-						$with,
-						$changeLogTemplate
-					)
-				);
 			}
 
 			return true;
