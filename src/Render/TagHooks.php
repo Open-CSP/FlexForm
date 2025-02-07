@@ -1767,20 +1767,23 @@ class TagHooks {
 
 		$additionalArgs = [];
 		foreach ( $args as $name => $value ) {
-			if ( Validate::check_disable_readonly_required_selected( $name, $value ) ) {
-				continue;
-			}
-			if ( $name === "name" && strpos(
-										 $value,
-										 '[]'
-									 ) === false ) {
-				$value .= '[]';
-			}
-
-			$additionalArgs[$name] = $parser->recursiveTagParse(
+			$value = $parser->recursiveTagParse(
 				$value,
 				$frame
 			);
+			if ( Validate::check_disable_readonly_required_selected( $name, $value ) ) {
+				continue;
+			}
+			if (
+				$name === "name" && strpos(
+										$value,
+										'[]'
+									) === false
+			) {
+				$value .= '[]';
+			}
+
+			$additionalArgs[$name] = $value;
 		}
 
 		$input  = $parser->recursiveTagParseFully(
@@ -2001,11 +2004,12 @@ class TagHooks {
 		$additionalArguments = [];
 
 		foreach ( $args as $name => $value ) {
+			$value = $parser->recursiveTagParse( $value, $frame );
 			if ( Validate::validParameters( $name ) ) {
 				if ( Validate::check_disable_readonly_required_selected( $name, $value ) ) {
 					continue;
 				}
-				$additionalArguments[$name] = $parser->recursiveTagParse( $value, $frame );
+				$additionalArguments[$name] = $value;
 			}
 		}
 

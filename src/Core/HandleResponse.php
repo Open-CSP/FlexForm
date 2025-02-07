@@ -376,6 +376,12 @@ class HandleResponse {
 			}
 			return;
 		}
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				"Checking for debug",
+				[ 'Message' => $msg ]
+			);
+		}
 		if ( $msg !== '' ) {
 			$message = new Messaging();
 			if ( is_array( $mData ) && !empty( $mData ) ) {
