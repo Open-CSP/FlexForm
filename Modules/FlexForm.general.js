@@ -936,7 +936,6 @@ function addTokenInfo () {
 		}
 
 		$('form.flex-form').one('submit', function (e) {
-			console.log( "go go go" );
 			// Check for Visual editor
 			e.preventDefault()
 			showWeAreWorking(this);
@@ -955,7 +954,6 @@ function addTokenInfo () {
 			if ($(res) && $(res).length === 0) {
 				var uid = getUid()
 				if (uid !== false) {
-					console.log( "Adding uid" );
 					$('<input />')
 						.attr('type', 'hidden')
 						.attr('name', 'wsuid')
@@ -1027,7 +1025,6 @@ function addTokenInfo () {
 					pform.submit();
 				}
 			} else {
-				console.log( "Form submit" );
 				pform.submit();
 			}
 		})
@@ -1155,7 +1152,6 @@ function checkForTinyMCE () {
 }
 
 function createAlertsIfNeeded () {
-	console.log ( "SHOWMESSAGES" );
 	let alert = $('[class^="wsform alert-"]')
 	if (alert !== null && alert.length > 0) {
 		alert.each( function () {

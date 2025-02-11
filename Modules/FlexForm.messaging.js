@@ -82,10 +82,8 @@ waitASec(createMessagesIfNeeded, true)
  * @param both bool if true it will also wait until MW is loaded.
  */
 function waitASec (method, both = false) {
-	//console.log('wacht ff op jQuery..: ' + method.name );
 	if (window.jQuery) {
 		if (both === false) {
-			//console.log( 'ok JQuery active.. lets go!' );
 			method()
 		} else {
 			if (window.mw) {
@@ -104,7 +102,7 @@ function waitASec (method, both = false) {
 		}
 	} else {
 		setTimeout(function () {
-			waitASec(method)
+			waitASec(method, true)
 		}, 50)
 	}
 }
