@@ -2774,11 +2774,11 @@ class TagHooks {
 			$uploadDetails['type'] = 'canvas';
 			$verboseDiv = '';
 			$errorDiv = '';
-			if ( ! Core::isLoaded( 'WSFORM_upload.js' ) ) {
+			if ( !Core::isLoaded( 'WSFORM_upload.js' ) ) {
 				Core::addAsLoaded( 'WSFORM_upload.js' );
 				Core::includeTagsScript( Core::getRealUrl() . '/Modules/WSForm_upload.js' );
 			}
-			if ( ! Core::isLoaded( 'htmltocanvas' ) ) {
+			if ( !Core::isLoaded( 'htmltocanvas' ) ) {
 				Core::addAsLoaded( 'htmltocanvas' );
 				Core::includeTagsScript( Core::getRealUrl() . '/Modules/htmlToCanvas/html2canvas.min.js' );
 			}

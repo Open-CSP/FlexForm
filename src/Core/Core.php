@@ -325,13 +325,11 @@ class Core {
 	/**
 	 * @brief Add Files upload information
 	 *
-	 * @param string $fileInfo File information array
+	 * @param array $fileInfo File information array
 	 */
 	public static function includeFileAction( array $fileInfo ) {
 		global $wgFlexFormConfig;
-		//echo round( microtime( true ) * 1000 ) . "_add <pre>$src</pre>";
 		$wgFlexFormConfig['loaders']['files'][] = $fileInfo;
-		//self::$javaScript[] = $src;
 	}
 
 	/**
@@ -341,9 +339,7 @@ class Core {
 	 */
 	public static function includeTagsScript( string $src ) {
 		global $wgFlexFormConfig;
-		//echo round( microtime( true ) * 1000 ) . "_add <pre>$src</pre>";
 		$wgFlexFormConfig['loaders']['javascripttag'][] = $src;
-		//self::$javaScript[] = $src;
 	}
 
 	/**
@@ -353,9 +349,7 @@ class Core {
 	 */
 	public static function includeTagsCSS( string $src ) {
 		global $wgFlexFormConfig;
-		//echo round( microtime( true ) * 1000 ) . "_add <pre>$src</pre>";
 		$wgFlexFormConfig['loaders']['csstag'][] = $src;
-		//self::$javaScript[] = $src;
 	}
 
 	/**

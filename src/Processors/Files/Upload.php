@@ -21,6 +21,7 @@ use FlexForm\Processors\Definitions;
 use FlexForm\Processors\Utilities\General;
 use MediaHandler;
 use MWFileProps;
+use RequestContext;
 use Title;
 use User;
 use Wikimedia\AtEase\AtEase;
@@ -94,7 +95,7 @@ class Upload {
 		 * ];
 		 */
 
-		$thisUser = \RequestContext::getMain()->getUser();
+		$thisUser = RequestContext::getMain()->getUser();
 
 		$processedFiles = [];
 
@@ -222,7 +223,7 @@ class Upload {
 					]
 				);
 			}
-			if ( !file_exists( $fileToProcess['tmp_name'][$i] ) || ! is_uploaded_file(
+			if ( !file_exists( $fileToProcess['tmp_name'][$i] ) || !is_uploaded_file(
 					$fileToProcess['tmp_name'][$i]
 				) ) {
 				throw new FlexFormException(
@@ -307,10 +308,7 @@ class Upload {
 				}
 				$fileNameExtension = $filesCore->getFileExtension( $newFile );
 			} else {
-				if ( move_uploaded_file(
-					$tmpName,
-					$upload_dir . $targetFile
-				) ) {
+				if ( move_uploaded_file( $tmpName, $upload_dir . $targetFile ) ) {
 					$newFile = $targetFile;
 				} else {
 					throw new FlexFormException(
@@ -527,7 +525,7 @@ class Upload {
 					break;
 				}
 			} else {
-				if ( ! Config::isDebug() ) {
+				if ( !Config::isDebug() ) {
 					$resultFileUpload = $this->uploadFileToWiki(
 						$upload_dir . $storedFile,
 						$titleName,
@@ -584,10 +582,7 @@ class Upload {
 			);
 		}
 		foreach ( $extensions as $extension ) {
-			if ( strpos(
-					 $name,
-					 '.' . $extension
-				 ) !== false ) {
+			if ( strpos( $name, '.' . $extension ) !== false ) {
 				$name = str_replace(
 					'.' . $extension,
 					'',

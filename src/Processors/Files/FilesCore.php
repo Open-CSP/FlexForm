@@ -22,7 +22,6 @@ class FilesCore {
 	 * @throws FlexFormException
 	 */
 	public function handleFileUploads(): void {
-
 		$fields = Definitions::fileUploadFields();
 		if ( $fields['actions'] === null ) {
 			if ( Config::isDebug() ) {
@@ -190,7 +189,7 @@ class FilesCore {
 		string $image,
 		int $image_quality = 100
 	) {
-		//remove extension from image;
+		// remove extension from image;
 		$img_name = $this->remove_extension_from_image( $target_name );
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
@@ -202,12 +201,12 @@ class FilesCore {
 					'img_name' => $img_name ]
 			);
 		}
-		//to png
+		// to png
 		if ( $convert_type == 'png' ) {
 			$binary = imagecreatefromstring( file_get_contents( $image ) );
-			//third parameter for ImagePng is limited to 0 to 9
-			//0 is uncompressed, 9 is compressed
-			//so convert 100 to 2 digit number by dividing it by 10 and minus with 10
+			// third parameter for ImagePng is limited to 0 to 9
+			// 0 is uncompressed, 9 is compressed
+			// so convert 100 to 2 digit number by dividing it by 10 and minus with 10
 			$image_quality = floor( 10 - ( $image_quality / 10 ) );
 			$result = ImagePNG(
 				$binary,
@@ -229,7 +228,7 @@ class FilesCore {
 			return $img_name . '.' . $convert_type;
 		}
 
-		//to jpg
+		// to jpg
 		if ( $convert_type == 'jpg' ) {
 			$binary = imagecreatefromstring( file_get_contents( $image ) );
 			imageJpeg(
@@ -240,7 +239,7 @@ class FilesCore {
 
 			return $img_name . '.' . $convert_type;
 		}
-		//to gif
+		// to gif
 		if ( $convert_type == 'gif' ) {
 			$binary = imagecreatefromstring( file_get_contents( $image ) );
 			imageGif(

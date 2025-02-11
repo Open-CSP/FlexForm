@@ -17,7 +17,8 @@
     "php": "7.4.3 - 8.2.2",
     "ext-json": "*",
     "ext-exif": "*",
-    "composer/installers": "1.*,>=1.0.1"
+    "composer/installers": "1.*,>=1.0.1",
+    "ext-gd": "*"
   },
   "require-dev": {
     "mediawiki/mediawiki-codesniffer": "38.0.0",
