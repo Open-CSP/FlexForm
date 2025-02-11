@@ -77,7 +77,7 @@ class Save {
 		// loop through all slots we need to edit/create
 		foreach ( $text as $slot_name => $content ) {
 			if ( Config::isDebug() ) {
-				$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
+				$debugTitle = '<b>' . __CLASS__ . '<br>Function: ' . __FUNCTION__ . '<br></b>';
 				Debug::addToDebug(
 					$debugTitle . 'edit slot slot name',
 					$slot_name
@@ -388,7 +388,7 @@ class Save {
 		$user = RequestContext::getMain()->getUser();
 
 		if ( Config::isDebug() ) {
-			$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
+			$debugTitle = '<b>' . __CLASS__ . '<br>Function: ' . __FUNCTION__ . '<br></b>';
 			Debug::addToDebug(
 				$debugTitle . $title,
 				[]

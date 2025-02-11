@@ -183,7 +183,7 @@ class ContentCore {
 			self::$fields['msgOnSuccess'] = self::parseTitle( self::$fields['msgOnSuccess'], true );
 		}
 		if ( Config::isDebug() ) {
-			$debugTitle = '<b>::' . get_class() . '::</b> ';
+			$debugTitle = '<b>::' . __CLASS__ . '::</b> ';
 			Debug::addToDebug(
 				$debugTitle . 'createandeditfields',
 				self::$fields,

@@ -115,7 +115,7 @@ class Mail {
 	 * @throws \MWException
 	 */
 	private function parseWikiPageByTitle( string $title ) : string {
-		$debugTitle = '<b>::' . get_class() . '::</b> ';
+		$debugTitle = '<b>::' . __CLASS__ . '::</b> ';
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
 				$debugTitle . 'ParseWikiPage ',

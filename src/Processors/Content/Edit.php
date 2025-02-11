@@ -96,7 +96,7 @@ class Edit {
 		}
 
 		if ( Config::isDebug() ) {
-			$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
+			$debugTitle = '<b>' . __CLASS__ . '<br>Function: ' . __FUNCTION__ . '<br></b>';
 			Debug::addToDebug(
 				$debugTitle . 'Parsed article result',
 				[ "foundTemplate" => $foundTemplate,
@@ -508,7 +508,7 @@ class Edit {
 						);
 					} else { // it is not an array.
 						if ( Config::isDebug() ) {
-							$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
+							$debugTitle = '<b>' . __CLASS__ . '<br>Function: ' . __FUNCTION__ . '<br></b>';
 							$tof = ( contentcore::isInstance( $ff ) === true ) ? "true" : "false";
 							Debug::addToDebug(
 								$debugTitle . 'Create and edit data NOT ARRAY for : ' . $ff,
@@ -587,7 +587,7 @@ class Edit {
 			);
 		}
 		if ( Config::isDebug() ) {
-			$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
+			$debugTitle = '<b>' . __CLASS__ . '<br>Function: ' . __FUNCTION__ . '<br></b>';
 			Debug::addToDebug(
 				$debugTitle . 'Template content for ' . $pid,
 				$templateContent
@@ -911,7 +911,7 @@ class Edit {
 
 		$data = $this->createEditData();
 		if ( Config::isDebug() ) {
-			$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
+			$debugTitle = '<b>' . __CLASS__ . '<br>Function: ' . __FUNCTION__ . '<br></b>';
 			Debug::addToDebug(
 				$debugTitle . 'edit data accumulation ' . $this->editCount,
 				$data

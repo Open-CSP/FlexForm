@@ -37,7 +37,7 @@ class Create {
 	public function writePage(): array {
 		$fields = ContentCore::getFields();
 		if ( Config::isDebug() ) {
-			$debugTitle = '<b>::' . get_class() . '::</b> ';
+			$debugTitle = '<b>::' . __CLASS__ . '::</b> ';
 			Debug::addToDebug( $debugTitle . 'Write page activated ',
 							   [ "fields" => $fields,
 								"_post" => $_POST ] );
@@ -302,7 +302,7 @@ class Create {
 			$timer = new DebugTimer();
 		}
 		if ( Config::isDebug() ) {
-			$debugTitle = '<b>::' . get_class() . '::</b> ';
+			$debugTitle = '<b>::' . __CLASS__ . '::</b> ';
 			Debug::addToDebug( $debugTitle . 'Write several page activated ', $fields );
 		}
 		foreach ( $fields['writepages'] as $singlePage ) {
@@ -487,7 +487,7 @@ class Create {
 		}
 
 		if ( Config::isDebug() ) {
-			$debugTitle = '<b>::' . get_class() . '::</b> ';
+			$debugTitle = '<b>::' . __CLASS__ . '::</b> ';
 			Debug::addToDebug(
 				$debugTitle . '$pagesToSave',
 				$pagesToSave
@@ -583,7 +583,7 @@ class Create {
 		$nrOfPostAttr = 0;
 		foreach ( $_POST as $k => $v ) {
 			if ( Config::isDebug() ) {
-				$debugtitle = '<b>::' . get_class() . '::</b> ' . $nrOfPostAttr . ' ';
+				$debugtitle = '<b>::' . __CLASS__ . '::</b> ' . $nrOfPostAttr . ' ';
 				Debug::addToDebug(
 					$debugtitle . '. Checking field $k',
 					[
