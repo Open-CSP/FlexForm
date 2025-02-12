@@ -1039,6 +1039,9 @@ class TagHooks {
 					$selectedParameterName = $args['for'];
 
 					$selectedValues = $_GET[$selectedParameterName] ?? '';
+					if( is_array( $selectedValues ) ) {
+						$selectedValues = $selectedValues[0];
+					}
 					$selectedValues = explode(
 						Core::$separator,
 						$selectedValues

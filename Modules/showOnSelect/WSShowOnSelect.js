@@ -15,7 +15,10 @@ async function WsShowOnSelect(selector = document.body) {
 	$(selector).find('.WSShowOnSelect').find('[data-wssos-show]').each(function (index, elm) {
 		if ($(elm).is('option')) {
 			let isInArray = false
-			let selectParent = $(elm).parent()[0]
+			let selectParent = $(elm).parent()[0];
+			if ( $(selectParent).is('optgroup') ) {
+				selectParent = $(selectParent).parent()[0];
+			}
 			for (let i = 0; i < selectArray.length; i++) {
 				if ($(selectParent).is($(selectArray[i]))) {
 					isInArray = true
@@ -332,6 +335,7 @@ function handleSelect (selectElm) {
 	 */
 	const optionElementCb = (index, element) => {
 		element = $(element);
+		console.log( 'ELEMENT=', element );
 		let needToShow = false;
 		let element_wssos_value = element.data('wssos-value');
 
@@ -353,6 +357,7 @@ function handleSelect (selectElm) {
 			if (element_wssos_value !== wssos_value) return;
 			needToShow = (optionElm.selected || $(optionElm).val() === selectVal);
 		}
+		console.log( needToShow );
 
 		if (needToShow) {
 			element.show(0);
@@ -365,10 +370,11 @@ function handleSelect (selectElm) {
 	}
 
 	// loop through all options
-	$(selectElm).children().each(function (index, option) {
+	$(selectElm).find('[type=option]').each(function (index, option) {
 		wssos_value = $(option).data('wssos-show')
 		parent_wssos = $(option).parentsUntil('.WSShowOnSelect').parent()[0]
 		wssos_elm = $(parent_wssos).find('[data-wssos-value*="' + wssos_value + '"]')
+		console.log( parent_wssos,  wssos_elm );
 
 		// if no elements are found, first look for id else look for elements that include the tag
 		if (wssos_elm.length === 0) wssos_elm = $(parent_wssos).find('#' + wssos_value)
@@ -376,7 +382,7 @@ function handleSelect (selectElm) {
 		optionElm = option;
 		selectVal = $(option).parent().val()
 
-		$.each(wssos_elm, (index, element) => optionElementCb(index, element));
+		$.each(wssos_elm, (index, element, parent_wssos) => optionElementCb(index, element));
 	})
 
 	$(selectElm).off('change')
@@ -384,7 +390,7 @@ function handleSelect (selectElm) {
 		wssos_show_elm = null
 
 		// loop through all options
-		$(this).children().each(function (index, option) {
+		$(this).find('[type=option]').each(function (index, option) {
 			wssos_value = $(option).data('wssos-show')
 			parent_wssos = $(this).parentsUntil('.WSShowOnSelect').parent()[0]
 			wssos_elm = $(parent_wssos).find('[data-wssos-value*="' + wssos_value + '"]')
@@ -393,7 +399,7 @@ function handleSelect (selectElm) {
 			if (wssos_elm.length === 0) wssos_elm = $(parent_wssos).find('#' + wssos_value)
 
 			optionElm = option;
-			selectVal = $(option).parent().val();
+			selectVal = $(selectElm).val();
 
 			$.each(wssos_elm, (index, element) => optionElementCb(index, element));
 		})
