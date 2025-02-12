@@ -1552,13 +1552,7 @@ class TagHooks {
 		$args = $this->filterInputTags( $args );
 
 		foreach ( $args as $name => $value ) {
-			if ( ( strpos(
-					   $value,
-					   '{'
-				   ) !== false ) && ( strpos(
-										  $value,
-										  "}"
-									  ) !== false ) ) {
+			if ( ( strpos( $value, '{' ) !== false ) && ( strpos( $value, "}" ) !== false ) ) {
 				$args[$name] = $parser->recursiveTagParse(
 					$value,
 					$frame
@@ -1723,6 +1717,47 @@ class TagHooks {
 			$output,
 			'markerType' => 'nowiki'
 		];
+	}
+
+	/**
+	 * @brief This is the initial call from the MediaWiki parser for the OptGroup
+	 *
+	 * @param $input string Received from parser from begin till end
+	 * @param array $args List of argmuments for the selectset
+	 * @param Parser $parser MediaWiki parser
+	 * @param PPFrame $frame MediaWiki pframe
+	 *
+	 * @return array with full rendered html for the parser to add
+	 * @throws FlexFormException
+	 */
+	public function renderOptGroup( $input, array $args, Parser $parser, PPFrame $frame ) {
+
+		$input = $parser->recursiveTagParse(
+			$input,
+			$frame
+		);
+
+		$args = $this->filterInputTags( $args );
+
+		foreach ( $args as $name => $value ) {
+			if ( ( strpos( $value, '{' ) !== false ) && ( strpos( $value, "}" ) !== false ) ) {
+				$args[$name] = $parser->recursiveTagParse(
+					$value,
+					$frame
+				);
+			}
+		}
+
+		$output = $this->themeStore->getFormTheme()->getOptGroupRenderer()->render_optgroup(
+			$input,
+			$args
+		);
+
+		return [
+			$output,
+			'markerType' => 'nowiki'
+		];
+
 	}
 
 	/**

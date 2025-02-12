@@ -15,6 +15,7 @@ use FlexForm\Render\Themes\LegendRenderer;
 use FlexForm\Render\Themes\SelectRenderer;
 use FlexForm\Render\Themes\Theme;
 use FlexForm\Render\Themes\TokenRenderer;
+use FlexForm\Render\Themes\OptGroupRenderer;
 
 /**
  * Class PlainTheme
@@ -106,5 +107,12 @@ class PlainTheme implements Theme {
 	 */
 	public function getLabelRenderer() : LabelRenderer {
 		return new PlainLabelRenderer();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getOptGroupRenderer(): OptGroupRenderer {
+		return new PlainOptGroupRenderer();
 	}
 }
