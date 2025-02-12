@@ -335,7 +335,6 @@ function handleSelect (selectElm) {
 	 */
 	const optionElementCb = (index, element) => {
 		element = $(element);
-		console.log( 'ELEMENT=', element );
 		let needToShow = false;
 		let element_wssos_value = element.data('wssos-value');
 
@@ -357,7 +356,6 @@ function handleSelect (selectElm) {
 			if (element_wssos_value !== wssos_value) return;
 			needToShow = (optionElm.selected || $(optionElm).val() === selectVal);
 		}
-		console.log( needToShow );
 
 		if (needToShow) {
 			element.show(0);
@@ -374,7 +372,6 @@ function handleSelect (selectElm) {
 		wssos_value = $(option).data('wssos-show')
 		parent_wssos = $(option).parentsUntil('.WSShowOnSelect').parent()[0]
 		wssos_elm = $(parent_wssos).find('[data-wssos-value*="' + wssos_value + '"]')
-		console.log( parent_wssos,  wssos_elm );
 
 		// if no elements are found, first look for id else look for elements that include the tag
 		if (wssos_elm.length === 0) wssos_elm = $(parent_wssos).find('#' + wssos_value)
