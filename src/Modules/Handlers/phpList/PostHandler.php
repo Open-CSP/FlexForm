@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by  : Wikibase Solutions
+ * Created by  : OpenCSP
  * Project     : PHPList extension for FlexForm
  * Filename    : PostHandler.php
  * Description :

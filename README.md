@@ -84,6 +84,7 @@ Visit this documentation page https://www.open-csp.org/DevOps:Doc/FlexForm/2.0/V
 Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
+* 2.3.8 : Added optgroup support for select
 * 2.3.7 : Default to now parse every argument given to tokens and selects
 * 2.3.6 : FlexForm Secure JS changes
 * 2.3.5 : Request https://github.com/Open-CSP/FlexForm/issues/50 added. Parsing of value for attachmessageto. Fixed Tempex JS issue.

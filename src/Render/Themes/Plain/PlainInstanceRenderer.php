@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by  : Wikibase Solutions
+ * Created by  : OpenCSP
  * Project     : csp
  * Filename    : instance.class.php
  * Description :

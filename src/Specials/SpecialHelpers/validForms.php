@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by  : Wikibase Solutions BV
+ * Created by  : OpenCSP
  * Project     : MWWSForm
  * Filename    : validForms.php
  * Description :
