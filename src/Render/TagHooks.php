@@ -1039,6 +1039,9 @@ class TagHooks {
 					$selectedParameterName = $args['for'];
 
 					$selectedValues = $_GET[$selectedParameterName] ?? '';
+					if ( is_array( $selectedValues ) ) {
+						$selectedValues = $selectedValues[0];
+					}
 					$selectedValues = explode(
 						Core::$separator,
 						$selectedValues
@@ -1552,13 +1555,7 @@ class TagHooks {
 		$args = $this->filterInputTags( $args );
 
 		foreach ( $args as $name => $value ) {
-			if ( ( strpos(
-					   $value,
-					   '{'
-				   ) !== false ) && ( strpos(
-										  $value,
-										  "}"
-									  ) !== false ) ) {
+			if ( ( strpos( $value, '{' ) !== false ) && ( strpos( $value, "}" ) !== false ) ) {
 				$args[$name] = $parser->recursiveTagParse(
 					$value,
 					$frame
@@ -1719,6 +1716,38 @@ class TagHooks {
 			$inputArguments
 		);
 
+		return [
+			$output,
+			'markerType' => 'nowiki'
+		];
+	}
+
+	/**
+	 * @brief This is the initial call from the MediaWiki parser for the OptGroup
+	 *
+	 * @param string $input Received from parser from begin till end
+	 * @param array $args List of arguments for the selectset
+	 * @param Parser $parser MediaWiki parser
+	 * @param PPFrame $frame MediaWiki pframe
+	 *
+	 * @return array with full rendered html for the parser to add
+	 * @throws FlexFormException
+	 */
+	public function renderOptGroup( $input, array $args, Parser $parser, PPFrame $frame ) {
+		$input = $parser->recursiveTagParse( $input, $frame	);
+		$args = $this->filterInputTags( $args );
+		foreach ( $args as $name => $value ) {
+			if ( ( strpos( $value, '{' ) !== false ) && ( strpos( $value, "}" ) !== false ) ) {
+				$args[$name] = $parser->recursiveTagParse(
+					$value,
+					$frame
+				);
+			}
+		}
+		$output = $this->themeStore->getFormTheme()->getOptGroupRenderer()->render_optgroup(
+			$input,
+			$args
+		);
 		return [
 			$output,
 			'markerType' => 'nowiki'

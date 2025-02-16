@@ -485,6 +485,13 @@ class FlexFormHooks {
 			]
 		);
 		$parser->setHook(
+			'optgroup',
+			[
+				$tagHooks,
+				'renderOptgroup'
+			]
+		);
+		$parser->setHook(
 			'legend',
 			[
 				$tagHooks,
