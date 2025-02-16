@@ -1,7 +1,7 @@
 <?php
 /**
- * Created by  : Wikibase Solutions
- * Project     : i
+ * Created by  : OpenCSP
+ * Project     : FlexForm
  * Filename    : flexform.class.php
  * Description :
  * Date        : 11/04/2019

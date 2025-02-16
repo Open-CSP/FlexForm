@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by  : Designburo.nl
- * Project     : MWWSForm
+ * Project     : FlexForm
  * Filename    : Logging.php
  * Description :
  * Date        : 31-1-2023

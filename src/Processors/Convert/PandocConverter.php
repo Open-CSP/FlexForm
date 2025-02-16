@@ -1,7 +1,7 @@
 <?php
 /**
- * Created by  : Wikibase Solutions B.V.
- * Project     : MWWSForm
+ * Created by  : OpenCSP
+ * Project     : FlexForm
  * Filename    : Pandoc.php
  * Description :
  * Date        : 21-2-2024

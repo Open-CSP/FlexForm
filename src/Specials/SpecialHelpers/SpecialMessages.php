@@ -1,7 +1,7 @@
 <?php
 /**
- * Created by  : Wikibase Solutions B.V.
- * Project     : MWWSForm
+ * Created by  : OpenCSP
+ * Project     : FlexForm
  * Filename    : SpecialMessages.php
  * Description :
  * Date        : 7-2-2024

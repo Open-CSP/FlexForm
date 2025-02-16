@@ -1,7 +1,7 @@
 <?php
 /**
- * Created by  : Wikibase Solutions BV
- * Project     : MWWSForm
+ * Created by  : OpenCSP
+ * Project     : FlexForm
  * Filename    : validForms.php
  * Description :
  * Date        : 19-12-2022

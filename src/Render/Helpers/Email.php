@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by  : Designburo.nl
- * Project     : MWWSForm
+ * Project     : FlexForm
  * Filename    : Email.php
  * Description :
  * Date        : 15-2-2023

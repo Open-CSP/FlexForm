@@ -1,7 +1,7 @@
 <?php
 /**
- * Created by  : Wikibase Solutions
- * Project     : MWFlexForm
+ * Created by  : OpenCSP
+ * Project     : FlexForm
  * Filename    : Mail.php
  * Description :
  * Date        : 28-1-2022

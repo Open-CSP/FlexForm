@@ -1,7 +1,7 @@
 <?php
 /**
- * Created by  : Wikibase Solutions B.V.
- * Project     : OpenCSP
+ * Created by  : OpenCSP
+ * Project     : FlexForm
  * Filename    : OptGroupRenderer.php
  * Description :
  * Date        : 16-2-2025

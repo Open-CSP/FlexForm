@@ -1,7 +1,7 @@
 <?php
 /**
- * Created by  : Wikibase Solutions
- * Project     : MWFlexForm
+ * Created by  : OpenCSP
+ * Project     : FlexForm
  * Filename    : General.php
  * Description :
  * Date        : 28-12-2021
