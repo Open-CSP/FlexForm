@@ -134,7 +134,7 @@ class PlainFormRenderer implements FormRenderer {
 			$formContent .= Core::createHiddenField( 'mw-captcha-type', 'v2' );
 		}
 		if ( Core::isLoaded( 'google-captcha' ) ) {
-			$formContent .= '<input type="text" class="ffmwYourMessage" name="mw-your-message" placeholder="Your message" \>' . "\n";
+			$formContent .= '<input type="text" class="ffmwYourMessage" name="mw-your-message" placeholder="Your message" >' . "\n";
 		}
 		if ( Config::isSecure() ) {
 			// FIXME: Move some of this logic to the caller

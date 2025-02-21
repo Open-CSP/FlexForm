@@ -272,5 +272,5 @@ select{
 }
 
 .ffmwYourMessage {
-	display:none;
+	display:none !important;
 }
