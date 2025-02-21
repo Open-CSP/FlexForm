@@ -4,12 +4,9 @@ namespace FlexForm\Processors\Files;
 
 use FlexForm\Core\Config;
 use FlexForm\Core\Debug;
-use FlexForm\Core\HandleResponse;
 use FlexForm\FlexFormException;
 use FlexForm\Processors\Definitions;
 use FlexForm\Processors\Utilities\General;
-use FlexForm\Processors\Files;
-use Symfony\Component\Security\Acl\Exception\Exception;
 
 class FilesCore {
 
