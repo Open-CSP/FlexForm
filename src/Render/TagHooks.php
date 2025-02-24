@@ -1818,6 +1818,7 @@ class TagHooks {
 										'[]'
 									) === false
 			) {
+
 				$value .= '[]';
 			}
 
