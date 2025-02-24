@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by  : Wikibase Solutions B.V.
+ * Created by  : OpenCSP
  * Project     : MWWSForm
  * Filename    : SpreadsheetConverter.php
  * Description :

@@ -646,6 +646,7 @@ function wsform (btn, callback = 0, preCallback = 0, showId = 0) {
 			} else {
 				attachTo = $( btn );
 			}
+			console.log( attachTo );
 			showMessage( statusMsg, statusType, attachTo );
 			if (result.status === 'ok') {
 				if (callback !== 0 && typeof callback !== 'undefined') {
@@ -757,7 +758,7 @@ if ( typeof window.ffDecryptObj === 'undefined' ) {
 }
 
 const fetchAllDecrypt = async () => {
-	if ( wgFlexFormSecure === false ) {
+	if ( window.wgFlexFormSecure === false ) {
 		return;
 	}
 
@@ -791,7 +792,7 @@ const fetchAllDecrypt = async () => {
 }
 
 const getDecrypt = ( txt ) => {
-	if ( wgFlexFormSecure === false ) return txt;
+	if ( window.wgFlexFormSecure === false ) return txt;
 	if ( !window.ffDecryptObj[txt] ) return txt;
 	return window.ffDecryptObj[txt];
 }

@@ -65,6 +65,13 @@ interface Theme {
 	public function getFieldsetRenderer() : FieldsetRenderer;
 
 	/**
+	 * Get a new OptGroupRenderer.
+	 *
+	 * @return FieldsetRenderer
+	 */
+	public function getOptGroupRenderer() : OptGroupRenderer;
+
+	/**
 	 * Get a new SelectRenderer.
 	 *
 	 * @return SelectRenderer

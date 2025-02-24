@@ -1019,6 +1019,9 @@ class TagHooks {
 					$selectedParameterName = $args['for'];
 
 					$selectedValues = $_GET[$selectedParameterName] ?? '';
+					if ( is_array( $selectedValues ) ) {
+						$selectedValues = $selectedValues[0];
+					}
 					$selectedValues = explode(
 						Core::$separator,
 						$selectedValues
@@ -1532,13 +1535,15 @@ class TagHooks {
 		$args = $this->filterInputTags( $args );
 
 		foreach ( $args as $name => $value ) {
-			if ( ( strpos(
-					   $value,
-					   '{'
-				   ) !== false ) && ( strpos(
-										  $value,
-										  "}"
-									  ) !== false ) ) {
+			if (
+				( strpos(
+					  $value,
+					  '{'
+				  ) !== false ) && ( strpos(
+										 $value,
+										 "}"
+									 ) !== false )
+			) {
 				$args[$name] = $parser->recursiveTagParse(
 					$value,
 					$frame
@@ -1705,6 +1710,39 @@ class TagHooks {
 		];
 	}
 
+
+	/**
+	 * @brief This is the initial call from the MediaWiki parser for the OptGroup
+	 *
+	 * @param string $input Received from parser from begin till end
+	 * @param array $args List of arguments for the selectset
+	 * @param Parser $parser MediaWiki parser
+	 * @param PPFrame $frame MediaWiki pframe
+	 *
+	 * @return array with full rendered html for the parser to add
+	 * @throws FlexFormException
+	 */
+	public function renderOptGroup( $input, array $args, Parser $parser, PPFrame $frame ) {
+		$input = $parser->recursiveTagParse( $input, $frame	);
+		$args = $this->filterInputTags( $args );
+		foreach ( $args as $name => $value ) {
+			if ( ( strpos( $value, '{' ) !== false ) && ( strpos( $value, "}" ) !== false ) ) {
+				$args[$name] = $parser->recursiveTagParse(
+					$value,
+					$frame
+				);
+			}
+		}
+		$output = $this->themeStore->getFormTheme()->getOptGroupRenderer()->render_optgroup(
+			$input,
+			$args
+		);
+		return [
+			$output,
+			'markerType' => 'nowiki'
+		];
+	}
+
 	/**
 	 * @brief This is the initial call from the MediaWiki parser for the WSSelect
 	 *
@@ -1767,20 +1805,24 @@ class TagHooks {
 
 		$additionalArgs = [];
 		foreach ( $args as $name => $value ) {
-			if ( Validate::check_disable_readonly_required_selected( $name, $value ) ) {
-				continue;
-			}
-			if ( $name === "name" && strpos(
-										 $value,
-										 '[]'
-									 ) === false ) {
-				$value .= '[]';
-			}
-
-			$additionalArgs[$name] = $parser->recursiveTagParse(
+			$value = $parser->recursiveTagParse(
 				$value,
 				$frame
 			);
+			if ( Validate::check_disable_readonly_required_selected( $name, $value ) ) {
+				continue;
+			}
+			if (
+				$name === "name" && strpos(
+										$value,
+										'[]'
+									) === false
+			) {
+
+				$value .= '[]';
+			}
+
+			$additionalArgs[$name] = $value;
 		}
 
 		$input  = $parser->recursiveTagParseFully(
@@ -2001,11 +2043,12 @@ class TagHooks {
 		$additionalArguments = [];
 
 		foreach ( $args as $name => $value ) {
+			$value = $parser->recursiveTagParse( $value, $frame );
 			if ( Validate::validParameters( $name ) ) {
 				if ( Validate::check_disable_readonly_required_selected( $name, $value ) ) {
 					continue;
 				}
-				$additionalArguments[$name] = $parser->recursiveTagParse( $value, $frame );
+				$additionalArguments[$name] = $value;
 			}
 		}
 
@@ -2582,16 +2625,20 @@ class TagHooks {
 		}
 		global $IP;
 		if ( !$id ) {
-			$ret = 'You cannot upload files without adding an unique id.';
+			$ret = wfMessage( "flexform-filerender-no-id" )->plain();
 
 			return $ret;
 		}
+		if ( strpbrk( $id, '- _' ) ) {
+			$ret = wfMessage( "flexform-filerender-id-forbidden-characters" )->plain();
+			return $ret;
+		}
 		if ( !$name ) {
-			$ret = 'Uploading files without a name will not work.';
+			$ret = wfMessage( "flexform-filerender-no-name" )->plain();
 			return $ret;
 		}
 		if ( !$target ) {
-			$ret = 'You cannot upload files without a target.';
+			$ret = wfMessage( "flexform-filerender-no-target" )->plain();
 
 			return $ret;
 		} else {
