@@ -113,6 +113,15 @@ class PlainCreateRenderer implements CreateRenderer {
 				);
 			}
 
+			if ( $skipSEO === "true" ) {
+				$skipSEOField = Core::createHiddenField(
+					'mwnoseo',
+					$skipSEO
+				);
+			} else {
+				$skipSEOField = '';
+			}
+
 			$leadingZero = $leadingZero ? Core::createHiddenField(
 				'mwleadingzero',
 				'true'
@@ -123,7 +132,8 @@ class PlainCreateRenderer implements CreateRenderer {
 				'true'
 			) : '';
 
-			return $template . $write . $option . $follow . $leadingZero . $slot . $noOverWrite . $format;
+			return $template . $write . $option . $follow . $leadingZero . $slot . $noOverWrite . $format .
+				   $skipSEOField;
 		}
 	}
 }

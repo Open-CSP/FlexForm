@@ -126,6 +126,10 @@ class ContentCore {
 			self::$fields['separator'] = ',';
 		}
 
+		if ( self::$fields['skipSeo'] === "true" ) {
+			self::$fields['skipSeo'] = true;
+		}
+
 		if ( isset( $_POST['mwleadingzero'] ) ) {
 			self::$fields['leadByZero'] = true;
 		}
