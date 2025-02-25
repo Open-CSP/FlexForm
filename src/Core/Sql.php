@@ -12,12 +12,15 @@ use MediaWiki\Storage\EditResult;
 use MediaWiki\User\UserIdentity;
 use WikiPage;
 
+/**
+ * Handle MediaWiki Database tables
+ */
 class Sql {
 
-	private const string DBTABLE = 'flexform';
-	private const string DBTABLEMSG = 'flexformmsg';
+	private const DBTABLE = 'flexform';
+	private const DBTABLEMSG = 'flexformmsg';
 
-	private const array UPDATEFIELDS = [
+	private const UPDATEFIELDS = [
 		'id' => 'update_table_flexformmsg_id',
 		'added' => 'update_table_flexformmsg_added',
 		'persistent' => 'update_table_flexformmsg_persistent',

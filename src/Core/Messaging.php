@@ -15,7 +15,7 @@ use Wikimedia\Rdbms\ILoadBalancer;
 class Messaging {
 
 
-	private const string DBTABLE = 'flexformmsg';
+	private const DBTABLE = 'flexformmsg';
 
 	/**
 	 * @var ILoadBalancer
