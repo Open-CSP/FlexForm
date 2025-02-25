@@ -156,6 +156,10 @@ class Recaptcha {
 			throw new FlexFormException( wfMessage( 'flexform-captcha-missing-details' )->text() );
 		}
 
+		if ( General::getPostString( 'mw-your-message' ) ) {
+			throw new FlexFormException( wfMessage( 'flexform-captcha-honeypot-fail' )->text() );
+		}
+
 		$captchaResult = self::googleSiteVerify(
 			$captchaToken,
 			$captchaAction,
