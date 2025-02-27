@@ -270,3 +270,7 @@ select{
 .ff-ms-btn {
 	height: 100%;
 }
+
+.ffmwYourMessage {
+	display:none !important;
+}

@@ -129,7 +129,8 @@ class Definitions {
 			'nooverwrite'     => General::getPostString( 'mwnooverwrite' ),
 			'format'          => General::getPostString( 'mwformat' ),
 			'formpermissions' => General::getPostString( 'mwformpermissions' ),
-			'separator'       => General::getPostString( 'ff_separator' )
+			'separator'       => General::getPostString( 'ff_separator' ),
+			'skipSeo'		  => General::getPostString( 'mwnoseo' )
 		];
 	}
 
