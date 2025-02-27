@@ -841,7 +841,7 @@ class ContentCore {
 		} elseif ( isset( $result['error'] ) ) {
 			return ( array(
 				'status'  => 'error',
-				'message' => $result['error']['code'] . ': ' . $result['received']['error']['info']
+				'message' => $result['error']['info']
 			) );
 		} else {
 			return ( array(
@@ -881,6 +881,12 @@ class ContentCore {
 				'status'  => 'error',
 				'message' => $result['flexform']['error']['message']
 			] );
+		} elseif ( isset( $result['error'] ) ) {
+			return ( array(
+				'status'  => 'error',
+				'message' => $result['error']['info']
+			) );
+
 		} else {
 			return ( [
 				'status' => 'ok',

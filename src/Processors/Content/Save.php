@@ -7,7 +7,6 @@ use ContentHandler;
 use ExtensionRegistry;
 use FlexForm\Core\Core;
 use FlexForm\Core\DebugTimer;
-use FlexForm\Core\Validate;
 use FlexForm\Processors\Definitions;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
@@ -21,14 +20,17 @@ use User;
 use WikiPage;
 use FlexForm\Core\Config;
 use FlexForm\Core\Debug;
-use FlexForm\Core\HandleResponse;
 use FlexForm\FlexFormException;
-use SMW\ApplicationFactory;
 use SMW\Options;
 use SMW\Store;
 use SMW\StoreFactory;
 
 class Save {
+
+	/**
+	 * @var bool
+	 */
+	private bool $needRebuildData = false;
 
 	/**
 	 * @param string $content
@@ -178,7 +180,6 @@ class Save {
 			EDIT_INTERNAL
 		);
 
-
 		if ( Config::isDebug() ) {
 			$res = "true";
 			if ( $result === false ) {
@@ -210,22 +211,6 @@ class Save {
 				);
 			}
 		}
-		/*
-		 * Some testing to see if any of these functions trigger DisplayTitle property update
-		 *
-		$wikipage_object->setTimestamp( wfTimestampNow() );
-		$wikipage_object->updateParserCache( [
-												 'causeAction' => 'api-purge',
-												 'causeAgent' => $user->getName(),
-											 ] );
-		$wikipage_object->doSecondaryDataUpdates( [
-													  'recursive' => true,
-													  'causeAction' => 'api-purge',
-													  'causeAgent' => $user->getName(),
-													  'defer' => DeferredUpdates::PRESEND,
-												  ] );
-		$wikipage_object->doPurge();
-*/
 
 		if ( !$page_updater->isUnchanged() ) {
 			if ( Config::isDebug() ) {
@@ -246,7 +231,9 @@ class Save {
 				$timerNull = new DebugTimer();
 			}
 			// Perform an additional null-edit to make sure all page properties are up-to-date
-			$this->doNullEdit( $user, $wikipage_object, $mainContentText );
+			$this->doNullEdit( $user, $wikipage_object );
+			// Perform an additional rebuild data for this page if needed ( set by form permissions ).
+			$this->forceRebuildDataForTitle( $wikipage_object->getTitle()->getFullText() );
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
 					'SMW Props refresh / Null edit duration',
@@ -270,37 +257,13 @@ class Save {
 	 * @return void
 	 * @throws MWException
 	 */
-	private function doNullEdit( User $user, WikiPage $wikiPageObject, $content ) {
+	private function doNullEdit( User $user, WikiPage $wikiPageObject ) {
 		if ( Config::getConfigVariable( 'forceNullEdit' ) === false ) {
 			return;
 		}
 		$title = $wikiPageObject->getTitle()->getFullText();
 		$titleObject = Title::newFromText( $title );
 		$wikiPageObject = WikiPage::factory( $titleObject );
-		//https://nw-wsform.wikibase.nl/api.php?action=edit&format=json&title=Displaytitle_test&appendtext=%20ola&token=4eed6b0237ae86236a9640a795bb52bb6256cbbe%2B%5C
-		/*
-		$content = rtrim( $content, " " );
-		$render   = new Render();
-		$csrf = $user->getEditToken();
-		if ( Config::isDebug() ) {
-			Debug::addToDebug( 'Get CSRF token ' . time(), $csrf );
-		}
-		$postdata = [
-			"action"     => "edit",
-			"format"     => "json",
-			"title"      => $wikiPageObject->getTitle()->getFullText(),
-			"text" 		 => $content . " ",
-			"token"      => $csrf
-		];
-		if ( Config::isDebug() ) {
-			Debug::addToDebug( 'Space Edit request data ' . time(), $postdata );
-		}
-		$result = $render->makeRequest( $postdata );
-		if ( Config::isDebug() ) {
-			Debug::addToDebug( 'Space Edit request ' . time(), $result );
-		}
-
-		*/
 		$comment = CommentStoreComment::newUnsavedComment( "" );
 		$wikiPageObject->doPurge();
 		$page_updater = $wikiPageObject->newPageUpdater( $user );
@@ -318,6 +281,26 @@ class Save {
 				'Null edit result -- ',
 				$res
 			);
+		}
+	}
+
+	/**
+	 * If a form has the permissions argument, then do an additional rebuild data for the page created/edited.
+	 * In some cases a user might not have the correct rights to create a page where a template uses a parser to
+	 * read or set properties. This rebuild data will force to set those properties.
+	 * @param string $title
+	 *
+	 * @return void
+	 */
+	private function forceRebuildDataForTitle( string $title ): void {
+		if ( !ExtensionRegistry::getInstance()->isLoaded( 'SemanticMediaWiki' ) ) {
+			return;
+		}
+		if ( $this->needRebuildData ) {
+			global $IP;
+			$cmd = 'php ' . $IP . '/extensions/SemanticMediaWiki/maintenance/rebuildData.php';
+			$cmd .= ' --page="' . $title . '"' . ' > /dev/null &';
+			shell_exec( $cmd );
 		}
 	}
 
@@ -383,7 +366,7 @@ class Save {
 	 * @param string $title
 	 * @param array $contentArray
 	 * @param string $summary
-	 * @param string $overWrite
+	 * @param bool $overWrite
 	 *
 	 * @return void
 	 * @throws MWException
@@ -449,6 +432,7 @@ class Save {
 					);
 				}
 			}
+			$this->needRebuildData = true;
 		}
 		$editAllPagesConfig = Config::getConfigVariable( 'userscaneditallpages' );
 		if ( $editAllPagesConfig === false && ( $canCreate === false || $canEdit === false ) ) {
