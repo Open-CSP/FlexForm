@@ -50,11 +50,8 @@ class Create {
 							   [ "content" => $this->content,
 								   "title" => $fields['writepage'] ] );
 		}
-		if ( strpos(
-				 $fields['writepage'],
-				 '['
-			 ) !== false ) {
-			$fields['writepage'] = ContentCore::parseTitle( $fields['writepage'] );
+		if ( str_contains( $fields['writepage'], '[' ) ) {
+			$fields['writepage'] = ContentCore::parseTitle( $fields['writepage'], $fields['skipSeo'] );
 		}
 
 		$this->title = $fields['writepage'];
