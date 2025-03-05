@@ -299,7 +299,7 @@ class Save {
 		if ( $this->needRebuildData ) {
 			global $IP;
 			$cmd = 'php ' . $IP . '/extensions/SemanticMediaWiki/maintenance/rebuildData.php';
-			$cmd .= ' --page="' . $title . '"' . ' > /dev/null &';
+			$cmd .= ' --page="' . escapeshellarg( $title ) . '"' . ' > /dev/null &';
 			shell_exec( $cmd );
 		}
 	}
