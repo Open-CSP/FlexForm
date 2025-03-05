@@ -812,7 +812,7 @@ class ContentCore {
 	 * @return array|string[]
 	 * @throws MWException
 	 */
-	public static function getNextAvailable( $nameStartsWith ) : array {
+	public static function getNextAvailable( $nameStartsWith ): array {
 		$render   = new Render();
 		$postdata = [
 			"action"          => "flexform",
@@ -835,7 +835,7 @@ class ContentCore {
 		} elseif ( isset( $result['error'] ) ) {
 			return ( array(
 				'status'  => 'error',
-				'message' => $result['error']['code'] . ': ' . $result['received']['error']['info']
+				'message' => $result['error']['info']
 			) );
 		} else {
 			return ( array(
@@ -875,6 +875,12 @@ class ContentCore {
 				'status'  => 'error',
 				'message' => $result['flexform']['error']['message']
 			] );
+		} elseif ( isset( $result['error'] ) ) {
+			return ( [
+				'status'  => 'error',
+				'message' => $result['error']['info']
+			] );
+
 		} else {
 			return ( [
 				'status' => 'ok',
