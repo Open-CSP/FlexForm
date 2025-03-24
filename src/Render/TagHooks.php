@@ -2618,6 +2618,12 @@ class TagHooks {
 					case "slot":
 						$uploadDetails["wsform_slot"] = $v;
 						break;
+					case "sheet_by_name":
+						$uploadDetails["wsform_sheetbyname"] = $v;
+						break;
+					case "sheet_by_id":
+						$uploadDetails["wsform_sheetbyid"] = $v;
+						break;
 					default:
 						$attributes[$k] = $v;
 				}

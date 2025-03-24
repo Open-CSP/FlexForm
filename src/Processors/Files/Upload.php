@@ -424,16 +424,24 @@ class Upload {
 			$processedFiles[$fileName]['new-name'][] = $titleName;
 
 			if ( $fileAction !== false ) {
+				$excelSheetByName = General::getJsonValue( 'wsform_sheetbyname', $fileDetails );
+				$excelSheetById = General::getJsonValue( 'wsform_sheetbyid', $fileDetails );
+				if ( $excelSheetByName === false && $excelSheetById === false ) {
+					$excelSheetById = 0;
+				}
 				$fileSlot = General::getJsonValue( 'wsform_slot', $fileDetails );
 				if ( $fileSlot === false ) {
 					$fileSlot = 'main';
 				}
+
 				switch ( $fileAction ) {
 					case "xls":
 					case "xlsx":
 						$convert = new SpreadsheetConverter();
 						$convert->setReader( $fileAction );
 						$convert->setFileName( $storedFile );
+						$convert->setSheetByName( $excelSheetByName );
+						$convert->setSheetById( $excelSheetById );
 						$json = $convert->convertFile();
 						// Now create the page in the wiki
 						if ( !Config::isDebug() ) {

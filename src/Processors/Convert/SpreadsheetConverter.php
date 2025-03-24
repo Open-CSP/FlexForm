@@ -31,6 +31,34 @@ class SpreadsheetConverter extends Convert {
 	private string $slot;
 
 	/**
+	 * @var bool
+	 */
+	private $sheetByName = false;
+
+	/**
+	 * @var mixed
+	 */
+	private $sheetById = false;
+
+	/**
+	 * @param int $id
+	 *
+	 * @return void
+	 */
+	public function setSheetById( int $id ) {
+		$this->sheetById = $id;
+	}
+
+	/**
+	 * @param string $name
+	 *
+	 * @return void
+	 */
+	public function setSheetByName( string $name ) {
+		$this->sheetByName = $name;
+	}
+
+	/**
 	 * @param string $reader
 	 *
 	 * @return void
@@ -75,7 +103,17 @@ class SpreadsheetConverter extends Convert {
 			$spreadsheet = $reader->load( $this->getFile( true ) );
 			$sheetData = $spreadsheet->getActiveSheet()->
 			toArray( null, true, true, true );
-			$worksheet = $spreadsheet->getSheet( 0 );
+			if ( $this->sheetByName !== false ) {
+				$worksheet = $spreadsheet->getSheetByName( $this->sheetByName );
+			} elseif ( $this->sheetById !== false ) {
+				$worksheet = $spreadsheet->getSheet( $this->sheetById );
+			} else {
+				throw new FlexFormException(
+					'Cannot find Excel sheet.',
+					0
+				);
+			}
+
 			$highestRow = $worksheet->getHighestRow();
 			$highestColumn = $worksheet->getHighestColumn();
 			$highestColumnIndex = Coordinate::columnIndexFromString( $highestColumn );
