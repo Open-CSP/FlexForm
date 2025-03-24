@@ -441,7 +441,7 @@ class Upload {
 						$convert->setReader( $fileAction );
 						$convert->setFileName( $storedFile );
 						$convert->setSheetByName( $excelSheetByName );
-						$convert->setSheetById( $excelSheetById );
+						$convert->setSheetById( (int)$excelSheetById );
 						$json = $convert->convertFile();
 						// Now create the page in the wiki
 						if ( !Config::isDebug() ) {
