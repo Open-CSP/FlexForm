@@ -299,7 +299,9 @@ class Validate {
 			"action",
 			"comment",
 			'',
-			'slot'
+			'slot',
+			'sheet_by_id',
+			'sheet_by_name'
 		);
 		if ( $ret ) {
 			return $validParameters;

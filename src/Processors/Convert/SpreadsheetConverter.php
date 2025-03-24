@@ -93,7 +93,9 @@ class SpreadsheetConverter extends Convert {
 				'Preparing to Convert',
 				[
 					'reader' => $this->reader,
-					'file and path'      => $this->getFile( true )
+					'file and path'      => $this->getFile( true ),
+					'sheetbyid' => $this->sheetById,
+					'sheetbyname' => $this->sheetByName
 				]
 			);
 		}
@@ -103,6 +105,16 @@ class SpreadsheetConverter extends Convert {
 			$spreadsheet = $reader->load( $this->getFile( true ) );
 			$sheetData = $spreadsheet->getActiveSheet()->
 			toArray( null, true, true, true );
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'Excel converting',
+					[
+						'sheetById' => $this->sheetById,
+						'sheetByName'      => $this->sheetByName
+					]
+				);
+			}
+
 			if ( $this->sheetByName !== false ) {
 				$worksheet = $spreadsheet->getSheetByName( $this->sheetByName );
 			} elseif ( $this->sheetById !== false ) {
