@@ -41,20 +41,29 @@ class SpreadsheetConverter extends Convert {
 	private $sheetById = false;
 
 	/**
-	 * @param int $id
+	 * @throws FlexFormException
+	 */
+	public function __construct() {
+		if ( !method_exists( 'PhpOffice\PhpSpreadsheet\IOFactory', 'createReaderForFile' ) ) {
+			throw new FlexFormException( 'Please run composer to install excel converter' );
+		}
+	}
+
+	/**
+	 * @param int|bool $id
 	 *
 	 * @return void
 	 */
-	public function setSheetById( int $id ) {
+	public function setSheetById( $id ) {
 		$this->sheetById = $id;
 	}
 
 	/**
-	 * @param string $name
+	 * @param string|bool $name
 	 *
 	 * @return void
 	 */
-	public function setSheetByName( string $name ) {
+	public function setSheetByName( $name ) {
 		$this->sheetByName = $name;
 	}
 
@@ -110,7 +119,10 @@ class SpreadsheetConverter extends Convert {
 					'Excel converting',
 					[
 						'sheetById' => $this->sheetById,
-						'sheetByName'      => $this->sheetByName
+						'sheetByName'      => $this->sheetByName,
+						'sheetNames' => $spreadsheet->getSheetNames(),
+						'sheetCount' => $spreadsheet->getSheetCount(),
+
 					]
 				);
 			}
@@ -123,6 +135,17 @@ class SpreadsheetConverter extends Convert {
 				throw new FlexFormException(
 					'Cannot find Excel sheet.',
 					0
+				);
+			}
+
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'Excel Worksheet Information',
+					[
+						'title' => $worksheet->getTitle(),
+						'sheetByName'      => $worksheet->getHighestDataColumn()
+
+					]
 				);
 			}
 
