@@ -50,6 +50,8 @@
 	"flexform-fileupload-no-target" : "No FilePage Title name found (target)",
 	"flexform-fileupload-file-errors" : "We have found errors with the uploaded files : $1",
 	"flexform-fileupload-file-convert-error" : "Error while converting file from $1 to $2",
+	"flexform-fileupload-file-convert-excel-not-found" : "Cannot find Excel sheet.",
+	"flexform-fileupload-file-convert-no-excel-convertor" : "Please run composer to install excel converter",
 	"flexform-fileupload-file-move-error" : "PHP move uploaded file error (file-handling)",
 
 	"flexform-filerender-no-id" : "You cannot upload files without adding an unique id.",

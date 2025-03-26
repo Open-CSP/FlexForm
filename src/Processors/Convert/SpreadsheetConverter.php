@@ -45,7 +45,7 @@ class SpreadsheetConverter extends Convert {
 	 */
 	public function __construct() {
 		if ( !method_exists( 'PhpOffice\PhpSpreadsheet\IOFactory', 'createReaderForFile' ) ) {
-			throw new FlexFormException( 'Please run composer to install excel converter' );
+			throw new FlexFormException( wfMessage( 'flexform-fileupload-file-convert-no-excel-convertor' ) );
 		}
 	}
 
@@ -131,7 +131,7 @@ class SpreadsheetConverter extends Convert {
 				$worksheet = $spreadsheet->getSheet( $this->sheetById );
 			} else {
 				throw new FlexFormException(
-					'Cannot find Excel sheet.',
+					wfMessage( 'flexform-fileupload-file-convert-excel-not-found' ),
 					0
 				);
 			}
