@@ -86,6 +86,7 @@ Visit this documentation page https://www.open-csp.org/DevOps:Doc/FlexForm/2.0/V
 Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
+* 2.4.0 : Added option to choose which excel tabsheet needs converting
 * 2.3.10 : Added additional rebuild data for edited or created page to set properties even if user is not allowed.
 * 2.3.9 : Added honeypot when using recaptcha. Fixed an issue with single create and not using fields where noseo was not honored
 * 2.3.8 : Added optgroup support for select
