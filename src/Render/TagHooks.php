@@ -1627,13 +1627,7 @@ class TagHooks {
 	 * @return string
 	 */
 	private function tagParseIfNeeded( $content, Parser $parser, PPFrame $frame ) {
-		if ( ( strpos(
-				   $content,
-				   '{'
-			   ) !== false ) && ( strpos(
-									  $content,
-									  '}'
-								  ) !== false ) ) {
+		if ( ( str_contains( $content, '{' ) ) && ( str_contains( $content, '}' ) ) ) {
 			return $parser->recursiveTagParse(
 				$content,
 				$frame
@@ -1644,7 +1638,7 @@ class TagHooks {
 	}
 
 	/**
-	 * @param $tags
+	 * @param array $tags
 	 *
 	 * @return array
 	 */
@@ -2623,6 +2617,12 @@ class TagHooks {
 						break;
 					case "slot":
 						$uploadDetails["wsform_slot"] = $v;
+						break;
+					case "sheet_by_name":
+						$uploadDetails["wsform_sheetbyname"] = $v;
+						break;
+					case "sheet_by_id":
+						$uploadDetails["wsform_sheetbyid"] = $v;
 						break;
 					case "multiple":
 						$multiple = 'files';
