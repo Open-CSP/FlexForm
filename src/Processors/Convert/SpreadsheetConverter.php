@@ -110,7 +110,6 @@ class SpreadsheetConverter extends Convert {
 			$reader = IOFactory::createReaderForFile( $this->getFile( true ) );
 			$reader->setReadDataOnly( true );
 			$spreadsheet = $reader->load( $this->getFile( true ) );
-			$sheetData = $spreadsheet->getActiveSheet()->toArray( null, true, true, true );
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
 					'Excel converting',
