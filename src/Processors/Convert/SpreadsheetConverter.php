@@ -129,8 +129,7 @@ class SpreadsheetConverter extends Convert {
 				$worksheet = $spreadsheet->getSheet( $this->sheetById );
 			} else {
 				throw new FlexFormException(
-					wfMessage( 'flexform-fileupload-file-convert-excel-not-found' ),
-					0
+					wfMessage( 'flexform-fileupload-file-convert-excel-not-found' ), 0
 				);
 			}
 			if ( Config::isDebug() ) {
