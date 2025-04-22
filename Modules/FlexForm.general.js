@@ -1207,6 +1207,9 @@ function createAlertsIfNeeded () {
 	}
 }
 
+/**
+ * https://github.com/select2/select2/issues/5993#issuecomment-1050841204
+ */
 function ffOnSelect2OpenedFocus() {
 	$(document).on('select2:open', () => {
 		let allFound = document.querySelectorAll('.select2-container--open .select2-search__field');
