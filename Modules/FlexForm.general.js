@@ -1202,6 +1202,17 @@ function createAlertsIfNeeded () {
 	}
 }
 
+function ffOnSelect2OpenedFocus() {
+	$(document).on('select2:open', () => {
+		let allFound = document.querySelectorAll('.select2-container--open .select2-search__field');
+		$(this).one('mouseup keyup',()=>{
+			setTimeout(()=>{
+				allFound[allFound.length - 1].focus();
+			},0);
+		});
+	});
+}
+
 /**
  * Wait for jQuery to load and initialize, then go to method addTokenInfo()
  */
@@ -1209,6 +1220,8 @@ wachtff(addTokenInfo)
 wachtff(initializeWSFormEditor)
 wachtff(checkForTinyMCE)
 wachtff(createAlertsIfNeeded)
+wachtff(ffOnSelect2OpenedFocus)
+
 wachtff(() => {
 	setTimeout(async () => {
 		await fetchAllDecrypt();
