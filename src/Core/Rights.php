@@ -77,13 +77,12 @@ class Rights {
 			$content = preg_replace( "#<{$tag}[^>]*?>.*?</{$tag}>#si", '', $content );
 		}
 		$formTags = [ '<wsform', '<_form', '<form' ];
-		$ret = false;
 		foreach ( $formTags as $tag ) {
 			if ( stripos( $content, $tag ) !== false ) {
 				return true;
 			}
 		}
-		return $ret;
+		return false;
 	}
 
 	/**
