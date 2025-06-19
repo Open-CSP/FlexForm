@@ -72,14 +72,17 @@ class Rights {
 			return false;
 		}
 		$content = $content->getWikitextForTransclusion();
+		$ignoreBlocks = [ 'nowiki', 'code', 'pre', 'syntaxhighlight' ];
+		foreach ( $ignoreBlocks as $tag ) {
+			$content = preg_replace( "#<{$tag}[^>]*?>.*?</{$tag}>#si", '', $content );
+		}
 		$formTags = [ '<wsform', '<_form', '<form' ];
-		$ret = false;
 		foreach ( $formTags as $tag ) {
-			if ( strpos( $content, $tag ) !== false ) {
+			if ( stripos( $content, $tag ) !== false ) {
 				return true;
 			}
 		}
-		return $ret;
+		return false;
 	}
 
 	/**
