@@ -10,6 +10,7 @@
 
 var wsAjax = false
 
+
 /**
  * Show popup message. Initiated and loaded by flexform function
  * @param  {string} msg           [Text message]
@@ -1216,24 +1217,32 @@ function ffOnSelect2OpenedFocus() {
 	});
 }
 
+function isFFInitiated() {
+	return typeof window.FlexFormInitiated !== 'undefined';
+}
+
+function FFInitiated() {
+	if ( typeof window.FlexFormInitiated === 'undefined' ) {
+		window.FlexFormInitiated = true;
+	}
+}
+
 /**
  * Wait for jQuery to load and initialize, then go to method addTokenInfo()
  */
-wachtff(addTokenInfo)
-wachtff(initializeWSFormEditor)
-wachtff(checkForTinyMCE)
-wachtff(createAlertsIfNeeded)
-wachtff(ffOnSelect2OpenedFocus)
+if ( !isFFInitiated ) {
+	wachtff( addTokenInfo )
+	wachtff( initializeWSFormEditor )
+	wachtff( checkForTinyMCE )
+	wachtff( createAlertsIfNeeded )
+	wachtff( ffOnSelect2OpenedFocus )
 
-wachtff(() => {
-	setTimeout(async () => {
-		await fetchAllDecrypt();
-		ffCalc();
-		ffTempex();
-	}, 1500);
-}, true);
-
-// tinyMCE stuff if needed
-
-
-
+	wachtff( () => {
+		setTimeout( async () => {
+			await fetchAllDecrypt();
+			ffCalc();
+			ffTempex();
+		}, 1500 );
+	}, true );
+	wachtff(FFInitiated);
+}
