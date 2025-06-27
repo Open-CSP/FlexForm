@@ -15,7 +15,7 @@ function FFInitiated() {
  * @param both bool if true it will also wait until MW is loaded.
  */
 function ffHoldTillReady( method, both= true ) {
-	if ( window.jQuery ) {
+		if ( window.jQuery ) {
 		if ( both === false ) {
 			if ( window.wsform ) {
 				method();
@@ -59,6 +59,30 @@ function ffHoldTillReady( method, both= true ) {
 			ffHoldTillReady( method, both )
 		}, 50 )
 	}
+}
+
+
+function attachTokens () {
+	$(document).ready(function () {
+		if ($('select[data-inputtype="ws-select2"]')[0]) {
+			var scriptPath = mw.config.get('wgScript')
+			if (scriptPath === null || !scriptPath) {
+				scriptPath = ''
+			}
+			scriptPath = scriptPath.replace('/index.php', '')
+			mw.loader.load(scriptPath + '/extensions/FlexForm/Modules/select2.min.css', 'text/css')
+			$.getScript(scriptPath + '/extensions/FlexForm/Modules/select2.min.js').done(function () {
+				$( 'select[data-inputtype="ws-select2"]' ).each( function () {
+					var selectid = $( this ).attr( 'id' )
+					var selectoptionsid = 'select2options-' + selectid
+					var select2config = $( 'input#' + selectoptionsid ).val()
+					var F = new Function( select2config )
+					return ( F() )
+				} )
+
+			})
+		}
+	})
 }
 
 function initiateFirstRun() {
