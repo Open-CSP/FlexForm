@@ -53,40 +53,6 @@ function ffFindFormElementValueByName( form, name ) {
 	} else return "";
 }
 
-/**
- * Holds further JavaScript execution intull jQuery is loaded
- * @param method string Name of the method to call once jQuery is ready
- * @param both bool if true it will also wait until MW is loaded.
- */
-function wachtff (method, both = false ) {
-	//console.log('wacht ff op jQuery..: ' + method.name );
-	if (window.jQuery) {
-		if (both === false) {
-			//console.log( 'ok JQuery active.. lets go!' );
-			method()
-		} else {
-			if (window.mw) {
-				var scriptPath = mw.config.get('wgScript')
-				if (scriptPath !== null && scriptPath !== false) {
-					method()
-				} else {
-					setTimeout(function () {
-						wachtff(method, true)
-					}, 250)
-				}
-			} else {
-				setTimeout(function () {
-					wachtff(method, true)
-				}, 250)
-			}
-		}
-	} else {
-		setTimeout(function () {
-			wachtff(method)
-		}, 50)
-	}
-}
-
 function wsformShowOnSelect () {
 	var lst = mw.config.get('wsformConfigVars')
 	if (lst === null) return
@@ -933,7 +899,7 @@ function addTokenInfo () {
 	$(document).ready(function () {
 
 		if (typeof window.wsAutoSaveInitAjax === 'undefined') {
-			wachtff(wsAutoSaveInit)
+			ffHoldTillReady(wsAutoSaveInit)
 		}
 
 		$('form.flex-form').one('submit', function (e) {
@@ -1217,32 +1183,20 @@ function ffOnSelect2OpenedFocus() {
 	});
 }
 
-function isFFInitiated() {
-	return typeof window.FlexFormInitiated !== 'undefined';
-}
-
-function FFInitiated() {
-	if ( typeof window.FlexFormInitiated === 'undefined' ) {
-		window.FlexFormInitiated = true;
-	}
-}
-
 /**
  * Wait for jQuery to load and initialize, then go to method addTokenInfo()
  */
-if ( !isFFInitiated ) {
-	wachtff( addTokenInfo )
-	wachtff( initializeWSFormEditor )
-	wachtff( checkForTinyMCE )
-	wachtff( createAlertsIfNeeded )
-	wachtff( ffOnSelect2OpenedFocus )
 
-	wachtff( () => {
-		setTimeout( async () => {
-			await fetchAllDecrypt();
-			ffCalc();
-			ffTempex();
-		}, 1500 );
-	}, true );
-	wachtff(FFInitiated);
-}
+ffHoldTillReady( addTokenInfo )
+ffHoldTillReady( initializeWSFormEditor )
+ffHoldTillReady( checkForTinyMCE )
+ffHoldTillReady( createAlertsIfNeeded )
+ffHoldTillReady( ffOnSelect2OpenedFocus )
+
+ffHoldTillReady( () => {
+	setTimeout( async () => {
+		await fetchAllDecrypt();
+		ffCalc();
+		ffTempex();
+	}, 1500 );
+}, true );

@@ -423,7 +423,7 @@ class TagHooks {
 		if ( Core::getRun() === false ) {
 			// FIXME: Move to ResourceLoader
 			//Core::includeTagsScript( Core::getRealUrl() . '/Modules/FlexForm.general.js' );
-			$addFFJS .= '<script type="text/javascript" charset="UTF-8" src="' . Core::getRealUrl() . '/Modules/FlexForm.general.js"></script>' . "\n";
+			//$addFFJS .= '<script type="text/javascript" charset="UTF-8" src="' . Core::getRealUrl() . '/Modules/FlexForm.general.js"></script>' . "\n";
 
 			Core::setRun( true );
 		}
