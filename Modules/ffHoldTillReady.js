@@ -1,11 +1,18 @@
+function isFFInitiated() {
+	return typeof window.FlexFormInitiated !== 'undefined';
+}
+
+function FFInitiated() {
+	if ( typeof window.FlexFormInitiated === 'undefined' ) {
+		window.FlexFormInitiated = true;
+	}
+}
+
 /**
- * Holds further JavaScript execution intull jQuery is loaded
+ * Holds further JavaScript execution until jQuery is loaded
  * @param method string Name of the method to call once jQuery is ready
  * @param both bool if true it will also wait until MW is loaded.
  */
-
-var FFAlreadyRun = false;
-
 function ffHoldTillReady( method, both= true ) {
 	if ( window.jQuery ) {
 		if ( both === false ) {
@@ -24,8 +31,8 @@ function ffHoldTillReady( method, both= true ) {
 					if ( window.wsform ) {
 						method();
 					} else {
-						if ( window.FFAlreadyRun === false ) {
-							window.FFAlreadyRun = true;
+						if ( isFFInitiated === false ) {
+							FFInitiated();
 							$.getScript(scriptPath + '/extensions/FlexForm/Modules/FlexForm.general.js').done(function () {
 								method()
 							});
@@ -52,9 +59,3 @@ function ffHoldTillReady( method, both= true ) {
 		}, 50 )
 	}
 }
-
-function ffDummyInit(){
-		window.FFAlreadyRun = true;
-}
-
-ffHoldTillReady( ffDummyInit );
