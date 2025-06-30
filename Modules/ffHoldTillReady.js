@@ -16,10 +16,10 @@ function FFInitiated() {
  * @param method string Name of the method to call once jQuery is ready
  * @param both bool if true it will also wait until MW is loaded.
  */
-function ffHoldTillReady( method, both= true ) {
-		if ( window.jQuery ) {
+function ffHoldTillReady( method, both = true ) {
+	if ( window.jQuery ) {
 		if ( both === false ) {
-			if ( window.wsform ) {
+			if ( isFFInitiated() ) {
 				method();
 			} else {
 				setTimeout( function () {
@@ -28,23 +28,8 @@ function ffHoldTillReady( method, both= true ) {
 			}
 		} else {
 			if ( window.mw ) {
-				var scriptPath = mw.config.get( 'wgScript' )
-				if ( scriptPath !== null && scriptPath !== false ) {
-					scriptPath = scriptPath.replace( '/index.php', '' );
-					if ( window.wsform ) {
-						method();
-					} else {
-						if ( isFFInitiated() === false ) {
-							FFInitiated();
-							$.getScript(scriptPath + '/extensions/FlexForm/Modules/FlexForm.general.js').done(function () {
-								method()
-							});
-						} else {
-								setTimeout( function () {
-								ffHoldTillReady( method, true )
-							}, 250 )
-						}
-					}
+				if ( isFFInitiated() ) {
+					method();
 				} else {
 					setTimeout( function () {
 						ffHoldTillReady( method, true )
