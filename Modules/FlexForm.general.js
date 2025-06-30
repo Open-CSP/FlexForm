@@ -60,10 +60,8 @@ function ffFindFormElementValueByName( form, name ) {
  * @param both bool if true it will also wait until MW is loaded.
  */
 function wachtff( method, both = false ) {
-	//console.log('wacht ff op jQuery..: ' + method.name );
 	if ( window.jQuery ) {
 		if ( both === false ) {
-			//console.log( 'ok JQuery active.. lets go!' );
 			method()
 		} else {
 			if ( window.mw ) {
@@ -147,18 +145,7 @@ function wsformShowOnSelect() {
 	} )
 }
 
-/*
 function startInstance() {
-	console.log('waiting for mw.api to be loaded')
-	mw.loader.using('mw.Api').then( function() {
-		console.log('mw.api is loaded. running instance')
-		startInstance2();
-	});
-}
-*/
-function startInstance() {
-	// console.log('initiating instance')
-	//var lst = mw.config.get('wsinstance')
 	var lst = window.wgInstance
 	if ( lst === null ) return
 	if ( lst === undefined ) return
@@ -652,7 +639,6 @@ function wsform( btn, callback = 0, preCallback = 0, showId = 0 ) {
 					callback( frm )
 				}
 				if ( typeof result.redirect !== 'undefined' ) {
-					//console.log( result.redirect );
 					window.location.href = result.redirect;
 				}
 			}
@@ -906,7 +892,6 @@ let ffTempex = ( element = null, isPredefined = false ) => {
 function decodeHtml( html ) {
 	var txt = document.createElement( "textarea" );
 	txt.innerHTML = html;
-	//console.log( html, txt.value );
 	return txt.value;
 }
 
@@ -940,13 +925,11 @@ function addTokenInfo() {
 		}
 
 		$( 'form.flex-form' ).one( 'submit', function ( e ) {
-			// console.log( "go go go" );
 			// Check for Visual editor
 			e.preventDefault()
 			showWeAreWorking( this );
 			var pform = $( this )
 			if ( $( this ).data( 'wsform' ) && $( this ).data( 'wsform' ) === 'wsform-general' ) {
-				// console.log( "We have a FlexForm form" );
 				// We have a FlexForm form
 				$( '<input />' )
 					.attr( 'type', 'hidden' )
@@ -959,7 +942,6 @@ function addTokenInfo() {
 			if ( $( res ) && $( res ).length === 0 ) {
 				var uid = getUid()
 				if ( uid !== false ) {
-					// console.log( "Adding uid" );
 					$( '<input />' )
 						.attr( 'type', 'hidden' )
 						.attr( 'name', 'wsuid' )
@@ -968,7 +950,6 @@ function addTokenInfo() {
 				}
 			}
 			if ( typeof WSFormEditor !== 'undefined' && WSFormEditor === 'VE' ) {
-				// console.log( "VE Editor");
 				var VEditors = $( this ).find( 'span.ve-area-wrapper' )
 				if ( VEditors.length === 0 ) {
 					// normal for so submit
@@ -1018,20 +999,15 @@ function addTokenInfo() {
 
 				} )
 			} else if ( pform.find( 'div[id*="canvas_"]' ).length > 0 ) {
-				// console.log( "Dealing with canvas" );
 				//showWeAreWorking(this);
 				var canvas = pform.find( 'div[id*="canvas_"]' );
 				if ( canvas.length > 0 ) {
 					addScreenshotToForm( canvas, pform ).then( function () {
-						//weAreDoneWorking(pform);
-						//console.log( "DONE DONE DONE");
-						//pform.submit();
 					} );
 				} else {
 					pform.submit();
 				}
 			} else {
-				console.log( "Form submit" );
 				pform.submit();
 			}
 		} )
@@ -1045,15 +1021,12 @@ async function makeScreenShot( htmlDiv ) {
 }
 
 async function addScreenshotToForm( canvas, pform ) {
-	//console.log( "We have a canvas!" );
 	canvas.length;
 	for ( let i = 0; i < canvas.length; ++i ) {
 		var sourceId = $( canvas[i] ).data( 'canvas-source' );
 		var canvasName = $( canvas[i] ).data( 'canvas-name' );
-		// console.log( 'id to get = ' + sourceId );
-
 		var exportId = $( canvas[i] ).id;
-		// console.log( 'canvasName = ' + canvasName );
+
 		let htmlDiv = document.getElementById( sourceId );
 		const screenshot = await makeScreenShot( htmlDiv );
 		$( '<input />' )
@@ -1063,7 +1036,6 @@ async function addScreenshotToForm( canvas, pform ) {
 			.appendTo( pform );
 	}
 	weAreDoneWorking( pform );
-	// console.log( "DONE DONE DONE");
 	pform.submit();
 }
 
@@ -1136,7 +1108,6 @@ function checkForTinyMCE() {
 }
 
 function createAlertsIfNeeded() {
-	// console.log ( "SHOWMESSAGES" );
 	let alert = $( '[class^="wsform alert-"]' )
 	if ( alert !== null && alert.length > 0 ) {
 		alert.each( function () {
@@ -1156,14 +1127,12 @@ function createAlertsIfNeeded() {
 					$.getScript( u + '/extensions/FlexForm/Modules/notify.js' ).done( function () {
 						setTimeout( function () {
 							showMessage( msg, type, $( mwMessageAttach ), true, title );
-							//console.log( alert.text(), type, $(mwMessageAttach) );
 						}, 500 );
 
 					} )
 				}
 
 			} else {
-				// console.log ( "alert: " + $(this).text() );
 				if ( title !== undefined || title !== '' ) {
 					if ( type === 'html' ) {
 						mw.notify( $( $( this ).html() ), {autoHide: false, type: type, title: title} )
