@@ -156,7 +156,7 @@ function startInstance() {
 }
 */
 function startInstance() {
-	console.log('initiating instance')
+	// console.log('initiating instance')
 	//var lst = mw.config.get('wsinstance')
 	var lst = window.wgInstance
 	if (lst === null) return
@@ -937,13 +937,13 @@ function addTokenInfo () {
 		}
 
 		$('form.flex-form').one('submit', function (e) {
-			console.log( "go go go" );
+			// console.log( "go go go" );
 			// Check for Visual editor
 			e.preventDefault()
 			showWeAreWorking(this);
 			var pform = $(this)
 			if ($(this).data('wsform') && $(this).data('wsform') === 'wsform-general') {
-				console.log( "We have a FlexForm form" );
+				// console.log( "We have a FlexForm form" );
 				// We have a FlexForm form
 				$('<input />')
 					.attr('type', 'hidden')
@@ -956,7 +956,7 @@ function addTokenInfo () {
 			if ($(res) && $(res).length === 0) {
 				var uid = getUid()
 				if (uid !== false) {
-					console.log( "Adding uid" );
+					// console.log( "Adding uid" );
 					$('<input />')
 						.attr('type', 'hidden')
 						.attr('name', 'wsuid')
@@ -965,7 +965,7 @@ function addTokenInfo () {
 				}
 			}
 			if (typeof WSFormEditor !== 'undefined' && WSFormEditor === 'VE') {
-				console.log( "VE Editor");
+				// console.log( "VE Editor");
 				var VEditors = $(this).find('span.ve-area-wrapper')
 				if (VEditors.length === 0) {
 					// normal for so submit
@@ -1015,7 +1015,7 @@ function addTokenInfo () {
 
 				})
 			} else if( pform.find('div[id*="canvas_"]' ).length > 0 )  {
-				console.log( "Dealing with canvas" );
+				// console.log( "Dealing with canvas" );
 				//showWeAreWorking(this);
 				var canvas = pform.find('div[id*="canvas_"]' );
 				if( canvas.length > 0 ) {
@@ -1047,10 +1047,10 @@ async function addScreenshotToForm( canvas, pform ) {
 		for( let i = 0; i < canvas.length; ++i ) {
 		var sourceId = $(canvas[i]).data('canvas-source');
 		var canvasName = $(canvas[i]).data('canvas-name');
-		console.log( 'id to get = ' + sourceId );
+		// console.log( 'id to get = ' + sourceId );
 
 		var exportId = $(canvas[i]).id;
-		console.log( 'canvasName = ' + canvasName );
+		// console.log( 'canvasName = ' + canvasName );
 		let htmlDiv = document.getElementById( sourceId );
 		const screenshot = await makeScreenShot( htmlDiv );
 		$('<input />')
@@ -1060,7 +1060,7 @@ async function addScreenshotToForm( canvas, pform ) {
 			.appendTo(pform);
 		}
 			weAreDoneWorking(pform);
-			console.log( "DONE DONE DONE");
+			// console.log( "DONE DONE DONE");
 			pform.submit();
 	}
 
@@ -1133,7 +1133,7 @@ function checkForTinyMCE () {
 }
 
 function createAlertsIfNeeded () {
-	console.log ( "SHOWMESSAGES" );
+	// console.log ( "SHOWMESSAGES" );
 	let alert = $('[class^="wsform alert-"]')
 	if (alert !== null && alert.length > 0) {
 		alert.each( function () {
@@ -1160,7 +1160,7 @@ function createAlertsIfNeeded () {
 				}
 
 			} else {
-				console.log ( "alert: " + $(this).text() );
+				// console.log ( "alert: " + $(this).text() );
 				if ( title !== undefined || title !== '' ) {
 					if ( type === 'html' ) {
 						mw.notify( $($(this).html()), { autoHide: false, type: type, title: title })
@@ -1197,17 +1197,18 @@ function ffOnSelect2OpenedFocus() {
 /**
  * Wait for jQuery to load and initialize, then go to method addTokenInfo()
  */
+if ( isFFInitiated() === false ) {
+	ffHoldTillReady( addTokenInfo )
+	ffHoldTillReady( initializeWSFormEditor )
+	ffHoldTillReady( checkForTinyMCE )
+	ffHoldTillReady( createAlertsIfNeeded )
+	ffHoldTillReady( ffOnSelect2OpenedFocus )
 
-ffHoldTillReady( addTokenInfo )
-ffHoldTillReady( initializeWSFormEditor )
-ffHoldTillReady( checkForTinyMCE )
-ffHoldTillReady( createAlertsIfNeeded )
-ffHoldTillReady( ffOnSelect2OpenedFocus )
-
-ffHoldTillReady( () => {
-	setTimeout( async () => {
-		await fetchAllDecrypt();
-		ffCalc();
-		ffTempex();
-	}, 1500 );
-}, true );
+	ffHoldTillReady( () => {
+		setTimeout( async () => {
+			await fetchAllDecrypt();
+			ffCalc();
+			ffTempex();
+		}, 1500 );
+	}, true );
+}
