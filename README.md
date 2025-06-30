@@ -86,6 +86,8 @@ Visit this documentation page https://www.open-csp.org/DevOps:Doc/FlexForm/2.0/V
 Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
+* 2.4.3 : Double definition of JavaScript constants removed. console message removed.
+* 2.4.2 : Better way of finding actual forms in a page
 * 2.4.1 : Fix for select2 focus fields for jQuery bug
 * 2.4.0 : Added option to choose which excel tabsheet needs converting
 * 2.3.10 : Added additional rebuild data for edited or created page to set properties even if user is not allowed.
