@@ -5,9 +5,6 @@ function isFFInitiated() {
 function FFInitiated() {
 	if ( typeof window.FlexFormInitiated === 'undefined' ) {
 		window.FlexFormInitiated = true;
-		console.log( "FF Initialized" );
-	} else {
-		console.log( "already Initialized" );
 	}
 }
 
@@ -47,10 +44,3 @@ function ffHoldTillReady( method, both = true ) {
 		}, 50 )
 	}
 }
-
-
-function initiateFirstRun() {
-
-}
-
-ffHoldTillReady( initiateFirstRun );

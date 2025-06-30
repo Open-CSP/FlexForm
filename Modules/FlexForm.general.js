@@ -999,7 +999,6 @@ function addTokenInfo() {
 
 				} )
 			} else if ( pform.find( 'div[id*="canvas_"]' ).length > 0 ) {
-				//showWeAreWorking(this);
 				var canvas = pform.find( 'div[id*="canvas_"]' );
 				if ( canvas.length > 0 ) {
 					addScreenshotToForm( canvas, pform ).then( function () {
