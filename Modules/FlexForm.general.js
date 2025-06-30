@@ -1223,7 +1223,7 @@ if ( isFFInitiated() === false ) {
 	/**
 	 * Wait for jQuery to load and initialize, then go to method addTokenInfo()
 	 */
-		await FFInitiated();
+		FFInitiated();
 		ffHoldTillReady( addTokenInfo )
 		ffHoldTillReady( initializeWSFormEditor )
 		ffHoldTillReady( checkForTinyMCE )
