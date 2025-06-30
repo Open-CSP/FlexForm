@@ -1223,7 +1223,6 @@ if ( isFFInitiated() === false ) {
 	/**
 	 * Wait for jQuery to load and initialize, then go to method addTokenInfo()
 	 */
-	if ( isFFInitiated() === false ) {
 		await FFInitiated();
 		ffHoldTillReady( addTokenInfo )
 		ffHoldTillReady( initializeWSFormEditor )
@@ -1238,6 +1237,4 @@ if ( isFFInitiated() === false ) {
 				ffTempex();
 			}, 1500 );
 		}, true );
-
-	}
 }
