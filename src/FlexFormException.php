@@ -19,7 +19,7 @@ class FlexFormException extends \Exception {
 	 * @param $val
 	 * @param Exception|null $old
 	 */
-	public function __construct( $msg, $val = 0, Exception $old = null ) {
+	public function __construct( $msg, $val = 0, ?Exception $old = null ) {
 		parent::__construct( $msg, $val, $old );
 	}
 
