@@ -117,8 +117,7 @@ class Json {
 					} else {
 						throw new FlexFormException(
 							'Invalid JSON Schema',
-							1,
-							null
+							1
 						);
 					}
 
