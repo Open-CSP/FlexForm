@@ -286,7 +286,7 @@ class Validate {
 	 * @return array|bool List of valid parameters, bool true when "$check" is valid, false if not
 	 */
 	public static function validFileParameters( string $check, bool $ret = false ): bool|array {
-		$validParameters = array(
+		$validParameters = [
 			"target",
 			"accept",
 			"verbose_id",
@@ -303,8 +303,10 @@ class Validate {
 			"action",
 			"comment",
 			'',
-			'slot'
-		);
+			'slot',
+			'sheet_by_id',
+			'sheet_by_name'
+		];
 		if ( $ret ) {
 			return $validParameters;
 		}
