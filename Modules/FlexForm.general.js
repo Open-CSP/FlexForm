@@ -58,10 +58,8 @@ function ffFindFormElementValueByName( form, name ) {
  * @param both bool if true it will also wait until MW is loaded.
  */
 function wachtff (method, both = false ) {
-	//console.log('wacht ff op jQuery..: ' + method.name );
 	if (window.jQuery) {
 		if (both === false) {
-			//console.log( 'ok JQuery active.. lets go!' );
 			method()
 		} else {
 			if (window.mw) {
@@ -100,7 +98,6 @@ function wsformShowOnSelect () {
 	 */
 	function hideAll (array) {
 		$(array).each(function () {
-			console.log('hide:: ', this.target)
 			$('#' + this.target).hide()
 		})
 	}
@@ -145,18 +142,7 @@ function wsformShowOnSelect () {
 	})
 }
 
-/*
 function startInstance() {
-	console.log('waiting for mw.api to be loaded')
-	mw.loader.using('mw.Api').then( function() {
-		console.log('mw.api is loaded. running instance')
-		startInstance2();
-	});
-}
-*/
-function startInstance() {
-	console.log('initiating instance')
-	//var lst = mw.config.get('wsinstance')
 	var lst = window.wgInstance
 	if (lst === null) return
 	if (lst === undefined) return
@@ -650,7 +636,6 @@ function wsform (btn, callback = 0, preCallback = 0, showId = 0) {
 					callback(frm)
 				}
 				if ( typeof result.redirect !== 'undefined' ) {
-					//console.log( result.redirect );
 					window.location.href = result.redirect;
 				}
 			}
@@ -667,7 +652,7 @@ function wsform (btn, callback = 0, preCallback = 0, showId = 0) {
 /**
  * FlexForm calc function
  */
-const ffCalc = (element = null) => {
+let ffCalc = (element = null) => {
 	if ( element === null ) {
 		$('form.flex-form').each((i, form) => {
 			ffCalc(form);
@@ -753,7 +738,7 @@ if (typeof window.ffDecryptObj === "undefined") {
 	var ffDecryptObj = {};
 }
 
-const fetchAllDecrypt = async () => {
+let fetchAllDecrypt = async () => {
 	if ( window.wgFlexFormSecure === false ) {
 		return;
 	}
@@ -787,7 +772,7 @@ const fetchAllDecrypt = async () => {
 	}
 }
 
-const getDecrypt = ( txt ) => {
+let getDecrypt = ( txt ) => {
 	if ( window.wgFlexFormSecure === false ) return txt;
 	if ( !window.ffDecryptObj[txt] ) return txt;
 	return window.ffDecryptObj[txt];
@@ -796,7 +781,7 @@ const getDecrypt = ( txt ) => {
 /**
  * FlexForm Tempex function
  */
-const ffTempex = (element = null, isPredefined = false) => {
+let ffTempex = (element = null, isPredefined = false) => {
 	if ( element === null ) {
 		$('form.flex-form').each((i, form) => {
 			ffTempex(form);
@@ -902,7 +887,6 @@ const ffTempex = (element = null, isPredefined = false) => {
 function decodeHtml(html) {
 	var txt = document.createElement("textarea");
 	txt.innerHTML = html;
-	//console.log( html, txt.value );
 	return txt.value;
 }
 
@@ -932,7 +916,7 @@ function addTokenInfo () {
 	$(document).ready(function () {
 
 		if (typeof window.wsAutoSaveInitAjax === 'undefined') {
-			wachtff(wsAutoSaveInit)
+			ffHoldTillReady(wsAutoSaveInit)
 		}
 
 		$('form.flex-form').one('submit', function (e) {
@@ -941,7 +925,6 @@ function addTokenInfo () {
 			showWeAreWorking(this);
 			var pform = $(this)
 			if ($(this).data('wsform') && $(this).data('wsform') === 'wsform-general') {
-				console.log( "We have a FlexForm form" );
 				// We have a FlexForm form
 				$('<input />')
 					.attr('type', 'hidden')
@@ -962,7 +945,6 @@ function addTokenInfo () {
 				}
 			}
 			if (typeof WSFormEditor !== 'undefined' && WSFormEditor === 'VE') {
-				console.log( "VE Editor");
 				var VEditors = $(this).find('span.ve-area-wrapper')
 				if (VEditors.length === 0) {
 					// normal for so submit
@@ -1012,14 +994,10 @@ function addTokenInfo () {
 
 				})
 			} else if( pform.find('div[id*="canvas_"]' ).length > 0 )  {
-				console.log( "Dealing with canvas" );
 				//showWeAreWorking(this);
 				var canvas = pform.find('div[id*="canvas_"]' );
 				if( canvas.length > 0 ) {
 					addScreenshotToForm( canvas, pform ).then(function(){
-						//weAreDoneWorking(pform);
-						//console.log( "DONE DONE DONE");
-						//pform.submit();
 					});
 				} else {
 					pform.submit();
@@ -1038,15 +1016,12 @@ async function makeScreenShot( htmlDiv ) {
 }
 
 async function addScreenshotToForm( canvas, pform ) {
-		//console.log( "We have a canvas!" );
 		canvas.length;
 		for( let i = 0; i < canvas.length; ++i ) {
 		var sourceId = $(canvas[i]).data('canvas-source');
 		var canvasName = $(canvas[i]).data('canvas-name');
-		console.log( 'id to get = ' + sourceId );
 
 		var exportId = $(canvas[i]).id;
-		console.log( 'canvasName = ' + canvasName );
 		let htmlDiv = document.getElementById( sourceId );
 		const screenshot = await makeScreenShot( htmlDiv );
 		$('<input />')
@@ -1056,7 +1031,6 @@ async function addScreenshotToForm( canvas, pform ) {
 			.appendTo(pform);
 		}
 			weAreDoneWorking(pform);
-			console.log( "DONE DONE DONE");
 			pform.submit();
 	}
 
@@ -1085,29 +1059,6 @@ function weAreDoneWorking (form) {
 function replacePipes (text) {
 	return text.replace(/(\|)|({{[^|]+\|[^}]+}})/gm, function ($0, $1) {
 		return $1 ? '{{!}}' : $0
-	})
-}
-
-function attachTokens () {
-	$(document).ready(function () {
-		if ($('select[data-inputtype="ws-select2"]')[0]) {
-			var scriptPath = mw.config.get('wgScript')
-			if (scriptPath === null || !scriptPath) {
-				scriptPath = ''
-			}
-			scriptPath = scriptPath.replace('/index.php', '')
-			mw.loader.load(scriptPath + '/extensions/FlexForm/Modules/select2.min.css', 'text/css')
-			$.getScript(scriptPath + '/extensions/FlexForm/Modules/select2.min.js').done(function () {
-					$( 'select[data-inputtype="ws-select2"]' ).each( function () {
-						var selectid = $( this ).attr( 'id' )
-						var selectoptionsid = 'select2options-' + selectid
-						var select2config = $( 'input#' + selectoptionsid ).val()
-						var F = new Function( select2config )
-						return ( F() )
-					} )
-
-			})
-		}
 	})
 }
 
@@ -1171,14 +1122,12 @@ function createAlertsIfNeeded () {
 					$.getScript(u + '/extensions/FlexForm/Modules/notify.js').done( function() {
 						setTimeout(function(){
 							showMessage( msg, type, $(mwMessageAttach), true, title );
-							//console.log( alert.text(), type, $(mwMessageAttach) );
 						}, 500);
 
 					})
 				}
 
 			} else {
-				console.log ( "alert: " + $(this).text() );
 				if ( title !== undefined || title !== '' ) {
 					if ( type === 'html' ) {
 						mw.notify( $($(this).html()), { autoHide: false, type: type, title: title })
@@ -1211,24 +1160,42 @@ function ffOnSelect2OpenedFocus() {
 		} );
 	} );
 }
+function attachTokens() {
+	$( document ).ready( function () {
+		if ( $( 'select[data-inputtype="ws-select2"]' )[0] ) {
+			var scriptPath = mw.config.get( 'wgScript' )
+			if ( scriptPath === null || !scriptPath ) {
+				scriptPath = ''
+			}
+			scriptPath = scriptPath.replace( '/index.php', '' )
+			mw.loader.load( scriptPath + '/extensions/FlexForm/Modules/select2.min.css', 'text/css' )
+			$.getScript( scriptPath + '/extensions/FlexForm/Modules/select2.min.js' ).done( function () {
+				$( 'select[data-inputtype="ws-select2"]' ).each( function () {
+					var selectid = $( this ).attr( 'id' )
+					var selectoptionsid = 'select2options-' + selectid
+					var select2config = $( 'input#' + selectoptionsid ).val()
+					var F = new Function( select2config )
+					return ( F() )
+				} )
+			} )
+		}
+	} )
+}
 
 /**
  * Wait for jQuery to load and initialize, then go to method addTokenInfo()
  */
-wachtff(addTokenInfo)
-wachtff(initializeWSFormEditor)
-wachtff(checkForTinyMCE)
-wachtff(createAlertsIfNeeded)
-wachtff(ffOnSelect2OpenedFocus)
-wachtff(() => {
-	setTimeout(async () => {
+FFInitiated();
+ffHoldTillReady( addTokenInfo )
+ffHoldTillReady( initializeWSFormEditor )
+ffHoldTillReady( checkForTinyMCE )
+ffHoldTillReady( createAlertsIfNeeded )
+ffHoldTillReady( ffOnSelect2OpenedFocus )
+
+ffHoldTillReady( () => {
+	setTimeout( async () => {
 		await fetchAllDecrypt();
 		ffCalc();
 		ffTempex();
-	}, 1500);
-}, true);
-
-// tinyMCE stuff if needed
-
-
-
+	}, 1500 );
+}, true );
