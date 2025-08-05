@@ -1065,29 +1065,6 @@ function replacePipes (text) {
 	})
 }
 
-function attachTokens () {
-	$(document).ready(function () {
-		if ($('select[data-inputtype="ws-select2"]')[0]) {
-			var scriptPath = mw.config.get('wgScript')
-			if (scriptPath === null || !scriptPath) {
-				scriptPath = ''
-			}
-			scriptPath = scriptPath.replace('/index.php', '')
-			mw.loader.load(scriptPath + '/extensions/FlexForm/Modules/select2.min.css', 'text/css')
-			$.getScript(scriptPath + '/extensions/FlexForm/Modules/select2.min.js').done(function () {
-					$( 'select[data-inputtype="ws-select2"]' ).each( function () {
-						var selectid = $( this ).attr( 'id' )
-						var selectoptionsid = 'select2options-' + selectid
-						var select2config = $( 'input#' + selectoptionsid ).val()
-						var F = new Function( select2config )
-						return ( F() )
-					} )
-
-			})
-		}
-	})
-}
-
 var ffNoSubmitOnEnter = function( e ) {
 	if (e.keyCode === 13) {
 		e.preventDefault();
@@ -1188,6 +1165,28 @@ function ffOnSelect2OpenedFocus() {
 	});
 }
 
+function attachTokens() {
+	$( document ).ready( function () {
+		if ( $( 'select[data-inputtype="ws-select2"]' )[0] ) {
+			var scriptPath = mw.config.get( 'wgScript' )
+			if ( scriptPath === null || !scriptPath ) {
+				scriptPath = ''
+			}
+			scriptPath = scriptPath.replace( '/index.php', '' )
+			mw.loader.load( scriptPath + '/extensions/FlexForm/Modules/select2.min.css', 'text/css' )
+			$.getScript( scriptPath + '/extensions/FlexForm/Modules/select2.min.js' ).done( function () {
+				$( 'select[data-inputtype="ws-select2"]' ).each( function () {
+					var selectid = $( this ).attr( 'id' )
+					var selectoptionsid = 'select2options-' + selectid
+					var select2config = $( 'input#' + selectoptionsid ).val()
+					var F = new Function( select2config )
+					return ( F() )
+				} )
+			} )
+		}
+	} )
+}
+
 /**
  * Wait for jQuery to load and initialize, then go to method addTokenInfo()
  */
@@ -1205,5 +1204,3 @@ ffHoldTillReady( () => {
 		ffTempex();
 	}, 1500 );
 }, true );
-
-// tinyMCE stuff if needed
