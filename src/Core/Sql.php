@@ -25,6 +25,10 @@ class Sql {
 		'initiator' => 'update_table_flexformmsg_initiator'
 	];
 
+	private const UPDATEFIELDSFF = [
+		'valid' => 'update_table_flexform_valid'
+	];
+
 	/**
 	 * @param DatabaseUpdater $updater
 	 *
@@ -74,10 +78,21 @@ class Sql {
 			);
 		}
 
+		// FlexForm Messaging DB updates
 		foreach ( self::UPDATEFIELDS as $column => $file ) {
 			$sqlFile = sprintf( "%s/%s.%s", $directory, $file, $dbt );
 			if ( file_exists( $sqlFile ) ) {
 				$updater->addExtensionField( 'flexformmsg',
+					$column,
+					$sqlFile );
+			}
+		}
+
+		// FlexForm Forms valid DB updates
+		foreach ( self::UPDATEFIELDSFF as $column => $file ) {
+			$sqlFile = sprintf( "%s/%s.%s", $directory, $file, $dbt );
+			if ( file_exists( $sqlFile ) ) {
+				$updater->addExtensionField( 'flexform',
 					$column,
 					$sqlFile );
 			}
@@ -176,7 +191,8 @@ class Sql {
 				$hashes = self::createFormHashes( $content );
 				$result = self::addPageId(
 					$id,
-					$hashes
+					$hashes,
+					1
 				);
 				if ( $result === false ) {
 					throw new FlexFormException( 'Can\'t save to Database [add]' );
@@ -238,10 +254,11 @@ class Sql {
 	/**
 	 * @param int $pageId
 	 * @param array $hashes
+	 * @param bool $valid
 	 *
 	 * @return bool
 	 */
-	private static function addPageId( int $pageId, array $hashes ): bool {
+	private static function addPageId( int $pageId, array $hashes, bool $valid = true ): bool {
 		$lb          = MediaWikiServices::getInstance()->getDBLoadBalancer();
 		$dbw         = $lb->getConnectionRef( DB_PRIMARY );
 		try {
@@ -251,7 +268,8 @@ class Sql {
 						self::DBTABLE,
 						[
 							'page_id'     => $pageId,
-							'hash_string' => $hash
+							'hash_string' => $hash,
+							'valid'		  => $valid,
 						],
 						__METHOD__
 					);
@@ -290,10 +308,19 @@ class Sql {
 		}
 	}
 
-	public static function getAllApprovedForms() {
-		$lb          = MediaWikiServices::getInstance()->getDBLoadBalancer();
-		$dbr         = $lb->getConnectionRef( DB_REPLICA );
-		$select      = [ 'page_id', "count" => 'COUNT(*)' ];
+	/**
+	 * @param bool $returnNonApproved
+	 *
+	 * @return array
+	 */
+	public static function getAllApprovedForms( bool $returnNonApproved = false ): array {
+		$lb     = MediaWikiServices::getInstance()->getDBLoadBalancer();
+		$dbr    = $lb->getConnectionRef( DB_REPLICA );
+		$select = [ 'page_id', "count" => 'COUNT(*)' ];
+		$where 	= [ 'valid' => 1 ];
+		if ( $returnNonApproved ) {
+			$where = [ 'valid' => 0 ];
+		}
 		$selectOptions = [
 			'GROUP BY' => 'page_id',
 			'ORDER BY' => 'count DESC'
@@ -301,7 +328,7 @@ class Sql {
 		$res = $dbr->select(
 			self::DBTABLE,
 			$select,
-			[],
+			$where,
 			__METHOD__,
 			$selectOptions
 		);

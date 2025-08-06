@@ -294,6 +294,8 @@ class SpecialFlexForm extends \SpecialPage {
 					break;
 				case "valid_forms":
 					if ( $userAllowed ) {
+
+						// First handle possible posts from this special page
 						$pId = $this->getPostString( 'pId' );
 						if ( $pId !== false ) {
 							FlexForm\Core\Sql::removePageId( (int)$pId );
@@ -310,6 +312,9 @@ class SpecialFlexForm extends \SpecialPage {
 						if ( $pIdAllOnlyForm !== false ) {
 							FlexForm\Core\Sql::addPagesFromIds( $pIdAllOnlyForm );
 						}
+						// End handling posts
+
+						// Now render pages in the database
 						$out->addHTML( $vF->renderApprovedFormsInformation( $pId ) );
 						$tag = [];
 						$tag['wsform'] = $vF->doSearchQuery( '<wsform' );
