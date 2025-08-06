@@ -302,7 +302,7 @@ class SpecialFlexForm extends \SpecialPage {
 						}
 						$pIdA = $this->getPostString( 'pIdA' );
 						if ( $pIdA !== false ) {
-							FlexForm\Core\Sql::addPageFromId( (int)$pIdA );
+							FlexForm\Core\Sql::addPageFromId( (int)$pIdA, 1 );
 						}
 						$pIdAll = $this->getPostString( 'pIdAll' );
 						if ( $pIdAll !== false ) {
