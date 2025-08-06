@@ -1160,6 +1160,7 @@ function ffOnSelect2OpenedFocus() {
 		} );
 	} );
 }
+
 function attachTokens() {
 	$( document ).ready( function () {
 		if ( $( 'select[data-inputtype="ws-select2"]' )[0] ) {
