@@ -38,6 +38,8 @@ class syncPagesWithForms extends Maintenance {
 		}
 		$allForms = \FlexForm\Core\Sql::getAllApprovedForms( false, true );
 		$data = [];
+		$data['valid'] = [];
+		$data['invalid'] = [];
 		foreach ( $allForms as $pId => $details ) {
 			if ( $details['valid'] === "1" ) {
 				$data['valid'][] = $pId;
@@ -55,9 +57,13 @@ class syncPagesWithForms extends Maintenance {
 
 		$validForms = new \FlexForm\Specials\SpecialHelpers\validForms( '' );
 		$tag = [];
+		echo "Now checking for wsform tag in all wiki pages... \n";
 		$tag['wsform'] = $validForms->doSearchQuery( '<wsform', true );
+		echo "Now checking for _form tag in all wiki pages... \n";
 		$tag['_form'] = $validForms->doSearchQuery( '<_form', true );
+		echo "Now checking for form tag in all wiki pages... \n";
 		$tag['form'] = $validForms->doSearchQuery( '<form', true );
+		echo "\nChecks done... \n";
 		$dataAll = [];
 		foreach ( $tag as $name => $result ) {
 			foreach ( $result as $row ) {
