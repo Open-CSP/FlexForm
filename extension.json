@@ -134,6 +134,9 @@
       "position": "top"
     }
   },
+  "JobClasses": {
+    "FlexFormEdit": "\\FlexForm\\Processors\\Content\\Jobs\\FlexFormEditJob"
+  },
   "SpecialPages": {
     "FlexForm": "\\FlexForm\\Specials\\SpecialFlexForm"
   },
