@@ -144,7 +144,8 @@ class Rights {
 			$removeUs = [
 				'edit',
 				'form_edit',
-				'history'
+				'history',
+				've-edit'
 			];
 			//echo "<pre>";
 			//var_dump( $links['views'] );
@@ -190,7 +191,8 @@ class Rights {
 				return true;
 			}
 			$actionNotAllowed = [
-				'edit'
+				'edit',
+				'tinymceedit'
 			];
 			// Also disable the version difference options
 			if ( isset( $_GET['diff'] ) ) {
