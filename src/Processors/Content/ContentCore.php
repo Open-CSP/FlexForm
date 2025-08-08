@@ -411,26 +411,26 @@ class ContentCore {
 					$timer->getDuration()
 				);
 			}
-			foreach ( $pageContents as $pageContent ) {
-				foreach ( $pageContent as $slotName => $singlePage ) {
-					$slotContents = $singlePage['content'];
-					$pTitle       = $singlePage['title'];
+			if ( !empty( $pageContents ) ) {
+				foreach ( $pageContents as $pageContent ) {
+					foreach ( $pageContent as $slotName => $singlePage ) {
+						$slotContents = $singlePage['content'];
+						$pTitle = $singlePage['title'];
 
-					try {
-						$save->saveToWiki(
-							$pTitle,
-							self::createSlotArray(
-								$slotName,
-								$slotContents
-							),
-							self::$fields['summary']
-						);
-					} catch ( FlexFormException $e ) {
-						throw new FlexFormException(
-							$e->getMessage(),
-							0,
-							$e
-						);
+						try {
+							$save->saveToWiki(
+								$pTitle,
+								self::createSlotArray(
+									$slotName,
+									$slotContents
+								),
+								self::$fields['summary']
+							);
+						} catch ( FlexFormException $e ) {
+							throw new FlexFormException(
+								$e->getMessage(), 0, $e
+							);
+						}
 					}
 				}
 			}

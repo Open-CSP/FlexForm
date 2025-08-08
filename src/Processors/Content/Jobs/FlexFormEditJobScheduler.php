@@ -21,7 +21,6 @@ class FlexFormEditJobScheduler {
 	 */
 	public function addFlexFormEditJob( array $edits ) {
 		$jobQueueGroup = MediaWikiServices::getInstance()->getJobQueueGroupFactory()->makeJobQueueGroup();
-
 		foreach ( $edits as $pId => $pData ) {
 			$job = new FlexFormEditJob( "", [ 'pageId' => $pId, 'edits' => $pData ] );
 			$jobQueueGroup->push( $job );

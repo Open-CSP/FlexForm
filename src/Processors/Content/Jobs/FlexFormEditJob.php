@@ -36,9 +36,10 @@ class FlexFormEditJob extends Job {
 	 */
 	public function run() {
 		$pageId = $this->params['pageId'];
-		$pData = $this->params['pData'];
+		$pData = $this->params['edits'];
 		ContentCore::$isJob = true;
 		ContentCore::$jobData = [ $pageId => $pData ];
+		var_dump( [ $pageId => $pData ]);
 		$responseHandler = new handleResponse();
 		try {
 			ContentCore::saveToWiki( $responseHandler );
