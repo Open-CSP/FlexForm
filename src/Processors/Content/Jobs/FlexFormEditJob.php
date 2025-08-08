@@ -39,12 +39,15 @@ class FlexFormEditJob extends Job {
 		$pData = $this->params['edits'];
 		ContentCore::$isJob = true;
 		ContentCore::$jobData = [ $pageId => $pData ];
-		var_dump( [ $pageId => $pData ]);
+		ContentCore::$jobSummary = $this->params['summary'];
+		ContentCore::$jobUser = $this->params['user'];
+		FlexFormJobLogger::logInfo( 'CREATE: FlexFormEditJob.php: Running job for Page ID : ' . $pageId, $pData );
 		$responseHandler = new handleResponse();
 		try {
 			ContentCore::saveToWiki( $responseHandler );
-		} catch ( FlexFormException | \MWContentSerializationException | \MWException $e ) {
-			echo "FLEXFORM JOB ERROR : " . $e->getMessage();
+		} catch ( \Throwable $e ) {
+			FlexFormJobLogger::logError( 'CREATE: FlexFormEditJob.php: Running job error for PageId : '
+				. $pageId . '. Error: ' . $e->getMessage() );
 		}
 	}
 }

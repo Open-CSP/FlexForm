@@ -7,6 +7,7 @@ use FlexForm\Core\Debug;
 use FlexForm\Core\DebugTimer;
 use FlexForm\Core\HandleResponse;
 use FlexForm\FlexFormException;
+use FlexForm\Processors\Content\Jobs\FlexFormJobLogger;
 use FlexForm\Processors\Definitions;
 use FlexForm\Processors\Files\FilesCore;
 use FlexForm\Processors\Security\wsSecurity;
@@ -36,6 +37,16 @@ class ContentCore {
 	 * @var bool
 	 */
 	public static bool $isJob = false;
+
+	/**
+	 * @var string
+	 */
+	public static string $jobSummary;
+
+	/**
+	 * @var string
+	 */
+	public static string $jobUser;
 
 	/**
 	 * @return array
@@ -395,15 +406,20 @@ class ContentCore {
 		// WSEdits
 		if ( self::$fields['mwedit'] !== false ) {
 			$save = new Save();
-			if ( self::$fields['ffJob'] ) {
-				$edit = new Edit( self::$fields['ffJob'] );
+			if ( isset( self::$fields['ffJob'] ) ) {
+				$edit = new Edit( self::$fields['ffJob'], [ 'summary' => self::$fields['summary'] ] );
 			} elseif ( self::$isJob ) {
+				FlexFormJobLogger::logInfo( 'Handling job inside ContentCore',	self::$jobData );
 				$edit = new Edit( 'jobRun', self::$jobData );
 			} else {
 				$edit = new Edit();
 			}
 
 			$pageContents = $edit->editPage();
+
+			if ( self::$isJob ) {
+				FlexFormJobLogger::logInfo( 'JOB: ContentCore.php: Edits done. Received contents.', self::$jobData );
+			}
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
 					$debugTitle . 'PageContent ',
@@ -413,26 +429,32 @@ class ContentCore {
 			}
 			if ( !empty( $pageContents ) ) {
 				foreach ( $pageContents as $pageContent ) {
+					$slotContentArray = [];
 					foreach ( $pageContent as $slotName => $singlePage ) {
 						$slotContents = $singlePage['content'];
 						$pTitle = $singlePage['title'];
-
-						try {
-							$save->saveToWiki(
-								$pTitle,
-								self::createSlotArray(
-									$slotName,
-									$slotContents
-								),
-								self::$fields['summary']
-							);
-						} catch ( FlexFormException $e ) {
-							throw new FlexFormException(
-								$e->getMessage(), 0, $e
-							);
-						}
+						$slotContentArray[$slotName] = $slotContents;
+					}
+					if ( self::$isJob ) {
+						self::$fields['summary'] = self::$jobSummary;
+						FlexFormJobLogger::logInfo( 'ContentCore.php: Starting saveToWiki for pageId: ' .
+							print_r( $slotContentArray, true ),
+							self::$jobData );
+					}
+					try {
+						$save->saveToWiki(
+							$pTitle,
+							$slotContentArray,
+							self::$fields['summary']
+						);
+					} catch ( FlexFormException $e ) {
+						throw new FlexFormException(
+							$e->getMessage(), 0, $e
+						);
 					}
 				}
+			} else {
+
 			}
 		}
 		$response_handler->setMwReturn( self::$fields['returnto'] );
@@ -465,7 +487,7 @@ class ContentCore {
 		}
 
 		$response_handler->setReturnType( HandleResponse::TYPE_SUCCESS );
-		if ( self::$fields['msgOnSuccess'] !== false ) {
+		if ( isset( self::$fields['msgOnSuccess'] ) && self::$fields['msgOnSuccess'] !== false ) {
 			$response_handler->setReturnData( self::$fields['msgOnSuccess'] );
 		}
 

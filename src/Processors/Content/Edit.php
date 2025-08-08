@@ -15,9 +15,11 @@ use FlexForm\Core\Core;
 use FlexForm\Core\Debug;
 use FlexForm\FlexFormException;
 use FlexForm\Processors\Content\Jobs\FlexFormEditJobScheduler;
+use FlexForm\Processors\Content\Jobs\FlexFormJobLogger;
 use FlexForm\Processors\Utilities\General;
 use JsonPath\InvalidJsonException;
 use JsonPath\JsonObject;
+use RequestContext;
 
 /**
  * Class for editing pages
@@ -933,9 +935,9 @@ class Edit {
 		// We have edits to make to existing pages!
 
 		if ( $this->isJob === 'jobRun' ) {
+			FlexFormJobLogger::logInfo( 'JOB: Edit.php: Received job' );
 			$data = $this->jobData;
 		} else {
-
 			$data = $this->createEditData();
 			if ( Config::isDebug() ) {
 				$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
@@ -949,8 +951,13 @@ class Edit {
 
 		// Should it become an edit job?
 		if ( $this->isJob === 'jobCreate' ) {
+			FlexFormJobLogger::logInfo( 'CREATE: Edit.php: We have a jobCreate, adding to scheduler..' );
 			$ffJob = new FlexFormEditJobScheduler();
-			$ffJob->addFlexFormEditJob( $data );
+			$ffJob->addFlexFormEditJob(
+				$data,
+				$this->jobData['summary'],
+				RequestContext::getMain()->getUser()->getName()
+			);
 			return [];
 		}
 
