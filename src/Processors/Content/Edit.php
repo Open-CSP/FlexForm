@@ -14,6 +14,7 @@ use FlexForm\Core\Config;
 use FlexForm\Core\Core;
 use FlexForm\Core\Debug;
 use FlexForm\FlexFormException;
+use FlexForm\Processors\Content\Jobs\FlexFormEditJobScheduler;
 use FlexForm\Processors\Utilities\General;
 use JsonPath\InvalidJsonException;
 use JsonPath\JsonObject;
@@ -23,15 +24,38 @@ use JsonPath\JsonObject;
  */
 class Edit {
 
-	private $editCount = 0;
+	/**
+	 * @var int
+	 */
+	private int $editCount = 0;
 
 	/**
-	 * @param $search
+	 * @var bool
+	 */
+	private string $isJob = 'no';
+
+	/**
+	 * @var array
+	 */
+	private array $jobData;
+
+	/**
+	 * @param string $isJob
+	 * @param array $data
+	 */
+	public function __construct( string $isJob = 'no', array $data = [] ) {
+		$this->isJob = $isJob;
+		$this->jobData = $data;
+	}
+
+	/**
+	 * @param string $search
 	 * @param array $array
+	 * @param array &$found
 	 *
 	 * @return array
 	 */
-	public function searchForKey( $search, array $array, &$found = [] ) {
+	public function searchForKey( string $search, array $array, array &$found = [] ) {
 		foreach ( $array as $k => $v ) {
 			if ( $k === $search ) {
 				$found[$k] = $v;
@@ -409,7 +433,7 @@ class Edit {
 	/**
 	 * @return array
 	 */
-	private function createEditData() : array {
+	private function createEditData(): array {
 		// edit = [0]pid [1]template [2]Form field [3]Use field [4]Value [5]Slot
 		$data   = [];
 		$t      = 0;
@@ -492,7 +516,7 @@ class Edit {
 			} else {
 				$ff = General::makeUnderscoreFromSpace( trim( $edit[2] ) );
 				// Does this field exist in the current form that we can use ?
-				if ( ! isset( $_POST[$ff] ) ) {
+				if ( !isset( $_POST[$ff] ) ) {
 					$data[$pid][$t]['value'] = '';
 				} else {
 					// The value will be grabbed from the form
@@ -506,7 +530,8 @@ class Edit {
 							$data[$pid][$t]['value'],
 							$fields['separator']
 						);
-					} else { // it is not an array.
+					} else {
+						// it is not an array.
 						if ( Config::isDebug() ) {
 							$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
 							$tof = ( contentcore::isInstance( $ff ) === true ) ? "true" : "false";
@@ -619,7 +644,6 @@ class Edit {
 
 		$expl = self::pregExplode( $templateContent );
 
-
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
 				$debugTitle . 'Exploded Template',
@@ -685,7 +709,6 @@ class Edit {
 				$newTemplateContent,
 				$pageContents[ $pid ][ $slotToEdit ]['content']
 			);
-
 	}
 
 	/**
@@ -909,19 +932,33 @@ class Edit {
 	public function editPage() {
 		// We have edits to make to existing pages!
 
-		$data = $this->createEditData();
-		if ( Config::isDebug() ) {
-			$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
-			Debug::addToDebug(
-				$debugTitle . 'edit data accumulation ' . $this->editCount,
-				$data
-			);
+		if ( $this->isJob === 'jobRun' ) {
+			$data = $this->jobData;
+		} else {
+
+			$data = $this->createEditData();
+			if ( Config::isDebug() ) {
+				$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
+				Debug::addToDebug(
+					$debugTitle . 'edit data accumulation ' . $this->editCount,
+					$data
+				);
+			}
 		}
 		// We have all the info in the data Array
+
+		// Should it become an edit job?
+		if ( $this->isJob === 'jobCreate' ) {
+			$ffJob = new FlexFormEditJobScheduler();
+			$ffJob->addFlexFormEditJob( $data );
+			return [];
+		}
+
 		// Now we need to grab the page and replace what needs to be replaced.
 
 		$pageContents = [];
 		$render       = new Render();
+
 		// Loop through all edits
 		foreach ( $data as $pid => $edits ) {
 			// setup slots if needed

@@ -233,8 +233,8 @@ if ( Config::isDebug() ) {
 }
 
 switch ( $action ) {
-	case "addToWiki" :
-	case "email" :
+	case "addToWiki":
+	case "email":
 		try {
 			if ( $action === 'email' ) {
 				$responseHandler = ContentCore::saveToWiki( $responseHandler, "yes" );
@@ -247,7 +247,7 @@ switch ( $action ) {
 			$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
 		}
 		break;
-	case "get" :
+	case "get":
 		try {
 			$responseHandler = ContentCore::saveToWiki(
 				$responseHandler,

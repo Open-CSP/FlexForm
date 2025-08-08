@@ -286,7 +286,7 @@ class Create {
 	 * @throws FlexFormException
 	 * @throws \MWException
 	 */
-	public function writePages() : array {
+	public function writePages(): array {
 		$pageCount = 0;
 		$fields    = ContentCore::getFields();
 		$pageTitleToLinkTo = [];

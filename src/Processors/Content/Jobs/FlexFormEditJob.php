@@ -10,7 +10,15 @@
 
 namespace FlexForm\Processors\Content\Jobs;
 
+use FlexForm\Core\Config;
+use FlexForm\Core\Debug;
+use FlexForm\Core\HandleResponse;
+use FlexForm\FlexFormException;
+use FlexForm\Processors\Content\ContentCore;
+use FlexForm\Processors\Content\Edit;
+use FlexForm\Processors\Content\Save;
 use Job;
+use MediaWiki\Extension\WikiApiary\data\ResponseHandler;
 
 class FlexFormEditJob extends Job {
 
@@ -19,7 +27,7 @@ class FlexFormEditJob extends Job {
 	/**
 	 * @inheritDoc
 	 */
-	public function __construct( $params ) {
+	public function __construct( string $dummy, array $params ) {
 		parent::__construct( self::JOB_NAME, $params );
 	}
 
@@ -27,6 +35,15 @@ class FlexFormEditJob extends Job {
 	 * @inheritDoc
 	 */
 	public function run() {
-		// TODO: add run job info
+		$pageId = $this->params['pageId'];
+		$pData = $this->params['pData'];
+		ContentCore::$isJob = true;
+		ContentCore::$jobData = [ $pageId => $pData ];
+		$responseHandler = new handleResponse();
+		try {
+			ContentCore::saveToWiki( $responseHandler );
+		} catch ( FlexFormException | \MWContentSerializationException | \MWException $e ) {
+			echo "FLEXFORM JOB ERROR : " . $e->getMessage();
+		}
 	}
 }
