@@ -25,6 +25,10 @@ class Sql {
 		'initiator' => 'update_table_flexformmsg_initiator'
 	];
 
+	private const UPDATEFIELDSFF = [
+		'valid' => 'update_table_flexform_valid'
+	];
+
 	/**
 	 * @param DatabaseUpdater $updater
 	 *
@@ -74,10 +78,21 @@ class Sql {
 			);
 		}
 
+		// FlexForm Messaging DB updates
 		foreach ( self::UPDATEFIELDS as $column => $file ) {
 			$sqlFile = sprintf( "%s/%s.%s", $directory, $file, $dbt );
 			if ( file_exists( $sqlFile ) ) {
 				$updater->addExtensionField( 'flexformmsg',
+					$column,
+					$sqlFile );
+			}
+		}
+
+		// FlexForm Forms valid DB updates
+		foreach ( self::UPDATEFIELDSFF as $column => $file ) {
+			$sqlFile = sprintf( "%s/%s.%s", $directory, $file, $dbt );
+			if ( file_exists( $sqlFile ) ) {
+				$updater->addExtensionField( 'flexform',
 					$column,
 					$sqlFile );
 			}
@@ -170,26 +185,25 @@ class Sql {
 		$id = $article->getId();
 		try {
 			if ( Rights::isUserAllowedToEditorCreateForms() ) {
-				self::removePageId( $id );
-				$render = new Render();
-				$content = $render->getSlotsContentForPage( $id );
-				$hashes = self::createFormHashes( $content );
-				$result = self::addPageId(
-					$id,
-					$hashes
-				);
-				if ( $result === false ) {
-					throw new FlexFormException( 'Can\'t save to Database [add]' );
-				}
+				$valid = 1;
 			} else {
-				$result = self::removePageId( $id );
-				if ( $result === false ) {
-					throw new FlexFormException( 'Can\'t save to Database [remove]' );
-				}
+				$valid = 0;
+			}
+			self::removePageId( $id );
+			$render = new Render();
+			$content = $render->getSlotsContentForPage( $id );
+			$hashes = self::createFormHashes( $content );
+			$result = self::addPageId(
+				$id,
+				$hashes,
+				$valid
+			);
+			if ( $result === false ) {
+				throw new FlexFormException( 'Can\'t save to Database [add]' );
 			}
 		} catch ( Exception $e ) {
 			var_dump( $e->getMessage());
-			die();
+			return false;
 		}
 		return true;
 	}
@@ -206,7 +220,7 @@ class Sql {
 			return false;
 		}
 		foreach ( $IDArrays as $id ) {
-			$result = self::addPageFromId( $id );
+			$result = self::addPageFromId( $id, true );
 			if ( $result !== true ) {
 				throw new FlexFormException( 'Can\'t save to Database [add]' );
 			}
@@ -216,11 +230,12 @@ class Sql {
 
 	/**
 	 * @param int $id
+	 * @param bool $valid
 	 *
-	 * @return true
+	 * @return bool
 	 * @throws FlexFormException
 	 */
-	public static function addPageFromId( int $id ) {
+	public static function addPageFromId( int $id, bool $valid ): bool {
 		$render = new Render();
 		$content = $render->getSlotsContentForPage(	$id	);
 		// Page has no content, does not exist or any other weird stuff
@@ -228,7 +243,10 @@ class Sql {
 			return true;
 		}
 		$hashes = self::createFormHashes( $content );
-		$result = self::addPageId( $id, $hashes );
+		if ( empty( $hashes ) ) {
+			throw new FlexFormException( 'Cannot create hash from content' );
+		}
+		$result = self::addPageId( $id, $hashes, $valid );
 		if ( $result === false ) {
 			throw new FlexFormException( 'Can\'t save to Database [add]' );
 		}
@@ -238,27 +256,34 @@ class Sql {
 	/**
 	 * @param int $pageId
 	 * @param array $hashes
+	 * @param bool $valid
 	 *
 	 * @return bool
 	 */
-	private static function addPageId( int $pageId, array $hashes ): bool {
+	private static function addPageId( int $pageId, array $hashes, bool $valid = true ): bool {
 		$lb          = MediaWikiServices::getInstance()->getDBLoadBalancer();
 		$dbw         = $lb->getConnectionRef( DB_PRIMARY );
 		try {
 			foreach ( $hashes as $hash ) {
-				if ( !self::exists( $pageId, $hash ) ) {
-					$dbw->insert(
-						self::DBTABLE,
-						[
-							'page_id'     => $pageId,
-							'hash_string' => $hash
-						],
-						__METHOD__
-					);
+				if ( empty( $hash ) ) {
+					echo "Hash is empty for " . $pageId . "\n";
+					continue;
 				}
+				if ( self::exists( $pageId, $hash ) ) {
+					self::removePageId( $pageId );
+				}
+				$dbw->insert(
+					self::DBTABLE,
+					[
+						'page_id'     => $pageId,
+						'hash_string' => $hash,
+						'valid' => $valid,
+					],
+					__METHOD__
+				);
 			}
 		} catch ( \Exception $e ) {
-			echo $e;
+			echo "Error inserting " . $pageId . ": " . $e->getMessage();
 			return false;
 		}
 		return true;
@@ -290,10 +315,26 @@ class Sql {
 		}
 	}
 
-	public static function getAllApprovedForms() {
-		$lb          = MediaWikiServices::getInstance()->getDBLoadBalancer();
-		$dbr         = $lb->getConnectionRef( DB_REPLICA );
-		$select      = [ 'page_id', "count" => 'COUNT(*)' ];
+	/**
+	 * @param bool $returnNonApproved
+	 * @param bool $returnAll
+	 *
+	 * @return array
+	 */
+	public static function getAllApprovedForms(
+		bool $returnNonApproved = false,
+		bool $returnAll = false
+	): array {
+		$lb     = MediaWikiServices::getInstance()->getDBLoadBalancer();
+		$dbr    = $lb->getConnectionRef( DB_REPLICA );
+		$select = [ 'page_id', 'valid', "count" => 'COUNT(*)' ];
+		$where 	= [ 'valid' => 1 ];
+		if ( $returnNonApproved ) {
+			$where = [ 'valid' => 0 ];
+		}
+		if ( $returnAll ) {
+			$where = [];
+		}
 		$selectOptions = [
 			'GROUP BY' => 'page_id',
 			'ORDER BY' => 'count DESC'
@@ -301,7 +342,7 @@ class Sql {
 		$res = $dbr->select(
 			self::DBTABLE,
 			$select,
-			[],
+			$where,
 			__METHOD__,
 			$selectOptions
 		);
@@ -311,7 +352,8 @@ class Sql {
 			while ( $row = $res->fetchRow() ) {
 				$pId = $row['page_id'];
 				$cnt = $row['count'];
-				$pages[$pId] = $cnt;
+				$pages[$pId]['cnt'] = $cnt;
+				$pages[$pId]['valid'] = $row['valid'];
 			}
 			return $pages;
 		} else {
@@ -322,10 +364,11 @@ class Sql {
 	/**
 	 * @param int $pageId
 	 * @param string $hash
+	 * @param bool $valid
 	 *
 	 * @return bool
 	 */
-	public static function exists( int $pageId, string $hash ):bool {
+	public static function exists( int $pageId, string $hash, bool $valid = false ):bool {
 		$lb          = MediaWikiServices::getInstance()->getDBLoadBalancer();
 		$dbr         = $lb->getConnectionRef( DB_REPLICA );
 		$select      = [ 'page_id', "count" => 'COUNT(*)' ];
@@ -336,6 +379,9 @@ class Sql {
 			"page_id = '" . $pageId . "'",
 			"hash_string = '" . $hash . "'"
 		];
+		if ( $valid ) {
+			$selectWhere[] = 'valid = 1';
+		}
 		$res = $dbr->select(
 			self::DBTABLE,
 			$select,
