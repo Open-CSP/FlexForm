@@ -115,7 +115,8 @@ class validForms {
 		$rowCount = 0;
 		$formHeader = '<form style="display:inline-block;" method="post">';
 		$data = [];
-		foreach ( $formInfo as $id => $count ) {
+		foreach ( $formInfo as $id => $detail ) {
+			$count = $detail['cnt'];
 			$form = $formHeader . '<input type="hidden" name="pId" value="' . $id . '">';
 			$form .= $this->renderGenericBtn(
 				'',
@@ -224,24 +225,38 @@ class validForms {
 
 	/**
 	 * @param string $search
+	 * @param bool $searchAllPages
 	 *
 	 * @return IResultWrapper
 	 */
-	public function doSearchQuery( string $search ): IResultWrapper {
+	public function doSearchQuery( string $search, bool $searchAllPages = false ): IResultWrapper {
 		$namespaces = $this->getNamespaces();
 		$dbr = wfGetDB( DB_REPLICA );
+		$currentFormsKnown = sql::getAllApprovedForms( false, true );
 		$tables = [ 'page', 'revision', 'text', 'slots', 'content' ];
 		$vars = [ 'page_id', 'page_namespace', 'page_title', 'old_text' ];
 		$any = $dbr->anyString();
 		$comparisonCond = 'old_text ' . $dbr->buildLike( $any, $search, $any );
-		$conds = [
-			$comparisonCond,
-			'page_namespace' => $namespaces,
-			'rev_id = page_latest',
-			'rev_id = slot_revision_id',
-			'slot_content_id = content_id',
-			$dbr->buildIntegerCast( 'SUBSTR(content_address, 4)' ) . ' = old_id'
-		];
+		if ( $searchAllPages ) {
+			$conds = [
+				$comparisonCond,
+				'page_namespace' => $namespaces,
+				'rev_id = page_latest',
+				'rev_id = slot_revision_id',
+				'slot_content_id = content_id',
+				$dbr->buildIntegerCast( 'SUBSTR(content_address, 4)' ) . ' = old_id'
+			];
+		} else {
+			$conds = [
+				$comparisonCond,
+				'page_id IN (' . implode( ',', array_keys( $currentFormsKnown ) ) . ')',
+				'page_namespace' => $namespaces,
+				'rev_id = page_latest',
+				'rev_id = slot_revision_id',
+				'slot_content_id = content_id',
+				$dbr->buildIntegerCast( 'SUBSTR(content_address, 4)' ) . ' = old_id'
+			];
+		}
 
 		$options = [
 			'ORDER BY' => 'page_namespace, page_title',
@@ -275,7 +290,7 @@ class validForms {
 			$ret[$t]['numberOfForms'] = count( $formTags );
 			foreach ( $formTags as $k => $singleForm ) {
 				$hash = sql::createHash( trim( $singleForm ) );
-				if ( !sql::exists( $id, $hash ) ) {
+				if ( !sql::exists( $id, $hash, true ) ) {
 					$ret[$t]['forms'][$k]['tag'] = $name;
 					$ret[$t]['forms'][$k]['isValid'] = "no";
 				} else {
