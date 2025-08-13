@@ -20,7 +20,7 @@ class syncPagesWithForms extends Maintenance {
 
 	public function __construct() {
 		parent::__construct();
-		$this->mDescription = "Go through all pages in the Wiki and sync pages with FlexForm's.\n";
+		$this->mDescription = "Go through all pages in the Wiki and sync pages with FlexForms.\n";
 		$this->addOption(
 			'dry-run',
 			'Show details but do not actual sync. [optional]',
