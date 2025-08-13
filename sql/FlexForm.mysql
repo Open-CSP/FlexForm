@@ -1,4 +1,5 @@
 CREATE TABLE /*_*/flexform (
   `page_id` int(11),
-  `hash_string` varchar(34)
+  `hash_string` varchar(34),
+  `valid` tinyint(1) NOT NULL DEFAULT 0
 ) /*$wgDBTableOptions*/;

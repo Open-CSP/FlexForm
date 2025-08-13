@@ -31,6 +31,7 @@ class syncPagesWithForms extends Maintenance {
 
 	/**
 	 * @inheritDoc
+	 * @throws \MediaWiki\Maintenance\MaintenanceFatalError
 	 */
 	public function execute() {
 		if ( MediaWikiServices::getInstance()->getReadOnlyMode()->isReadOnly() ) {
@@ -47,9 +48,9 @@ class syncPagesWithForms extends Maintenance {
 				$data['invalid'][] = $pId;
 			}
 		}
-		echo "We have " . count( $allForms ) . " synced forms.\n";
-		echo "Of which " . count( $data['valid'] ) . " validated forms.\n";
-		echo "Of which " . count( $data['invalid'] ) . " unvalidated forms.\n";
+		$this->output( "We have " . count( $allForms ) . " synced forms.\n" );
+		$this->output( "Of which " . count( $data['valid'] ) . " validated forms.\n" );
+		$this->output( "Of which " . count( $data['invalid'] ) . " unvalidated forms.\n" );
 		$dryRun = false;
 		if ( $this->hasOption( 'dry-run' ) ) {
 			$dryRun = true;
@@ -57,13 +58,13 @@ class syncPagesWithForms extends Maintenance {
 
 		$validForms = new validForms( '' );
 		$tag = [];
-		echo "Now checking for wsform tag in all wiki pages... \n";
+		$this->output( "Now checking for wsform tag in all wiki pages... \n" );
 		$tag['wsform'] = $validForms->doSearchQuery( '<wsform', true );
-		echo "Now checking for _form tag in all wiki pages... \n";
+		$this->output( "Now checking for _form tag in all wiki pages... \n" );
 		$tag['_form'] = $validForms->doSearchQuery( '<_form', true );
-		echo "Now checking for form tag in all wiki pages... \n";
+		$this->output( "Now checking for form tag in all wiki pages... \n" );
 		$tag['form'] = $validForms->doSearchQuery( '<form', true );
-		echo "\nChecks done... \n";
+		$this->output( "\nChecks done... \n" );
 		$dataAll = [];
 		foreach ( $tag as $name => $result ) {
 			foreach ( $result as $row ) {
@@ -77,11 +78,11 @@ class syncPagesWithForms extends Maintenance {
 				$dataAll[] = $pId;
 			}
 		}
-		echo "We have found " . count( $dataAll ) . " pages with forms not synced.\n";
+		$this->output( "We have found " . count( $dataAll ) . " pages with forms not synced.\n" );
 		$difference = array_diff( $dataAll, $data['invalid'] );
-		echo "\nSyncing: \n";
+		$this->output( "\nSyncing: \n" );
 		foreach ( $difference as $pId ) {
-			$page = WikiPage::newFromId( $pId );
+			$page = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromID( $pId );
 			if ( $page === false || $page === null ) {
 				$title = "invalid page";
 			} else {
@@ -100,11 +101,11 @@ class syncPagesWithForms extends Maintenance {
 				}
 
 			}
-			echo "Page ID: " . $pId . " :: Title : " . $title . " $txt\n";
+			$this->output( "Page ID: " . $pId . " :: Title : " . $title . " $txt\n" );
 
 		}
 
-		echo "\n\nAll done\n";
+		$this->output( "\n\nAll done\n" );
 	}
 }
 
