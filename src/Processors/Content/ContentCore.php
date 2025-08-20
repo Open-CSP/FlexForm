@@ -504,10 +504,14 @@ class ContentCore {
 						);
 					}
 				}
-			} else {
-				throw new FlexFormException(
-					wfMessage( 'flexform-contentcode-empty-edits' )->text(), 0
-				);
+			} elseif ( self::$fields['ffJob'] === 'jobCreate' ) {
+				if ( Config::isDebug() ) {
+					Debug::addToDebug(
+						$debugTitle . 'This is a createJob. No further actions',
+						[],
+						$timer->getDuration()
+					);
+				}
 			}
 		}
 		$response_handler->setMwReturn( self::$fields['returnto'] );
