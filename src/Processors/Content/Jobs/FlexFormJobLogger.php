@@ -39,11 +39,6 @@ class FlexFormJobLogger {
 	public static function logError( string $msg, array $context = [] ): void {
 		$logger = LoggerFactory::getInstance( self::LOG_NAME );
 		$logger->error( $msg, $context );
-		if ( !empty( $context ) ) {
-			$terminalContent = $msg . "\n------DETAILS------\n" . print_r( $context, true ) . "\n---------\n";
-		} else {
-			$terminalContent = $msg;
-		}
 	}
 
 	/**

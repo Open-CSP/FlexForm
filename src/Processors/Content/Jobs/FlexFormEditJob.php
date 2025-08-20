@@ -10,15 +10,9 @@
 
 namespace FlexForm\Processors\Content\Jobs;
 
-use FlexForm\Core\Config;
-use FlexForm\Core\Debug;
 use FlexForm\Core\HandleResponse;
-use FlexForm\FlexFormException;
 use FlexForm\Processors\Content\ContentCore;
-use FlexForm\Processors\Content\Edit;
-use FlexForm\Processors\Content\Save;
 use Job;
-use MediaWiki\Extension\WikiApiary\data\ResponseHandler;
 
 class FlexFormEditJob extends Job {
 
