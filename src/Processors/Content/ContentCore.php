@@ -26,8 +26,16 @@ use Title;
  */
 class ContentCore {
 
-	private static $fields = []; // Post fields we get
-	private static $instances = []; // Any post fields that are labelled as an instance
+	/**
+	 * @var array
+	 */
+	private static $fields = [];
+
+	/**
+	 * Any post fields that are labelled as an instance
+	 * @var array
+	 */
+	private static $instances = [];
 
 	/**
 	 * @var array
@@ -456,6 +464,10 @@ class ContentCore {
 
 		// WSEdits
 		if ( self::$fields['mwedit'] !== false ) {
+			if ( Config::isDebug() ) {
+				$timer = new DebugTimer();
+				$debugTitle = '<b>::' . get_class() . '::</b> ';
+			}
 			$save = new Save();
 			if ( isset( self::$fields['ffJob'] ) ) {
 				$edit = new Edit( self::$fields['ffJob'], [ 'summary' => self::$fields['summary'] ] );
