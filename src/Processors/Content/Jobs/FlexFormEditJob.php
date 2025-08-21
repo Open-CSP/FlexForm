@@ -33,7 +33,7 @@ class FlexFormEditJob extends Job {
 		$pData = $this->params['edits'];
 		ContentCore::$isJob = true;
 		ContentCore::$jobData = [ $pageId => $pData ];
-		ContentCore::$jobSummary = $this->params['summary'];
+		ContentCore::$jobSummary = 'FFJOB: ' . $this->params['summary'];
 		ContentCore::$jobUser = $this->params['user'];
 		FlexFormJobLogger::logInfo( 'CREATE: FlexFormEditJob.php: Running job for Page ID : ' . $pageId, $pData );
 		$responseHandler = new handleResponse();
