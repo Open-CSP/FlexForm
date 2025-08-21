@@ -400,13 +400,11 @@ class ContentCore {
 			}
 		}
 
-		if ( !self::$fields['mwedit'] ) {
-			if ( Config::isDebug() ) {
-				Debug::addToDebug(
-					$debugTitle . 'Handling WSCreate multiple duration',
+		if ( Config::isDebug() ) {
+			if ( !self::$fields['mwedit'] ) {
+				Debug::addToDebug( $debugTitle . 'Handling WSCreate multiple duration',
 					[],
-					$timer->getDuration()
-				);
+					$timer->getDuration() );
 			}
 		}
 	}
@@ -463,7 +461,7 @@ class ContentCore {
 		}
 
 		// WSEdits
-		if ( self::$fields['mwedit'] !== false ) {
+		if ( self::$isJob || self::$fields['mwedit'] !== false ) {
 			if ( Config::isDebug() ) {
 				$timer = new DebugTimer();
 				$debugTitle = '<b>::' . get_class() . '::</b> ';
@@ -525,6 +523,9 @@ class ContentCore {
 					);
 				}
 			}
+		}
+		if ( self::$isJob ) {
+			return $response_handler;
 		}
 		$response_handler->setMwReturn( self::$fields['returnto'] );
 		if ( Config::isDebug() ) {
