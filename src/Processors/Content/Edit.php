@@ -934,7 +934,7 @@ class Edit {
 	 * @return array
 	 * @throws FlexFormException
 	 */
-	private function woutWantedThisEditPageFunctionWithDataPrivately( array $data ): array {
+	private function editPageWithData( array $data ): array {
 		// Now we need to grab the page and replace what needs to be replaced.
 
 		$pageContents = [];
@@ -1040,7 +1040,7 @@ class Edit {
 			return [];
 		}
 
-		return $this->woutWantedThisEditPageFunctionWithDataPrivately( $data );
+		return $this->editPageWithData( $data );
 	}
 
 }
