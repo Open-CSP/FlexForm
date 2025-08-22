@@ -929,38 +929,12 @@ class Edit {
 	}
 
 	/**
-	 * @return array|void
+	 * @param array $data
+	 *
+	 * @return array
+	 * @throws FlexFormException
 	 */
-	public function editPage() {
-		// We have edits to make to existing pages!
-
-		if ( $this->isJob === 'jobRun' ) {
-			FlexFormJobLogger::logInfo( 'JOB: Edit.php: Received job' );
-			$data = $this->jobData;
-		} else {
-			$data = $this->createEditData();
-			if ( Config::isDebug() ) {
-				$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
-				Debug::addToDebug(
-					$debugTitle . 'edit data accumulation ' . $this->editCount,
-					$data
-				);
-			}
-		}
-		// We have all the info in the data Array
-
-		// Should it become an edit job?
-		if ( $this->isJob === 'jobCreate' ) {
-			FlexFormJobLogger::logInfo( 'CREATE: Edit.php: We have a jobCreate, adding to scheduler..' );
-			$ffJob = new FlexFormEditJobScheduler();
-			$ffJob->addFlexFormEditJob(
-				$data,
-				$this->jobData['summary'],
-				RequestContext::getMain()->getUser()->getName()
-			);
-			return [];
-		}
-
+	private function woutWantedThisEditPageFunctionWithDataPrivately( array $data ): array {
 		// Now we need to grab the page and replace what needs to be replaced.
 
 		$pageContents = [];
@@ -969,23 +943,20 @@ class Edit {
 		// Loop through all edits
 		foreach ( $data as $pid => $edits ) {
 			// setup slots if needed
-			$wehaveslots = false;
 			foreach ( $edits as $edit ) {
 				if ( $edit['slot'] !== false && !isset( $pageContents[$pid][$edit['slot']]['content'] ) ) {
-					$wehaveslots = true;
-					// $pageTitle = $edit['slot'];
 					$content = $render->getSlotContent(
 						$pid,
 						$edit['slot']
 					);
 					if ( Config::isDebug() ) {
+						$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
 						Debug::addToDebug(
 							$debugTitle . 'Content for ' . $pid,
 							$content
 						);
 					}
 
-					// $content = $api->getWikiPage( $pid, $edit['slot'] );
 					if ( $content['content'] == '' ) {
 						$pageContents[$pid][$edit['slot']]['content'] = false;
 					} else {
@@ -1033,6 +1004,43 @@ class Edit {
 			}
 		}
 		return $pageContents;
+	}
+
+	/**
+	 * @return array
+	 * @throws FlexFormException
+	 */
+	public function editPage(): array {
+		// We have edits to make to existing pages!
+
+		if ( $this->isJob === 'jobRun' ) {
+			FlexFormJobLogger::logInfo( 'JOB: Edit.php: Received job' );
+			$data = $this->jobData;
+		} else {
+			$data = $this->createEditData();
+			if ( Config::isDebug() ) {
+				$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
+				Debug::addToDebug(
+					$debugTitle . 'edit data accumulation ' . $this->editCount,
+					$data
+				);
+			}
+		}
+		// We have all the info in the data Array
+
+		// Should it become an edit job?
+		if ( $this->isJob === 'jobCreate' ) {
+			FlexFormJobLogger::logInfo( 'CREATE: Edit.php: We have a jobCreate, adding to scheduler..' );
+			$ffJob = new FlexFormEditJobScheduler();
+			$ffJob->addFlexFormEditJob(
+				$data,
+				$this->jobData['summary'],
+				RequestContext::getMain()->getUser()->getName()
+			);
+			return [];
+		}
+
+		return $this->woutWantedThisEditPageFunctionWithDataPrivately( $data );
 	}
 
 }
