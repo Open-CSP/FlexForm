@@ -92,7 +92,6 @@ class TagHooks {
 		$recaptchaDiv = null;
 		$showOnSelect = false;
 		$showOnSelectWait = true;
-		//$parser->getOutput()->addModuleStyles( 'ext.wsForm.general.styles' );
 		$renderonlyapprovedforms = Config::getConfigVariable( 'renderonlyapprovedforms' );
 		$renderi18nErrorInsteadofImageForApprovedForms = Config::getConfigVariable(
 			'renderi18nErrorInsteadofImageForApprovedForms'

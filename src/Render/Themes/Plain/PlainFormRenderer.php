@@ -121,6 +121,13 @@ class PlainFormRenderer implements FormRenderer {
 			);
 		}
 
+		if ( isset( $formAttributes['add-as-job'] ) ) {
+			$formContent .= Core::createHiddenField(
+				'mwjob',
+				'jobCreate'
+			);
+		}
+
 		$fileActions = Core::getFileActions();
 		if ( !empty( $fileActions ) ) {
 			$formContent .= Core::createHiddenField(

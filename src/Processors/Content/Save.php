@@ -7,6 +7,7 @@ use ContentHandler;
 use ExtensionRegistry;
 use FlexForm\Core\Core;
 use FlexForm\Core\DebugTimer;
+use FlexForm\Processors\Content\Jobs\FlexFormJobLogger;
 use FlexForm\Processors\Definitions;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
@@ -368,7 +369,12 @@ class Save {
 	 * @throws MWContentSerializationException
 	 */
 	public function saveToWiki( string $title, array $contentArray, string $summary, bool $overWrite = true ) {
-		$user = RequestContext::getMain()->getUser();
+		if ( ContentCore::$isJob ) {
+			$user = MediaWikiServices::getInstance()->getUserFactory()->newFromName( ContentCore::$jobUser );
+			FlexFormJobLogger::logInfo( 'JOB: Save.php: Getting user from Job' );
+		} else {
+			$user = RequestContext::getMain()->getUser();
+		}
 
 		if ( Config::isDebug() ) {
 			$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
@@ -430,7 +436,9 @@ class Save {
 		}
 		$editAllPagesConfig = Config::getConfigVariable( 'userscaneditallpages' );
 		if ( $editAllPagesConfig === false && ( $canCreate === false || $canEdit === false ) ) {
-			throw new FlexFormException( wfMessage( 'flexform-user-rights-not', $titleObject->getFullText() )->text() );
+			throw new FlexFormException(
+				wfMessage( 'flexform-user-rights-not', $titleObject->getFullText() )->text(), $user->getName()
+			);
 		}
 		if ( !$titleObject || $titleObject->hasFragment() ) {
 			throw new FlexFormException( wfMessage( 'flexform-savetowiki-title-invalid', $title )->text() );
@@ -466,6 +474,11 @@ class Save {
 			$contentArray,
 			$summary
 		);
+		if ( ContentCore::$isJob ) {
+			FlexFormJobLogger::logInfo( 'JOB: Save.php: EditSlotResult is : ' .
+				print_r( $saveResult, true ),
+				[ 'saveresult' => print_r( $saveResult, true ) ] );
+		}
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
 				$debugTitle . 'Save result',

@@ -88,10 +88,10 @@ class Render {
 	 *
 	 * @return array
 	 */
-	public function getSlotContent( $id, string $slotName = 'main' ) : array {
+	public function getSlotContent( $id, string $slotName = 'main' ): array {
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
-				'Getting Content for ',
+				'Getting Content for ' . $id,
 				[ 'id' => $id,
 					'slotname' => $slotName ]
 			);

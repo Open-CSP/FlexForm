@@ -2,18 +2,20 @@
 
 namespace FlexForm\Processors\Content;
 
-use FlexForm\Core\DebugTimer;
-use MediaWiki\MediaWikiServices;
-use MWException;
-use RequestContext;
 use FlexForm\Core\Config;
 use FlexForm\Core\Debug;
+use FlexForm\Core\DebugTimer;
 use FlexForm\Core\HandleResponse;
-use FlexForm\Processors\Security\wsSecurity;
-use FlexForm\Processors\Definitions;
-use FlexForm\Processors\Utilities\General;
-use FlexForm\Processors\Files\FilesCore;
 use FlexForm\FlexFormException;
+use FlexForm\Processors\Content\Jobs\FlexFormJobLogger;
+use FlexForm\Processors\Definitions;
+use FlexForm\Processors\Files\FilesCore;
+use FlexForm\Processors\Security\wsSecurity;
+use FlexForm\Processors\Utilities\General;
+use MediaWiki\MediaWikiServices;
+use MWContentSerializationException;
+use MWException;
+use RequestContext;
 use Title;
 
 /**
@@ -24,13 +26,41 @@ use Title;
  */
 class ContentCore {
 
-	private static $fields = array(); // Post fields we get
-	private static $instances = []; // Any post fields that are labelled as an instance
+	/**
+	 * @var array
+	 */
+	private static $fields = [];
+
+	/**
+	 * Any post fields that are labelled as an instance
+	 * @var array
+	 */
+	private static $instances = [];
+
+	/**
+	 * @var array
+	 */
+	public static array $jobData = [];
+
+	/**
+	 * @var bool
+	 */
+	public static bool $isJob = false;
+
+	/**
+	 * @var string
+	 */
+	public static string $jobSummary;
+
+	/**
+	 * @var string
+	 */
+	public static string $jobUser;
 
 	/**
 	 * @return array
 	 */
-	public static function getFields() : array {
+	public static function getFields(): array {
 		return self::$fields;
 	}
 
@@ -41,7 +71,7 @@ class ContentCore {
 	 *
 	 * @return string
 	 */
-	private static function setSummary( bool $onlyName = false ) : string {
+	private static function setSummary( bool $onlyName = false ): string {
 		$user = RequestContext::getMain()->getUser();
 		if ( $user->isAnon() === false ) {
 			if ( $onlyName === true ) {
@@ -61,16 +91,14 @@ class ContentCore {
 	 *
 	 * @return bool
 	 */
-	public static function isInstance( string $name ):bool {
+	public static function isInstance( string $name ): bool {
 		return in_array( $name, self::$instances );
 	}
 
 	/**
-	 * @param string $name
-	 *
-	 * @return bool
+	 * @return array
 	 */
-	public static function getAllInstances():array {
+	public static function getAllInstances(): array {
 		return self::$instances;
 	}
 
@@ -78,6 +106,7 @@ class ContentCore {
 	 * @return void
 	 */
 	private static function checkInstances() {
+		self::$instances = [];
 		$lookFor = 'isinstance_';
 		foreach ( $_POST as $k => $v ) {
 			if ( !Definitions::isFlexFormSystemField( $k ) ) {
@@ -170,15 +199,9 @@ class ContentCore {
 	}
 
 	/**
-	 * @param HandleResponse $response_handler
-	 * @param string|bool $email
-	 *
-	 * @return HandleResponse
-	 * @throws MWException
-	 * @throws FlexFormException
-	 * @throws \MWContentSerializationException
+	 * @return void
 	 */
-	public static function saveToWiki( HandleResponse $response_handler, $email = false ) : HandleResponse {
+	private static function handleSaveToWikiDefaults(): void {
 		if ( Config::isDebug() ) {
 			$timer = new DebugTimer();
 		}
@@ -198,6 +221,7 @@ class ContentCore {
 		if ( Config::isDebug() ) {
 			$timer = new DebugTimer();
 		}
+
 		// Check and set default self::$fields. Also check for instances input
 		self::checkFields();
 		if ( Config::isDebug() ) {
@@ -207,191 +231,256 @@ class ContentCore {
 				$timer->getDuration()
 			);
 		}
+	}
 
-		// mwcreateuser
-		if ( self::$fields['createuser'] !== false && self::$fields['createuser'] !== '' ) {
-			if ( Config::isDebug() ) {
-				$timer = new DebugTimer();
-			}
-			$createUser = new CreateUser();
-			$user       = $createUser->addUser();
-			$createUser->sendPassWordAndConfirmationLink( $user );
+	/**
+	 * @return void
+	 * @throws FlexFormException
+	 */
+	private static function handleSaveToWikiCreateUser(): void {
+		if ( Config::isDebug() ) {
+			$timer = new DebugTimer();
+			$debugTitle = '<b>::' . get_class() . '::</b> ';
+		}
+		$createUser = new CreateUser();
+		$user = $createUser->addUser();
+		$createUser->sendPassWordAndConfirmationLink( $user );
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				$debugTitle . 'Handling create user duration',
+				[],
+				$timer->getDuration()
+			);
+		}
+	}
+
+	/**
+	 * @param DebugTimer $timer
+	 *
+	 * @return void
+	 * @throws FlexFormException
+	 * @throws MWContentSerializationException
+	 * @throws MWException
+	 */
+	private static function handleSaveToWikiCreateSingle( DebugTimer $timer ): void {
+		if ( Config::isDebug() ) {
+			$debugTitle = '<b>::' . get_class() . '::</b> ';
+		}
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				$debugTitle . 'Writing single page', []
+			);
+		}
+		if ( self::$fields['writepages'] !== false ) {
+			throw new FlexFormException(
+				wfMessage( 'flexform-mwcreate-mixed_creates' ), 0, null
+			);
+		}
+		$create = new Create();
+		try {
+			$result = $create->writePage();
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
-					'Handling creeate user duration',
+					$debugTitle . 'writepage result',
 					[],
 					$timer->getDuration()
 				);
 			}
+		} catch ( FlexFormException $e ) {
+			throw new FlexFormException(
+				$e->getMessage(), 0, $e
+			);
+		}
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				$debugTitle . 'Result creating single page',
+				$result,
+				$timer->getDuration()
+			);
+		}
+		if ( self::$fields['slot'] === false ) {
+			$slot = "main";
+		} else {
+			$slot = self::$fields['slot'];
+		}
+		$result['content'] = self::createSlotArray(
+			$slot,
+			$result['content']
+		);
+		$save = new Save();
+
+		try {
+			$save->saveToWiki(
+				$result['title'],
+				$result['content'],
+				self::$fields['summary'],
+				self::$fields['overwrite']
+			);
+		} catch ( FlexFormException $e ) {
+			throw new FlexFormException(
+				$e->getMessage(), 0, $e
+			);
+		}
+		self::checkFollowPage( $result['title'] );
+		if ( !self::$fields['mwedit'] && !self::$fields['writepages'] ) {
+			if ( Config::isDebug() ) {
+				Debug::addToDebug( $debugTitle . 'finished 1 wscreate value returnto is',
+					self::$fields['returnto'],
+					$timer->getDuration() );
+			}
+		}
+	}
+
+	/**
+	 * @param DebugTimer $timer
+	 *
+	 * @return void
+	 * @throws FlexFormException
+	 * @throws MWContentSerializationException
+	 * @throws MWException
+	 */
+	private static function handleSaveToWikiCreateMultiple( DebugTimer $timer ): void {
+		if ( Config::isDebug() ) {
+			$debugTitle = '<b>::' . get_class() . '::</b> ';
+		}
+		$create = new Create();
+		try {
+			$finalPages = $create->writePages();
+		} catch ( FlexFormException $e ) {
+			throw new FlexFormException(
+				$e->getMessage(), 0, $e
+			);
+		}
+
+		$save = new Save();
+		foreach ( $finalPages as $pTitle => $pContent ) {
+			$nrOfEdits = count( $pContent );
+			if ( $nrOfEdits === 1 ) {
+				$slotName = key( $pContent[0]['slot'] );
+				try {
+					$save->saveToWiki(
+						$pTitle,
+						self::createSlotArray(
+							$slotName,
+							$pContent[0]['slot'][$slotName]
+						),
+						$pContent[0]['summary'],
+						$pContent[0]['overwrite']
+					);
+				} catch ( FlexFormException $e ) {
+					throw new FlexFormException(
+						$e->getMessage(), 0, $e
+					);
+				}
+			}
+			if ( $nrOfEdits > 1 ) {
+				$slotsToSend = [];
+				$overWrite = true;
+				foreach ( $pContent as $singleCreate ) {
+					$slotName = key( $singleCreate['slot'] );
+					$slotValue = $singleCreate['slot'][$slotName];
+					$slotsToSend[$slotName] = $slotValue;
+					if ( $singleCreate['overwrite'] === false ) {
+						$overWrite = false;
+					}
+				}
+
+				try {
+					$save->saveToWiki(
+						$pTitle,
+						$slotsToSend,
+						$pContent[0]['summary'],
+						$overWrite
+					);
+				} catch ( FlexFormException $e ) {
+					throw new FlexFormException(
+						$e->getMessage(), 0, $e
+					);
+				}
+			}
 		}
 
 		if ( Config::isDebug() ) {
+			if ( !self::$fields['mwedit'] ) {
+				Debug::addToDebug( $debugTitle . 'Handling WSCreate multiple duration',
+					[],
+					$timer->getDuration() );
+			}
+		}
+	}
+
+	/**
+	 * @param HandleResponse $response_handler
+	 * @param string|bool $email
+	 *
+	 * @return HandleResponse
+	 * @throws MWException
+	 * @throws FlexFormException
+	 * @throws MWContentSerializationException
+	 */
+	public static function saveToWiki( HandleResponse $response_handler, string|bool $email = false ): HandleResponse {
+		if ( self::$isJob === false ) {
+			self::handleSaveToWikiDefaults();
+
+			if ( Config::isDebug() ) {
+				$debugTitle = '<b>::' . get_class() . '::</b> ';
+			}
+
+			// mwcreateuser
+			if ( self::$fields['createuser'] !== false && self::$fields['createuser'] !== '' ) {
+				self::handleSaveToWikiCreateUser();
+			}
 			$timer = new DebugTimer();
-		}
-		// WSCreate single
-		if ( self::$fields['template'] !== false && self::$fields['writepage'] !== false ) {
-			if ( Config::isDebug() ) {
-				Debug::addToDebug( $debugTitle . 'Writing single page',
-								   [] );
+
+			// WSCreate single
+			if ( self::$fields['template'] !== false && self::$fields['writepage'] !== false ) {
+				self::handleSaveToWikiCreateSingle( $timer );
+				if ( !self::$fields['mwedit'] && !$email && !self::$fields['writepages'] ) {
+					$response_handler->setMwReturn( self::$fields['returnto'] );
+					$response_handler->setReturnType( HandleResponse::TYPE_SUCCESS );
+					if ( self::$fields['msgOnSuccess'] !== false ) {
+						$response_handler->setReturnData( self::$fields['msgOnSuccess'] );
+					}
+					return $response_handler;
+				}
 			}
+
+			// WSCreate multiple
 			if ( self::$fields['writepages'] !== false ) {
-				throw new FlexFormException(
-					wfMessage( 'flexform-mwcreate-mixed_creates' ),
-					0,
-					null
-				);
-			}
-			$create = new Create();
-			try {
-				$result = $create->writePage();
-				if ( Config::isDebug() ) {
-					Debug::addToDebug(
-						$debugTitle . 'writepage result',
-						[],
-						$timer->getDuration()
-					);
-				}
-			} catch ( FlexFormException $e ) {
-				throw new FlexFormException(
-					$e->getMessage(),
-					0,
-					$e
-				);
-			}
-			if ( Config::isDebug() ) {
-				Debug::addToDebug( $debugTitle . 'Result creating single page',
-					$result, $timer->getDuration() );
-			}
-			if ( self::$fields['slot'] === false ) {
-				$slot = "main";
-			} else {
-				$slot = self::$fields['slot'];
-			}
-			$result['content'] = self::createSlotArray(
-				$slot,
-				$result['content']
-			);
-			$save              = new Save();
+				self::handleSaveToWikiCreateMultiple( $timer );
 
-			try {
-				$save->saveToWiki(
-					$result['title'],
-					$result['content'],
-					self::$fields['summary'],
-					self::$fields['overwrite']
-				);
-			} catch ( FlexFormException $e ) {
-				throw new FlexFormException(
-					$e->getMessage(),
-					0,
-					$e
-				);
-			}
-			self::checkFollowPage( $result['title'] );
-			if ( !self::$fields['mwedit'] && !$email && !self::$fields['writepages'] ) {
-				if ( Config::isDebug() ) {
-					Debug::addToDebug(
-						$debugTitle . 'finished 1 wscreate value returnto is',
-						self::$fields['returnto'], $timer->getDuration()
-					);
-				}
-				$response_handler->setMwReturn( self::$fields['returnto'] );
-				$response_handler->setReturnType( HandleResponse::TYPE_SUCCESS );
-				if ( self::$fields['msgOnSuccess'] !== false ) {
-					$response_handler->setReturnData( self::$fields['msgOnSuccess'] );
-				}
-
-				return $response_handler;
-			}
-		}
-
-		// WSCreate multiple
-		if ( self::$fields['writepages'] !== false ) {
-			$create = new Create();
-			try {
-				$finalPages = $create->writePages();
-			} catch ( FlexFormException $e ) {
-				throw new FlexFormException(
-					$e->getMessage(),
-					0,
-					$e
-				);
-			}
-
-			$save = new Save();
-			foreach ( $finalPages as $pTitle => $pContent ) {
-				$nrOfEdits = count( $pContent );
-				if ( $nrOfEdits === 1 ) {
-					$slotName = key( $pContent[0]['slot'] );
-					try {
-						$save->saveToWiki(
-							$pTitle,
-							self::createSlotArray(
-								$slotName,
-								$pContent[0]['slot'][$slotName]
-							),
-							$pContent[0]['summary'],
-							$pContent[0]['overwrite']
-						);
-					} catch ( FlexFormException $e ) {
-						throw new FlexFormException(
-							$e->getMessage(),
-							0,
-							$e
-						);
+				if ( !self::$fields['mwedit'] && !$email ) {
+					$response_handler->setMwReturn( self::$fields['returnto'] );
+					$response_handler->setReturnType( HandleResponse::TYPE_SUCCESS );
+					if ( self::$fields['msgOnSuccess'] !== false ) {
+						$response_handler->setReturnData( self::$fields['msgOnSuccess'] );
 					}
+					return $response_handler;
 				}
-				if ( $nrOfEdits > 1 ) {
-					$slotsToSend = [];
-					$overWrite   = true;
-					foreach ( $pContent as $singleCreate ) {
-						$slotName               = key( $singleCreate['slot'] );
-						$slotValue              = $singleCreate['slot'][$slotName];
-						$slotsToSend[$slotName] = $slotValue;
-						if ( $singleCreate['overwrite'] === false ) {
-							$overWrite = false;
-						}
-					}
-
-					try {
-						$save->saveToWiki(
-							$pTitle,
-							$slotsToSend,
-							$pContent[0]['summary'],
-							$overWrite
-						);
-					} catch ( FlexFormException $e ) {
-						throw new FlexFormException(
-							$e->getMessage(),
-							0,
-							$e
-						);
-					}
-				}
-			}
-
-			if ( !self::$fields['mwedit'] && !$email ) {
-				$response_handler->setMwReturn( self::$fields['returnto'] );
-				$response_handler->setReturnType( HandleResponse::TYPE_SUCCESS );
-				if ( self::$fields['msgOnSuccess'] !== false ) {
-					$response_handler->setReturnData( self::$fields['msgOnSuccess'] );
-				}
-				if ( Config::isDebug() ) {
-					Debug::addToDebug(
-						'Handling WSCreate multiple duration',
-						[],
-						$timer->getDuration()
-					);
-				}
-				return $response_handler;
 			}
 		}
 
 		// WSEdits
-		if ( self::$fields['mwedit'] !== false ) {
-			$save         = new Save();
-			$edit         = new Edit();
+		if ( self::$isJob || self::$fields['mwedit'] !== false ) {
+			if ( Config::isDebug() ) {
+				$timer = new DebugTimer();
+				$debugTitle = '<b>::' . get_class() . '::</b> ';
+			}
+			$save = new Save();
+			if ( isset( self::$fields['ffJob'] ) ) {
+				$edit = new Edit( self::$fields['ffJob'], [ 'summary' => self::$fields['summary'] ] );
+			} elseif ( self::$isJob ) {
+				FlexFormJobLogger::logInfo( 'Handling job inside ContentCore',	self::$jobData );
+				$edit = new Edit( 'jobRun', self::$jobData );
+			} else {
+				$edit = new Edit();
+			}
+
 			$pageContents = $edit->editPage();
+
+			if ( self::$isJob ) {
+				FlexFormJobLogger::logInfo( 'JOB: ContentCore.php: Edits done. Received contents.', self::$jobData );
+			}
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
 					$debugTitle . 'PageContent ',
@@ -399,29 +488,44 @@ class ContentCore {
 					$timer->getDuration()
 				);
 			}
-			foreach ( $pageContents as $pageContent ) {
-				foreach ( $pageContent as $slotName => $singlePage ) {
-					$slotContents = $singlePage['content'];
-					$pTitle       = $singlePage['title'];
-
+			if ( !empty( $pageContents ) ) {
+				foreach ( $pageContents as $pageContent ) {
+					$slotContentArray = [];
+					foreach ( $pageContent as $slotName => $singlePage ) {
+						$slotContents = $singlePage['content'];
+						$pTitle = $singlePage['title'];
+						$slotContentArray[$slotName] = $slotContents;
+					}
+					if ( self::$isJob ) {
+						self::$fields['summary'] = self::$jobSummary;
+						FlexFormJobLogger::logInfo( 'ContentCore.php: Starting saveToWiki for pageId: ' .
+							print_r( $slotContentArray, true ),
+							self::$jobData );
+					}
 					try {
 						$save->saveToWiki(
 							$pTitle,
-							self::createSlotArray(
-								$slotName,
-								$slotContents
-							),
+							$slotContentArray,
 							self::$fields['summary']
 						);
 					} catch ( FlexFormException $e ) {
 						throw new FlexFormException(
-							$e->getMessage(),
-							0,
-							$e
+							$e->getMessage(), 0, $e
 						);
 					}
 				}
+			} elseif ( self::$fields['ffJob'] === 'jobCreate' ) {
+				if ( Config::isDebug() ) {
+					Debug::addToDebug(
+						$debugTitle . 'This is a createJob. No further actions',
+						[],
+						$timer->getDuration()
+					);
+				}
 			}
+		}
+		if ( self::$isJob ) {
+			return $response_handler;
 		}
 		$response_handler->setMwReturn( self::$fields['returnto'] );
 		if ( Config::isDebug() ) {
@@ -453,7 +557,7 @@ class ContentCore {
 		}
 
 		$response_handler->setReturnType( HandleResponse::TYPE_SUCCESS );
-		if ( self::$fields['msgOnSuccess'] !== false ) {
+		if ( isset( self::$fields['msgOnSuccess'] ) && self::$fields['msgOnSuccess'] !== false ) {
 			$response_handler->setReturnData( self::$fields['msgOnSuccess'] );
 		}
 
@@ -461,18 +565,17 @@ class ContentCore {
 	}
 
 	/**
-	 * Check if we need to change to returnto url to return to newly created page.
+	 * Check if we need to change the "returnto" url to the newly created page
 	 *
 	 * @param string $title
 	 *
 	 * @return void
 	 */
-	public static function checkFollowPage( $title ) : void {
+	public static function checkFollowPage( $title ): void {
 		$title = '/' . ltrim(
 			$title,
 			'/'
 		);
-		//$serverUrl = wfGetServerUrl( null ) . '/' . 'index.php';
 		if ( self::$fields['mwfollow'] !== false ) {
 			if ( self::$fields['mwfollow'] === 'true' ) {
 				if ( strpos(
@@ -491,9 +594,11 @@ class ContentCore {
 					self::$fields['returnto'],
 					'?'
 				) ) {
-					self::$fields['returnto'] = self::$fields['returnto'] . '&' . self::$fields['mwfollow'] . '=' . $title;
+					self::$fields['returnto'] = self::$fields['returnto'] .
+						'&' . self::$fields['mwfollow'] . '=' . $title;
 				} else {
-					self::$fields['returnto'] = self::$fields['returnto'] . '?' . self::$fields['mwfollow'] . '=' . $title;
+					self::$fields['returnto'] = self::$fields['returnto'] .
+						'?' . self::$fields['mwfollow'] . '=' . $title;
 				}
 			}
 		}
@@ -505,29 +610,18 @@ class ContentCore {
 	 *
 	 * @return array
 	 */
-	private static function createSlotArray( string $slot, string $value ) : array {
-		return array( $slot => $value );
+	private static function createSlotArray( string $slot, string $value ): array {
+		return [ $slot => $value ];
 	}
 
 	/**
+	 * For later use.
 	 * @param mixed $JSONValue
 	 *
 	 * @return mixed
 	 */
 	public static function checkJsonValues( $JSONValue ) {
 		return $JSONValue;
-		switch ( $JSONValue ) {
-			case "true" :
-				return true;
-			case "false" :
-				return false;
-			default :
-				if ( is_numeric( $JSONValue ) ) {
-					return (int)$JSONValue;
-				} else {
-					return $JSONValue;
-				}
-		}
 	}
 
 	/**
@@ -550,7 +644,7 @@ class ContentCore {
 	 *
 	 * @return string
 	 */
-	public static function createContent() : string {
+	public static function createContent(): string {
 		$ret        = '';
 		$fret = [];
 		$cleanedBracesArray = [];
@@ -627,14 +721,13 @@ class ContentCore {
 	 *
 	 * @return int
 	 */
-	public static function createRandom( bool $mtRand = false ) : int {
+	public static function createRandom( bool $mtRand = false ): int {
 		if ( !$mtRand ) {
 			return time();
 		} else {
 			return mt_rand( 10, 10 );
 		}
 	}
-
 
 	/**
 	 * @param string $title
@@ -751,7 +844,7 @@ class ContentCore {
 	public static function setFileTemplate( string $template, string $content ): string {
 		if ( strpos( $content, '[flexform-template]' ) !== false ) {
 			$arrayS = [ '[flexform-template]', '[/flexform-template]', '|' ];
-			$arrayR = [ '{{' . $template, "\n}}\n", "\n" .'|' ];
+			$arrayR = [ '{{' . $template, "\n}}\n", "\n" . '|' ];
 			$content = str_replace( $arrayS, $arrayR, $content );
 
 		}
@@ -763,13 +856,13 @@ class ContentCore {
 	 *
 	 * @return string
 	 */
-	public static function urlToSEO( $string ) : string {
+	public static function urlToSEO( $string ): string {
 		$separator     = '-';
 		$accents_regex = '~&([a-z]{1,2})(?:acute|cedil|circ|grave|lig|orn|ring|slash|th|tilde|uml);~i';
-		$special_cases = array(
+		$special_cases = [
 			'&' => 'and',
 			"'" => ''
-		);
+		];
 		$string        = mb_strtolower(
 			trim( $string ),
 			'UTF-8'
@@ -812,7 +905,7 @@ class ContentCore {
 	 * @return array|string[]
 	 * @throws MWException
 	 */
-	public static function getNextAvailable( $nameStartsWith ) : array {
+	public static function getNextAvailable( $nameStartsWith ): array {
 		$render   = new Render();
 		$postdata = [
 			"action"          => "flexform",
@@ -828,20 +921,20 @@ class ContentCore {
 			);
 		}
 		if ( isset( $result['flexform']['error'] ) ) {
-			return ( array(
+			return ( [
 				'status'  => 'error',
 				'message' => $result['flexform']['error']['message']
-			) );
+			] );
 		} elseif ( isset( $result['error'] ) ) {
-			return ( array(
+			return ( [
 				'status'  => 'error',
 				'message' => $result['error']['info']
-			) );
+			] );
 		} else {
-			return ( array(
+			return ( [
 				'status' => 'ok',
 				'result' => $result['flexform']['result']
-			) );
+			] );
 		}
 		die();
 	}
@@ -888,6 +981,5 @@ class ContentCore {
 		}
 		die();
 	}
-
 
 }

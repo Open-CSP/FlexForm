@@ -27,7 +27,7 @@ class General {
 	 *
 	 * @return string
 	 */
-	public static function makeSpaceFromUnderscore( string $txt ) : string {
+	public static function makeSpaceFromUnderscore( string $txt ): string {
 		return str_replace(
 			"_",
 			" ",
@@ -40,7 +40,7 @@ class General {
 	 *
 	 * @return string
 	 */
-	public static function makeUnderscoreFromSpace( string $txt ) : string {
+	public static function makeUnderscoreFromSpace( string $txt ): string {
 		return str_replace(
 			" ",
 			"_",
