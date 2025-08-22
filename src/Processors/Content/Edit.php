@@ -1053,7 +1053,7 @@ class Edit {
 			return [];
 		}
 
-		// Now we need to grab the page and replace what needs to be replaced.
+		// Do an actual realtime edit.
 		return $this->doActualEditPage( $data );
 	}
 
