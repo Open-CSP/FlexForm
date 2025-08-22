@@ -565,7 +565,7 @@ class ContentCore {
 	}
 
 	/**
-	 * Check if we need to change to return to url to return to newly created page.
+	 * Check if we need to change to "returnto" url to the new created page
 	 *
 	 * @param string $title
 	 *
