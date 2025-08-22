@@ -517,7 +517,7 @@ class Edit {
 				$data[$pid][$t]['value'] = trim( $edit[4] );
 			} else {
 				$ff = General::makeUnderscoreFromSpace( trim( $edit[2] ) );
-				// Does this field exist in the current form that we can use ?
+				// Does this field exist in the current form that we can use?
 				if ( !isset( $_POST[$ff] ) ) {
 					$data[$pid][$t]['value'] = '';
 				} else {
