@@ -107,6 +107,7 @@ class ContentCore {
 	 * @return void
 	 */
 	private static function checkInstances() {
+		self::$instances = [];
 		$lookFor = 'isinstance_';
 		foreach ( $_POST as $k => $v ) {
 			if ( !Definitions::isFlexFormSystemField( $k ) ) {
