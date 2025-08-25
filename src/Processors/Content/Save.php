@@ -4,14 +4,15 @@ namespace FlexForm\Processors\Content;
 
 use CommentStoreComment;
 use ContentHandler;
+use Exception;
 use ExtensionRegistry;
 use FlexForm\Core\Core;
 use FlexForm\Core\DebugTimer;
+use FlexForm\Processors\Content\Jobs\FlexFormJobLogger;
 use FlexForm\Processors\Definitions;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
 use MWContentSerializationException;
-use MWException;
 use RequestContext;
 use SMW\Maintenance\DataRebuilder;
 use SMW\Services\ServicesFactory;
@@ -21,7 +22,6 @@ use WikiPage;
 use FlexForm\Core\Config;
 use FlexForm\Core\Debug;
 use FlexForm\FlexFormException;
-use SMW\ApplicationFactory;
 use SMW\Options;
 use SMW\Store;
 use SMW\StoreFactory;
@@ -57,7 +57,7 @@ class Save {
 	 * @return true|array True on success, and an error message with an error code otherwise
 	 *
 	 * @throws MWContentSerializationException Should not happen
-	 * @throws MWException Should not happen
+	 * @throws Exception Should not happen
 	 */
 	private function editSlots(
 		User $user,
@@ -256,7 +256,7 @@ class Save {
 	 * @param WikiPage $wikiPageObject
 	 *
 	 * @return void
-	 * @throws MWException
+	 * @throws Exception
 	 */
 	private function doNullEdit( User $user, WikiPage $wikiPageObject ) {
 		if ( Config::getConfigVariable( 'forceNullEdit' ) === false ) {
@@ -362,12 +362,17 @@ class Save {
 	 * @param bool $overWrite
 	 *
 	 * @return void
-	 * @throws MWException
+	 * @throws Exception
 	 * @throws FlexFormException
 	 * @throws MWContentSerializationException
 	 */
 	public function saveToWiki( string $title, array $contentArray, string $summary, bool $overWrite = true ) {
-		$user = RequestContext::getMain()->getUser();
+		if ( ContentCore::$isJob ) {
+			$user = MediaWikiServices::getInstance()->getUserFactory()->newFromName( ContentCore::$jobUser );
+			FlexFormJobLogger::logInfo( 'JOB: Save.php: Getting user from Job' );
+		} else {
+			$user = RequestContext::getMain()->getUser();
+		}
 
 		if ( Config::isDebug() ) {
 			$debugTitle = '<b>' . __CLASS__ . '<br>Function: ' . __FUNCTION__ . '<br></b>';
@@ -429,7 +434,9 @@ class Save {
 		}
 		$editAllPagesConfig = Config::getConfigVariable( 'userscaneditallpages' );
 		if ( $editAllPagesConfig === false && ( $canCreate === false || $canEdit === false ) ) {
-			throw new FlexFormException( wfMessage( 'flexform-user-rights-not', $titleObject->getFullText() )->text() );
+			throw new FlexFormException(
+				wfMessage( 'flexform-user-rights-not', $titleObject->getFullText() )->text(), $user->getName()
+			);
 		}
 		if ( !$titleObject || $titleObject->hasFragment() ) {
 			throw new FlexFormException( wfMessage( 'flexform-savetowiki-title-invalid', $title )->text() );
@@ -441,7 +448,7 @@ class Save {
 		// $slot is now an array as of v0.8.0.9.8.8
 		try {
 			$wikiPageObject = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromTitle( $titleObject );
-		} catch ( MWException $e ) {
+		} catch ( Exception $e ) {
 			throw new FlexFormException(
 				wfMessage( 'flexform-error-could-not-create-page',
 					$titleObject->getText(),
@@ -465,6 +472,11 @@ class Save {
 			$contentArray,
 			$summary
 		);
+		if ( ContentCore::$isJob ) {
+			FlexFormJobLogger::logInfo( 'JOB: Save.php: EditSlotResult is : ' .
+				print_r( $saveResult, true ),
+				[ 'saveresult' => print_r( $saveResult, true ) ] );
+		}
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
 				$debugTitle . 'Save result',
