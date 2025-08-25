@@ -943,6 +943,7 @@ class ContentCore {
 	 * @param $range
 	 *
 	 * @return array
+	 * @throws Exception
 	 */
 	public static function getFromRange( $nameStartsWith, $range ) {
 		$postdata = [
@@ -980,6 +981,4 @@ class ContentCore {
 		}
 		die();
 	}
-
-
 }
