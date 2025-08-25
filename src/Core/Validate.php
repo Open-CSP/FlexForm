@@ -141,7 +141,8 @@ class Validate {
 			"recaptcha-action",
             "autosave",
 			"show-on-select",
-			"autocomplete"
+			"autocomplete",
+			"add-as-job"
 		);
 		if ( $ret ) {
 			return $validFormElements;

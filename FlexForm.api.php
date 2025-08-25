@@ -239,27 +239,27 @@ if ( Config::isDebug() ) {
 }
 
 switch ( $action ) {
-	case "addToWiki" :
-	case "email" :
+	case "addToWiki":
+	case "email":
 		try {
 			if ( $action === 'email' ) {
 				$responseHandler = ContentCore::saveToWiki( $responseHandler, "yes" );
 			} else {
 				$responseHandler = ContentCore::saveToWiki( $responseHandler );
 			}
-		} catch ( FlexFormException | MWException | Exception $e ) {
+		} catch ( FlexFormException | Exception $e ) {
 			$responseHandler->setReturnData( $e->getMessage() );
 			$responseHandler->setReturnStatus( 'saveToWiki error' );
 			$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
 		}
 		break;
-	case "get" :
+	case "get":
 		try {
 			$responseHandler = ContentCore::saveToWiki(
 				$responseHandler,
 				"get"
 			);
-		} catch ( FlexFormException | MWException $e ) {
+		} catch ( FlexFormException | Exception $e ) {
 			$responseHandler->setReturnData( $e->getMessage() );
 			$responseHandler->setReturnStatus( 'GET error' );
 			$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );

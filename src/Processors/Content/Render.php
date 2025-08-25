@@ -10,10 +10,11 @@
 
 namespace FlexForm\Processors\Content;
 
-use \ApiMain, \DerivativeContext, \FauxRequest, \DerivativeRequest, MWException, RequestContext, FlexForm\Processors\Utilities\General;
+use ApiMain, \DerivativeContext, \FauxRequest, Exception, RequestContext;
 use FlexForm\Core\Config;
 use FlexForm\Core\Debug;
 use MediaWiki\MediaWikiServices;
+use MWUnknownContentModelException;
 use Title;
 use User;
 use FlexForm\FlexFormException;
@@ -45,6 +46,7 @@ class Render {
 	 * @param int $id
 	 *
 	 * @return array|false
+	 * @throws MWUnknownContentModelException
 	 */
 	public function getSlotsContentForPage( int $id ) {
 		$slot_result = $this->getSlotNamesForPageAndRevision( $id );
@@ -87,11 +89,12 @@ class Render {
 	 * @param string $slotName
 	 *
 	 * @return array
+	 * @throws FlexFormException
 	 */
-	public function getSlotContent( $id, string $slotName = 'main' ) : array {
+	public function getSlotContent( int|string $id, string $slotName = 'main' ): array {
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
-				'Getting Content for ',
+				'Getting Content for ' . $id,
 				[ 'id' => $id,
 					'slotname' => $slotName ]
 			);
@@ -110,7 +113,7 @@ class Render {
 			$titleObject = Title::newFromText( $id );
 			try {
 				$page = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromTitle( $titleObject );
-			} catch ( MWException $e ) {
+			} catch ( Exception $e ) {
 				throw new FlexFormException(
 					wfMessage(
 						'flexform-error-could-not-create-page',
@@ -138,7 +141,6 @@ class Render {
 			}
 
 			$content_handler = $content_object->getContentHandler( $content_object );
-			//$content_handler = ContentHandlerFactory::getContentHandler();
 
 			$ret['content'] = $content_handler->serializeContent( $content_object );
 			$ret['title']   = $page->getTitle()->getFullText();
@@ -163,7 +165,7 @@ class Render {
 	 * @param array $data
 	 *
 	 * @return mixed
-	 * @throws MWException
+	 * @throws Exception
 	 */
 	public function makeRequest( array $data ) {
 		global $wgRequest;
@@ -194,7 +196,7 @@ class Render {
 		try {
 			$api->execute();
 			$result = $api->getResult()->getResultData();
-		} catch ( MWException $e ) {
+		} catch ( Exception $e ) {
 			$result['error']['info'] = $e->getMessage();
 		}
 		if ( Config::isDebug() ) {
