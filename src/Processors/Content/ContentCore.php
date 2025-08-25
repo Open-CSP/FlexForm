@@ -4,7 +4,8 @@ namespace FlexForm\Processors\Content;
 
 use FlexForm\Core\DebugTimer;
 use MediaWiki\MediaWikiServices;
-use MWException;
+use Exception;
+use MWContentSerializationException;
 use RequestContext;
 use FlexForm\Core\Config;
 use FlexForm\Core\Debug;
@@ -24,13 +25,41 @@ use Title;
  */
 class ContentCore {
 
-	private static $fields = array(); // Post fields we get
-	private static $instances = []; // Any post fields that are labelled as an instance
+	/**
+	 * @var array
+	 */
+	private static $fields = [];
+
+	/**
+	 * Any post fields that are labelled as an instance
+	 * @var array
+	 */
+	private static $instances = [];
+
+	/**
+	 * @var array
+	 */
+	public static array $jobData = [];
+
+	/**
+	 * @var bool
+	 */
+	public static bool $isJob = false;
+
+	/**
+	 * @var string
+	 */
+	public static string $jobSummary;
+
+	/**
+	 * @var string
+	 */
+	public static string $jobUser;
 
 	/**
 	 * @return array
 	 */
-	public static function getFields() : array {
+	public static function getFields(): array {
 		return self::$fields;
 	}
 
@@ -41,7 +70,7 @@ class ContentCore {
 	 *
 	 * @return string
 	 */
-	private static function setSummary( bool $onlyName = false ) : string {
+	private static function setSummary( bool $onlyName = false ): string {
 		$user = RequestContext::getMain()->getUser();
 		if ( $user->isAnon() === false ) {
 			if ( $onlyName === true ) {
@@ -61,16 +90,16 @@ class ContentCore {
 	 *
 	 * @return bool
 	 */
-	public static function isInstance( string $name ):bool {
+	public static function isInstance( string $name ): bool {
 		return in_array( $name, self::$instances );
 	}
 
 	/**
 	 * @param string $name
 	 *
-	 * @return bool
+	 * @return array
 	 */
-	public static function getAllInstances():array {
+	public static function getAllInstances(): array {
 		return self::$instances;
 	}
 
@@ -174,9 +203,9 @@ class ContentCore {
 	 * @param string|bool $email
 	 *
 	 * @return HandleResponse
-	 * @throws MWException
+	 * @throws Exception
 	 * @throws FlexFormException
-	 * @throws \MWContentSerializationException
+	 * @throws MWContentSerializationException
 	 */
 	public static function saveToWiki( HandleResponse $response_handler, $email = false ) : HandleResponse {
 		if ( Config::isDebug() ) {
@@ -516,18 +545,6 @@ class ContentCore {
 	 */
 	public static function checkJsonValues( $JSONValue ) {
 		return $JSONValue;
-		switch ( $JSONValue ) {
-			case "true" :
-				return true;
-			case "false" :
-				return false;
-			default :
-				if ( is_numeric( $JSONValue ) ) {
-					return (int)$JSONValue;
-				} else {
-					return $JSONValue;
-				}
-		}
 	}
 
 	/**
@@ -810,7 +827,7 @@ class ContentCore {
 	 * @param $nameStartsWith
 	 *
 	 * @return array|string[]
-	 * @throws MWException
+	 * @throws Exception
 	 */
 	public static function getNextAvailable( $nameStartsWith ): array {
 		$render   = new Render();
