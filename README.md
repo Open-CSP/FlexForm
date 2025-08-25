@@ -1,5 +1,7 @@
 # <img alt="FlexForm" width="200" src="FlexForm-logo.png">
-MW1.35 branch
+MW1.35 branch.
+
+Version 2.5.0 is the last version of FlexForm supporting MediaWiki 1.35.x
 
 
 FlexForm is an enhanced HTML5 rendering engine.
