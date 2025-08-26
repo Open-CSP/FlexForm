@@ -14,7 +14,6 @@ use FlexForm\Core\HandleResponse;
 use FlexForm\Processors\Security\wsSecurity;
 use FlexForm\Processors\Definitions;
 use FlexForm\Processors\Utilities\General;
-use FlexForm\Processors\Files\FilesCore;
 use FlexForm\FlexFormException;
 use Title;
 
@@ -29,13 +28,13 @@ class ContentCore {
 	/**
 	 * @var array
 	 */
-	private static $fields = [];
+	private static array $fields = [];
 
 	/**
 	 * Any post fields that are labelled as an instance
 	 * @var array
 	 */
-	private static $instances = [];
+	private static array $instances = [];
 
 	/**
 	 * @var array
@@ -110,24 +109,20 @@ class ContentCore {
 		$lookFor = 'isinstance_';
 		foreach ( $_POST as $k => $v ) {
 			if ( !Definitions::isFlexFormSystemField( $k ) ) {
+				Debug::addToDebug(
+					'checkInstance for ' . $k,
+					$_POST
+				);
 
-				if ( Config::isDebug() ) {
-					Debug::addToDebug(
-						'checkInstance for ' . $k,
-						$_POST
-					);
-				}
 				$temp = $lookFor . $k;
 				if ( isset( $_POST[ $temp ] ) ) {
 
 					self::$instances[] = $k;
 					unset( $_POST[ $temp ] );
-					if ( Config::isDebug() ) {
-						Debug::addToDebug(
-							'deleting instance for ' . $temp,
-							$_POST
-						);
-					}
+					Debug::addToDebug(
+						'deleting instance for ' . $temp,
+						$_POST
+					);
 				}
 			}
 		}
@@ -166,7 +161,6 @@ class ContentCore {
 		self::$fields['returnto'] = urldecode( self::$fields['returnto'] );
 
 		if ( self::$fields['parsePost'] !== false && is_array( self::$fields['parsePost'] ) ) {
-			$filesCore = new FilesCore();
 			foreach ( self::$fields['parsePost'] as $pp ) {
 				$pp = General::makeUnderscoreFromSpace( $pp );
 				if ( isset( $_POST[$pp] ) ) {
@@ -202,35 +196,28 @@ class ContentCore {
 	 * @return void
 	 */
 	private static function handleSaveToWikiDefaults(): void {
-		if ( Config::isDebug() ) {
-			$timer = new DebugTimer();
-		}
+		$timer = new DebugTimer();
 		self::$fields = Definitions::createAndEditFields();
 		if ( self::$fields['msgOnSuccess'] !== false ) {
 			self::$fields['msgOnSuccess'] = self::parseTitle( self::$fields['msgOnSuccess'], true );
 		}
-		if ( Config::isDebug() ) {
-			$debugTitle = '<b>::' . get_class() . '::</b> ';
-			Debug::addToDebug(
-				$debugTitle . 'createandeditfields',
-				self::$fields,
-				$timer->getDuration()
-			);
-		}
+		$debugTitle = '<b>::' . get_class() . '::</b> ';
+		Debug::addToDebug(
+			$debugTitle . 'createandeditfields',
+			self::$fields,
+			$timer->getDuration()
+		);
 
-		if ( Config::isDebug() ) {
-			$timer = new DebugTimer();
-		}
+		$timer = new DebugTimer();
 
 		// Check and set default self::$fields. Also check for instances input
 		self::checkFields();
-		if ( Config::isDebug() ) {
-			Debug::addToDebug(
-				$debugTitle . 'checkfields',
-				self::$fields,
-				$timer->getDuration()
-			);
-		}
+		Debug::addToDebug(
+			$debugTitle . 'checkfields',
+			self::$fields,
+			$timer->getDuration()
+		);
+
 	}
 
 	/**
@@ -238,20 +225,18 @@ class ContentCore {
 	 * @throws FlexFormException
 	 */
 	private static function handleSaveToWikiCreateUser(): void {
-		if ( Config::isDebug() ) {
-			$timer = new DebugTimer();
-			$debugTitle = '<b>::' . get_class() . '::</b> ';
-		}
+		$timer = new DebugTimer();
+		$debugTitle = '<b>::' . get_class() . '::</b> ';
+
 		$createUser = new CreateUser();
 		$user = $createUser->addUser();
 		$createUser->sendPassWordAndConfirmationLink( $user );
-		if ( Config::isDebug() ) {
-			Debug::addToDebug(
-				$debugTitle . 'Handling create user duration',
-				[],
-				$timer->getDuration()
-			);
-		}
+		Debug::addToDebug(
+			$debugTitle . 'Handling create user duration',
+			[],
+			$timer->getDuration()
+		);
+
 	}
 
 	/**
@@ -263,14 +248,11 @@ class ContentCore {
 	 * @throws Exception
 	 */
 	private static function handleSaveToWikiCreateSingle( DebugTimer $timer ): void {
-		if ( Config::isDebug() ) {
-			$debugTitle = '<b>::' . get_class() . '::</b> ';
-		}
-		if ( Config::isDebug() ) {
-			Debug::addToDebug(
-				$debugTitle . 'Writing single page', []
-			);
-		}
+		$debugTitle = '<b>::' . get_class() . '::</b> ';
+		Debug::addToDebug(
+			$debugTitle . 'Writing single page', []
+		);
+
 		if ( self::$fields['writepages'] !== false ) {
 			throw new FlexFormException(
 				wfMessage( 'flexform-mwcreate-mixed_creates' ), 0, null
@@ -279,25 +261,21 @@ class ContentCore {
 		$create = new Create();
 		try {
 			$result = $create->writePage();
-			if ( Config::isDebug() ) {
-				Debug::addToDebug(
-					$debugTitle . 'writepage result',
-					[],
-					$timer->getDuration()
-				);
-			}
+			Debug::addToDebug(
+				$debugTitle . 'writepage result',
+				[],
+				$timer->getDuration()
+			);
 		} catch ( FlexFormException $e ) {
 			throw new FlexFormException(
 				$e->getMessage(), 0, $e
 			);
 		}
-		if ( Config::isDebug() ) {
-			Debug::addToDebug(
-				$debugTitle . 'Result creating single page',
-				$result,
-				$timer->getDuration()
-			);
-		}
+		Debug::addToDebug(
+			$debugTitle . 'Result creating single page',
+			$result,
+			$timer->getDuration()
+		);
 		if ( self::$fields['slot'] === false ) {
 			$slot = "main";
 		} else {
@@ -323,11 +301,9 @@ class ContentCore {
 		}
 		self::checkFollowPage( $result['title'] );
 		if ( !self::$fields['mwedit'] && !self::$fields['writepages'] ) {
-			if ( Config::isDebug() ) {
-				Debug::addToDebug( $debugTitle . 'finished 1 wscreate value returnto is',
-					self::$fields['returnto'],
-					$timer->getDuration() );
-			}
+			Debug::addToDebug( $debugTitle . 'finished 1 wscreate value returnto is',
+				self::$fields['returnto'],
+				$timer->getDuration() );
 		}
 	}
 
@@ -340,9 +316,7 @@ class ContentCore {
 	 * @throws Exception
 	 */
 	private static function handleSaveToWikiCreateMultiple( DebugTimer $timer ): void {
-		if ( Config::isDebug() ) {
-			$debugTitle = '<b>::' . get_class() . '::</b> ';
-		}
+		$debugTitle = '<b>::' . get_class() . '::</b> ';
 		$create = new Create();
 		try {
 			$finalPages = $create->writePages();
@@ -400,12 +374,10 @@ class ContentCore {
 			}
 		}
 
-		if ( Config::isDebug() ) {
-			if ( !self::$fields['mwedit'] ) {
-				Debug::addToDebug( $debugTitle . 'Handling WSCreate multiple duration',
-					[],
-					$timer->getDuration() );
-			}
+		if ( !self::$fields['mwedit'] ) {
+			Debug::addToDebug( $debugTitle . 'Handling WSCreate multiple duration',
+				[],
+				$timer->getDuration() );
 		}
 	}
 
@@ -421,10 +393,7 @@ class ContentCore {
 	public static function saveToWiki( HandleResponse $response_handler, string|bool $email = false ): HandleResponse {
 		if ( self::$isJob === false ) {
 			self::handleSaveToWikiDefaults();
-
-			if ( Config::isDebug() ) {
-				$debugTitle = '<b>::' . get_class() . '::</b> ';
-			}
+			$debugTitle = '<b>::' . get_class() . '::</b> ';
 
 			// mwcreateuser
 			if ( self::$fields['createuser'] !== false && self::$fields['createuser'] !== '' ) {
@@ -462,10 +431,9 @@ class ContentCore {
 
 		// WSEdits
 		if ( self::$isJob || self::$fields['mwedit'] !== false ) {
-			if ( Config::isDebug() ) {
-				$timer = new DebugTimer();
-				$debugTitle = '<b>::' . get_class() . '::</b> ';
-			}
+			$timer = new DebugTimer();
+			$debugTitle = '<b>::' . get_class() . '::</b> ';
+
 			$save = new Save();
 			if ( isset( self::$fields['ffJob'] ) ) {
 				$edit = new Edit( self::$fields['ffJob'], [ 'summary' => self::$fields['summary'] ] );
@@ -481,13 +449,11 @@ class ContentCore {
 			if ( self::$isJob ) {
 				FlexFormJobLogger::logInfo( 'JOB: ContentCore.php: Edits done. Received contents.', self::$jobData );
 			}
-			if ( Config::isDebug() ) {
-				Debug::addToDebug(
-					$debugTitle . 'PageContent ',
-					$pageContents,
-					$timer->getDuration()
-				);
-			}
+			Debug::addToDebug(
+				$debugTitle . 'PageContent ',
+				$pageContents,
+				$timer->getDuration()
+			);
 			if ( !empty( $pageContents ) ) {
 				foreach ( $pageContents as $pageContent ) {
 					$slotContentArray = [];
@@ -515,26 +481,23 @@ class ContentCore {
 					}
 				}
 			} elseif ( self::$fields['ffJob'] === 'jobCreate' ) {
-				if ( Config::isDebug() ) {
-					Debug::addToDebug(
-						$debugTitle . 'This is a createJob. No further actions',
-						[],
-						$timer->getDuration()
-					);
-				}
+				Debug::addToDebug(
+					$debugTitle . 'This is a createJob. No further actions',
+					[],
+					$timer->getDuration()
+				);
 			}
 		}
 		if ( self::$isJob ) {
 			return $response_handler;
 		}
 		$response_handler->setMwReturn( self::$fields['returnto'] );
-		if ( Config::isDebug() ) {
-			Debug::addToDebug(
-				'Handling Edits duration',
-				[],
-				$timer->getDuration()
-			);
-		}
+		Debug::addToDebug(
+			'Handling Edits duration',
+			[],
+			$timer->getDuration()
+		);
+
 
 		if ( $email === "yes" ) {
 			$mail = new Mail();
@@ -578,22 +541,13 @@ class ContentCore {
 		);
 		if ( self::$fields['mwfollow'] !== false ) {
 			if ( self::$fields['mwfollow'] === 'true' ) {
-				if ( strpos(
-						 $title,
-						 '--id--'
-					 ) === false && strpos(
-										$title,
-										'::id::'
-									) === false ) {
+				if ( !str_contains( $title, '--id--' ) && !str_contains( $title, '::id::' ) ) {
 					$title = ltrim( $title, '/' );
 					$titleObject = MediaWikiServices::getInstance()->getTitleFactory()->newFromText( $title );
 					self::$fields['returnto'] = $titleObject->getFullUrlForRedirect();
 				}
 			} else {
-				if ( strpos(
-					self::$fields['returnto'],
-					'?'
-				) ) {
+				if ( strpos( self::$fields['returnto'], '?' ) ) {
 					self::$fields['returnto'] = self::$fields['returnto'] . '&' . self::$fields['mwfollow'] . '=' . $title;
 				} else {
 					self::$fields['returnto'] = self::$fields['returnto'] . '?' . self::$fields['mwfollow'] . '=' . $title;
@@ -733,19 +687,16 @@ class ContentCore {
 	 * @return string
 	 */
 	public static function checkCapitalTitle( string $title ): string {
-		if ( Config::isDebug() ) {
-			Debug::addToDebug( 'checkCapitalTitle function',
-							   [ "title" => $title ] );
-		}
+		Debug::addToDebug( 'checkCapitalTitle function', [ "title" => $title ] );
+
 		$titleObject = Title::newFromText( $title );
 		if ( $titleObject === null ) {
 			return $title;
 		}
 		$ns = $titleObject->getNamespace();
-		if ( Config::isDebug() ) {
-			Debug::addToDebug( 'checkCapitalTitle function',
-							   [ "namespace" => $ns ] );
-		}
+
+		Debug::addToDebug( 'checkCapitalTitle function', [ "namespace" => $ns ] );
+
 		$config = MediaWikiServices::getInstance()->getMainConfig();
 		if ( $config->has( 'CapitalLinks' ) ) {
 			$capLinks = $config->get( 'CapitalLinks' );
@@ -827,9 +778,7 @@ class ContentCore {
 				);
 			}
 		}
-		if ( Config::isDebug() ) {
-			Debug::addToDebug( 'Parsetitle result' . $t, $title );
-		}
+		Debug::addToDebug( 'Parsetitle result' . $t, $title );
 		return $title;
 	}
 
@@ -840,7 +789,7 @@ class ContentCore {
 	 * @return string
 	 */
 	public static function setFileTemplate( string $template, string $content ): string {
-		if ( strpos( $content, '[flexform-template]' ) !== false ) {
+		if ( str_contains( $content, '[flexform-template]' ) ) {
 			$arrayS = [ '[flexform-template]', '[/flexform-template]', '|' ];
 			$arrayR = [ '{{' . $template, "\n}}\n", "\n" . '|' ];
 			$content = str_replace( $arrayS, $arrayR, $content );
@@ -912,12 +861,10 @@ class ContentCore {
 			"titleStartsWith" => $nameStartsWith
 		];
 		$result   = $render->makeRequest( $postdata );
-		if ( Config::isDebug() ) {
-			Debug::addToDebug(
+		Debug::addToDebug(
 				'NextAvailable result ',
 				$result
 			);
-		}
 		if ( isset( $result['flexform']['error'] ) ) {
 			return ( [
 				'status'  => 'error',
@@ -955,12 +902,9 @@ class ContentCore {
 		];
 		$render   = new Render();
 		$result   = $render->makeRequest( $postdata );
-		if ( Config::isDebug() ) {
-			Debug::addToDebug(
-				'getFromRange result ',
-				$result
-			);
-		}
+
+		Debug::addToDebug( 'getFromRange result ', $result );
+
 
 		if ( isset( $result['flexform']['error'] ) ) {
 			return ( [

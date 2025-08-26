@@ -15,7 +15,7 @@ class Debug {
 	/**
 	 * @var array
 	 */
-	private static $debugMessages = [];
+	private static array $debugMessages = [];
 
 	/**
 	 * @param string $title
@@ -24,21 +24,23 @@ class Debug {
 	 *
 	 * @return void
 	 */
-	public static function addToDebug( string $title, $details, $duration = false ) {
-		$title .= ' (' . microtime() . ')';
-		if ( $duration !== false ) {
-			$newTitle = '<span class="ff-debug-title">' . $title . '</span>';
-			$newTitle .= '<span class="ff-debug-duration">' . $duration . '</span>';
-			$title = $newTitle;
+	public static function addToDebug( string $title, mixed $details, mixed $duration = false ): void {
+		if ( Config::isDebug() ) {
+			$title .= ' (' . microtime() . ')';
+			if ( $duration !== false ) {
+				$newTitle = '<span class="ff-debug-title">' . $title . '</span>';
+				$newTitle .= '<span class="ff-debug-duration">' . $duration . '</span>';
+				$title = $newTitle;
+			}
+			self::$debugMessages[$title] = $details;
 		}
-		self::$debugMessages[$title] = $details;
 	}
 
 	/**
 	 * @return string
 	 */
 	private static function debugCSS(): string {
-		$ret = <<<ENDING
+		return <<<ENDING
 <style>
 .wsform-debug {
   padding: 1.5rem;
@@ -78,7 +80,6 @@ class Debug {
 </style>
 
 ENDING;
-		return $ret;
 	}
 
 	/**
