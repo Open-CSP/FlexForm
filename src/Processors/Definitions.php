@@ -109,7 +109,7 @@ class Definitions {
 	 *
 	 * @return array
 	 */
-	public static function createAndEditFields() : array {
+	public static function createAndEditFields(): array {
 		return [
 			'parsePost'       => General::getPostArray( 'wsparsepost' ),
 			'parseLast'       => General::getPostString( 'mwparselast' ),
@@ -132,16 +132,18 @@ class Definitions {
 			'format'          => General::getPostString( 'mwformat' ),
 			'formpermissions' => General::getPostString( 'mwformpermissions' ),
 			'separator'       => General::getPostString( 'ff_separator' ),
-			'skipSeo'		  => General::getPostString( 'mwnoseo' )
+			'skipSeo'		  => General::getPostString( 'mwnoseo' ),
+			'ffJob'			  => General::getPostString( 'mwjob' )
 		];
 	}
 
 	/**
 	 * @param string $field
+	 * @param bool $checkFileUploadVars
 	 *
 	 * @return bool
 	 */
-	public static function isFlexFormUploaderVariables( string $field, $checkFileUploadVars ) : bool {
+	public static function isFlexFormUploaderVariables( string $field, bool $checkFileUploadVars ): bool {
 		if ( $checkFileUploadVars === false ) {
 			return false;
 		}
@@ -165,7 +167,7 @@ class Definitions {
 	 * @param bool $checkFileUploadVars field to check
 	 * @return bool true or false
 	 */
-	public static function isFlexFormSystemField( string $field, bool $checkFileUploadVars = true ) : bool {
+	public static function isFlexFormSystemField( string $field, bool $checkFileUploadVars = true ): bool {
 		$FlexFormSystemFields = [
 			"mwaction",
 			"mwtemplate",
@@ -210,7 +212,8 @@ class Definitions {
 			"ff_upload_actions",
 			'ff_separator',
 			'mwformpermissions',
-			'ff-message'
+			'ff-message',
+			"mwjob"
 		];
 		if ( in_array(
 			strtolower( $field ),

@@ -86,6 +86,7 @@ Visit this documentation page https://www.open-csp.org/DevOps:Doc/FlexForm/2.0/V
 Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
+* 2.6.0 : Added form tag : add-as-job. This will put any EDIT functions into jobs. Updated select2.js. Fixed https://github.com/Open-CSP/FlexForm/issues/77
 * 2.5.0 : Maintenance script for syncing Wiki pages that have forms, for us with $config renderonlyapprovedforms and large wikis
 * 2.4.3 : Double definition of JavaScript constants removed. console message removed.
 * 2.4.2 : Better way of finding actual forms in a page

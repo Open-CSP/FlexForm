@@ -16,6 +16,7 @@
 	"flexform-mwcreate-page-exists" : "Page create failed. Page already exists : $1",
 	"flexform-mwcreate-mixed_creates" : "When using multiple creates, every _create must have non empty mwfields.",
 	"flexform-savetowiki-title-invalid" : "Could not create page $1. Invalid title.",
+	"flexform-contentcode-empty-edits" : "Could not edit pages. Please check your _edit instructions in the form used.",
 
 
 	"apihelp-flexform-summary" : "Range and next available queries",
@@ -167,7 +168,7 @@
 	"flexform-secure-not" : "not a secure form",
 	"flexform-secure-fields-incomplete" : "Secure fields not complete",
 	"flexform-rights-not" : "You do not have the rights to modify page containing a FlexForm.",
-	"flexform-user-rights-not" : "You do not have the rights to modify or create this page: $1",
+	"flexform-user-rights-not" : "(User: $2) You do not have the rights to modify or create this page: $1",
 	"flexform-unvalidated-form" : "FORM CANNOT BE RENDERED, NOT VALIDATED",
 
 	"flexform-unsupported-database" : "FlexForm does not support $1",

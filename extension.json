@@ -1,6 +1,6 @@
 {
   "name": "FlexForm",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "author": [
     "[https://www.wikibase-solutions.com/author/charlot Sen-Sai]",
     "[https://www.wikibase-solutions.com/author/marijn Marijn]"
@@ -133,6 +133,9 @@
       "styles": "slim/slim/slim.min.css",
       "position": "top"
     }
+  },
+  "JobClasses": {
+    "FlexFormEdit": "\\FlexForm\\Processors\\Content\\Jobs\\FlexFormEditJob"
   },
   "SpecialPages": {
     "FlexForm": "\\FlexForm\\Specials\\SpecialFlexForm"

@@ -10,6 +10,7 @@
 
 namespace FlexForm\Processors\Content;
 
+use Exception;
 use FlexForm\Core\Config;
 use FlexForm\Core\Core;
 use FlexForm\Core\Debug;
@@ -18,7 +19,6 @@ use FlexForm\Processors\Definitions;
 use FlexForm\Processors\Security\wsSecurity;
 use FlexForm\Processors\Utilities\General;
 use FlexForm\FlexFormException;
-use MWException;
 
 class Create {
 
@@ -32,7 +32,7 @@ class Create {
 	/**
 	 * @return array
 	 * @throws FlexFormException
-	 * @throws MWException
+	 * @throws Exception
 	 */
 	public function writePage(): array {
 		$fields = ContentCore::getFields();
@@ -43,7 +43,7 @@ class Create {
 								"_post" => $_POST ] );
 		}
 
-		$this->content = ContentCore::createContent( true );
+		$this->content = ContentCore::createContent();
 
 		if ( Config::isDebug() ) {
 			Debug::addToDebug( 'Write page activated CONTENT ',
@@ -284,9 +284,9 @@ class Create {
 	/**
 	 * @return array
 	 * @throws FlexFormException
-	 * @throws \MWException
+	 * @throws Exception
 	 */
-	public function writePages() : array {
+	public function writePages(): array {
 		$pageCount = 0;
 		$fields    = ContentCore::getFields();
 		$pageTitleToLinkTo = [];
