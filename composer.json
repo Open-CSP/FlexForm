@@ -16,8 +16,7 @@
     "phpmailer/phpmailer": "^6.8.0",
     "php": ">=8.1 < 9.0",
     "ext-json": "*",
-    "ext-exif": "*",
-    "composer/installers": "1.*,>=1.0.1"
+    "ext-exif": "*"
   },
   "require-dev": {
     "mediawiki/mediawiki-codesniffer": "43.0.0",
