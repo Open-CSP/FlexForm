@@ -88,7 +88,7 @@ function waitASec (method, both = false) {
 			//console.log( 'ok JQuery active.. lets go!' );
 			method()
 		} else {
-			if (window.mw) {
+			if (window.mw.notify) {
 				var scriptPath = mw.config.get('wgScript')
 				if (scriptPath !== null && scriptPath !== false) {
 					method()
