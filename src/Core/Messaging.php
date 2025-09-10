@@ -27,7 +27,10 @@ class Messaging {
 	 */
 	private User $user;
 
-	public static $messageTypes = [ 'danger', 'warning', 'success', 'info', 'html' ];
+	/**
+	 * @var array
+	 */
+	public static array $messageTypes = [ 'danger', 'warning', 'success', 'info', 'html' ];
 
 	public function __construct() {
 		$this->lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
@@ -54,9 +57,9 @@ class Messaging {
 			}
 			$message = $mail->parseWikiText( ContentCore::parseTitle( trim( $exploded[2] ), true ) );
 			$title = $mail->parseWikiText( ContentCore::parseTitle( trim( $exploded[3] ), true ) );
+			$title = str_replace( [ '<p>','</p>' ], '', $title );
 			if ( $type !== 'html' ) {
-				$message = str_replace( ['<p>','</p>'], '', $message );
-				$title = str_replace( ['<p>','</p>'], '', $title );
+				$message = str_replace( [ '<p>','</p>' ], '', $message );
 			}
 			$persistent = ContentCore::parseTitle( trim( $exploded[4] ), true );
 			if ( $persistent === 'message-confirm' ) {

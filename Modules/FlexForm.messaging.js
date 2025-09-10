@@ -87,7 +87,7 @@ function waitASec (method, both = false) {
 			method()
 		} else {
 			if (window.mw) {
-				if (mw.notify) {
+				if (window.mw.notify) {
 					method()
 				} else {
 					setTimeout(function () {
