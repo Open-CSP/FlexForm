@@ -27,10 +27,10 @@ class Messaging {
 	 */
 	private User $user;
 
+	/**
+	 * @var string[]
+	 */
 	public static $messageTypes = [ 'danger', 'warning', 'success', 'info', 'html' ];
-
-	public static $messagePersistance = [ 'yes', 'no' ];
-
 
 	public function __construct() {
 		$this->lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
