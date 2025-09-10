@@ -27,10 +27,10 @@ class Messaging {
 	 */
 	private User $user;
 
+	/**
+	 * @var string[]
+	 */
 	public static $messageTypes = [ 'danger', 'warning', 'success', 'info', 'html' ];
-
-	public static $messagePersistance = [ 'yes', 'no' ];
-
 
 	public function __construct() {
 		$this->lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
@@ -57,10 +57,8 @@ class Messaging {
 			}
 			$message = $mail->parseWikiText( ContentCore::parseTitle( trim( $exploded[2] ), true ) );
 			$title = $mail->parseWikiText( ContentCore::parseTitle( trim( $exploded[3] ), true ) );
+			$title = str_replace( [ '<p>', '</p>' ], '', $title );
 			$persistent = ContentCore::parseTitle( trim( $exploded[4] ), true );
-			if ( !in_array( strtolower( $persistent ), self::$messagePersistance ) ) {
-				continue;
-			}
 			if ( $persistent === 'message-confirm' ) {
 				$persistent = true;
 			} else {
@@ -138,7 +136,10 @@ class Messaging {
 					'initiator' => $this->user->getId() ],
 				__METHOD__ );
 		} catch ( \Exception $e ) {
-			echo $e;
+			if ( Config::isDebug() ) {
+				Debug::addToDebug( $debugTitle . 'Error adding message to database',
+					[ "error" => $e->getMessage() ] );
+			}
 
 			return false;
 		}
