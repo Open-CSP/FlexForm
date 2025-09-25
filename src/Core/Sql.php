@@ -266,7 +266,7 @@ class Sql {
 	 */
 	private static function addPageId( int $pageId, array $hashes, bool $valid = true ): bool {
 		$lb          = MediaWikiServices::getInstance()->getDBLoadBalancer();
-		$dbw         = $lb->getConnectionRef( DB_PRIMARY );
+		$dbw         = $lb->getConnection( DB_PRIMARY );
 		try {
 			foreach ( $hashes as $hash ) {
 				if ( empty( $hash ) ) {
@@ -319,11 +319,8 @@ class Sql {
 	}
 
 	/**
-	$lb          = MediaWikiServices::getInstance()->getDBLoadBalancer();
 	 * @param bool $returnNonApproved
-	$dbr         = $lb->getConnectionRef( DB_REPLICA );
 	 * @param bool $returnAll
-	$select      = [ 'page_id', "count" => 'COUNT(*)' ];
 	 *
 	 * @return array
 	 */
@@ -332,7 +329,7 @@ class Sql {
 		bool $returnAll = false
 	): array {
 		$lb     = MediaWikiServices::getInstance()->getDBLoadBalancer();
-		$dbr    = $lb->getConnectionRef( DB_REPLICA );
+		$dbr    = $lb->getConnection( DB_REPLICA );
 		$select = [ 'page_id', 'valid', "count" => 'COUNT(*)' ];
 		$where 	= [ 'valid' => 1 ];
 		if ( $returnNonApproved ) {
