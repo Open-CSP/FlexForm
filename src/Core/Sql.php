@@ -3,13 +3,14 @@
 namespace FlexForm\Core;
 
 use DatabaseUpdater;
+use Exception;
 use FlexForm\FlexFormException;
 use FlexForm\Processors\Content\Render;
-use Matrix\Exception;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Storage\EditResult;
 use MediaWiki\User\UserIdentity;
+use MWUnknownContentModelException;
 use WikiPage;
 
 /**
@@ -205,7 +206,7 @@ class Sql {
 				throw new FlexFormException( 'Can\'t save to Database [add]' );
 			}
 		} catch ( Exception $e ) {
-			var_dump( $e->getMessage());
+			var_dump( $e->getMessage() );
 			return false;
 		}
 
@@ -238,6 +239,7 @@ class Sql {
 	 *
 	 * @return bool
 	 * @throws FlexFormException
+	 * @throws MWUnknownContentModelException
 	 */
 	public static function addPageFromId( int $id, bool $valid ): bool {
 		$render = new Render();
