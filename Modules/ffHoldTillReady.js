@@ -24,7 +24,7 @@ function ffHoldTillReady( method, both = true ) {
 				}, 250 )
 			}
 		} else {
-			if ( window.mw ) {
+			if ( window.mw && window.mw.loader.using ) {
 				if ( isFFInitiated() ) {
 					method();
 				} else {
