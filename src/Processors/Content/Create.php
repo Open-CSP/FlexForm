@@ -54,6 +54,8 @@ class Create {
 			$fields['writepage'] = ContentCore::parseTitle( $fields['writepage'], $fields['skipSeo'] );
 		}
 
+		$fields['writepage'] = ContentCore::letMWCheckTitle( $fields['writepage'] );
+
 		$this->title = $fields['writepage'];
 
 		// Checking for range option
@@ -199,6 +201,7 @@ class Create {
 	 * @param string $page
 	 *
 	 * @return void
+	 * @throws FlexFormException
 	 */
 	private function setPageDataMultiple( string $page ) {
 		$this->pageData = [];
@@ -219,7 +222,7 @@ class Create {
 		}
 
 		if ( isset( $exploded[1] ) && $exploded[1] !== '' ) {
-			$this->pageData['title'] = trim( $exploded[1] );
+			$this->pageData['title'] = ContentCore::letMWCheckTitle( trim( $exploded[1] ) );
 		} else {
 			$this->pageData['title'] = false;
 		}
