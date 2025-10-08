@@ -29,7 +29,7 @@ class Debug {
 			$title .= ' (' . microtime() . ')';
 			if ( $duration !== false ) {
 				$newTitle = '<span class="ff-debug-title">' . $title . '</span>';
-				$newTitle .= '<span class="ff-debug-duration">' . $duration . '</span>';
+				$newTitle .= '<span class="ff-debug-duration">' . $duration / 1000 . '</span>';
 				$title = $newTitle;
 			}
 			self::$debugMessages[$title] = $details;
