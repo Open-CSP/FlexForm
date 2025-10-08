@@ -3,13 +3,14 @@
 namespace FlexForm\Core;
 
 use DatabaseUpdater;
+use Exception;
 use FlexForm\FlexFormException;
 use FlexForm\Processors\Content\Render;
-use Matrix\Exception;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Storage\EditResult;
 use MediaWiki\User\UserIdentity;
+use MWUnknownContentModelException;
 use WikiPage;
 
 /**
@@ -205,7 +206,7 @@ class Sql {
 				throw new FlexFormException( 'Can\'t save to Database [add]' );
 			}
 		} catch ( Exception $e ) {
-			var_dump( $e->getMessage());
+			var_dump( $e->getMessage() );
 			return false;
 		}
 
@@ -238,6 +239,7 @@ class Sql {
 	 *
 	 * @return bool
 	 * @throws FlexFormException
+	 * @throws MWUnknownContentModelException
 	 */
 	public static function addPageFromId( int $id, bool $valid ): bool {
 		$render = new Render();
@@ -266,7 +268,7 @@ class Sql {
 	 */
 	private static function addPageId( int $pageId, array $hashes, bool $valid = true ): bool {
 		$lb          = MediaWikiServices::getInstance()->getDBLoadBalancer();
-		$dbw         = $lb->getConnectionRef( DB_PRIMARY );
+		$dbw         = $lb->getConnection( DB_PRIMARY );
 		try {
 			foreach ( $hashes as $hash ) {
 				if ( empty( $hash ) ) {
@@ -319,11 +321,8 @@ class Sql {
 	}
 
 	/**
-	$lb          = MediaWikiServices::getInstance()->getDBLoadBalancer();
 	 * @param bool $returnNonApproved
-	$dbr         = $lb->getConnectionRef( DB_REPLICA );
 	 * @param bool $returnAll
-	$select      = [ 'page_id', "count" => 'COUNT(*)' ];
 	 *
 	 * @return array
 	 */
@@ -332,7 +331,7 @@ class Sql {
 		bool $returnAll = false
 	): array {
 		$lb     = MediaWikiServices::getInstance()->getDBLoadBalancer();
-		$dbr    = $lb->getConnectionRef( DB_REPLICA );
+		$dbr    = $lb->getConnection( DB_REPLICA );
 		$select = [ 'page_id', 'valid', "count" => 'COUNT(*)' ];
 		$where 	= [ 'valid' => 1 ];
 		if ( $returnNonApproved ) {
