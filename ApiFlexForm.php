@@ -106,7 +106,7 @@ class ApiFlexForm extends ApiBase {
 				}
 
 				break;
-			case "nextAvailable" :
+			case "nextAvailable":
 				$title  = $params['titleStartsWith'];
 				$result = $this->getNextAvailable( $title );
 				if ( $result['status'] === "error" ) {
@@ -116,7 +116,7 @@ class ApiFlexForm extends ApiBase {
 				}
 				$output = $result['data'];
 				break;
-			case "getRange" :
+			case "getRange":
 				$title = $params['titleStartsWith'];
 				$range = $params['range'];
 				if ( !$range || $range === null ) {

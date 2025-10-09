@@ -53,9 +53,7 @@ class Create {
 		if ( str_contains( $fields['writepage'], '[' ) ) {
 			$fields['writepage'] = ContentCore::parseTitle( $fields['writepage'], $fields['skipSeo'] );
 		}
-		if ( Config::getConfigVariable( 'create-seo-titles' ) === true && $fields['skipSeo'] === false ) {
-			$fields['writepage'] = ContentCore::urlToSEO( $fields['writepage'] );
-		}
+
 		$fields['writepage'] = ContentCore::letMWCheckTitle( $fields['writepage'] );
 
 		$this->title = $fields['writepage'];
@@ -361,9 +359,6 @@ class Create {
 				);
 			}
 
-			if ( Config::getConfigVariable( 'create-seo-titles' ) === true && $this->pageData['noseo'] === false ) {
-				$this->pageData['title'] = ContentCore::urlToSEO( $this->pageData['title'] );
-			}
 			$this->pageData['title'] = ContentCore::letMWCheckTitle( $this->pageData['title'] );
 
 			if ( $this->pageData['title'] === false ) {
