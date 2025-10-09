@@ -127,6 +127,15 @@ class PlainCreateRenderer implements CreateRenderer {
 				'true'
 			) : '';
 
+			if ( $leadingZero === "true" ) {
+				$leadingZero = Core::createHiddenField(
+					'mwleadingzero',
+					'true'
+				);
+			} else {
+				$leadingZero = '';
+			}
+
 			$noOverWrite = $noOverWrite ? Core::createHiddenField(
 				'mwnooverwrite',
 				'true'
