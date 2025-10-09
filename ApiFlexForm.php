@@ -121,6 +121,7 @@ class ApiFlexForm extends ApiBase {
 				$range = $params['range'];
 				if ( !$range || $range === null ) {
 					$this->returnFailure( wfMessage( 'flexform-api-error-parameter-range-missing' )->text() );
+					$output = '';
 					break;
 				}
 				$range = explode(
@@ -146,6 +147,7 @@ class ApiFlexForm extends ApiBase {
 				);
 				if ( isset( $result['status'] ) && $result['status'] === "error" ) {
 					$this->returnFailure( $result['data'] );
+					$output = '';
 					break;
 				}
 				if ( isset( $result['data'] ) ) {
