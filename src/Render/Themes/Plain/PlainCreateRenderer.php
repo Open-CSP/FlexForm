@@ -122,11 +122,6 @@ class PlainCreateRenderer implements CreateRenderer {
 				$skipSEOField = '';
 			}
 
-			$leadingZero = $leadingZero ? Core::createHiddenField(
-				'mwleadingzero',
-				'true'
-			) : '';
-
 			if ( $leadingZero === "true" ) {
 				$leadingZero = Core::createHiddenField(
 					'mwleadingzero',
