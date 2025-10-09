@@ -5,7 +5,6 @@ namespace FlexForm\Core;
 use DatabaseUpdater;
 use FlexForm\FlexFormException;
 use FlexForm\Processors\Content\Render;
-use Matrix\Exception;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Storage\EditResult;
