@@ -111,6 +111,7 @@ class ApiFlexForm extends ApiBase {
 				$result = $this->getNextAvailable( $title );
 				if ( $result['status'] === "error" ) {
 					$this->returnFailure( $result['data'] );
+					$output = '';
 					break;
 				}
 				$output = $result['data'];
