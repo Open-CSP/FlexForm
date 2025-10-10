@@ -14,13 +14,11 @@ use FlexForm\Core\Config;
 use FlexForm\Core\Core;
 use FlexForm\Core\Debug;
 use FlexForm\Core\DebugTimer;
+use FlexForm\FlexFormException;
 use FlexForm\Processors\Definitions;
 use FlexForm\Processors\Security\wsSecurity;
 use FlexForm\Processors\Utilities\General;
-use FlexForm\FlexFormException;
-use MediaWiki\MediaWikiServices;
 use MWException;
-use Title;
 
 class Create {
 
