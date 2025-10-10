@@ -188,20 +188,10 @@ class Create {
 		$this->pageData['formFields'] = false;
 	}
 
-	public function getFormFieldAliases( $fields ){
-		$alias = [];
-		foreach ( $fields as $k => $field ) {
-			if ( strpos( $field, '::' ) !== false ) {
-				// We have Aliases
-				$exploded = explode( '::', $field );
-				$originalName = $exploded[0];
-				$templateName = $exploded[1];
-				$alias['aliasFields'][$originalName] = $templateName;
-			}
-		}
-	}
-
-	private function setFormFieldAliases() {
+	/**
+	 * @return void
+	 */
+	private function setFormFieldAliases(): void {
 		$this->pageData['aliasFields'] = [];
 		foreach ( $this->pageData['formFields'] as $k => $field ) {
 			if ( strpos( $field, '::' ) !== false ) {
