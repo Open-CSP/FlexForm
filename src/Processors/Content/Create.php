@@ -18,7 +18,9 @@ use FlexForm\Processors\Definitions;
 use FlexForm\Processors\Security\wsSecurity;
 use FlexForm\Processors\Utilities\General;
 use FlexForm\FlexFormException;
+use MediaWiki\MediaWikiServices;
 use MWException;
+use Title;
 
 class Create {
 
@@ -27,7 +29,6 @@ class Create {
 	private $title;
 	private $pagesToSave;
 	private $pageData;
-
 
 	/**
 	 * @return array
@@ -96,14 +97,25 @@ class Create {
 					);
 				}
 			}
+			if ( ContentCore::doesPageExistsByName( $fields['writepage'] . $rangeResult ) ) {
+				throw new FlexFormException( wfMessage(
+					'flexform-mwcreate-page-exists',
+					$fields['writepage'] . $rangeResult )->text()
+				);
+			}
 			$this->title = $fields['writepage'] . $rangeResult;
 		}
-
 
 		if ( strtolower( $fields['option'] ) == 'next_available' ) {
 			// get highest number
 			$hnr = ContentCore::getNextAvailable( $this->title );
 			if ( $hnr['status'] !== 'error' ) {
+				if ( ContentCore::doesPageExistsByName( $hnr['result'] ) ) {
+					throw new FlexFormException( wfMessage(
+						'flexform-mwcreate-page-exists',
+						$hnr['result'] )->text()
+					);
+				}
 				$this->title = $fields['writepage'] . $hnr['result'];
 			} else {
 				throw new FlexFormException( $hnr['message'] );
@@ -118,11 +130,17 @@ class Create {
 		}
 
 		if ( $fields['option'] == 'add_random' && $fields['writepage'] !== false ) {
-
-			$this->title = $fields['writepage'] . ContentCore::createRandom();
+			$newTitle = $fields['writepage'] . ContentCore::createRandom();
+			if ( ContentCore::doesPageExistsByName( $newTitle ) ) {
+				throw new FlexFormException( wfMessage(
+					'flexform-mwcreate-page-exists',
+					$newTitle )->text()
+				);
+			}
+			$this->title = $newTitle;
 			if ( Config::isDebug() ) {
 				Debug::addToDebug( 'Add random to title ',
-					['title' => $fields['writepage'],
+					[ 'title' => $fields['writepage'],
 					 'new Title' => $this->title ] );
 			}
 		}
@@ -414,6 +432,12 @@ class Create {
 
 				}
 				$lastTitle = $this->pageData['title'];
+				if ( ContentCore::doesPageExistsByName( $this->pageData['title'] . $rangeResult ) ) {
+					throw new FlexFormException( wfMessage(
+						'flexform-mwcreate-page-exists',
+						$this->pageData['title'] . $rangeResult )->text()
+					);
+				}
 				$this->pageData['title'] = $this->pageData['title'] . $rangeResult;
 			}
 
@@ -440,6 +464,12 @@ class Create {
 					);
 				}
 				if ( $hnr['status'] !== 'error' ) {
+					if ( ContentCore::doesPageExistsByName( $this->pageData['title'] . $hnr['result'] ) ) {
+						throw new FlexFormException( wfMessage(
+							'flexform-mwcreate-page-exists',
+							$this->pageData['title'] . $hnr['result'] )->text()
+						);
+					}
 					$this->pageData['title'] = $this->pageData['title'] . $hnr['result'];
 				} else {
 					throw new FlexFormException( $hnr['message'] );
@@ -448,10 +478,17 @@ class Create {
 			}
 
 			if ( strtolower( $this->pageData['option'] ) === 'add_random' && $this->pageData['title'] !== false ) {
-				$this->pageData['title'] = $this->pageData['title'] . ContentCore::createRandom();
+				$newRTitle = $this->pageData['title'] . ContentCore::createRandom();
+				if ( ContentCore::doesPageExistsByName( $newRTitle ) ) {
+					throw new FlexFormException( wfMessage(
+						'flexform-mwcreate-page-exists',
+						$newRTitle )->text()
+					);
+				}
+				$this->pageData['title'] = $newRTitle;
 				if ( Config::isDebug() ) {
 					Debug::addToDebug( $debugTitle . 'Add random to title ',
-						['title' => $this->pageData['title'],
+						[ 'title' => $this->pageData['title'],
 						 'new Title' => $this->pageData['title'] ], $timer->getDuration() );
 				}
 			}
@@ -519,10 +556,9 @@ class Create {
 	 *
 	 * @return array
 	 */
-	private function createFinalPages( array $pagesToSave ) : array {
+	private function createFinalPages( array $pagesToSave ): array {
 		$finalPages = [];
 		foreach ( $pagesToSave as $k => $pageToSave ) {
-			// print_r( $pageToSave );
 			$title                = $pageToSave[0]; // $ret, $summary, $writePageSlot
 			$summary              = $pageToSave[2];
 			$slot                 = [ $pageToSave[3] => $pageToSave[1] ];
@@ -539,11 +575,11 @@ class Create {
 
 	/**
 	 * @param array $pagesToSave
-	 * @param array $pageTitleToLinkTo
+	 * @param array &$pageTitleToLinkTo
 	 *
 	 * @return array
 	 */
-	private function addCreateToTitle( array $pagesToSave, array &$pageTitleToLinkTo ) : array {
+	private function addCreateToTitle( array $pagesToSave, array &$pageTitleToLinkTo ): array {
 		foreach ( $pagesToSave as $k => $pageToSave ) {
 			// var_dump(substr( trim( $pageToSave[0] ), 0, 6 ) );
 			if ( substr(
