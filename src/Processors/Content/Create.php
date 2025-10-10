@@ -22,10 +22,24 @@ use MWException;
 
 class Create {
 
-	private $content;
-	private $JSONContent;
+	/**
+	 * @var string
+	 */
+	private string $content;
+
+	/**
+	 * @var array
+	 */
+	private array $JSONContent;
+
+	/**
+	 * @var bool|string
+	 */
 	private $title;
-	private $pagesToSave;
+
+	/**
+	 * @var bool|array
+	 */
 	private $pageData;
 
 	/**
@@ -168,24 +182,6 @@ class Create {
 			'title'   => $this->title,
 			'content' => $this->content
 		];
-	}
-
-	/**
-	 * @param array $fields
-	 *
-	 * @return void
-	 */
-	private function setPageData( array $fields ) {
-		$this->pageData['template'] = $fields['template'];
-		if ( strtolower( $this->pageData['template'] ) === 'wsnone' ) {
-			$this->pageData['notemplate'] = true;
-		} else {
-			$this->pageData['notemplate'] = false;
-		}
-		$this->pageData['title']      = $fields['writepage'];
-		$this->pageData['option']     = $fields['writepage'];
-		$this->pageData['slot']       = $fields['slot'];
-		$this->pageData['formFields'] = false;
 	}
 
 	/**
