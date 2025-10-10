@@ -95,26 +95,28 @@ class Create {
 					);
 				}
 			}
-			if ( ContentCore::doesPageExistsByName( $fields['writepage'] . $rangeResult ) ) {
+			$newRangeTitle = $fields['writepage'] . $rangeResult;
+			if ( ContentCore::doesPageExistsByName( $newRangeTitle ) ) {
 				throw new FlexFormException( wfMessage(
 					'flexform-mwcreate-page-exists',
-					$fields['writepage'] . $rangeResult )->text()
+					$newRangeTitle )->text()
 				);
 			}
-			$this->title = $fields['writepage'] . $rangeResult;
+			$this->title = $newRangeTitle;
 		}
 
 		if ( strtolower( $fields['option'] ) == 'next_available' ) {
 			// get highest number
 			$hnr = ContentCore::getNextAvailable( $this->title );
 			if ( $hnr['status'] !== 'error' ) {
-				if ( ContentCore::doesPageExistsByName( $hnr['result'] ) ) {
+				$newNextAvailableTitle = $fields['writepage'] . $hnr['result'];
+				if ( ContentCore::doesPageExistsByName( $newNextAvailableTitle ) ) {
 					throw new FlexFormException( wfMessage(
 						'flexform-mwcreate-page-exists',
-						$hnr['result'] )->text()
+						$newNextAvailableTitle )->text()
 					);
 				}
-				$this->title = $fields['writepage'] . $hnr['result'];
+				$this->title = $newNextAvailableTitle;
 			} else {
 				throw new FlexFormException( $hnr['message'] );
 				// return wbHandleResponses::createMsg( $hnr['message'], 'error', $returnto);
@@ -128,14 +130,14 @@ class Create {
 		}
 
 		if ( $fields['option'] == 'add_random' && $fields['writepage'] !== false ) {
-			$newTitle = $fields['writepage'] . ContentCore::createRandom();
-			if ( ContentCore::doesPageExistsByName( $newTitle ) ) {
+			$newRandomTitle = $fields['writepage'] . ContentCore::createRandom();
+			if ( ContentCore::doesPageExistsByName( $newRandomTitle ) ) {
 				throw new FlexFormException( wfMessage(
 					'flexform-mwcreate-page-exists',
-					$newTitle )->text()
+					$newRandomTitle )->text()
 				);
 			}
-			$this->title = $newTitle;
+			$this->title = $newRandomTitle;
 			if ( Config::isDebug() ) {
 				Debug::addToDebug( 'Add random to title ',
 					[ 'title' => $fields['writepage'],
@@ -430,13 +432,14 @@ class Create {
 
 				}
 				$lastTitle = $this->pageData['title'];
-				if ( ContentCore::doesPageExistsByName( $this->pageData['title'] . $rangeResult ) ) {
+				$newRangeTitle = $this->pageData['title'] . $rangeResult;
+				if ( ContentCore::doesPageExistsByName( $newRangeTitle ) ) {
 					throw new FlexFormException( wfMessage(
 						'flexform-mwcreate-page-exists',
-						$this->pageData['title'] . $rangeResult )->text()
+						$newRangeTitle )->text()
 					);
 				}
-				$this->pageData['title'] = $this->pageData['title'] . $rangeResult;
+				$this->pageData['title'] = $newRangeTitle;
 			}
 
 			if ( $this->pageData['option'] == 'next_available' ) {
@@ -462,13 +465,14 @@ class Create {
 					);
 				}
 				if ( $hnr['status'] !== 'error' ) {
-					if ( ContentCore::doesPageExistsByName( $this->pageData['title'] . $hnr['result'] ) ) {
+					$newNextTitle = $this->pageData['title'] . $hnr['result'];
+					if ( ContentCore::doesPageExistsByName( $newNextTitle ) ) {
 						throw new FlexFormException( wfMessage(
 							'flexform-mwcreate-page-exists',
-							$this->pageData['title'] . $hnr['result'] )->text()
+							$newNextTitle )->text()
 						);
 					}
-					$this->pageData['title'] = $this->pageData['title'] . $hnr['result'];
+					$this->pageData['title'] = $newNextTitle;
 				} else {
 					throw new FlexFormException( $hnr['message'] );
 					// return wbHandleResponses::createMsg( $hnr['message'], 'error', $returnto);
