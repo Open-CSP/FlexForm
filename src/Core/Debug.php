@@ -73,7 +73,7 @@ class Debug {
 }
 
 .ff-debug-duration:after {
-     content: " millisecs";
+     content: " seconds";
 }
 
 
