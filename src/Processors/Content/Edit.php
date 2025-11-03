@@ -973,6 +973,10 @@ class Edit {
 		$pageContents = [];
 		$render       = new Render();
 
+		if ( Config::isDebug() ) {
+			$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
+		}
+
 		// Loop through all edits
 		foreach ( $data as $pid => $edits ) {
 			foreach ( $edits as $edit ) {

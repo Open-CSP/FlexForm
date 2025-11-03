@@ -15,6 +15,7 @@ use DeferredUpdates;
 use FlexForm\FlexFormException;
 use FlexForm\Processors\Content\ContentCore;
 use MediaWiki\MediaWikiServices;
+use OutputPage;
 use RequestContext;
 use Wikimedia\Rdbms\DBError;
 use Wikimedia\Rdbms\DBUnexpectedError;
@@ -127,42 +128,17 @@ class HandleResponse {
 	/**
 	 * @return bool
 	 */
-	public function isAjax() : bool {
+	public function isAjax(): bool {
 		return $this->apiAjax;
 	}
 
 	/**
-	 * Function called to create the final return parameters in a consistent way.
+	 * @param OutputPage $out
 	 *
-	 * @param bool|string $type type of visual notice to show (error, warning, success, etc)
-	 *
-	 * @return array
-	 */
-	public function createMsg( $type = false ) : array {
-		die();
-		$tmp             = array();
-		$tmp['status']   = $this->getReturnStatus();
-		$tmp['type']     = $type;
-		$tmp['mwreturn'] = $this->getMwReturn();
-		if ( is_array( $this->getReturnData() ) ) {
-			$combined   = implode(
-				'<BR>',
-				$this->getReturnData()
-			);
-			$tmp['msg'] = $combined;
-		} else {
-			$tmp['msg'] = $this->getReturnData();
-		}
-
-		return $tmp;
-	}
-
-	/**
-	 * Default final response handler
-	 *
+	 * @return void
 	 * @throws FlexFormException
 	 */
-	public function exitResponse() {
+	public function exitResponse( OutputPage $out ) {
 		$status      = $this->getReturnStatus();
 		$type        = $this->getReturnType();
 		$mwReturn    = $this->getMwReturn();
@@ -198,17 +174,16 @@ class HandleResponse {
 				"exitResponse messagedata after implode ",
 				$message
 			);
-			echo Debug::createDebugOutput();
-			die( '!testing.. No cookies set!' );
+			$out->addHTML( Debug::createDebugOutput() );
+			return;
 		}
 		if ( $status === 'ok' && $this->apiAjax === false ) {
 			$this->setCookieMessage(
 				$message,
 				$type,
 				$messageData
-			); // set cookies
+			);
 		}
-
 
 		$database = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 
@@ -259,7 +234,7 @@ class HandleResponse {
 					$e
 				);
 			}
-		} elseif( $status === 'ok' && $mwReturn === false ) {
+		} elseif ( $status === 'ok' && $mwReturn === false ) {
 			// Status not ok.. and no redirect
 			$logger->error( $message );
 			$this->outputMsg( $message ); // show error on screen or do json output
@@ -327,8 +302,11 @@ class HandleResponse {
 	}
 
 	/**
-	 * @param $status string : status keyword
-	 * @param $data mixed : holds the date
+	 * @param string $status
+	 * @param $data
+	 * @param $follow
+	 *
+	 * @return void
 	 */
 	public function outputJson( string $status, $data, $follow = false ) {
 		$ret            = [];

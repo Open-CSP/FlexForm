@@ -3,9 +3,9 @@
 namespace FlexForm\Core;
 
 use DatabaseUpdater;
+use Exception;
 use FlexForm\FlexFormException;
 use FlexForm\Processors\Content\Render;
-use Matrix\Exception;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Storage\EditResult;
@@ -112,8 +112,9 @@ class Sql {
 
 	/**
 	 * @param string $content
+	 * @param mixed $specific
 	 *
-	 * @return mixed
+	 * @return array|mixed
 	 */
 	public static function getAllFormTags( string $content, $specific = false ) {
 		if ( !$specific ) {
@@ -181,7 +182,7 @@ class Sql {
 		int $flags,
 		RevisionRecord $revisionRecord,
 		EditResult $editResult
-	) : bool {
+	): bool {
 		$id = $article->getId();
 		try {
 			if ( Rights::isUserAllowedToEditorCreateForms() ) {
@@ -202,7 +203,7 @@ class Sql {
 				throw new FlexFormException( 'Can\'t save to Database [add]' );
 			}
 		} catch ( Exception $e ) {
-			var_dump( $e->getMessage());
+			var_dump( $e->getMessage() );
 			return false;
 		}
 		return true;
@@ -368,7 +369,7 @@ class Sql {
 	 *
 	 * @return bool
 	 */
-	public static function exists( int $pageId, string $hash, bool $valid = false ):bool {
+	public static function exists( int $pageId, string $hash, bool $valid = false ): bool {
 		$lb          = MediaWikiServices::getInstance()->getDBLoadBalancer();
 		$dbr         = $lb->getConnectionRef( DB_REPLICA );
 		$select      = [ 'page_id', "count" => 'COUNT(*)' ];

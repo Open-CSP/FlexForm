@@ -167,7 +167,7 @@ class SpecialFlexForm extends \SpecialPage {
 	 *  [[Special:HelloWorld/subpage]].
 	 */
 	public function execute( $sub ) {
-		global $IP, $wgExtensionCredits, $wgScript, $wgServer;
+		global $IP, $wgScript, $wgServer;
 		$thisUser = $this->getUser();
 		if ( $this->getPostString(
 				'mwtoken'

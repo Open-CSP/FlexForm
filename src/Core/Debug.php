@@ -20,18 +20,20 @@ class Debug {
 	/**
 	 * @param string $title
 	 * @param mixed $details
-	 * @param mixed $duration
+	 * @param float|bool $duration
 	 *
 	 * @return void
 	 */
 	public static function addToDebug( string $title, $details, $duration = false ) {
-		$title .= ' (' . microtime() . ')';
-		if ( $duration !== false ) {
-			$newTitle = '<span class="ff-debug-title">' . $title . '</span>';
-			$newTitle .= '<span class="ff-debug-duration">' . $duration . '</span>';
-			$title = $newTitle;
+		if ( Config::isDebug() ) {
+			$title .= ' (' . microtime() . ')';
+			if ( $duration !== false ) {
+				$newTitle = '<span class="ff-debug-title">' . $title . '</span>';
+				$newTitle .= '<span class="ff-debug-duration">' . $duration / 1000 . '</span>';
+				$title = $newTitle;
+			}
+			self::$debugMessages[$title] = $details;
 		}
-		self::$debugMessages[$title] = $details;
 	}
 
 	/**
@@ -71,7 +73,7 @@ class Debug {
 }
 
 .ff-debug-duration:after {
-     content: " millisecs";
+     content: " seconds";
 }
 
 

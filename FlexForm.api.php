@@ -81,7 +81,7 @@ if ( $getAction === 'handleExternalRequest' ) {
 		$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
 		$responseHandler->setIdentifier( 'ajax' );
 		try {
-			$responseHandler->exitResponse();
+			$responseHandler->exitResponse( $this->getOutput() );
 			return;
 		} catch ( FlexFormException $e ) {
 			die( $e->getMessage() );
@@ -130,7 +130,7 @@ if ( Config::isDebug() ) {
 if ( $responseHandler->getReturnType() === $responseHandler::TYPE_ERROR ) {
 	try {
 		$responseHandler->setMwReturn( false );
-		$responseHandler->exitResponse();
+		$responseHandler->exitResponse( $this->getOutput() );
 		return false;
 	} catch ( FlexFormException $e ) {
 		return $e->getMessage();
@@ -148,7 +148,7 @@ try {
 		$responseHandler->setMwReturn( $_SERVER['HTTP_REFERER'] );
 	}
 	try {
-		$responseHandler->exitResponse();
+		$responseHandler->exitResponse( $this->getOutput() );
 		return false;
 	} catch ( FlexFormException $e ) {
 		return $e->getMessage();
@@ -196,7 +196,7 @@ try {
 	$responseHandler->setReturnStatus( 'file upload error' );
 	$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
 	try {
-		$responseHandler->exitResponse();
+		$responseHandler->exitResponse( $this->getOutput() );
 		return false;
 	} catch ( FlexFormException $e ) {
 		die( $e->getMessage() );
@@ -258,7 +258,7 @@ switch ( $action ) {
 			$responseHandler->setReturnStatus( 'GET error' );
 			$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
 			try {
-				$responseHandler->exitResponse();
+				$responseHandler->exitResponse( $this->getOutput() );
 				return false;
 			} catch ( FlexFormException $e ) {
 				return $e->getMessage();
@@ -298,7 +298,7 @@ if ( General::getPostString( 'mwextension' ) !== false ) {
 		$responseHandler->setReturnStatus( 'Extension error' );
 		$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
 		try {
-			$responseHandler->exitResponse();
+			$responseHandler->exitResponse( $this->getOutput() );
 			return false;
 		} catch ( FlexFormException $e ) {
 			die( $e->getMessage() );
@@ -325,8 +325,10 @@ if ( Config::isDebug() ) {
 }
 
 try {
-	$responseHandler->exitResponse();
-	$this->getOutput()->redirect( html_entity_decode( $responseHandler->getMwReturn() ) );
+	$responseHandler->exitResponse( $this->getOutput() );
+	if ( !Config::isDebug() ) {
+		$this->getOutput()->redirect( html_entity_decode( $responseHandler->getMwReturn() ) );
+	}
 } catch ( FlexFormException $e ) {
 	echo $e->getMessage();
 }
