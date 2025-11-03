@@ -19,12 +19,12 @@ class Debug {
 
 	/**
 	 * @param string $title
-	 * @param $details
+	 * @param mixed $details
 	 * @param float|bool $duration
 	 *
 	 * @return void
 	 */
-	public static function addToDebug( string $title, $details, float|bool $duration = false ) {
+	public static function addToDebug( string $title, $details, $duration = false ) {
 		if ( Config::isDebug() ) {
 			$title .= ' (' . microtime() . ')';
 			if ( $duration !== false ) {
