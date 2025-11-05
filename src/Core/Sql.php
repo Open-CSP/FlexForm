@@ -185,7 +185,7 @@ class Sql {
 		int $flags,
 		RevisionRecord $revisionRecord,
 		EditResult $editResult
-	) : bool {
+	): bool {
 		$id = $article->getId();
 		try {
 			if ( Rights::isUserAllowedToEditorCreateForms() ) {
@@ -373,7 +373,7 @@ class Sql {
 	 *
 	 * @return bool
 	 */
-	public static function exists( int $pageId, string $hash, bool $valid = false ):bool {
+	public static function exists( int $pageId, string $hash, bool $valid = false ): bool {
 		$dbr = MediaWikiServices::getInstance()->getConnectionProvider()->getReplicaDatabase();
 		$select      = [ 'page_id', "count" => 'COUNT(*)' ];
 		$selectOptions    = [

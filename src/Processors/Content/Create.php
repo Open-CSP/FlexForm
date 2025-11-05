@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by  : Wikibase Solutions
+ * Created by  : Open CSP
  * Project     : FlexForm
  * Filename    : create.class.php
  * Description :
@@ -22,12 +22,25 @@ use FlexForm\FlexFormException;
 
 class Create {
 
-	private $content;
-	private $JSONContent;
-	private $title;
-	private $pagesToSave;
-	private $pageData;
+	/**
+	 * @var string
+	 */
+	private string $content;
 
+	/**
+	 * @var array
+	 */
+	private array $JSONContent;
+
+	/**
+	 * @var bool|string
+	 */
+	private $title;
+
+	/**
+	 * @var bool|array
+	 */
+	private $pageData;
 
 	/**
 	 * @return array
@@ -53,7 +66,7 @@ class Create {
 		if ( str_contains( $fields['writepage'], '[' ) ) {
 			$fields['writepage'] = ContentCore::parseTitle( $fields['writepage'], $fields['skipSeo'] );
 		}
-
+		$fields['writepage'] = ContentCore::letMWCheckTitle( $fields['writepage'] );
 		$this->title = $fields['writepage'];
 
 		// Checking for range option
@@ -94,15 +107,28 @@ class Create {
 					);
 				}
 			}
-			$this->title = $fields['writepage'] . $rangeResult;
+			$newRangeTitle = $fields['writepage'] . $rangeResult;
+			if ( ContentCore::doesPageExistsByName( $newRangeTitle ) ) {
+				throw new FlexFormException( wfMessage(
+					'flexform-mwcreate-page-exists',
+					$newRangeTitle )->text()
+				);
+			}
+			$this->title = $newRangeTitle;
 		}
-
 
 		if ( strtolower( $fields['option'] ) == 'next_available' ) {
 			// get highest number
 			$hnr = ContentCore::getNextAvailable( $this->title );
 			if ( $hnr['status'] !== 'error' ) {
-				$this->title = $fields['writepage'] . $hnr['result'];
+				$newNextAvailableTitle = $fields['writepage'] . $hnr['result'];
+				if ( ContentCore::doesPageExistsByName( $newNextAvailableTitle ) ) {
+					throw new FlexFormException( wfMessage(
+						'flexform-mwcreate-page-exists',
+						$newNextAvailableTitle )->text()
+					);
+				}
+				$this->title = $newNextAvailableTitle;
 			} else {
 				throw new FlexFormException( $hnr['message'] );
 				// return wbHandleResponses::createMsg( $hnr['message'], 'error', $returnto);
@@ -117,10 +143,18 @@ class Create {
 
 		if ( $fields['option'] == 'add_random' && $fields['writepage'] !== false ) {
 
-			$this->title = $fields['writepage'] . ContentCore::createRandom();
+			$newRandomTitle = $fields['writepage'] . ContentCore::createRandom();
+			if ( ContentCore::doesPageExistsByName( $newRandomTitle ) ) {
+				throw new FlexFormException( wfMessage(
+					'flexform-mwcreate-page-exists',
+					$newRandomTitle )->text()
+				);
+			}
+			$this->title = $newRandomTitle;
+
 			if ( Config::isDebug() ) {
 				Debug::addToDebug( 'Add random to title ',
-					['title' => $fields['writepage'],
+					[ 'title' => $fields['writepage' ],
 					 'new Title' => $this->title ] );
 			}
 		}
@@ -150,38 +184,7 @@ class Create {
 		];
 	}
 
-	/**
-	 * @param array $fields
-	 *
-	 * @return void
-	 */
-	private function setPageData( array $fields ) {
-		$this->pageData['template'] = $fields['template'];
-		if ( strtolower( $this->pageData['template'] ) === 'wsnone' ) {
-			$this->pageData['notemplate'] = true;
-		} else {
-			$this->pageData['notemplate'] = false;
-		}
-		$this->pageData['title']      = $fields['writepage'];
-		$this->pageData['option']     = $fields['writepage'];
-		$this->pageData['slot']       = $fields['slot'];
-		$this->pageData['formFields'] = false;
-	}
-
-	public function getFormFieldAliases( $fields ){
-		$alias = [];
-		foreach ( $fields as $k => $field ) {
-			if ( strpos( $field, '::' ) !== false ) {
-				// We have Aliases
-				$exploded = explode( '::', $field );
-				$originalName = $exploded[0];
-				$templateName = $exploded[1];
-				$alias['aliasFields'][$originalName] = $templateName;
-			}
-		}
-	}
-
-	private function setFormFieldAliases() {
+	private function setFormFieldAliases(): void {
 		$this->pageData['aliasFields'] = [];
 		foreach ( $this->pageData['formFields'] as $k => $field ) {
 			if ( strpos( $field, '::' ) !== false ) {
@@ -199,6 +202,7 @@ class Create {
 	 * @param string $page
 	 *
 	 * @return void
+	 * @throws FlexFormException
 	 */
 	private function setPageDataMultiple( string $page ) {
 		$this->pageData = [];
@@ -219,7 +223,7 @@ class Create {
 		}
 
 		if ( isset( $exploded[1] ) && $exploded[1] !== '' ) {
-			$this->pageData['title'] = trim( $exploded[1] );
+			$this->pageData['title'] = ContentCore::letMWCheckTitle( trim( $exploded[1] ) );
 		} else {
 			$this->pageData['title'] = false;
 		}
@@ -355,7 +359,7 @@ class Create {
 					$this->pageData['noseo']
 				);
 			}
-
+			$this->pageData['title'] = ContentCore::letMWCheckTitle( $this->pageData['title'] );
 			if ( $this->pageData['title'] === false ) {
 				throw new FlexFormException( wfMessage( 'flexform-mwcreate-wrong-title2' )->text() );
 			}
@@ -409,7 +413,14 @@ class Create {
 
 				}
 				$lastTitle = $this->pageData['title'];
-				$this->pageData['title'] = $this->pageData['title'] . $rangeResult;
+				$newRangeTitle = $this->pageData['title'] . $rangeResult;
+				if ( ContentCore::doesPageExistsByName( $newRangeTitle ) ) {
+					throw new FlexFormException( wfMessage(
+						'flexform-mwcreate-page-exists',
+						$newRangeTitle )->text()
+					);
+				}
+				$this->pageData['title'] = $newRangeTitle;
 			}
 
 			if ( $this->pageData['option'] == 'next_available' ) {
@@ -435,18 +446,31 @@ class Create {
 					);
 				}
 				if ( $hnr['status'] !== 'error' ) {
-					$this->pageData['title'] = $this->pageData['title'] . $hnr['result'];
+					$newNextTitle = $this->pageData['title'] . $hnr['result'];
+					if ( ContentCore::doesPageExistsByName( $newNextTitle ) ) {
+						throw new FlexFormException( wfMessage(
+							'flexform-mwcreate-page-exists',
+							$newNextTitle )->text()
+						);
+					}
+					$this->pageData['title'] = $newNextTitle;
 				} else {
 					throw new FlexFormException( $hnr['message'] );
-					// return wbHandleResponses::createMsg( $hnr['message'], 'error', $returnto);
 				}
 			}
 
 			if ( strtolower( $this->pageData['option'] ) === 'add_random' && $this->pageData['title'] !== false ) {
-				$this->pageData['title'] = $this->pageData['title'] . ContentCore::createRandom();
+				$newRTitle = $this->pageData['title'] . ContentCore::createRandom();
+				if ( ContentCore::doesPageExistsByName( $newRTitle ) ) {
+					throw new FlexFormException( wfMessage(
+						'flexform-mwcreate-page-exists',
+						$newRTitle )->text()
+					);
+				}
+				$this->pageData['title'] = $newRTitle;
 				if ( Config::isDebug() ) {
 					Debug::addToDebug( $debugTitle . 'Add random to title ',
-						['title' => $this->pageData['title'],
+						[ 'title' => $this->pageData['title' ],
 						 'new Title' => $this->pageData['title'] ], $timer->getDuration() );
 				}
 			}
@@ -514,7 +538,7 @@ class Create {
 	 *
 	 * @return array
 	 */
-	private function createFinalPages( array $pagesToSave ) : array {
+	private function createFinalPages( array $pagesToSave ): array {
 		$finalPages = [];
 		foreach ( $pagesToSave as $k => $pageToSave ) {
 			// print_r( $pageToSave );
@@ -534,11 +558,11 @@ class Create {
 
 	/**
 	 * @param array $pagesToSave
-	 * @param array $pageTitleToLinkTo
+	 * @param array &$pageTitleToLinkTo
 	 *
 	 * @return array
 	 */
-	private function addCreateToTitle( array $pagesToSave, array &$pageTitleToLinkTo ) : array {
+	private function addCreateToTitle( array $pagesToSave, array &$pageTitleToLinkTo ): array {
 		foreach ( $pagesToSave as $k => $pageToSave ) {
 			// var_dump(substr( trim( $pageToSave[0] ), 0, 6 ) );
 			if ( substr(

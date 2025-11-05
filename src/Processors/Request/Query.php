@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by  : Wikibase Solutions
+ * Created by  : Open CSP
  * Project     : FlexForm
  * Filename    : external.class.php
  * Description :

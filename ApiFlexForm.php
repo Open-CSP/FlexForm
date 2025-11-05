@@ -106,10 +106,11 @@ class ApiFlexForm extends ApiBase {
 				}
 
 				break;
-			case "nextAvailable" :
+			case "nextAvailable":
 				$title  = $params['titleStartsWith'];
 				$result = $this->getNextAvailable( $title );
 				if ( $result['status'] === "error" ) {
+					$output = '';
 					$this->returnFailure( $result['data'] );
 					break;
 				}
@@ -118,7 +119,8 @@ class ApiFlexForm extends ApiBase {
 			case "getRange" :
 				$title = $params['titleStartsWith'];
 				$range = $params['range'];
-				if ( !$range || $range === null ) {
+				if ( !$range ) {
+					$output = '';
 					$this->returnFailure( wfMessage( 'flexform-api-error-parameter-range-missing' )->text() );
 					break;
 				}
@@ -145,6 +147,7 @@ class ApiFlexForm extends ApiBase {
 				);
 				if ( isset( $result['status'] ) && $result['status'] === "error" ) {
 					$this->returnFailure( $result['data'] );
+					$output = '';
 					break;
 				}
 				if ( isset( $result['data'] ) ) {

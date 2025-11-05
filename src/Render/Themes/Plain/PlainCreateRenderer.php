@@ -21,7 +21,7 @@ class PlainCreateRenderer implements CreateRenderer {
 		bool $noOverWrite,
 		bool $skipSEO,
 		string $format
-	) : string {
+	): string {
 		$template = $template !== null ? htmlspecialchars( $template ) : '';
 		$createId = $createId !== null ? htmlspecialchars( $createId ) : '';
 		$write    = $write !== null ? htmlspecialchars( $write ) : '';
@@ -30,7 +30,7 @@ class PlainCreateRenderer implements CreateRenderer {
 		$fields   = $fields !== null ? htmlspecialchars( $fields ) : '';
 
 		if ( $leadingZero ) {
-			$leadingZero  = "true";
+			$leadingZero = "true";
 		} else {
 			$leadingZero = "false";
 		}
@@ -122,10 +122,14 @@ class PlainCreateRenderer implements CreateRenderer {
 				$skipSEOField = '';
 			}
 
-			$leadingZero = $leadingZero ? Core::createHiddenField(
-				'mwleadingzero',
-				'true'
-			) : '';
+			if ( $leadingZero === "true" ) {
+				$leadingZero = Core::createHiddenField(
+					'mwleadingzero',
+					'true'
+				);
+			} else {
+				$leadingZero = '';
+			}
 
 			$noOverWrite = $noOverWrite ? Core::createHiddenField(
 				'mwnooverwrite',

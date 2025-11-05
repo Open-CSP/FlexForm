@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by  : Wikibase Solutions
+ * Created by  : Open CSP
  * Project     : FlexForm
  * Filename    : recaptcha.class.php
  * Description :

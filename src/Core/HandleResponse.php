@@ -1,7 +1,7 @@
 <?php
 /**
- * Created by  : Wikibase Solutions
- * Project     : MWFlexForm
+ * Created by  : Open CSP
+ * Project     : FlexForm
  * Filename    : handleResponse.php
  * Description :
  * Date        : 27-12-2021
@@ -15,6 +15,7 @@ use DeferredUpdates;
 use FlexForm\FlexFormException;
 use FlexForm\Processors\Content\ContentCore;
 use MediaWiki\MediaWikiServices;
+use OutputPage;
 use RequestContext;
 use Wikimedia\Rdbms\DBError;
 use Wikimedia\Rdbms\DBUnexpectedError;
@@ -31,10 +32,11 @@ class HandleResponse {
 	private $mwReturn = false; // In the end... where to we go.
 	private $pauseBeforeRefresh = false; // Sometimes needed if multiple actions are done
 
-	const TYPE_SUCCESS = 'success';
-	const TYPE_WARNING = 'warning';
-	const TYPE_ERROR = 'error';
-	const TYPE_INFO = 'info';
+	public const TYPE_SUCCESS = 'success';
+	public const TYPE_WARNING = 'warning';
+
+	public const TYPE_ERROR = 'error';
+	public const TYPE_INFO = 'info';
 
 	/**
 	 * False will redirect to mwreturn, true will output json response
@@ -81,7 +83,7 @@ class HandleResponse {
 	/**
 	 * @return array
 	 */
-	public function getReturnData() : array {
+	public function getReturnData(): array {
 		return $this->returnData;
 	}
 
@@ -127,34 +129,8 @@ class HandleResponse {
 	/**
 	 * @return bool
 	 */
-	public function isAjax() : bool {
+	public function isAjax(): bool {
 		return $this->apiAjax;
-	}
-
-	/**
-	 * Function called to create the final return parameters in a consistent way.
-	 *
-	 * @param bool|string $type type of visual notice to show (error, warning, success, etc)
-	 *
-	 * @return array
-	 */
-	public function createMsg( $type = false ) : array {
-		die();
-		$tmp             = array();
-		$tmp['status']   = $this->getReturnStatus();
-		$tmp['type']     = $type;
-		$tmp['mwreturn'] = $this->getMwReturn();
-		if ( is_array( $this->getReturnData() ) ) {
-			$combined   = implode(
-				'<BR>',
-				$this->getReturnData()
-			);
-			$tmp['msg'] = $combined;
-		} else {
-			$tmp['msg'] = $this->getReturnData();
-		}
-
-		return $tmp;
 	}
 
 	/**
@@ -162,7 +138,7 @@ class HandleResponse {
 	 *
 	 * @throws FlexFormException
 	 */
-	public function exitResponse() {
+	public function exitResponse( OutputPage $out ) {
 		$status      = $this->getReturnStatus();
 		$type        = $this->getReturnType();
 		$mwReturn    = $this->getMwReturn();
@@ -198,17 +174,16 @@ class HandleResponse {
 				"exitResponse messagedata after implode ",
 				$message
 			);
-			echo Debug::createDebugOutput();
-			die( '!testing.. No cookies set!' );
+			$out->addHTML( Debug::createDebugOutput() );
+			return;
 		}
 		if ( $status === 'ok' && $this->apiAjax === false ) {
 			$this->setCookieMessage(
 				$message,
 				$type,
 				$messageData
-			); // set cookies
+			);
 		}
-
 
 		$database = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 
@@ -259,7 +234,7 @@ class HandleResponse {
 					$e
 				);
 			}
-		} elseif( $status === 'ok' && $mwReturn === false ) {
+		} elseif ( $status === 'ok' && $mwReturn === false ) {
 			// Status not ok.. and no redirect
 			$logger->error( $message );
 			$this->outputMsg( $message ); // show error on screen or do json output
@@ -293,21 +268,8 @@ class HandleResponse {
 		// redirect
 		if ( $this->getPauseBeforeRefresh() !== false ) {
 			sleep( $this->getPauseBeforeRefresh() );
-			//DeferredUpdates::tryOpportunisticExecute();
 		}
 		if ( !$this->apiAjax ) {
-			//header( 'Location: ' . $this->getMwReturn() );
-			//die();
-			/*
-			$returnto = Title::newFromText( $this->getMwReturn() );
-			if ( $returnto !== null ) {
-				// Purge the returnto page
-				$returntoPage = WikiPage::factory( $returnto );
-				if ( $returntoPage && $returntoPage->exists() ) {
-					$returntoPage->doPurge();
-				}
-			}
-			*/
 			global $wgOut;
 			$wgOut->redirect( $this->getMwReturn() );
 		} else {
@@ -327,8 +289,11 @@ class HandleResponse {
 	}
 
 	/**
-	 * @param $status string : status keyword
-	 * @param $data mixed : holds the date
+	 * @param string $status
+	 * @param $data
+	 * @param $follow
+	 *
+	 * @return void
 	 */
 	public function outputJson( string $status, $data, $follow = false ) {
 		$ret            = [];

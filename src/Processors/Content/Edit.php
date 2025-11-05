@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by  : Wikibase Solutions
+ * Created by  : Open CSP
  * Project     : FlexForm
  * Filename    : edit.class.php
  * Description :
@@ -974,6 +974,10 @@ class Edit {
 	private function doActualEditPage( array $data ): array {
 		$pageContents = [];
 		$render       = new Render();
+
+		if ( Config::isDebug() ) {
+			$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
+		}
 
 		// Loop through all edits
 		foreach ( $data as $pid => $edits ) {
