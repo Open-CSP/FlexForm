@@ -720,6 +720,18 @@ class ContentCore {
 	}
 
 	/**
+	 * @param string $pageTitle
+	 *
+	 * @return bool
+	 */
+	public static function doesPageExistsByName( string $pageTitle ): bool {
+		return MediaWikiServices::getInstance()
+			->getTitleFactory()
+			->newFromText( $pageTitle )
+			->exists();
+	}
+
+	/**
 	 * @param string $title
 	 * @param bool $noSEO
 	 *
@@ -799,11 +811,11 @@ class ContentCore {
 	}
 
 	/**
-	 * @param $string
+	 * @param string $string
 	 *
 	 * @return string
 	 */
-	public static function urlToSEO( $string ) : string {
+	public static function urlToSEO( string $string ): string {
 		$separator     = '-';
 		$accents_regex = '~&([a-z]{1,2})(?:acute|cedil|circ|grave|lig|orn|ring|slash|th|tilde|uml);~i';
 		$special_cases = [
@@ -847,12 +859,12 @@ class ContentCore {
 
 	/** TODO: Test this!
 	 *
-	 * @param $nameStartsWith
+	 * @param string $nameStartsWith
 	 *
 	 * @return array|string[]
 	 * @throws Exception
 	 */
-	public static function getNextAvailable( $nameStartsWith ): array {
+	public static function getNextAvailable( string $nameStartsWith ): array {
 		$render   = new Render();
 		$postdata = [
 			"action"          => "flexform",
@@ -884,15 +896,14 @@ class ContentCore {
 		die();
 	}
 
-	/** TODO: Test this!
-	 *
-	 * @param $nameStartsWith
-	 * @param $range
+	/**
+	 * @param string $nameStartsWith
+	 * @param string $range
 	 *
 	 * @return array
 	 * @throws Exception
 	 */
-	public static function getFromRange( $nameStartsWith, $range ) {
+	public static function getFromRange( string $nameStartsWith, string $range ): array {
 		$postdata = [
 			"action"          => "flexform",
 			"format"          => "json",

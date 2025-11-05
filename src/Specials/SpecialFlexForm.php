@@ -122,7 +122,7 @@ class SpecialFlexForm extends SpecialPage {
 			$string
 		);
 		if ( isset( $r[1] ) ) {
-			if ( ! empty( $end ) ) {
+			if ( !empty( $end ) ) {
 				$r = explode(
 					$end,
 					$r[1]
@@ -143,7 +143,7 @@ class SpecialFlexForm extends SpecialPage {
 	 *
 	 * @return string
 	 */
-	private function getChangeLog(string  $bitbucketChangelog, string $currentVersion ): string {
+	private function getChangeLog( string $bitbucketChangelog, string $currentVersion ): string {
 		$readme = @file_get_contents( $bitbucketChangelog );
 		if ( $readme === false ) {
 			return "not found";
@@ -176,7 +176,7 @@ class SpecialFlexForm extends SpecialPage {
 	 *  [[Special:HelloWorld/subpage]].
 	 */
 	public function execute( $sub ) {
-		global $IP, $wgExtensionCredits, $wgScript, $wgServer;
+		global $IP, $wgScript, $wgServer;
 		$thisUser = $this->getUser();
 		if ( $this->getPostString(
 				'mwtoken'

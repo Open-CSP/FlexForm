@@ -1,7 +1,7 @@
 <?php
 /**
- * Created by  : Wikibase Solutions
- * Project     : csp
+ * Created by  : Open CSP
+ * Project     : FlexForm
  * Filename    : instance.class.php
  * Description :
  * Date        : 6-8-2021

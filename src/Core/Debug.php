@@ -1,7 +1,7 @@
 <?php
 /**
- * Created by  : Wikibase Solutions
- * Project     : MWFlexForm
+ * Created by  : Open CSP
+ * Project     : FlexForm
  * Filename    : Debug.php
  * Description :
  * Date        : 6-1-2022
@@ -20,7 +20,7 @@ class Debug {
 	/**
 	 * @param string $title
 	 * @param mixed $details
-	 * @param mixed $duration
+	 * @param float|bool $duration
 	 *
 	 * @return void
 	 */
@@ -29,7 +29,7 @@ class Debug {
 			$title .= ' (' . microtime() . ')';
 			if ( $duration !== false ) {
 				$newTitle = '<span class="ff-debug-title">' . $title . '</span>';
-				$newTitle .= '<span class="ff-debug-duration">' . $duration . '</span>';
+				$newTitle .= '<span class="ff-debug-duration">' . $duration / 1000 . '</span>';
 				$title = $newTitle;
 			}
 			self::$debugMessages[$title] = $details;
@@ -73,7 +73,7 @@ class Debug {
 }
 
 .ff-debug-duration:after {
-     content: " millisecs";
+     content: " seconds";
 }
 
 

@@ -86,6 +86,7 @@ Visit this documentation page https://www.open-csp.org/DevOps:Doc/FlexForm/2.0/V
 Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
+* 2.6.3 : Changed Debug mode. Fixed leadingzero function. $output not defined fixed. Fix create range when it cannot be set. Have MW check page before it is created.
 * 2.6.2 : Fixed deprecation messages
 * 2.6.1 : Fixed messaging bug with persistent messages
 * 2.6.0 : Added form tag : add-as-job. This will put any EDIT functions into jobs. Updated select2.js. Fixed https://github.com/Open-CSP/FlexForm/issues/77
