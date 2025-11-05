@@ -1,7 +1,7 @@
 <?php
 /**
- * Created by  : Designburo.nl
- * Project     : i
+ * Created by  : Open CSP
+ * Project     : FlexForm
  * Filename    : query-handler.php
  * Description :
  * Date        : 27/12/2018

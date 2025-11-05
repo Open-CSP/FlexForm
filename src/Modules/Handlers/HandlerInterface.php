@@ -6,7 +6,7 @@ use FlexForm\Core\HandleResponse;
 use FlexForm\FlexFormException;
 
 /**
- * Created by  : Designburo.nl
+ * Created by  : Open CSP
  * Project     : FlexForm
  * Filename    : HandlerInterface.php
  * Description :

@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by  : Designburo.nl
+ * Created by  : Open CSP
  * Project     : FlexForm
  * Filename    : Email.php
  * Description :

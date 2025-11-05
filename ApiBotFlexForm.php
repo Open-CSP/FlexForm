@@ -5,8 +5,8 @@ use FlexForm\Processors\Content\Mail;
 use Wikimedia\ParamValidator\ParamValidator;
 
 /**
- * Created by  : Designburo.nl
- * Project     : flexformWikiBaseNL
+ * Created by  : Open CSP
+ * Project     : FlexForm
  * Filename    : ApiFlexForm.php
  * Description :
  * Date        : 09/10/2020
