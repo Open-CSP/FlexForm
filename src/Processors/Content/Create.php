@@ -359,7 +359,6 @@ class Create {
 					$this->pageData['noseo']
 				);
 			}
-			// $this->pageData['title'] = ContentCore::letMWCheckTitle( $this->pageData['title'] );
 			if ( $this->pageData['title'] === false ) {
 				throw new FlexFormException( wfMessage( 'flexform-mwcreate-wrong-title2' )->text() );
 			}
