@@ -201,7 +201,7 @@ class ContentCore {
 		if ( self::$fields['msgOnSuccess'] !== false ) {
 			self::$fields['msgOnSuccess'] = self::parseTitle( self::$fields['msgOnSuccess'], true );
 		}
-		$debugTitle = '<b>::' . get_class() . '::</b> ';
+		$debugTitle = '<b>::' . static::class . '::</b> ';
 		Debug::addToDebug(
 			$debugTitle . 'createandeditfields',
 			self::$fields,
@@ -226,7 +226,7 @@ class ContentCore {
 	 */
 	private static function handleSaveToWikiCreateUser(): void {
 		$timer = new DebugTimer();
-		$debugTitle = '<b>::' . get_class() . '::</b> ';
+		$debugTitle = '<b>::' . static::class . '::</b> ';
 
 		$createUser = new CreateUser();
 		$user = $createUser->addUser();
@@ -248,7 +248,7 @@ class ContentCore {
 	 * @throws Exception
 	 */
 	private static function handleSaveToWikiCreateSingle( DebugTimer $timer ): void {
-		$debugTitle = '<b>::' . get_class() . '::</b> ';
+		$debugTitle = '<b>::' . static::class . '::</b> ';
 		Debug::addToDebug(
 			$debugTitle . 'Writing single page', []
 		);
@@ -316,7 +316,7 @@ class ContentCore {
 	 * @throws Exception
 	 */
 	private static function handleSaveToWikiCreateMultiple( DebugTimer $timer ): void {
-		$debugTitle = '<b>::' . get_class() . '::</b> ';
+		$debugTitle = '<b>::' . static::class . '::</b> ';
 		$create = new Create();
 		try {
 			$finalPages = $create->writePages();
@@ -393,7 +393,7 @@ class ContentCore {
 	public static function saveToWiki( HandleResponse $response_handler, string|bool $email = false ): HandleResponse {
 		if ( self::$isJob === false ) {
 			self::handleSaveToWikiDefaults();
-			$debugTitle = '<b>::' . get_class() . '::</b> ';
+			$debugTitle = '<b>::' . static::class . '::</b> ';
 
 			// mwcreateuser
 			if ( self::$fields['createuser'] !== false && self::$fields['createuser'] !== '' ) {
