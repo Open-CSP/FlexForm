@@ -223,7 +223,7 @@ class Create {
 		}
 
 		if ( isset( $exploded[1] ) && $exploded[1] !== '' ) {
-			$this->pageData['title'] = ContentCore::letMWCheckTitle( trim( $exploded[1] ) );
+			$this->pageData['title'] = trim( $exploded[1] );
 		} else {
 			$this->pageData['title'] = false;
 		}
@@ -359,7 +359,6 @@ class Create {
 					$this->pageData['noseo']
 				);
 			}
-			$this->pageData['title'] = ContentCore::letMWCheckTitle( $this->pageData['title'] );
 			if ( $this->pageData['title'] === false ) {
 				throw new FlexFormException( wfMessage( 'flexform-mwcreate-wrong-title2' )->text() );
 			}
