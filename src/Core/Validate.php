@@ -16,14 +16,13 @@ class Validate {
 	/**
 	 * Check for valid parameters when using email
 	 *
-	 * @param $check string Holds parameter to check
+	 * @param string $check Holds parameter to check
 	 * @param bool $ret If set to true it will not check the "check" parameter but rather returns an array of valid parameters
 	 *
 	 * @return array|bool List of valid parameters, bool true when "$check" is valid, false if not
 	 */
-	public static function validEmailParameters ( $check, $ret = false ): bool|array {
-
-		$validEmailElements = array(
+	public static function validEmailParameters( $check, $ret = false ): bool|array {
+		$validEmailElements = [
 			"to",
 			"from",
 			"cc",
@@ -37,9 +36,9 @@ class Validate {
 			"footer",
 			"html",
 			"template",
-            "parselast",
-            "attachment"
-		);
+			"parselast",
+			"attachment"
+		];
 		if ( $ret ) {
 			return $validEmailElements;
 		}
@@ -53,7 +52,7 @@ class Validate {
 	/**
 	 * Check for valid parameters when using signature
 	 *
-	 * @param $check string Holds parameter to check
+	 * @param string $check Holds parameter to check
 	 * @param bool $ret If set to true it will not check the "check" parameter but rather returns an array of valid parameters
 	 *
 	 * @return array|bool List of valid parameters bool true when "$check" is valid, false if not
@@ -87,7 +86,7 @@ class Validate {
 	/**
 	 * Check for valid parameters when using signature
 	 *
-	 * @param $check string Holds parameter to check
+	 * @param string $check Holds parameter to check
 	 * @param bool $ret If set to true it will not check the "check" parameter but rather returns an array of valid parameters
 	 *
 	 * @return array|bool List of valid parameters bool true when "$check" is valid, false if not
