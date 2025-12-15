@@ -10,6 +10,7 @@
   ],
   "license": "GPL-2.0-or-later",
   "require": {
+    "ezyang/htmlpurifier": "4.19.*",
     "phpoffice/phpspreadsheet": "1.30.*",
     "galbar/jsonpath": "^2.1",
     "ryakad/pandoc-php": "~1.0",
