@@ -164,7 +164,7 @@ const WsInstance = function (selector, options) {
 						}
 					}
 				} else {
-					let optionSelected = $(select).find('option[value=\'' + values[i].replace("'", "\\\'") + '\']')
+					let optionSelected = $(select).find('option[value=\'' + values[i].replaceAll("'", "\\\'") + '\']')
 					if (optionSelected.length > 0 && values[i] !== '') {
 						optionSelected.prop('selected', 'selected')
 					} else if (optionSelected.length === 0 && $(select).data('inputtype') !== 'ws-select2') {
