@@ -129,8 +129,7 @@ class General {
 				$value = false;
 			}
 		}
-		global $IP;
-		require_once $IP . '/extensions/FlexForm/Modules/htmlpurifier/library/HTMLPurifier.auto.php';
+
 		if ( $clean === true && $value !== false ) {
 			$config     = HTMLPurifier_Config::createDefault();
 			$purifier   = new HTMLPurifier( $config );

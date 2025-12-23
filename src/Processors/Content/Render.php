@@ -176,11 +176,7 @@ class Render {
 
 			);
 		}
-		$thisUser = RequestContext::getMain()->getUser();
-		// TODO: Add switch to only allow this when it is safe.
-		if ( $thisUser->isAnon() ) {
-			$thisUser = User::newSystemUser( 'FlexForm', [ 'steal' => true ] );
-		}
+		$thisUser = User::newSystemUser( 'FlexForm', [ 'steal' => true ] );
 		$apiRequest = new FauxRequest(
 			$data,
 			true,

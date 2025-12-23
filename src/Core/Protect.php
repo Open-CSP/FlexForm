@@ -11,6 +11,8 @@
 namespace FlexForm\Core;
 
 use FlexForm\FlexFormException;
+use HTMLPurifier;
+use HTMLPurifier_Config;
 
 class Protect {
 
@@ -56,7 +58,8 @@ class Protect {
 		}
 	}
 
-	public static function encrypt( $data ) {
+
+	public static function encrypt( string $data ) {
 		$iv = openssl_random_pseudo_bytes( self::iv_bytes() );
 
 		return bin2hex( $iv ) . openssl_encrypt(
@@ -92,7 +95,7 @@ class Protect {
 			}
 		}
 
-		//throw new FlexFormException( "failed to decrypt", 1 );
+		// throw new FlexFormException( "failed to decrypt", 1 );
 		return false; // failed to decrypt
 	}
 
@@ -120,9 +123,7 @@ class Protect {
 			return $value;
 		}
 		if ( $secure ) {
-			global $IP;
-			require_once( $IP . '/extensions/FlexForm/Modules/htmlpurifier/library/HTMLPurifier.auto.php' );
-			$config = \HTMLPurifier_Config::createDefault();
+			$config = HTMLPurifier_Config::createDefault();
 			//
 			switch ( $clean ) {
 				case "nohtml":
@@ -155,7 +156,7 @@ class Protect {
 				'Common'
 			);
 
-			$purifier = new \HTMLPurifier( $config );
+			$purifier = new HTMLPurifier( $config );
 
 			return $purifier->purify( $value );
 		} else {
