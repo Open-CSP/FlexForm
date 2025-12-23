@@ -86,6 +86,7 @@ Visit this documentation page https://www.open-csp.org/DevOps:Doc/FlexForm/2.0/V
 Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
+* 2.6.5 : Update HTMLPurifier and move to composer. Added default user for internal api call.
 * 2.6.4 : fix: A check at MW if a page title is usable was set to early.
 * 2.6.3 : Changed Debug mode. Fixed leadingzero function. $output not defined fixed. Fix create range when it cannot be set. Have MW check page before it is created.
 * 2.6.2 : Fixed deprecation messages
