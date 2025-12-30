@@ -446,6 +446,11 @@ class TagHooks {
 			$frame
 		);
 
+		// The separator can be set on render field, select and tokens, if it is set on the form as an argument
+		// it will overrule any previous defined separator
+		if ( isset( $args['separator'] ) ) {
+			Core::setSeparator( $this->getSeparator( $args ) );
+		}
 		$separator = $this->createSeparatorField( Core::$separator );
 
 		if ( Core::$reCaptcha !== false && !Core::isLoaded( 'google-captcha' ) ) {

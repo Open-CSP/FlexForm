@@ -141,7 +141,8 @@ class Validate {
             "autosave",
 			"show-on-select",
 			"autocomplete",
-			"add-as-job"
+			"add-as-job",
+			"separator"
 		);
 		if ( $ret ) {
 			return $validFormElements;

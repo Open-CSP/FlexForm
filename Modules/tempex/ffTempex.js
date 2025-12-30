@@ -1,3 +1,7 @@
+if ( typeof window.ff_separator === 'undefined' ) {
+	window.ff_separator = ',';
+}
+
 /**
  * FlexForm Tempex function
  */
@@ -51,13 +55,13 @@ window.ffTempex = ( element = null, isPredefined = false ) => {
 				return '';
 			}
 			// Map values to array and join with comma
-			return checked.map( function() { return this.value; } ).get().join( ',' );
+			return checked.map( function() { return this.value; } ).get().join( window.ff_separator );
 		}
 
 		// Handle Select (Multi-select returns array, join it)
 		if ( $input.is( 'select' ) ) {
 			let val = $input.val();
-			return Array.isArray( val ) ? val.join( ',' ) : ( val || '' );
+			return Array.isArray( val ) ? val.join( window.ff_separator ) : ( val || '' );
 		}
 
 		// Default for Text, Number, Textarea, Hidden, etc.
