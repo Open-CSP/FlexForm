@@ -418,11 +418,19 @@ class TagHooks {
 				)->parse();
 		}
 
-		$addFFJS = '<script type="text/javascript" charset="UTF-8" src="' . Core::getRealUrl() . '/Modules/ffHoldTillReady.js"></script>' . "\n";
 		if ( Core::getRun() === false ) {
-			// FIXME: Move to ResourceLoader
-			//Core::includeTagsScript( Core::getRealUrl() . '/Modules/FlexForm.general.js' );
-			$addFFJS .= '<script type="text/javascript" charset="UTF-8" src="' . Core::getRealUrl() . '/Modules/FlexForm.general.js"></script>' . "\n";
+			$addFFJS = '<script type="text/javascript" charset="UTF-8" src="' .
+				Core::getRealUrl() .
+				'/Modules/ffHoldTillReady.js"></script>' .
+				"\n";
+			$addFFJS .= '<script type="text/javascript" charset="UTF-8" src="' .
+				Core::getRealUrl() .
+				'/Modules/tempex/ffTempex.js"></script>' .
+				"\n";
+			$addFFJS .= '<script type="text/javascript" charset="UTF-8" src="' .
+				Core::getRealUrl() .
+				'/Modules/FlexForm.general.js"></script>' .
+				"\n";
 
 			Core::setRun( true );
 		}
@@ -438,6 +446,11 @@ class TagHooks {
 			$frame
 		);
 
+		// The separator can be set on render field, select and tokens, if it is set on the form as an argument
+		// it will overrule any previous defined separator
+		if ( isset( $args['separator'] ) ) {
+			Core::setSeparator( $this->getSeparator( $args ) );
+		}
 		$separator = $this->createSeparatorField( Core::$separator );
 
 		if ( Core::$reCaptcha !== false && !Core::isLoaded( 'google-captcha' ) ) {
