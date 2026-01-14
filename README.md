@@ -86,6 +86,7 @@ Visit this documentation page https://www.open-csp.org/DevOps:Doc/FlexForm/2.0/V
 Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
+* 2.6.7 : Semantic Ask in tokens quick fix. Will be rewritten as a full API call in 2.7.x
 * 2.6.6 : Tempex now supports select, checkboxes and radiobuttons.
 * 2.6.5 : Update HTMLPurifier and move to composer. Added default user for internal api call.
 * 2.6.4 : fix: A check at MW if a page title is usable was set to early.

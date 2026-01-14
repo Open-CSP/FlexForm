@@ -2,11 +2,20 @@
 
 namespace FlexForm\Processors\Request\Handlers;
 
+use Exception;
 use FlexForm\Core\Core;
 use FlexForm\Core\HandleResponse;
+use FlexForm\FlexFormException;
+use FlexForm\Processors\Content\Render;
 use FlexForm\Processors\Utilities\General;
+use MediaWiki\MediaWikiServices;
+use Wikimedia\Rdbms\DBError;
+use Wikimedia\Rdbms\DBUnexpectedError;
+use Wikimedia\Rdbms\IDatabase;
 
 class SemanticAsk {
+
+	// TODO: Rewrite this to be an proper API call for version 2.7.0
 
 	/**
 	 * @param string $query
@@ -44,7 +53,7 @@ class SemanticAsk {
 	 * @param HandleResponse $responseHandler
 	 *
 	 * @return void
-	 * @throws \MWException
+	 * @throws Exception
 	 */
 	public function execute( HandleResponse $responseHandler ) {
 		$ret            = [];
@@ -56,18 +65,13 @@ class SemanticAsk {
 		} else {
 			$query = false;
 		}
-		//$query          = base64_decode( General::getGetString( 'query', true, false ) );
 		$q              = General::getGetString( 'q', true, false );
 		$returnId       = General::getGetString( 'returnid', true, false );
 		$returnText     = General::getGetString( 'returntext', true, false );
 		$template       = General::getGetString( 'template', true, false );
 		$limit          = General::getGetString( 'limit', true, false );
 
-		// if( strlen( $q ) < 3 ) return $ret;
 		if ( $query !== false ) {
-			// $ret = createMsg('No query found.');
-			// test query :  $query = "[[Class::Organization]] [[Name::~*ik*]]|?Name |format=json |limit=99999"
-			// ik kan dat q worden voor select2 door !!! in te vullen in de query, deze wordt dan vervangen.
 			$filterQuery = false;
 			if ( strpos( $query, '(' ) !== false && strpos( $query, ')' ) !== false ) {
 				if ( strpos( $query, '(fquery=' ) !== false ) {
@@ -182,7 +186,7 @@ class SemanticAsk {
 				"format" => "json",
 				"query"  => $query
 			];
-			$mRequest = new \FlexForm\Processors\Content\Render();
+			$mRequest = new Render();
 			$data     = $mRequest->makeRequest( $postdata );
 
 			if ( isset( $data['query']['results'] ) && !empty( $data['query']['results'] ) ) {
@@ -214,6 +218,24 @@ class SemanticAsk {
 			$ret,
 			JSON_PRETTY_PRINT
 		);
+		$database = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+
+		if ( $database->writesPending() ) {
+
+			// If there is still a database update pending, commit it here
+			try {
+				$database->commit(
+					__METHOD__,
+					IDatabase::FLUSHING_INTERNAL
+				);
+			} catch ( DBError | DBUnexpectedError $e ) {
+				throw new FlexFormException(
+					$e->getMessage(),
+					0,
+					$e
+				);
+			}
+		}
 		die();
 	}
 }
