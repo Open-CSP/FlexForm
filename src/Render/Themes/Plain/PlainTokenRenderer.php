@@ -209,8 +209,8 @@ class PlainTokenRenderer implements TokenRenderer {
 			} else {
 				$ffFormField = '';
 			}
-			$smwQueryUrl .= '?action=flexform&format=json';
-			$smwQueryUrl .= '&what=ask&titleStartsWith=ask&query=';
+			$smwQueryUrl .= '?action=FlexFormAsk&format=json';
+			$smwQueryUrl .= '&query=';
 			$smwQueryUrlQ = base64_encode( $smwQuery );
 		} else {
 			$smwQueryUrl = null;

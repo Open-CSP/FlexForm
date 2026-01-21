@@ -12,6 +12,7 @@
   "AutoloadClasses": {
     "ApiFlexForm": "ApiFlexForm.php",
     "ApiBotFlexForm": "ApiBotFlexForm.php",
+    "ApiAskFlexForm": "ApiAskFlexForm.php",
     "FlexFormHooks": "FlexForm.hooks.php"
   },
   "AutoloadNamespaces": {
@@ -22,7 +23,8 @@
   },
   "APIModules": {
     "flexform": "ApiFlexForm",
-    "FlexFormBot": "ApiBotFlexForm"
+    "FlexFormBot": "ApiBotFlexForm",
+    "FlexFormAsk": "ApiAskFlexForm"
   },
   "Hooks": {
     "LoadExtensionSchemaUpdates": "FlexForm\\Core\\Sql::addTables",
