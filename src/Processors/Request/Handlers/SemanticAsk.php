@@ -56,6 +56,9 @@ class SemanticAsk {
 	 * @throws Exception
 	 */
 	public function execute( HandleResponse $responseHandler ) {
+
+		// Todo: rewrite to allow API variables.
+
 		$ret            = [];
 		$ret['results'] = [];
 		$queryEncoded = General::getGetString( 'query', true, false );
@@ -213,8 +216,9 @@ class SemanticAsk {
 				}
 			}
 		}
-		header( 'Content-Type: application/json' );
-		echo json_encode(
+		// header( 'Content-Type: application/json' );
+		return $ret;
+		return json_encode(
 			$ret,
 			JSON_PRETTY_PRINT
 		);

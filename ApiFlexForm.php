@@ -2,8 +2,10 @@
 
 use FlexForm\Core\Config;
 use FlexForm\Core\Debug;
+use FlexForm\Core\HandleResponse;
 use FlexForm\Core\Protect;
 use FlexForm\FlexFormException;
+use FlexForm\Processors\Request\Handlers\SemanticAsk;
 use Wikimedia\ParamValidator\ParamValidator;
 
 class ApiFlexForm extends ApiBase {
@@ -97,6 +99,17 @@ class ApiFlexForm extends ApiBase {
 				}
 				$result = $messaging->removeUserMessageById( $mId, true );
 				$output = $this->createResult( "ok", "ok" );
+				break;
+			case "ask":
+				$smwAsk = new SemanticAsk();
+				$output = $smwAsk->execute( new HandleResponse() );
+				$this->getResult()->addValue(
+					null,
+					'results',
+					$output['results']
+				);
+
+				return true;
 				break;
 			case "decrypt":
 				$output = $this->decrypt( $params['titleStartsWith'] );
