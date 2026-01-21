@@ -73,6 +73,7 @@ class SemanticAsk {
 		$returnText     = General::getGetString( 'returntext', true, false );
 		$template       = General::getGetString( 'template', true, false );
 		$limit          = General::getGetString( 'limit', true, false );
+		//return [ 'results' => $_GET ];
 
 		if ( $query !== false ) {
 			$filterQuery = false;
