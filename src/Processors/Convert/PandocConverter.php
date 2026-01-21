@@ -14,8 +14,8 @@ use FlexForm\Core\Config;
 use FlexForm\Core\Debug;
 use FlexForm\FlexFormException;
 use FlexForm\Processors\Files\Convert;
-use import\classes\Pandoc\Pandoc;
-use import\classes\Pandoc\PandocException;
+use Pandoc\Pandoc;
+use Pandoc\PandocException;
 
 class PandocConverter extends Convert {
 	/**
@@ -36,7 +36,7 @@ class PandocConverter extends Convert {
 	}
 
 	/**
-	 * @return import\classes\Pandoc\Pandoc
+	 * @return Pandoc
 	 * @throws FlexFormException
 	 */
 	private function giveMePandoc(): Pandoc {
