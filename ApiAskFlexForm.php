@@ -264,7 +264,6 @@ class ApiAskFlexForm extends ApiBase {
 
 	public function needsToken() {
 		return false;
-		//return "csrf";
 	}
 
 	public function isWriteMode() {
@@ -274,7 +273,7 @@ class ApiAskFlexForm extends ApiBase {
 	/**
 	 * @return array
 	 */
-	public function getAllowedParams() {
+	public function getAllowedParams(): array {
 		return [
 			'query'            => [
 				ParamValidator::PARAM_TYPE     => 'string',
@@ -305,9 +304,9 @@ class ApiAskFlexForm extends ApiBase {
 	 * @return array
 	 */
 	protected function getExamplesMessages() : array {
-		return array(
+		return [
 			'action=FlexFormAsk&query=base64query&q=search' => 'apihelp-flexform-bot-example-1'
-		);
+		];
 	}
 
 }
