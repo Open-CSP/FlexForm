@@ -76,11 +76,6 @@ class ApiAskFlexForm extends ApiBase {
 			"query"  => $this->query
 		];
 		$mRequest = new Render();
-		echo "<pre>";
-		$dataRet = $mRequest->makeRequest( $postdata );
-		var_dump( $dataRet );
-		var_dump( $this->handleResults( $dataRet, $ret ) );
-		die();
 		$results = $this->handleResults( $mRequest->makeRequest( $postdata ), $ret );
 		$this->getResult()->addValue(
 			null,
@@ -246,7 +241,7 @@ class ApiAskFlexForm extends ApiBase {
 
 			$t = 0;
 			foreach ( $data as $k => $val ) {
-				if ( $this->returnText === false ) {
+				if ( $this->returnText === null ) {
 					$ret['results'][$t]['text'] = $val['displaytitle'];
 				} elseif ( isset( $val['printouts'][$this->returnText][0] ) ) {
 					$ret['results'][$t]['text'] = $val['printouts'][$this->returnText][0];
@@ -254,7 +249,7 @@ class ApiAskFlexForm extends ApiBase {
 					$ret['results'][$t]['text'] = 'Not found';
 				}
 
-				if ( $this->returnId === false ) {
+				if ( $this->returnId === null ) {
 					$ret['results'][$t]['id'] = $k;
 				} elseif ( isset( $val['printouts'][$this->returnId][0] ) ) {
 					$ret['results'][$t]['id'] = $val['printouts'][$this->returnId][0];
