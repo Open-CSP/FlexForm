@@ -91,7 +91,7 @@ class PandocConverter extends Convert {
 		];
 		try {
 			$wiki = $pandoc->runWith( $this->getFile(), $options );
-		} catch ( import\classes\Pandoc\PandocException $e ) {
+		} catch ( PandocException $e ) {
 			$params = [
 				'file'  => $e->getFile(),
 				'line'  => $e->getLine(),
