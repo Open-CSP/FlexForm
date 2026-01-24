@@ -2564,6 +2564,8 @@ class TagHooks {
 		$comment            = false;
 		$presentor          = false; // Holds name of external presentor, e.g. Slim
 		$pagecontent        = "";
+		$textPrefix         = "";
+		$textSuffix         = "";
 		$use_label          = false;
 		$force              = false;
 		$parseContent       = false;
@@ -2589,8 +2591,11 @@ class TagHooks {
 					case "pagecontent" :
 						$pagecontent = $v;
 						break;
-					case "parsecontent" :
-						$parseContent = true;
+					case "text_prefix" :
+						$textPrefix = $v;
+						break;
+					case "text_suffix" :
+						$textSuffix = $v;
 						break;
 					case "dropzone" :
 						$drop = true;
@@ -2679,6 +2684,12 @@ class TagHooks {
 		}
 		if ( $pagecontent ) {
 			$uploadDetails["wsform_page_content"] = $pagecontent;
+		}
+		if ( $textPrefix ) {
+			$uploadDetails["wsform_text_prefix"] = $textPrefix;
+		}
+		if ( $textSuffix ) {
+			$uploadDetails["wsform_text_suffix"] = $textSuffix;
 		}
 		if ( $comment ) {
 			$uploadDetails["wsform-upload-comment"] = $comment;

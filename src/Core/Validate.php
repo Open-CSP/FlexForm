@@ -306,7 +306,9 @@ class Validate {
 			'',
 			'slot',
 			'sheet_by_id',
-			'sheet_by_name'
+			'sheet_by_name',
+			'text_prefix',
+			'text_suffix',
 		];
 		if ( $ret ) {
 			return $validParameters;
