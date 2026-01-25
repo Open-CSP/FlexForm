@@ -121,6 +121,14 @@ class Upload {
 			'wsform_page_content',
 			$fileDetails
 		);
+		$pageContentPrefix   = General::getJsonValue(
+			'wsform_text_prefix',
+			$fileDetails
+		);
+		$pageContentSuffix   = General::getJsonValue(
+			'wsform_text_suffix',
+			$fileDetails
+		);
 		$pageTemplate  = General::getJsonValue(
 			'wsform_file_template',
 			$fileDetails
@@ -174,6 +182,14 @@ class Upload {
 
 		if ( $pageContent === false ) {
 			$pageContent = '';
+		}
+
+		if ( $pageContentPrefix === false ) {
+			$pageContentPrefix = '';
+		}
+
+		if ( $pageContentSuffix === false ) {
+			$pageContentSuffix = '';
 		}
 
 		if ( $imageComment === false ) {
@@ -469,6 +485,7 @@ class Upload {
 					$convert->setConvertFrom( $fileAction );
 					$convert->setFileName( $storedFile );
 					$newContent               = $convert->convertFile();
+					$newContent = $pageContentPrefix . $newContent . $pageContentSuffix;
 					$possibleImagesInDocument = $convert->getPossibleImagesFromConversion();
 					if ( $possibleImagesInDocument !== false ) {
 						$fCount = 1;
