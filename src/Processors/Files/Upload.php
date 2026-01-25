@@ -186,10 +186,14 @@ class Upload {
 
 		if ( $pageContentPrefix === false ) {
 			$pageContentPrefix = '';
+		} else {
+			$pageContentPrefix = ContentCore::parseTitle( $pageContentPrefix, true );
 		}
 
 		if ( $pageContentSuffix === false ) {
 			$pageContentSuffix = '';
+		} else {
+			$pageContentSuffix = ContentCore::parseTitle( $pageContentSuffix, true );
 		}
 
 		if ( $imageComment === false ) {
@@ -484,7 +488,15 @@ class Upload {
 					$convert = new PandocConverter();
 					$convert->setConvertFrom( $fileAction );
 					$convert->setFileName( $storedFile );
-					$newContent               = $convert->convertFile();
+					$newContent = $convert->convertFile();
+					Debug::addToDebug(
+						'File converted with Pandoc: ' . $titleName,
+						[
+							'$pageContentPrefix'    => $pageContentPrefix,
+							'$newContent' => $newContent,
+							'$pageContentSuffix'  => $pageContentSuffix
+						]
+					);
 					$newContent = $pageContentPrefix . $newContent . $pageContentSuffix;
 					$possibleImagesInDocument = $convert->getPossibleImagesFromConversion();
 					if ( $possibleImagesInDocument !== false ) {
