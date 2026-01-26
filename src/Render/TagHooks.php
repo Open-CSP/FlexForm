@@ -2591,10 +2591,10 @@ class TagHooks {
 					case "pagecontent" :
 						$pagecontent = $v;
 						break;
-					case "text_prefix" :
+					case "pandoc_prefix" :
 						$textPrefix = $v;
 						break;
-					case "text_suffix" :
+					case "pandoc_suffix" :
 						$textSuffix = $v;
 						break;
 					case "dropzone" :
@@ -2686,10 +2686,10 @@ class TagHooks {
 			$uploadDetails["wsform_page_content"] = $pagecontent;
 		}
 		if ( $textPrefix ) {
-			$uploadDetails["wsform_text_prefix"] = $textPrefix;
+			$uploadDetails["wsform_pandoc_prefix"] = $textPrefix;
 		}
 		if ( $textSuffix ) {
-			$uploadDetails["wsform_text_suffix"] = $textSuffix;
+			$uploadDetails["wsform_pandoc_suffix"] = $textSuffix;
 		}
 		if ( $comment ) {
 			$uploadDetails["wsform-upload-comment"] = $comment;

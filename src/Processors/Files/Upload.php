@@ -122,11 +122,11 @@ class Upload {
 			$fileDetails
 		);
 		$pageContentPrefix   = General::getJsonValue(
-			'wsform_text_prefix',
+			'wsform_pandoc_prefix',
 			$fileDetails
 		);
 		$pageContentSuffix   = General::getJsonValue(
-			'wsform_text_suffix',
+			'wsform_pandoc_suffix',
 			$fileDetails
 		);
 		$pageTemplate  = General::getJsonValue(
