@@ -2591,6 +2591,9 @@ class TagHooks {
 					case "pagecontent" :
 						$pagecontent = $v;
 						break;
+					case "parsecontent" :
+						$parseContent = true;
+						break;
 					case "pandoc_prefix" :
 						$textPrefix = $v;
 						break;
@@ -2853,6 +2856,7 @@ class TagHooks {
 			$mobileScreenshot = MobileScreenShot::renderHtml( $args );
 
 		}
+
 		$result['verbose_div'] = $verboseDiv;
 		$result['error_div']   = $errorDiv;
 		$result['attributes']  = $attributes;

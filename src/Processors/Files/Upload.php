@@ -506,7 +506,7 @@ class Upload {
 							$newFname = $titleName . '-' . basename( $singleImage );
 							if ( Config::isDebug() ) {
 								Debug::addToDebug(
-									$i . ' - Preparing to upload image file from document: ' . $fCount,
+									$fCount . ' - Preparing to upload image file from document: ' . $fCount,
 									[
 										'$newFname'    => $newFname,
 										'$singleImage' => $singleImage,
