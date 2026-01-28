@@ -305,7 +305,7 @@ class ApiAskFlexForm extends ApiBase {
 	 */
 	protected function getExamplesMessages() : array {
 		return [
-			'action=FlexFormAsk&query=base64query&q=search' => 'apihelp-flexform-bot-example-1'
+			'action=FlexFormAsk&query=base64query&q=search' => 'apihelp-FlexFormAsk-example-1'
 		];
 	}
 
