@@ -17,7 +17,7 @@ class ApiAskFlexForm extends ApiBase {
 	/**
 	 * @var ?string
 	 */
-	private ?string $SMWAskquery;
+	private ?string $SMWAskQuery;
 
 	/**
 	 * @var ?string
@@ -63,7 +63,7 @@ class ApiAskFlexForm extends ApiBase {
 		$this->checkUserRightsAny( [ 'read' ] );
 		$params = $this->extractRequestParams();
 		$queryEncoded = $params['query'];
-		$this->SMWAskquery 	  = base64_decode( str_replace( ' ', '+', $queryEncoded ) );
+		$this->SMWAskQuery 	  = base64_decode( str_replace( ' ', '+', $queryEncoded ) );
 		$this->queryFromUser  = $params['q'];
 		$this->returnId       = $params['returnid'];
 		$this->returnText     = $params['returntext'];
@@ -76,7 +76,7 @@ class ApiAskFlexForm extends ApiBase {
 		$postdata = [
 			"action" => "ask",
 			"format" => "json",
-			"query"  => $this->SMWAskquery
+			"query"  => $this->SMWAskQuery
 		];
 		$mRequest = new Render();
 		$results = $this->handleResults( $mRequest->makeRequest( $postdata ), [ 'results' => [] ] );
@@ -93,8 +93,8 @@ class ApiAskFlexForm extends ApiBase {
 	 */
 	private function handleFQuery(): string {
 		$fQuery = '';
-		if ( str_contains( $this->SMWAskquery, '(fquery=' ) ) {
-			$fQuery = Core::get_string_between( $this->SMWAskquery, '(fquery=', ')' );
+		if ( str_contains( $this->SMWAskQuery, '(fquery=' ) ) {
+			$fQuery = Core::get_string_between( $this->SMWAskQuery, '(fquery=', ')' );
 			$fQueryOld = $fQuery;
 			if ( strpos( $fQuery, '__^^__' ) !== false ) {
 				if ( !empty( $this->ffform ) ) {
@@ -102,86 +102,46 @@ class ApiAskFlexForm extends ApiBase {
 					$this->filterQuery = true;
 				}
 			}
-			$this->SMWAskquery = str_replace(
+			$this->SMWAskQuery = str_replace(
 				'(fquery=' . $fQueryOld . ')',
 				'',
-				$this->SMWAskquery
+				$this->SMWAskQuery
 			);
 		}
 		return $fQuery;
 	}
 
 	/**
-	 * @return void
+	 * @param string $key
+	 *
+	 * @return string|null
 	 */
-	private function handleReturnText(): void {
-		if ( str_contains( $this->SMWAskquery, '(returntext=' ) ) {
-			$returnText = Core::get_string_between( $this->SMWAskquery, '(returntext=', ')' );
-			$this->SMWAskquery = str_replace(
-				'(returntext=' . $returnText . ')',
-				'',
-				$this->SMWAskquery
-			);
-		}
-	}
+	private function extractAndRemove( string $key ): ?string {
+		$pattern = '/\(' . preg_quote( $key, '/' ) . '=(.*?)\)/';
 
-	/**
-	 * @return void
-	 */
-	private function handleTemplate(): void {
-		if ( str_contains( $this->SMWAskquery, '(template=' ) ) {
-			$template = Core::get_string_between( $this->SMWAskquery, '(template=', ')' );
-			$this->SMWAskquery = str_replace(
-				'(template=' . $template . ')',
-				'',
-				$this->SMWAskquery
-			);
+		if ( preg_match( $pattern, $this->SMWAskQuery, $matches ) ) {
+			$this->SMWAskQuery = preg_replace( $pattern, '', $this->SMWAskQuery, 1 );
+			return $matches[1];
 		}
-	}
 
-	/**
-	 * @return void
-	 */
-	private function handleReturnId(): void {
-		if ( str_contains( $this->SMWAskquery, '(returnid=' ) ) {
-			$returnId = Core::get_string_between( $this->SMWAskquery, '(returnid=', ')' );
-			$this->SMWAskquery = str_replace(
-				'(returnid=' . $returnId . ')',
-				'',
-				$this->SMWAskquery
-			);
-		}
-	}
-
-	/**
-	 * @return void
-	 */
-	private function handleLimit(): void {
-		if ( str_contains( $this->SMWAskquery, '(limit=' ) ) {
-			$limit = Core::get_string_between( $this->SMWAskquery, '(limit=', ')' );
-			$this->SMWAskquery = str_replace(
-				'(limit=' . $limit . ')',
-				'',
-				$this->SMWAskquery
-			);
-		}
+		return null;
 	}
 
 	/**
 	 * @return void
 	 */
 	private function setupQuery(): void {
-		$filterQuery = false;
+		$this->filterQuery = false;
 		$fQuery = '';
-		if ( str_contains( $this->SMWAskquery, '(' ) && str_contains( $this->SMWAskquery, ')' ) ) {
+		if ( str_contains( $this->SMWAskQuery, '(' ) && str_contains( $this->SMWAskQuery, ')' ) ) {
 			$fQuery = $this->handleFQuery();
-			$this->handleReturnText();
-			$this->handleTemplate();
-			$this->handleReturnId();
-			$this->handleLimit();
+			$this->returnText = $this->extractAndRemove( 'returntext' );
+			$this->template = $this->extractAndRemove( 'template' );
+			$this->returnId = $this->extractAndRemove( 'returnid' );
+			$this->limit = $this->extractAndRemove( 'limit' );
 		}
 		if ( $this->filterQuery ) {
-			$this->SMWAskquery .= $fQuery;
+			$this->SMWAskQuery .= $fQuery;
 		}
 	}
 
@@ -189,10 +149,10 @@ class ApiAskFlexForm extends ApiBase {
 	 * @return void
 	 */
 	private function handleQType(): void {
-		if ( $this->queryFromUser !== null || !empty( $this->queryFromUser ) ) {
+		if ( $this->queryFromUser !== null ) {
 			// Are there spaces in the query?
 			if ( str_contains( $this->queryFromUser, ' ' ) ) {
-				$mainQuery = $this->getMainQuery( $this->SMWAskquery );
+				$mainQuery = $this->getMainQuery( $this->SMWAskQuery );
 				$explodedQuery = explode( ' ', $this->queryFromUser );
 				$newQuery = '';
 
@@ -201,38 +161,38 @@ class ApiAskFlexForm extends ApiBase {
 						$newQuery .= '[[' . $mainQuery . '::' . $this->createNewQuery( $seperated ) . ']]';
 					}
 				}
-				$this->SMWAskquery = str_replace(
+				$this->SMWAskQuery = str_replace(
 					'[[' . $mainQuery . '::!!!]]',
 					$newQuery,
-					$this->SMWAskquery
+					$this->SMWAskQuery
 				);
 			} else {
-				$this->SMWAskquery = str_replace(
+				$this->SMWAskQuery = str_replace(
 					'!!!',
 					$this->createNewQuery( $this->queryFromUser ),
-					$this->SMWAskquery
+					$this->SMWAskQuery
 				);
 			}
 		} else {
-			$this->SMWAskquery = str_replace(
+			$this->SMWAskQuery = str_replace(
 				'!!!',
 				'',
-				$this->SMWAskquery
+				$this->SMWAskQuery
 			);
 		}
 		if ( $this->returnId !== null ) {
-			$this->SMWAskquery .= '|?' . $this->returnId;
+			$this->SMWAskQuery .= '|?' . $this->returnId;
 		}
 		if ( $this->returnText !== null ) {
-			$this->SMWAskquery .= '|?' . $this->returnText;
+			$this->SMWAskQuery .= '|?' . $this->returnText;
 		}
 		if ( $this->limit !== null ) {
-			$this->SMWAskquery .= '|limit=' . $this->limit;
+			$this->SMWAskQuery .= '|limit=' . $this->limit;
 		} else {
-			$this->SMWAskquery .= '|limit=50';
+			$this->SMWAskQuery .= '|limit=50';
 		}
 		if ( $this->template !== null ) {
-			$this->SMWAskquery .= '|template=' . $this->template;
+			$this->SMWAskQuery .= '|template=' . $this->template;
 		}
 	}
 

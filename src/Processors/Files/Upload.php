@@ -184,17 +184,19 @@ class Upload {
 			$pageContent = '';
 		}
 
-		if ( $pageContentPrefix === false ) {
-			$pageContentPrefix = '';
-		} else {
-			$pageContentPrefix = ContentCore::parseTitle( $pageContentPrefix, true );
-		}
+		$pageContentPrefix = ( $pageContentPrefix === false )
+			? ''
+			: ContentCore::parseTitle(
+				$pageContentPrefix,
+				true
+			);
 
-		if ( $pageContentSuffix === false ) {
-			$pageContentSuffix = '';
-		} else {
-			$pageContentSuffix = ContentCore::parseTitle( $pageContentSuffix, true );
-		}
+		$pageContentSuffix = ( $pageContentSuffix === false )
+			? ''
+			: ContentCore::parseTitle(
+				$pageContentSuffix,
+				true
+			);
 
 		if ( $imageComment === false ) {
 			$imageComment = $this->getSummary();
