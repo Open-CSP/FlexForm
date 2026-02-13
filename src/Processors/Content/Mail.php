@@ -10,8 +10,9 @@
 
 namespace FlexForm\Processors\Content;
 
+use Exception;
+use MediaWiki\Context\RequestContext;
 use MediaWiki\MediaWikiServices;
-use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use FlexForm\Core\Config;
@@ -26,9 +27,6 @@ use Title;
  */
 class Mail {
 
-	/**
-	 * @var array
-	 */
 	/*
 	 * 		'to'         => General::getPostString( 'mwmailto' ),
 			'content'    => General::getPostString( 'mwmailcontent' ),
@@ -38,6 +36,10 @@ class Mail {
 			'mjob'       => General::getPostString( 'mwmailjob' ),
 			'html'       => General::getPostString( 'mwmailhtml' ),
 			'attachment' => General::getPostString( 'mwmailattachment' )
+	 */
+
+	/**
+	 * @var array
 	 */
 	private $fields = [];
 
@@ -75,22 +77,22 @@ class Mail {
 	 *
 	 * @return mixed
 	 * @throws FlexFormException
-	 * @throws \MWException
+	 * @throws Exception
 	 */
-	public function parseWikiText( string $content ) : string {
-		$render   = new Render();
+	public function parseWikiText( string $content ): string {
+		$render = new Render();
 		$postdata = [
-			"action"             => "parse",
-			"format"             => "json",
-			"text"               => $content,
-			"contentmodel"       => "wikitext",
+			"action" => "parse",
+			"format" => "json",
+			"text" => $content,
+			"contentmodel" => "wikitext",
 			"disablelimitreport" => "1",
 			"disablestylededuplication" => "1",
 			"disabletoc" => "1",
 			"disableeditsection" => "1",
 			"wrapoutputclass" => '',
 		];
-		$result   = $render->makeRequest( $postdata );
+		$result = $render->makeRequest( $postdata );
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
 				'textparse result ',
@@ -99,8 +101,7 @@ class Mail {
 		}
 		if ( isset( $result['error'] ) ) {
 			throw new FlexFormException(
-				$result['error']['info'],
-				0
+				$result['error']['info'], 0
 			);
 		}
 
@@ -112,9 +113,9 @@ class Mail {
 	 *
 	 * @return string
 	 * @throws FlexFormException
-	 * @throws \MWException
+	 * @throws Exception
 	 */
-	private function parseWikiPageByTitle( string $title ) : string {
+	private function parseWikiPageByTitle( string $title ): string {
 		$debugTitle = '<b>::' . __CLASS__ . '::</b> ';
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
@@ -122,18 +123,18 @@ class Mail {
 				$title
 			);
 		}
-		$render   = new Render();
+		$render = new Render();
 		$postdata = [
-			"action"                    => "parse",
-			"format"                    => "json",
-			"page"                      => $title,
-			"disablelimitreport"        => "1",
-			"wrapoutputclass"           => '',
+			"action" => "parse",
+			"format" => "json",
+			"page" => $title,
+			"disablelimitreport" => "1",
+			"wrapoutputclass" => '',
 			"disablestylededuplication" => true,
-			"disabletoc"                => true,
+			"disabletoc" => true,
 
 		];
-		$result   = $render->makeRequest( $postdata );
+		$result = $render->makeRequest( $postdata );
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
 				'Parse result ',
@@ -143,13 +144,12 @@ class Mail {
 		if ( isset( $result['error'] ) ) {
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
-					$debugTitle.'ParseWikitextErrorException ',
+					$debugTitle . 'ParseWikitextErrorException ',
 					$result
 				);
 			}
 			throw new FlexFormException(
-				"Error getting mail template($title):" . $result['error']['info'],
-				0
+				"Error getting mail template($title):" . $result['error']['info'], 0
 			);
 		}
 
@@ -161,10 +161,10 @@ class Mail {
 	 *
 	 * @return string
 	 */
-	private function placeValuesInTemplate( string $content ) : string {
+	private function placeValuesInTemplate( string $content ): string {
 		// Get all form elements and replace in Template
 		foreach ( $_POST as $k => $v ) {
-			if ( ! Definitions::isFlexFormSystemField( $k ) ) {
+			if ( !Definitions::isFlexFormSystemField( $k ) ) {
 				if ( is_array( $v ) ) {
 					$tmpArray = wsSecurity::cleanBraces(
 						implode(
@@ -172,7 +172,7 @@ class Mail {
 							$v
 						)
 					);
-					$content  = str_replace(
+					$content = str_replace(
 						'$' . $k,
 						$tmpArray,
 						$content
@@ -199,45 +199,37 @@ class Mail {
 	 *
 	 * @return string
 	 */
-	private function getTemplateValueAndDelete( string $template ) : string {
-		// echo "searching for $name";
+	private function getTemplateValueAndDelete( string $template ): string {
 		$fieldToGetAndReplace = array_keys( $this->fields );
 		foreach ( $fieldToGetAndReplace as $field ) {
-			//echo "<p>$field</p>";
 			$regex = '#%_' . $field . '=(.*?)%#';
 			preg_match(
 				$regex,
 				$template,
 				$regexResult
 			);
-			//echo "<pre>";
-			//var_dump($regexResult);
-			//echo "</pre>";
 			if ( isset( $regexResult[1] ) ) {
 				$tmp = $regexResult[1];
 			} else {
-				$tmp                  = "";
+				$tmp = "";
 				$this->fields[$field] = false;
 			}
-			// $tmp = $this->get_string_between( $template, '%ws_' . $name . '=' , '%' );
-			// echo "<p>found : $tmp</p>";
 			if ( $tmp !== "" ) {
 				$this->fields[$field] = $tmp;
-				$template             = str_replace(
+				$template = str_replace(
 					'%_' . $field . '=' . $tmp . '%',
 					'',
 					$template
 				);
 			} else {
-				if( isset( $regexResult[1] ) ) {
-					$template               = str_replace(
+				if ( isset( $regexResult[1] ) ) {
+					$template = str_replace(
 						'%_' . $field . '=' . $tmp . '%',
 						'',
 						$template
 					);
-
 				}
-				$this->fields[ $field ] = false;
+				$this->fields[$field] = false;
 			}
 		}
 
@@ -245,9 +237,11 @@ class Mail {
 	}
 
 	/**
+	 * @param array $additonalFields
+	 *
 	 * @return void
 	 * @throws FlexFormException
-	 * @throws \MWException
+	 * @throws Exception
 	 */
 	public function handleTemplate( $additonalFields = [] ) {
 		/*
@@ -260,7 +254,7 @@ class Mail {
 			'html'       => General::getPostString( 'mwmailhtml' ),
 			'attachment' => General::getPostString( 'mwmailattachment' )
 		 */
-		if( ! $this->isBot ) {
+		if ( !$this->isBot ) {
 			$fields = ContentCore::getFields();
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
@@ -276,8 +270,8 @@ class Mail {
 			$tpl = $this->parseWikiPageByTitle( $this->getTemplate() );
 		} else {
 			$render = new Render();
-			$tpl    = $render->getSlotContent( $this->getTemplate() );
-			$tpl    =  $tpl['content'];
+			$tpl = $render->getSlotContent( $this->getTemplate() );
+			$tpl = $tpl['content'];
 		}
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
@@ -303,9 +297,9 @@ class Mail {
 			);
 		}
 
-		$to      = false;
-		$header  = false;
-		$footer  = false;
+		$to = false;
+		$header = false;
+		$footer = false;
 		$content = false;
 		if ( $this->fields['to'] !== false ) {
 			$to = $this->fields['to'];
@@ -333,10 +327,10 @@ class Mail {
 				$tpl
 			);
 		}
-		if( $this->isBot ) {
-			if ( ! empty( $additonalFields ) ) {
+		if ( $this->isBot ) {
+			if ( !empty( $additonalFields ) ) {
 				foreach ( $additonalFields as $key => $value ) {
-					$this->fields[ $key ] = $value;
+					$this->fields[$key] = $value;
 				}
 			}
 		}
@@ -354,10 +348,12 @@ class Mail {
 			$this->fields['header'] = $header;
 		}
 		if ( $to !== false ) {
-			if ( strpos(
-				$to,
-				'user:'
-			) ) {
+			if (
+				strpos(
+					$to,
+					'user:'
+				)
+			) {
 				$to = str_replace(
 					'user:',
 					'',
@@ -392,6 +388,25 @@ class Mail {
 	}
 
 	/**
+	 * @return PHPMailer
+	 */
+	private function getPHPMailer(): PHPMailer {
+		$mail = new PHPMailer( true );
+		if ( Config::getConfigVariable( 'use_smtp' ) === true ) {
+			$mail->isSMTP();
+			$mail->Host = Config::getConfigVariable( 'smtp_host' );
+			$mail->SMTPAuth = Config::getConfigVariable( 'smtp_authentication' );
+			$mail->Username = Config::getConfigVariable( 'smtp_username' );
+			$mail->Password = Config::getConfigVariable( 'smtp_password' );
+			$mail->SMTPSecure = Config::getConfigVariable( 'smtp_secure' );
+			$mail->Port = Config::getConfigVariable( 'smtp_port' );
+		} else {
+			$mail->isMail();
+		}
+		return $mail;
+	}
+
+	/**
 	 * @param string $to
 	 * @param string $name
 	 * @param string $subject
@@ -406,26 +421,16 @@ class Mail {
 		$mail = new PHPMailer( true );
 
 		try {
-			if ( Config::getConfigVariable( 'use_smtp' ) === true ) {
-				$mail->isSMTP();
-				$mail->Host       = Config::getConfigVariable( 'smtp_host' );
-				$mail->SMTPAuth   = Config::getConfigVariable( 'smtp_authentication' );
-				$mail->Username   = Config::getConfigVariable( 'smtp_username' );
-				$mail->Password   = Config::getConfigVariable( 'smtp_password' );
-				$mail->SMTPSecure = Config::getConfigVariable( 'smtp_secure' );
-				$mail->Port       = Config::getConfigVariable( 'smtp_port' );
-			} else {
-				$mail->isMail();
-			}
+			$mail = $this->getPHPMailer();
 			$mail->CharSet = 'UTF-8';
 
-			$mail->setFrom(	$from, wfMessage( 'emailsender' )->inContentLanguage()->text() );
+			$mail->setFrom( $from, wfMessage( 'emailsender' )->inContentLanguage()->text() );
 
 			$mail->addAddress( $to, $name );
 
 			$mail->isHTML( true );
 			$mail->Subject = $subject;
-			$mail->Body    = $body;
+			$mail->Body = $body;
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
 					'Debug on, not sending mail',
@@ -436,10 +441,10 @@ class Mail {
 			}
 		} catch ( Exception $e ) {
 			throw new FlexFormException(
-				$e->getMessage(),
-				0
+				$e->getMessage(), 0
 			);
 		}
+
 		return true;
 	}
 
@@ -448,9 +453,8 @@ class Mail {
 	 * @throws FlexFormException|Exception
 	 */
 	private function sendMail() {
-		global $IP;
-		$mail                 = new PHPMailer( true );
-		$this->fields['to']   = $this->createEmailArray(
+		$mail = new PHPMailer( true );
+		$this->fields['to'] = $this->createEmailArray(
 			$this->fields['to'],
 			$mail
 		);
@@ -479,12 +483,12 @@ class Mail {
 		try {
 			if ( Config::getConfigVariable( 'use_smtp' ) === true ) {
 				$mail->isSMTP();
-				$mail->Host       = Config::getConfigVariable( 'smtp_host' );
-				$mail->SMTPAuth   = Config::getConfigVariable( 'smtp_authentication' );
-				$mail->Username   = Config::getConfigVariable( 'smtp_username' );
-				$mail->Password   = Config::getConfigVariable( 'smtp_password' );
+				$mail->Host = Config::getConfigVariable( 'smtp_host' );
+				$mail->SMTPAuth = Config::getConfigVariable( 'smtp_authentication' );
+				$mail->Username = Config::getConfigVariable( 'smtp_username' );
+				$mail->Password = Config::getConfigVariable( 'smtp_password' );
 				$mail->SMTPSecure = Config::getConfigVariable( 'smtp_secure' );
-				$mail->Port       = Config::getConfigVariable( 'smtp_port' );
+				$mail->Port = Config::getConfigVariable( 'smtp_port' );
 			} else {
 				$mail->isMail();
 			}
@@ -528,7 +532,7 @@ class Mail {
 			$mail = $this->checkForAttachment( $mail );
 			$mail->isHTML( $this->fields['html'] );
 			$mail->Subject = $this->fields['subject'];
-			$mail->Body    = $this->fields['content'];
+			$mail->Body = $this->fields['content'];
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
 					'Debug on, not sending mail',
@@ -539,8 +543,7 @@ class Mail {
 			}
 		} catch ( Exception $e ) {
 			throw new FlexFormException(
-				$e->getMessage(),
-				0
+				$e->getMessage(), 0
 			);
 		}
 	}
@@ -551,12 +554,11 @@ class Mail {
 	 * @return PHPMailer
 	 * @throws Exception
 	 */
-	private function checkForAttachment( PHPMailer $mail ) : PHPMailer {
-
+	private function checkForAttachment( PHPMailer $mail ): PHPMailer {
 		$protocol = stripos(
-						$_SERVER['SERVER_PROTOCOL'],
-						'https'
-					) === 0 ? 'https:' : 'http:';
+			$_SERVER['SERVER_PROTOCOL'],
+			'https'
+		) === 0 ? 'https:' : 'http:';
 		if ( $this->fields['attachment'] !== false ) {
 			if ( substr( strtolower( $this->fields['attachment'] ), 0, 5 ) === 'file:' ) {
 				// We have a wiki file
@@ -566,10 +568,9 @@ class Mail {
 						''
 					);
 				}
-				//die ( substr($this->fields['attachment'], 5 ) );
 				$fileRepo = MediaWikiServices::getInstance()->getRepoGroup();
 				$fTitle = Title::newFromText( substr( $this->fields['attachment'], 5 ) );
-				$user = \RequestContext::getMain()->getUser();
+				$user = RequestContext::getMain()->getUser();
 				if ( !MediaWikiServices::getInstance()->getPermissionManager()->userCan( "read", $user, $fTitle ) ) {
 					if ( Config::isDebug() ) {
 						Debug::addToDebug(
@@ -577,6 +578,7 @@ class Mail {
 							''
 						);
 					}
+
 					return $mail;
 				}
 				$searchedFile = $fileRepo->findFile( substr( $this->fields['attachment'], 5 ) );
@@ -587,6 +589,7 @@ class Mail {
 							substr( $this->fields['attachment'], 5 )
 						);
 					}
+
 					return $mail;
 				}
 				$canonicalURL = $searchedFile->getLocalRefPath();
@@ -597,15 +600,19 @@ class Mail {
 				if ( Config::isDebug() ) {
 					Debug::addToDebug(
 						"File info : " . substr( $this->fields['attachment'], 4 ),
-						[ "exists" => $searchedFile->exists(), "canon url" => $canonicalURL ]
+						[
+							"exists" => $searchedFile->exists(),
+							"canon url" => $canonicalURL
+						]
 					);
 				}
-
 			} else {
-				if ( strpos(
-						 $this->fields['attachment'],
-						 'http'
-					 ) === false ) {
+				if (
+					strpos(
+						$this->fields['attachment'],
+						'http'
+					) === false
+				) {
 					$fileAttachedContent = file_get_contents( $protocol . $this->fields['attachment'] );
 				} else {
 					$fileAttachedContent = file_get_contents( $this->fields['attachment'] );
@@ -615,7 +622,7 @@ class Mail {
 			$fileAttachedContent = false;
 		}
 		if ( $fileAttachedContent !== false ) {
-			$pInfo            = pathinfo( $this->fields['attachment'] );
+			$pInfo = pathinfo( $this->fields['attachment'] );
 			$fileAttachedName = $pInfo['basename'];
 			$mail->addStringAttachment(
 				$fileAttachedContent,
@@ -632,7 +639,7 @@ class Mail {
 	 *
 	 * @return array
 	 */
-	private function createEmailArray( string $email, PHPMailer $mail ) : array {
+	private function createEmailArray( string $email, PHPMailer $mail ): array {
 		$tmp = str_replace(
 			[
 				'[',
@@ -651,23 +658,20 @@ class Mail {
 	/**
 	 * @throws FlexFormException
 	 */
-	private function checkFieldsNeeded() {
+	private function checkFieldsNeeded(): void {
 		if ( $this->fields['to'] === false ) {
 			throw new FlexFormException(
-				wfMessage( 'flexform-mail-no-to' )->text(),
-				0
+				wfMessage( 'flexform-mail-no-to' )->text(), 0
 			);
 		}
 		if ( $this->fields['from'] === false ) {
 			throw new FlexFormException(
-				wfMessage( 'flexform-mail-no-from' )->text(),
-				0
+				wfMessage( 'flexform-mail-no-from' )->text(), 0
 			);
 		}
 		if ( $this->fields['subject'] === false ) {
 			throw new FlexFormException(
-				wfMessage( 'flexform-mail-no-subject' )->text(),
-				0
+				wfMessage( 'flexform-mail-no-subject' )->text(), 0
 			);
 		}
 	}
@@ -679,7 +683,7 @@ class Mail {
 		if ( $this->fields['header'] !== false ) {
 			try {
 				$headerContent = $this->parseWikiPageByTitle( $this->fields['header'] );
-			} catch ( FlexFormException|\MWException $e ) {
+			} catch ( FlexFormException | Exception $e ) {
 				$headerContent = '';
 			}
 		} else {
@@ -688,7 +692,7 @@ class Mail {
 		if ( $this->fields['footer'] !== false ) {
 			try {
 				$footerContent = $this->parseWikiPageByTitle( $this->fields['footer'] );
-			} catch ( FlexFormException|\MWException $e ) {
+			} catch ( FlexFormException | Exception $e ) {
 				$footerContent = '';
 			}
 		} else {
