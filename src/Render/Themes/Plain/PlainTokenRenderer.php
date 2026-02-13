@@ -197,9 +197,9 @@ class PlainTokenRenderer implements TokenRenderer {
 
 		global $wgScriptPath, $wgServer;
 		if ( $wgScriptPath !== "" ) {
-			$smwQueryUrl = "/" . ltrim( $wgScriptPath, '/' ) . '/index.php/Special:FlexForm';
+			$smwQueryUrl = "/" . ltrim( $wgScriptPath, '/' ) . '/api.php';
 		} else {
-			$smwQueryUrl = '/index.php/Special:FlexForm';
+			$smwQueryUrl = '/api.php';
 		}
 		if ( $smwQuery !== null ) {
 			$filterQuery = $this->checkFilterQuery( $smwQuery );
@@ -209,8 +209,8 @@ class PlainTokenRenderer implements TokenRenderer {
 			} else {
 				$ffFormField = '';
 			}
-			$smwQueryUrl .= '?action=handleExternalRequest';
-			$smwQueryUrl .= '&script=SemanticAsk&query=';
+			$smwQueryUrl .= '?action=FlexFormAsk&format=json';
+			$smwQueryUrl .= '&query=';
 			$smwQueryUrlQ = base64_encode( $smwQuery );
 		} else {
 			$smwQueryUrl = null;

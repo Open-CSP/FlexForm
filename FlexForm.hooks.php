@@ -257,15 +257,18 @@ class FlexFormHooks {
 		if ( !\FlexForm\Core\Config::getConfigStatus() ) {
 			\FlexForm\Core\Config::setConfigFromMW();
 		}
-		global $wgFlexFormConfig;
-		$wgFlexFormConfig['loaders']                  = [];
-		$wgFlexFormConfig['loaders']['css']           = [];
-		$wgFlexFormConfig['loaders']['javascript']    = [];
-		$wgFlexFormConfig['loaders']['jsconfigvars']  = [];
-		$wgFlexFormConfig['loaders']['javascripttag'] = [];
-		$wgFlexFormConfig['loaders']['csstag']        = [];
-		$wgFlexFormConfig['loaders']['files']         = [];
-
+		// Only set these config variables if no other form has been rendered.
+		// Extensions like WikiGuard creates a new parser and thus executes this possibly multiple times.
+		if ( Core::getRun() === false ) {
+			global $wgFlexFormConfig;
+			$wgFlexFormConfig['loaders'] = [];
+			$wgFlexFormConfig['loaders']['css'] = [];
+			$wgFlexFormConfig['loaders']['javascript'] = [];
+			$wgFlexFormConfig['loaders']['jsconfigvars'] = [];
+			$wgFlexFormConfig['loaders']['javascripttag'] = [];
+			$wgFlexFormConfig['loaders']['csstag'] = [];
+			$wgFlexFormConfig['loaders']['files'] = [];
+		}
 		$formTags = [
 			'wsform',
 			'_form',

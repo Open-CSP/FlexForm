@@ -121,6 +121,14 @@ class Upload {
 			'wsform_page_content',
 			$fileDetails
 		);
+		$pageContentPrefix   = General::getJsonValue(
+			'wsform_pandoc_prefix',
+			$fileDetails
+		);
+		$pageContentSuffix   = General::getJsonValue(
+			'wsform_pandoc_suffix',
+			$fileDetails
+		);
 		$pageTemplate  = General::getJsonValue(
 			'wsform_file_template',
 			$fileDetails
@@ -175,6 +183,20 @@ class Upload {
 		if ( $pageContent === false ) {
 			$pageContent = '';
 		}
+
+		$pageContentPrefix = ( $pageContentPrefix === false )
+			? ''
+			: ContentCore::parseTitle(
+				$pageContentPrefix,
+				true
+			);
+
+		$pageContentSuffix = ( $pageContentSuffix === false )
+			? ''
+			: ContentCore::parseTitle(
+				$pageContentSuffix,
+				true
+			);
 
 		if ( $imageComment === false ) {
 			$imageComment = $this->getSummary();
@@ -468,7 +490,16 @@ class Upload {
 					$convert = new PandocConverter();
 					$convert->setConvertFrom( $fileAction );
 					$convert->setFileName( $storedFile );
-					$newContent               = $convert->convertFile();
+					$newContent = $convert->convertFile();
+					Debug::addToDebug(
+						'File converted with Pandoc: ' . $titleName,
+						[
+							'$pageContentPrefix'    => $pageContentPrefix,
+							'$newContent' => $newContent,
+							'$pageContentSuffix'  => $pageContentSuffix
+						]
+					);
+					$newContent = $pageContentPrefix . $newContent . $pageContentSuffix;
 					$possibleImagesInDocument = $convert->getPossibleImagesFromConversion();
 					if ( $possibleImagesInDocument !== false ) {
 						$fCount = 1;
@@ -477,7 +508,7 @@ class Upload {
 							$newFname = $titleName . '-' . basename( $singleImage );
 							if ( Config::isDebug() ) {
 								Debug::addToDebug(
-									$i . ' - Preparing to upload image file from document: ' . $fCount,
+									$fCount . ' - Preparing to upload image file from document: ' . $fCount,
 									[
 										'$newFname'    => $newFname,
 										'$singleImage' => $singleImage,

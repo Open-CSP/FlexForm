@@ -495,7 +495,7 @@ class TagHooks {
 					break;
 				case "v2":
 					$recaptchaDiv = '<div class="g-recaptcha" data-sitekey="' . Recaptcha::$rc_site_key . '"></div>';
-					$parser->getOutput()->addModuleStyles( 'ext.flexform.recaptcha.v2.styles' );
+					$parser->getOutput()->addModuleStyles( [ 'ext.flexform.recaptcha.v2.styles' ] );
 					break;
 				case "enterprise":
 					if ( file_exists( $IP . '/extensions/FlexForm/Modules/recaptchaEnterprise.js' ) ) {
@@ -766,8 +766,8 @@ class TagHooks {
 		switch ( $fieldType ) {
 			case 'text':
 				if ( isset( $args['mwidentifier'] ) && $args['mwidentifier'] === 'datepicker' ) {
-					$parser->getOutput()->addModules( 'ext.wsForm.datePicker.scripts' );
-					$parser->getOutput()->addModuleStyles( 'ext.wsForm.datePicker.styles' );
+					$parser->getOutput()->addModules( [ 'ext.wsForm.datePicker.scripts' ] );
+					$parser->getOutput()->addModuleStyles( [ 'ext.wsForm.datePicker.styles' ] );
 				}
 				$preparedArguments = Validate::doSimpleParameters(
 					$args,
@@ -1284,7 +1284,7 @@ class TagHooks {
 				$ret = '';
 				if ( isset( $editor ) && $editor === "ve" ) {
 					if ( ExtensionRegistry::getInstance()->isLoaded( 'VEForAll' ) ) {
-						$parser->getOutput()->addModules( 'ext.veforall.main' );
+						$parser->getOutput()->addModules( [ 'ext.veforall.main' ] );
 						$class .= ' load-editor ';
 						$ret = '<span class="ve-area-wrapper">';
 					}
@@ -2564,6 +2564,8 @@ class TagHooks {
 		$comment            = false;
 		$presentor          = false; // Holds name of external presentor, e.g. Slim
 		$pagecontent        = "";
+		$textPrefix         = "";
+		$textSuffix         = "";
 		$use_label          = false;
 		$force              = false;
 		$parseContent       = false;
@@ -2591,6 +2593,12 @@ class TagHooks {
 						break;
 					case "parsecontent" :
 						$parseContent = true;
+						break;
+					case "pandoc_prefix" :
+						$textPrefix = $v;
+						break;
+					case "pandoc_suffix" :
+						$textSuffix = $v;
 						break;
 					case "dropzone" :
 						$drop = true;
@@ -2679,6 +2687,12 @@ class TagHooks {
 		}
 		if ( $pagecontent ) {
 			$uploadDetails["wsform_page_content"] = $pagecontent;
+		}
+		if ( $textPrefix ) {
+			$uploadDetails["wsform_pandoc_prefix"] = $textPrefix;
+		}
+		if ( $textSuffix ) {
+			$uploadDetails["wsform_pandoc_suffix"] = $textSuffix;
 		}
 		if ( $comment ) {
 			$uploadDetails["wsform-upload-comment"] = $comment;
@@ -2842,6 +2856,7 @@ class TagHooks {
 			$mobileScreenshot = MobileScreenShot::renderHtml( $args );
 
 		}
+
 		$result['verbose_div'] = $verboseDiv;
 		$result['error_div']   = $errorDiv;
 		$result['attributes']  = $attributes;
