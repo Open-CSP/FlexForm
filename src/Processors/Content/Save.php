@@ -435,7 +435,7 @@ class Save {
 		$editAllPagesConfig = Config::getConfigVariable( 'userscaneditallpages' );
 		if ( $editAllPagesConfig === false && ( $canCreate === false || $canEdit === false ) ) {
 			throw new FlexFormException(
-				wfMessage( 'flexform-user-rights-not', $titleObject->getFullText() )->text(), $user->getName()
+				wfMessage( 'flexform-user-rights-not', $titleObject->getFullText(), $user->getName() )->text()
 			);
 		}
 		if ( !$titleObject || $titleObject->hasFragment() ) {
