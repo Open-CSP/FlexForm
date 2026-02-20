@@ -63,8 +63,8 @@ class ApiOpenFlexForm extends ApiBase {
 	}
 
 	/**
-	 * @throws MWException
 	 * @throws FlexFormException
+	 * @throws \MediaWiki\Api\ApiUsageException
 	 */
 	public function execute() {
 		Config::setConfigFromMW();

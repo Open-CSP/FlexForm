@@ -13,6 +13,7 @@ namespace FlexForm\Processors\Content;
 use Exception;
 use MediaWiki\Context\RequestContext;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\WikiMap\WikiMap;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use FlexForm\Core\Config;
@@ -388,7 +389,41 @@ class Mail {
 	}
 
 	/**
+	 * Create a value suitable for the MessageId Header
+	 *
+	 * @return string
+	 */
+	private function makeMsgId(): string {
+		$services = MediaWikiServices::getInstance();
+
+		$smtp = $services->getMainConfig()->get( 'SMTP' );
+		$server = $services->getMainConfig()->get( 'Server' );
+		$domainId = WikiMap::getCurrentWikiDbDomain()->getId();
+		$msgid = uniqid( $domainId . ".", true /** for cygwin */ );
+
+		if ( is_array( $smtp ) && isset( $smtp['IDHost'] ) && $smtp['IDHost'] ) {
+			$domain = $smtp['IDHost'];
+		} else {
+			$domain = parse_url( $server, PHP_URL_HOST ) ?? '';
+		}
+		return "<$msgid@$domain>";
+	}
+
+	/**
+	 * @param PHPMailer $mail
+	 *
 	 * @return PHPMailer
+	 * @throws \PHPMailer\PHPMailer\Exception
+	 */
+	private function setCustomHeaders( PHPMailer $mail ): PHPMailer {
+		$mail->addCustomHeader( 'Message-ID', self::makeMsgId() );
+		$mail->addCustomHeader( 'X-Mailer', 'MediaWiki mailer' );
+		return $mail;
+	}
+
+	/**
+	 * @return PHPMailer
+	 * @throws \PHPMailer\PHPMailer\Exception
 	 */
 	private function getPHPMailer(): PHPMailer {
 		$mail = new PHPMailer( true );
@@ -400,6 +435,25 @@ class Mail {
 			$mail->Password = Config::getConfigVariable( 'smtp_password' );
 			$mail->SMTPSecure = Config::getConfigVariable( 'smtp_secure' );
 			$mail->Port = Config::getConfigVariable( 'smtp_port' );
+			$mail = $this->setCustomHeaders( $mail );
+
+		} elseif ( Config::getConfigVariable( 'use_mediawiki_mail_settings' ) === true ) {
+			$config = MediaWikiServices::getInstance()->getMainConfig();
+			$smtpSettings = $config->get( 'SMTP' );
+			if ( is_array( $smtpSettings ) ) {
+				$mail->isSMTP();
+				$mail->Host = $smtpSettings['host'] ?? 'localhost';
+				$mail->Port = $smtpSettings['port'] ?? 587;
+				if ( !empty( $smtpSettings['auth'] ) ) {
+					$mail->SMTPAuth = true;
+					$mail->Username = $smtpSettings['username'] ?? '';
+					$mail->Password = $smtpSettings['password'] ?? '';
+				} else {
+					$mail->SMTPAuth = false;
+				}
+				$mail->SMTPSecure = $smtpSettings['secure'] ?? 'tls';
+				$mail = $this->setCustomHeaders( $mail );
+			}
 		} else {
 			$mail->isMail();
 		}
@@ -418,8 +472,6 @@ class Mail {
 	public function sendMailTo( string $to, string $name, string $subject, string $body ): bool {
 		global $wgPasswordSender;
 		$from = $wgPasswordSender;
-		$mail = new PHPMailer( true );
-
 		try {
 			$mail = $this->getPHPMailer();
 			$mail->CharSet = 'UTF-8';
@@ -453,7 +505,7 @@ class Mail {
 	 * @throws FlexFormException|Exception
 	 */
 	private function sendMail() {
-		$mail = new PHPMailer( true );
+		$mail = $this->getPHPMailer();
 		$this->fields['to'] = $this->createEmailArray(
 			$this->fields['to'],
 			$mail
@@ -480,18 +532,8 @@ class Mail {
 				$mail
 			);
 		}
+
 		try {
-			if ( Config::getConfigVariable( 'use_smtp' ) === true ) {
-				$mail->isSMTP();
-				$mail->Host = Config::getConfigVariable( 'smtp_host' );
-				$mail->SMTPAuth = Config::getConfigVariable( 'smtp_authentication' );
-				$mail->Username = Config::getConfigVariable( 'smtp_username' );
-				$mail->Password = Config::getConfigVariable( 'smtp_password' );
-				$mail->SMTPSecure = Config::getConfigVariable( 'smtp_secure' );
-				$mail->Port = Config::getConfigVariable( 'smtp_port' );
-			} else {
-				$mail->isMail();
-			}
 			$mail->CharSet = 'UTF-8';
 			foreach ( $this->fields['from'] as $single ) {
 				$mail->setFrom(
