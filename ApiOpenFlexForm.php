@@ -153,7 +153,7 @@ class ApiOpenFlexForm extends ApiBase {
 	 */
 	protected function getExamplesMessages(): array {
 		return [
-			'action=flexform&ffAction=canUserBeCreated&additionalData=Harry%20Potter' => 'apihelp-flexform-ffaction-example-1'
+			'action=FlexFormOpen&ffAction=canUserBeCreated&additionalData=Harry%20Potter' => 'apihelp-flexform-ffaction-example-1'
 		];
 	}
 
