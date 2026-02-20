@@ -42,7 +42,7 @@
 	"apihelp-FlexFormAsk-param-template" : "same as SMW Ask query template",
 	"apihelp-FlexFormAsk-example-1": "Fill the base64 query and use q for search",
 	"apihelp-FlexFormOpen-param-ffAction" : "FlexForm action to initiate",
-	"apihelp-FlexFormOpen-param-additionData" : "Additional data for the action",
+	"apihelp-FlexFormOpen-param-additionalData" : "Additional data for the action",
 	"apihelp-FlexFormOpen-summary": "Trigger a FlexForm open action",
 	"flexform-field-secure-not-available" : "<!-- secure config setting not set, skipping -->",
 	"flexform-field-invalid" : "Non valid fieldtype",

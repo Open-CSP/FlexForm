@@ -1,6 +1,6 @@
 {
   "name": "FlexForm",
-  "version": "2.7.0",
+  "version": "2.7.1",
   "author": [
     "[https://www.wikibase-solutions.com/author/charlot Sen-Sai]",
     "[https://www.wikibase-solutions.com/author/marijn Marijn]"
@@ -13,6 +13,7 @@
     "ApiFlexForm": "ApiFlexForm.php",
     "ApiBotFlexForm": "ApiBotFlexForm.php",
     "ApiAskFlexForm": "ApiAskFlexForm.php",
+    "ApiOpenFlexForm": "ApiOpenFlexForm.php",
     "FlexFormHooks": "FlexForm.hooks.php"
   },
   "AutoloadNamespaces": {

@@ -5,24 +5,10 @@ use FlexForm\Core\Debug;
 use FlexForm\Core\HandleResponse;
 use FlexForm\Core\Protect;
 use FlexForm\FlexFormException;
+use MediaWiki\MediaWikiServices;
 use Wikimedia\ParamValidator\ParamValidator;
 
 class ApiOpenFlexForm extends ApiBase {
-
-	/**
-	 * @param mixed $failure
-	 *
-	 * @return void
-	 */
-	private function returnFailure( $failure ) {
-		$ret            = [];
-		$ret['message'] = $failure;
-		$this->getResult()->addValue(
-			null,
-			$this->getModuleName(),
-			[ 'error' => $ret ]
-		);
-	}
 
 	/**
 	 * @param mixed $code
@@ -31,9 +17,9 @@ class ApiOpenFlexForm extends ApiBase {
 	 * @return array
 	 */
 	private function createResult( $code, $result ): array {
-		$ret           = [];
+		$ret = [];
 		$ret['status'] = $code;
-		$ret['data']   = $result;
+		$ret['data'] = $result;
 
 		return $ret;
 	}
@@ -79,113 +65,49 @@ class ApiOpenFlexForm extends ApiBase {
 	/**
 	 * @throws MWException
 	 * @throws FlexFormException
-	 * @throws \MediaWiki\Api\ApiUsageException
 	 */
 	public function execute() {
 		$params = $this->extractRequestParams();
-		$action = $params['ffaction'];
+		$action = $params['ffAction'];
 		if ( !$action || $action === null ) {
-			$this->dieWithError( 'missingparam' );
+			$this->dieWithError( 'missingparam ffAction' );
 		}
 
 		switch ( $action ) {
-			case "user-exists":
-				$mId = $params['mId'];
-				if ( !$mId || $mId === null ) {
-					$this->returnFailure( $this->msg( 'flexform-api-error-parameter-mid-missing' )->text() );
-					break;
+			case "canUserBeCreated":
+				$result = true;
+				$userName = $params['additionalData'];
+				if ( empty( $userName ) ) {
+					$this->dieWithError( 'missingparam' );
 				}
-				$messaging = new \FlexForm\Core\Messaging();
-				$mId = intval( $mId );
-				if ( $mId === 0 ) {
-					$this->returnFailure( $this->msg( 'flexform-api-error-parameter-mid-missing' )->text() );
-					break;
+				$userFactory = MediaWikiServices::getInstance()->getUserFactory();
+				$userNew = $userFactory->newFromName( $userName );
+				if ( $userNew->isRegistered() ) {
+					$result = false;
 				}
-				$result = $messaging->removeUserMessageById( $mId, true );
-				$output = $this->createResult( "ok", "ok" );
-				break;
-			case "ask":
-				$smwAsk = new SemanticAsk();
-				$output = $smwAsk->execute( new HandleResponse() );
-				$this->getResult()->addValue(
-					null,
-					'results',
-					$output['results']
-				);
-
-				return true;
+				$nameUtils = MediaWikiServices::getInstance()->getUserNameUtils();
+				if ( !$nameUtils->isCreatable( $userName ) ) {
+					$result = false;
+				}
+				$this->getResult()->addValue( null, 'canUserBeCreated', $result );
 				break;
 			case "decrypt":
-				$output = $this->decrypt( $params['titleStartsWith'] );
+				$output = $this->decrypt( $params['additionalData'] );
 				if ( $output['status'] === "error" ) {
-					$this->returnFailure( $output['data'] );
-					break;
+					$this->dieWithError( $output['data'] );
 				}
+				$this->getResult()->addValue( null, 'decrypt', $output );
 
-				break;
-			case "nextAvailable":
-				$title  = $params['titleStartsWith'];
-				$result = $this->getNextAvailable( $title );
-				if ( $result['status'] === "error" ) {
-					$output = '';
-					$this->returnFailure( $result['data'] );
-					break;
-				}
-				$output = $result['data'];
-				break;
-			case "getRange" :
-				$title = $params['titleStartsWith'];
-				$range = $params['range'];
-				if ( !$range ) {
-					$output = '';
-					$this->returnFailure( wfMessage( 'flexform-api-error-parameter-range-missing' )->text() );
-					break;
-				}
-				$range = explode(
-					'-',
-					$range
-				);
-
-				if ( !ctype_digit( $range[0] ) || !ctype_digit( $range[1] ) ) {
-					$this->returnFailure( wfMessage( 'flexform-api-error-bad-range' )->text() );
-					break;
-				}
-				$startRange = (int)$range[0];
-				$endRange   = (int)$range[1];
-				$params['setrange']['start'] = $startRange;
-				$params['setrange']['end'] = $endRange;
-
-				$result = $this->getFromRange(
-					$title,
-					[
-						'start' => $startRange,
-						'end'   => $endRange
-					]
-				);
-				if ( isset( $result['status'] ) && $result['status'] === "error" ) {
-					$this->returnFailure( $result['data'] );
-					$output = '';
-					break;
-				}
-				if ( isset( $result['data'] ) ) {
-					$output = $result['data'];
-				} else {
-					$output = '';
-				}
 				break;
 			default :
-				$this->returnFailure( wfMessage( 'flexform-api-error-unknown-what-parameter' )->text() );
-				break;
+				$this->dieWithError( $this->msg( 'flexform-api-error-unknown-what-parameter' )->text() );
 		}
 
-		$this->getResult()->addValue(
-			null,
-			$this->getModuleName(),
-			[ 'result' => $output,
-				'request' => $params ]
-		);
-
 		return true;
+	}
+
+	public function isReadMode() {
+		return false;
 	}
 
 	public function needsToken() {
@@ -201,12 +123,12 @@ class ApiOpenFlexForm extends ApiBase {
 	 */
 	public function getAllowedParams() {
 		return [
-			'ffAction'            => [
-				ParamValidator::PARAM_TYPE     => 'string',
+			'ffAction' => [
+				ParamValidator::PARAM_TYPE => 'string',
 				ParamValidator::PARAM_REQUIRED => true
 			],
-			'additionData' => [
-				ParamValidator::PARAM_TYPE     => 'string'
+			'additionalData' => [
+				ParamValidator::PARAM_TYPE => 'string'
 			],
 		];
 	}
@@ -227,7 +149,7 @@ class ApiOpenFlexForm extends ApiBase {
 	 */
 	protected function getExamplesMessages(): array {
 		return [
-			'action=flexform&ffAction=userExists&additionalData=Harry%20Potter' => 'apihelp-flexform-ffaction-example-1'
+			'action=flexform&ffAction=canUserBeCreated&additionalData=Harry%20Potter' => 'apihelp-flexform-ffaction-example-1'
 		];
 	}
 
