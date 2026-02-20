@@ -26,6 +26,7 @@
 	"apihelp-flexform-param-mId" : "When using acknowledge, this should hold the message ID.",
 	"apihelp-flexform-example-1": "Get the first free Title number in a range from 0-9999 and a Title that starts with Invoice",
 	"apihelp-flexform-example-2": "Get the next available (highest) Title number that is free for a Title that starts with Invoice/",
+	"apihelp-flexform-ffaction-example-1": "Check if a username already exists",
 	"apihelp-flexform-bot-example-1" : "Get page 'Email template page' and pass it as template to the FlexForm Email function.",
 	"apihelp-FlexFormBot-param-trigger": "What function needs to be triggered within FlexForm",
 	"apihelp-FlexFormBot-param-data": "Extra data needed for the Trigger function. Depends on the trigger action. Please read the manual for more information.",
@@ -40,6 +41,9 @@
 	"apihelp-FlexFormAsk-param-returntext" : "lets you set a property for the visible label of the token",
 	"apihelp-FlexFormAsk-param-template" : "same as SMW Ask query template",
 	"apihelp-FlexFormAsk-example-1": "Fill the base64 query and use q for search",
+	"apihelp-FlexFormOpen-param-ffAction" : "FlexForm action to initiate",
+	"apihelp-FlexFormOpen-param-additionData" : "Additional data for the action",
+	"apihelp-FlexFormOpen-summary": "Trigger a FlexForm open action",
 	"flexform-field-secure-not-available" : "<!-- secure config setting not set, skipping -->",
 	"flexform-field-invalid" : "Non valid fieldtype",
 

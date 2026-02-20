@@ -24,7 +24,8 @@
   "APIModules": {
     "flexform": "ApiFlexForm",
     "FlexFormBot": "ApiBotFlexForm",
-    "FlexFormAsk": "ApiAskFlexForm"
+    "FlexFormAsk": "ApiAskFlexForm",
+    "FlexFormOpen": "ApiOpenFlexForm"
   },
   "Hooks": {
     "LoadExtensionSchemaUpdates": "FlexForm\\Core\\Sql::addTables",
