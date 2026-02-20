@@ -195,6 +195,7 @@
 	"flexform-api-error-parameter-mid-missing" : "mId parameter is missing",
 	"flexform-api-error-bad-range" : "Bad range",
 	"flexform-api-error-unknown-what-parameter" : "What parameter unknown",
+	"flexform-api-error-api-function-not-active" : "This API function is turned off in the local settings.",
 	"flexform-bot-api-error-unknown-trigger-parameter" : "Unknown or missing trigger parameter",
 	"flexform-bot-api-error-unknown-data-parameter" : "Incorrect or missing data parameter",
 	"flexform-bot-api-error-unknown-title-parameter" : "Incorrect or missing title parameter"

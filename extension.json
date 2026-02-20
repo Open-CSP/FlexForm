@@ -90,7 +90,8 @@
       "allowedGroups" : [ "sysop" ],
       "hideEdit" : true,
       "pandoc-install-path" : "",
-      "forceNullEdit" : true
+      "forceNullEdit" : true,
+      "allowFlexFormOpenAPI" : false
     }
 
   },

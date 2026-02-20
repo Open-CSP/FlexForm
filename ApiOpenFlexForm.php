@@ -67,6 +67,10 @@ class ApiOpenFlexForm extends ApiBase {
 	 * @throws FlexFormException
 	 */
 	public function execute() {
+		$configVar = Config::getConfigVariable( 'allowFlexFormOpenAPI' );
+		if ( $configVar === null ) {
+			$this->dieWithError( $this->msg( 'flexform-api-error-api-function-not-active' )->text() );
+		}
 		$params = $this->extractRequestParams();
 		$action = $params['ffAction'];
 		if ( !$action || $action === null ) {
