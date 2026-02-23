@@ -416,7 +416,7 @@ class Mail {
 	 * @throws \PHPMailer\PHPMailer\Exception
 	 */
 	private function setCustomHeaders( PHPMailer $mail ): PHPMailer {
-		$mail->addCustomHeader( 'Message-ID', self::makeMsgId() );
+		$mail->MessageID = '<' . self::makeMsgId() . '>';
 		$mail->addCustomHeader( 'X-Mailer', 'MediaWiki mailer' );
 		return $mail;
 	}
