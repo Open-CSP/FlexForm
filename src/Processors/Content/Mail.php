@@ -453,6 +453,8 @@ class Mail {
 				}
 				$mail->SMTPSecure = $smtpSettings['secure'] ?? 'tls';
 				$mail = $this->setCustomHeaders( $mail );
+			} else {
+				$mail->isMail();
 			}
 		} else {
 			$mail->isMail();
