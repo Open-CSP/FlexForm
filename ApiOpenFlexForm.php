@@ -78,16 +78,6 @@ class ApiOpenFlexForm extends ApiBase {
 		];
 	}
 
-	/**
-	 * If there are more results from the API, get the next results
-	 *
-	 * @param array $result of previous API results
-	 *
-	 * @return bool|string when no further results or where to start next API call
-	 */
-	public function getApiContinue( array $result ) {
-		return $result['continue']['apcontinue'] ?? false;
-	}
 
 	/**
 	 * @return array
