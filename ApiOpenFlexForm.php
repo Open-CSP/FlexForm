@@ -11,58 +11,6 @@ use Wikimedia\ParamValidator\ParamValidator;
 class ApiOpenFlexForm extends ApiBase {
 
 	/**
-	 * @param mixed $code
-	 * @param mixed $result
-	 *
-	 * @return array
-	 */
-	private function createResult( $code, $result ): array {
-		$ret = [];
-		$ret['status'] = $code;
-		$ret['data'] = $result;
-
-		return $ret;
-	}
-
-	/**
-	 * @param string $txt
-	 *
-	 * @return array
-	 * @throws FlexFormException
-	 */
-	private function decrypt( string $txt ): array {
-		Config::setConfigFromMW();
-		$crypt = new Protect();
-		try {
-			$crypt::setCrypt();
-		} catch ( FlexFormException $exception ) {
-			return $this->createResult(
-				'error',
-				$exception->getMessage()
-			);
-		}
-
-		$json = json_decode(
-			$txt,
-			true
-		);
-		if ( $json === null ) {
-			$json = $crypt::decrypt( $txt );
-		} elseif ( is_array( $json ) ) {
-			foreach ( $json as $k => $v ) {
-				$json[$k] = $crypt::decrypt( $v );
-			}
-		} else {
-			$json = $crypt::decrypt( $json );
-		}
-
-		return $this->createResult(
-			'ok',
-			$json
-		);
-	}
-
-	/**
 	 * @throws FlexFormException
 	 * @throws \MediaWiki\Api\ApiUsageException
 	 */
@@ -95,14 +43,6 @@ class ApiOpenFlexForm extends ApiBase {
 					$result = false;
 				}
 				$this->getResult()->addValue( null, 'canUserBeCreated', $result );
-				break;
-			case "decrypt":
-				$output = $this->decrypt( $params['additionalData'] );
-				if ( $output['status'] === "error" ) {
-					$this->dieWithError( $output['data'] );
-				}
-				$this->getResult()->addValue( null, 'decrypt', $output );
-
 				break;
 			default :
 				$this->dieWithError( $this->msg( 'flexform-api-error-unknown-what-parameter' )->text() );
