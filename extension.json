@@ -1,6 +1,6 @@
 {
   "name": "FlexForm",
-  "version": "2.7.0",
+  "version": "2.7.1",
   "author": [
     "[https://www.wikibase-solutions.com/author/charlot Sen-Sai]",
     "[https://www.wikibase-solutions.com/author/marijn Marijn]"
@@ -13,6 +13,7 @@
     "ApiFlexForm": "ApiFlexForm.php",
     "ApiBotFlexForm": "ApiBotFlexForm.php",
     "ApiAskFlexForm": "ApiAskFlexForm.php",
+    "ApiOpenFlexForm": "ApiOpenFlexForm.php",
     "FlexFormHooks": "FlexForm.hooks.php"
   },
   "AutoloadNamespaces": {
@@ -24,7 +25,8 @@
   "APIModules": {
     "flexform": "ApiFlexForm",
     "FlexFormBot": "ApiBotFlexForm",
-    "FlexFormAsk": "ApiAskFlexForm"
+    "FlexFormAsk": "ApiAskFlexForm",
+    "FlexFormOpen": "ApiOpenFlexForm"
   },
   "Hooks": {
     "LoadExtensionSchemaUpdates": "FlexForm\\Core\\Sql::addTables",
@@ -69,6 +71,7 @@
       "auto_save_after_change": 3000,
       "auto_save_btn_on": "Autosave On",
       "auto_save_btn_off": "Autosave Off",
+      "use_mediawiki_mail_settings": false,
       "use_smtp": false,
       "smtp_host": "",
       "smtp_authentication": true,
@@ -87,7 +90,8 @@
       "allowedGroups" : [ "sysop" ],
       "hideEdit" : true,
       "pandoc-install-path" : "",
-      "forceNullEdit" : true
+      "forceNullEdit" : true,
+      "allowFlexFormOpenAPI" : false
     }
 
   },
