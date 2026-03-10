@@ -68,7 +68,6 @@ form:has(.flex-form-spinner.active) {
 	pointer-events: none;
 }
 
-/* 3. Gebruik het formulier ZELF om de overlay te genereren */
 form:has(.flex-form-spinner.active)::before {
 	content: "";
 	position: absolute;
@@ -76,13 +75,11 @@ form:has(.flex-form-spinner.active)::before {
 	left: 0;
 	width: 100%;
 	height: 100%;
-	/* Veranderd naar een hele lichte witte waas */
 	background-color: var(--ff-overlay-bg, rgba(255, 255, 255, 0.7));
 	z-index: 9998;
 	border-radius: inherit;
 }
 
-/* 4. De basis van jouw 3D spinner (vervangt .loader) */
 .flex-form-spinner.active {
 	display: block;
 	position: absolute;
@@ -90,17 +87,14 @@ form:has(.flex-form-spinner.active)::before {
 	left: 50%;
 	z-index: 9999;
 	box-sizing: border-box;
-	/* Iets geschaald naar 80px (120px is vaak wat fors voor een formulier) */
 	width: 80px;
 	height: 80px;
 	border-radius: 50%;
 	border: 4px solid var(--ff-spinner-base, rgba(0, 0, 0, 0.1));
 	transform-origin: 50% 50%;
-	/* Centreren (-50%, -50%) en de 3D-kanteling gecombineerd */
 	transform: translate(-50%, -50%) perspective(200px) rotateX(66deg);
 }
 
-/* 5. De twee draaiende banen */
 .flex-form-spinner.active::before,
 .flex-form-spinner.active::after {
 	content: "";
@@ -122,7 +116,6 @@ form:has(.flex-form-spinner.active)::before {
 	animation-delay: 0.4s;
 }
 
-/* 6. De animaties */
 @keyframes spinner-spin {
 	100% { transform: rotate(360deg); }
 }
