@@ -934,6 +934,7 @@ function showWeAreWorking (form) {
 	}
 	var btn = $(form).find(':submit')
 	var spinner = $(form).find('.flex-form-spinner')
+	$(form).append(spinner);
 	$(spinner).addClass('active')
 	$(btn).addClass('flexform-disabled')
 	$(btn).prop('disabled', true)

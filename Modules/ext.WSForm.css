@@ -66,6 +66,7 @@
 form:has(.flex-form-spinner.active) {
 	position: relative;
 	pointer-events: none;
+	isolation: isolate;
 }
 
 form:has(.flex-form-spinner.active)::before {
