@@ -86,6 +86,7 @@ Visit this documentation page https://www.open-csp.org/DevOps:Doc/FlexForm/2.0/V
 Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
+* 2.7.2 : Changed submitting of Forms to a better viewable submit status. Introducing --ff-overlay-bg, --ff-spinner-base, --ff-spinner-color-1 and --ff-spinner-color-2 css variables to control colors.
 * 2.7.1 : Added: action=FlexFormOpen&ffAction=canUserBeCreated&additionalData=Harry (example) to check if a user can exist. Added use_mediawiki_mail_settings config setting.
 * 2.7.0 : Fixed Pandoc namespace issue. Rewrote Token SMW Ask query. Added Pandoc prefix and suffix options. Allowing to add prefix- or suffix text to a converted document before it is saved.
 * 2.6.7 : Semantic Ask in tokens quick fix. Will be rewritten as a full API call in 2.7.x
