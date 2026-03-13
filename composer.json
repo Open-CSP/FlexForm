@@ -13,7 +13,7 @@
     "ezyang/htmlpurifier": "4.19.*",
     "phpoffice/phpspreadsheet": "1.30.*",
     "galbar/jsonpath": "^2.1",
-    "designburo/php-pandoc": "~1.0",
+    "designburo/php-pandoc": "*",
     "phpmailer/phpmailer": "^6.8.0",
     "php": ">=8.1 < 9.0",
     "ext-json": "*",
