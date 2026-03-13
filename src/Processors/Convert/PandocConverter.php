@@ -26,6 +26,11 @@ class PandocConverter extends Convert {
 	/**
 	 * @var string
 	 */
+	private string $convertTo;
+
+	/**
+	 * @var string
+	 */
 	private string $pandocPathAdditions = '';
 
 	/**
@@ -66,6 +71,15 @@ class PandocConverter extends Convert {
 	}
 
 	/**
+	 * @param string $from
+	 *
+	 * @return void
+	 */
+	public function setConvertTo( string $from ) {
+		$this->convertTo = $from;
+	}
+
+	/**
 	 * @return string
 	 * @throws FlexFormException
 	 */
@@ -83,10 +97,14 @@ class PandocConverter extends Convert {
 			);
 		}
 
+		if ( $this->convertTo === null ) {
+			$this->convertTo = 'mediawiki';
+		}
+
 		$pandoc  = $this->giveMePandoc();
 		$options = [
 			'from'          => $this->convertFrom,
-			'to'            => 'mediawiki',
+			'to'            => $this->convertTo,
 			'extract-media' => $this->getPandocMediaPath()
 		];
 		try {

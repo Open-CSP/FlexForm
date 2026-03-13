@@ -62,15 +62,45 @@ class Upload {
 	/**
 	 * @return string
 	 */
-	private function getFileName() {
+	private function getFileName(): string {
 		return $this->fileName;
 	}
 
 	/**
 	 * @return array
 	 */
-	private function getFileDetails() {
+	private function getFileDetails(): array {
 		return $this->fileDetails;
+	}
+
+	/**
+	 * @param string $action
+	 *
+	 * @return string[]|null
+	 */
+	private function decodeAction( string $action ): ?array {
+		$fileActions = [
+			'convertfrom' => null,
+			'convertto' => 'mediawiki',
+			'uploadoriginalas' => "false" ];
+
+		if ( str_contains( $action, '|' ) ) {
+			$explodedAction = explode( '|', $action );
+		} else {
+			$explodedAction = [ $action ];
+		}
+		foreach ( $explodedAction as $singleAction ) {
+			if ( str_contains( $singleAction, ':' ) ) {
+				$explodedSingeAction = explode( ':', $singleAction );
+				if ( array_key_exists( $explodedSingeAction[0], $fileActions ) ) {
+					$fileActions[ $explodedSingeAction[0] ] = $explodedSingeAction[1];
+				}
+			}
+		}
+		if ( $fileActions['convertfrom'] === null ) {
+			return null;
+		}
+		return $fileActions;
 	}
 
 	/**
@@ -149,18 +179,20 @@ class Upload {
 			'wsform_action',
 			$fileDetails
 		);
-
-		if ( $fileAction === false ) {
-			$fileAction = false;
-		} else {
-			if ( strtolower( $fileAction ) !== 'upload' && strpos( strtolower( $fileAction ), 'convertfrom:' ) === false ) {
+		$fileActionConvertDetails = null;
+		if ( $fileAction !== false ) {
+			$fileAction = ContentCore::parseTitle( $fileAction, true );
+			if ( strtolower( $fileAction ) !== 'upload' && !str_contains( strtolower( $fileAction ), 'convertfrom:' ) ) {
 				throw new FlexFormException(
 					'Unknown upload action',
 					0
 				);
 			}
-			if ( strpos( strtolower( $fileAction ), 'convertfrom:' ) !== false ) {
-				$fileAction = trim( str_replace( 'convertfrom:', '', strtolower( $fileAction ) ) );
+			if ( str_contains( strtolower( $fileAction ), 'convertfrom:' ) ) {
+				// $fileAction = trim( str_replace( 'convertfrom:', '', strtolower( $fileAction ) ) );
+
+				$fileActionConvertDetails = $this->decodeAction( $fileAction );
+				$fileAction = 'convert';
 			}
 		}
 
@@ -236,6 +268,7 @@ class Upload {
 					'File #' . $i,
 					[
 						"fileaction"  => $fileAction,
+						"fileActionConvertDetails"  => $fileActionConvertDetails,
 						'tmp_name'    => $fileToProcess['tmp_name'][$i],
 						'name'        => $fileToProcess['name'][$i],
 						'is_uploaded' => $uploaded,
@@ -485,10 +518,11 @@ class Upload {
 						}
 					}
 					break;
-				default:
+				case "convert":
 					// We need to do a Pandoc conversion
 					$convert = new PandocConverter();
-					$convert->setConvertFrom( $fileAction );
+					$convert->setConvertFrom( $fileActionConvertDetails['convertfrom'] );
+					$convert->setConvertTo( $fileActionConvertDetails['convertto'] );
 					$convert->setFileName( $storedFile );
 					$newContent = $convert->convertFile();
 					Debug::addToDebug(
@@ -551,7 +585,7 @@ class Upload {
 						try {
 							$save->saveToWiki(
 								$titleName,
-								[ 'main' => $newContent ],
+								[ $fileSlot => $newContent ],
 								$imageComment
 							);
 						} catch ( FlexFormException $e ) {
@@ -560,6 +594,28 @@ class Upload {
 								0,
 								$e
 							);
+						}
+						if ( $fileActionConvertDetails['uploadoriginalas'] !== "false") {
+							$pTitleName = $filesCore->parseTarget(
+								$targetFile,
+								$fileActionConvertDetails['uploadoriginalas']
+							);
+							if ( ! Config::isDebug() ) {
+								$resultFileUpload = $this->uploadFileToWiki(
+									$upload_dir . $storedFile,
+									$pTitleName,
+									$thisUser,
+									$details,
+									$imageComment,
+									wfTimestampNow()
+								);
+								if ( $resultFileUpload !== true ) {
+									throw new FlexFormException(
+										$resultFileUpload,
+										0
+									);
+								}
+							}
 						}
 					}
 					break;
@@ -581,9 +637,10 @@ class Upload {
 						);
 					}
 				}
-				unlink( $upload_dir . $storedFile );
 			}
+			unlink( $upload_dir . $storedFile );
 		}
+
 		$separator = ',';
 
 		$ffUploadedFile     = General::makeUnderscoreFromSpace( 'FFUploadedFile-UploadName-' . $fileName );
@@ -622,10 +679,7 @@ class Upload {
 			);
 		}
 		foreach ( $extensions as $extension ) {
-			if ( strpos(
-					 $name,
-					 '.' . $extension
-				 ) !== false ) {
+			if ( str_contains( $name, '.' . $extension ) ) {
 				$name = str_replace(
 					'.' . $extension,
 					'',
