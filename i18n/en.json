@@ -63,6 +63,8 @@
 	"flexform-fileupload-file-title-invalid" : "{$1} could not be imported; a valid title cannot be produced",
 	"flexform-fileupload-no-target" : "No FilePage Title name found (target)",
 	"flexform-fileupload-file-errors" : "We have found errors with the uploaded files : $1",
+	"flexform-fileupload-file-convert-from-error" : "$1 is not set as an allowed convert-from in the local settings",
+	"flexform-fileupload-file-convert-to-error" : "$1 is not set as an allowed convert-to in the local settings",
 	"flexform-fileupload-file-convert-error" : "Error while converting file from $1 to $2",
 	"flexform-fileupload-file-convert-excel-not-found" : "Cannot find Excel sheet.",
 	"flexform-fileupload-file-convert-no-excel-convertor" : "Please run composer to install excel converter",

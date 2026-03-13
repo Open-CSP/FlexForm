@@ -533,88 +533,102 @@ class Upload {
 							'$pageContentSuffix'  => $pageContentSuffix
 						]
 					);
-					$newContent = $pageContentPrefix . $newContent . $pageContentSuffix;
-					$possibleImagesInDocument = $convert->getPossibleImagesFromConversion();
-					if ( $possibleImagesInDocument !== false ) {
-						$fCount = 1;
-						foreach ( $possibleImagesInDocument as $singleImage ) {
-							// find [filename] and replace
-							$newFname = $titleName . '-' . basename( $singleImage );
-							if ( Config::isDebug() ) {
-								Debug::addToDebug(
-									$fCount . ' - Preparing to upload image file from document: ' . $fCount,
-									[
-										'$newFname'    => $newFname,
-										'$singleImage' => $singleImage,
-										'stored file'  => $storedFile,
-										'details'      => $details,
-										'comment'      => $imageComment
-									]
-								);
-							}
-							if ( !Config::isDebug() ) {
-								$resultFileUpload = $this->uploadFileToWiki(
-									$singleImage,
-									$newFname,
-									$thisUser,
-									$details,
-									$imageComment,
-									wfTimestampNow()
-								);
-								if ( $resultFileUpload !== true ) {
-									throw new FlexFormException(
-										$resultFileUpload,
-										0
+					if ( !$convert->isBinaryTarget() ) {
+						$newContent = $pageContentPrefix . $newContent . $pageContentSuffix;
+						$possibleImagesInDocument = $convert->getPossibleImagesFromConversion();
+						if ( $possibleImagesInDocument !== false ) {
+							$fCount = 1;
+							foreach ( $possibleImagesInDocument as $singleImage ) {
+								// find [filename] and replace
+								$newFname = $titleName . '-' . basename( $singleImage );
+								if ( Config::isDebug() ) {
+									Debug::addToDebug(
+										$fCount . ' - Preparing to upload image file from document: ' . $fCount,
+										[
+											'$newFname' => $newFname,
+											'$singleImage' => $singleImage,
+											'stored file' => $storedFile,
+											'details' => $details,
+											'comment' => $imageComment
+										]
 									);
 								}
+								if ( !Config::isDebug() ) {
+									$resultFileUpload = $this->uploadFileToWiki(
+										$singleImage,
+										$newFname,
+										$thisUser,
+										$details,
+										$imageComment,
+										wfTimestampNow()
+									);
+									if ( $resultFileUpload !== true ) {
+										throw new FlexFormException(
+											$resultFileUpload, 0
+										);
+									}
+								}
+								$search = $convert->pandocGetSearchFor() . basename( $singleImage );
+								$replace = $convert->pandocGetReplaceWith( $newFname );
+								$newContent = str_replace(
+									$search,
+									$replace,
+									$newContent
+								);
+								unlink( $singleImage );
+								$fCount++;
 							}
-							$search     = $convert->pandocGetSearchFor() . basename( $singleImage );
-							$replace    = $convert->pandocGetReplaceWith( $newFname );
-							$newContent = str_replace(
-								$search,
-								$replace,
-								$newContent
+						}
+					} else {
+						$titleName .= "." . $fileNameExtension;
+
+						$resultFileUpload = $this->uploadFileToWiki(
+							$upload_dir . $storedFile,
+							$titleName,
+							$thisUser,
+							$details,
+							$imageComment,
+							wfTimestampNow()
+						);
+						if ( $resultFileUpload !== true ) {
+							throw new FlexFormException(
+								$resultFileUpload, 0
 							);
-							unlink( $singleImage );
-							$fCount++;
 						}
 					}
 					// Now create the page in the wiki
 					if ( !Config::isDebug() ) {
-						$save = new Save();
-						try {
-							$save->saveToWiki(
-								$titleName,
-								[ $fileSlot => $newContent ],
-								$imageComment
-							);
-						} catch ( FlexFormException $e ) {
-							throw new FlexFormException(
-								$e->getMessage(),
-								0,
-								$e
-							);
+						if ( !$convert->isBinaryTarget() ) {
+							$save = new Save();
+							try {
+								$save->saveToWiki(
+									$titleName,
+									[ $fileSlot => $newContent ],
+									$imageComment
+								);
+							} catch ( FlexFormException $e ) {
+								throw new FlexFormException(
+									$e->getMessage(), 0, $e
+								);
+							}
 						}
-						if ( $fileActionConvertDetails['uploadoriginalas'] !== "false") {
+						if ( $fileActionConvertDetails['uploadoriginalas'] !== "false" ) {
 							$pTitleName = $filesCore->parseTarget(
 								$targetFile,
 								$fileActionConvertDetails['uploadoriginalas']
 							);
-							if ( ! Config::isDebug() ) {
 								$resultFileUpload = $this->uploadFileToWiki(
-									$upload_dir . $storedFile,
-									$pTitleName,
-									$thisUser,
-									$details,
-									$imageComment,
-									wfTimestampNow()
+								$upload_dir . $storedFile,
+								$pTitleName,
+								$thisUser,
+								$details,
+								$imageComment,
+								wfTimestampNow()
+							);
+							if ( $resultFileUpload !== true ) {
+								throw new FlexFormException(
+									$resultFileUpload, 0
 								);
-								if ( $resultFileUpload !== true ) {
-									throw new FlexFormException(
-										$resultFileUpload,
-										0
-									);
-								}
 							}
 						}
 					}

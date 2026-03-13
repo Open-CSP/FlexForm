@@ -34,6 +34,17 @@ class PandocConverter extends Convert {
 	private string $pandocPathAdditions = '';
 
 	/**
+	 * @var array|string[]
+	 */
+	private array $binaryFormats = [
+		"pdf",
+		"docx",
+		"docbook",
+		"docbook5",
+		"pptx"
+	];
+
+	/**
 	 * @return string
 	 */
 	private function getPandocMediaPath(): string {
@@ -80,6 +91,13 @@ class PandocConverter extends Convert {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isBinaryTarget(): bool {
+		return in_array( strtolower( $this->convertTo ), $this->binaryFormats );
+	}
+
+	/**
 	 * @return string
 	 * @throws FlexFormException
 	 */
@@ -99,6 +117,22 @@ class PandocConverter extends Convert {
 
 		if ( $this->convertTo === null ) {
 			$this->convertTo = 'mediawiki';
+		}
+
+		$allowedFrom = Config::getConfigVariable( 'pandoc-convert-from' );
+		$allowedTo = Config::getConfigVariable( 'pandoc-convert-to' );
+
+		if ( !in_array( strtolower( $this->convertFrom ), $allowedFrom, true ) ) {
+			throw new FlexFormException(
+				wfMessage( 'flexform-fileupload-file-convert-from-error', $this->convertFrom )->parse(),
+				0
+			);
+		}
+		if ( !in_array( strtolower( $this->convertTo ), $allowedTo, true ) ) {
+			throw new FlexFormException(
+				wfMessage( 'flexform-fileupload-file-convert-to-error', $this->convertFrom )->parse(),
+				0
+			);
 		}
 
 		$pandoc  = $this->giveMePandoc();
@@ -122,8 +156,9 @@ class PandocConverter extends Convert {
 				$e
 			);
 		}
-
-		$this->cleanConvertedText( $wiki );
+		if ( !$this->isBinaryTarget() ) {
+			$this->cleanConvertedText( $wiki );
+		}
 
 		return $wiki;
 	}

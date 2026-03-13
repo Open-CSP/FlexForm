@@ -90,6 +90,8 @@
       "allowedGroups" : [ "sysop" ],
       "hideEdit" : true,
       "pandoc-install-path" : "",
+      "pandoc-convert-from" : [ "docx" ],
+      "pandoc-convert-to" : [ "mediawiki" ],
       "forceNullEdit" : true,
       "allowFlexFormOpenAPI" : false
     }
