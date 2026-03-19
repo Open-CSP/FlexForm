@@ -29,6 +29,11 @@ class PandocConverter extends Convert {
 	private string $convertTo;
 
 	/**
+	 * @var array
+	 */
+	private array $pandocAdditionalArguments = [];
+
+	/**
 	 * @var string
 	 */
 	private string $pandocPathAdditions = '';
@@ -77,8 +82,24 @@ class PandocConverter extends Convert {
 	 *
 	 * @return void
 	 */
-	public function setConvertFrom( string $from ) {
+	public function setConvertFrom( string $from ): void {
 		$this->convertFrom = $from;
+	}
+
+	/**
+	 * @param array $arguments
+	 *
+	 * @return void
+	 */
+	public function setAdditionalArguments( array $arguments ): void {
+		global $IP;
+		$path = $IP . '/';
+		if ( !empty( $arguments ) ) {
+			foreach ( $arguments as $k => $argument ) {
+				$arguments[ $k ] = str_replace( '[path]', $path, $argument );
+			}
+		}
+		$this->pandocAdditionalArguments = $arguments;
 	}
 
 	/**
@@ -86,7 +107,7 @@ class PandocConverter extends Convert {
 	 *
 	 * @return void
 	 */
-	public function setConvertTo( string $from ) {
+	public function setConvertTo( string $from ): void {
 		$this->convertTo = $from;
 	}
 
@@ -141,6 +162,8 @@ class PandocConverter extends Convert {
 			'to'            => $this->convertTo,
 			'extract-media' => $this->getPandocMediaPath()
 		];
+		$options = array_merge( $options, $this->pandocAdditionalArguments );
+		Debug::addToDebug( 'Pandoc Conversion options', $options );
 		try {
 			$wiki = $pandoc->runWith( $this->getFile(), $options );
 		} catch ( PandocException $e ) {

@@ -92,6 +92,7 @@
       "pandoc-install-path" : "",
       "pandoc-convert-from" : [ "docx" ],
       "pandoc-convert-to" : [ "mediawiki" ],
+      "pandoc-allow-additional-arguments" : false,
       "forceNullEdit" : true,
       "allowFlexFormOpenAPI" : false
     }

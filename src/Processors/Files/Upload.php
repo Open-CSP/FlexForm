@@ -82,7 +82,9 @@ class Upload {
 		$fileActions = [
 			'convertfrom' => null,
 			'convertto' => 'mediawiki',
-			'uploadoriginalas' => "false" ];
+			'uploadoriginalas' => "false",
+			'additional-arguments' => []
+		];
 
 		if ( str_contains( $action, '|' ) ) {
 			$explodedAction = explode( '|', $action );
@@ -97,10 +99,56 @@ class Upload {
 				}
 			}
 		}
+
+		if ( !empty( $fileActions['additional-arguments'] ) ) {
+			$fileActions['additional-arguments'] = explode( ',', $fileActions['additional-arguments'] );
+			$newArgs = [];
+			foreach ( $fileActions['additional-arguments'] as $singleAdditionalArgument ) {
+				if ( str_contains( $singleAdditionalArgument, '=' ) ) {
+					$explodedArgs = explode( '=', $singleAdditionalArgument );
+					$newArgs[ $explodedArgs[0] ] = $explodedArgs[1];
+				} else {
+					$newArgs[ $singleAdditionalArgument ] = '';
+				}
+			}
+			$fileActions['additional-arguments'] = $newArgs;
+		}
+		Debug::addToDebug( 'Pandoc conversion options', $fileActions );
+		if (
+			$this->checkAllowedConversions(
+				$fileActions['convertfrom'],
+				$fileActions['convertto'],
+				$fileActions['additional-arguments']
+			) === false
+		) {
+			return null;
+		}
 		if ( $fileActions['convertfrom'] === null ) {
 			return null;
 		}
 		return $fileActions;
+	}
+
+	/**
+	 * @param string $from
+	 * @param string $to
+	 * @param array $additional
+	 *
+	 * @return bool
+	 */
+	private function checkAllowedConversions( string $from, string $to, array $additional = [] ) {
+		if ( !in_array( $from, Config::getConfigVariable( 'pandoc-convert-from' ) ) ) {
+			return false;
+		}
+		if ( !in_array( $to, Config::getConfigVariable( 'pandoc-convert-to' ) ) ) {
+			return false;
+		}
+		if ( !empty( $additional ) ) {
+			if ( Config::getConfigVariable( 'pandoc-allow-additional-arguments' ) === false ) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**
@@ -181,7 +229,7 @@ class Upload {
 		);
 		$fileActionConvertDetails = null;
 		if ( $fileAction !== false ) {
-			$fileAction = ContentCore::parseTitle( $fileAction, true );
+			//$fileAction = ContentCore::parseTitle( $fileAction, true );
 			if ( strtolower( $fileAction ) !== 'upload' && !str_contains( strtolower( $fileAction ), 'convertfrom:' ) ) {
 				throw new FlexFormException(
 					'Unknown upload action',
@@ -192,7 +240,18 @@ class Upload {
 				// $fileAction = trim( str_replace( 'convertfrom:', '', strtolower( $fileAction ) ) );
 
 				$fileActionConvertDetails = $this->decodeAction( $fileAction );
-				$fileAction = 'convert';
+				if ( $fileActionConvertDetails !== null ) {
+					$fileAction = 'convert';
+				} else {
+					Debug::addToDebug(
+						'convertfrom error',
+						[
+							'fileaction'       => $fileAction,
+							'fileActionConvertDetails' => $fileActionConvertDetails
+						]
+					);
+				}
+
 			}
 		}
 
@@ -520,10 +579,16 @@ class Upload {
 					break;
 				case "convert":
 					// We need to do a Pandoc conversion
+					//echo "<pre>";
+					//var_dump( $fileActionConvertDetails );
+					//die();
 					$convert = new PandocConverter();
 					$convert->setConvertFrom( $fileActionConvertDetails['convertfrom'] );
 					$convert->setConvertTo( $fileActionConvertDetails['convertto'] );
-					$convert->setFileName( $storedFile );
+					$convert->setAdditionalArguments( $fileActionConvertDetails['additional-arguments'] );
+					$convert->setFileName(
+						$filesCore->parseTarget( $storedFile, $fileActionConvertDetails['uploadoriginalas'] )
+					);
 					$newContent = $convert->convertFile();
 					Debug::addToDebug(
 						'File converted with Pandoc: ' . $titleName,
