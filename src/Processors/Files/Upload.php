@@ -602,6 +602,7 @@ class Upload {
 							'$pageContentSuffix'  => $pageContentSuffix
 						]
 					);
+					// If the target is not binary, we can create the page and upload attached files
 					if ( !$convert->isBinaryTarget() ) {
 						$newContent = $pageContentPrefix . $newContent . $pageContentSuffix;
 						$possibleImagesInDocument = $convert->getPossibleImagesFromConversion();
@@ -649,6 +650,7 @@ class Upload {
 							}
 						}
 					} else {
+						// If the target is binary, then simply upload it
 						$titleName .= "." . $fileNameExtension;
 
 						$resultFileUpload = $this->uploadFileToWiki(
@@ -682,17 +684,23 @@ class Upload {
 							}
 						}
 						if ( $fileActionConvertDetails['uploadoriginalas'] !== "false" ) {
-							$pTitleName = $filesCore->parseTarget(
+							// Check if [filename] should be replaced
+							$uploadOriginalAs = $filesCore->parseTarget(
 								$targetFile,
 								$fileActionConvertDetails['uploadoriginalas']
 							);
-								$resultFileUpload = $this->uploadFileToWiki(
-								$upload_dir . $storedFile,
-								$pTitleName,
-								$thisUser,
-								$details,
-								$imageComment,
-								wfTimestampNow()
+							$pTitleName = $this->checkTitleForTarget(
+								$titleName,
+								$uploadOriginalAs
+							);
+
+							$resultFileUpload = $this->uploadFileToWiki(
+							$upload_dir . $storedFile,
+							$pTitleName,
+							$thisUser,
+							$details,
+							$imageComment,
+							wfTimestampNow()
 							);
 							if ( $resultFileUpload !== true ) {
 								throw new FlexFormException(
@@ -743,6 +751,16 @@ class Upload {
 		);
 
 		return true;
+	}
+
+	/**
+	 * @param string $pageTargetName
+	 * @param $target
+	 *
+	 * @return bool
+	 */
+	private function checkTitleForTarget( string $pageTargetName, $target ): bool {
+		return str_replace( '[target]', $pageTargetName, $target );
 	}
 
 	/**
