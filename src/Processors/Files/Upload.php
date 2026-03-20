@@ -686,14 +686,36 @@ class Upload {
 						if ( $fileActionConvertDetails['uploadoriginalas'] !== "false" ) {
 							// Check if [filename] should be replaced
 							$uploadOriginalAs = $filesCore->parseTarget(
+								$fileActionConvertDetails['uploadoriginalas'],
 								$targetFile,
-								$fileActionConvertDetails['uploadoriginalas']
 							);
+							Debug::addToDebug( 'Pandoc Upload Original - parse [filename]',
+								[
+									'targetfile' => $targetFile,
+									'uploadoriginalas original' => $fileActionConvertDetails['uploadoriginalas'],
+									'after [filename] in targetfile parse' => $uploadOriginalAs
+								]);
 							$pTitleName = $this->checkTitleForTarget(
 								$titleName,
 								$uploadOriginalAs
 							);
-
+							Debug::addToDebug( 'Pandoc Upload Original - parse [target]',
+							[
+								'titleName' => $titleName,
+								'after [filename] in targetfile parse' => $uploadOriginalAs,
+								'after [target] in titlename parse' => $pTitleName,
+							]
+							);
+							if (
+								$this->isFileNameSpace( $pTitleName )
+								&& empty( $details )
+							) {
+								Debug::addToDebug( 'Pandoc Upload Original - same title',
+									'Converted title same as uploadoriginal title',
+									'content is for main slot, so adding to file-upload'
+								);
+								$details = [ $fileSlot => $newContent ];
+							}
 							$resultFileUpload = $this->uploadFileToWiki(
 							$upload_dir . $storedFile,
 							$pTitleName,
@@ -712,7 +734,7 @@ class Upload {
 					break;
 				}
 			} else {
-				if ( ! Config::isDebug() ) {
+				if ( !Config::isDebug() ) {
 					$resultFileUpload = $this->uploadFileToWiki(
 						$upload_dir . $storedFile,
 						$titleName,
@@ -754,12 +776,25 @@ class Upload {
 	}
 
 	/**
-	 * @param string $pageTargetName
-	 * @param $target
+	 * @param string $title
 	 *
 	 * @return bool
 	 */
-	private function checkTitleForTarget( string $pageTargetName, $target ): bool {
+	private function isFileNameSpace( string $title ): bool {
+		$titleObject = MediaWikiServices::getInstance()->getTitleFactory()->newFromText( $title );
+		if ( $titleObject !== null && $titleObject->getNamespace() === NS_FILE ) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * @param string $pageTargetName
+	 * @param string $target
+	 *
+	 * @return string
+	 */
+	private function checkTitleForTarget( string $pageTargetName, string $target ): string {
 		$target = str_replace( '[target]', $pageTargetName, $target );
 		if ( str_starts_with( $target, 'File:', ) || str_starts_with( $target, 'file:', ) ) {
 			$target = str_replace( [ 'File:', 'file:' ], '', $target );
@@ -774,6 +809,10 @@ class Upload {
 	 * @return string
 	 */
 	private function finalNameCleanUp( string $name, array $extensions ) : string {
+		$title = MediaWikiServices::getInstance()->getTitleFactory()->newFromText( $name );
+		if ( $title !== null && $title->getNamespace() === NS_FILE ) {
+			return $name;
+		}
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
 				'finalNameCleanup',

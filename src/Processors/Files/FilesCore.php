@@ -163,8 +163,11 @@ class FilesCore {
 	 * @return string
 	 */
 	public function getFileExtension( string $file ) : string {
+		$extension = '';
 		$path_parts = pathinfo( $file );
-		$extension  = $path_parts['extension'];
+		if ( isset( $path_parts['extension'] ) ) {
+			$extension = $path_parts['extension'];
+		}
 
 		return strtolower( $extension );
 	}
