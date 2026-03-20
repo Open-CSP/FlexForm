@@ -114,14 +114,16 @@ class Upload {
 			$fileActions['additional-arguments'] = $newArgs;
 		}
 		Debug::addToDebug( 'Pandoc conversion options', $fileActions );
-		if (
-			$this->checkAllowedConversions(
-				$fileActions['convertfrom'],
-				$fileActions['convertto'],
-				$fileActions['additional-arguments']
-			) === false
-		) {
-			return null;
+		$checkConversions = $this->checkAllowedConversions(
+			$fileActions['convertfrom'],
+			$fileActions['convertto'],
+			$fileActions['additional-arguments']
+		);
+		if ( $checkConversions !== true ) {
+			throw new FlexFormException(
+				'Pandoc Error: ' . $checkConversions,
+				0
+			);
 		}
 		if ( $fileActions['convertfrom'] === null ) {
 			return null;
@@ -134,18 +136,18 @@ class Upload {
 	 * @param string $to
 	 * @param array $additional
 	 *
-	 * @return bool
+	 * @return bool|string
 	 */
-	private function checkAllowedConversions( string $from, string $to, array $additional = [] ) {
+	private function checkAllowedConversions( string $from, string $to, array $additional = [] ): bool|string {
 		if ( !in_array( $from, Config::getConfigVariable( 'pandoc-convert-from' ) ) ) {
-			return false;
+			return "Convert from '$from' is not allowed.";
 		}
 		if ( !in_array( $to, Config::getConfigVariable( 'pandoc-convert-to' ) ) ) {
-			return false;
+			return "Convert to '$to' is not allowed.";
 		}
 		if ( !empty( $additional ) ) {
 			if ( Config::getConfigVariable( 'pandoc-allow-additional-arguments' ) === false ) {
-				return false;
+				return "pandoc-allow-additional-arguments are not allowed.";
 			}
 		}
 		return true;
@@ -229,7 +231,6 @@ class Upload {
 		);
 		$fileActionConvertDetails = null;
 		if ( $fileAction !== false ) {
-			//$fileAction = ContentCore::parseTitle( $fileAction, true );
 			if ( strtolower( $fileAction ) !== 'upload' && !str_contains( strtolower( $fileAction ), 'convertfrom:' ) ) {
 				throw new FlexFormException(
 					'Unknown upload action',
@@ -237,19 +238,22 @@ class Upload {
 				);
 			}
 			if ( str_contains( strtolower( $fileAction ), 'convertfrom:' ) ) {
-				// $fileAction = trim( str_replace( 'convertfrom:', '', strtolower( $fileAction ) ) );
-
 				$fileActionConvertDetails = $this->decodeAction( $fileAction );
 				if ( $fileActionConvertDetails !== null ) {
 					$fileAction = 'convert';
 				} else {
 					Debug::addToDebug(
-						'convertfrom error',
+						'Pandoc convertfrom error',
 						[
 							'fileaction'       => $fileAction,
 							'fileActionConvertDetails' => $fileActionConvertDetails
 						]
 					);
+					throw new FlexFormException(
+						'Pandoc convertfrom error. No convert-from found',
+						0
+					);
+
 				}
 
 			}
