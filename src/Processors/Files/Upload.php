@@ -760,7 +760,11 @@ class Upload {
 	 * @return bool
 	 */
 	private function checkTitleForTarget( string $pageTargetName, $target ): bool {
-		return str_replace( '[target]', $pageTargetName, $target );
+		$target = str_replace( '[target]', $pageTargetName, $target );
+		if ( str_starts_with( $target, 'File:', ) || str_starts_with( $target, 'file:', ) ) {
+			$target = str_replace( [ 'File:', 'file:' ], '', $target );
+		}
+		return $target;
 	}
 
 	/**
