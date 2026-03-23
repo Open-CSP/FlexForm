@@ -83,6 +83,7 @@ class Upload {
 			'convertfrom' => null,
 			'convertto' => 'mediawiki',
 			'uploadoriginalas' => "false",
+			'original-file-content' => "false",
 			'additional-arguments' => []
 		];
 
@@ -231,10 +232,12 @@ class Upload {
 		);
 		$fileActionConvertDetails = null;
 		if ( $fileAction !== false ) {
-			if ( strtolower( $fileAction ) !== 'upload' && !str_contains( strtolower( $fileAction ), 'convertfrom:' ) ) {
+			if (
+				strtolower( $fileAction ) !== 'upload' &&
+				!str_contains( strtolower( $fileAction ), 'convertfrom:' )
+			) {
 				throw new FlexFormException(
-					'Unknown upload action',
-					0
+					'Unknown upload action', 0
 				);
 			}
 			if ( str_contains( strtolower( $fileAction ), 'convertfrom:' ) ) {
@@ -694,7 +697,7 @@ class Upload {
 									'targetfile' => $targetFile,
 									'uploadoriginalas original' => $fileActionConvertDetails['uploadoriginalas'],
 									'after [filename] in targetfile parse' => $uploadOriginalAs
-								]);
+								] );
 							$pTitleName = $this->checkTitleForTarget(
 								$titleName,
 								$uploadOriginalAs
@@ -706,6 +709,9 @@ class Upload {
 								'after [target] in titlename parse' => $pTitleName,
 							]
 							);
+							if ( $fileActionConvertDetails['original-file-content'] !== "false" ) {
+								$details = $fileActionConvertDetails['original-file-content'];
+							}
 							if (
 								$this->isFileNameSpace( $pTitleName )
 								&& empty( $details )
@@ -714,7 +720,7 @@ class Upload {
 									'Converted title same as uploadoriginal title',
 									'content is for main slot, so adding to file-upload'
 								);
-								$details = [ $fileSlot => $newContent ];
+								$details = $newContent;
 							}
 							$resultFileUpload = $this->uploadFileToWiki(
 							$upload_dir . $storedFile,
