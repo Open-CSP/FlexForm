@@ -671,73 +671,73 @@ class Upload {
 						}
 					}
 					// Now create the page in the wiki
-					if ( !Config::isDebug() ) {
-						if ( !$convert->isBinaryTarget() ) {
-							$save = new Save();
-							try {
-								$save->saveToWiki(
-									$titleName,
-									[ $fileSlot => $newContent ],
-									$imageComment
-								);
-							} catch ( FlexFormException $e ) {
-								throw new FlexFormException(
-									$e->getMessage(), 0, $e
-								);
-							}
-						}
-						if ( $fileActionConvertDetails['uploadoriginalas'] !== "false" ) {
-							// Check if [filename] should be replaced
-							$uploadOriginalAs = $filesCore->parseTarget(
-								$fileActionConvertDetails['uploadoriginalas'],
-								$targetFile,
-							);
-							Debug::addToDebug( 'Pandoc Upload Original - parse [filename]',
-								[
-									'targetfile' => $targetFile,
-									'uploadoriginalas original' => $fileActionConvertDetails['uploadoriginalas'],
-									'after [filename] in targetfile parse' => $uploadOriginalAs
-								] );
-							$pTitleName = $this->checkTitleForTarget(
+
+					if ( !$convert->isBinaryTarget() ) {
+						$save = new Save();
+						try {
+							$save->saveToWiki(
 								$titleName,
-								$uploadOriginalAs
+								[ $fileSlot => $newContent ],
+								$imageComment
 							);
-							Debug::addToDebug( 'Pandoc Upload Original - parse [target]',
-							[
-								'titleName' => $titleName,
-								'after [filename] in targetfile parse' => $uploadOriginalAs,
-								'after [target] in titlename parse' => $pTitleName,
-							]
+						} catch ( FlexFormException $e ) {
+							throw new FlexFormException(
+								$e->getMessage(), 0, $e
 							);
-							if ( $fileActionConvertDetails['original-file-content'] !== "false" ) {
-								$details = $fileActionConvertDetails['original-file-content'];
-							}
-							if (
-								$this->isFileNameSpace( $pTitleName )
-								&& empty( $details )
-							) {
-								Debug::addToDebug( 'Pandoc Upload Original - same title',
-									'Converted title same as uploadoriginal title',
-									'content is for main slot, so adding to file-upload'
-								);
-								$details = $newContent;
-							}
-							$resultFileUpload = $this->uploadFileToWiki(
-							$upload_dir . $storedFile,
-							$pTitleName,
-							$thisUser,
-							$details,
-							$imageComment,
-							wfTimestampNow()
-							);
-							if ( $resultFileUpload !== true ) {
-								throw new FlexFormException(
-									$resultFileUpload, 0
-								);
-							}
 						}
 					}
-					break;
+					if ( $fileActionConvertDetails['uploadoriginalas'] !== "false" ) {
+						// Check if [filename] should be replaced
+						$uploadOriginalAs = $filesCore->parseTarget(
+							$fileActionConvertDetails['uploadoriginalas'],
+							$targetFile,
+						);
+						Debug::addToDebug( 'Pandoc Upload Original - parse [filename]',
+							[
+								'targetfile' => $targetFile,
+								'uploadoriginalas original' => $fileActionConvertDetails['uploadoriginalas'],
+								'after [filename] in targetfile parse' => $uploadOriginalAs
+							] );
+						$isOriginalTargetAFile = $this->isFileNameSpace( $titleName );
+						$pTitleName = $this->checkTitleForTarget(
+							$titleName,
+							$uploadOriginalAs
+						);
+						Debug::addToDebug( 'Pandoc Upload Original - parse [target]',
+						[
+							'titleName' => $titleName,
+							'after [filename] in targetfile parse' => $uploadOriginalAs,
+							'after [target] in titlename parse' => $pTitleName,
+						]
+						);
+						if ( $fileActionConvertDetails['original-file-content'] !== "false" ) {
+							$details = $fileActionConvertDetails['original-file-content'];
+						}
+						if (
+							$isOriginalTargetAFile
+							&& empty( $details )
+						) {
+							Debug::addToDebug( 'Pandoc Upload Original - same title',
+								'Converted title same as uploadoriginal title' .
+								'content is for main slot, so adding to file-upload'
+							);
+							$details = $newContent;
+						}
+						$resultFileUpload = $this->uploadFileToWiki(
+						$upload_dir . $storedFile,
+						$pTitleName,
+						$thisUser,
+						$details,
+						$imageComment,
+						wfTimestampNow()
+						);
+						if ( $resultFileUpload !== true ) {
+							throw new FlexFormException(
+								$resultFileUpload, 0
+							);
+						}
+					}
+				break;
 				}
 			} else {
 				if ( !Config::isDebug() ) {
@@ -788,6 +788,7 @@ class Upload {
 	 */
 	private function isFileNameSpace( string $title ): bool {
 		$titleObject = MediaWikiServices::getInstance()->getTitleFactory()->newFromText( $title );
+		var_dump ( $title, $titleObject->getNamespace() );
 		if ( $titleObject !== null && $titleObject->getNamespace() === NS_FILE ) {
 			return true;
 		}
