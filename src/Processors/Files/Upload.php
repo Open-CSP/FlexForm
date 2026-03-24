@@ -42,7 +42,7 @@ class Upload {
 	/**
 	 * @return string
 	 */
-	private function getSummary() : string {
+	private function getSummary(): string {
 		$summary = General::getPostString( 'mwwikicomment' );
 		if ( $summary === false ) {
 			return "Uploaded using FlexForm.";
@@ -56,7 +56,7 @@ class Upload {
 	 * @param array $fileDetails
 	 */
 	public function __construct( string $fileName, array $fileDetails ) {
-		$this->fileName    = $fileName;
+		$this->fileName = $fileName;
 		$this->fileDetails = $fileDetails;
 	}
 
@@ -87,7 +87,10 @@ class Upload {
 		$fileActionConvertDetails = null;
 
 		if ( $fileAction === false ) {
-			return [ $fileAction, $fileActionConvertDetails ];
+			return [
+				$fileAction,
+				$fileActionConvertDetails
+			];
 		}
 
 		$actionLower = strtolower( $fileAction );
@@ -105,7 +108,7 @@ class Upload {
 				Debug::addToDebug(
 					'Pandoc convertfrom error',
 					[
-						'fileaction'               => $fileAction,
+						'fileaction' => $fileAction,
 						'fileActionConvertDetails' => null
 					]
 				);
@@ -113,7 +116,10 @@ class Upload {
 			}
 		}
 
-		return [ $fileAction, $fileActionConvertDetails ];
+		return [
+			$fileAction,
+			$fileActionConvertDetails
+		];
 	}
 
 	/**
@@ -140,7 +146,7 @@ class Upload {
 			if ( str_contains( $singleAction, ':' ) ) {
 				$explodedSingeAction = explode( ':', $singleAction );
 				if ( array_key_exists( $explodedSingeAction[0], $fileActions ) ) {
-					$fileActions[ $explodedSingeAction[0] ] = $explodedSingeAction[1];
+					$fileActions[$explodedSingeAction[0]] = $explodedSingeAction[1];
 				}
 			}
 		}
@@ -151,9 +157,9 @@ class Upload {
 			foreach ( $fileActions['additional-arguments'] as $singleAdditionalArgument ) {
 				if ( str_contains( $singleAdditionalArgument, '=' ) ) {
 					$explodedArgs = explode( '=', $singleAdditionalArgument );
-					$newArgs[ $explodedArgs[0] ] = $explodedArgs[1];
+					$newArgs[$explodedArgs[0]] = $explodedArgs[1];
 				} else {
-					$newArgs[ $singleAdditionalArgument ] = '';
+					$newArgs[$singleAdditionalArgument] = '';
 				}
 			}
 			$fileActions['additional-arguments'] = $newArgs;
@@ -166,13 +172,13 @@ class Upload {
 		);
 		if ( $checkConversions !== true ) {
 			throw new FlexFormException(
-				'Pandoc Error: ' . $checkConversions,
-				0
+				'Pandoc Error: ' . $checkConversions, 0
 			);
 		}
 		if ( $fileActions['convertfrom'] === null ) {
 			return null;
 		}
+
 		return $fileActions;
 	}
 
@@ -195,6 +201,7 @@ class Upload {
 				return "pandoc-allow-additional-arguments are not allowed.";
 			}
 		}
+
 		return true;
 	}
 
@@ -204,7 +211,7 @@ class Upload {
 	 * @throws MWContentSerializationException
 	 * @throws \MWException
 	 */
-	public function fileUpload() : bool {
+	public function fileUpload(): bool {
 		/**
 		 *    return [
 		 * 'files'        => $files,
@@ -222,19 +229,18 @@ class Upload {
 		 */
 
 		$thisUser = \RequestContext::getMain()->getUser();
-
 		$processedFiles = [];
 
-		$fileName    = $this->getFileName();
+		$fileName = $this->getFileName();
 		$fileDetails = $this->getFileDetails();
 
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
 				'File upload start',
 				[
-					'field'       => $fileName,
+					'field' => $fileName,
 					'fileDetails' => $fileDetails,
-					'post'        => $_POST
+					'post' => $_POST
 				]
 			);
 		}
@@ -243,120 +249,30 @@ class Upload {
 
 		$options = new FileUploadOptions( $fileDetails );
 
-		[ $fileAction, $fileActionConvertDetails ] = $this->parseFileAction( $options->fileAction );
+		$target = $options->target;
+		$pageContent = $options->pageContent;
+		$pageContentPrefix = $options->pageContentPrefix;
+		$pageContentSuffix = $options->pageContentSuffix;
+		$pageTemplate = $options->pageTemplate;
+		$parseContent = $options->parseContent;
+		$imageForce = $options->imageForce;
+		$imageComment = $options->imageComment;
+
+		[
+			$fileAction,
+			$fileActionConvertDetails
+		] = $this->parseFileAction( $options->fileAction );
 
 		$nrOfFiles = count( $fileToProcess['name'] );
 		if ( Config::isDebug() ) {
 			Debug::addToDebug( 'Number of files to process', $nrOfFiles );
 		}
 
-		$errors    = [];
+		$errors = [];
 		$filesCore = new FilesCore();
 
-		if ( $options->target === false || $options->target === '' ) {
-			throw new FlexFormException( wfMessage( 'flexform-fileupload-no-target' )->text(), 0 );
-		}
-
-		$pageContent = ( $options->pageContent === false ) ? '' : $options->pageContent;
-
-		$pageContentPrefix = ( $options->pageContentPrefix === false )
-			? ''
-			: ContentCore::parseTitle( $options->pageContentPrefix, true );
-
-		$pageContentSuffix = ( $options->pageContentSuffix === false )
-			? ''
-			: ContentCore::parseTitle( $options->pageContentSuffix, true );
-
-		$imageComment = ( $options->imageComment === false ) ? $this->getSummary() : $options->imageComment;
-
-		$convert = ( $options->imageForce === false || $options->imageForce === '' ) ? false : $options->imageForce;
-
-		$upload_dir = rtrim( Config::getConfigVariable( 'file_temp_path' ), '/' ) . '/';
-
-		/*
-		$target        = General::getJsonValue(
-			'wsform_file_target',
-			$fileDetails
-		);
-		$pageContent   = General::getJsonValue(
-			'wsform_page_content',
-			$fileDetails
-		);
-		$pageContentPrefix   = General::getJsonValue(
-			'wsform_pandoc_prefix',
-			$fileDetails
-		);
-		$pageContentSuffix   = General::getJsonValue(
-			'wsform_pandoc_suffix',
-			$fileDetails
-		);
-		$pageTemplate  = General::getJsonValue(
-			'wsform_file_template',
-			$fileDetails
-		);
-		$parseContent  = General::getJsonValue(
-			'wsform_parse_content',
-			$fileDetails
-		);
-		$imageForce    = General::getJsonValue(
-			'wsform_image_force',
-			$fileDetails
-		);
-		$imageComment  = General::getJsonValue(
-			'wsform-upload-comment',
-			$fileDetails
-		);
-		$fileAction    = General::getJsonValue(
-			'wsform_action',
-			$fileDetails
-		);
-		*/
-		$fileActionConvertDetails = null;
-		if ( $fileAction !== false ) {
-			if (
-				strtolower( $fileAction ) !== 'upload' &&
-				!str_contains( strtolower( $fileAction ), 'convertfrom:' )
-			) {
-				throw new FlexFormException(
-					'Unknown upload action', 0
-				);
-			}
-			if ( str_contains( strtolower( $fileAction ), 'convertfrom:' ) ) {
-				$fileActionConvertDetails = $this->decodeAction( $fileAction );
-				if ( $fileActionConvertDetails !== null ) {
-					$fileAction = 'convert';
-				} else {
-					Debug::addToDebug(
-						'Pandoc convertfrom error',
-						[
-							'fileaction'       => $fileAction,
-							'fileActionConvertDetails' => $fileActionConvertDetails
-						]
-					);
-					throw new FlexFormException(
-						'Pandoc convertfrom error. No convert-from found',
-						0
-					);
-
-				}
-
-			}
-		}
-
-		$nrOfFiles = count( $fileToProcess['name'] );
-		if ( Config::isDebug() ) {
-			Debug::addToDebug(
-				'Number of files to process',
-				$nrOfFiles
-			);
-		}
-		$errors    = [];
-		$filesCore = new FilesCore();
 		if ( $target === false || $target === '' ) {
-			throw new FlexFormException(
-				wfMessage( 'flexform-fileupload-no-target' )->text(),
-				0
-			);
+			throw new FlexFormException( wfMessage( 'flexform-fileupload-no-target' )->text(), 0 );
 		}
 
 		if ( $pageContent === false ) {
@@ -384,19 +300,12 @@ class Upload {
 		if ( $imageForce === false || $imageForce === '' ) {
 			$convert = false;
 		} else {
-			/*
-			if ( $filesCore->getFileExtension( $_FILES['wsformfile']['name'] ) == $_POST['wsform_image_force'] ) {
-				$convert = false;
-			} else {
-				$convert = $_POST['wsform_image_force'];
-			}
-			*/
 			$convert = $imageForce;
 		}
-		$upload_dir = rtrim(
-						  Config::getConfigVariable( 'file_temp_path' ),
-						  '/'
-					  ) . '/';
+
+		$upload_dir = rtrim( Config::getConfigVariable( 'file_temp_path' ), '/' ) . '/';
+
+		$filesCore = new FilesCore();
 
 		for ( $i = 0; $i < $nrOfFiles; $i++ ) {
 			if ( Config::isDebug() ) {
@@ -414,46 +323,46 @@ class Upload {
 				Debug::addToDebug(
 					'File #' . $i,
 					[
-						"fileaction"  => $fileAction,
-						"fileActionConvertDetails"  => $fileActionConvertDetails,
-						'tmp_name'    => $fileToProcess['tmp_name'][$i],
-						'name'        => $fileToProcess['name'][$i],
+						"fileaction" => $fileAction,
+						"fileActionConvertDetails" => $fileActionConvertDetails,
+						'tmp_name' => $fileToProcess['tmp_name'][$i],
+						'name' => $fileToProcess['name'][$i],
 						'is_uploaded' => $uploaded,
-						'exists'      => $exists,
-						'error'       => $fileToProcess['error'][$i]
+						'exists' => $exists,
+						'error' => $fileToProcess['error'][$i]
 					]
 				);
 			}
-			if ( !file_exists( $fileToProcess['tmp_name'][$i] ) || ! is_uploaded_file(
+			if (
+				!file_exists( $fileToProcess['tmp_name'][$i] ) || !is_uploaded_file(
 					$fileToProcess['tmp_name'][$i]
-				) ) {
+				)
+			) {
 				throw new FlexFormException(
 					wfMessage(
 						'flexform-fileupload-file-not-found',
 						$fileToProcess['name'][$i]
-					)->text(),
-					0
+					)->text(), 0
 				);
 			}
 			$filename = $fileToProcess['name'][$i];
-			$status   = $filesCore->checkFileForErrors( $fileToProcess['error'][$i] );
-			$tmpName  = $fileToProcess['tmp_name'][$i];
+			$status = $filesCore->checkFileForErrors( $fileToProcess['error'][$i] );
+			$tmpName = $fileToProcess['tmp_name'][$i];
 
 			if ( $status !== false ) {
 				throw new FlexFormException(
 					wfMessage(
 						'flexform-fileupload-file-errors',
 						$status
-					)->text(),
-					0
+					)->text(), 0
 				);
 			}
 
 			$targetFile = General::makeUnderscoreFromSpace( $filename );
 
-			$fileNameExtension         = $filesCore->getFileExtension( $filename );
+			$fileNameExtension = $filesCore->getFileExtension( $filename );
 			$originalFileNameExtension = $fileNameExtension;
-			$fileNameBase              = $filesCore->remove_extension_from_image( $targetFile );
+			$fileNameBase = $filesCore->remove_extension_from_image( $targetFile );
 
 			$fileNameBase = ContentCore::urlToSEO( $fileNameBase );
 
@@ -461,20 +370,22 @@ class Upload {
 				Debug::addToDebug(
 					'File #' . $i . ' passed error checks',
 					[
-						'targetFile'             => $targetFile,
-						'upload dir'             => $upload_dir,
-						'convert'                => $convert,
+						'targetFile' => $targetFile,
+						'upload dir' => $upload_dir,
+						'convert' => $convert,
 						'current file extension' => $fileNameExtension,
-						'current file basename'  => $fileNameBase
+						'current file basename' => $fileNameBase
 					]
 				);
 			}
 
 			$filesSupported = Definitions::getImageHandler();
-			$fileType       = exif_imagetype( $tmpName );
-			if ( $convert !== false && $filesCore->getFileExtension(
-					$filename
-				) !== $convert && isset( $filesSupported[$fileType] ) ) {
+			$fileType = exif_imagetype( $tmpName );
+			if (
+				$convert !== false &&
+				$filesCore->getFileExtension( $filename ) !== $convert &&
+				isset( $filesSupported[$fileType] )
+			) {
 				if ( Config::isDebug() ) {
 					Debug::addToDebug(
 						'Converting File #' . $i . ' to ' . $convert,
@@ -490,10 +401,7 @@ class Upload {
 					100
 				);
 				if ( Config::isDebug() ) {
-					Debug::addToDebug(
-						'NewFile for File #' . $i,
-						[ 'newFile' => $newFile ]
-					);
+					Debug::addToDebug( 'NewFile for File #' . $i, [ 'newFile' => $newFile ] );
 				}
 				if ( $newFile === false ) {
 					throw new FlexFormException(
@@ -503,21 +411,16 @@ class Upload {
 								$filename
 							),
 							$convert
-						)->text(),
-						0
+						)->text(), 0
 					);
 				}
 				$fileNameExtension = $filesCore->getFileExtension( $newFile );
 			} else {
-				if ( move_uploaded_file(
-					$tmpName,
-					$upload_dir . $targetFile
-				) ) {
+				if ( move_uploaded_file( $tmpName, $upload_dir . $targetFile ) ) {
 					$newFile = $targetFile;
 				} else {
 					throw new FlexFormException(
-						wfMessage( 'flexform-fileupload-file-move-error' )->text(),
-						0
+						wfMessage( 'flexform-fileupload-file-move-error' )->text(), 0
 					);
 				}
 			}
@@ -526,14 +429,13 @@ class Upload {
 			$storedFile = $newFile;
 			// Filename without extension
 			$titleName = $filesCore->remove_extension_from_image( $newFile );
+
 			if ( Config::getConfigVariable( 'create-seo-titles' ) === true ) {
 				$titleName = ContentCore::urlToSEO( $titleName );
 			}
+
 			// find [filename] and replace
-			$titleName = $filesCore->parseTarget(
-				trim( $target ),
-				$titleName
-			);
+			$titleName = $filesCore->parseTarget( trim( $target ), $titleName );
 
 			if ( $parseContent !== false ) {
 				$details = trim( $pageContent );
@@ -543,7 +445,7 @@ class Upload {
 
 			if ( $pageTemplate && $parseContent !== false ) {
 				$filePageTemplate = trim( $pageTemplate );
-				$details          = ContentCore::setFileTemplate(
+				$details = ContentCore::setFileTemplate(
 					$filePageTemplate,
 					$details
 				);
@@ -613,10 +515,10 @@ class Upload {
 					'Preparing to upload file #' . $i,
 					[
 						'original file name' => $filename,
-						'new file name'      => $titleName,
-						'stored file'        => $storedFile,
-						'details'            => $details,
-						'comment'            => $imageComment
+						'new file name' => $titleName,
+						'stored file' => $storedFile,
+						'details' => $details,
+						'comment' => $imageComment
 					]
 				);
 			}
@@ -626,48 +528,40 @@ class Upload {
 			$processedFiles[$fileName]['new-name'][] = $titleName;
 
 			if ( $fileAction !== false ) {
-				$excelSheetByName = General::getJsonValue( 'wsform_sheetbyname', $fileDetails );
-				$excelSheetById = General::getJsonValue( 'wsform_sheetbyid', $fileDetails );
-				if ( $excelSheetByName === false && $excelSheetById === false ) {
-					$excelSheetById = 0;
-				}
-				$fileSlot = General::getJsonValue(
-					'wsform_slot',
-					$fileDetails
-				);
+				$fileSlot = General::getJsonValue( 'wsform_slot', $fileDetails );
 				if ( $fileSlot === false ) {
 					$fileSlot = 'main';
 				}
 				switch ( $fileAction ) {
-				case "xls":
-				case "xlsx":
-					$spreadsheetHandler = new SpreadsheetUploadHandler();
-					$spreadsheetHandler->process(
-						$fileAction,
-						$storedFile,
-						$titleName,
-						$fileDetails,
-						$imageComment
-					);
-					break;
-				case "convert":
-					$pandocHandler = new PandocUploadHandler( $this, $filesCore );
+					case "xls":
+					case "xlsx":
+						$spreadsheetHandler = new SpreadsheetUploadHandler();
+						$spreadsheetHandler->process(
+							$fileAction,
+							$storedFile,
+							$titleName,
+							$fileDetails,
+							$imageComment
+						);
+						break;
+					case "convert":
+						$pandocHandler = new PandocUploadHandler( $this, $filesCore );
 
-					$pandocHandler->process(
-						$fileActionConvertDetails,
-						$storedFile,
-						$targetFile,
-						$titleName,
-						$fileNameExtension,
-						$pageContentPrefix,
-						$pageContentSuffix,
-						$fileSlot,
-						$details,
-						$imageComment,
-						$thisUser,
-						$upload_dir
-					);
-				break;
+						$pandocHandler->process(
+							$fileActionConvertDetails,
+							$storedFile,
+							$targetFile,
+							$titleName,
+							$fileNameExtension,
+							$pageContentPrefix,
+							$pageContentSuffix,
+							$fileSlot,
+							$details,
+							$imageComment,
+							$thisUser,
+							$upload_dir
+						);
+						break;
 				}
 			} else {
 				$resultFileUpload = $this->uploadFileToWiki(
@@ -680,20 +574,18 @@ class Upload {
 				);
 				if ( $resultFileUpload !== true ) {
 					throw new FlexFormException(
-						$resultFileUpload,
-						0
+						$resultFileUpload, 0
 					);
 				}
-
 			}
 			unlink( $upload_dir . $storedFile );
 		}
 
 		$separator = ',';
 
-		$ffUploadedFile     = General::makeUnderscoreFromSpace( 'FFUploadedFile-UploadName-' . $fileName );
+		$ffUploadedFile = General::makeUnderscoreFromSpace( 'FFUploadedFile-UploadName-' . $fileName );
 		$ffUploadedFileBase = General::makeUnderscoreFromSpace( 'FFUploadedFile-UploadBase-' . $fileName );
-		$ffUploadedFileNew  = General::makeUnderscoreFromSpace( 'FFUploadedFile-NewName-' . $fileName );
+		$ffUploadedFileNew = General::makeUnderscoreFromSpace( 'FFUploadedFile-NewName-' . $fileName );
 		$_POST[$ffUploadedFile] = implode(
 			$separator,
 			$processedFiles[$fileName]['upload-name']
@@ -720,6 +612,7 @@ class Upload {
 		if ( $titleObject !== null && $titleObject->getNamespace() === NS_FILE ) {
 			return true;
 		}
+
 		return false;
 	}
 
@@ -737,6 +630,7 @@ class Upload {
 				$target = $titleObject->getBaseText();
 			}
 		}
+
 		return $target;
 	}
 
@@ -746,7 +640,7 @@ class Upload {
 	 *
 	 * @return string
 	 */
-	private function finalNameCleanUp( string $name, array $extensions ) : string {
+	private function finalNameCleanUp( string $name, array $extensions ): string {
 		$title = MediaWikiServices::getInstance()->getTitleFactory()->newFromText( $name );
 		if ( $title !== null && $title->getNamespace() === NS_FILE ) {
 			return $name;
@@ -755,7 +649,7 @@ class Upload {
 			Debug::addToDebug(
 				'finalNameCleanup',
 				[
-					'name'                 => $name,
+					'name' => $name,
 					'extensions to remove' => $extensions
 				]
 			);
@@ -794,20 +688,18 @@ class Upload {
 		string $summary,
 		$timestamp
 	) {
-		if ( ! file_exists( $filePath ) ) {
+		if ( !file_exists( $filePath ) ) {
 			throw new FlexFormException(
 				wfMessage(
 					'flexform-fileupload-file-not-found',
 					$filePath
-				)->text(),
-				0
+				)->text(), 0
 			);
 		}
 
 		if ( $user === false ) {
 			throw new FlexFormException(
-				wfMessage( 'flexform-fileupload-user-unknown' )->text(),
-				0
+				wfMessage( 'flexform-fileupload-user-unknown' )->text(), 0
 			);
 		}
 
@@ -817,26 +709,25 @@ class Upload {
 			NS_FILE,
 			$base
 		);
-		if ( ! is_object( $title ) ) {
+		if ( !is_object( $title ) ) {
 			throw new FlexFormException(
 				wfMessage(
 					'flexform-fileupload-user-unknown',
 					$base
-				)->text(),
-				0
+				)->text(), 0
 			);
 		}
 
-		$fileRepo       = MediaWikiServices::getInstance()->getRepoGroup()->getLocalRepo();
-		$image          = $fileRepo->newFile( $title );
-		$mwProps        = new MWFileProps( MediaWikiServices::getInstance()->getMimeAnalyzer() );
-		$props          = $mwProps->getPropsFromPath(
+		$fileRepo = MediaWikiServices::getInstance()->getRepoGroup()->getLocalRepo();
+		$image = $fileRepo->newFile( $title );
+		$mwProps = new MWFileProps( MediaWikiServices::getInstance()->getMimeAnalyzer() );
+		$props = $mwProps->getPropsFromPath(
 			$filePath,
 			true
 		);
-		$flags          = 0;
+		$flags = 0;
 		$publishOptions = [];
-		$handler        = MediaHandler::getHandler( $props['mime'] );
+		$handler = MediaHandler::getHandler( $props['mime'] );
 		if ( $handler ) {
 			$publishOptions['headers'] = $handler->getContentHeaders( $props['metadata'] );
 		} else {
@@ -848,14 +739,13 @@ class Upload {
 			$publishOptions
 		);
 
-		if ( ! $archive->isGood() ) {
+		if ( !$archive->isGood() ) {
 			throw new FlexFormException(
 				$archive->getWikiText(
 					false,
 					false,
 					'en'
-				),
-				0
+				), 0
 			);
 		}
 		$commentText = $content;
@@ -864,11 +754,11 @@ class Upload {
 				'Uploading ' . $filename,
 				[
 					'archive value' => $archive->value,
-					'summary'       => $summary,
-					'content'       => $content,
-					'props'         => $props,
-					'base'          => $base,
-					'commentText'   => $commentText
+					'summary' => $summary,
+					'content' => $content,
+					'props' => $props,
+					'base' => $base,
+					'commentText' => $commentText
 				]
 			);
 		}
@@ -914,11 +804,11 @@ class Upload {
 	public function fileUploadSlim( $api ) {
 		global $IP;
 		$messages = new wbHandleResponses( false );
-		if ( ! isset( $_POST['wsform_file_target'] ) || $_POST['wsform_file_target'] == "" ) {
+		if ( !isset( $_POST['wsform_file_target'] ) || $_POST['wsform_file_target'] == "" ) {
 			return $messages->createMsg( 'No target file.' );
 		}
 
-		if ( ! isset( $_POST['wsform_page_content'] ) || $_POST['wsform_page_content'] == "" ) {
+		if ( !isset( $_POST['wsform_page_content'] ) || $_POST['wsform_page_content'] == "" ) {
 			return $messages->createMsg( 'No wiki content for this file.' );
 		}
 
@@ -928,7 +818,11 @@ class Upload {
 			$thumbWidth = false;
 		}
 
-		if ( isset( $_POST['wsform_file_thumb_height'] ) && $_POST['wsform_file_thumb_height'] !== "" && $thumbWidth !== false ) {
+		if (
+			isset( $_POST['wsform_file_thumb_height'] ) &&
+			$_POST['wsform_file_thumb_height'] !== "" &&
+			$thumbWidth !== false
+		) {
 			$thumbHeight = $_POST['wsform_file_thumb_height'];
 		} else {
 			$thumbHeight = null;
@@ -967,10 +861,10 @@ class Upload {
 			}
 			$url = $api->app['baseURL'] . 'extensions/FlexForm/uploads/' . $output['name'];
 			$api->logMeIn();
-			$pname   = trim( $_POST['wsform_file_target'] );
+			$pname = trim( $_POST['wsform_file_target'] );
 			$details = trim( $_POST['wsform_page_content'] );
 			$comment = "Uploaded using FlexForm.";
-			$result  = $api->uploadFileToWiki(
+			$result = $api->uploadFileToWiki(
 				$pname,
 				$url,
 				$details,
@@ -979,13 +873,15 @@ class Upload {
 			);
 			if ( $thumbWidth !== false ) {
 				$thumbName = 'sm_' . $name;
-				$turl      = $api->app['baseURL'] . 'extensions/FlexForm/uploads/' . $thumbName;
-				if ( createThumbnail(
-					$upload_dir . $name,
-					$upload_dir . $thumbName,
-					$thumbWidth,
-					$thumbHeight
-				) ) {
+				$turl = $api->app['baseURL'] . 'extensions/FlexForm/uploads/' . $thumbName;
+				if (
+					createThumbnail(
+						$upload_dir . $name,
+						$upload_dir . $thumbName,
+						$thumbWidth,
+						$thumbHeight
+					)
+				) {
 					$result = $api->uploadFileToWiki(
 						'sm_' . $pname,
 						$turl,
