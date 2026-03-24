@@ -10,20 +10,21 @@
 
 namespace FlexForm\Processors\Files;
 
+use Exception;
 use FlexForm\Core\Config;
 use FlexForm\Core\Debug;
 use FlexForm\FlexFormException;
 use FlexForm\Processors\Content\ContentCore;
 use FlexForm\Processors\Content\Save;
-use FlexForm\Processors\Convert\PandocConverter;
-use FlexForm\Processors\Convert\SpreadsheetConverter;
+use FlexForm\Processors\Convert\PandocUploadHandler;
+use FlexForm\Processors\Convert\SpreadsheetUploadHandler;
 use FlexForm\Processors\Definitions;
 use FlexForm\Processors\Utilities\General;
 use MediaHandler;
+use MWContentSerializationException;
 use MWFileProps;
 use Title;
 use User;
-use Wikimedia\AtEase\AtEase;
 use MediaWiki\MediaWikiServices;
 
 class Upload {
@@ -73,10 +74,53 @@ class Upload {
 		return $this->fileDetails;
 	}
 
+
+	/**
+	 * Validates the file action and extracts Pandoc convert details if applicable.
+	 *
+	 * @param mixed $fileAction
+	 *
+	 * @return array{0: string|bool, 1: array|null} Returns the finalized action and convert details.
+	 * @throws FlexFormException
+	 */
+	private function parseFileAction( mixed $fileAction ): array {
+		$fileActionConvertDetails = null;
+
+		if ( $fileAction === false ) {
+			return [ $fileAction, $fileActionConvertDetails ];
+		}
+
+		$actionLower = strtolower( $fileAction );
+
+		if ( $actionLower !== 'upload' && !str_contains( $actionLower, 'convertfrom:' ) ) {
+			throw new FlexFormException( 'Unknown upload action', 0 );
+		}
+
+		if ( str_contains( $actionLower, 'convertfrom:' ) ) {
+			$fileActionConvertDetails = $this->decodeAction( $fileAction );
+
+			if ( $fileActionConvertDetails !== null ) {
+				$fileAction = 'convert';
+			} else {
+				Debug::addToDebug(
+					'Pandoc convertfrom error',
+					[
+						'fileaction'               => $fileAction,
+						'fileActionConvertDetails' => null
+					]
+				);
+				throw new FlexFormException( 'Pandoc convertfrom error. No convert-from found', 0 );
+			}
+		}
+
+		return [ $fileAction, $fileActionConvertDetails ];
+	}
+
 	/**
 	 * @param string $action
 	 *
 	 * @return string[]|null
+	 * @throws FlexFormException
 	 */
 	private function decodeAction( string $action ): ?array {
 		$fileActions = [
@@ -157,6 +201,8 @@ class Upload {
 	/**
 	 * @return bool
 	 * @throws FlexFormException
+	 * @throws MWContentSerializationException
+	 * @throws \MWException
 	 */
 	public function fileUpload() : bool {
 		/**
@@ -194,6 +240,40 @@ class Upload {
 		}
 
 		$fileToProcess = $_FILES[$fileName];
+
+		$options = new FileUploadOptions( $fileDetails );
+
+		[ $fileAction, $fileActionConvertDetails ] = $this->parseFileAction( $options->fileAction );
+
+		$nrOfFiles = count( $fileToProcess['name'] );
+		if ( Config::isDebug() ) {
+			Debug::addToDebug( 'Number of files to process', $nrOfFiles );
+		}
+
+		$errors    = [];
+		$filesCore = new FilesCore();
+
+		if ( $options->target === false || $options->target === '' ) {
+			throw new FlexFormException( wfMessage( 'flexform-fileupload-no-target' )->text(), 0 );
+		}
+
+		$pageContent = ( $options->pageContent === false ) ? '' : $options->pageContent;
+
+		$pageContentPrefix = ( $options->pageContentPrefix === false )
+			? ''
+			: ContentCore::parseTitle( $options->pageContentPrefix, true );
+
+		$pageContentSuffix = ( $options->pageContentSuffix === false )
+			? ''
+			: ContentCore::parseTitle( $options->pageContentSuffix, true );
+
+		$imageComment = ( $options->imageComment === false ) ? $this->getSummary() : $options->imageComment;
+
+		$convert = ( $options->imageForce === false || $options->imageForce === '' ) ? false : $options->imageForce;
+
+		$upload_dir = rtrim( Config::getConfigVariable( 'file_temp_path' ), '/' ) . '/';
+
+		/*
 		$target        = General::getJsonValue(
 			'wsform_file_target',
 			$fileDetails
@@ -230,6 +310,7 @@ class Upload {
 			'wsform_action',
 			$fileDetails
 		);
+		*/
 		$fileActionConvertDetails = null;
 		if ( $fileAction !== false ) {
 			if (
@@ -560,202 +641,50 @@ class Upload {
 				switch ( $fileAction ) {
 				case "xls":
 				case "xlsx":
-					$convert = new SpreadsheetConverter();
-					$convert->setReader( $fileAction );
-					$convert->setFileName( $storedFile );
-					$convert->setSheetByName( $excelSheetByName );
-					$convert->setSheetById( $excelSheetById );
-					$json = $convert->convertFile();
-					// Now create the page in the wiki
-					if ( !Config::isDebug() ) {
-						$save = new Save();
-						try {
-							$save->saveToWiki(
-								$titleName,
-								[ $fileSlot => $json ],
-								$imageComment
-							);
-						} catch ( FlexFormException $e ) {
-							throw new FlexFormException(
-								$e->getMessage(),
-								0,
-								$e
-							);
-						}
-					}
+					$spreadsheetHandler = new SpreadsheetUploadHandler();
+					$spreadsheetHandler->process(
+						$fileAction,
+						$storedFile,
+						$titleName,
+						$fileDetails,
+						$imageComment
+					);
 					break;
 				case "convert":
-					// We need to do a Pandoc conversion
-					//echo "<pre>";
-					//var_dump( $fileActionConvertDetails );
-					//die();
-					$convert = new PandocConverter();
-					$convert->setConvertFrom( $fileActionConvertDetails['convertfrom'] );
-					$convert->setConvertTo( $fileActionConvertDetails['convertto'] );
-					$convert->setAdditionalArguments( $fileActionConvertDetails['additional-arguments'] );
-					$convert->setFileName(
-						$filesCore->parseTarget( $storedFile, $fileActionConvertDetails['uploadoriginalas'] )
-					);
-					$newContent = $convert->convertFile();
-					Debug::addToDebug(
-						'File converted with Pandoc: ' . $titleName,
-						[
-							'$pageContentPrefix'    => $pageContentPrefix,
-							'$newContent' => $newContent,
-							'$pageContentSuffix'  => $pageContentSuffix
-						]
-					);
-					// If the target is not binary, we can create the page and upload attached files
-					if ( !$convert->isBinaryTarget() ) {
-						$newContent = $pageContentPrefix . $newContent . $pageContentSuffix;
-						$possibleImagesInDocument = $convert->getPossibleImagesFromConversion();
-						if ( $possibleImagesInDocument !== false ) {
-							$fCount = 1;
-							foreach ( $possibleImagesInDocument as $singleImage ) {
-								// find [filename] and replace
-								$newFname = $titleName . '-' . basename( $singleImage );
-								if ( Config::isDebug() ) {
-									Debug::addToDebug(
-										$fCount . ' - Preparing to upload image file from document: ' . $fCount,
-										[
-											'$newFname' => $newFname,
-											'$singleImage' => $singleImage,
-											'stored file' => $storedFile,
-											'details' => $details,
-											'comment' => $imageComment
-										]
-									);
-								}
-								if ( !Config::isDebug() ) {
-									$resultFileUpload = $this->uploadFileToWiki(
-										$singleImage,
-										$newFname,
-										$thisUser,
-										$details,
-										$imageComment,
-										wfTimestampNow()
-									);
-									if ( $resultFileUpload !== true ) {
-										throw new FlexFormException(
-											$resultFileUpload, 0
-										);
-									}
-								}
-								$search = $convert->pandocGetSearchFor() . basename( $singleImage );
-								$replace = $convert->pandocGetReplaceWith( $newFname );
-								$newContent = str_replace(
-									$search,
-									$replace,
-									$newContent
-								);
-								unlink( $singleImage );
-								$fCount++;
-							}
-						}
-					} else {
-						// If the target is binary, then simply upload it
-						$titleName .= "." . $fileNameExtension;
+					$pandocHandler = new PandocUploadHandler( $this, $filesCore );
 
-						$resultFileUpload = $this->uploadFileToWiki(
-							$upload_dir . $storedFile,
-							$titleName,
-							$thisUser,
-							$details,
-							$imageComment,
-							wfTimestampNow()
-						);
-						if ( $resultFileUpload !== true ) {
-							throw new FlexFormException(
-								$resultFileUpload, 0
-							);
-						}
-					}
-					// Now create the page in the wiki
-
-					if ( !$convert->isBinaryTarget() ) {
-						$save = new Save();
-						try {
-							$save->saveToWiki(
-								$titleName,
-								[ $fileSlot => $newContent ],
-								$imageComment
-							);
-						} catch ( FlexFormException $e ) {
-							throw new FlexFormException(
-								$e->getMessage(), 0, $e
-							);
-						}
-					}
-					if ( $fileActionConvertDetails['uploadoriginalas'] !== "false" ) {
-						// Check if [filename] should be replaced
-						$uploadOriginalAs = $filesCore->parseTarget(
-							$fileActionConvertDetails['uploadoriginalas'],
-							$targetFile,
-						);
-						Debug::addToDebug( 'Pandoc Upload Original - parse [filename]',
-							[
-								'targetfile' => $targetFile,
-								'uploadoriginalas original' => $fileActionConvertDetails['uploadoriginalas'],
-								'after [filename] in targetfile parse' => $uploadOriginalAs
-							] );
-						$isOriginalTargetAFile = $this->isFileNameSpace( $titleName );
-						$pTitleName = $this->checkTitleForTarget(
-							$titleName,
-							$uploadOriginalAs
-						);
-						Debug::addToDebug( 'Pandoc Upload Original - parse [target]',
-						[
-							'titleName' => $titleName,
-							'after [filename] in targetfile parse' => $uploadOriginalAs,
-							'after [target] in titlename parse' => $pTitleName,
-						]
-						);
-						if ( $fileActionConvertDetails['original-file-content'] !== "false" ) {
-							$details = $fileActionConvertDetails['original-file-content'];
-						}
-						if (
-							$isOriginalTargetAFile
-							&& empty( $details )
-						) {
-							Debug::addToDebug( 'Pandoc Upload Original - same title',
-								'Converted title same as uploadoriginal title' .
-								'content is for main slot, so adding to file-upload'
-							);
-							$details = $newContent;
-						}
-						$resultFileUpload = $this->uploadFileToWiki(
-						$upload_dir . $storedFile,
-						$pTitleName,
-						$thisUser,
+					$pandocHandler->process(
+						$fileActionConvertDetails,
+						$storedFile,
+						$targetFile,
+						$titleName,
+						$fileNameExtension,
+						$pageContentPrefix,
+						$pageContentSuffix,
+						$fileSlot,
 						$details,
 						$imageComment,
-						wfTimestampNow()
-						);
-						if ( $resultFileUpload !== true ) {
-							throw new FlexFormException(
-								$resultFileUpload, 0
-							);
-						}
-					}
+						$thisUser,
+						$upload_dir
+					);
 				break;
 				}
 			} else {
-				if ( !Config::isDebug() ) {
-					$resultFileUpload = $this->uploadFileToWiki(
-						$upload_dir . $storedFile,
-						$titleName,
-						$thisUser,
-						$details,
-						$imageComment,
-						wfTimestampNow()
+				$resultFileUpload = $this->uploadFileToWiki(
+					$upload_dir . $storedFile,
+					$titleName,
+					$thisUser,
+					$details,
+					$imageComment,
+					wfTimestampNow()
+				);
+				if ( $resultFileUpload !== true ) {
+					throw new FlexFormException(
+						$resultFileUpload,
+						0
 					);
-					if ( $resultFileUpload !== true ) {
-						throw new FlexFormException(
-							$resultFileUpload,
-							0
-						);
-					}
 				}
+
 			}
 			unlink( $upload_dir . $storedFile );
 		}
@@ -854,8 +783,8 @@ class Upload {
 	 *
 	 * @return bool|string
 	 * @throws FlexFormException
-	 * @throws \MWContentSerializationException
-	 * @throws \MWException
+	 * @throws MWContentSerializationException
+	 * @throws Exception
 	 */
 	public function uploadFileToWiki(
 		string $filePath,
