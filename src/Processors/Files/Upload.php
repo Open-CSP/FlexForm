@@ -788,7 +788,6 @@ class Upload {
 	 */
 	private function isFileNameSpace( string $title ): bool {
 		$titleObject = MediaWikiServices::getInstance()->getTitleFactory()->newFromText( $title );
-		var_dump ( $title, $titleObject->getNamespace() );
 		if ( $titleObject !== null && $titleObject->getNamespace() === NS_FILE ) {
 			return true;
 		}
@@ -803,8 +802,11 @@ class Upload {
 	 */
 	private function checkTitleForTarget( string $pageTargetName, string $target ): string {
 		$target = str_replace( '[target]', $pageTargetName, $target );
-		if ( str_starts_with( $target, 'File:', ) || str_starts_with( $target, 'file:', ) ) {
-			$target = str_replace( [ 'File:', 'file:' ], '', $target );
+		if ( $this->isFileNameSpace( $target ) ) {
+			$titleObject = MediaWikiServices::getInstance()->getTitleFactory()->newFromText( $target );
+			if ( $titleObject !== null ) {
+				$target = $titleObject->getBaseText();
+			}
 		}
 		return $target;
 	}
