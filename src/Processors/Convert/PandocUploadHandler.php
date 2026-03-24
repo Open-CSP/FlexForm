@@ -51,6 +51,7 @@ class PandocUploadHandler {
 	 * @param string $uploadDir
 	 *
 	 * @throws FlexFormException
+	 * @throws MWContentSerializationException
 	 */
 	public function process(
 		array $convertDetails,

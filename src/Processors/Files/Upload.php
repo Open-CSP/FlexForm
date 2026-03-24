@@ -23,9 +23,11 @@ use FlexForm\Processors\Utilities\General;
 use MediaHandler;
 use MWContentSerializationException;
 use MWFileProps;
+use RequestContext;
 use Title;
 use User;
 use MediaWiki\MediaWikiServices;
+use UtfNormal\Validator;
 
 class Upload {
 
@@ -74,13 +76,12 @@ class Upload {
 		return $this->fileDetails;
 	}
 
-
 	/**
 	 * Validates the file action and extracts Pandoc convert details if applicable.
 	 *
 	 * @param mixed $fileAction
 	 *
-	 * @return array{0: string|bool, 1: array|null} Returns the finalized action and convert details.
+	 * @return array {0: string|bool, 1: array|null} Returns the finalized action and convert details.
 	 * @throws FlexFormException
 	 */
 	private function parseFileAction( mixed $fileAction ): array {
@@ -209,7 +210,7 @@ class Upload {
 	 * @return bool
 	 * @throws FlexFormException
 	 * @throws MWContentSerializationException
-	 * @throws \MWException
+	 * @throws Exception
 	 */
 	public function fileUpload(): bool {
 		/**
@@ -228,7 +229,7 @@ class Upload {
 		 * ];
 		 */
 
-		$thisUser = \RequestContext::getMain()->getUser();
+		$thisUser = RequestContext::getMain()->getUser();
 		$processedFiles = [];
 
 		$fileName = $this->getFileName();
@@ -268,7 +269,6 @@ class Upload {
 			Debug::addToDebug( 'Number of files to process', $nrOfFiles );
 		}
 
-		$errors = [];
 		$filesCore = new FilesCore();
 
 		if ( $target === false || $target === '' ) {
@@ -304,8 +304,6 @@ class Upload {
 		}
 
 		$upload_dir = rtrim( Config::getConfigVariable( 'file_temp_path' ), '/' ) . '/';
-
-		$filesCore = new FilesCore();
 
 		for ( $i = 0; $i < $nrOfFiles; $i++ ) {
 			if ( Config::isDebug() ) {
@@ -603,38 +601,6 @@ class Upload {
 	}
 
 	/**
-	 * @param string $title
-	 *
-	 * @return bool
-	 */
-	private function isFileNameSpace( string $title ): bool {
-		$titleObject = MediaWikiServices::getInstance()->getTitleFactory()->newFromText( $title );
-		if ( $titleObject !== null && $titleObject->getNamespace() === NS_FILE ) {
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
-	 * @param string $pageTargetName
-	 * @param string $target
-	 *
-	 * @return string
-	 */
-	private function checkTitleForTarget( string $pageTargetName, string $target ): string {
-		$target = str_replace( '[target]', $pageTargetName, $target );
-		if ( $this->isFileNameSpace( $target ) ) {
-			$titleObject = MediaWikiServices::getInstance()->getTitleFactory()->newFromText( $target );
-			if ( $titleObject !== null ) {
-				$target = $titleObject->getBaseText();
-			}
-		}
-
-		return $target;
-	}
-
-	/**
 	 * @param string $name
 	 * @param array $extensions
 	 *
@@ -673,12 +639,11 @@ class Upload {
 	 * @param User $user
 	 * @param string $content
 	 * @param string $summary
-	 * @param $timestamp
+	 * @param string $timestamp
 	 *
-	 * @return bool|string
+	 * @return true
 	 * @throws FlexFormException
 	 * @throws MWContentSerializationException
-	 * @throws Exception
 	 */
 	public function uploadFileToWiki(
 		string $filePath,
@@ -686,7 +651,7 @@ class Upload {
 		User $user,
 		string $content,
 		string $summary,
-		$timestamp
+		string $timestamp
 	) {
 		if ( !file_exists( $filePath ) ) {
 			throw new FlexFormException(
@@ -703,7 +668,7 @@ class Upload {
 			);
 		}
 
-		$base = \UtfNormal\Validator::cleanUp( wfBaseName( $filename ) );
+		$base = Validator::cleanUp( wfBaseName( $filename ) );
 		# Validate a title
 		$title = Title::makeTitleSafe(
 			NS_FILE,
@@ -792,111 +757,5 @@ class Upload {
 		}
 
 		return true;
-	}
-
-	/**
-	 * When a file is uploaded using the Slim extension, this function will take care of the saving
-	 *
-	 * @param $api
-	 *
-	 * @return array|bool Either true on success or a createMsg() error
-	 */
-	public function fileUploadSlim( $api ) {
-		global $IP;
-		$messages = new wbHandleResponses( false );
-		if ( !isset( $_POST['wsform_file_target'] ) || $_POST['wsform_file_target'] == "" ) {
-			return $messages->createMsg( 'No target file.' );
-		}
-
-		if ( !isset( $_POST['wsform_page_content'] ) || $_POST['wsform_page_content'] == "" ) {
-			return $messages->createMsg( 'No wiki content for this file.' );
-		}
-
-		if ( isset( $_POST['wsform_file_thumb_width'] ) && $_POST['wsform_file_thumb_width'] !== "" ) {
-			$thumbWidth = $_POST['wsform_file_thumb_width'];
-		} else {
-			$thumbWidth = false;
-		}
-
-		if (
-			isset( $_POST['wsform_file_thumb_height'] ) &&
-			$_POST['wsform_file_thumb_height'] !== "" &&
-			$thumbWidth !== false
-		) {
-			$thumbHeight = $_POST['wsform_file_thumb_height'];
-		} else {
-			$thumbHeight = null;
-		}
-
-		$upload_dir = $IP . "/extensions/FlexForm/uploads/";
-
-		include_once( $IP . '/extensions/FlexForm/modules/slim/server/slim.php' );
-		// Get posted data
-		$images = Slim::getImages( 'wsformfile_slim' );
-
-		// No image found under the supplied input name
-		if ( $images == false ) {
-			// inject your own auto crop or fallback script here
-			return $messages->createMsg(
-				'Presentor Slim was not used to upload these images.',
-				"ok"
-			);
-		}
-		if ( isset( $images[0]['output']['data'] ) ) {
-			// Save the file
-			$name = $images[0]['output']['name'];
-			$name = $targetFile = wsUtilities::makeUnderscoreFromSpace( $name );
-
-			// We'll use the output crop data
-			$data = $images[0]['output']['data'];
-
-			$output = Slim::saveFile(
-				$data,
-				$name,
-				$upload_dir,
-				false
-			);
-			if ( $api->getStatus() === false ) {
-				return $messages->createMsg( $api->getStatus( true ) );
-			}
-			$url = $api->app['baseURL'] . 'extensions/FlexForm/uploads/' . $output['name'];
-			$api->logMeIn();
-			$pname = trim( $_POST['wsform_file_target'] );
-			$details = trim( $_POST['wsform_page_content'] );
-			$comment = "Uploaded using FlexForm.";
-			$result = $api->uploadFileToWiki(
-				$pname,
-				$url,
-				$details,
-				$comment,
-				$upload_dir . $output['name']
-			);
-			if ( $thumbWidth !== false ) {
-				$thumbName = 'sm_' . $name;
-				$turl = $api->app['baseURL'] . 'extensions/FlexForm/uploads/' . $thumbName;
-				if (
-					createThumbnail(
-						$upload_dir . $name,
-						$upload_dir . $thumbName,
-						$thumbWidth,
-						$thumbHeight
-					)
-				) {
-					$result = $api->uploadFileToWiki(
-						'sm_' . $pname,
-						$turl,
-						$details,
-						$comment,
-						$upload_dir . $thumbName
-					);
-					unlink( $upload_dir . $thumbName );
-				}
-			}
-			unlink( $upload_dir . $output['name'] );
-
-			return true;
-		} else {
-			return $messages->createMsg( "Presentor Slim said : No image output." );
-		}
 	}
 }
