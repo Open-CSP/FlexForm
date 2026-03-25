@@ -10,47 +10,47 @@ class FileUploadOptions {
 	/**
 	 * @var mixed
 	 */
-	public mixed $target;
+	public readonly mixed $target;
 
 	/**
 	 * @var mixed
 	 */
-	public mixed $pageContent;
+	public readonly mixed $pageContent;
 
 	/**
 	 * @var mixed
 	 */
-	public mixed $pageContentPrefix;
+	public readonly mixed $pageContentPrefix;
 
 	/**
 	 * @var mixed
 	 */
-	public string|bool $pageContentSuffix;
+	public readonly string|bool $pageContentSuffix;
 
 	/**
 	 * @var mixed
 	 */
-	public mixed $pageTemplate;
+	public readonly mixed $pageTemplate;
 
 	/**
 	 * @var mixed
 	 */
-	public mixed $parseContent;
+	public readonly mixed $parseContent;
 
 	/**
 	 * @var mixed
 	 */
-	public mixed $imageForce;
+	public readonly mixed $imageForce;
 
 	/**
 	 * @var mixed
 	 */
-	public mixed $imageComment;
+	public readonly mixed $imageComment;
 
 	/**
 	 * @var mixed
 	 */
-	public mixed $fileAction;
+	public readonly mixed $fileAction;
 
 	/**
 	 * @param array $fileDetails
