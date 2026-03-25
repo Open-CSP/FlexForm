@@ -158,6 +158,7 @@ class Upload {
 			foreach ( $fileActions['additional-arguments'] as $singleAdditionalArgument ) {
 				if ( str_contains( $singleAdditionalArgument, '=' ) ) {
 					$explodedArgs = explode( '=', $singleAdditionalArgument );
+					if ( $explodedArgs[0] )
 					$newArgs[$explodedArgs[0]] = $explodedArgs[1];
 				} else {
 					$newArgs[$singleAdditionalArgument] = '';
@@ -198,8 +199,10 @@ class Upload {
 			return "Convert to '$to' is not allowed.";
 		}
 		if ( !empty( $additional ) ) {
-			if ( Config::getConfigVariable( 'pandoc-allow-additional-arguments' ) === false ) {
-				return "pandoc-allow-additional-arguments are not allowed.";
+			foreach ( $additional as $singleAdditional ) {
+				if ( !in_array( $singleAdditional, Config::getConfigVariable( 'pandoc-allow-additional-arguments' ) ) ) {
+					return "Additional argument '$singleAdditional' is not allowed.";
+				}
 			}
 		}
 
