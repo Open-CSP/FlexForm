@@ -46,7 +46,9 @@ class PandocConverter extends Convert {
 		"docx",
 		"docbook",
 		"docbook5",
-		"pptx"
+		"pptx",
+		"epub",
+		"odt"
 	];
 
 	/**
