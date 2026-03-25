@@ -1,9 +1,8 @@
 {
   "name": "FlexForm",
-  "version": "2.7.2",
+  "version": "2.8.0",
   "author": [
-    "[https://www.wikibase-solutions.com/author/charlot Sen-Sai]",
-    "[https://www.wikibase-solutions.com/author/marijn Marijn]"
+    "[https://www.wikibase-solutions.com/author/charlot Sen-Sai]"
   ],
   "url": "https://www.mediawiki.org/wiki/Extension:FlexForm",
   "descriptionmsg": "flexform-desc",
@@ -90,6 +89,9 @@
       "allowedGroups" : [ "sysop" ],
       "hideEdit" : true,
       "pandoc-install-path" : "",
+      "pandoc-convert-from" : [ "docx" ],
+      "pandoc-convert-to" : [ "mediawiki" ],
+      "pandoc-allow-additional-arguments" : ["lua-filter"],
       "forceNullEdit" : true,
       "allowFlexFormOpenAPI" : false
     }

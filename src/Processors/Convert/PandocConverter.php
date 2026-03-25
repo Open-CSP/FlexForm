@@ -26,7 +26,30 @@ class PandocConverter extends Convert {
 	/**
 	 * @var string
 	 */
+	private string $convertTo;
+
+	/**
+	 * @var array
+	 */
+	private array $pandocAdditionalArguments = [];
+
+	/**
+	 * @var string
+	 */
 	private string $pandocPathAdditions = '';
+
+	/**
+	 * @var array|string[]
+	 */
+	private array $binaryFormats = [
+		"pdf",
+		"docx",
+		"docbook",
+		"docbook5",
+		"pptx",
+		"epub",
+		"odt"
+	];
 
 	/**
 	 * @return string
@@ -61,8 +84,40 @@ class PandocConverter extends Convert {
 	 *
 	 * @return void
 	 */
-	public function setConvertFrom( string $from ) {
+	public function setConvertFrom( string $from ): void {
 		$this->convertFrom = $from;
+	}
+
+	/**
+	 * @param array $arguments
+	 *
+	 * @return void
+	 */
+	public function setAdditionalArguments( array $arguments ): void {
+		global $IP;
+		$path = $IP . '/';
+		if ( !empty( $arguments ) ) {
+			foreach ( $arguments as $k => $argument ) {
+				$arguments[ $k ] = str_replace( '[path]', $path, $argument );
+			}
+		}
+		$this->pandocAdditionalArguments = $arguments;
+	}
+
+	/**
+	 * @param string $from
+	 *
+	 * @return void
+	 */
+	public function setConvertTo( string $from ): void {
+		$this->convertTo = $from;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isBinaryTarget(): bool {
+		return in_array( strtolower( $this->convertTo ), $this->binaryFormats );
 	}
 
 	/**
@@ -83,12 +138,34 @@ class PandocConverter extends Convert {
 			);
 		}
 
+		if ( $this->convertTo === null ) {
+			$this->convertTo = 'mediawiki';
+		}
+
+		$allowedFrom = Config::getConfigVariable( 'pandoc-convert-from' );
+		$allowedTo = Config::getConfigVariable( 'pandoc-convert-to' );
+
+		if ( !in_array( strtolower( $this->convertFrom ), $allowedFrom, true ) ) {
+			throw new FlexFormException(
+				wfMessage( 'flexform-fileupload-file-convert-from-error', $this->convertFrom )->parse(),
+				0
+			);
+		}
+		if ( !in_array( strtolower( $this->convertTo ), $allowedTo, true ) ) {
+			throw new FlexFormException(
+				wfMessage( 'flexform-fileupload-file-convert-to-error', $this->convertFrom )->parse(),
+				0
+			);
+		}
+
 		$pandoc  = $this->giveMePandoc();
 		$options = [
 			'from'          => $this->convertFrom,
-			'to'            => 'mediawiki',
+			'to'            => $this->convertTo,
 			'extract-media' => $this->getPandocMediaPath()
 		];
+		$options = array_merge( $options, $this->pandocAdditionalArguments );
+		Debug::addToDebug( 'Pandoc Conversion options', $options );
 		try {
 			$wiki = $pandoc->runWith( $this->getFile(), $options );
 		} catch ( PandocException $e ) {
@@ -104,8 +181,9 @@ class PandocConverter extends Convert {
 				$e
 			);
 		}
-
-		$this->cleanConvertedText( $wiki );
+		if ( !$this->isBinaryTarget() ) {
+			$this->cleanConvertedText( $wiki );
+		}
 
 		return $wiki;
 	}

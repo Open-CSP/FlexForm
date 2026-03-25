@@ -1,4 +1,7 @@
 
+
+
+
 /* Instances with label inside input fields CSS */
 
 .ff-instance-edit {
@@ -69,7 +72,7 @@ form:has(.flex-form-spinner.active) {
 	isolation: isolate;
 }
 
-form:has(.flex-form-spinner.active)::before {
+form:has(.flex-form-spinner.active)::after {
 	content: "";
 	position: absolute;
 	top: 0;
@@ -81,49 +84,51 @@ form:has(.flex-form-spinner.active)::before {
 	border-radius: inherit;
 }
 
+form:has(.flex-form-spinner.active)::before {
+	content: "";
+	position: absolute;
+	inset: 0 35% 70%;
+	border-radius: 50%;
+	filter: blur(15px);
+}
+
 .flex-form-spinner.active {
 	display: block;
 	position: absolute;
 	top: 50%;
 	left: 50%;
 	z-index: 9999;
-	box-sizing: border-box;
-	width: 80px;
-	height: 80px;
+	width: 15px;
+	height: 15px;
 	border-radius: 50%;
-	border: 4px solid var(--ff-spinner-base, rgba(0, 0, 0, 0.1));
-	transform-origin: 50% 50%;
-	transform: translate(-50%, -50%) perspective(200px) rotateX(66deg);
+	margin-top: -7.5px;
+	margin-left: -7.5px;
+	border: none;
+	animation: ff-dots 1s infinite linear alternate;
 }
 
 .flex-form-spinner.active::before,
 .flex-form-spinner.active::after {
-	content: "";
-	position: absolute;
-	inset: -4px;
-	border-radius: 50%;
-	box-sizing: border-box;
-	border: 4px solid transparent;
-	animation: spinner-spin 1.2s cubic-bezier(0.6, 0.2, 0, 0.8) infinite,
-	spinner-fade 1.2s linear infinite;
+	display: none !important;
 }
 
-.flex-form-spinner.active::before {
-	border-top-color: var(--ff-spinner-color-1, #555);
-}
-
-.flex-form-spinner.active::after {
-	border-top-color: var(--ff-spinner-color-2, #ff3d00);
-	animation-delay: 0.4s;
-}
-
-@keyframes spinner-spin {
-	100% { transform: rotate(360deg); }
-}
-
-@keyframes spinner-fade {
-	25%, 75% { opacity: 0.1; }
-	50% { opacity: 1; }
+@keyframes ff-dots {
+	0%  {
+		box-shadow: 20px 0 var(--ff-spinner-color, #444), -20px 0 rgba(68, 68, 68, 0.2);
+		background: var(--ff-spinner-color, #444);
+	}
+	33% {
+		box-shadow: 20px 0 var(--ff-spinner-color, #444), -20px 0 rgba(68, 68, 68, 0.2);
+		background: rgba(68, 68, 68, 0.2);
+	}
+	66% {
+		box-shadow: 20px 0 rgba(68, 68, 68, 0.2), -20px 0 var(--ff-spinner-color, #444);
+		background: rgba(68, 68, 68, 0.2);
+	}
+	100%{
+		box-shadow: 20px 0 rgba(68, 68, 68, 0.2), -20px 0 var(--ff-spinner-color, #444);
+		background: var(--ff-spinner-color, #444);
+	}
 }
 
 .flex-form-special-top {
