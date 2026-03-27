@@ -163,7 +163,7 @@ class General {
 	 * @return int
 	 */
 	public static function MakeTitle() : int {
-		return time();
+		return time() . mt_rand( 1,100 );
 	}
 
 	/**

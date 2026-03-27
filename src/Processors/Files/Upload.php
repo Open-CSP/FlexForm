@@ -490,7 +490,7 @@ class Upload {
 					$titleName
 				);
 			}
-			$titleName = ContentCore::parseTitle( $titleName );
+			$titleName = ContentCore::parseTitle( $titleName ) . '-' . $i;
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
 					'Title after parsetitle file #' . $i,
