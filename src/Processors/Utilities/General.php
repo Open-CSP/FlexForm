@@ -163,7 +163,14 @@ class General {
 	 * @return int
 	 */
 	public static function MakeTitle() : int {
-		return time() . mt_rand( 1,100 );
+		$randomExtraNumber = str_pad(
+			mt_rand( 1,999 ),
+			3,
+			'0',
+			STR_PAD_LEFT
+		);
+		return time() . $randomExtraNumber;
+
 	}
 
 	/**
