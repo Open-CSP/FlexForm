@@ -57,10 +57,33 @@ class ContentCore {
 	public static string $jobUser;
 
 	/**
+	 * @var int
+	 */
+	private static int $fileNumber = 0;
+
+	/**
 	 * @return array
 	 */
 	public static function getFields(): array {
 		return self::$fields;
+	}
+
+	/**
+	 * @param int $fCount
+	 *
+	 * @return void
+	 */
+	public static function setFileCount( int $fCount ): void {
+		self::$fileNumber = $fCount;
+	}
+
+	/**
+	 * @return int
+	 */
+	private static function getFileCount(): int {
+		$fCount = self::$fileNumber;
+		self::$fileNumber = 0;
+		return $fCount;
 	}
 
 	/**
@@ -749,11 +772,15 @@ class ContentCore {
 		}
 		foreach ( $tmp as $fieldname ) {
 			if ( $fieldname == 'mwrandom' ) {
+				$fCount = self::getFileCount();
 				$title = str_replace(
 					'[' . $fieldname . ']',
 					General::MakeTitle(),
 					$title
 				);
+				if ( $fCount > 0 ) {
+					$title .= '-' . $fCount;
+				}
 			} elseif ( isset( $_POST[General::makeUnderscoreFromSpace( $fieldname )] ) ) {
 				$fn = $_POST[General::makeUnderscoreFromSpace( $fieldname )];
 				if ( is_array( $fn ) ) {

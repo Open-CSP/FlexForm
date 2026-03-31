@@ -496,7 +496,8 @@ class Upload {
 					$titleName
 				);
 			}
-			$titleName = ContentCore::parseTitle( $titleName ) . '-' . $i;
+			ContentCore::setFileCount( $i );
+			$titleName = ContentCore::parseTitle( $titleName );
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
 					'Title after parsetitle file #' . $i,
