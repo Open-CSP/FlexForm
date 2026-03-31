@@ -199,9 +199,17 @@ class Upload {
 			return "Convert to '$to' is not allowed.";
 		}
 		if ( !empty( $additional ) ) {
-			foreach ( $additional as $singleAdditional ) {
-				if ( !in_array( $singleAdditional, Config::getConfigVariable( 'pandoc-allow-additional-arguments' ) ) ) {
-					return "Additional argument '$singleAdditional' is not allowed.";
+			$pandocAllowedArguments = Config::getConfigVariable( 'pandoc-allow-additional-arguments' );
+			if ( !empty( $pandocAllowedArguments ) && is_array( $pandocAllowedArguments ) ) {
+				foreach ( $additional as $singleAdditional ) {
+					if (
+						!in_array(
+							$singleAdditional,
+							Config::getConfigVariable( 'pandoc-allow-additional-arguments' )
+						)
+					) {
+						return "Additional argument '$singleAdditional' is not allowed.";
+					}
 				}
 			}
 		}
