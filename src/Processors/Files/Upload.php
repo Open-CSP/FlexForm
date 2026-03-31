@@ -198,16 +198,12 @@ class Upload {
 		if ( !in_array( $to, Config::getConfigVariable( 'pandoc-convert-to' ) ) ) {
 			return "Convert to '$to' is not allowed.";
 		}
+
 		if ( !empty( $additional ) ) {
 			$pandocAllowedArguments = Config::getConfigVariable( 'pandoc-allow-additional-arguments' );
 			if ( !empty( $pandocAllowedArguments ) && is_array( $pandocAllowedArguments ) ) {
-				foreach ( $additional as $singleAdditional ) {
-					if (
-						!in_array(
-							$singleAdditional,
-							Config::getConfigVariable( 'pandoc-allow-additional-arguments' )
-						)
-					) {
+				foreach ( $additional as $key => $singleAdditional ) {
+					if ( !in_array( $key, $pandocAllowedArguments )	) {
 						return "Additional argument '$singleAdditional' is not allowed.";
 					}
 				}
