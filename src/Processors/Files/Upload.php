@@ -211,6 +211,8 @@ class Upload {
 						return "Additional argument '$singleAdditional' is not allowed.";
 					}
 				}
+			} else {
+				return "Additional arguments not correctly set in Config";
 			}
 		}
 
