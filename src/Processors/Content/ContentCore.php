@@ -773,14 +773,15 @@ class ContentCore {
 		foreach ( $tmp as $fieldname ) {
 			if ( $fieldname == 'mwrandom' ) {
 				$fCount = self::getFileCount();
+				$randomNumber = General::MakeTitle();
+				if ( $fCount > 0 ) {
+					$randomNumber .= '-' . $fCount;
+				}
 				$title = str_replace(
 					'[' . $fieldname . ']',
-					General::MakeTitle(),
+					$randomNumber,
 					$title
 				);
-				if ( $fCount > 0 ) {
-					$title .= '-' . $fCount;
-				}
 			} elseif ( isset( $_POST[General::makeUnderscoreFromSpace( $fieldname )] ) ) {
 				$fn = $_POST[General::makeUnderscoreFromSpace( $fieldname )];
 				if ( is_array( $fn ) ) {
