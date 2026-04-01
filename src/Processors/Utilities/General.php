@@ -10,6 +10,7 @@
 
 namespace FlexForm\Processors\Utilities;
 
+use FlexForm\Processors\Content\ContentCore;
 use FlexForm\Processors\Security\wsSecurity;
 use HTMLPurifier;
 use HTMLPurifier_Config;
@@ -162,8 +163,15 @@ class General {
 	/**
 	 * @return int
 	 */
-	public static function MakeTitle() : int {
-		return time();
+	public static function MakeTitle(): int {
+		$randomExtraNumber = str_pad(
+			mt_rand( 1,999 ),
+			3,
+			'0',
+			STR_PAD_LEFT
+		);
+		return time() . $randomExtraNumber;
+
 	}
 
 	/**

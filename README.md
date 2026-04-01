@@ -34,6 +34,8 @@ $wgFlexFormConfig['secure']                                        = true; //( d
 $wgFlexFormConfig['sec_key']                                       = ""; // A salt key for encryption. Used together with "secure" option. Must be set when using multiple instances of a wiki
 $wgFlexFormConfig['auto_save_interval']                            = 30000; // defaults to 3 minutes.
 $wgFlexFormConfig['auto_save_after_change']                        = 3000; // defaults to 3 seconds after last change
+$wgFlexFormConfig['auto_save_btn_on']                              = 'Autosave on'; // Text on the autosave button to toggle on.
+$wgFlexFormConfig['auto_save_btn_off']                             = 'Autosave off';// Text on the autosave button to toggle off.
 $wgFlexFormConfig['FlexFormDefaultTheme']                          = "Plain"; // Currently the only form
 $wgFlexFormConfig['rc_site_key']                                   = ""; // reCaptcha site key
 $wgFlexFormConfig['rc_secret_key']                                 = ""; // reCaptcha secret key
@@ -46,9 +48,14 @@ $wgFlexFormConfig['renderi18nErrorInsteadofImageForApprovedForms'] = false; // W
 $wgFlexFormConfig['userscaneditallpages']                          = false; // Defaults to false. This differs from FlexForm before 2.0. FlexForm will now honor the UserCan functions in MediaWiki. If a form edits or creates a page a user has no rights to, the form will fail.
 $wgFlexFormConfig['hideEdit']                                      = true; // Defaults to true. If a user is not in the allowedGroups then hide edit and editsource menu items for any page containing a FlexForm form.
 $wgFlexFormConfig['create-seo-titles']                             = true; // Defaults to false. Will filter any user input on creating a new page to be SEO friendly.
-$wgFlexFormConfig['auto_save_btn_on']                              = "Autosave On";
-$wgFlexFormConfig['auto_save_btn_off']                             = "Autosave Off";
+$wgFlexFormConfig['pandoc-install-path']                           = ''; // If you want to use a different Pandoc version than the one installed on the server by default
+$wgFlexFormConfig['pandoc-convert-to'][]                           = 'mediawiki'; // defaults to MediaWiki, but you can add more
+$wgFlexFormConfig['pandoc-convert-from'][]                         = 'docx'; // defaults to docx, but you can add more
+$wgFlexFormConfig['pandoc-allow-additional-arguments']             = ""; // add additional Pandoc arguments to a convert
+$wgFlexFormConfig['forceNullEdit']                                 = true; // Default to true for backwards compatibility
+$wgFlexFormConfig['allowFlexFormOpenAPI']                          = false; // As of version 2.7.1: This will enable FlexFormOpenAPI, making it possible to use API 'CanUserBeCreated' which does not require read-rights.
 $wgFlexFormConfig['loadScriptPath']                                = ""; // Defaults to what is described by the loadscript form argument. When you change it do a different folder, then loadScript argument will be looking in this folder for its JavaScript file to load with the Form.
+$wgFlexFormConfig['use_mediawiki_mail_settings']                   = false; // As of version 2.7.1:  When sending email, should we use MediaWiki mail settings (defaults to false)? If set to true: when MediaWiki wgSMTP is set, FlexForm will use those settings, if they are not set, FlexForm will not use SMTP.
 $wgFlexFormConfig['use_smtp']                                      = false; // when sending email, should we use separate smtp ?
 $wgFlexFormConfig['smtp_host']                                     = "";
 $wgFlexFormConfig['smtp_authentication']                           = true;
@@ -86,6 +93,7 @@ Visit this documentation page https://www.open-csp.org/DevOps:Doc/FlexForm/2.0/V
 Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
+* 2.8.1 : Make sure mwrandom is even more random
 * 2.8.0 : Pandoc conversions expanded. See online documentation
 * 2.7.2 : Changed submitting of Forms to a better viewable submit status. Introducing --ff-overlay-bg, --ff-spinner-base, --ff-spinner-color-1 and --ff-spinner-color-2 css variables to control colors.
 * 2.7.1 : Added: action=FlexFormOpen&ffAction=canUserBeCreated&additionalData=Harry (example) to check if a user can exist. Added use_mediawiki_mail_settings config setting.

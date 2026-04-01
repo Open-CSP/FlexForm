@@ -198,11 +198,17 @@ class Upload {
 		if ( !in_array( $to, Config::getConfigVariable( 'pandoc-convert-to' ) ) ) {
 			return "Convert to '$to' is not allowed.";
 		}
+
 		if ( !empty( $additional ) ) {
-			foreach ( $additional as $singleAdditional ) {
-				if ( !in_array( $singleAdditional, Config::getConfigVariable( 'pandoc-allow-additional-arguments' ) ) ) {
-					return "Additional argument '$singleAdditional' is not allowed.";
+			$pandocAllowedArguments = Config::getConfigVariable( 'pandoc-allow-additional-arguments' );
+			if ( !empty( $pandocAllowedArguments ) && is_array( $pandocAllowedArguments ) ) {
+				foreach ( $additional as $key => $singleAdditional ) {
+					if ( !in_array( $key, $pandocAllowedArguments )	) {
+						return "Additional argument '$singleAdditional' is not allowed.";
+					}
 				}
+			} else {
+				return "Additional arguments not correctly set in Config";
 			}
 		}
 
@@ -490,6 +496,7 @@ class Upload {
 					$titleName
 				);
 			}
+			ContentCore::setFileCount( $i );
 			$titleName = ContentCore::parseTitle( $titleName );
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(

@@ -57,14 +57,14 @@ class FlexFormHooks {
 	 */
 	public static function addToAdminLinks( ALTree &$adminLinksTree ) {
 		global $wgScript;
-		$wsSection = $adminLinksTree->getSection( 'WikiBase Solutions' );
+		$wsSection = $adminLinksTree->getSection( 'Open CSP' );
 		if ( is_null( $wsSection ) ) {
-			$section = new ALSection( 'WikiBase Solutions' );
+			$section = new ALSection( 'Open CSP' );
 			$adminLinksTree->addSection(
 				$section,
 				wfMessage( 'adminlinks_general' )->text()
 			);
-			$wsSection     = $adminLinksTree->getSection( 'WikiBase Solutions' );
+			$wsSection     = $adminLinksTree->getSection( 'Open CSP' );
 			$extensionsRow = new ALRow( 'extensions' );
 			$wsSection->addRow( $extensionsRow );
 		}
