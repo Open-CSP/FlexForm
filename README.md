@@ -93,6 +93,7 @@ Visit this documentation page https://www.open-csp.org/DevOps:Doc/FlexForm/2.0/V
 Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
+* 2.8.2 : Have show-on-select work with radiobuttons when they have no trigger
 * 2.8.1 : Make sure mwrandom is even more random
 * 2.8.0 : Pandoc conversions expanded. See online documentation
 * 2.7.2 : Changed submitting of Forms to a better viewable submit status. Introducing --ff-overlay-bg, --ff-spinner-base, --ff-spinner-color-1 and --ff-spinner-color-2 css variables to control colors.

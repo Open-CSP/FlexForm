@@ -90,7 +90,8 @@ async function waitForJQueryIsReady () {
 function handleRadio (radioElm) {
 	let wssos_value = $(radioElm).data('wssos-show')
 	let parent_wssos = $(radioElm).parentsUntil('.WSShowOnSelect').parent()[0]
-	let wssos_elm = $(parent_wssos).find('[data-wssos-value*="' + wssos_value + '"]')
+	// let wssos_elm = $(parent_wssos).find('[data-wssos-value*="' + wssos_value + '"]')
+	let wssos_elm = wssos_value ? $(parent_wssos).find('[data-wssos-value*="' + wssos_value + '"]') : $();
 
 	if ($(radioElm).parent().hasClass('WSShowOnSelect')) {
 		parent_wssos = $(radioElm).parent()[0]
@@ -98,8 +99,8 @@ function handleRadio (radioElm) {
 	}
 
 	// if no elements are found, first look up id
-	if (wssos_elm.length === 0) wssos_elm = $(parent_wssos).find('#' + wssos_value)
-
+	//if (wssos_elm.length === 0) wssos_elm = $(parent_wssos).find('#' + wssos_value)
+	if (wssos_value && wssos_elm.length === 0) wssos_elm = $(parent_wssos).find('#' + wssos_value);
 	let radio = radioElm;
 
 	/**
@@ -153,11 +154,13 @@ function handleRadio (radioElm) {
 		}
 
 		// if no elements are found, first look up id, then elements that include the tag
-		if (wssos_elm.length === 0) wssos_elm = $(parent_wssos).find('#' + wssos_value)
+		//if (wssos_elm.length === 0) wssos_elm = $(parent_wssos).find('#' + wssos_value)
+		if (wssos_value && wssos_elm.length === 0) wssos_elm = $(parent_wssos).find('#' + wssos_value)
 
 		// loop through the radio button groep and hide others
 		$(parent_wssos).find('input[name="' + this.name + '"][type="radio"]').each(function (index, radiobtn) {
 			let radio_hide_data_attr = $(radiobtn).data('wssos-show')
+			if (!radio_hide_data_attr) return;
 			let radio_hide_elm = $(parent_wssos).find('[data-wssos-value*="' + radio_hide_data_attr + '"]')
 
 			if (radio_hide_elm.length === 0) radio_hide_elm = $(parent_wssos).find('#' + radio_hide_data_attr)
