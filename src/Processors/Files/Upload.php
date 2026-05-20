@@ -209,7 +209,7 @@ class Upload {
 					if ( strtolower( $key ) === 'filter') {
 						$pandocFilters = Config::getConfigVariable( 'pandoc-filters' );
 						if ( !empty( $pandocFilters ) && is_array( $pandocFilters ) ) {
-							if ( !in_array( $singleAdditional, $pandocFilters ) ) {
+							if ( !array_key_exists( $singleAdditional, $pandocFilters ) ) {
 								return "Pandoc filter argument '$singleAdditional' is not defined in the configuration.";
 							} else {
 								$additional[$key] = $pandocFilters[$key];
