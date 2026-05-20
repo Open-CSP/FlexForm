@@ -206,6 +206,18 @@ class Upload {
 					if ( !in_array( $key, $pandocAllowedArguments )	) {
 						return "Additional argument '$singleAdditional' is not allowed.";
 					}
+					if ( strtolower( $key ) === 'filter') {
+						$pandocFilters = Config::getConfigVariable( 'pandoc-filters' );
+						if ( !empty( $pandocFilters ) && is_array( $pandocFilters ) ) {
+							if ( !in_array( $singleAdditional, $pandocFilters ) ) {
+								return "Pandoc filter argument '$singleAdditional' is not defined in the configuration.";
+							} else {
+								$additional[$key] = $pandocFilters[$key];
+							}
+						} else {
+							return "No Pandoc filters defined in the configuration.";
+						}
+					}
 				}
 			} else {
 				return "Additional arguments not correctly set in Config";

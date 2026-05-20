@@ -1,6 +1,6 @@
 {
   "name": "FlexForm",
-  "version": "2.8.2",
+  "version": "2.9.0",
   "author": [
     "[https://www.wikibase-solutions.com/author/charlot Sen-Sai]"
   ],
@@ -92,6 +92,7 @@
       "pandoc-convert-from" : [ "docx" ],
       "pandoc-convert-to" : [ "mediawiki" ],
       "pandoc-allow-additional-arguments" : ["lua-filter"],
+      "pandoc-filters" : [],
       "forceNullEdit" : true,
       "allowFlexFormOpenAPI" : false
     }
