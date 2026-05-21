@@ -264,7 +264,7 @@ function initializeTrumbo() {
 	$.trumbowyg.svgPath = '/extensions/FlexForm/Modules/wysiwyg/ui/icons.svg';
 	$('.flexform-trumbo').trumbowyg({
 		btns: [['formatting'],['bold', 'italic', 'underline', 'del'], ['superscript', 'subscript']],
-		autogrow: true
+		autogrow: false
 	}).on('tbwinit', function() {
 		$('.flexform-trumbo').removeClass('load-editor');
 	});
