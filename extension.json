@@ -147,7 +147,8 @@
         "wysiwyg/ui/trumbowyg.css"
       ],
       "scripts": [
-        "wysiwyg/trumbowyg.min.js"
+        "wysiwyg/trumbowyg.min.js",
+        "wysiwyg/plugins/preformatted/trumbowyg.preformatted.min.js"
       ],
       "dependencies": [
         "jquery"
