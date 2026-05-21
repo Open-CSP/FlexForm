@@ -1335,6 +1335,7 @@ class TagHooks {
 					Core::includeInlineCSS( $cssVE );
 					$includeEditor = implode( ',', $includeEditor );
 					Core::includeInlineScript( 'var WSFormEditor = "' . $includeEditor . '";' );
+					Core::includeInlineScript( 'ffHoldTillReady( initializeWSFormEditor );' );
 				}
 
 

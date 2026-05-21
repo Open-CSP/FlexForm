@@ -1104,7 +1104,6 @@ function attachTokens() {
  */
 FFInitiated();
 ffHoldTillReady( addTokenInfo )
-ffHoldTillReady( initializeWSFormEditor )
 ffHoldTillReady( checkForTinyMCE )
 ffHoldTillReady( createAlertsIfNeeded )
 ffHoldTillReady( ffOnSelect2OpenedFocus )
