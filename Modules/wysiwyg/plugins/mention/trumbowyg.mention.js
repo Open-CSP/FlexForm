@@ -23,8 +23,20 @@
             en: {
                 mention: 'Mention'
             },
+            az: {
+                mention: 'Bildirmək'
+            },
+            by: {
+                mention: 'Згадаць'
+            },
             da: {
                 mention: 'Nævn'
+            },
+            de: {
+                mention: 'Erwähnung'
+            },
+            et: {
+                mention: 'Maini'
             },
             fr: {
                 mention: 'Mentionner'
@@ -40,6 +52,9 @@
             },
             ru: {
                 mention: 'Упомянуть'
+            },
+            sl: {
+                mention: 'Omeni'
             },
             tr: {
                 mention: 'Bahset'

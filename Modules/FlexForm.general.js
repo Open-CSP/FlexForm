@@ -238,13 +238,34 @@ function waitForVE (method) {
 	}
 }
 
+function waitForTrumbo (method) {
+	if (typeof $().trumbowyg === 'function') {
+		method()
+	} else {
+		setTimeout(function () {
+			waitForTrumbo(method)
+		}, 250)
+	}
+}
+
 /**
  * Does FlexForm have the editor argument, then use it
  */
 function initializeWSFormEditor () {
-	if (typeof WSFormEditor !== 'undefined' && WSFormEditor === 'VE') {
+	if (typeof WSFormEditor !== 'undefined' && WSFormEditor.includes( 'VE' ) ) {
 		waitForVE(initializeVE)
 	}
+	if (typeof WSFormEditor !== 'undefined' && WSFormEditor.includes( 'trumbo' ) ) {
+		waitForTrumbo(initializeTrumbo)
+	}
+}
+
+function initializeTrumbo() {
+	$.trumbowyg.svgPath = '/extensions/FlexForm/Modules/wysiwyg/ui/icons.svg';
+	$('.flexform-trumbo').trumbowyg({
+		btns: [['strong', 'em']],
+		autogrow: true
+	});
 }
 
 /**
@@ -1049,7 +1070,9 @@ function ffOnSelect2OpenedFocus() {
 	$(document).on('select2:open', () => {
 		document.querySelector('.select2-container--open .select2-search__field').focus();
 	});
-	$.fn.modal.Constructor.prototype._enforceFocus = function() {};
+	if (window.$?.fn?.modal?.Constructor?.prototype) {
+		$.fn.modal.Constructor.prototype._enforceFocus = function() {};
+	}
 }
 
 function attachTokens() {

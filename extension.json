@@ -141,6 +141,17 @@
     "ext.wsForm.slim.styles": {
       "styles": "slim/slim/slim.min.css",
       "position": "top"
+    },
+    "ext.wsForm.trumbo": {
+      "styles": [
+        "wysiwyg/ui/trumbowyg.css"
+      ],
+      "scripts": [
+        "wysiwyg/trumbowyg.min.js"
+      ],
+      "dependencies": [
+        "jquery"
+      ]
     }
   },
   "JobClasses": {

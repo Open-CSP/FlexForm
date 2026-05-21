@@ -1282,11 +1282,19 @@ class TagHooks {
 					);
 				}
 				$ret = '';
+				$includeEditor = [];
 				if ( isset( $editor ) && $editor === "ve" ) {
 					if ( ExtensionRegistry::getInstance()->isLoaded( 'VEForAll' ) ) {
 						$parser->getOutput()->addModules( [ 'ext.veforall.main' ] );
 						$class .= ' load-editor ';
 						$ret = '<span class="ve-area-wrapper">';
+					}
+				}
+				if ( isset( $editor ) && $editor === "trumbo" ) {
+					if ( !Core::isLoaded( 'trumbo' ) ) {
+						$parser->getOutput()->addModules( [ 'ext.wsForm.trumbo' ] );
+						$class .= ' flexform-trumbo ';
+						$includeEditor[] = 'trumbo';
 					}
 				}
 				if ( isset( $args['source'] ) ) {
@@ -1313,7 +1321,7 @@ class TagHooks {
 				if ( isset( $editor ) && $editor === "ve" ) {
 					if ( ExtensionRegistry::getInstance()->isLoaded( 'VEForAll' ) ) {
 						$ret .= '</span>' . PHP_EOL;
-						Core::includeInlineScript( 'var WSFormEditor = "VE";' );
+						$includeEditor[] = "VE";
 						global $wgScript;
 						$gifUrl = str_replace( '/index.php', '', $wgScript ) . '/extensions/FlexForm/Modules/load-editor.gif';
 						$cssVE = '.load-editor{ 
@@ -1322,6 +1330,11 @@ class TagHooks {
 							}';
 						Core::includeInlineCSS( $cssVE );
 					}
+				}
+
+				if ( isset( $editor ) ) {
+					$includeEditor = implode( ',', $includeEditor );
+					Core::includeInlineScript( 'var WSFormEditor = "' . $includeEditor . '";' );
 				}
 
 

@@ -16,8 +16,20 @@
             en: {
                 preformatted: 'Code sample <pre>'
             },
+            az: {
+                preformatted: 'Kod nümunəsi <pre>'
+            },
+            by: {
+                preformatted: 'Прыклад кода <pre>'
+            },
             da: {
                 preformatted: 'Præformateret <pre>'
+            },
+            de: {
+                preformatted: 'Code-Beispiel <pre>'
+            },
+            et: {
+                preformatted: 'Eelvormindatud tekst <pre>'
             },
             fr: {
                 preformatted: 'Exemple de code <pre>'
@@ -39,6 +51,9 @@
             },
             ru: {
                 preformatted: 'Пример кода <pre>'
+            },
+            sl: {
+                preformatted: 'Vstavi neformatiran tekst <pre>'
             },
             tr: {
                 preformatted: 'Kod örneği <pre>'
@@ -62,11 +77,11 @@
                             if (text.replace(/\s/g, '') !== '') {
                                 try {
                                     var curtag = getSelectionParentElement().tagName.toLowerCase();
-                                    if (curtag === 'xmp' || curtag === 'pre') {
+                                    if (curtag === 'code' || curtag === 'pre') {
                                         return unwrapCode();
                                     }
                                     else {
-                                        trumbowyg.execCmd('insertHTML', '<pre><xmp>' + strip(text) + '</xmp></pre>');
+                                        trumbowyg.execCmd('insertHTML', '<pre><code>' + strip(text) + '</code></pre>');
                                     }
                                 } catch (e) {
                                 }
@@ -132,14 +147,14 @@
 
         //'paranoic' unwrap
         var ispre = $(container).contents().closest('pre').length;
-        var iscode = $(container).contents().closest('xmp').length;
+        var iscode = $(container).contents().closest('code').length;
 
         if (ispre && iscode) {
-            $(container).contents().unwrap('xmp').unwrap('pre');
+            $(container).contents().unwrap('code').unwrap('pre');
         } else if (ispre) {
             $(container).contents().unwrap('pre');
         } else if (iscode) {
-            $(container).contents().unwrap('xmp');
+            $(container).contents().unwrap('code');
         }
     }
 })(jQuery);
