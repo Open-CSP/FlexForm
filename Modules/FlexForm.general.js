@@ -251,66 +251,66 @@ function waitForTrumbo (method) {
 /**
  * Does FlexForm have the editor argument, then use it
  */
-function initializeWSFormEditor () {
-	if (typeof WSFormEditor !== 'undefined' && WSFormEditor.includes( 'VE' ) ) {
-		waitForVE(initializeVE)
+function initializeWSFormEditor() {
+	if ( typeof WSFormEditor !== 'undefined' && WSFormEditor.includes( 'VE' ) ) {
+		waitForVE( initializeVE )
 	}
-	if (typeof WSFormEditor !== 'undefined' && WSFormEditor.includes( 'trumbo' ) ) {
-		waitForTrumbo(initializeTrumbo)
+	if ( typeof WSFormEditor !== 'undefined' && WSFormEditor.includes( 'trumbo' ) ) {
+		waitForTrumbo( initializeTrumbo )
 	}
 }
 
 function initializeTrumbo() {
 	$.trumbowyg.svgPath = '/extensions/FlexForm/Modules/wysiwyg/ui/icons.svg';
-	$('.flexform-trumbo').each(function () {
-		const $editor = $(this);
+	$( '.flexform-trumbo' ).each( function () {
+		const $editor = $( this );
 		let btns = [
 			['headings'],
 			['bold', 'italic', 'underline', 'del', 'pre'],
 			['superscript', 'subscript']
 		];
 
-		const dataBtns = $editor.attr('data-btns');
+		const dataBtns = $editor.attr( 'data-btns' );
 
-		if (dataBtns) {
+		if ( dataBtns ) {
 			btns = [
 				dataBtns
-					.split(',')
-					.map(function (btn) {
+					.split( ',' )
+					.map( function ( btn ) {
 						return btn.trim();
-					})
-					.filter(Boolean)
+					} )
+					.filter( Boolean )
 			];
 		}
 
-		$editor.trumbowyg({
+		$editor.trumbowyg( {
 			btnsDef: {
 				headings: {
-					dropdown: ['p', 'h1', 'h2', 'h3', 'h4', 'preformatted' ],
+					dropdown: ['p', 'h1', 'h2', 'h3', 'h4', 'preformatted'],
 					ico: 'p',
-					hasIcon:true
+					hasIcon: true
 				}
 			},
 			btns: btns
-		}).on('tbwinit', function () {
-			$editor.removeClass('load-editor');
-		});
-	});
+		} ).on( 'tbwinit', function () {
+			$editor.removeClass( 'load-editor' );
+		} );
+	} );
 }
 
 /**
  * Initialize any VisualEditors in the dom
  */
-function initializeVE () {
-	$('.ve-area-wrapper textarea').each(function () {
-		if ($(this).prev().hasClass('ve-init-target')) return
+function initializeVE() {
+	$( '.ve-area-wrapper textarea' ).each( function () {
+		if ( $( this ).prev().hasClass( 've-init-target' ) ) return
 
-		var textAreaContent = $(this).val()
-		var pipesReplace = textAreaContent.replace(/{{!}}/gmi, '|')
-		$(this).val(pipesReplace)
-		$(this).applyVisualEditor()
-		$(this).removeClass('load-editor')
-	})
+		var textAreaContent = $( this ).val()
+		var pipesReplace = textAreaContent.replace( /{{!}}/gmi, '|' )
+		$( this ).val( pipesReplace )
+		$( this ).applyVisualEditor()
+		$( this ).removeClass( 'load-editor' )
+	} )
 
 }
 
