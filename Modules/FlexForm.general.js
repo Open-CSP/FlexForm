@@ -266,7 +266,7 @@ function initializeTrumbo() {
 		const $editor = $(this);
 		let btns = [
 			['headings'],
-			['bold', 'italic', 'underline', 'del'],
+			['bold', 'italic', 'underline', 'del', 'pre'],
 			['superscript', 'subscript']
 		];
 
@@ -286,7 +286,7 @@ function initializeTrumbo() {
 		$editor.trumbowyg({
 			btnsDef: {
 				headings: {
-					dropdown: ['p', 'h1', 'h2', 'h3', 'h4'],
+					dropdown: ['p', 'h1', 'h2', 'h3', 'h4', 'preformatted' ],
 					ico: 'p',
 					hasIcon:true
 				}

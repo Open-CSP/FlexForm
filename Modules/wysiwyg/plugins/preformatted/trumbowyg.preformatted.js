@@ -14,55 +14,10 @@
         langs: {
             // jshint camelcase:false
             en: {
-                preformatted: 'Code sample <pre>'
+                preformatted: 'Code'
             },
-            az: {
-                preformatted: 'Kod nümunəsi <pre>'
-            },
-            by: {
-                preformatted: 'Прыклад кода <pre>'
-            },
-            da: {
-                preformatted: 'Præformateret <pre>'
-            },
-            de: {
-                preformatted: 'Code-Beispiel <pre>'
-            },
-            et: {
-                preformatted: 'Eelvormindatud tekst <pre>'
-            },
-            fr: {
-                preformatted: 'Exemple de code <pre>'
-            },
-            hu: {
-                preformatted: 'Kód minta <pre>'
-            },
-            it: {
-                preformatted: 'Codice <pre>'
-            },
-            ja: {
-                preformatted: 'コードサンプル <pre>'
-            },
-            ko: {
-                preformatted: '코드 예제 <pre>'
-            },
-            pt_br: {
-                preformatted: 'Exemple de código <pre>'
-            },
-            ru: {
-                preformatted: 'Пример кода <pre>'
-            },
-            sl: {
-                preformatted: 'Vstavi neformatiran tekst <pre>'
-            },
-            tr: {
-                preformatted: 'Kod örneği <pre>'
-            },
-            zh_cn: {
-                preformatted: '代码示例 <pre>'
-            },
-            zh_tw: {
-                preformatted: '代碼範例 <pre>'
+            nl: {
+                preformatted: 'Code'
             },
         },
         // jshint camelcase:true
@@ -81,7 +36,7 @@
                                         return unwrapCode();
                                     }
                                     else {
-                                        trumbowyg.execCmd('insertHTML', '<pre><code>' + strip(text) + '</code></pre>');
+                                        trumbowyg.execCmd('insertHTML', '<pre>' + strip(text) + '</pre>');
                                     }
                                 } catch (e) {
                                 }
