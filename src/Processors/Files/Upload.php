@@ -186,9 +186,27 @@ class Upload {
 	}
 
 	/**
+	 * @param string $filterName
+	 *
+	 * @return string
+	 */
+	private function checkDefinedPandocFilters( string $filterName ): string {
+		$pandocFilters = Config::getConfigVariable( 'pandoc-filters' );
+		if ( !empty( $pandocFilters ) && is_array( $pandocFilters ) ) {
+			if ( !array_key_exists( $filterName, $pandocFilters ) ) {
+				return "ERROR: Additional argument '$filterName' is not defined.";
+			} else {
+				return $pandocFilters[$filterName];
+			}
+		} else {
+			return "ERROR: No Pandoc filters defined in the configuration.";
+		}
+	}
+
+	/**
 	 * @param string $from
 	 * @param string $to
-	 * @param array $additional
+	 * @param array &$additional
 	 *
 	 * @return bool|string
 	 */
@@ -207,16 +225,12 @@ class Upload {
 					if ( !in_array( $key, $pandocAllowedArguments )	) {
 						return "Additional argument '$singleAdditional' is not allowed.";
 					}
-					if ( strtolower( $key ) === 'filter') {
-						$pandocFilters = Config::getConfigVariable( 'pandoc-filters' );
-						if ( !empty( $pandocFilters ) && is_array( $pandocFilters ) ) {
-							if ( !array_key_exists( $singleAdditional, $pandocFilters ) ) {
-								return "Pandoc filter argument '$singleAdditional' is not defined in the configuration.";
-							} else {
-								$additional[$key] = $pandocFilters[$singleAdditional];
-							}
+					if ( strtolower( $key ) === 'filter' ) {
+						$pandocFilterResult = $this->checkDefinedPandocFilters( $singleAdditional );
+						if ( str_starts_with( $pandocFilterResult, 'ERROR:' ) ) {
+							return $pandocFilterResult;
 						} else {
-							return "No Pandoc filters defined in the configuration.";
+							$additional[$key] = $pandocFilterResult;
 						}
 					}
 				}
