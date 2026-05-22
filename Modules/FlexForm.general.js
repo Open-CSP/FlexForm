@@ -262,12 +262,10 @@ function initializeWSFormEditor () {
 
 function initializeTrumbo() {
 	$.trumbowyg.svgPath = '/extensions/FlexForm/Modules/wysiwyg/ui/icons.svg';
-
 	$('.flexform-trumbo').each(function () {
 		const $editor = $(this);
-
 		let btns = [
-			['formatting'],
+			['headings'],
 			['bold', 'italic', 'underline', 'del'],
 			['superscript', 'subscript']
 		];
@@ -286,8 +284,14 @@ function initializeTrumbo() {
 		}
 
 		$editor.trumbowyg({
-			btns: btns,
-			autogrow: false
+			btnsDef: {
+				headings: {
+					dropdown: ['p', 'h1', 'h2', 'h3', 'h4'],
+					ico: 'p',
+					hasIcon:true
+				}
+			},
+			btns: btns
 		}).on('tbwinit', function () {
 			$editor.removeClass('load-editor');
 		});
