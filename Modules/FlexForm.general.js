@@ -266,8 +266,10 @@ function initializeTrumbo() {
 		const $editor = $( this );
 		let btns = [
 			['headings'],
-			['bold', 'italic', 'underline', 'del', 'pre'],
-			['superscript', 'subscript']
+			['styles'],
+			['lists'],
+			['justify'],
+			['horizontalRule']
 		];
 
 		const dataBtns = $editor.attr( 'data-btns' );
@@ -288,6 +290,21 @@ function initializeTrumbo() {
 				headings: {
 					dropdown: ['p', 'h1', 'h2', 'h3', 'h4', 'preformatted'],
 					ico: 'p',
+					hasIcon: true
+				},
+				styles: {
+					dropdown: ['bold', 'italic', 'underline', 'del', 'pre', 'superscript', 'subscript', 'removeformat'],
+					ico: 'strong',
+					hasIcon: true
+				},
+				lists: {
+					dropdown: ['unorderedList', 'orderedList'],
+					ico: 'unordered-list',
+					hasIcon: true
+				},
+				justify: {
+					dropdown: ['justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'],
+					ico: 'justify-center',
 					hasIcon: true
 				}
 			},
