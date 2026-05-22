@@ -262,11 +262,35 @@ function initializeWSFormEditor () {
 
 function initializeTrumbo() {
 	$.trumbowyg.svgPath = '/extensions/FlexForm/Modules/wysiwyg/ui/icons.svg';
-	$('.flexform-trumbo').trumbowyg({
-		btns: [['formatting'],['bold', 'italic', 'underline', 'del'], ['superscript', 'subscript']],
-		autogrow: false
-	}).on('tbwinit', function() {
-		$('.flexform-trumbo').removeClass('load-editor');
+
+	$('.flexform-trumbo').each(function () {
+		const $editor = $(this);
+
+		let btns = [
+			['formatting'],
+			['bold', 'italic', 'underline', 'del'],
+			['superscript', 'subscript']
+		];
+
+		const dataBtns = $editor.attr('data-btns');
+
+		if (dataBtns) {
+			btns = [
+				dataBtns
+					.split(',')
+					.map(function (btn) {
+						return btn.trim();
+					})
+					.filter(Boolean)
+			];
+		}
+
+		$editor.trumbowyg({
+			btns: btns,
+			autogrow: false
+		}).on('tbwinit', function () {
+			$editor.removeClass('load-editor');
+		});
 	});
 }
 

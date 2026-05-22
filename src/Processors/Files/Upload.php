@@ -172,6 +172,7 @@ class Upload {
 			$fileActions['convertto'],
 			$fileActions['additional-arguments']
 		);
+		Debug::addToDebug( 'Pandoc conversion options after checAllowedConversions', $fileActions );
 		if ( $checkConversions !== true ) {
 			throw new FlexFormException(
 				'Pandoc Error: ' . $checkConversions, 0
@@ -191,7 +192,7 @@ class Upload {
 	 *
 	 * @return bool|string
 	 */
-	private function checkAllowedConversions( string $from, string $to, array $additional = [] ): bool|string {
+	private function checkAllowedConversions( string $from, string $to, array &$additional = [] ): bool|string {
 		if ( !in_array( $from, Config::getConfigVariable( 'pandoc-convert-from' ) ) ) {
 			return "Convert from '$from' is not allowed.";
 		}
@@ -212,7 +213,7 @@ class Upload {
 							if ( !array_key_exists( $singleAdditional, $pandocFilters ) ) {
 								return "Pandoc filter argument '$singleAdditional' is not defined in the configuration.";
 							} else {
-								$additional[$key] = $pandocFilters[$key];
+								$additional[$key] = $pandocFilters[$singleAdditional];
 							}
 						} else {
 							return "No Pandoc filters defined in the configuration.";
