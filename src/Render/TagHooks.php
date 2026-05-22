@@ -1283,6 +1283,7 @@ class TagHooks {
 				}
 				$ret = '';
 				$includeEditor = [];
+				Core::includeInlineScript( 'var WSFormEditor = "";' );
 				if ( isset( $editor ) && $editor === "ve" ) {
 					if ( ExtensionRegistry::getInstance()->isLoaded( 'VEForAll' ) ) {
 						$parser->getOutput()->addModules( [ 'ext.veforall.main' ] );
@@ -1334,7 +1335,7 @@ class TagHooks {
 							}';
 					Core::includeInlineCSS( $cssVE );
 					$includeEditor = implode( ',', $includeEditor );
-					Core::includeInlineScript( 'var WSFormEditor = "' . $includeEditor . '";' );
+					Core::includeInlineScript( 'WSFormEditor += "' . $includeEditor . '";' );
 					Core::includeInlineScript( 'ffHoldTillReady( initializeWSFormEditor );' );
 				}
 
