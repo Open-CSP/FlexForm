@@ -228,23 +228,40 @@ function waitForTinyMCE (method) {
 	}
 }
 
-function waitForVE (method) {
-	if (typeof $().applyVisualEditor === 'function') {
+/**
+  * @param method
+ * @param max
+ */
+function waitForVE( method, max = 100 ) {
+	if ( max <= 0 ) {
+		console.warn( "waitForVE timeout: VEforAll plugin failed to load" );
+		return;
+	}
+	if ( typeof $.fn.applyVisualEditor === 'function' ) {
 		method()
 	} else {
-		setTimeout(function () {
-			waitForVE(method)
-		}, 250)
+		setTimeout( function () {
+			waitForVE( method, max - 1 )
+		}, 250 )
 	}
 }
 
-function waitForTrumbo (method) {
-	if (typeof $().trumbowyg === 'function') {
-		method()
+/**
+  * @param method
+ * @param max
+ */
+function waitForTrumbo (method, max = 100 ) {
+	if ( max <= 0 ) {
+		console.warn( "waitForTrumbo timeout: Trumbowyg plugin failed to load" );
+		return;
+	}
+
+	if ( typeof $.fn.trumbowyg === 'function' ) {
+		method();
 	} else {
-		setTimeout(function () {
-			waitForTrumbo(method)
-		}, 250)
+		setTimeout( function () {
+			waitForTrumbo( method, max - 1 );
+		}, 250 );
 	}
 }
 

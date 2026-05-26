@@ -172,7 +172,7 @@ class Upload {
 			$fileActions['convertto'],
 			$fileActions['additional-arguments']
 		);
-		Debug::addToDebug( 'Pandoc conversion options after checAllowedConversions', $fileActions );
+		Debug::addToDebug( 'Pandoc conversion options after checkAllowedConversions', $fileActions );
 		if ( $checkConversions !== true ) {
 			throw new FlexFormException(
 				'Pandoc Error: ' . $checkConversions, 0
