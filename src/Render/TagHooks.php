@@ -1329,10 +1329,22 @@ class TagHooks {
 				if ( isset( $editor ) ) {
 					global $wgScript;
 					$gifUrl = str_replace( '/index.php', '', $wgScript ) . '/extensions/FlexForm/Modules/load-editor.gif';
+					$errorUrl = str_replace( '/index.php', '', $wgScript ) . '/extensions/FlexForm/Modules/error-editor.png';
 					$cssVE = '.load-editor{ 
 								background: url("' . $gifUrl . '") no-repeat bottom right #fff;
 								background-size: 50px; 
-							}';
+							}' . "\n";
+					$cssVE .= '
+					.load-editor--error {
+							background: url("' . $errorUrl . '") no-repeat bottom right #fff !important;
+    						background-size: 50px !important;
+ 							animation: pulseFail 2s infinite;
+					}' . "\n";
+					$cssVE .= ' @keyframes pulseFail {
+							0%   { opacity: 1; }
+							50%  { opacity: 0.3; }
+							100% { opacity: 1; }
+						}' . "\n";
 					Core::includeInlineCSS( $cssVE );
 					$includeEditor = implode( ',', $includeEditor );
 					Core::includeInlineScript( 'WSFormEditor += "' . $includeEditor . '";' );

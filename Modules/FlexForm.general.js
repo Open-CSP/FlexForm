@@ -235,6 +235,10 @@ function waitForTinyMCE (method) {
 function waitForVE( method, max = 100 ) {
 	if ( max <= 0 ) {
 		console.warn( "waitForVE timeout: VEforAll plugin failed to load" );
+		$( '.ve-area-wrapper textarea' ).each( function () {
+			$(this).removeClass( 'load-editor' );
+			$(this).addClass( 'load-editor--error' );
+		} );
 		return;
 	}
 	if ( typeof $.fn.applyVisualEditor === 'function' ) {
@@ -253,6 +257,10 @@ function waitForVE( method, max = 100 ) {
 function waitForTrumbo (method, max = 100 ) {
 	if ( max <= 0 ) {
 		console.warn( "waitForTrumbo timeout: Trumbowyg plugin failed to load" );
+		$( '.flexform-trumbo' ).each( function () {
+			$(this).removeClass( 'load-editor' );
+			$(this).addClass( 'load-editor--error' );
+		} );
 		return;
 	}
 
