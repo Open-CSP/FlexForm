@@ -172,6 +172,7 @@ class Upload {
 			$fileActions['convertto'],
 			$fileActions['additional-arguments']
 		);
+		Debug::addToDebug( 'Pandoc conversion options after checkAllowedConversions', $fileActions );
 		if ( $checkConversions !== true ) {
 			throw new FlexFormException(
 				'Pandoc Error: ' . $checkConversions, 0
@@ -185,13 +186,31 @@ class Upload {
 	}
 
 	/**
+	 * @param string $filterName
+	 *
+	 * @return string
+	 */
+	private function checkDefinedPandocFilters( string $filterName ): string {
+		$pandocFilters = Config::getConfigVariable( 'pandoc-filters' );
+		if ( !empty( $pandocFilters ) && is_array( $pandocFilters ) ) {
+			if ( !array_key_exists( $filterName, $pandocFilters ) ) {
+				return "ERROR: Additional argument '$filterName' is not defined.";
+			} else {
+				return $pandocFilters[$filterName];
+			}
+		} else {
+			return "ERROR: No Pandoc filters defined in the configuration.";
+		}
+	}
+
+	/**
 	 * @param string $from
 	 * @param string $to
-	 * @param array $additional
+	 * @param array &$additional
 	 *
 	 * @return bool|string
 	 */
-	private function checkAllowedConversions( string $from, string $to, array $additional = [] ): bool|string {
+	private function checkAllowedConversions( string $from, string $to, array &$additional = [] ): bool|string {
 		if ( !in_array( $from, Config::getConfigVariable( 'pandoc-convert-from' ) ) ) {
 			return "Convert from '$from' is not allowed.";
 		}
@@ -205,6 +224,14 @@ class Upload {
 				foreach ( $additional as $key => $singleAdditional ) {
 					if ( !in_array( $key, $pandocAllowedArguments )	) {
 						return "Additional argument '$singleAdditional' is not allowed.";
+					}
+					if ( strtolower( $key ) === 'filter' ) {
+						$pandocFilterResult = $this->checkDefinedPandocFilters( $singleAdditional );
+						if ( str_starts_with( $pandocFilterResult, 'ERROR:' ) ) {
+							return $pandocFilterResult;
+						} else {
+							$additional[$key] = $pandocFilterResult;
+						}
 					}
 				}
 			} else {

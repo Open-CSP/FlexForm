@@ -37,8 +37,26 @@
             en: {
                 insertAudio: 'Insert Audio'
             },
+            az: {
+                insertAudio: 'Səs yerləşdir'
+            },
+            by: {
+                insertAudio: 'Уставіць аўдыё'
+            },
+            ca: {
+                insertAudio: 'Inserir Audio'
+            },
             da: {
                 insertAudio: 'Indsæt lyd'
+            },
+            de: {
+                insertAudio: 'Audio einfügen'
+            },
+            es: {
+                insertAudio: 'Insertar Audio'
+            },
+            et: {
+                insertAudio: 'Lisa helifail'
             },
             fr: {
                 insertAudio: 'Insérer un son'
@@ -57,6 +75,9 @@
             },
             ru: {
                 insertAudio: 'Вставить аудио'
+            },
+            sl: {
+                insertAudio: 'Vstavi zvočno datoteko'
             },
             tr: {
                 insertAudio: 'Ses Ekle'

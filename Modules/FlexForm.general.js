@@ -228,38 +228,131 @@ function waitForTinyMCE (method) {
 	}
 }
 
-function waitForVE (method) {
-	if (typeof $().applyVisualEditor === 'function') {
+/**
+  * @param method
+ * @param max
+ */
+function waitForVE( method, max = 100 ) {
+	if ( max <= 0 ) {
+		console.warn( "waitForVE timeout: VEforAll plugin failed to load" );
+		$( '.ve-area-wrapper textarea' ).each( function () {
+			$(this).removeClass( 'load-editor' );
+			$(this).addClass( 'load-editor--error' );
+		} );
+		return;
+	}
+	if ( typeof $.fn.applyVisualEditor === 'function' ) {
 		method()
 	} else {
-		setTimeout(function () {
-			waitForVE(method)
-		}, 250)
+		setTimeout( function () {
+			waitForVE( method, max - 1 )
+		}, 250 )
+	}
+}
+
+/**
+  * @param method
+ * @param max
+ */
+function waitForTrumbo (method, max = 100 ) {
+	if ( max <= 0 ) {
+		console.warn( "waitForTrumbo timeout: Trumbowyg plugin failed to load" );
+		$( '.flexform-trumbo' ).each( function () {
+			$(this).removeClass( 'load-editor' );
+			$(this).addClass( 'load-editor--error' );
+		} );
+		return;
+	}
+
+	if ( typeof $.fn.trumbowyg === 'function' ) {
+		method();
+	} else {
+		setTimeout( function () {
+			waitForTrumbo( method, max - 1 );
+		}, 250 );
 	}
 }
 
 /**
  * Does FlexForm have the editor argument, then use it
  */
-function initializeWSFormEditor () {
-	if (typeof WSFormEditor !== 'undefined' && WSFormEditor === 'VE') {
-		waitForVE(initializeVE)
+function initializeWSFormEditor() {
+	if ( typeof WSFormEditor !== 'undefined' && WSFormEditor.includes( 'VE' ) ) {
+		waitForVE( initializeVE )
 	}
+	if ( typeof WSFormEditor !== 'undefined' && WSFormEditor.includes( 'trumbo' ) ) {
+		waitForTrumbo( initializeTrumbo )
+	}
+}
+
+function initializeTrumbo() {
+	$.trumbowyg.svgPath = '/extensions/FlexForm/Modules/wysiwyg/ui/icons.svg';
+	$( '.flexform-trumbo' ).each( function () {
+		const $editor = $( this );
+		let btns = [
+			['headings'],
+			['styles'],
+			['lists'],
+			['justify'],
+			['horizontalRule']
+		];
+
+		const dataBtns = $editor.attr( 'data-btns' );
+
+		if ( dataBtns ) {
+			btns = [
+				dataBtns
+					.split( ',' )
+					.map( function ( btn ) {
+						return btn.trim();
+					} )
+					.filter( Boolean )
+			];
+		}
+
+		$editor.trumbowyg( {
+			btnsDef: {
+				headings: {
+					dropdown: ['p', 'h1', 'h2', 'h3', 'h4', 'preformatted'],
+					ico: 'p',
+					hasIcon: true
+				},
+				styles: {
+					dropdown: ['bold', 'italic', 'underline', 'del', 'pre', 'superscript', 'subscript', 'removeformat'],
+					ico: 'strong',
+					hasIcon: true
+				},
+				lists: {
+					dropdown: ['unorderedList', 'orderedList'],
+					ico: 'unordered-list',
+					hasIcon: true
+				},
+				justify: {
+					dropdown: ['justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'],
+					ico: 'justify-center',
+					hasIcon: true
+				}
+			},
+			btns: btns
+		} ).on( 'tbwinit', function () {
+			$editor.removeClass( 'load-editor' );
+		} );
+	} );
 }
 
 /**
  * Initialize any VisualEditors in the dom
  */
-function initializeVE () {
-	$('.ve-area-wrapper textarea').each(function () {
-		if ($(this).prev().hasClass('ve-init-target')) return
+function initializeVE() {
+	$( '.ve-area-wrapper textarea' ).each( function () {
+		if ( $( this ).prev().hasClass( 've-init-target' ) ) return
 
-		var textAreaContent = $(this).val()
-		var pipesReplace = textAreaContent.replace(/{{!}}/gmi, '|')
-		$(this).val(pipesReplace)
-		$(this).applyVisualEditor()
-		$(this).removeClass('load-editor')
-	})
+		var textAreaContent = $( this ).val()
+		var pipesReplace = textAreaContent.replace( /{{!}}/gmi, '|' )
+		$( this ).val( pipesReplace )
+		$( this ).applyVisualEditor()
+		$( this ).removeClass( 'load-editor' )
+	} )
 
 }
 
@@ -1049,7 +1142,9 @@ function ffOnSelect2OpenedFocus() {
 	$(document).on('select2:open', () => {
 		document.querySelector('.select2-container--open .select2-search__field').focus();
 	});
-	$.fn.modal.Constructor.prototype._enforceFocus = function() {};
+	if (window.$?.fn?.modal?.Constructor?.prototype) {
+		$.fn.modal.Constructor.prototype._enforceFocus = function() {};
+	}
 }
 
 function attachTokens() {
@@ -1079,7 +1174,6 @@ function attachTokens() {
  */
 FFInitiated();
 ffHoldTillReady( addTokenInfo )
-ffHoldTillReady( initializeWSFormEditor )
 ffHoldTillReady( checkForTinyMCE )
 ffHoldTillReady( createAlertsIfNeeded )
 ffHoldTillReady( ffOnSelect2OpenedFocus )

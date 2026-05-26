@@ -10,38 +10,27 @@ function FFInitiated() {
 
 /**
  * Holds further JavaScript execution until jQuery is loaded
- * @param method string Name of the method to call once jQuery is ready
- * @param both bool if true it will also wait until MW is loaded.
+ * @param method
+ * @param both
+ * @param maxRetries
  */
-function ffHoldTillReady( method, both = true ) {
-	if ( window.jQuery ) {
-		if ( both === false ) {
-			if ( isFFInitiated() ) {
-				method();
-			} else {
-				setTimeout( function () {
-					ffHoldTillReady( method, true )
-				}, 250 )
-			}
-		} else {
-			if ( window.mw ) {
-				if ( isFFInitiated() ) {
-					method();
-				} else {
-					setTimeout( function () {
-						ffHoldTillReady( method, true )
-					}, 250 )
-				}
-			} else {
-				setTimeout( function () {
-					ffHoldTillReady( method, true )
-				}, 250 )
-			}
-		}
+function ffHoldTillReady( method, both = true, maxRetries = 100 ) {
+
+	if ( maxRetries <= 0 ) {
+		console.warn( "ffHoldTillReady timeout: jQuery, MW or FlexForm not loaded" );
+		return;
+	}
+
+	const isJQueryReady = typeof window.jQuery !== 'undefined';
+	const isMwReady = !both || typeof window.mw !== 'undefined';
+
+	if ( isJQueryReady && isMwReady && typeof isFFInitiated === 'function' && isFFInitiated() ) {
+		method();
 	} else {
+		const delay = isJQueryReady ? 250 : 50;
 		setTimeout( function () {
-			ffHoldTillReady( method, both )
-		}, 50 )
+			ffHoldTillReady( method, both, maxRetries - 1 );
+		}, delay );
 	}
 }
 

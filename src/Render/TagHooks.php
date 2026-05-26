@@ -1282,11 +1282,20 @@ class TagHooks {
 					);
 				}
 				$ret = '';
+				$includeEditor = [];
+				Core::includeInlineScript( 'var WSFormEditor = "";' );
 				if ( isset( $editor ) && $editor === "ve" ) {
 					if ( ExtensionRegistry::getInstance()->isLoaded( 'VEForAll' ) ) {
 						$parser->getOutput()->addModules( [ 'ext.veforall.main' ] );
 						$class .= ' load-editor ';
 						$ret = '<span class="ve-area-wrapper">';
+					}
+				}
+				if ( isset( $editor ) && $editor === "trumbo" ) {
+					if ( !Core::isLoaded( 'trumbo' ) ) {
+						$parser->getOutput()->addModules( [ 'ext.wsForm.trumbo' ] );
+						$class .= ' flexform-trumbo load-editor ';
+						$includeEditor[] = 'trumbo';
 					}
 				}
 				if ( isset( $args['source'] ) ) {
@@ -1313,15 +1322,33 @@ class TagHooks {
 				if ( isset( $editor ) && $editor === "ve" ) {
 					if ( ExtensionRegistry::getInstance()->isLoaded( 'VEForAll' ) ) {
 						$ret .= '</span>' . PHP_EOL;
-						Core::includeInlineScript( 'var WSFormEditor = "VE";' );
-						global $wgScript;
-						$gifUrl = str_replace( '/index.php', '', $wgScript ) . '/extensions/FlexForm/Modules/load-editor.gif';
-						$cssVE = '.load-editor{ 
+						$includeEditor[] = "VE";
+					}
+				}
+
+				if ( isset( $editor ) ) {
+					global $wgScript;
+					$gifUrl = str_replace( '/index.php', '', $wgScript ) . '/extensions/FlexForm/Modules/load-editor.gif';
+					$errorUrl = str_replace( '/index.php', '', $wgScript ) . '/extensions/FlexForm/Modules/error-editor.png';
+					$cssVE = '.load-editor{ 
 								background: url("' . $gifUrl . '") no-repeat bottom right #fff;
 								background-size: 50px; 
-							}';
-						Core::includeInlineCSS( $cssVE );
-					}
+							}' . "\n";
+					$cssVE .= '
+					.load-editor--error {
+							background: url("' . $errorUrl . '") no-repeat bottom right #fff !important;
+    						background-size: 50px !important;
+ 							animation: pulseFail 2s infinite;
+					}' . "\n";
+					$cssVE .= ' @keyframes pulseFail {
+							0%   { opacity: 1; }
+							50%  { opacity: 0.3; }
+							100% { opacity: 1; }
+						}' . "\n";
+					Core::includeInlineCSS( $cssVE );
+					$includeEditor = implode( ',', $includeEditor );
+					Core::includeInlineScript( 'WSFormEditor += "' . $includeEditor . '";' );
+					Core::includeInlineScript( 'ffHoldTillReady( initializeWSFormEditor );' );
 				}
 
 

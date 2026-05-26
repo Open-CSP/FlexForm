@@ -14,40 +14,10 @@
         langs: {
             // jshint camelcase:false
             en: {
-                preformatted: 'Code sample <pre>'
+                preformatted: 'Code'
             },
-            da: {
-                preformatted: 'Præformateret <pre>'
-            },
-            fr: {
-                preformatted: 'Exemple de code <pre>'
-            },
-            hu: {
-                preformatted: 'Kód minta <pre>'
-            },
-            it: {
-                preformatted: 'Codice <pre>'
-            },
-            ja: {
-                preformatted: 'コードサンプル <pre>'
-            },
-            ko: {
-                preformatted: '코드 예제 <pre>'
-            },
-            pt_br: {
-                preformatted: 'Exemple de código <pre>'
-            },
-            ru: {
-                preformatted: 'Пример кода <pre>'
-            },
-            tr: {
-                preformatted: 'Kod örneği <pre>'
-            },
-            zh_cn: {
-                preformatted: '代码示例 <pre>'
-            },
-            zh_tw: {
-                preformatted: '代碼範例 <pre>'
+            nl: {
+                preformatted: 'Code'
             },
         },
         // jshint camelcase:true
@@ -62,11 +32,11 @@
                             if (text.replace(/\s/g, '') !== '') {
                                 try {
                                     var curtag = getSelectionParentElement().tagName.toLowerCase();
-                                    if (curtag === 'xmp' || curtag === 'pre') {
+                                    if (curtag === 'code' || curtag === 'pre') {
                                         return unwrapCode();
                                     }
                                     else {
-                                        trumbowyg.execCmd('insertHTML', '<pre><xmp>' + strip(text) + '</xmp></pre>');
+                                        trumbowyg.execCmd('insertHTML', '<pre>' + strip(text) + '</pre>');
                                     }
                                 } catch (e) {
                                 }
@@ -132,14 +102,14 @@
 
         //'paranoic' unwrap
         var ispre = $(container).contents().closest('pre').length;
-        var iscode = $(container).contents().closest('xmp').length;
+        var iscode = $(container).contents().closest('code').length;
 
         if (ispre && iscode) {
-            $(container).contents().unwrap('xmp').unwrap('pre');
+            $(container).contents().unwrap('code').unwrap('pre');
         } else if (ispre) {
             $(container).contents().unwrap('pre');
         } else if (iscode) {
-            $(container).contents().unwrap('xmp');
+            $(container).contents().unwrap('code');
         }
     }
 })(jQuery);
