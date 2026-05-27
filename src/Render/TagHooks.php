@@ -1231,7 +1231,14 @@ class TagHooks {
 					$class = $args['class'];
 					unset( $args['class'] );
 				} else {
-					$class = null;
+					$class = '';
+				}
+
+				if ( isset( $args['style'] ) ) {
+					$style = $args['style'];
+					unset( $args['style'] );
+				} else {
+					$style = '';
 				}
 
 				if ( isset( $args['editor'] ) ) {
@@ -1294,8 +1301,10 @@ class TagHooks {
 				if ( isset( $editor ) && $editor === "trumbo" ) {
 					if ( !Core::isLoaded( 'trumbo' ) ) {
 						$parser->getOutput()->addModules( [ 'ext.wsForm.trumbo' ] );
-						$class .= ' flexform-trumbo load-editor ';
+						$class .= ' flexform-trumbo ';
+						$style .= 'visibility: hidden;';
 						$includeEditor[] = 'trumbo';
+						$ret = '<div class="trumbo-area-wrapper load-editor">';
 					}
 				}
 				if ( isset( $args['source'] ) ) {
@@ -1311,6 +1320,10 @@ class TagHooks {
 					$htmlType
 				);
 
+				if ( !empty( $style ) ) {
+					$additionalArguments['style'] = $style;
+				}
+
 				$ret .= $this->themeStore->getFormTheme()->getFieldRenderer()->render_textarea(
 					$input,
 					$tagName,
@@ -1319,10 +1332,15 @@ class TagHooks {
 					$additionalArguments,
 					$htmlType
 				);
-				if ( isset( $editor ) && $editor === "ve" ) {
-					if ( ExtensionRegistry::getInstance()->isLoaded( 'VEForAll' ) ) {
-						$ret .= '</span>' . PHP_EOL;
-						$includeEditor[] = "VE";
+				if ( isset( $editor ) ) {
+					if ( $editor === "ve" ) {
+						if ( ExtensionRegistry::getInstance()->isLoaded( 'VEForAll' ) ) {
+							$ret .= '</span>' . PHP_EOL;
+							$includeEditor[] = "VE";
+						}
+					}
+					if ( $editor === "trumbo" ) {
+							$ret .= '</div>' . PHP_EOL;
 					}
 				}
 
@@ -1334,6 +1352,9 @@ class TagHooks {
 								background: url("' . $gifUrl . '") no-repeat bottom right #fff;
 								background-size: 50px; 
 							}' . "\n";
+					$cssVE .= '.load-editor flexform-trumbo{
+								display:none;
+					';
 					$cssVE .= '
 					.load-editor--error {
 							background: url("' . $errorUrl . '") no-repeat bottom right #fff !important;

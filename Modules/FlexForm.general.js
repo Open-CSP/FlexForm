@@ -257,7 +257,7 @@ function waitForVE( method, max = 100 ) {
 function waitForTrumbo (method, max = 100 ) {
 	if ( max <= 0 ) {
 		console.warn( "waitForTrumbo timeout: Trumbowyg plugin failed to load" );
-		$( '.flexform-trumbo' ).each( function () {
+		$( '.trumbo-area-wrapper' ).each( function () {
 			$(this).removeClass( 'load-editor' );
 			$(this).addClass( 'load-editor--error' );
 		} );
@@ -335,7 +335,7 @@ function initializeTrumbo() {
 			},
 			btns: btns
 		} ).on( 'tbwinit', function () {
-			$editor.removeClass( 'load-editor' );
+			$editor.closest('.trumbo-area-wrapper').removeClass( 'load-editor' );
 		} );
 	} );
 }
