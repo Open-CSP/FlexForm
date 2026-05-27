@@ -235,7 +235,8 @@ class Validate {
 			"show-on-select-trigger",
 			"show-on-select-type",
 			"calc",
-			'data-tempex'
+			'data-tempex',
+			'role'
 		);
 		if ( $ret ) {
 			return $validParameters;
@@ -246,6 +247,8 @@ class Validate {
 		if ( in_array( $check, $validParameters ) ) {
 			return true;
 		} elseif ( substr( $check,0,4 ) == 'data' ) {
+			return true;
+		} elseif ( substr( $check,0,4 ) == 'aria' ) {
 			return true;
 		} else return false;
 	}
