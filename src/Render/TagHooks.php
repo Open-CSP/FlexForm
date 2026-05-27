@@ -1185,7 +1185,7 @@ class TagHooks {
 
 				$additionalArguments = [];
 				foreach ( $args as $name => $value ) {
-					if ( ! Validate::validButtonParameters( $name ) && ! Validate::validParameters( $name ) ) {
+					if ( !Validate::validButtonParameters( $name ) && !Validate::validParameters( $name ) ) {
 						continue;
 					}
 					$additionalArguments[$name] = $value;
