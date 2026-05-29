@@ -331,7 +331,7 @@ function initializeTrumbo() {
 					dropdown: ['justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'],
 					ico: 'justify-center',
 					hasIcon: true
-				}
+				},
 			},
 			btns: btns
 		} ).on( 'tbwinit', function () {
