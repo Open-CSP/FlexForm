@@ -1,6 +1,6 @@
 {
   "name": "FlexForm",
-  "version": "2.9.2",
+  "version": "2.9.3",
   "author": [
     "[https://www.wikibase-solutions.com/author/charlot Sen-Sai]"
   ],
@@ -144,11 +144,18 @@
     },
     "ext.wsForm.trumbo": {
       "styles": [
-        "wysiwyg/ui/trumbowyg.css"
+        "wysiwyg/ui/trumbowyg.css",
+        "wysiwyg/plugins/colors/ui/trumbowyg.colors.css",
+        "wysiwyg/plugins/emoji/ui/trumbowyg.emoji.css",
+        "wysiwyg/plugins/table/ui/trumbowyg.table.css"
       ],
       "scripts": [
         "wysiwyg/trumbowyg.min.js",
-        "wysiwyg/plugins/preformatted/trumbowyg.preformatted.js"
+        "wysiwyg/plugins/preformatted/trumbowyg.preformatted.js",
+        "wysiwyg/plugins/colors/trumbowyg.colors.js",
+        "wysiwyg/plugins/emoji/trumbowyg.emoji.js",
+        "wysiwyg/plugins/table/trumbowyg.table.js",
+        "wysiwyg/plugins/fontsize/trumbowyg.fontsize.js"
       ],
       "dependencies": [
         "jquery"

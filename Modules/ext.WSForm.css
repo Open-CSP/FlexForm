@@ -324,3 +324,14 @@ select{
 .ffmwYourMessage {
 	display:none !important;
 }
+
+.trumbo-area-wrapper table {
+	margin-bottom: 1.5em;
+}
+
+.trumbo-area-wrapper th, .trumbo-area-wrapper td {
+	height: calc( 4px * 2 + 1.5em );
+	min-width: calc(8px * 2);
+	padding: 4px 8px;
+	border: 1px solid #e7eaec;
+}

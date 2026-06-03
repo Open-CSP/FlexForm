@@ -240,7 +240,11 @@ class Validate {
 			"show-on-select-type",
 			"calc",
 			'data-tempex',
-			'role'
+			'role',
+			'tabindex',
+			'enterkeyhint',
+			'popovertarget',
+			'popover'
 		);
 		if ( $ret ) {
 			return $validParameters;
@@ -296,6 +300,7 @@ class Validate {
 	public static function validFileParameters( string $check, bool $ret = false ): bool|array {
 		$validParameters = [
 			"target",
+			"capture",
 			"accept",
 			"verbose_id",
 			"error_id",

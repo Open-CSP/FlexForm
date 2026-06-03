@@ -1301,11 +1301,12 @@ class TagHooks {
 				if ( isset( $editor ) && $editor === "trumbo" ) {
 					if ( !Core::isLoaded( 'trumbo' ) ) {
 						$parser->getOutput()->addModules( [ 'ext.wsForm.trumbo' ] );
-						$class .= ' flexform-trumbo ';
-						$style .= 'visibility: hidden;';
-						$includeEditor[] = 'trumbo';
-						$ret = '<div class="trumbo-area-wrapper load-editor">';
+						Core::addAsLoaded( 'trumbo' );
 					}
+					$class .= ' flexform-trumbo ';
+					$style .= 'visibility: hidden;';
+					$includeEditor[] = 'trumbo';
+					$ret = '<div class="trumbo-area-wrapper load-editor">';
 				}
 				if ( isset( $args['source'] ) ) {
 					$render       = new Render();
@@ -1352,9 +1353,6 @@ class TagHooks {
 								background: url("' . $gifUrl . '") no-repeat bottom right #fff;
 								background-size: 50px; 
 							}' . "\n";
-					$cssVE .= '.load-editor flexform-trumbo{
-								display:none;
-					';
 					$cssVE .= '
 					.load-editor--error {
 							background: url("' . $errorUrl . '") no-repeat bottom right #fff !important;
