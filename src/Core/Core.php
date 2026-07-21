@@ -300,11 +300,9 @@ class Core {
 	 *
 	 * @param string $name JavaScript filename
 	 */
-	public static function removeAsLoaded( string $name ) {
-		if ( $key = array_search(
-						$name,
-						self::$loadedScripts
-					) !== false ) {
+	public static function removeAsLoaded( string $name ): void {
+		$key = array_search( $name, self::$loadedScripts );
+		if ( $key !== false ) {
 			unset( self::$loadedScripts[$key] );
 		}
 	}

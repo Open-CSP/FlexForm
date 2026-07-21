@@ -142,7 +142,8 @@ class Validate {
 			"show-on-select",
 			"autocomplete",
 			"add-as-job",
-			"separator"
+			"separator",
+			'honeypot'
 		);
 		if ( $ret ) {
 			return $validFormElements;
