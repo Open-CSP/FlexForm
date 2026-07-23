@@ -93,6 +93,7 @@ Visit this documentation page https://www.open-csp.org/DevOps:Doc/FlexForm/2.0/V
 Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
+* 2.9.4 : Add Honeypot as form argument
 * 2.9.3 : Added more attribute support for html elements. Added extra Trumbo options for rendering
 * 2.9.2 : Hide Trumbo textarea till editor is ready.
 * 2.9.1 : Allow role and full aria tags on form and elements

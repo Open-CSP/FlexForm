@@ -373,6 +373,10 @@ class TagHooks {
 			}
 		}
 
+		if ( isset( $args['honeypot'] ) && strtolower( $args['honeypot'] ) === 'true' ) {
+			Core::addAsLoaded( 'honeypot' );
+		}
+
 		if ( isset( $args['permissions'] ) ) {
 			$fPermissions = $args['permissions'];
 		}
@@ -570,6 +574,7 @@ class TagHooks {
 		self::addInlineJavaScriptAndCSS();
 
 		Core::$reCaptcha = false;
+		Core::removeAsLoaded( 'honeypot' );
 
 		return [
 			$ret,

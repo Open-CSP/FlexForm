@@ -29,6 +29,8 @@ class PlainFormRenderer implements FormRenderer {
 		?string $reCaptcha
 	) : string {
 		$javascript     = '';
+		$honeyPotHtml = '<input type="text" class="ffmwYourMessage" name="mw-your-message" ' .
+			'placeholder="Your message" >' . "\n";
 		$formAttributes = array_merge(
 			[
 				'action' => $actionUrl,
@@ -140,9 +142,8 @@ class PlainFormRenderer implements FormRenderer {
 			$formContent .= Core::createHiddenField( 'mw-captcha-type', 'v2' );
 		}
 
-		if ( Core::isLoaded( 'google-captcha' ) ) {
-			$formContent .= '<input type="text" class="ffmwYourMessage" name="mw-your-message" ' .
-				'placeholder="Your message" >' . "\n";
+		if ( Core::isLoaded( 'google-captcha' ) || Core::isLoaded( 'honeypot' ) ) {
+			$formContent .= $honeyPotHtml;
 		}
 
 		if ( Config::isSecure() ) {

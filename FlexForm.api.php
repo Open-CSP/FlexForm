@@ -137,12 +137,28 @@ if ( $responseHandler->getReturnType() === $responseHandler::TYPE_ERROR ) {
 	}
 }
 
+// Honeypot
+if ( General::getPostString( 'mw-your-message' ) ) {
+	$responseHandler->setReturnData( wfMessage( 'flexform-captcha-honeypot-fail' )->text() );
+	$responseHandler->setReturnStatus( 'Honeypot error' );
+	$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
+	if ( !empty( $_SERVER['HTTP_REFERER'] ) ) {
+		$responseHandler->setMwReturn( $_SERVER['HTTP_REFERER'] );
+	}
+	try {
+		$responseHandler->exitResponse( $this->getOutput() );
+		return false;
+	} catch ( FlexFormException $e ) {
+		return $e->getMessage();
+	}
+}
+
 // Setup messages and responses
 try {
 	Recaptcha::handleRecaptcha();
 } catch ( FlexFormException $e ) {
 	$responseHandler->setReturnData( $e->getMessage() );
-	$responseHandler->setReturnStatus( 'recaptch error' );
+	$responseHandler->setReturnStatus( 'recaptcha error' );
 	$responseHandler->setReturnType( $responseHandler::TYPE_ERROR );
 	if ( !empty( $_SERVER['HTTP_REFERER'] ) ) {
 		$responseHandler->setMwReturn( $_SERVER['HTTP_REFERER'] );
