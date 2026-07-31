@@ -22,8 +22,7 @@ use FlexForm\Processors\Utilities\General;
  */
 class Recaptcha {
 
-	private const RECAPTCHA_V2_URL = 'https://www.google.com/recaptcha/api/secret=';
-	private const RECAPTCHA_V3_URL = 'https://www.google.com/recaptcha/api/siteverify';
+	private const RECAPTCHA_V2_V3_URL = 'https://www.google.com/recaptcha/api/siteverify';
 	private const RECAPTCHA_ENTERPRISE_URL = 'https://recaptchaenterprise.googleapis.com/v1/projects/';
 
 	/**
@@ -85,7 +84,7 @@ class Recaptcha {
 					'remoteip' => $_SERVER['REMOTE_ADDR']
 				];
 				$ch = curl_init();
-				curl_setopt( $ch, CURLOPT_URL, self::RECAPTCHA_V3_URL );
+				curl_setopt( $ch, CURLOPT_URL, self::RECAPTCHA_V2_V3_URL );
 				curl_setopt( $ch, CURLOPT_POST, true );
 				curl_setopt( $ch, CURLOPT_POSTFIELDS, http_build_query( $postData ) );
 				curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
@@ -114,7 +113,7 @@ class Recaptcha {
 			case "v3":
 				$secret = Config::getConfigVariable( 'rc_secret_key' );
 				$ch = curl_init();
-				curl_setopt( $ch, CURLOPT_URL, self::RECAPTCHA_V3_URL );
+				curl_setopt( $ch, CURLOPT_URL, self::RECAPTCHA_V2_V3_URL );
 				curl_setopt( $ch, CURLOPT_POST, 1 );
 				curl_setopt( $ch, CURLOPT_POSTFIELDS,
 							 http_build_query( [ 'secret' => $secret, 'response' => $token ] ) );
