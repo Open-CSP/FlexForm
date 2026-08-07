@@ -14,7 +14,7 @@ use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
 use MWContentSerializationException;
 use RequestContext;
-use SMW\Maintenance\MaintenanceFactory;
+use SMW\Services\ServicesFactory;
 use Title;
 use User;
 use WikiPage;
@@ -318,7 +318,8 @@ class Save {
 			$store->setOption( Store::OPT_CREATE_UPDATE_JOB,
 				false );
 
-			$rebuilder = ( new MaintenanceFactory() )->newDataRebuilder( $store );
+			$rebuilder = ServicesFactory::getInstance()->newMaintenanceFactory()
+				->newDataRebuilder( $store );
 
 			$rebuilder->setOptions( // Tell SMW to only rebuild the current page
 				new Options( [ 'page' => $title->getFullText() ] ) );
