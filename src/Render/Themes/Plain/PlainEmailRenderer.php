@@ -9,15 +9,18 @@ class PlainEmailRenderer implements EmailRenderer {
 	 * @inheritDoc
 	 */
 	public function render_mail( array $mailArguments, string $base64content ) : string {
-		$template = "";
-
-		foreach ( $mailArguments as $name => $value ) {
-			$template .= sprintf(
-				'<input type="hidden" name="%s" value="%s">' . PHP_EOL,
-				htmlspecialchars( $name ),
-				htmlspecialchars( $value )
+		$template = '';
+		if ( isset( $mailArguments['mwparselast'] ) ) {
+			$template = sprintf(
+				'<input type="hidden" name="mwparselast" value="%s">' . PHP_EOL,
+				htmlspecialchars( $mailArguments['mwparselast'] )
 			);
+			unset( $mailArguments['mwparselast'] );
 		}
+		$template .= sprintf(
+			'<input type="hidden" name="mwmail[]" value="%s">' . PHP_EOL,
+			htmlspecialchars( json_encode( $mailArguments ) )
+		);
 
 		return $template;
 	}

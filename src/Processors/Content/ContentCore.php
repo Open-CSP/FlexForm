@@ -523,17 +523,32 @@ class ContentCore {
 
 
 		if ( $email === "yes" ) {
-			$mail = new Mail();
-			// Handling template
-			if ( $mail->getTemplate() !== false ) {
-				try {
-					$mail->handleTemplate();
-				} catch ( FlexFormException $e ) {
-					throw new FlexFormException(
-						$e->getMessage(),
-						0,
-						$e
-					);
+			$mailConfigurations = General::getPostArray( 'mwmail' );
+			if ( $mailConfigurations === false ) {
+				$mailConfigurations = [ null ];
+			}
+			foreach ( $mailConfigurations as $mailConfiguration ) {
+				if ( $mailConfiguration !== null ) {
+					if ( !is_string( $mailConfiguration ) ) {
+						continue;
+					}
+					$mailConfiguration = json_decode( $mailConfiguration, true );
+					if ( !is_array( $mailConfiguration ) ) {
+						continue;
+					}
+				}
+				$mail = new Mail( false, $mailConfiguration );
+				// Handling template
+				if ( $mail->getTemplate() !== false ) {
+					try {
+						$mail->handleTemplate();
+					} catch ( FlexFormException $e ) {
+						throw new FlexFormException(
+							$e->getMessage(),
+							0,
+							$e
+						);
+					}
 				}
 			}
 		}

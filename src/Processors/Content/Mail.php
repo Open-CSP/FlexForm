@@ -63,9 +63,10 @@ class Mail {
 
 	/**
 	 * @param string|bool $template
+	 * @param array|null $mailFields
 	 */
-	public function __construct( $template = false ) {
-		$this->fields = Definitions::mailFields();
+	public function __construct( $template = false, ?array $mailFields = null ) {
+		$this->fields = Definitions::mailFields( $mailFields );
 		$this->template = $this->fields['mtemplate'];
 		if ( $template !== false ) {
 			$this->isBot = true;

@@ -88,12 +88,14 @@ class General {
 	 *
 	 * @param string $var $_POST value to check
 	 * @param bool $clean to clean input
+	 * @param array|null $postData optional post data to read from
 	 *
 	 * @return bool|string  Returns false if not set or the value
 	 */
-	public static function getPostString( string $var, bool $clean = true ) {
-		if ( isset( $_POST[$var] ) && $_POST[$var] !== "" ) {
-			$template = $_POST[$var];
+	public static function getPostString( string $var, bool $clean = true, ?array $postData = null ) {
+		$postData ??= $_POST;
+		if ( isset( $postData[$var] ) && $postData[$var] !== "" ) {
+			$template = $postData[$var];
 		} else {
 			$template = false;
 		}
