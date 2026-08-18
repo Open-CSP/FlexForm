@@ -28,45 +28,38 @@ use Title;
  */
 class Mail {
 
-	/*
-	 * 		'to'         => General::getPostString( 'mwmailto' ),
-			'content'    => General::getPostString( 'mwmailcontent' ),
-			'header'     => General::getPostString( 'mwmailheader' ),
-			'footer'     => General::getPostString( 'mwmailfooter' ),
-			'mtemplate'  => General::getPostString( 'mwmailtemplate' ),
-			'mjob'       => General::getPostString( 'mwmailjob' ),
-			'html'       => General::getPostString( 'mwmailhtml' ),
-			'attachment' => General::getPostString( 'mwmailattachment' )
-	 */
-
 	/**
 	 * @var array
 	 */
-	private $fields = [];
+	private array $fields = [];
 
 	/**
 	 * @var false|string
 	 */
-	private $template = false;
+	private mixed $template = false;
 
 	/**
 	 * @var bool
 	 */
-	private $isBot = false;
+	private bool $isBot = false;
 
 	/**
 	 * @return false|mixed|string
 	 */
-	public function getTemplate() {
+	public function getTemplate(): mixed {
 		return $this->template;
 	}
 
 	/**
 	 * @param string|bool $template
+	 * @param array|null $mailConfig
 	 */
-	public function __construct( $template = false ) {
-		$this->fields = Definitions::mailFields();
-		$this->template = $this->fields['mtemplate'];
+	public function __construct( string|bool $template, ?array $mailConfig = null ) {
+		if ( $mailConfig !== null ) {
+			$this->fields = Definitions::mailFields( $mailConfig );
+			$this->template = $this->fields['mtemplate'];
+		}
+
 		if ( $template !== false ) {
 			$this->isBot = true;
 			$this->template = $template;
@@ -267,7 +260,7 @@ class Mail {
 			$fields['parseLast'] = false;
 		}
 
-		if ( $fields['parseLast'] === false ) {
+		if ( $this->fields['parseLast'] === false ) {
 			$tpl = $this->parseWikiPageByTitle( $this->getTemplate() );
 		} else {
 			$render = new Render();
@@ -288,7 +281,7 @@ class Mail {
 				$tpl
 			);
 		}
-		if ( $fields['parseLast'] !== false ) {
+		if ( $this->fields['parseLast'] !== false ) {
 			$tpl = $this->parseWikiText( $tpl );
 		}
 		if ( Config::isDebug() ) {

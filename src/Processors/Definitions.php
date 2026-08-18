@@ -51,20 +51,34 @@ class Definitions {
 	}
 
 	/**
-	 * Return fields needed for sending emails
+	 * @param array $mailConfig
+	 * @param string $variableName
+	 *
+	 * @return string|false
+	 */
+	private static function getMailConfigVariable( array $mailConfig, string $variableName ): string|false {
+		if ( isset( $mailConfig[ $variableName ] ) ) {
+			return $mailConfig[ $variableName ];
+		}
+		return false;
+	}
+
+	/**
+	 * @param array $mailConfig
 	 *
 	 * @return array
 	 */
-	public static function mailFields() : array {
+	public static function mailFields( array $mailConfig ) : array {
 		return [
-			'to'         => General::getPostString( 'mwmailto' ),
-			'content'    => General::getPostString( 'mwmailcontent' ),
-			'header'     => General::getPostString( 'mwmailheader' ),
-			'footer'     => General::getPostString( 'mwmailfooter' ),
-			'mtemplate'  => General::getPostString( 'mwmailtemplate' ),
-			'mjob'       => General::getPostString( 'mwmailjob' ),
-			'html'       => General::getPostString( 'mwmailhtml' ),
-			'attachment' => General::getPostString( 'mwmailattachment' ),
+			'to'         => self::getMailConfigVariable( $mailConfig, 'mwmailto' ),
+			'content'    => self::getMailConfigVariable( $mailConfig, 'mwmailcontent' ),
+			'header'     => self::getMailConfigVariable( $mailConfig, 'mwmailheader' ),
+			'footer'     => self::getMailConfigVariable( $mailConfig, 'mwmailfooter' ),
+			'mtemplate'  => self::getMailConfigVariable( $mailConfig, 'mwmailtemplate' ),
+			'mjob'       => self::getMailConfigVariable( $mailConfig, 'mwmailjob' ),
+			'html'       => self::getMailConfigVariable( $mailConfig, 'mwmailhtml' ),
+			'attachment' => self::getMailConfigVariable( $mailConfig, 'mwmailattachment' ),
+			'parselast'  => self::getMailConfigVariable( $mailConfig, 'mwparselast' ),
 			'from'       => false,
 			'cc'         => false,
 			'bcc'        => false,
@@ -72,7 +86,6 @@ class Definitions {
 			'subject'    => false
 		];
 	}
-
 
 	public static function fileUploadFields(): array {
 		$files = $_FILES ?? false;
@@ -180,19 +193,7 @@ class Definitions {
 			"wsform_page_content",
 			"wsformfile",
 			"wsform_image_force",
-			"mwmailto",
-			"mwmailfrom",
-			"mwmailcc",
-			"mwmailbcc",
-			"mwmailsubject",
-			"mwmailfooter",
-			"mwmailheader",
-			"mwmailcontent",
-			"mwmailhtml",
-			"mwmailhtml",
-			"mwmailattachment",
-			"mwmailtemplate",
-			"mwmailjob",
+			"mwmail",
 			"mwcreatemultiple",
 			"mwonsuccess",
 			"mwdb",

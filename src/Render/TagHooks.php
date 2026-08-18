@@ -836,7 +836,7 @@ class TagHooks {
 
 				break;
 			case 'secure':
-				if ( ! Config::isSecure() ) {
+				if ( !Config::isSecure() ) {
 					return [ wfMessage( 'flexform-field-secure-not-available' )->parse() ];
 				}
 

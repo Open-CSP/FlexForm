@@ -47,7 +47,7 @@ class Messaging {
 	public function setMessages( array $ffMessages ) {
 		$separator = General::getPostString( 'ff_separator' );
 		$sep = '^^-^^';
-		$mail = new Mail();
+		$mail = new Mail( false );
 		foreach ( $ffMessages as $singleMessage ) {
 			$exploded = explode( $sep, $singleMessage );
 			$user = ContentCore::parseTitle( trim( $exploded[0] ), true );
