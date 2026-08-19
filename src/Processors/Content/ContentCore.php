@@ -523,11 +523,11 @@ class ContentCore {
 
 
 		if ( $email === "yes" ) {
-			$mailJobs = General::getPostArray( 'mwmail' );
-			if ( $mailJobs ) {
-				foreach ( $mailJobs as $mailJob ) {
+			$mailActions = General::getPostArray( 'mwmail' );
+			if ( $mailActions ) {
+				foreach ( $mailActions as $mailAction ) {
 
-					$mailConfiguration = json_decode( base64_decode( $mailJob ), true );
+					$mailConfiguration = json_decode( base64_decode( $mailAction ), true );
 					if ( $mailConfiguration === false || !is_array( $mailConfiguration ) ) {
 						continue;
 					}
@@ -538,7 +538,7 @@ class ContentCore {
 							$mail->handleTemplate();
 						} catch ( FlexFormException $e ) {
 							throw new FlexFormException(
-								$e->getMessage() . "\n" . print_r( $mailConfiguration , true ),
+								$e->getMessage(),
 								0,
 								$e
 							);
