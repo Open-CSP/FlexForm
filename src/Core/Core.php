@@ -10,6 +10,7 @@
 
 namespace FlexForm\Core;
 
+use FlexForm\FlexFormException;
 use MediaWiki\MediaWikiServices;
 
 class Core {
@@ -34,7 +35,7 @@ class Core {
 	public static $reCaptcha = false;
 
 	/**
-	 * Will be set to true if FlexForm has already been initialize (when having multiple FlexForms on a page)
+	 * Will be set to true if FlexForm has already been initialized (when having multiple FlexForms on a page)
 	 */
 	static $haveIBeenRun = false;
 
@@ -582,9 +583,9 @@ class Core {
 	 * @param mixed $value
 	 *
 	 * @return string
-	 * @throws \FlexForm\FlexFormException
+	 * @throws FlexFormException
 	 */
-	public static function createHiddenField( string $name, $value ): string {
+	public static function createHiddenField( string $name, mixed $value ): string {
 		if ( Config::isSecure() ) {
 			Protect::setCrypt( self::$checksumKey );
 			$name  = Protect::encrypt( $name );
