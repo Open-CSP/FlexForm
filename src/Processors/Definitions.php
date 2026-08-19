@@ -64,26 +64,30 @@ class Definitions {
 	}
 
 	/**
-	 * @param array $mailConfig
+	 * @param ?array $mailConfig
 	 *
 	 * @return array
 	 */
-	public static function mailFields( array $mailConfig ) : array {
+	public static function mailFields( ?array $mailConfig ): array {
+		if ( $mailConfig === null ) {
+			$mailConfig = [];
+		}
+
 		return [
-			'to'         => self::getMailConfigVariable( $mailConfig, 'mwmailto' ),
-			'content'    => self::getMailConfigVariable( $mailConfig, 'mwmailcontent' ),
-			'header'     => self::getMailConfigVariable( $mailConfig, 'mwmailheader' ),
-			'footer'     => self::getMailConfigVariable( $mailConfig, 'mwmailfooter' ),
-			'mtemplate'  => self::getMailConfigVariable( $mailConfig, 'mwmailtemplate' ),
-			'mjob'       => self::getMailConfigVariable( $mailConfig, 'mwmailjob' ),
-			'html'       => self::getMailConfigVariable( $mailConfig, 'mwmailhtml' ),
+			'to' => self::getMailConfigVariable( $mailConfig, 'mwmailto' ),
+			'content' => self::getMailConfigVariable( $mailConfig, 'mwmailcontent' ),
+			'header' => self::getMailConfigVariable( $mailConfig, 'mwmailheader' ),
+			'footer' => self::getMailConfigVariable( $mailConfig, 'mwmailfooter' ),
+			'mtemplate' => self::getMailConfigVariable( $mailConfig, 'mwmailtemplate' ),
+			'mjob' => self::getMailConfigVariable( $mailConfig, 'mwmailjob' ),
+			'html' => self::getMailConfigVariable( $mailConfig, 'mwmailhtml' ),
 			'attachment' => self::getMailConfigVariable( $mailConfig, 'mwmailattachment' ),
-			'parselast'  => self::getMailConfigVariable( $mailConfig, 'mwparselast' ),
-			'from'       => false,
-			'cc'         => false,
-			'bcc'        => false,
-			'reply-to'   => false,
-			'subject'    => false
+			'parselast' => self::getMailConfigVariable( $mailConfig, 'mwparselast' ),
+			'from' => false,
+			'cc' => false,
+			'bcc' => false,
+			'reply-to' => false,
+			'subject' => false,
 		];
 	}
 

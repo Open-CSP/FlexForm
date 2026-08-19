@@ -62,6 +62,7 @@ class Mail {
 
 		if ( $template !== false ) {
 			$this->isBot = true;
+			$this->fields = Definitions::mailFields( $mailConfig );
 			$this->template = $template;
 		}
 	}
@@ -249,7 +250,6 @@ class Mail {
 			'attachment' => General::getPostString( 'mwmailattachment' )
 		 */
 		if ( !$this->isBot ) {
-			$fields = ContentCore::getFields();
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
 					'Mail start fields',
@@ -257,10 +257,10 @@ class Mail {
 				);
 			}
 		} else {
-			$fields['parseLast'] = false;
+			$this->fields['parselast'] = false;
 		}
 
-		if ( $this->fields['parseLast'] === false ) {
+		if ( $this->fields['parselast'] === false ) {
 			$tpl = $this->parseWikiPageByTitle( $this->getTemplate() );
 		} else {
 			$render = new Render();
@@ -281,7 +281,7 @@ class Mail {
 				$tpl
 			);
 		}
-		if ( $this->fields['parseLast'] !== false ) {
+		if ( $this->fields['parselast'] !== false ) {
 			$tpl = $this->parseWikiText( $tpl );
 		}
 		if ( Config::isDebug() ) {
@@ -376,7 +376,6 @@ class Mail {
 				$this->fields
 			);
 		}
-
 		$this->checkFieldsNeeded();
 		$this->sendMail();
 	}

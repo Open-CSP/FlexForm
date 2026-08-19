@@ -538,7 +538,7 @@ class ContentCore {
 							$mail->handleTemplate();
 						} catch ( FlexFormException $e ) {
 							throw new FlexFormException(
-								$e->getMessage(),
+								$e->getMessage() . "\n" . print_r( $mailConfiguration , true ),
 								0,
 								$e
 							);
