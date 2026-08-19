@@ -55,14 +55,10 @@ class Mail {
 	 * @param array|null $mailConfig
 	 */
 	public function __construct( string|bool $template, ?array $mailConfig = null ) {
-		if ( $mailConfig !== null ) {
-			$this->fields = Definitions::mailFields( $mailConfig );
-			$this->template = $this->fields['mtemplate'];
-		}
-
+		$this->fields = Definitions::mailFields( $mailConfig );
+		$this->template = $this->fields['mtemplate'];
 		if ( $template !== false ) {
 			$this->isBot = true;
-			$this->fields = Definitions::mailFields( $mailConfig );
 			$this->template = $template;
 		}
 	}
