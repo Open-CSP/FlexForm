@@ -103,22 +103,6 @@ class Definitions {
 			'files' => $files,
 			'actions' => $uploadActions
 		];
-		/*
-		return [
-			'files'        => $files,
-			'pagetemplate' => General::getPostString( 'wsform_file_template' ),
-			'pagecontent'  => General::getPostString( 'wsform_page_content', false ),
-			'parsecontent' => General::getPostString( 'wsform_parse_content' ),
-			'comment'      => General::getPostString( 'wsform-upload-comment' ),
-			'returnto'     => General::getPostString(
-				'mwreturn',
-				false
-			),
-			'target'       => General::getPostString( 'wsform_file_target' ),
-			'force'        => General::getPostString( 'wsform_image_force' ),
-			'convertFrom'  => General::getPostString( 'wsform_convert_from' )
-		];
-		*/
 	}
 
 	/**
