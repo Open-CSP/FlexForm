@@ -235,16 +235,6 @@ class Mail {
 	 * @throws Exception
 	 */
 	public function handleTemplate( $additonalFields = [] ) {
-		/*
-		 *  'to'         => General::getPostString( 'mwmailto' ),
-			'content'    => General::getPostString( 'mwmailcontent' ),
-			'header'     => General::getPostString( 'mwmailheader' ),
-			'footer'     => General::getPostString( 'mwmailfooter' ),
-			'mtemplate'  => General::getPostString( 'mwmailtemplate' ),
-			'mjob'       => General::getPostString( 'mwmailjob' ),
-			'html'       => General::getPostString( 'mwmailhtml' ),
-			'attachment' => General::getPostString( 'mwmailattachment' )
-		 */
 		if ( !$this->isBot ) {
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
