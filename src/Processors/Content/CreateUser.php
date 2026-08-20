@@ -134,7 +134,7 @@ class CreateUser {
 			$rName = $this->getRealName();
 		}
 		$template = wfMessage( 'flexform-createuser-email', $rName, $this->getUserName(), $this->passWord )->plain();
-		$mail = new Mail( false );
+		$mail = new Mail();
 		$status = $mail->sendMailTo(
 			$user->getEmail(),
 			$rName,
