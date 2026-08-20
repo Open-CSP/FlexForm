@@ -15,6 +15,9 @@ use PPFrame;
 
 class Email {
 
+	/**
+	 * @var array|string[]
+	 */
 	private static array $emailArgument = [
 		'to'        => 'mwmailto',
 		'subject'   => 'mwmailsubject',

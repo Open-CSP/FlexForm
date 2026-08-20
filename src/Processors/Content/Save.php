@@ -181,7 +181,6 @@ class Save {
 			EDIT_INTERNAL
 		);
 
-
 		if ( Config::isDebug() ) {
 			$res = "true";
 			if ( $result === false ) {
@@ -305,11 +304,10 @@ class Save {
 	/**
 	 * @param Title $title
 	 *
+	 * @return void
 	 * @throws FlexFormException
 	 */
-	private function refreshSMWProperties( Title $title ) {
-		// Sleep for 1/2 a second
-		//usleep( 500000 );
+	private function refreshSMWProperties( Title $title ): void {
 		if ( !ExtensionRegistry::getInstance()->isLoaded( 'SemanticMediaWiki' ) ) {
 			return;
 		}
@@ -319,10 +317,10 @@ class Save {
 			$store->setOption( Store::OPT_CREATE_UPDATE_JOB,
 				false );
 
-			$rebuilder = new DataRebuilder( $store,
-				ServicesFactory::getInstance()->newTitleFactory() );
+			$rebuilder = ServicesFactory::getInstance()->newMaintenanceFactory()->newDataRebuilder( $store );
 
-			$rebuilder->setOptions( // Tell SMW to only rebuild the current page
+			// Tell SMW to only rebuild the current page
+			$rebuilder->setOptions(
 				new Options( [ 'page' => $title->getFullText() ] ) );
 
 			$rebuilder->rebuild();

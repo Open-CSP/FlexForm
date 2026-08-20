@@ -2,23 +2,16 @@
 
 namespace FlexForm\Render\Themes\Plain;
 
+use FlexForm\Core\Core;
+use FlexForm\FlexFormException;
 use FlexForm\Render\Themes\EmailRenderer;
 
 class PlainEmailRenderer implements EmailRenderer {
 	/**
 	 * @inheritDoc
+	 * @throws FlexFormException
 	 */
 	public function render_mail( array $mailArguments, string $base64content ) : string {
-		$template = "";
-
-		foreach ( $mailArguments as $name => $value ) {
-			$template .= sprintf(
-				'<input type="hidden" name="%s" value="%s">' . PHP_EOL,
-				htmlspecialchars( $name ),
-				htmlspecialchars( $value )
-			);
-		}
-
-		return $template;
+		return Core::createHiddenField( 'mwmail[]', base64_encode( json_encode( $mailArguments ) ) );
 	}
 }

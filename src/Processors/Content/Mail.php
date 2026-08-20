@@ -28,44 +28,34 @@ use Title;
  */
 class Mail {
 
-	/*
-	 * 		'to'         => General::getPostString( 'mwmailto' ),
-			'content'    => General::getPostString( 'mwmailcontent' ),
-			'header'     => General::getPostString( 'mwmailheader' ),
-			'footer'     => General::getPostString( 'mwmailfooter' ),
-			'mtemplate'  => General::getPostString( 'mwmailtemplate' ),
-			'mjob'       => General::getPostString( 'mwmailjob' ),
-			'html'       => General::getPostString( 'mwmailhtml' ),
-			'attachment' => General::getPostString( 'mwmailattachment' )
-	 */
-
 	/**
 	 * @var array
 	 */
-	private $fields = [];
+	private array $fields = [];
 
 	/**
 	 * @var false|string
 	 */
-	private $template = false;
+	private mixed $template = false;
 
 	/**
 	 * @var bool
 	 */
-	private $isBot = false;
+	private bool $isBot = false;
 
 	/**
 	 * @return false|mixed|string
 	 */
-	public function getTemplate() {
+	public function getTemplate(): mixed {
 		return $this->template;
 	}
 
 	/**
 	 * @param string|bool $template
+	 * @param array|null $mailConfig
 	 */
-	public function __construct( $template = false ) {
-		$this->fields = Definitions::mailFields();
+	public function __construct( string|bool $template = false, ?array $mailConfig = null ) {
+		$this->fields = Definitions::mailFields( $mailConfig );
 		$this->template = $this->fields['mtemplate'];
 		if ( $template !== false ) {
 			$this->isBot = true;
@@ -245,18 +235,7 @@ class Mail {
 	 * @throws Exception
 	 */
 	public function handleTemplate( $additonalFields = [] ) {
-		/*
-		 *  'to'         => General::getPostString( 'mwmailto' ),
-			'content'    => General::getPostString( 'mwmailcontent' ),
-			'header'     => General::getPostString( 'mwmailheader' ),
-			'footer'     => General::getPostString( 'mwmailfooter' ),
-			'mtemplate'  => General::getPostString( 'mwmailtemplate' ),
-			'mjob'       => General::getPostString( 'mwmailjob' ),
-			'html'       => General::getPostString( 'mwmailhtml' ),
-			'attachment' => General::getPostString( 'mwmailattachment' )
-		 */
 		if ( !$this->isBot ) {
-			$fields = ContentCore::getFields();
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
 					'Mail start fields',
@@ -264,10 +243,10 @@ class Mail {
 				);
 			}
 		} else {
-			$fields['parseLast'] = false;
+			$this->fields['parselast'] = false;
 		}
 
-		if ( $fields['parseLast'] === false ) {
+		if ( $this->fields['parselast'] === false ) {
 			$tpl = $this->parseWikiPageByTitle( $this->getTemplate() );
 		} else {
 			$render = new Render();
@@ -288,7 +267,7 @@ class Mail {
 				$tpl
 			);
 		}
-		if ( $fields['parseLast'] !== false ) {
+		if ( $this->fields['parselast'] !== false ) {
 			$tpl = $this->parseWikiText( $tpl );
 		}
 		if ( Config::isDebug() ) {
@@ -383,7 +362,6 @@ class Mail {
 				$this->fields
 			);
 		}
-
 		$this->checkFieldsNeeded();
 		$this->sendMail();
 	}

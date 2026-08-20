@@ -89,7 +89,7 @@ class General {
 	 * @param string $var $_POST value to check
 	 * @param bool $clean to clean input
 	 *
-	 * @return bool|string  Returns false if not set or the value
+	 * @return bool|string Returns false if not set or the value
 	 */
 	public static function getPostString( string $var, bool $clean = true ) {
 		if ( isset( $_POST[$var] ) && $_POST[$var] !== "" ) {

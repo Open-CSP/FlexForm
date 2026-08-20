@@ -51,28 +51,42 @@ class Definitions {
 	}
 
 	/**
-	 * Return fields needed for sending emails
+	 * @param array $mailConfig
+	 * @param string $variableName
+	 *
+	 * @return mixed
+	 */
+	private static function getMailConfigVariable( array $mailConfig, string $variableName ): mixed {
+		return $mailConfig[ $variableName ] ?? false;
+	}
+
+	/**
+	 * @param ?array $mailConfig
 	 *
 	 * @return array
 	 */
-	public static function mailFields() : array {
+	public static function mailFields( ?array $mailConfig ): array {
+		if ( $mailConfig === null ) {
+			$mailConfig = [];
+		}
+
 		return [
-			'to'         => General::getPostString( 'mwmailto' ),
-			'content'    => General::getPostString( 'mwmailcontent' ),
-			'header'     => General::getPostString( 'mwmailheader' ),
-			'footer'     => General::getPostString( 'mwmailfooter' ),
-			'mtemplate'  => General::getPostString( 'mwmailtemplate' ),
-			'mjob'       => General::getPostString( 'mwmailjob' ),
-			'html'       => General::getPostString( 'mwmailhtml' ),
-			'attachment' => General::getPostString( 'mwmailattachment' ),
-			'from'       => false,
-			'cc'         => false,
-			'bcc'        => false,
-			'reply-to'   => false,
-			'subject'    => false
+			'to' => self::getMailConfigVariable( $mailConfig, 'mwmailto' ),
+			'content' => self::getMailConfigVariable( $mailConfig, 'mwmailcontent' ),
+			'header' => self::getMailConfigVariable( $mailConfig, 'mwmailheader' ),
+			'footer' => self::getMailConfigVariable( $mailConfig, 'mwmailfooter' ),
+			'mtemplate' => self::getMailConfigVariable( $mailConfig, 'mwmailtemplate' ),
+			'mjob' => self::getMailConfigVariable( $mailConfig, 'mwmailjob' ),
+			'html' => self::getMailConfigVariable( $mailConfig, 'mwmailhtml' ),
+			'attachment' => self::getMailConfigVariable( $mailConfig, 'mwmailattachment' ),
+			'parselast' => self::getMailConfigVariable( $mailConfig, 'mwparselast' ),
+			'from' => false,
+			'cc' => false,
+			'bcc' => false,
+			'reply-to' => false,
+			'subject' => false,
 		];
 	}
-
 
 	public static function fileUploadFields(): array {
 		$files = $_FILES ?? false;
@@ -86,22 +100,6 @@ class Definitions {
 			'files' => $files,
 			'actions' => $uploadActions
 		];
-		/*
-		return [
-			'files'        => $files,
-			'pagetemplate' => General::getPostString( 'wsform_file_template' ),
-			'pagecontent'  => General::getPostString( 'wsform_page_content', false ),
-			'parsecontent' => General::getPostString( 'wsform_parse_content' ),
-			'comment'      => General::getPostString( 'wsform-upload-comment' ),
-			'returnto'     => General::getPostString(
-				'mwreturn',
-				false
-			),
-			'target'       => General::getPostString( 'wsform_file_target' ),
-			'force'        => General::getPostString( 'wsform_image_force' ),
-			'convertFrom'  => General::getPostString( 'wsform_convert_from' )
-		];
-		*/
 	}
 
 	/**
@@ -180,19 +178,7 @@ class Definitions {
 			"wsform_page_content",
 			"wsformfile",
 			"wsform_image_force",
-			"mwmailto",
-			"mwmailfrom",
-			"mwmailcc",
-			"mwmailbcc",
-			"mwmailsubject",
-			"mwmailfooter",
-			"mwmailheader",
-			"mwmailcontent",
-			"mwmailhtml",
-			"mwmailhtml",
-			"mwmailattachment",
-			"mwmailtemplate",
-			"mwmailjob",
+			"mwmail",
 			"mwcreatemultiple",
 			"mwonsuccess",
 			"mwdb",
