@@ -275,7 +275,7 @@ class SpecialFlexForm extends SpecialPage {
 
 		$headerPage .= '<div class="flex-form-special-top-right"><a target="_blank" title="';
 		$headerPage .= $this->msg( 'flexform-special-documentation-title' )->text() . '"';
-		$headerPage .= ' href="https://www.open-csp.org/DevOps:Doc/FlexForm">';
+		$headerPage .= ' href="https://open-csp.org/DevOps:Doc/FlexForm">';
 		$headerPage .= $docsLogo . '<br>' . $this->msg( 'flexform-special-documentation-text' )->text();
 		$headerPage .= '</a></div></div>';
 		$out->addHTML(
