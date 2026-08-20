@@ -54,13 +54,10 @@ class Definitions {
 	 * @param array $mailConfig
 	 * @param string $variableName
 	 *
-	 * @return string|false
+	 * @return mixed
 	 */
-	private static function getMailConfigVariable( array $mailConfig, string $variableName ): string|false {
-		if ( isset( $mailConfig[ $variableName ] ) ) {
-			return $mailConfig[ $variableName ];
-		}
-		return false;
+	private static function getMailConfigVariable( array $mailConfig, string $variableName ): mixed {
+		return $mailConfig[ $variableName ] ?? false;
 	}
 
 	/**
