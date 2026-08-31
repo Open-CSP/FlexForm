@@ -985,7 +985,8 @@ class Edit {
 				if ( $edit['slot'] !== false && !isset( $pageContents[$pid][$edit['slot']]['content'] ) ) {
 					$content = $render->getSlotContent(
 						$pid,
-						$edit['slot']
+						$edit['slot'],
+						true
 					);
 					if ( Config::isDebug() ) {
 						$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
@@ -1004,7 +1005,7 @@ class Edit {
 
 					$pageContents[$pid][$edit['slot']]['title'] = $content['title'];
 				} elseif ( !isset( $pageContents[$pid]['main'] ) ) {
-					$pageContents[$pid]['main'] = $render->getSlotContent( $pid );
+					$pageContents[$pid]['main'] = $render->getSlotContent( $pid, 'main', true );
 					if ( Config::isDebug() ) {
 						Debug::addToDebug(
 							$debugTitle . 'Content for ' . $pid,

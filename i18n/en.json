@@ -17,6 +17,7 @@
 	"flexform-mwcreate-mixed_creates" : "When using multiple creates, every _create must have non empty mwfields.",
 	"flexform-savetowiki-title-invalid" : "Could not create page $1. Invalid title.",
 	"flexform-contentcode-empty-edits" : "Could not edit pages. Please check your _edit instructions in the form used.",
+	"flexform-contentcode-new-page-edit" : "$1 is a new page. The FlexForm _edit function does not create new pages. Use _create to create new pages.",
 
 
 	"apihelp-flexform-summary" : "Range and next available queries",

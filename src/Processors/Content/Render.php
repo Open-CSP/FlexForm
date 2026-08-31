@@ -91,7 +91,7 @@ class Render {
 	 * @return array
 	 * @throws FlexFormException
 	 */
-	public function getSlotContent( int|string $id, string $slotName = 'main' ): array {
+	public function getSlotContent( int|string $id, string $slotName = 'main', bool $isEdit = false ): array {
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
 				'Getting Content for ' . $id,
@@ -124,6 +124,23 @@ class Render {
 
 		$ret['content'] = '';
 		$ret['title']   = '';
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'Result getting slotcontent ' . $id,
+				[ 'page' => $page,
+					'latestRevision' => $page->getRevisionRecord(),
+					'isEdit' => $isEdit,
+					'Exists' => $page->exists(),]
+			);
+		}
+
+		if ( $isEdit && !$page->exists() ) {
+			throw new FlexFormException(
+				wfMessage( 'flexform-contentcode-new-page-edit', $page->getTitle()->getText() )->plaintextParams(),
+				0,
+				null
+			);
+		}
 
 		if ( $page === false || $page === null ) {
 			return $ret;
@@ -133,6 +150,12 @@ class Render {
 		$latest_revision = $page->getRevisionRecord();
 		if ( $latest_revision === null ) {
 			return $ret;
+		}
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'Returning getSlotcontent no revision ',
+				[ ]
+			);
 		}
 		if ( $latest_revision->hasSlot( $slotName ) ) {
 			$content_object = $latest_revision->getContent( $slotName );
