@@ -95,8 +95,10 @@ class Render {
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
 				'Getting Content for ' . $id,
-				[ 'id' => $id,
-					'slotname' => $slotName ]
+				[
+					'id' => $id,
+					'slotname' => $slotName
+				]
 			);
 		}
 		$ret = [];
@@ -127,10 +129,12 @@ class Render {
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
 				'Result getting slotcontent ' . $id,
-				[ 'page' => $page,
+				[
+					'page' => $page,
 					'latestRevision' => $page->getRevisionRecord(),
 					'isEdit' => $isEdit,
-					'Exists' => $page->exists(),]
+					'Exists' => $page->exists()
+				]
 			);
 		}
 
@@ -151,12 +155,7 @@ class Render {
 		if ( $latest_revision === null ) {
 			return $ret;
 		}
-		if ( Config::isDebug() ) {
-			Debug::addToDebug(
-				'Returning getSlotcontent no revision ',
-				[ ]
-			);
-		}
+
 		if ( $latest_revision->hasSlot( $slotName ) ) {
 			$content_object = $latest_revision->getContent( $slotName );
 			if ( $content_object === null ) {
@@ -173,8 +172,10 @@ class Render {
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
 					'no slot for ' . $id,
-					[ 'id' => $id,
-					  'slotname' => $slotName ]
+					[
+						'id' => $id,
+						'slotname' => $slotName
+					]
 				);
 			}
 		}
