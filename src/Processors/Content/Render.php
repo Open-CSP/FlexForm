@@ -95,28 +95,32 @@ class Render {
 	 * @return WikiPage|null
 	 * @throws FlexFormException
 	 */
-	private function getWikiPage( int|string $identifier ): ?WikiPage {
-		$page = null;
-		if ( is_int( $identifier ) ) {
-			$page = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromID( $identifier );
-			if ( $page === null ) {
-				throw new FlexFormException(
-					"Could not create a WikiPage Object from id: " . $identifier . '. Message ',
-					0,
-					null
-				);
+	private function getWikiPage( int|string $identifier ): WikiPage {
+		try {
+			if ( is_int( $identifier ) ) {
+				$page = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromID( $identifier );
 			}
-		} elseif ( is_string( $identifier ) ) {
-			$titleObject = Title::newFromText( $identifier );
-			try {
+			if ( is_string( $identifier ) ) {
+				$titleObject = Title::newFromText( $identifier );
 				$page = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromTitle( $titleObject );
-			} catch ( Exception $e ) {
-				throw new FlexFormException(
-					wfMessage(
-						'flexform-error-could-not-create-page',
-						$titleObject->getText(),
-						$e->getMessage() ), 0, $e );
 			}
+		} catch ( Exception $e ) {
+			throw new FlexFormException(
+				wfMessage(
+					'flexform-error-could-not-create-page',
+					$identifier,
+					$e->getMessage()
+				), 0, $e
+			);
+		}
+		if ( $page === null ) {
+			throw new FlexFormException(
+				wfMessage(
+					'flexform-error-could-not-create-page',
+					$identifier,
+					'.'
+				), 0, null
+			);
 		}
 		return $page;
 	}

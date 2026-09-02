@@ -170,7 +170,7 @@
 	"flexform-validforms-valid-list-table-action" : "Action",
 
 	"flexform-unkown-slot" : "Unknown Content Slot",
-	"flexform-error-could-not-create-page" : "Could not create a WikiPage Object from title $1. Message: $2",
+	"flexform-error-could-not-create-page" : "Could not create a WikiPage Object from $1. Message: $2",
 	"flexform-error-general-save-result-error" : "Save Result error: $1",
 	"flexform-error-invalid-page-title" : "Invalid title: $1",
 
