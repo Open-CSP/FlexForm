@@ -627,8 +627,9 @@ class Mail {
 							substr( $this->fields['attachment'], 5 )
 						);
 					}
-
-					return $mail;
+					throw new FlexFormException(
+						wfMessage( 'flexform-mail-invalid-attachment' )->plain(), 0, null
+					);
 				}
 				$canonicalURL = $searchedFile->getLocalRefPath();
 				if ( $canonicalURL === false ) {
@@ -645,14 +646,16 @@ class Mail {
 					);
 				}
 			} else {
+				$toUseURL = $this->fields['attachment'];
 				if ( !str_contains( $this->fields['attachment'], 'http' ) ) {
 					$toUseURL = $protocol . $this->fields['attachment'];
-					if ( $this->doesExternalUrlExists( $toUseURL ) ) {
-						$fileAttachedContent = file_get_contents( $protocol . $this->fields['attachment'] );
-					}
-				} else {
-					$fileAttachedContent = file_get_contents( $this->fields['attachment'] );
 				}
+				if ( $this->doesExternalUrlExists( $toUseURL ) ) {
+					$fileAttachedContent = file_get_contents( $toUseURL );
+				} else {
+					$fileAttachedContent = false;
+				}
+
 			}
 		} else {
 			$fileAttachedContent = false;
