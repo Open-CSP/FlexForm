@@ -10,14 +10,19 @@
 
 namespace FlexForm\Processors\Content;
 
-use ApiMain, \DerivativeContext, \FauxRequest, Exception, RequestContext;
+use ApiMain;
+use DerivativeContext;
+use Exception;
+use FauxRequest;
 use FlexForm\Core\Config;
 use FlexForm\Core\Debug;
+use FlexForm\FlexFormException;
 use MediaWiki\MediaWikiServices;
 use MWUnknownContentModelException;
+use RequestContext;
 use Title;
 use User;
-use FlexForm\FlexFormException;
+use WikiPage;
 
 class Render {
 
@@ -48,7 +53,7 @@ class Render {
 	 * @return array|false
 	 * @throws MWUnknownContentModelException
 	 */
-	public function getSlotsContentForPage( int $id ) {
+	public function getSlotsContentForPage( int $id ): bool|array {
 		$slot_result = $this->getSlotNamesForPageAndRevision( $id );
 		if ( $slot_result === false ) {
 			return false;
@@ -85,6 +90,53 @@ class Render {
 	}
 
 	/**
+	 * @param int|string $identifier
+	 *
+	 * @return WikiPage|null
+	 * @throws FlexFormException
+	 */
+	private function getWikiPage( int|string $identifier ): WikiPage {
+		try {
+			if ( is_int( $identifier ) ) {
+				$page = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromID( $identifier );
+			}
+			if ( is_string( $identifier ) ) {
+				$titleObject = Title::newFromText( $identifier );
+				$page = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromTitle( $titleObject );
+			}
+		} catch ( Exception $e ) {
+			throw new FlexFormException(
+				wfMessage(
+					'flexform-error-could-not-create-page',
+					$identifier,
+					$e->getMessage()
+				), 0, $e
+			);
+		}
+		if ( $page === null ) {
+			throw new FlexFormException(
+				wfMessage(
+					'flexform-error-could-not-create-page',
+					$identifier,
+					'.'
+				), 0, null
+			);
+		}
+		return $page;
+	}
+
+	/**
+	 * @param int|string $id
+	 *
+	 * @return bool
+	 * @throws FlexFormException
+	 */
+	public function doesPageExist( int|string $id ): bool {
+		$page = $this->getWikiPage( $id );
+		return $page->exists();
+	}
+
+	/**
 	 * @param int|string $id
 	 * @param string $slotName
 	 *
@@ -95,35 +147,27 @@ class Render {
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
 				'Getting Content for ' . $id,
-				[ 'id' => $id,
-					'slotname' => $slotName ]
+				[
+					'id' => $id,
+					'slotname' => $slotName
+				]
 			);
 		}
 		$ret = [];
-		if ( is_int( $id ) ) {
-			$page = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromID( $id );
-			if ( $page === null ) {
-				throw new FlexFormException(
-					"Could not create a WikiPage Object from id: " . $id . '. Message ',
-					0,
-					null
-				);
-			}
-		} elseif ( is_string( $id ) ) {
-			$titleObject = Title::newFromText( $id );
-			try {
-				$page = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromTitle( $titleObject );
-			} catch ( Exception $e ) {
-				throw new FlexFormException(
-					wfMessage(
-						'flexform-error-could-not-create-page',
-						$titleObject->getText(),
-						$e->getMessage() ), 0, $e );
-			}
-		}
+		$page = $this->getWikiPage( $id );
 
 		$ret['content'] = '';
 		$ret['title']   = '';
+		if ( Config::isDebug() ) {
+			Debug::addToDebug(
+				'Result getting slotcontent ' . $id,
+				[
+					'page' => $page,
+					'latestRevision' => $page->getRevisionRecord(),
+					'Exists' => $page->exists()
+				]
+			);
+		}
 
 		if ( $page === false || $page === null ) {
 			return $ret;
@@ -134,6 +178,7 @@ class Render {
 		if ( $latest_revision === null ) {
 			return $ret;
 		}
+
 		if ( $latest_revision->hasSlot( $slotName ) ) {
 			$content_object = $latest_revision->getContent( $slotName );
 			if ( $content_object === null ) {
@@ -150,8 +195,10 @@ class Render {
 			if ( Config::isDebug() ) {
 				Debug::addToDebug(
 					'no slot for ' . $id,
-					[ 'id' => $id,
-					  'slotname' => $slotName ]
+					[
+						'id' => $id,
+						'slotname' => $slotName
+					]
 				);
 			}
 		}

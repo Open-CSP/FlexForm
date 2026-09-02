@@ -981,6 +981,13 @@ class Edit {
 
 		// Loop through all edits
 		foreach ( $data as $pid => $edits ) {
+			if ( $render->doesPageExist( $pid ) ) {
+				throw new FlexFormException(
+					wfMessage( 'flexform-contentcode-new-page-edit', $pid )->plaintextParams(),
+					0,
+					null
+				);
+			}
 			foreach ( $edits as $edit ) {
 				if ( $edit['slot'] !== false && !isset( $pageContents[$pid][$edit['slot']]['content'] ) ) {
 					$content = $render->getSlotContent(
@@ -995,7 +1002,6 @@ class Edit {
 						);
 					}
 
-					// $content = $api->getWikiPage( $pid, $edit['slot'] );
 					if ( $content['content'] == '' ) {
 						$pageContents[$pid][$edit['slot']]['content'] = false;
 					} else {

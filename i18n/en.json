@@ -17,6 +17,7 @@
 	"flexform-mwcreate-mixed_creates" : "When using multiple creates, every _create must have non empty mwfields.",
 	"flexform-savetowiki-title-invalid" : "Could not create page $1. Invalid title.",
 	"flexform-contentcode-empty-edits" : "Could not edit pages. Please check your _edit instructions in the form used.",
+	"flexform-contentcode-new-page-edit" : "$1 is a new page. The FlexForm _edit function does not create new pages. Use _create to create new pages.",
 
 
 	"apihelp-flexform-summary" : "Range and next available queries",
@@ -100,6 +101,7 @@
 	"flexform-mail-no-content" : "Cannot send message. No CONTENT",
 	"flexform-mail-no-phpmailer" : "Cannot find Mailing library",
 	"flexform-mail-no-smtp-library" : "Cannot find smtp mail library",
+	"flexform-mail-invalid-attachment" : "Email Attachment error. The attachment for the email to send does not exist",
 
 	"flexform-docs-create-new-doc" : "Create new documentation",
 	"flexform-docs-create-new-example" : "Create new example",
@@ -168,7 +170,7 @@
 	"flexform-validforms-valid-list-table-action" : "Action",
 
 	"flexform-unkown-slot" : "Unknown Content Slot",
-	"flexform-error-could-not-create-page" : "Could not create a WikiPage Object from title $1. Message: $2",
+	"flexform-error-could-not-create-page" : "Could not create a WikiPage Object from $1. Message: $2",
 	"flexform-error-general-save-result-error" : "Save Result error: $1",
 	"flexform-error-invalid-page-title" : "Invalid title: $1",
 

@@ -93,6 +93,8 @@ Visit this documentation page https://www.open-csp.org/DevOps:Doc/FlexForm/2.0/V
 Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
+* 2.10.2: Stricter rules for mail attachments. See mail documentation
+* 2.10.1: _edit now throws an error when you want to edit a new page
 * 2.10.0: Added support for Semantic MediaWiki 7.x. Added support for multiple email commands per form.
 * 2.9.5 : Brought old recaptcha V2 handling up-to-date 
 * 2.9.4 : Add Honeypot as form argument

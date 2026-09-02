@@ -581,8 +581,8 @@ class Mail {
 			$_SERVER['SERVER_PROTOCOL'],
 			'https'
 		) === 0 ? 'https:' : 'http:';
-		if ( $this->fields['attachment'] !== false ) {
-			if ( substr( strtolower( $this->fields['attachment'] ), 0, 5 ) === 'file:' ) {
+		if ( $this->fields['attachment'] !== false && !empty( $this->fields['attachment'] ) ) {
+			if ( str_starts_with( strtolower( $this->fields['attachment'] ), 'file:' ) ) {
 				// We have a wiki file
 				if ( Config::isDebug() ) {
 					Debug::addToDebug(
@@ -590,8 +590,24 @@ class Mail {
 						''
 					);
 				}
+				$titleToGet = trim( substr( $this->fields['attachment'], 5 ) );
+				if ( empty( $titleToGet ) ) {
+					return $mail;
+				}
 				$fileRepo = MediaWikiServices::getInstance()->getRepoGroup();
-				$fTitle = Title::newFromText( substr( $this->fields['attachment'], 5 ) );
+				$fTitle = Title::newFromText( $titleToGet );
+				if ( $fTitle === null ) {
+					if ( Config::isDebug() ) {
+						Debug::addToDebug(
+							'Skipping File! Creating a title from this file resulted in a null: ' .
+							substr( $this->fields['attachment'], 5 ),
+							''
+						);
+					}
+					throw new FlexFormException(
+						wfMessage( 'flexform-mail-invalid-attachment' )->plain(), 0, null
+					);
+				}
 				$user = RequestContext::getMain()->getUser();
 				if ( !MediaWikiServices::getInstance()->getPermissionManager()->userCan( "read", $user, $fTitle ) ) {
 					if ( Config::isDebug() ) {
@@ -629,13 +645,11 @@ class Mail {
 					);
 				}
 			} else {
-				if (
-					strpos(
-						$this->fields['attachment'],
-						'http'
-					) === false
-				) {
-					$fileAttachedContent = file_get_contents( $protocol . $this->fields['attachment'] );
+				if ( !str_contains( $this->fields['attachment'], 'http' ) ) {
+					$toUseURL = $protocol . $this->fields['attachment'];
+					if ( $this->doesExternalUrlExists( $toUseURL ) ) {
+						$fileAttachedContent = file_get_contents( $protocol . $this->fields['attachment'] );
+					}
 				} else {
 					$fileAttachedContent = file_get_contents( $this->fields['attachment'] );
 				}
@@ -653,6 +667,28 @@ class Mail {
 		}
 
 		return $mail;
+	}
+
+	/**
+	 * @param string $url
+	 *
+	 * @return bool
+	 */
+	private function doesExternalUrlExists( string $url ): bool {
+		$ch = curl_init( $url );
+
+		curl_setopt_array( $ch, [
+			CURLOPT_NOBODY => true,
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_FOLLOWLOCATION => true,
+			CURLOPT_TIMEOUT => 5,
+		] );
+
+		curl_exec( $ch );
+		$statusCode = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+		curl_close( $ch );
+
+		return $statusCode > 0 && $statusCode < 400;
 	}
 
 	/**
