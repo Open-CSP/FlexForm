@@ -981,12 +981,18 @@ class Edit {
 
 		// Loop through all edits
 		foreach ( $data as $pid => $edits ) {
+			if ( $render->doesPageExist( $pid ) ) {
+				throw new FlexFormException(
+					wfMessage( 'flexform-contentcode-new-page-edit', $pid )->plaintextParams(),
+					0,
+					null
+				);
+			}
 			foreach ( $edits as $edit ) {
 				if ( $edit['slot'] !== false && !isset( $pageContents[$pid][$edit['slot']]['content'] ) ) {
 					$content = $render->getSlotContent(
 						$pid,
-						$edit['slot'],
-						true
+						$edit['slot']
 					);
 					if ( Config::isDebug() ) {
 						$debugTitle = '<b>' . get_class() . '<br>Function: ' . __FUNCTION__ . '<br></b>';
@@ -996,7 +1002,6 @@ class Edit {
 						);
 					}
 
-					// $content = $api->getWikiPage( $pid, $edit['slot'] );
 					if ( $content['content'] == '' ) {
 						$pageContents[$pid][$edit['slot']]['content'] = false;
 					} else {
@@ -1005,7 +1010,7 @@ class Edit {
 
 					$pageContents[$pid][$edit['slot']]['title'] = $content['title'];
 				} elseif ( !isset( $pageContents[$pid]['main'] ) ) {
-					$pageContents[$pid]['main'] = $render->getSlotContent( $pid, 'main', true );
+					$pageContents[$pid]['main'] = $render->getSlotContent( $pid );
 					if ( Config::isDebug() ) {
 						Debug::addToDebug(
 							$debugTitle . 'Content for ' . $pid,

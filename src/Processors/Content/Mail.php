@@ -21,7 +21,6 @@ use FlexForm\Core\Debug;
 use FlexForm\Processors\Definitions;
 use FlexForm\Processors\Security\wsSecurity;
 use FlexForm\FlexFormException;
-
 use Title;
 
 /**
@@ -582,8 +581,8 @@ class Mail {
 			$_SERVER['SERVER_PROTOCOL'],
 			'https'
 		) === 0 ? 'https:' : 'http:';
-		if ( $this->fields['attachment'] !== false ) {
-			if ( substr( strtolower( $this->fields['attachment'] ), 0, 5 ) === 'file:' ) {
+		if ( $this->fields['attachment'] !== false && !empty( $this->fields['attachment'] ) ) {
+			if ( str_starts_with( strtolower( $this->fields['attachment'] ), 'file:' ) ) {
 				// We have a wiki file
 				if ( Config::isDebug() ) {
 					Debug::addToDebug(
@@ -591,8 +590,22 @@ class Mail {
 						''
 					);
 				}
+				$titleToGet = trim( substr( $this->fields['attachment'], 5 ) );
+				if ( empty( $titleToGet ) ) {
+					return $mail;
+				}
 				$fileRepo = MediaWikiServices::getInstance()->getRepoGroup();
-				$fTitle = Title::newFromText( substr( $this->fields['attachment'], 5 ) );
+				$fTitle = Title::newFromText( $titleToGet );
+				if ( $fTitle === null ) {
+					if ( Config::isDebug() ) {
+						Debug::addToDebug(
+							'Skipping File! Creating a title from this file resulted in a null: ' .
+							substr( $this->fields['attachment'], 5 ),
+							''
+						);
+					}
+					return $mail;
+				}
 				$user = RequestContext::getMain()->getUser();
 				if ( !MediaWikiServices::getInstance()->getPermissionManager()->userCan( "read", $user, $fTitle ) ) {
 					if ( Config::isDebug() ) {
@@ -630,13 +643,11 @@ class Mail {
 					);
 				}
 			} else {
-				if (
-					strpos(
-						$this->fields['attachment'],
-						'http'
-					) === false
-				) {
-					$fileAttachedContent = file_get_contents( $protocol . $this->fields['attachment'] );
+				if ( !str_contains( $this->fields['attachment'], 'http' ) ) {
+					$toUseURL = $protocol . $this->fields['attachment'];
+					if ( $this->doesExternalUrlExists( $toUseURL ) ) {
+						$fileAttachedContent = file_get_contents( $protocol . $this->fields['attachment'] );
+					}
 				} else {
 					$fileAttachedContent = file_get_contents( $this->fields['attachment'] );
 				}
@@ -654,6 +665,20 @@ class Mail {
 		}
 
 		return $mail;
+	}
+
+	/**
+	 * @param string $url
+	 *
+	 * @return bool
+	 */
+	private function doesExternalUrlExists( string $url ): bool {
+		$headers = @get_headers( $url );
+
+		if ( !$headers || strpos( $headers[0], '404' ) ) {
+			return false;
+		}
+		return true;
 	}
 
 	/**
