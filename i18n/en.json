@@ -101,6 +101,7 @@
 	"flexform-mail-no-content" : "Cannot send message. No CONTENT",
 	"flexform-mail-no-phpmailer" : "Cannot find Mailing library",
 	"flexform-mail-no-smtp-library" : "Cannot find smtp mail library",
+	"flexform-mail-invalid-attachment" : "Email Attachment error. The attachment for the email to send does not exist",
 
 	"flexform-docs-create-new-doc" : "Create new documentation",
 	"flexform-docs-create-new-example" : "Create new example",

@@ -604,7 +604,9 @@ class Mail {
 							''
 						);
 					}
-					return $mail;
+					throw new FlexFormException(
+						wfMessage( 'flexform-mail-invalid-attachment' )->plain(), 0, null
+					);
 				}
 				$user = RequestContext::getMain()->getUser();
 				if ( !MediaWikiServices::getInstance()->getPermissionManager()->userCan( "read", $user, $fTitle ) ) {
