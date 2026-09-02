@@ -133,14 +133,6 @@ class Render {
 	 */
 	public function doesPageExist( int|string $id ): bool {
 		$page = $this->getWikiPage( $id );
-		if ( $page === null ) {
-			throw new FlexFormException(
-				wfMessage(
-					'flexform-error-invalid-page-title',
-					$id
-				), 0, null
-			);
-		}
 		return $page->exists();
 	}
 
