@@ -675,12 +675,20 @@ class Mail {
 	 * @return bool
 	 */
 	private function doesExternalUrlExists( string $url ): bool {
-		$headers = @get_headers( $url );
+		$ch = curl_init( $url );
 
-		if ( !$headers || strpos( $headers[0], '404' ) ) {
-			return false;
-		}
-		return true;
+		curl_setopt_array( $ch, [
+			CURLOPT_NOBODY => true,
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_FOLLOWLOCATION => true,
+			CURLOPT_TIMEOUT => 5,
+		] );
+
+		curl_exec( $ch );
+		$statusCode = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+		curl_close( $ch );
+
+		return $statusCode > 0 && $statusCode < 400;
 	}
 
 	/**
