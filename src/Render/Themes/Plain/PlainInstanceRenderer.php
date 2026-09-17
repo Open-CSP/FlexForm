@@ -18,20 +18,20 @@ use FlexForm\Processors\Content\Edit;
 use FlexForm\Render\Themes\InstanceRenderer;
 
 class PlainInstanceRenderer implements InstanceRenderer {
-	private static function getArg( $name, $args, $checkEmpty = true ) {
-		if ( $checkEmpty ) {
-			if ( isset( $args[$name] ) && $args[$name] !== '' ) {
-				return $args[$name];
-			} else {
-				return false;
-			}
-		} else {
-			if ( isset( $args[$name] ) ) {
-				return "";
-			} else {
-				return false;
-			}
+
+	/**
+	 * @param string $name
+	 * @param array $args
+	 * @param bool $checkEmpty
+	 *
+	 * @return false|mixed
+	 */
+	private static function getArg( string $name, array $args, bool $checkEmpty = true ) {
+		if ( !isset( $args[$name] ) || ( $checkEmpty && $args[$name] === '' ) ) {
+			return false;
 		}
+
+		return $args[$name];
 	}
 
 	/**
@@ -177,6 +177,14 @@ class PlainInstanceRenderer implements InstanceRenderer {
 			$instance['removeButtonClassExtra'] = '';
 		}
 
+		if ( $instance['buttonBottom'] !== 'none' ) {
+			$instance['addButtonTopBottomClass'] = str_replace(
+				'WSmultipleTemplateAddBelow',
+				'',
+				$instance['addButtonTopBottomClass']
+			);
+		}
+
 		if ( $instance['handleClass'] !== 'none' ) {
 			$ret .= '<span class="' . $instance['handleClass'] . ' ' . $instance['handleClassExtra'] . '"></span>';
 		}
@@ -197,7 +205,14 @@ class PlainInstanceRenderer implements InstanceRenderer {
 		$ret .= PHP_EOL . '<div class="' . $instance['list'] . '"></div>' . PHP_EOL;
 
 		if ( $instance['buttonBottom'] !== 'none' ) {
-			$ret .= PHP_EOL . '<p><span class="' . $instance['addButtonTopBottomClass'] . '">' . $instance['buttonBottom'] . '</span></p>';
+			$ret .= PHP_EOL .
+				'<p><span class="' .
+				$instance['addButtonTopBottomClassD'] .
+				' ' .
+				$instance['addButtonTopBottomClass'] .
+				'">' .
+				$instance['buttonBottom'] .
+				'</span></p>';
 		}
 
 		$ret .= '</div>' . PHP_EOL;
@@ -213,6 +228,7 @@ class PlainInstanceRenderer implements InstanceRenderer {
 			'list'                    => 'WSmultipleTemplateList',
 			'addButtonClass'          => "WSmultipleTemplateAddAbove",
 			'addButtonTopBottomClass' => "WSmultipleTemplateAddBelow",
+			'addButtonTopBottomClassD'=> "WSmultipleTemplateAddBelowDefault",
 			'addButtonClassExtra'     => "wsform-instance-add-btn",
 			'removeButtonClass'       => "WSmultipleTemplateDel",
 			'removeButtonClassExtra'  => "wsform-instance-delete-btn",
