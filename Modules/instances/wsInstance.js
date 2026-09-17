@@ -592,7 +592,7 @@ const WsInstance = function (selector, options) {
 
 		setRequiredFieldToDataset()
 
-		_.wrapper.find('.WSmultipleTemplateAddBelow').on('click', function (e) {
+		_.wrapper.find('.WSmultipleTemplateAddBelowDefault').on('click', function (e) {
 			e.preventDefault()
 			e.stopPropagation()
 			_.addToBottom()
