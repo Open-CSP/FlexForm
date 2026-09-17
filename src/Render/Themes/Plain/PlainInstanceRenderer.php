@@ -177,7 +177,7 @@ class PlainInstanceRenderer implements InstanceRenderer {
 			$instance['removeButtonClassExtra'] = '';
 		}
 
-		if ( $instance['buttonBottom'] !== 'none' ) {
+		if ( $instance['buttonBottom'] !== 'false' && $instance['buttonBottom'] !== '' ) {
 			$instance['addButtonTopBottomClass'] = str_replace(
 				'WSmultipleTemplateAddBelow',
 				'',
@@ -207,7 +207,7 @@ class PlainInstanceRenderer implements InstanceRenderer {
 		if ( $instance['buttonBottom'] !== 'none' ) {
 			$ret .= PHP_EOL .
 				'<p><span class="' .
-				$instance['addButtonTopBottomClassD'] .
+				$instance['defaultButtonTopBottom'] .
 				' ' .
 				$instance['addButtonTopBottomClass'] .
 				'">' .
@@ -228,7 +228,7 @@ class PlainInstanceRenderer implements InstanceRenderer {
 			'list'                    => 'WSmultipleTemplateList',
 			'addButtonClass'          => "WSmultipleTemplateAddAbove",
 			'addButtonTopBottomClass' => "WSmultipleTemplateAddBelow",
-			'addButtonTopBottomClassD'=> "WSmultipleTemplateAddBelowDefault",
+			'defaultButtonTopBottom'  => "WSmultipleTemplateAddBelowDefault",
 			'addButtonClassExtra'     => "wsform-instance-add-btn",
 			'removeButtonClass'       => "WSmultipleTemplateDel",
 			'removeButtonClassExtra'  => "wsform-instance-delete-btn",
@@ -326,7 +326,6 @@ wachtff( startInstance, true );
 				}
 			}
 		}
-
 		return $defaultInstance;
 	}
 }
