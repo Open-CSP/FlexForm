@@ -1,6 +1,6 @@
 {
   "name": "FlexForm",
-  "version": "2.10.3",
+  "version": "2.10.4",
   "author": [
     "[https://www.wikibase-solutions.com/author/charlot Sen-Sai]"
   ],
@@ -89,8 +89,8 @@
       "allowedGroups" : [ "sysop" ],
       "hideEdit" : true,
       "pandoc-install-path" : "",
-      "pandoc-convert-from" : [ "docx" ],
-      "pandoc-convert-to" : [ "mediawiki" ],
+      "pandoc-convert-from" : [ "docx", "xlsx", "xls", "csv" ],
+      "pandoc-convert-to" : [ "mediawiki", "json" ],
       "pandoc-allow-additional-arguments" : ["lua-filter"],
       "pandoc-filters" : [],
       "forceNullEdit" : true,
