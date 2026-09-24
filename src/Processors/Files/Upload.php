@@ -42,6 +42,11 @@ class Upload {
 	private array $fileDetails;
 
 	/**
+	 * @var array|string[]
+	 */
+	private array $notPandoc = [ 'xlsx', 'xls', 'csv' ];
+
+	/**
 	 * @return string
 	 */
 	private function getSummary(): string {
@@ -104,7 +109,12 @@ class Upload {
 			$fileActionConvertDetails = $this->decodeAction( $fileAction );
 
 			if ( $fileActionConvertDetails !== null ) {
-				$fileAction = 'convert';
+				$convertFrom = $fileActionConvertDetails['convertfrom'];
+				if ( in_array( $convertFrom, $this->notPandoc ) ) {
+					$fileAction = $convertFrom;
+				} else {
+					$fileAction = 'convert';
+				}
 			} else {
 				Debug::addToDebug(
 					'Pandoc convertfrom error',
@@ -211,6 +221,9 @@ class Upload {
 	 * @return bool|string
 	 */
 	private function checkAllowedConversions( string $from, string $to, array &$additional = [] ): bool|string {
+		if ( in_array( $from, $this->notPandoc ) ) {
+			return true;
+		}
 		if ( !in_array( $from, Config::getConfigVariable( 'pandoc-convert-from' ) ) ) {
 			return "Convert from '$from' is not allowed.";
 		}
