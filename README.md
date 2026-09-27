@@ -93,6 +93,8 @@ Visit this documentation page https://www.open-csp.org/DevOps:Doc/FlexForm/2.0/V
 Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
+* 2.10.6: Add additional styling
+* 2.10.5: BugFix Edit function
 * 2.10.4: Fix Excel convert to be allowed as default conversion
 * 2.10.3: Fix custom add row button in instances
 * 2.10.2: Stricter rules for mail attachments. See mail documentation

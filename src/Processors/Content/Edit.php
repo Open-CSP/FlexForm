@@ -981,7 +981,7 @@ class Edit {
 
 		// Loop through all edits
 		foreach ( $data as $pid => $edits ) {
-			if ( $render->doesPageExist( $pid ) ) {
+			if ( !$render->doesPageExist( $pid ) ) {
 				throw new FlexFormException(
 					wfMessage( 'flexform-contentcode-new-page-edit', $pid )->plaintextParams(),
 					0,
