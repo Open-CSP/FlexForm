@@ -5,7 +5,9 @@ use FlexForm\Core\Debug;
 use FlexForm\Core\HandleResponse;
 use FlexForm\Core\Protect;
 use FlexForm\FlexFormException;
+use FlexForm\Processors\Content\Render;
 use FlexForm\Processors\Request\Handlers\SemanticAsk;
+use MediaWiki\MediaWikiServices;
 use Wikimedia\ParamValidator\ParamValidator;
 
 class ApiFlexForm extends ApiBase {
@@ -218,12 +220,49 @@ class ApiFlexForm extends ApiBase {
 	}
 
 	/**
+	 * @param string $prefix
+	 *
+	 * @return array
+	 */
+	private function getNextAvailable( string $prefix ): array {
+		$resolveTitle = $this->splitNameSpaceFromTitle( $prefix );
+		$namespace = $resolveTitle['ns'];
+		$prefix = $resolveTitle['title'];
+		$services = MediaWikiServices::getInstance();
+		$dbPrefix = $services->getContentLanguage()->ucfirst( str_replace( ' ', '_', $prefix ) );
+
+		$dbr = $services->getConnectionProvider()->getReplicaDatabase();
+		$likeString = $dbr->buildLike( $dbPrefix, $dbr->anyString() );
+
+		$startPos = strlen( $dbPrefix ) + 1;
+
+		$queryBuilder = $dbr->newSelectQueryBuilder()
+			->select( [
+				'max_num' => "MAX( CAST( SUBSTRING( page_title, $startPos ) AS UNSIGNED ) )"
+			] )
+			->from( 'page' )
+			->where( [
+				'page_namespace' => $namespace,
+				'page_title ' . $likeString
+			] )
+			->caller( __METHOD__ );
+
+		$row = $queryBuilder->fetchRow();
+
+		$result = ( $row && $row->max_num ) ? (int)$row->max_num + 1 : 1;
+		return $this->createResult(
+			'ok',
+			$result
+		);
+	}
+
+	/**
 	 * @param string $nameStartsWith
 	 *
 	 * @return array
 	 * @throws MWException
 	 */
-	private function getNextAvailable( string $nameStartsWith ) : array {
+	private function getNextAvailableOld( string $nameStartsWith ) : array {
 		$number      = [];
 		$continue    = true;
 		$appContinue = false;
@@ -426,6 +465,33 @@ class ApiFlexForm extends ApiBase {
 	}
 
 	/**
+	 * @param string $title
+	 *
+	 * @return array
+	 */
+	private function splitNameSpaceFromTitle( string $title ): array {
+		$titleWithoutNamespace = $title;
+		if ( str_contains( $title, ':' ) ) {
+			$split = explode( ':', $title );
+
+			$titleWithoutNamespace = $split[1];
+			$nameSpace = $split[0];
+			if ( empty( $nameSpace ) ) {
+				$id = 0;
+			} else {
+				$id = $this->getLanguage()->getNsIndex( $nameSpace );
+			}
+		} else {
+			$id = 0;
+		}
+		if ( $id === false ) {
+			$id = 0;
+			$titleWithoutNamespace = $title;
+		}
+		return [ 'ns' => $id, 'title' => $titleWithoutNamespace ];
+	}
+
+	/**
 	 * @param string $nameStartsWith
 	 * @param mixed $appContinue
 	 * @param mixed $range
@@ -501,7 +567,7 @@ class ApiFlexForm extends ApiBase {
 				];
 			}
 		}
-		$render = new \FlexForm\Processors\Content\Render();
+		$render = new Render();
 
 		return $render->makeRequest(
 			$postdata
