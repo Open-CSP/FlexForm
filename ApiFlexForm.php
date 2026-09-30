@@ -459,7 +459,7 @@ class ApiFlexForm extends ApiBase {
 					"action"      => "query",
 					"format"      => "json",
 					"list"        => "allpages",
-					"aplimit"     => 5,
+					"aplimit"     => 200,
 					"apprefix"    => $nameStartsWith_withoutNamespace,
 					"apnamespace" => $id
 				];
@@ -467,7 +467,7 @@ class ApiFlexForm extends ApiBase {
 				$postdata = [
 					"action"      => "query",
 					"format"      => "json",
-					"aplimit"     => 5,
+					"aplimit"     => 200,
 					"apcontinue"  => $appContinue,
 					"list"        => "allpages",
 					"apprefix"    => $nameStartsWith_withoutNamespace,
