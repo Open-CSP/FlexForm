@@ -4,6 +4,7 @@ namespace FlexForm\Render;
 
 use Composer\Command\ScriptAliasCommand;
 use ExtensionRegistry;
+use FlexForm\Core\FormInspector;
 use FlexForm\Core\Messaging;
 use FlexForm\Core\Sql;
 use FlexForm\Processors\Content\Render;
@@ -84,9 +85,19 @@ class TagHooks {
 	 * @throws FlexFormException
 	 */
 	public function renderForm( $input, array $args, Parser $parser, PPFrame $frame ) {
-		global $wgEmailConfirmToEdit, $IP, $wgScript;
+		global $wgEmailConfirmToEdit, $IP;
 		$fPermissions = null;
 		$thisUser = \RequestContext::getMain()->getUser();
+
+		$canInspect = false;
+		if ( $thisUser !== null && $thisUser->isRegistered() ) {
+			$allowedGroups = Config::getConfigVariable( 'allowedGroups' ) ?? [ 'sysop' ];
+			$userGroups = MediaWikiServices::getInstance()
+				->getUserGroupManager()
+				->getUserEffectiveGroups( $thisUser );
+			$canInspect = !empty( array_intersect( $allowedGroups, $userGroups ) );
+		}
+
 		$ret = '';
 		$addFFJS = '';
 		$recaptchaDiv = null;
@@ -157,7 +168,7 @@ class TagHooks {
 			$allowAnonymous = false;
 		}
 
-		if ( !$this->officialForm ) {
+		if ( !$this->officialForm && !$canInspect ) {
 			return $this->returnNonValidatedResponse( $renderi18nErrorInsteadofImageForApprovedForms );
 		}
 		// && $allowAnonymous === false
@@ -435,9 +446,17 @@ class TagHooks {
 				Core::getRealUrl() .
 				'/Modules/FlexForm.general.js"></script>' .
 				"\n";
+			if ( $canInspect ) {
+				$addFFJS .= '<script type="text/javascript" charset="UTF-8" src="' .
+					Core::getRealUrl() .
+					'/Modules/FormInspector/FlexForm.inspector.js"></script>' .
+					"\n";
+			}
 
 			Core::setRun( true );
 		}
+
+		FormInspector::start( $canInspect );
 
 		$actionUrl = $formTarget ?? Core::getAPIurl();
 		$output = '';
@@ -448,6 +467,13 @@ class TagHooks {
 		$output .= $parser->recursiveTagParse(
 			trim( $input ),
 			$frame
+		);
+
+		$inspectorSnippet = FormInspector::renderSnippet(
+			$formId,
+			$this->officialForm,
+			$action,
+			$extension
 		);
 
 		// The separator can be set on render field, select and tokens, if it is set on the form as an argument
@@ -576,8 +602,15 @@ class TagHooks {
 		Core::$reCaptcha = false;
 		Core::removeAsLoaded( 'honeypot' );
 
+		if ( !$this->officialForm && $canInspect ) {
+			return [
+				$inspectorSnippet . $this->returnNonValidatedResponse( $renderi18nErrorInsteadofImageForApprovedForms ),
+				"markerType" => 'nowiki'
+			];
+		}
+
 		return [
-			$ret,
+			$inspectorSnippet . $ret,
 			"markerType" => 'nowiki'
 		];
 	}
@@ -765,6 +798,10 @@ class TagHooks {
 				$args['html'] = 'all';
 			}
 			$args[$name] = $tempValue;
+		}
+
+		if ( FormInspector::isActive() && isset( $args['name'] ) && $args['name'] !== '' ) {
+			FormInspector::addField( (string)$args['name'], (string)$fieldType, $args );
 		}
 
 		$renderer = $this->themeStore->getFormTheme()->getFieldRenderer();
@@ -1893,12 +1930,18 @@ class TagHooks {
 				continue;
 			}
 
-			if ( $name === "name" && strpos( $value, '[]' ) === false ) {
+			if ( $name === "name" && !str_contains( $value, '[]' ) ) {
 				$value .= '[]';
+			}
+
+			if ( $name === "name" && FormInspector::isActive() ) {
+				FormInspector::addField( $value, 'select', $args );
 			}
 
 			$additionalArgs[$name] = $value;
 		}
+
+
 
 		$input  = $parser->recursiveTagParseFully(
 			$input,
@@ -2128,6 +2171,12 @@ class TagHooks {
 			}
 		}
 
+		if ( isset( $additionalArguments['name'] ) ) {
+			if ( FormInspector::isActive() && !empty( $name ) ) {
+				FormInspector::addField( $additionalArguments['name'], 'token', $args );
+			}
+		}
+
 		$output = $this->themeStore->getFormTheme()->getTokenRenderer()->render_token(
 			$parsedInput,
 			$id,
@@ -2243,6 +2292,16 @@ class TagHooks {
 			$frame
 		) : 'wiki';
 
+		if ( FormInspector::isActive() ) {
+			FormInspector::addEdit( [
+				'target'    => $target,
+				'template'  => $template,
+				'formfield' => $formfield,
+				'mwfield'   => $usefield !== '' ? $usefield : $formfield,
+				'slot'      => $slot
+			] );
+		}
+
 		$output = $this->themeStore->getFormTheme()->getEditRenderer()->render_edit(
 			$target,
 			$template,
@@ -2325,6 +2384,15 @@ class TagHooks {
 				'No valid title for creating a page.',
 				'noparse' => true
 			];
+		}
+
+		if ( FormInspector::isActive() ) {
+			FormInspector::addCreate( [
+				'template' => $template,
+				'title'    => $write,
+				'slot'     => $slot,
+				'fields'   => $fields
+			] );
 		}
 
 		$output = $this->themeStore->getFormTheme()->getCreateRenderer()->render_create(
@@ -2418,6 +2486,13 @@ class TagHooks {
 	 */
 	public function renderEmail( $input, array $args, Parser $parser, PPFrame $frame ): array {
 		$mailArguments = Email::getEmailParameters( $args, $parser, $frame );
+		if ( FormInspector::isActive() ) {
+			FormInspector::addEmail( [
+				'template' => $mailArguments['template'] ?? ( $args['template'] ?? null ),
+				'to'       => $mailArguments['to'] ?? ( $args['to'] ?? null ),
+				'subject'  => $mailArguments['subject'] ?? ( $args['subject'] ?? null )
+			] );
+		}
 		$output        = $this->themeStore->getFormTheme()->getEmailRenderer()->render_mail(
 			$mailArguments,
 			''

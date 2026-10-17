@@ -469,3 +469,93 @@ form:has(.flex-form-spinner.active)::before {
 	border: 1px solid #e7eaec;
 }
 
+/* FlexForm Admin Inspector */
+.ff-inspector-box {
+	border: 1px solid #cbd5e1;
+	border-radius: 6px;
+	background: #f8fafc;
+	margin: 12px 0;
+	font-family: sans-serif;
+	font-size: 13px;
+	color: #1e293b;
+}
+.ff-inspector-summary {
+	padding: 8px 12px;
+	cursor: pointer;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	background: #f1f5f9;
+	border-radius: 6px;
+	font-weight: 600;
+	user-select: none;
+}
+.ff-inspector-body {
+	padding: 12px;
+	border-top: 1px solid #cbd5e1;
+}
+.ff-insp-badges {
+	display: flex;
+	gap: 6px;
+	flex-wrap: wrap;
+}
+.ff-insp-badge {
+	padding: 2px 8px;
+	border-radius: 12px;
+	font-size: 11px;
+	font-weight: 600;
+}
+.ff-insp-ok { background: #dcfce7; color: #166534; }
+.ff-insp-warn { background: #fef9c3; color: #854d0e; }
+.ff-insp-err { background: #fee2e2; color: #991b1b; }
+.ff-insp-neutral { background: #e2e8f0; color: #334155; }
+.ff-insp-section { margin-bottom: 14px; }
+.ff-insp-section h4 { margin: 0 0 6px 0; font-size: 13px; color: #0f172a; }
+.ff-insp-list { margin: 0; padding-left: 18px; }
+.ff-insp-table {
+	width: 100%;
+	border-collapse: collapse;
+	background: #fff;
+	border: 1px solid #e2e8f0;
+}
+.ff-insp-table th,
+.ff-insp-table td {
+	padding: 6px 10px;
+	border-bottom: 1px solid #e2e8f0;
+	text-align: left;
+}
+.ff-insp-table th { background: #f8fafc; font-weight: 600; }
+.ff-insp-gen-controls { display: flex; gap: 6px; align-items: center; }
+.ff-insp-type-select {
+	padding: 3px 6px;
+	border: 1px solid #cbd5e1;
+	border-radius: 4px;
+	font-size: 12px;
+}
+.ff-insp-btn {
+	padding: 3px 10px;
+	border: 1px solid #94a3b8;
+	background: #fff;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 12px;
+}
+.ff-insp-btn:hover { background: #f1f5f9; }
+.ff-insp-btn-primary { background: #2563eb; color: #fff; border-color: #1d4ed8; }
+.ff-insp-btn-primary:hover { background: #1d4ed8; }
+.ff-insp-alert { padding: 8px 12px; border-radius: 4px; margin-top: 8px; }
+.ff-insp-danger { background: #fee2e2; color: #991b1b; border: 1px solid #f87171; }
+.ff-insp-orphan { background: #ffedd5; color: #9a3412; border: 1px solid #fb923c; }
+.ff-insp-textarea {
+	width: 100%;
+	font-family: monospace;
+	font-size: 12px;
+	padding: 8px;
+	border: 1px solid #cbd5e1;
+	border-radius: 4px;
+	box-sizing: border-box;
+	margin-bottom: 6px;
+}
+.ff-insp-codegen-actions { display: flex; gap: 6px; }
+.ff-insp-muted { color: #64748b; }
+
