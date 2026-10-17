@@ -238,48 +238,83 @@ class FormInspector {
 			$extensionExists = class_exists( $handlerClass );
 		}
 
-		// 2. Creates & Edits summary list
+		$slotRoleRegistry = MediaWikiServices::getInstance()->getSlotRoleRegistry();
+
+		// 2. Creates summary list
 		$createsList = [];
 		foreach ( self::$creates as $c ) {
 			$titleStr = (string)( $c['title'] ?? '' );
 			$isIdRef = str_starts_with( $titleStr, '::id::' );
+			$slotName = (string)( $c['slot'] ?? 'main' );
+			$isSlotValid = $slotRoleRegistry->isDefinedRole( $slotName );
+
+			$missingTitleFields = [];
+			if ( preg_match_all( '/\[([^\]]+)\]/', $titleStr, $matches ) ) {
+				foreach ( $matches[1] as $fieldName ) {
+					$cleanField = trim( $fieldName );
+					if ( !isset( self::$fields[$cleanField] ) ) {
+						$missingTitleFields[] = $cleanField;
+						$totalMissingParams++;
+					} else {
+						$usedFormFields[$cleanField] = true; // Voorkomt orphan!
+					}
+				}
+			}
 
 			$createsList[] = [
-				'template'      => (string)( $c['template'] ?? '' ),
-				'isWsNone'      => strtolower( (string)( $c['template'] ?? '' ) ) === 'wsnone',
-				'slot'          => (string)( $c['slot'] ?? 'main' ),
-				'hasTitle'      => !empty( $c['title'] ) && !$isIdRef,
-				'title'         => $titleStr,
-				'isIdReference' => $isIdRef,
-				'referencedId'  => $isIdRef ? substr( $titleStr, 6 ) : '' // Haalt "testingSlot" uit "::id::testingSlot"
+				'template'            => (string)( $c['template'] ?? '' ),
+				'isWsNone'            => strtolower( (string)( $c['template'] ?? '' ) ) === 'wsnone',
+				'slot'                => $slotName,
+				'isSlotValid'         => $isSlotValid,
+				'hasTitle'            => !empty( $titleStr ) && !$isIdRef,
+				'title'               => $titleStr,
+				'isIdReference'       => $isIdRef,
+				'referencedId'        => $isIdRef ? substr( $titleStr, 6 ) : '',
+				'hasMissingTitleVars' => !empty( $missingTitleFields ),
+				'missingTitleVars'    => implode( ', ', $missingTitleFields )
 			];
 
-			// Als 'wsnone' wordt gebruikt, markeer dan de velden uit mwfields als 'gekoppeld'
-			// zodat ze niet als wees-velden (orphans) eindigen.
 			if ( strtolower( (string)( $c['template'] ?? '' ) ) === 'wsnone' && !empty( $c['fields'] ) ) {
 				$wsNoneFields = array_map( 'trim', explode( ',', $c['fields'] ) );
 				foreach ( $wsNoneFields as $f ) {
-					// Houd rekening met formfield::TemplateField syntax uit de documentatie
 					$parts = explode( '::', $f );
-					$actualField = trim( $parts[0] );
-					$usedFormFields[$actualField] = true;
+					$usedFormFields[trim( $parts[0] )] = true;
 				}
 			}
 		}
 
 		$editsList = [];
 		foreach ( self::$edits as $e ) {
+			$targetStr = (string)( $e['target'] ?? '' );
+			$slotName = (string)( $e['slot'] ?? 'main' );
+			$isSlotValid = $slotRoleRegistry->isDefinedRole( $slotName );
+
+			$missingTargetFields = [];
+			if ( preg_match_all( '/\[([^\]]+)\]/', $targetStr, $matches ) ) {
+				foreach ( $matches[1] as $fieldName ) {
+					$cleanField = trim( $fieldName );
+					if ( !isset( self::$fields[$cleanField] ) ) {
+						$missingTargetFields[] = $cleanField;
+						$totalMissingParams++;
+					} else {
+						$usedFormFields[$cleanField] = true;
+					}
+				}
+			}
+
 			$editsList[] = [
-				'target'   => (string)( $e['target'] ?? '' ),
-				'template' => (string)( $e['template'] ?? '' ),
-				'slot'     => (string)( $e['slot'] ?? 'main' )
+				'target'              => $targetStr,
+				'template'            => (string)( $e['template'] ?? '' ),
+				'slot'                => $slotName,
+				'isSlotValid'         => $isSlotValid,
+				'hasMissingTitleVars' => !empty( $missingTargetFields ),
+				'missingTitleVars'    => implode( ', ', $missingTargetFields )
 			];
 		}
 
 		// 3. Wiki Templates analysis
 		$templatesData = [];
 		foreach ( $templatesToAnalyze as $tplName => $usageData ) {
-			// Sla 'wsnone' over bij de validatie van wiki-sjablonen
 			if ( strtolower( $tplName ) === 'wsnone' ) {
 				continue;
 			}
@@ -481,6 +516,8 @@ class FormInspector {
 				'generatedCodeTitle' => self::msg( 'flexform-inspector-generated-code', 'Generated FlexForm Code' ),
 				'btnCopy'            => self::msg( 'flexform-inspector-btn-copy', 'Copy to clipboard' ),
 				'btnClear'           => self::msg( 'flexform-inspector-btn-clear', 'Clear' ),
+				'invalidSlot'        => self::msg( 'flexform-inspector-invalid-slot', 'Invalid slot!' ),
+				'missingTitleVars'   => self::msg( 'flexform-inspector-missing-title-vars', 'Title/target references missing form fields:' ),
 			]
 		];
 	}

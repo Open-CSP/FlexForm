@@ -40,19 +40,37 @@
                     </li>
                 {{/hasExtension}}
                 {{#creates}}
-                    <li>
+                    <li style="margin-bottom: 6px;">
                         <strong>{{i18n.createAction}}:</strong> {{i18n.templateLabel}} <code>{{template}}</code>
                         {{#isWsNone}}<span class="ff-insp-badge ff-insp-neutral">Raw Content</span>{{/isWsNone}}
+
                         | {{i18n.slotLabel}}: <code>{{slot}}</code>
+                        {{^isSlotValid}}<span class="ff-insp-badge ff-insp-err">{{i18n.invalidSlot}}</span>{{/isSlotValid}}
+
                         {{#hasTitle}}| {{i18n.titleLabel}}: <code>{{title}}</code>{{/hasTitle}}
                         {{#isIdReference}}| {{i18n.titleLabel}}: <span class="ff-insp-badge ff-insp-ok">Reference to ID: {{referencedId}}</span>{{/isIdReference}}
+
+                        {{#hasMissingTitleVars}}
+                            <div class="ff-insp-alert ff-insp-danger" style="margin-top: 4px; padding: 4px 8px;">
+                                ⚠️ <strong>{{i18n.missingTitleVars}}</strong> <code>{{missingTitleVars}}</code>
+                            </div>
+                        {{/hasMissingTitleVars}}
                     </li>
                 {{/creates}}
+
                 {{#edits}}
-                    <li>
+                    <li style="margin-bottom: 6px;">
                         <strong>{{i18n.editAction}}:</strong> {{i18n.targetLabel}} <code>{{target}}</code>
                         | {{i18n.templateLabel}}: <code>{{template}}</code>
+
                         | {{i18n.slotLabel}}: <code>{{slot}}</code>
+                        {{^isSlotValid}}<span class="ff-insp-badge ff-insp-err">{{i18n.invalidSlot}}</span>{{/isSlotValid}}
+
+                        {{#hasMissingTitleVars}}
+                            <div class="ff-insp-alert ff-insp-danger" style="margin-top: 4px; padding: 4px 8px;">
+                                ⚠️ <strong>{{i18n.missingTitleVars}}</strong> <code>{{missingTitleVars}}</code>
+                            </div>
+                        {{/hasMissingTitleVars}}
                     </li>
                 {{/edits}}
             </ul>
