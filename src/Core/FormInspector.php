@@ -238,9 +238,11 @@ class FormInspector {
 			$extensionExists = class_exists( $handlerClass );
 		}
 
+		// 2. Creates & Edits summary list
 		$slotRoleRegistry = MediaWikiServices::getInstance()->getSlotRoleRegistry();
 
-		// 2. Creates summary list
+		$explicitMappings = $explicitEditMappings;
+
 		$createsList = [];
 		foreach ( self::$creates as $c ) {
 			$titleStr = (string)( $c['title'] ?? '' );
@@ -256,7 +258,33 @@ class FormInspector {
 						$missingTitleFields[] = $cleanField;
 						$totalMissingParams++;
 					} else {
-						$usedFormFields[$cleanField] = true; // Voorkomt orphan!
+						$usedFormFields[$cleanField] = true;
+					}
+				}
+			}
+
+			$missingMwFields = [];
+			if ( !empty( $c['fields'] ) ) {
+				$mwFieldsArray = array_map( 'trim', explode( ',', $c['fields'] ) );
+				foreach ( $mwFieldsArray as $f ) {
+					if ( $f === '' ) {
+						continue;
+					}
+
+					$parts = array_map( 'trim', explode( '::', $f ) );
+					$formFieldName = $parts[0];
+					$templateParamName = $parts[1] ?? $parts[0];
+
+					$usedFormFields[$formFieldName] = true;
+
+					if ( !isset( self::$fields[$formFieldName] ) ) {
+						$missingMwFields[] = $formFieldName;
+						$totalMissingParams++;
+					}
+
+					$tpl = (string)( $c['template'] ?? '' );
+					if ( $tpl !== '' && strtolower( $tpl ) !== 'wsnone' ) {
+						$explicitMappings[$tpl][$templateParamName] = $formFieldName;
 					}
 				}
 			}
@@ -271,16 +299,10 @@ class FormInspector {
 				'isIdReference'       => $isIdRef,
 				'referencedId'        => $isIdRef ? substr( $titleStr, 6 ) : '',
 				'hasMissingTitleVars' => !empty( $missingTitleFields ),
-				'missingTitleVars'    => implode( ', ', $missingTitleFields )
+				'missingTitleVars'    => implode( ', ', $missingTitleFields ),
+				'hasMissingMwFields'  => !empty( $missingMwFields ),
+				'missingMwFields'     => implode( ', ', $missingMwFields )
 			];
-
-			if ( strtolower( (string)( $c['template'] ?? '' ) ) === 'wsnone' && !empty( $c['fields'] ) ) {
-				$wsNoneFields = array_map( 'trim', explode( ',', $c['fields'] ) );
-				foreach ( $wsNoneFields as $f ) {
-					$parts = explode( '::', $f );
-					$usedFormFields[trim( $parts[0] )] = true;
-				}
-			}
 		}
 
 		$editsList = [];
@@ -320,7 +342,6 @@ class FormInspector {
 			}
 
 			$tplParams = self::getTemplateParameters( $tplName );
-
 			if ( $tplParams === null ) {
 				$totalBrokenTemplates++;
 				$templatesData[] = [
@@ -347,8 +368,9 @@ class FormInspector {
 				if ( isset( self::$fields[$paramName] ) ) {
 					$matchedField = self::$fields[$paramName];
 					$usedFormFields[$paramName] = true;
-				} elseif ( isset( $explicitEditMappings[$tplName][$paramName] ) ) {
-					$candidateField = $explicitEditMappings[$tplName][$paramName];
+				} elseif ( isset( $explicitMappings[$tplName][$paramName] ) ) {
+					// Pakt nu ZOWEL de formfield="..." mapping uit _edit als de X::Y mapping uit mwfields!
+					$candidateField = $explicitMappings[$tplName][$paramName];
 					if ( isset( self::$fields[$candidateField] ) ) {
 						$matchedField = self::$fields[$candidateField];
 						$usedFormFields[$candidateField] = true;
@@ -517,7 +539,9 @@ class FormInspector {
 				'btnCopy'            => self::msg( 'flexform-inspector-btn-copy', 'Copy to clipboard' ),
 				'btnClear'           => self::msg( 'flexform-inspector-btn-clear', 'Clear' ),
 				'invalidSlot'        => self::msg( 'flexform-inspector-invalid-slot', 'Invalid slot!' ),
-				'missingTitleVars'   => self::msg( 'flexform-inspector-missing-title-vars', 'Title/target references missing form fields:' ),
+				'missingTitleVars'   => self::msg( 'flexform-inspector-missing-title-vars', 'Missing field(s) for title/target:' ),
+				'missingMwFields'    => self::msg( 'flexform-inspector-missing-mwfields', 'Missing field(s) defined in mwfields:' ),
+				'viaMapping'         => self::msg( 'flexform-inspector-via-mapping', 'mapped via formfield/mwfields' ),
 			]
 		];
 	}

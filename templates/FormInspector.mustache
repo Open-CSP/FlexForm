@@ -55,6 +55,12 @@
                                 ⚠️ <strong>{{i18n.missingTitleVars}}</strong> <code>{{missingTitleVars}}</code>
                             </div>
                         {{/hasMissingTitleVars}}
+
+                        {{#hasMissingMwFields}}
+                            <div class="ff-insp-alert ff-insp-danger" style="margin-top: 4px; padding: 4px 8px;">
+                                ⚠️ <strong>{{i18n.missingMwFields}}</strong> <code>{{missingMwFields}}</code>
+                            </div>
+                        {{/hasMissingMwFields}}
                     </li>
                 {{/creates}}
 
@@ -114,7 +120,7 @@
                                     {{#isMatched}}
                                         <span class="ff-insp-badge ff-insp-ok">{{i18n.statusMapped}} ({{matchedType}})</span>
                                         {{#hasEditMapping}}
-                                            <small>({{i18n.viaEdit}}: <code>{{mappedFormField}}</code>)</small>
+                                            <small>({{i18n.viaMapping}}: <code>{{mappedFormField}}</code>)</small>
                                         {{/hasEditMapping}}
                                     {{/isMatched}}
                                     {{#isMissing}}
