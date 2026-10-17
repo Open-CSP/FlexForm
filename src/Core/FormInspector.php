@@ -214,6 +214,9 @@ class FormInspector {
 	 *
 	 * @return array
 	 */
+	/**
+	 * Builds the structured data array for FormInspector.mustache
+	 */
 	private static function buildTemplateData(
 		string $formId,
 		?bool $isOfficialForm,
@@ -231,18 +234,37 @@ class FormInspector {
 		$hasExtension = ( $extension !== null && $extension !== '' );
 		$extensionExists = false;
 		if ( $hasExtension ) {
-			$handlerClass = "FlexForm\\Modules\\Handlers\\$extension\\PostHandler";
+			$handlerClass = "FlexForm\\Modules\\Handlers\\{$extension}\\PostHandler";
 			$extensionExists = class_exists( $handlerClass );
 		}
 
+		// 2. Creates & Edits summary list
 		$createsList = [];
 		foreach ( self::$creates as $c ) {
+			$titleStr = (string)( $c['title'] ?? '' );
+			$isIdRef = str_starts_with( $titleStr, '::id::' );
+
 			$createsList[] = [
-				'template' => (string)( $c['template'] ?? '' ),
-				'slot'     => (string)( $c['slot'] ?? 'main' ),
-				'hasTitle' => !empty( $c['title'] ),
-				'title'    => (string)( $c['title'] ?? '' )
+				'template'      => (string)( $c['template'] ?? '' ),
+				'isWsNone'      => strtolower( (string)( $c['template'] ?? '' ) ) === 'wsnone',
+				'slot'          => (string)( $c['slot'] ?? 'main' ),
+				'hasTitle'      => !empty( $c['title'] ) && !$isIdRef,
+				'title'         => $titleStr,
+				'isIdReference' => $isIdRef,
+				'referencedId'  => $isIdRef ? substr( $titleStr, 6 ) : '' // Haalt "testingSlot" uit "::id::testingSlot"
 			];
+
+			// Als 'wsnone' wordt gebruikt, markeer dan de velden uit mwfields als 'gekoppeld'
+			// zodat ze niet als wees-velden (orphans) eindigen.
+			if ( strtolower( (string)( $c['template'] ?? '' ) ) === 'wsnone' && !empty( $c['fields'] ) ) {
+				$wsNoneFields = array_map( 'trim', explode( ',', $c['fields'] ) );
+				foreach ( $wsNoneFields as $f ) {
+					// Houd rekening met formfield::TemplateField syntax uit de documentatie
+					$parts = explode( '::', $f );
+					$actualField = trim( $parts[0] );
+					$usedFormFields[$actualField] = true;
+				}
+			}
 		}
 
 		$editsList = [];
@@ -254,8 +276,14 @@ class FormInspector {
 			];
 		}
 
+		// 3. Wiki Templates analysis
 		$templatesData = [];
 		foreach ( $templatesToAnalyze as $tplName => $usageData ) {
+			// Sla 'wsnone' over bij de validatie van wiki-sjablonen
+			if ( strtolower( $tplName ) === 'wsnone' ) {
+				continue;
+			}
+
 			$tplParams = self::getTemplateParameters( $tplName );
 
 			if ( $tplParams === null ) {
@@ -321,6 +349,7 @@ class FormInspector {
 			];
 		}
 
+		// 4. Email Templates analysis (Geen wijzigingen)
 		$emailsData = [];
 		foreach ( self::$emails as $emailConfig ) {
 			$mailTpl = $emailConfig['template'] ?? '';
@@ -376,6 +405,7 @@ class FormInspector {
 			];
 		}
 
+		// 5. Orphan form fields check
 		$orphansList = [];
 		if ( !empty( $templatesToAnalyze ) || !empty( self::$emails ) ) {
 			foreach ( self::$fields as $fName => $fData ) {

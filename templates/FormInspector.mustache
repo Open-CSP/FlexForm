@@ -42,8 +42,10 @@
                 {{#creates}}
                     <li>
                         <strong>{{i18n.createAction}}:</strong> {{i18n.templateLabel}} <code>{{template}}</code>
+                        {{#isWsNone}}<span class="ff-insp-badge ff-insp-neutral">Raw Content</span>{{/isWsNone}}
                         | {{i18n.slotLabel}}: <code>{{slot}}</code>
                         {{#hasTitle}}| {{i18n.titleLabel}}: <code>{{title}}</code>{{/hasTitle}}
+                        {{#isIdReference}}| {{i18n.titleLabel}}: <span class="ff-insp-badge ff-insp-ok">Reference to ID: {{referencedId}}</span>{{/isIdReference}}
                     </li>
                 {{/creates}}
                 {{#edits}}
