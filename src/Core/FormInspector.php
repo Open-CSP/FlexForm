@@ -3,18 +3,67 @@
 namespace FlexForm\Core;
 
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Output\OutputPage;
 use MediaWiki\Revision\SlotRecord;
+use Skin;
 use TemplateParser;
 use Title;
 use TextContent;
 
 class FormInspector {
+
+	/**
+	 * @var bool
+	 */
 	private static bool $active = false;
+
+	/**
+	 * @var array
+	 */
 	private static array $fields = [];
+
+	/**
+	 * @var array
+	 */
 	private static array $creates = [];
+
+	/**
+	 * @var array
+	 */
 	private static array $edits = [];
+
+	/**
+	 * @var array
+	 */
 	private static array $emails = [];
 
+	/**
+	 * @param OutputPage $out
+	 * @param Skin $skin
+	 */
+	public static function onBeforePageDisplay( OutputPage $out, Skin $skin ) : void {
+		$context = $out->getContext();
+		$request = $context->getRequest();
+		$user = $context->getUser();
+		$canInspect = false;
+		if ( $user !== null && $user->isRegistered() ) {
+			$allowedGroups = Config::getConfigVariable( 'allowedGroups' ) ?? [ 'sysop' ];
+			$userGroups = MediaWikiServices::getInstance()
+				->getUserGroupManager()
+				->getUserEffectiveGroups( $user );
+			$canInspect = !empty( array_intersect( $allowedGroups, $userGroups ) );
+		}
+
+		if ( $request->getVal( 'action' ) === 'inspect' && $canInspect ) {
+			self::start( true );
+		}
+	}
+
+	/**
+	 * @param bool $enable
+	 *
+	 * @return void
+	 */
 	public static function start( bool $enable ): void {
 		self::$active = $enable;
 		self::$fields = [];
