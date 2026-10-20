@@ -88,7 +88,17 @@ class TagHooks {
 		global $wgEmailConfirmToEdit, $IP;
 		$fPermissions = null;
 		$thisUser = \RequestContext::getMain()->getUser();
-
+		$canInspect = false;
+		if ( $thisUser !== null && $thisUser->isRegistered() ) {
+			$allowedGroups = Config::getConfigVariable( 'allowedGroups' ) ?? [ 'sysop' ];
+			$userGroups = MediaWikiServices::getInstance()
+				->getUserGroupManager()
+				->getUserEffectiveGroups( $thisUser );
+			$canInspect = !empty( array_intersect( $allowedGroups, $userGroups ) );
+		}
+		if ( ( isset( $_GET['flexform'] ) && $_GET['flexform'] === 'inspect' ) && $canInspect ) {
+			FormInspector::start( true );
+		}
 		$ret = '';
 		$addFFJS = '';
 		$recaptchaDiv = null;

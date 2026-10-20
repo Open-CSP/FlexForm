@@ -44,8 +44,7 @@
     ],
     "getUserPermissionsErrors": [
       "FlexForm\\Core\\Rights::disableActions"
-    ],
-    "BeforePageDisplay": "FlexForm\\FormInspector::onBeforePageDisplay"
+    ]
   },
   "MessagesDirs": {
     "FlexForm": [

@@ -38,28 +38,6 @@ class FormInspector {
 	private static array $emails = [];
 
 	/**
-	 * @param OutputPage $out
-	 * @param Skin $skin
-	 */
-	public static function onBeforePageDisplay( OutputPage $out, Skin $skin ) : void {
-		$context = $out->getContext();
-		$request = $context->getRequest();
-		$user = $context->getUser();
-		$canInspect = false;
-		if ( $user !== null && $user->isRegistered() ) {
-			$allowedGroups = Config::getConfigVariable( 'allowedGroups' ) ?? [ 'sysop' ];
-			$userGroups = MediaWikiServices::getInstance()
-				->getUserGroupManager()
-				->getUserEffectiveGroups( $user );
-			$canInspect = !empty( array_intersect( $allowedGroups, $userGroups ) );
-		}
-
-		if ( $request->getVal( 'action' ) === 'inspect' && $canInspect ) {
-			self::start( true );
-		}
-	}
-
-	/**
 	 * @param bool $enable
 	 *
 	 * @return void
