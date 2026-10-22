@@ -9,12 +9,37 @@ use Title;
 use TextContent;
 
 class FormInspector {
+
+	/**
+	 * @var bool
+	 */
 	private static bool $active = false;
+
+	/**
+	 * @var array
+	 */
 	private static array $fields = [];
+
+	/**
+	 * @var array
+	 */
 	private static array $creates = [];
+
+	/**
+	 * @var array
+	 */
 	private static array $edits = [];
+
+	/**
+	 * @var array
+	 */
 	private static array $emails = [];
 
+	/**
+	 * @param bool $enable
+	 *
+	 * @return void
+	 */
 	public static function start( bool $enable ): void {
 		self::$active = $enable;
 		self::$fields = [];
@@ -23,10 +48,20 @@ class FormInspector {
 		self::$emails = [];
 	}
 
+	/**
+	 * @return bool
+	 */
 	public static function isActive(): bool {
 		return self::$active;
 	}
 
+	/**
+	 * @param string $name
+	 * @param string $type
+	 * @param array $args
+	 *
+	 * @return void
+	 */
 	public static function addField( string $name, string $type = 'text', array $args = [] ): void {
 		if ( !self::$active || $name === '' ) {
 			return;
@@ -40,11 +75,17 @@ class FormInspector {
 		];
 	}
 
+	/**
+	 * @param array $args
+	 *
+	 * @return void
+	 */
 	public static function addCreate( array $args ): void {
 		if ( !self::$active ) {
 			return;
 		}
 		self::$creates[] = [
+			'id' 	   => $args['id'] ?? null,
 			'template' => $args['template'] ?? null,
 			'slot'     => $args['slot'] ?? 'main',
 			'title'    => $args['title'] ?? null,
@@ -52,6 +93,11 @@ class FormInspector {
 		];
 	}
 
+	/**
+	 * @param array $args
+	 *
+	 * @return void
+	 */
 	public static function addEdit( array $args ): void {
 		if ( !self::$active ) {
 			return;
@@ -65,6 +111,11 @@ class FormInspector {
 		];
 	}
 
+	/**
+	 * @param array $args
+	 *
+	 * @return void
+	 */
 	public static function addEmail( array $args ): void {
 		if ( !self::$active ) {
 			return;
@@ -77,7 +128,9 @@ class FormInspector {
 	}
 
 	/**
-	 * Extracts {{{parameters}}} from a MediaWiki Template page
+	 * @param string $templateName
+	 *
+	 * @return array|null
 	 */
 	private static function getTemplateParameters( string $templateName ): ?array {
 		$title = Title::newFromText( $templateName, NS_TEMPLATE );
@@ -109,7 +162,9 @@ class FormInspector {
 	}
 
 	/**
-	 * Extracts %_headers% and $variables from a FlexForm email template page
+	 * @param string $pageName
+	 *
+	 * @return array|array[]|null
 	 */
 	private static function getEmailTemplateData( string $pageName ): ?array {
 		$title = Title::newFromText( $pageName );
@@ -144,7 +199,11 @@ class FormInspector {
 	}
 
 	/**
-	 * Helper for i18n messages with direct English fallback before i18n JSON is populated
+	 * @param string $key
+	 * @param string $fallback
+	 * @param ...$params
+	 *
+	 * @return string
 	 */
 	private static function msg( string $key, string $fallback, ...$params ): string {
 		$msg = wfMessage( $key, ...$params );
@@ -214,9 +273,6 @@ class FormInspector {
 	 *
 	 * @return array
 	 */
-	/**
-	 * Builds the structured data array for FormInspector.mustache
-	 */
 	private static function buildTemplateData(
 		string $formId,
 		?bool $isOfficialForm,
@@ -243,17 +299,38 @@ class FormInspector {
 
 		$explicitMappings = $explicitEditMappings;
 
+		$definedCreateIds = [];
+		foreach ( self::$creates as $c ) {
+			if ( !empty( $c['id'] ) ) {
+				$definedCreateIds[$c['id']] = true;
+			}
+		}
+		$hasMultipleCreates = count( self::$creates ) > 1;
+
 		$createsList = [];
 		foreach ( self::$creates as $c ) {
 			$titleStr = (string)( $c['title'] ?? '' );
 			$isIdRef = str_starts_with( $titleStr, '::id::' );
+			$refId = $isIdRef ? substr( $titleStr, 6 ) : '';
+			$isValidIdRef = $isIdRef && isset( $definedCreateIds[$refId] );
 			$slotName = (string)( $c['slot'] ?? 'main' );
 			$isSlotValid = $slotRoleRegistry->isDefinedRole( $slotName );
+
+			$missingRequiredMwFieldsAttr = ( $hasMultipleCreates && empty( $c['fields'] ) );
+			if ( $missingRequiredMwFieldsAttr ) {
+				$totalMissingParams++;
+			}
+			if ( $isIdRef && !$isValidIdRef ) {
+				$totalMissingParams++;
+			}
 
 			$missingTitleFields = [];
 			if ( preg_match_all( '/\[([^\]]+)\]/', $titleStr, $matches ) ) {
 				foreach ( $matches[1] as $fieldName ) {
 					$cleanField = trim( $fieldName );
+					if ( strtolower( $cleanField ) === 'mwrandom' ) {
+						continue;
+					}
 					if ( !isset( self::$fields[$cleanField] ) ) {
 						$missingTitleFields[] = $cleanField;
 						$totalMissingParams++;
@@ -502,46 +579,67 @@ class FormInspector {
 			'hasOrphans'           => !empty( $orphansList ),
 			'orphans'              => $orphansList,
 			'i18n'                 => [
-				'title'              => self::msg( 'flexform-inspector-title', 'FlexForm Inspector' ),
-				'validated'          => self::msg( 'flexform-inspector-validated', 'Validated' ),
-				'unvalidated'        => self::msg( 'flexform-inspector-unvalidated', 'Unvalidated' ),
-				'fields'             => self::msg( 'flexform-inspector-fields', 'Fields' ),
-				'missingTemplates'   => self::msg( 'flexform-inspector-missing-templates', 'Missing Templates' ),
-				'missingParams'      => self::msg( 'flexform-inspector-missing-params', 'Missing Params' ),
-				'templatesOk'        => self::msg( 'flexform-inspector-templates-ok', 'Templates OK' ),
-				'configHeading'      => self::msg( 'flexform-inspector-config-heading', 'Form Configuration' ),
-				'formAction'         => self::msg( 'flexform-inspector-form-action', 'Form Action' ),
-				'extension'          => self::msg( 'flexform-inspector-extension', 'Extension' ),
-				'postHandlerFound'   => self::msg( 'flexform-inspector-handler-found', 'PostHandler class found' ),
-				'postHandlerMissing' => self::msg( 'flexform-inspector-handler-missing', 'No PostHandler class (falls back to FFAfterFormHandling hook)' ),
-				'createAction'       => self::msg( 'flexform-inspector-create-action', 'Create' ),
-				'editAction'         => self::msg( 'flexform-inspector-edit-action', 'Edit' ),
-				'templateLabel'      => self::msg( 'flexform-inspector-template-label', 'Template' ),
+				'title' => self::msg( 'flexform-inspector-title', 'FlexForm Inspector' ),
+				'validated' => self::msg( 'flexform-inspector-validated', 'Validated' ),
+				'unvalidated' => self::msg( 'flexform-inspector-unvalidated', 'Unvalidated' ),
+				'fields' => self::msg( 'flexform-inspector-fields', 'Fields' ),
+				'missingTemplates' => self::msg( 'flexform-inspector-missing-templates', 'Missing Templates' ),
+				'missingParams' => self::msg( 'flexform-inspector-missing-params', 'Missing Params' ),
+				'templatesOk' => self::msg( 'flexform-inspector-templates-ok', 'Templates OK' ),
+				'configHeading' => self::msg( 'flexform-inspector-config-heading', 'Form Configuration' ),
+				'formAction' => self::msg( 'flexform-inspector-form-action', 'Form Action' ),
+				'extension' => self::msg( 'flexform-inspector-extension', 'Extension' ),
+				'postHandlerFound' => self::msg( 'flexform-inspector-handler-found', 'PostHandler class found' ),
+				'postHandlerMissing' => self::msg(
+					'flexform-inspector-handler-missing',
+					'No PostHandler class (falls back to FFAfterFormHandling hook)'
+				),
+				'createAction' => self::msg( 'flexform-inspector-create-action', 'Create' ),
+				'editAction' => self::msg( 'flexform-inspector-edit-action', 'Edit' ),
+				'templateLabel' => self::msg( 'flexform-inspector-template-label', 'Template' ),
 				'emailTemplateLabel' => self::msg( 'flexform-inspector-email-template-label', 'Email Template' ),
-				'slotLabel'          => self::msg( 'flexform-inspector-slot-label', 'Slot' ),
-				'titleLabel'         => self::msg( 'flexform-inspector-title-label', 'Title' ),
-				'targetLabel'        => self::msg( 'flexform-inspector-target-label', 'Target' ),
-				'templateNotFound'   => self::msg( 'flexform-inspector-template-not-found', 'does not exist in the wiki.' ),
-				'noParamsFound'      => self::msg( 'flexform-inspector-no-params-found', 'No {{{parameters}}} found in this template.' ),
-				'colParameter'       => self::msg( 'flexform-inspector-col-parameter', 'Parameter' ),
-				'colVariable'        => self::msg( 'flexform-inspector-col-variable', 'Mail Variable' ),
-				'colStatus'          => self::msg( 'flexform-inspector-col-status', 'Status' ),
-				'colAction'          => self::msg( 'flexform-inspector-col-action', 'Action' ),
-				'defaultLabel'       => self::msg( 'flexform-inspector-default-label', 'default' ),
-				'statusOmitted'      => self::msg( 'flexform-inspector-status-omitted', 'Omitted' ),
-				'statusMapped'       => self::msg( 'flexform-inspector-status-mapped', 'Mapped' ),
-				'statusMissing'      => self::msg( 'flexform-inspector-status-missing', 'Missing in form' ),
-				'viaEdit'            => self::msg( 'flexform-inspector-via-edit', 'via _edit' ),
-				'btnAddCode'         => self::msg( 'flexform-inspector-btn-add-code', '+ Code' ),
-				'missingMailHeaders' => self::msg( 'flexform-inspector-missing-mail-headers', 'Missing required mail headers in template' ),
-				'orphanFieldsAlert'  => self::msg( 'flexform-inspector-orphan-fields', 'Unmapped form fields (not found in any linked template)' ),
+				'slotLabel' => self::msg( 'flexform-inspector-slot-label', 'Slot' ),
+				'titleLabel' => self::msg( 'flexform-inspector-title-label', 'Title' ),
+				'targetLabel' => self::msg( 'flexform-inspector-target-label', 'Target' ),
+				'templateNotFound' => self::msg(
+					'flexform-inspector-template-not-found',
+					'does not exist in the wiki.'
+				),
+				'noParamsFound' => self::msg(
+					'flexform-inspector-no-params-found',
+					'No {{{parameters}}} found in this template.'
+				),
+				'colParameter' => self::msg( 'flexform-inspector-col-parameter', 'Parameter' ),
+				'colVariable' => self::msg( 'flexform-inspector-col-variable', 'Mail Variable' ),
+				'colStatus' => self::msg( 'flexform-inspector-col-status', 'Status' ),
+				'colAction' => self::msg( 'flexform-inspector-col-action', 'Action' ),
+				'defaultLabel' => self::msg( 'flexform-inspector-default-label', 'default' ),
+				'statusOmitted' => self::msg( 'flexform-inspector-status-omitted', 'Omitted' ),
+				'statusMapped' => self::msg( 'flexform-inspector-status-mapped', 'Mapped' ),
+				'statusMissing' => self::msg( 'flexform-inspector-status-missing', 'Missing in form' ),
+				'viaEdit' => self::msg( 'flexform-inspector-via-edit', 'via _edit' ),
+				'btnAddCode' => self::msg( 'flexform-inspector-btn-add-code', '+ Code' ),
+				'missingMailHeaders' => self::msg(
+					'flexform-inspector-missing-mail-headers',
+					'Missing required mail headers in template'
+				),
+				'orphanFieldsAlert' => self::msg(
+					'flexform-inspector-orphan-fields',
+					'Unmapped form fields (not found in any linked template)'
+				),
 				'generatedCodeTitle' => self::msg( 'flexform-inspector-generated-code', 'Generated FlexForm Code' ),
-				'btnCopy'            => self::msg( 'flexform-inspector-btn-copy', 'Copy to clipboard' ),
-				'btnClear'           => self::msg( 'flexform-inspector-btn-clear', 'Clear' ),
-				'invalidSlot'        => self::msg( 'flexform-inspector-invalid-slot', 'Invalid slot!' ),
-				'missingTitleVars'   => self::msg( 'flexform-inspector-missing-title-vars', 'Missing field(s) for title/target:' ),
-				'missingMwFields'    => self::msg( 'flexform-inspector-missing-mwfields', 'Missing field(s) defined in mwfields:' ),
-				'viaMapping'         => self::msg( 'flexform-inspector-via-mapping', 'mapped via formfield/mwfields' ),
+				'btnCopy' => self::msg( 'flexform-inspector-btn-copy', 'Copy to clipboard' ),
+				'btnClear' => self::msg( 'flexform-inspector-btn-clear', 'Clear' ),
+				'invalidSlot' => self::msg( 'flexform-inspector-invalid-slot', 'Invalid slot!' ),
+				'missingTitleVars' => self::msg(
+					'flexform-inspector-missing-title-vars',
+					'Missing field(s) for title/target:'
+				),
+				'missingMwFields' => self::msg(
+					'flexform-inspector-missing-mwfields',
+					'Missing field(s) defined in mwfields:'
+				),
+				'viaMapping' => self::msg( 'flexform-inspector-via-mapping', 'mapped via formfield/mwfields' ),
 			]
 		];
 	}

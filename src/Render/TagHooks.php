@@ -2388,6 +2388,7 @@ class TagHooks {
 
 		if ( FormInspector::isActive() ) {
 			FormInspector::addCreate( [
+				'id'       => $createId,
 				'template' => $template,
 				'title'    => $write,
 				'slot'     => $slot,
