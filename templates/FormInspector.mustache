@@ -1,0 +1,235 @@
+<details class="ff-inspector-box" id="ff-inspector-{{formId}}">
+    <summary class="ff-inspector-summary">
+        <span class="ff-insp-title">{{i18n.title}}</span>
+        <span class="ff-insp-badges">
+			{{#isValidated}}
+                <span class="ff-insp-badge ff-insp-ok">{{i18n.validated}}</span>
+            {{/isValidated}}
+            {{^isValidated}}
+                <span class="ff-insp-badge ff-insp-err">{{i18n.unvalidated}}</span>
+            {{/isValidated}}
+
+            <span class="ff-insp-badge ff-insp-neutral">{{i18n.fields}}: {{fieldsCount}}</span>
+
+            {{#hasBrokenTemplates}}
+                <span class="ff-insp-badge ff-insp-err">{{i18n.missingTemplates}}: {{brokenTemplatesCount}}</span>
+            {{/hasBrokenTemplates}}
+            {{#hasMissingParams}}
+                <span class="ff-insp-badge ff-insp-warn">{{i18n.missingParams}}: {{missingParamsCount}}</span>
+            {{/hasMissingParams}}
+            {{#isHealthOk}}
+                <span class="ff-insp-badge ff-insp-ok">{{i18n.templatesOk}}</span>
+            {{/isHealthOk}}
+		</span>
+    </summary>
+
+    <div class="ff-inspector-body">
+        <div class="ff-insp-section">
+            <h4>{{i18n.configHeading}} (ID: <code>{{formId}}</code>)</h4>
+            <ul class="ff-insp-list">
+                <li><strong>{{i18n.formAction}}:</strong> <code>{{action}}</code></li>
+                {{#hasExtension}}
+                    <li>
+                        <strong>{{i18n.extension}}:</strong> <code>{{extensionName}}</code>
+                        {{#extensionExists}}
+                            <span class="ff-insp-badge ff-insp-ok">{{i18n.postHandlerFound}}</span>
+                        {{/extensionExists}}
+                        {{^extensionExists}}
+                            <span class="ff-insp-badge ff-insp-warn">{{i18n.postHandlerMissing}}</span>
+                        {{/extensionExists}}
+                    </li>
+                {{/hasExtension}}
+                {{#creates}}
+                    <li style="margin-bottom: 6px;">
+                        <strong>{{i18n.createAction}}:</strong> {{i18n.templateLabel}} <code>{{template}}</code>
+                        {{#isWsNone}}<span class="ff-insp-badge ff-insp-neutral">Raw Content</span>{{/isWsNone}}
+
+                        | {{i18n.slotLabel}}: <code>{{slot}}</code>
+                        {{^isSlotValid}}<span class="ff-insp-badge ff-insp-err">{{i18n.invalidSlot}}</span>{{/isSlotValid}}
+
+                        {{#hasTitle}}| {{i18n.titleLabel}}: <code>{{title}}</code>{{/hasTitle}}
+                        {{#isIdReference}}| {{i18n.titleLabel}}: <span class="ff-insp-badge ff-insp-ok">Reference to ID: {{referencedId}}</span>{{/isIdReference}}
+
+                        {{#hasMissingTitleVars}}
+                            <div class="ff-insp-alert ff-insp-danger" style="margin-top: 4px; padding: 4px 8px;">
+                                ⚠️ <strong>{{i18n.missingTitleVars}}</strong> <code>{{missingTitleVars}}</code>
+                            </div>
+                        {{/hasMissingTitleVars}}
+
+                        {{#hasMissingMwFields}}
+                            <div class="ff-insp-alert ff-insp-danger" style="margin-top: 4px; padding: 4px 8px;">
+                                ⚠️ <strong>{{i18n.missingMwFields}}</strong> <code>{{missingMwFields}}</code>
+                            </div>
+                        {{/hasMissingMwFields}}
+                    </li>
+                {{/creates}}
+
+                {{#edits}}
+                    <li style="margin-bottom: 6px;">
+                        <strong>{{i18n.editAction}}:</strong> {{i18n.targetLabel}} <code>{{target}}</code>
+                        | {{i18n.templateLabel}}: <code>{{template}}</code>
+
+                        | {{i18n.slotLabel}}: <code>{{slot}}</code>
+                        {{^isSlotValid}}<span class="ff-insp-badge ff-insp-err">{{i18n.invalidSlot}}</span>{{/isSlotValid}}
+
+                        {{#hasMissingTitleVars}}
+                            <div class="ff-insp-alert ff-insp-danger" style="margin-top: 4px; padding: 4px 8px;">
+                                ⚠️ <strong>{{i18n.missingTitleVars}}</strong> <code>{{missingTitleVars}}</code>
+                            </div>
+                        {{/hasMissingTitleVars}}
+                    </li>
+                {{/edits}}
+            </ul>
+        </div>
+
+        {{#templates}}
+            {{^exists}}
+                <div class="ff-insp-alert ff-insp-danger">
+                    {{i18n.templateLabel}} <strong>Template:{{name}}</strong> {{i18n.templateNotFound}}
+                </div>
+            {{/exists}}
+            {{#exists}}
+                <div class="ff-insp-section">
+                    <h4>{{i18n.templateLabel}}: <code>Template:{{name}}</code></h4>
+                    <table class="ff-insp-table">
+                        <thead>
+                        <tr>
+                            <th>{{i18n.colParameter}}</th>
+                            <th>{{i18n.colStatus}}</th>
+                            <th>{{i18n.colAction}}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {{^hasParams}}
+                            <tr>
+                                <td colspan="3"><span class="ff-insp-muted">{{i18n.noParamsFound}}</span></td>
+                            </tr>
+                        {{/hasParams}}
+                        {{#params}}
+                            <tr>
+                                <td>
+                                    <code>&#123;&#123;&#123;{{name}}&#125;&#125;&#125;</code>
+                                    {{#hasDefault}}
+                                        <small class="ff-insp-muted">({{i18n.defaultLabel}}: {{defaultVal}})</small>
+                                    {{/hasDefault}}
+                                </td>
+                                <td>
+                                    {{#isOmitted}}
+                                        <span class="ff-insp-badge ff-insp-neutral">{{i18n.statusOmitted}}</span>
+                                    {{/isOmitted}}
+                                    {{#isMatched}}
+                                        <span class="ff-insp-badge ff-insp-ok">{{i18n.statusMapped}} ({{matchedType}})</span>
+                                        {{#hasEditMapping}}
+                                            <small>({{i18n.viaMapping}}: <code>{{mappedFormField}}</code>)</small>
+                                        {{/hasEditMapping}}
+                                    {{/isMatched}}
+                                    {{#isMissing}}
+                                        <span class="ff-insp-badge ff-insp-warn">{{i18n.statusMissing}}</span>
+                                    {{/isMissing}}
+                                </td>
+                                <td>
+                                    {{^isMissing}}—{{/isMissing}}
+                                    {{#isMissing}}
+                                        <div class="ff-insp-gen-controls">
+                                            <select class="ff-insp-type-select">
+                                                <option value="text">input (text)</option>
+                                                <option value="textarea">textarea</option>
+                                                <option value="select">select</option>
+                                                <option value="token">_token</option>
+                                                <option value="date">input (date)</option>
+                                                <option value="number">input (number)</option>
+                                                <option value="checkbox">input (checkbox)</option>
+                                                <option value="hidden">input (hidden)</option>
+                                            </select>
+                                            <button type="button" class="ff-insp-btn ff-insp-add-code"
+                                                    data-form-id="{{formId}}"
+                                                    data-param="{{name}}">{{i18n.btnAddCode}}</button>
+                                        </div>
+                                    {{/isMissing}}
+                                </td>
+                            </tr>
+                        {{/params}}
+                        </tbody>
+                    </table>
+                </div>
+            {{/exists}}
+        {{/templates}}
+
+        {{#emails}}
+            {{^exists}}
+                <div class="ff-insp-alert ff-insp-danger">
+                    {{i18n.emailTemplateLabel}} <strong>{{name}}</strong> {{i18n.templateNotFound}}
+                </div>
+            {{/exists}}
+            {{#exists}}
+                <div class="ff-insp-section">
+                    <h4>{{i18n.emailTemplateLabel}}: <code>{{name}}</code></h4>
+                    {{#hasHeaderWarnings}}
+                        <div class="ff-insp-alert ff-insp-danger">
+                            {{i18n.missingMailHeaders}}: <code>{{missingHeaders}}</code>
+                        </div>
+                    {{/hasHeaderWarnings}}
+                    {{#hasVars}}
+                        <table class="ff-insp-table">
+                            <thead>
+                            <tr>
+                                <th>{{i18n.colVariable}}</th>
+                                <th>{{i18n.colStatus}}</th>
+                                <th>{{i18n.colAction}}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {{#vars}}
+                                <tr>
+                                    <td><code>${{name}}</code></td>
+                                    <td>
+                                        {{#isMatched}}
+                                            <span class="ff-insp-badge ff-insp-ok">{{i18n.statusMapped}} ({{matchedType}})</span>
+                                        {{/isMatched}}
+                                        {{#isMissing}}
+                                            <span class="ff-insp-badge ff-insp-warn">{{i18n.statusMissing}}</span>
+                                        {{/isMissing}}
+                                    </td>
+                                    <td>
+                                        {{^isMissing}}—{{/isMissing}}
+                                        {{#isMissing}}
+                                            <div class="ff-insp-gen-controls">
+                                                <select class="ff-insp-type-select">
+                                                    <option value="text">input (text)</option>
+                                                    <option value="email">input (email)</option>
+                                                    <option value="textarea">textarea</option>
+                                                </select>
+                                                <button type="button" class="ff-insp-btn ff-insp-add-code"
+                                                        data-form-id="{{formId}}"
+                                                        data-param="{{name}}">{{i18n.btnAddCode}}</button>
+                                            </div>
+                                        {{/isMissing}}
+                                    </td>
+                                </tr>
+                            {{/vars}}
+                            </tbody>
+                        </table>
+                    {{/hasVars}}
+                </div>
+            {{/exists}}
+        {{/emails}}
+
+        {{#hasOrphans}}
+            <div class="ff-insp-alert ff-insp-orphan">
+                <strong>{{i18n.orphanFieldsAlert}}:</strong>
+                {{#orphans}}
+                    <code>{{name}}</code> ({{type}})
+                {{/orphans}}
+            </div>
+        {{/hasOrphans}}
+
+        <div class="ff-insp-section ff-insp-codegen" id="ff-codegen-wrap-{{formId}}" style="display:none;">
+            <h4>{{i18n.generatedCodeTitle}}</h4>
+            <textarea id="ff-codegen-out-{{formId}}" class="ff-insp-textarea" rows="6"></textarea>
+            <div class="ff-insp-codegen-actions">
+                <button type="button" class="ff-insp-btn ff-insp-btn-primary ff-insp-copy-code" data-form-id="{{formId}}">{{i18n.btnCopy}}</button>
+                <button type="button" class="ff-insp-btn ff-insp-clear-code" data-form-id="{{formId}}">{{i18n.btnClear}}</button>
+            </div>
+        </div>
+    </div>
+</details>
