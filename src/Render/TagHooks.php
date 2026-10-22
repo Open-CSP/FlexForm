@@ -88,7 +88,6 @@ class TagHooks {
 		global $wgEmailConfirmToEdit, $IP;
 		$fPermissions = null;
 		$thisUser = \RequestContext::getMain()->getUser();
-
 		$canInspect = false;
 		if ( $thisUser !== null && $thisUser->isRegistered() ) {
 			$allowedGroups = Config::getConfigVariable( 'allowedGroups' ) ?? [ 'sysop' ];
@@ -97,7 +96,9 @@ class TagHooks {
 				->getUserEffectiveGroups( $thisUser );
 			$canInspect = !empty( array_intersect( $allowedGroups, $userGroups ) );
 		}
-
+		if ( ( isset( $_GET['flexform'] ) && $_GET['flexform'] === 'inspect' ) && $canInspect ) {
+			FormInspector::start( true );
+		}
 		$ret = '';
 		$addFFJS = '';
 		$recaptchaDiv = null;
@@ -168,7 +169,7 @@ class TagHooks {
 			$allowAnonymous = false;
 		}
 
-		if ( !$this->officialForm && !$canInspect ) {
+		if ( !$this->officialForm && !FormInspector::isActive() ) {
 			return $this->returnNonValidatedResponse( $renderi18nErrorInsteadofImageForApprovedForms );
 		}
 		// && $allowAnonymous === false
@@ -446,7 +447,7 @@ class TagHooks {
 				Core::getRealUrl() .
 				'/Modules/FlexForm.general.js"></script>' .
 				"\n";
-			if ( $canInspect ) {
+			if ( FormInspector::isActive() ) {
 				$addFFJS .= '<script type="text/javascript" charset="UTF-8" src="' .
 					Core::getRealUrl() .
 					'/Modules/FormInspector/FlexForm.inspector.js"></script>' .
@@ -455,8 +456,6 @@ class TagHooks {
 
 			Core::setRun( true );
 		}
-
-		FormInspector::start( $canInspect );
 
 		$actionUrl = $formTarget ?? Core::getAPIurl();
 		$output = '';
@@ -602,7 +601,7 @@ class TagHooks {
 		Core::$reCaptcha = false;
 		Core::removeAsLoaded( 'honeypot' );
 
-		if ( !$this->officialForm && $canInspect ) {
+		if ( !$this->officialForm && FormInspector::isActive() ) {
 			return [
 				$inspectorSnippet . $this->returnNonValidatedResponse( $renderi18nErrorInsteadofImageForApprovedForms ),
 				"markerType" => 'nowiki'

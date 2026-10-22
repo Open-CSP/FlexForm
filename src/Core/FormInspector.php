@@ -3,7 +3,9 @@
 namespace FlexForm\Core;
 
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Output\OutputPage;
 use MediaWiki\Revision\SlotRecord;
+use Skin;
 use TemplateParser;
 use Title;
 use TextContent;
