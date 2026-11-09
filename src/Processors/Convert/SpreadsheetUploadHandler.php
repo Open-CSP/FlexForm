@@ -40,8 +40,18 @@ class SpreadsheetUploadHandler {
 			$fileSlot = 'main';
 		}
 
-		$convert = new SpreadsheetConverter();
-		$convert->setReader( $fileAction );
+		$excelMapping = General::getJsonValue( 'wsform_excel_mapping', $fileDetails );
+
+		if ( $excelMapping !== false && !empty( $excelMapping ) ) {
+			$convert = new SpreadsheetRuleConverter();
+			$convert->setMappingRules( $excelMapping );
+		} else {
+			$convert = new SpreadsheetConverter();
+			$convert->setReader( $fileAction );
+		}
+
+		// $convert = new SpreadsheetConverter();
+		// $convert->setReader( $fileAction );
 		$convert->setFileName( $storedFile );
 		$convert->setSheetByName( $excelSheetByName );
 		$convert->setSheetById( $excelSheetById );
