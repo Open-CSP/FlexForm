@@ -2708,6 +2708,9 @@ class TagHooks {
 						$multiple = 'files';
 						$attributes['multiple'] = 'multiple';
 						break;
+					case "excel_mapping":
+						$uploadDetails["wsform_excel_mapping"] = $v;
+						break;
 					default:
 						$attributes[$k] = $v;
 				}

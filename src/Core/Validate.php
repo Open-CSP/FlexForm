@@ -322,6 +322,7 @@ class Validate {
 			'sheet_by_name',
 			'pandoc_prefix',
 			'pandoc_suffix',
+			'excel_mapping'
 		];
 		if ( $ret ) {
 			return $validParameters;
