@@ -17,6 +17,7 @@ use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Reader\Exception;
+use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use TextContent;
@@ -140,7 +141,7 @@ class SpreadsheetRuleConverter extends Convert {
 				}
 			}
 
-			return json_encode( $output, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE );
+			return json_encode( $output, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE );
 		} catch ( Exception $e ) {
 			throw new FlexFormException( $e->getMessage(), 0, $e );
 		}
@@ -172,16 +173,28 @@ class SpreadsheetRuleConverter extends Convert {
 	/**
 	 * @param Cell $cell
 	 * @param string $valueType
+	 * @param string $dateFormat
 	 *
-	 * @return mixed|string
+	 * @return float|int|mixed|string
 	 * @throws \PhpOffice\PhpSpreadsheet\Calculation\Exception
 	 */
-	private function readCellData( Cell $cell, string $valueType = self::VALUE_CALCULATED ): mixed {
+	private function readCellData(
+		Cell $cell,
+		string $valueType = self::VALUE_CALCULATED,
+		string $dateFormat = 'd-m-Y'
+	) {
 		switch ( strtolower( $valueType ) ) {
 			case self::VALUE_RAW:
 				return $cell->getValue() ?? '';
 
 			case self::VALUE_FORMATTED:
+				// check if cell is Excel-date/time
+				if ( ExcelDate::isDateTime( $cell ) && is_numeric( $cell->getCalculatedValue() ) ) {
+					$val = (float)$cell->getCalculatedValue();
+					if ( $val >= 1 ) {
+						return ExcelDate::excelToDateTimeObject( $val )->format( $dateFormat );
+					}
+				}
 				return $cell->getFormattedValue() ?? '';
 
 			case self::VALUE_CALCULATED:
