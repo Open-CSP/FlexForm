@@ -332,7 +332,9 @@ class SpreadsheetRuleConverter extends Convert {
 	}
 
 	/**
-	 * Table with headers: { "type": "table", "header_row": 15, "row_start": 16, "row_end": 24 }
+	 * 4. Table with headers from a row or with custom column keys ('columns'):
+	 * (Own keys): { "type": "table", "row_start": 17, "stop_on_empty_row": true, "columns": { "B": "own label", "C": "own_label2" } }
+	 * (header row): { "type": "table", "header_row": 15, "row_start": 17, "col_start": "B", "col_end": "E" }
 	 *
 	 * @param Worksheet $sheet
 	 * @param array $rule
@@ -343,34 +345,47 @@ class SpreadsheetRuleConverter extends Convert {
 	 */
 	private function extractTable( Worksheet $sheet, array $rule ): array {
 		$headerRow = (int)( $rule['header_row'] ?? 1 );
-		$rowStart = (int)( $rule['row_start'] ?? ( $headerRow + 1 ) );
-		$rowEnd = isset( $rule['row_end'] ) ? (int)$rule['row_end'] : $sheet->getHighestRow();
-		$colStart = $this->normalizeColIndex( $rule['col_start'] ?? 1 );
-		$colEnd = isset( $rule['col_end'] ) ? $this->normalizeColIndex( $rule['col_end'] )
-			: Coordinate::columnIndexFromString( $sheet->getHighestColumn( $headerRow ) );
+		$defaultStartRow = isset( $rule['header_row'] ) ? ( $headerRow + 1 ) : 1;
+		$rows = $this->resolveTargetRows( $sheet, $rule, $defaultStartRow );
 
-		// Get headers from $headerRow
 		$headers = [];
-		for ( $c = $colStart; $c <= $colEnd; $c++ ) {
-			$hVal = trim( (string)$this->getCellValueByColRow( $sheet, $c, $headerRow, self::VALUE_CALCULATED ) );
-			if ( $hVal !== '' ) {
-				$headers[$c] = $hVal;
+
+		// Custom column-mapping when 'columns' has been set in JSON
+		if ( !empty( $rule['columns'] ) && is_array( $rule['columns'] ) ) {
+			foreach ( $rule['columns'] as $colKey => $customLabel ) {
+				$colIndex = $this->normalizeColIndex( $colKey );
+				$label    = trim( (string)$customLabel );
+				if ( $label !== '' ) {
+					$headers[$colIndex] = $label;
+				}
+			}
+		} else {
+			// Otherwise get headers from $headerRow
+			$colStart = $this->normalizeColIndex( $rule['col_start'] ?? 1 );
+			$colEnd   = isset( $rule['col_end'] )
+				? $this->normalizeColIndex( $rule['col_end'] )
+				: Coordinate::columnIndexFromString( $sheet->getHighestColumn( $headerRow ) );
+
+			for ( $c = $colStart; $c <= $colEnd; $c++ ) {
+				$hVal = trim( (string)$this->getCellValueByColRow( $sheet, $c, $headerRow, self::VALUE_CALCULATED ) );
+				if ( $hVal !== '' ) {
+					$headers[$c] = $hVal;
+				}
 			}
 		}
 
-		// Read Data rows
 		$table = [];
-		for ( $r = $rowStart; $r <= $rowEnd; $r++ ) {
-			$rowData = [];
+		foreach ( $rows as $r ) {
+			$rowData  = [];
 			$hasValue = false;
 
 			foreach ( $headers as $colIndex => $headerName ) {
 				$colValueType = $this->resolveTableColumnValueType( $rule, $headerName );
-				$val = $this->getCellValueByColRow( $sheet, $colIndex, $r, $colValueType );
+				$val          = $this->getCellValueByColRow( $sheet, $colIndex, $r, $colValueType );
 
 				if ( $val !== '' ) {
 					$rowData[$headerName] = $val;
-					$hasValue = true;
+					$hasValue             = true;
 				}
 			}
 
