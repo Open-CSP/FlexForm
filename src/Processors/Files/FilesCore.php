@@ -240,8 +240,7 @@ class FilesCore {
 			$binary = imagecreatefromstring( file_get_contents( $image ) );
 			imageGif(
 				$binary,
-				$target_dir . $img_name . '.' . $convert_type,
-				$image_quality
+				$target_dir . $img_name . '.' . $convert_type
 			);
 
 			return $img_name . '.' . $convert_type;

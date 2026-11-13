@@ -392,7 +392,15 @@ class Upload {
 					)->text(), 0
 				);
 			}
-			$filename = $fileToProcess['name'][$i];
+			$filename =$fileToProcess['name'][$i];
+			if ( $filename === '' || $filename === '.' ) {
+				throw new FlexFormException(
+					wfMessage(
+						'flexform-fileupload-file-errors',
+						'Invalid filename'
+					)->text(), 0
+				);
+			}
 			$status = $filesCore->checkFileForErrors( $fileToProcess['error'][$i] );
 			$tmpName = $fileToProcess['tmp_name'][$i];
 
@@ -405,7 +413,7 @@ class Upload {
 				);
 			}
 
-			$targetFile = General::makeUnderscoreFromSpace( $filename );
+			$targetFile = General::makeUnderscoreFromSpace( wfBaseName( $filename ) );
 
 			$fileNameExtension = $filesCore->getFileExtension( $filename );
 			$originalFileNameExtension = $fileNameExtension;

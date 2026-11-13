@@ -10,12 +10,35 @@
 
 namespace FlexForm\Core;
 
+use MediaWiki\Context\RequestContext;
+use MediaWiki\MediaWikiServices;
+
 class Debug {
 
 	/**
 	 * @var array
 	 */
 	private static array $debugMessages = [];
+
+	/**
+	 * Check if debug is enabled in config AND current user is a sysop
+	 *
+	 * @return bool
+	 */
+	public static function canViewDebug(): bool {
+		if ( !Config::isDebug() ) {
+			return false;
+		}
+		$user = RequestContext::getMain()->getUser();
+		if ( !$user->isRegistered() ) {
+			return false;
+		}
+		$userGroups = MediaWikiServices::getInstance()
+			->getUserGroupManager()
+			->getUserEffectiveGroups( $user );
+
+		return in_array( 'sysop', $userGroups, true );
+	}
 
 	/**
 	 * @param string $title
@@ -25,14 +48,14 @@ class Debug {
 	 * @return void
 	 */
 	public static function addToDebug( string $title, mixed $details, mixed $duration = false ): void {
-		if ( Config::isDebug() ) {
-			$title .= ' (' . microtime() . ')';
-			if ( $duration !== false ) {
-				$newTitle = '<span class="ff-debug-title">' . $title . '</span>';
-				$newTitle .= '<span class="ff-debug-duration">' . $duration / 1000 . '</span>';
-				$title = $newTitle;
+		if ( self::canViewDebug() ) {
+			$safeTitle = htmlspecialchars( $title, ENT_QUOTES, 'UTF-8' ) . ' (' . microtime() . ')';
+			if ( $duration !== false && is_numeric( $duration ) ) {
+				$newTitle = '<span class="ff-debug-title">' . $safeTitle . '</span>';
+				$newTitle .= '<span class="ff-debug-duration">' . ( $duration / 1000 ) . '</span>';
+				$safeTitle = $newTitle;
 			}
-			self::$debugMessages[$title] = $details;
+			self::$debugMessages[$safeTitle] = $details;
 		}
 	}
 
@@ -86,15 +109,18 @@ ENDING;
 	 * @return string
 	 */
 	public static function createDebugOutput(): string {
+		if ( !self::canViewDebug() ) {
+			return '';
+		}
 		$ret = self::debugCSS();
 		$ret .= '<h2>FlexForm Debug</h2><div class="wsform-debug">';
 		foreach ( self::$debugMessages as $title => $message ) {
 			$ret .= '<details><summary>' . $title . '</summary>';
 			$ret .= '<div>';
-			if ( is_array( $message ) ) {
-				$ret .= "<pre>" . print_r( $message, true ) . '</pre>';
+			if ( is_array( $message ) || is_object( $message ) ) {
+				$ret .= '<pre>' . htmlspecialchars( print_r( $message, true ), ENT_QUOTES, 'UTF-8' ) . '</pre>';
 			} else {
-				$ret .= '<p>' . $message . '</p>';
+				$ret .= '<p>' . htmlspecialchars( (string)$message, ENT_QUOTES, 'UTF-8' ) . '</p>';
 			}
 			$ret .= '</div></details>';
 		}

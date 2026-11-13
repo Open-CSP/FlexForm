@@ -47,7 +47,6 @@ class wsSecurity {
 	 * @throws FlexFormException
 	 */
 	public static function resolvePosts() : bool {
-		//$checkSumKey = Config::getConfigVariable( 'sec_key') === null ? false : Config::getConfigVariable( 'sec_key');
 		$crypt = new Protect();
 		try {
 			$crypt::setCrypt();
@@ -68,7 +67,8 @@ class wsSecurity {
 		try {
 			foreach ( $_POST as $k => $v ) {
 				if ( $crypt::decrypt( $k ) === 'checksum' ) {
-					$checksum = unserialize( $crypt::decrypt( $v ) );
+					$decryptedChecksum = $crypt::decrypt( $v );
+					$checksum = $decryptedChecksum !== false ? unserialize( $decryptedChecksum, [ 'allowed_classes' => false ] ) : false;
 					unset( $_POST[$k] );
 				}
 				if ( $crypt::decrypt( $k ) === 'showonselect' ) {
@@ -94,6 +94,8 @@ class wsSecurity {
 		if ( $checksum === false && $formId !== false ) {
 			throw new FlexFormException( wfMessage( 'flexform-secure-not' ) );
 		}
+
+		$hasTamperedField = false;
 		if ( isset( $checksum[$formId]['secure'] ) ) {
 			foreach ( $checksum[$formId]['secure'] as $secure ) {
 				$tmpName = General::getPostString(
@@ -101,33 +103,17 @@ class wsSecurity {
 					false
 				);
 				if ( $tmpName !== false ) {
-					try {
-						$newK = $crypt::decrypt( $secure['name'] );
-						$newV = $crypt::decrypt( $tmpName );
-						if ( $newK === false || $newV === false || $tmpName !== $secure['value'] ) {
-							throw new FlexFormException( wfMessage( 'flexform-secure-fields-incomplete' ) );
-						}
-					} catch ( FlexFormException $exception ) {
-						throw new FlexFormException(
-							$exception->getMessage(),
-							0,
-							$exception
-						);
+					$newK = $crypt::decrypt( $secure['name'] );
+					$newV = $crypt::decrypt( $tmpName );
+					if ( $newK === false || $newV === false || $tmpName !== $secure['value'] ) {
+						$hasTamperedField = true;
+						continue;
 					}
 					$delMe = $secure['name'];
 					unset( $_POST[$delMe] );
 					self::$removeList[] = $newK;
-					if ( substr(
-							 $newK,
-							 -2,
-							 2
-						 ) === '[]' ) {
-						//echo "okokoko";
-						$newK           = str_replace(
-							'[]',
-							'',
-							$newK
-						);
+					if ( substr( $newK, -2, 2 ) === '[]' ) {
+						$newK           = str_replace( '[]', '', $newK );
 						$_POST[$newK][] = $newV;
 					} else {
 						$_POST[$newK] = $newV;
@@ -135,13 +121,17 @@ class wsSecurity {
 				} elseif ( $showOnSelect ) {
 					continue;
 				} else {
-					throw new FlexFormException( wfMessage( 'flexform-secure-fields-incomplete' ) );
+					$hasTamperedField = true;
 				}
 			}
 		}
 		self::$checksum = $checksum;
 		self::$formId   = $formId;
 		Core::setShowOnSelectActive();
+
+		if ( $hasTamperedField ) {
+			throw new FlexFormException( wfMessage( 'flexform-secure-fields-incomplete' ) );
+		}
 
 		return true;
 	}

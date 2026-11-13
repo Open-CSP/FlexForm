@@ -10,7 +10,8 @@
 
 namespace FlexForm\Core;
 
-use \MediaWiki\MediaWikiServices;
+use MediaWiki\Context\RequestContext;
+use MediaWiki\MediaWikiServices;
 use FlexForm\FlexFormException;
 
 class Config {
@@ -32,12 +33,11 @@ class Config {
 			self::$FlexFormConfig = $config->get( 'FlexFormConfig' );
 			self::checkConfig();
 			self::$WSConfigStatus = true;
-			Core::$chkSums    = [];
+			Core::$chkSums = [];
 			Core::$securityId = uniqid();
 		} else {
 			throw new FlexFormException(
-				'No config set',
-				1
+				'No config set', 1
 			);
 		}
 	}
@@ -45,7 +45,7 @@ class Config {
 	/**
 	 * @return bool
 	 */
-	public static function getConfigStatus() : bool {
+	public static function getConfigStatus(): bool {
 		return self::$WSConfigStatus;
 	}
 
@@ -79,7 +79,7 @@ class Config {
 		return self::$filterInputTags;
 	}
 
-	private static function setDefaultLoadScriptPath(){
+	private static function setDefaultLoadScriptPath() {
 		global $IP;
 		self::$FlexFormConfig['loadScriptPath'] = $IP . '/extensions/FlexForm/Modules/customJS/loadScripts/';
 	}
@@ -92,7 +92,17 @@ class Config {
 		$default_dir = $IP . "/extensions/FlexForm/uploads/";
 		$filePathFromConfig = self::getConfigVariable( 'file_temp_path' );
 		if ( self::getConfigVariable( 'debug' ) !== null ) {
-			self::$debug = self::getConfigVariable( 'debug' );
+			if ( self::getConfigVariable( 'debug' ) === true ) {
+				$user = RequestContext::getMain()->getUser();
+				if ( $user->isRegistered() ) {
+					$userGroups = MediaWikiServices::getInstance()->getUserGroupManager()->getUserEffectiveGroups(
+							$user
+						);
+					self::$debug = in_array( 'sysop', $userGroups, true );
+				} else {
+					self::$debug = false;
+				}
+			}
 		}
 		if ( self::getConfigVariable( 'secure' ) !== null ) {
 			self::$secure = self::getConfigVariable( 'secure' );
@@ -107,29 +117,29 @@ class Config {
 		// if a localsetting was set, check if the path exist
 		if ( $loadScriptPath !== null ) {
 			$loadScriptPath = rtrim( $loadScriptPath, '/' ) . '/';
-			if ( file_exists( self::getConfigVariable( 'loadScriptPath' ) ) ) {
+			if ( file_exists( $loadScriptPath ) ) {
 				// if it exists, set the loadscriptpath setting
 				self::$FlexFormConfig['loadScriptPath'] = $loadScriptPath;
 			}
 		}
 		$canonical = self::getConfigVariable( 'wgCanonicalServer' );
 		if ( is_null( $filePathFromConfig ) || $filePathFromConfig === '' ) {
-			if ( ! file_exists( $default_dir ) ) {
+			if ( !file_exists( $default_dir ) ) {
 				mkdir(
 					$default_dir,
 					0777
 				);
 			}
 			self::$FlexFormConfig['file_temp_path'] = rtrim(
-														$default_dir,
-														'/'
-													) . '/';
+					$default_dir,
+					'/'
+				) . '/';
 		}
 		if ( is_null( $canonical ) ) {
 			self::$FlexFormConfig['wgCanonicalServer'] = rtrim(
-														   $wgCanonicalServer,
-														   '/'
-													   ) . '/';
+					$wgCanonicalServer,
+					'/'
+				) . '/';
 		}
 	}
 
