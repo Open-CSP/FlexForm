@@ -50,8 +50,6 @@ class SpreadsheetUploadHandler {
 			$convert->setReader( $fileAction );
 		}
 
-		// $convert = new SpreadsheetConverter();
-		// $convert->setReader( $fileAction );
 		$convert->setFileName( $storedFile );
 		$convert->setSheetByName( $excelSheetByName );
 		$convert->setSheetById( $excelSheetById );

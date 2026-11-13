@@ -294,7 +294,7 @@ class SpreadsheetRuleConverter extends Convert {
 		$keyCol    = $this->normalizeColIndex( $rule['key_col'] ?? 1 );
 		$valCol    = $this->normalizeColIndex( $rule['val_col'] ?? 2 );
 		$valueType = is_string( $rule['value_type'] ?? null ) ? $rule['value_type'] : self::VALUE_CALCULATED;
-		$rows      = $this->resolveTargetRows( $sheet, $rule, 1 );
+		$rows      = $this->resolveTargetRows( $sheet, $rule );
 
 		$kv = [];
 		foreach ( $rows as $r ) {
@@ -350,9 +350,10 @@ class SpreadsheetRuleConverter extends Convert {
 
 		$headers = [];
 
-		// Custom column-mapping when 'columns' has been set in JSON
+		// Custom column-mapping when 'columns' has been set in rules
 		if ( !empty( $rule['columns'] ) && is_array( $rule['columns'] ) ) {
 			foreach ( $rule['columns'] as $colKey => $customLabel ) {
+				$colIndex = $this->normalizeColIndex( $colKey );
 				$colIndex = $this->normalizeColIndex( $colKey );
 				$label    = trim( (string)$customLabel );
 				if ( $label !== '' ) {
