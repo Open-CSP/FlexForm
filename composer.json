@@ -19,7 +19,7 @@
     "ext-json": "*",
     "ext-exif": "*",
     "ext-gd": "*",
-    "ext-openssl": "Cryptographical functions"
+    "ext-openssl": "*"
   },
   "require-dev": {
     "mediawiki/mediawiki-codesniffer": "43.0.0",
