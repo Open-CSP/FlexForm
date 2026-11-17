@@ -26,7 +26,7 @@ class Debug {
 	 * @return bool
 	 */
 	public static function canViewDebug(): bool {
-		if ( !Config::isDebug() ) {
+		if ( Config::getConfigVariable( 'debug' ) !== true ) {
 			return false;
 		}
 		$user = RequestContext::getMain()->getUser();

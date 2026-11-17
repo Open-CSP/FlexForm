@@ -29,6 +29,10 @@ class Protect {
 	 */
 	private static string $key = '';
 
+	private const TAG_LENGTH = 16;
+
+	private const HMAC_LENGTH = 64;
+
 	/**
 	 * @return int
 	 */
@@ -83,9 +87,9 @@ class Protect {
 		}
 
 		$iv = random_bytes( self::iv_bytes() );
-		$tag = '';
 
 		if ( str_ends_with( self::$method, '-gcm' ) ) {
+			$tag = '';
 			$encrypted = openssl_encrypt(
 				$data,
 				self::$method,
@@ -94,7 +98,7 @@ class Protect {
 				$iv,
 				$tag,
 				'',
-				16
+				self::TAG_LENGTH
 			);
 			return bin2hex( $iv ) . bin2hex( $tag ) . base64_encode( $encrypted );
 		}
@@ -129,42 +133,59 @@ class Protect {
 		$iv_strlen = 2 * self::iv_bytes();
 
 		if ( str_ends_with( self::$method, '-gcm' ) ) {
-			$tag_strlen = 32;
-			if ( strlen( $data ) <= ( $iv_strlen + $tag_strlen ) ) {
-				return false;
-			}
-
-			$iv_hex = substr( $data, 0, $iv_strlen );
-			$tag_hex = substr( $data, $iv_strlen, $tag_strlen );
-			$crypted_string = substr( $data, $iv_strlen + $tag_strlen );
-
-			if ( !ctype_xdigit( $iv_hex ) || !ctype_xdigit( $tag_hex ) ) {
-				return false;
-			}
-
-			$raw_cipher = base64_decode( $crypted_string, true );
-			if ( $raw_cipher === false ) {
-				return false;
-			}
-
-			return openssl_decrypt(
-				$raw_cipher,
-				self::$method,
-				self::$key,
-				OPENSSL_RAW_DATA,
-				hex2bin( $iv_hex ),
-				hex2bin( $tag_hex )
-			);
+			return self::decryptGcm( $data, $iv_strlen );
 		}
 
 		// Fallback for non-GCM ciphers with HMAC verification
-		$hmac_strlen = 64;
-		if ( strlen( $data ) <= ( $hmac_strlen + $iv_strlen ) ) {
+		return self::decryptOther( $data, $iv_strlen );
+	}
+
+	/**
+	 * @param string $data
+	 * @param int $iv_strlen
+	 * @return string|false
+	 */
+	private static function decryptGcm( string $data, int $iv_strlen ): string|false {
+		$tag_strlen = 2 * self::TAG_LENGTH;
+		if ( strlen( $data ) <= ( $iv_strlen + $tag_strlen ) ) {
 			return false;
 		}
 
-		$hmac = substr( $data, 0, $hmac_strlen );
-		$payload = substr( $data, $hmac_strlen );
+		$iv_hex = substr( $data, 0, $iv_strlen );
+		$tag_hex = substr( $data, $iv_strlen, $tag_strlen );
+		$crypted_string = substr( $data, $iv_strlen + $tag_strlen );
+
+		if ( !ctype_xdigit( $iv_hex ) || !ctype_xdigit( $tag_hex ) ) {
+			return false;
+		}
+
+		$raw_cipher = base64_decode( $crypted_string, true );
+		if ( $raw_cipher === false ) {
+			return false;
+		}
+
+		return openssl_decrypt(
+			$raw_cipher,
+			self::$method,
+			self::$key,
+			OPENSSL_RAW_DATA,
+			hex2bin( $iv_hex ),
+			hex2bin( $tag_hex )
+		);
+	}
+
+	/**
+	 * @param string $data
+	 * @param int $iv_strlen
+	 * @return string|false
+	 */
+	private static function decryptOther( string $data, int $iv_strlen ): string|false {
+		if ( strlen( $data ) <= ( self::HMAC_LENGTH + $iv_strlen ) ) {
+			return false;
+		}
+
+		$hmac = substr( $data, 0, self::HMAC_LENGTH );
+		$payload = substr( $data, self::HMAC_LENGTH );
 		$expected_hmac = hash_hmac( 'sha256', $payload, self::$key );
 
 		if ( !hash_equals( $expected_hmac, $hmac ) ) {

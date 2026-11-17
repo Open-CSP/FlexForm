@@ -112,8 +112,8 @@ class wsSecurity {
 					$delMe = $secure['name'];
 					unset( $_POST[$delMe] );
 					self::$removeList[] = $newK;
-					if ( substr( $newK, -2, 2 ) === '[]' ) {
-						$newK           = str_replace( '[]', '', $newK );
+					if ( str_ends_with( $newK, '[]' ) ) {
+						$newK = substr( $newK, 0, -2 );
 						$_POST[$newK][] = $newV;
 					} else {
 						$_POST[$newK] = $newV;

@@ -204,7 +204,7 @@ class FilesCore {
 			//0 is uncompressed, 9 is compressed
 			//so convert 100 to 2 digit number by dividing it by 10 and minus with 10
 			$image_quality = floor( 10 - ( $image_quality / 10 ) );
-			$result = ImagePNG(
+			$result = imagepng(
 				$binary,
 				$target_dir . $img_name . '.' . $convert_type,
 				$image_quality
@@ -224,10 +224,10 @@ class FilesCore {
 			return $img_name . '.' . $convert_type;
 		}
 
-		//to jpg
+		// to jpg
 		if ( $convert_type == 'jpg' ) {
 			$binary = imagecreatefromstring( file_get_contents( $image ) );
-			imageJpeg(
+			imagejpeg(
 				$binary,
 				$target_dir . $img_name . '.' . $convert_type,
 				$image_quality
@@ -235,10 +235,10 @@ class FilesCore {
 
 			return $img_name . '.' . $convert_type;
 		}
-		//to gif
+		// to gif
 		if ( $convert_type == 'gif' ) {
 			$binary = imagecreatefromstring( file_get_contents( $image ) );
-			imageGif(
+			imagegif(
 				$binary,
 				$target_dir . $img_name . '.' . $convert_type
 			);

@@ -91,18 +91,8 @@ class Config {
 		global $IP, $wgCanonicalServer;
 		$default_dir = $IP . "/extensions/FlexForm/uploads/";
 		$filePathFromConfig = self::getConfigVariable( 'file_temp_path' );
-		if ( self::getConfigVariable( 'debug' ) !== null ) {
-			if ( self::getConfigVariable( 'debug' ) === true ) {
-				$user = RequestContext::getMain()->getUser();
-				if ( $user->isRegistered() ) {
-					$userGroups = MediaWikiServices::getInstance()->getUserGroupManager()->getUserEffectiveGroups(
-							$user
-						);
-					self::$debug = in_array( 'sysop', $userGroups, true );
-				} else {
-					self::$debug = false;
-				}
-			}
+		if ( self::getConfigVariable( 'debug' ) === true ) {
+			self::$debug = Debug::canViewDebug();
 		}
 		if ( self::getConfigVariable( 'secure' ) !== null ) {
 			self::$secure = self::getConfigVariable( 'secure' );

@@ -295,7 +295,7 @@ class Save {
 		}
 		if ( $this->needRebuildData ) {
 			global $IP;
-			$script = escapeshellarg( $IP . '/extensions/SemanticMediaWiki/maintenance/rebuildData.php' );
+			$script = escapeshellarg( $IP . '/maintenance/run.php' ) . ' ' . 'SemanticMediaWiki:rebuildData';
 			$cmd = 'php ' . $script . ' --page=' . escapeshellarg( $title ) . ' > /dev/null 2>&1 &';
 			shell_exec( $cmd );
 		}
