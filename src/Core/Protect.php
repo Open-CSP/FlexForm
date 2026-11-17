@@ -14,21 +14,34 @@ use FlexForm\FlexFormException;
 use HTMLPurifier;
 use HTMLPurifier_Config;
 use MediaWiki\MediaWikiServices;
+use Random\RandomException;
 
 class Protect {
 
-	protected static string $method = 'aes-256-gcm'; // default cipher method if none supplied
+	/**
+	 * default cipher method if none supplied
+	 * @var string
+	 */
+	protected static string $method = 'aes-256-gcm';
+
+	/**
+	 * @var string
+	 */
 	private static string $key = '';
 
+	/**
+	 * @return int
+	 */
 	protected static function iv_bytes(): int {
 		return openssl_cipher_iv_length( self::$method );
 	}
 
 	/**
-	 * @param string|bool $method
+	 * @param bool|string $method
+	 *
 	 * @throws FlexFormException
 	 */
-	public static function setCrypt( $method = false ): void {
+	public static function setCrypt( bool|string $method = false ): void {
 		$key = Config::getConfigVariable( 'sec_key' ) ?? false;
 
 		if ( empty( $key ) ) {
@@ -43,7 +56,6 @@ class Protect {
 			}
 		}
 
-		// Altijd hashen naar een vaste 32-byte (256-bit) binary key
 		self::$key = openssl_digest( (string)$key, 'SHA256', true );
 
 		if ( $method ) {
@@ -61,8 +73,9 @@ class Protect {
 
 	/**
 	 * @param string $data
+	 *
 	 * @return string
-	 * @throws FlexFormException
+	 * @throws FlexFormException|RandomException
 	 */
 	public static function encrypt( string $data ): string {
 		if ( self::$key === '' ) {
@@ -86,7 +99,7 @@ class Protect {
 			return bin2hex( $iv ) . bin2hex( $tag ) . base64_encode( $encrypted );
 		}
 
-		// Fallback voor non-GCM ciphers with HMAC-SHA256
+		// Fallback for non-GCM ciphers with HMAC-SHA256
 		$encrypted = openssl_encrypt(
 			$data,
 			self::$method,
@@ -116,7 +129,7 @@ class Protect {
 		$iv_strlen = 2 * self::iv_bytes();
 
 		if ( str_ends_with( self::$method, '-gcm' ) ) {
-			$tag_strlen = 32; // 16 bytes in hex = 32 chars
+			$tag_strlen = 32;
 			if ( strlen( $data ) <= ( $iv_strlen + $tag_strlen ) ) {
 				return false;
 			}
@@ -144,7 +157,7 @@ class Protect {
 			);
 		}
 
-		// Fallback voor niet-GCM ciphers met HMAC verificatie
+		// Fallback for non-GCM ciphers with HMAC verification
 		$hmac_strlen = 64;
 		if ( strlen( $data ) <= ( $hmac_strlen + $iv_strlen ) ) {
 			return false;
@@ -181,7 +194,7 @@ class Protect {
 	 *
 	 * @return string purified html
 	 */
-	public static function purify( string $value, $clean = "default", $secure = false ) {
+	public static function purify( string $value, $clean = "default", $secure = false ): string {
 		if ( is_array( $clean ) ) {
 			$custom = $clean[1];
 			$clean  = $clean[0];
@@ -211,7 +224,8 @@ class Protect {
 						$config->set(
 							'HTML.Allowed',
 							$custom
-						); // e.g. 'p,ul[style],ol,li'
+							// e.g. 'p,ul[style],ol,li'
+						);
 					}
 					break;
 				case "default":
