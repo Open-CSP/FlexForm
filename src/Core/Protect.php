@@ -86,7 +86,7 @@ class Protect {
 			return bin2hex( $iv ) . bin2hex( $tag ) . base64_encode( $encrypted );
 		}
 
-		// Fallback voor niet-GCM ciphers met HMAC-SHA256
+		// Fallback voor non-GCM ciphers with HMAC-SHA256
 		$encrypted = openssl_encrypt(
 			$data,
 			self::$method,
