@@ -149,9 +149,9 @@ class SpreadsheetConverter extends Convert {
 			for ( $row = 1; $row <= $highestRow; $row++ ) {
 				$riga = [];
 				for ( $col = 1; $col <= $highestColumnIndex; $col++ ) {
-					$riga[] = $worksheet->getCellByColumnAndRow( $col, $row )->getValue() ?? "";
+					$riga[] = $worksheet->getCell( [ $col, $row ] )->getValue() ?? "";
 				}
-				if ( 1 === $row ) {
+				if ( $row === 1 ) {
 					// Header row. Save it in "$keys".
 					$keys = $riga;
 					continue;
