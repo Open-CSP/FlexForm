@@ -3,7 +3,7 @@
  * Created by  : Open CSP
  * Project     : FlexForm
  * Filename    : SpreadsheetRuleConverter.php
- * Description : Extracts specific cells, lists, key-values, and tables from Excel based on JSON rules.
+ * Description : Extracts specific cells, lists, key-values, tables, and images from Excel based on JSON rules.
  */
 
 namespace FlexForm\Processors\Convert;
@@ -19,6 +19,9 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Reader\Exception;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Worksheet\BaseDrawing;
+use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
+use PhpOffice\PhpSpreadsheet\Worksheet\MemoryDrawing;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use TextContent;
 
@@ -27,6 +30,7 @@ class SpreadsheetRuleConverter extends Convert {
 	private const VALUE_RAW = 'raw';
 	private const VALUE_CALCULATED = 'calculated';
 	private const VALUE_FORMATTED = 'formatted';
+	private const VALUE_IMAGE = 'image';
 
 	/**
 	 * @var string|bool
@@ -42,6 +46,16 @@ class SpreadsheetRuleConverter extends Convert {
 	 * @var string
 	 */
 	private string $mappingRules = '';
+
+	/**
+	 * @var array
+	 */
+	private array $extractedImages = [];
+
+	/**
+	 * @var array
+	 */
+	private array $sheetDrawingsCache = [];
 
 	/**
 	 * @throws FlexFormException
@@ -81,13 +95,47 @@ class SpreadsheetRuleConverter extends Convert {
 
 	/**
 	 * @return string
+	 */
+	public function getExcelMediaPath(): string {
+		return $this->getTempDir() . 'excel_media';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function excelGetSearchFor(): string {
+		return '__FLEXFORM_EXCEL_IMG__:' . $this->getExcelMediaPath() . '/';
+	}
+
+	/**
+	 * @param string $newFileName
+	 *
+	 * @return string
+	 */
+	public function excelGetReplaceWith( string $newFileName ): string {
+		return 'File:' . $newFileName;
+	}
+
+	/**
+	 * @return array|false
+	 */
+	public function getPossibleImagesFromConversion(): array|false {
+		return !empty( $this->extractedImages ) ? $this->extractedImages : false;
+	}
+
+	/**
+	 * @return string
 	 * @throws FlexFormException
 	 * @throws \PhpOffice\PhpSpreadsheet\Calculation\Exception
 	 * @throws \PhpOffice\PhpSpreadsheet\Exception
 	 */
 	public function convertFile(): string {
+		$this->extractedImages = [];
+		$this->sheetDrawingsCache = [];
+
 		$rules = $this->resolveRules( $this->mappingRules );
 		$needsFormatting = $this->rulesRequireFormatting( $rules );
+		$needsImages = $this->rulesRequireImages( $rules );
 
 		if ( Config::isDebug() ) {
 			Debug::addToDebug(
@@ -97,6 +145,7 @@ class SpreadsheetRuleConverter extends Convert {
 					'defaultSheetId' => $this->sheetById,
 					'defaultSheetName' => $this->sheetByName,
 					'needsFormatting' => $needsFormatting,
+					'needsImages' => $needsImages,
 					'rules' => $rules
 				]
 			);
@@ -106,8 +155,8 @@ class SpreadsheetRuleConverter extends Convert {
 			$filePath = $this->getFile( true );
 			$reader = IOFactory::createReaderForFile( $filePath );
 
-			// ReadDataOnly when we do not need formatted values
-			$reader->setReadDataOnly( !$needsFormatting );
+			// ReadDataOnly only when we need neither formatted values nor embedded drawings
+			$reader->setReadDataOnly( !( $needsFormatting || $needsImages ) );
 
 			$spreadsheet = $reader->load( $filePath );
 			$output = [];
@@ -136,6 +185,10 @@ class SpreadsheetRuleConverter extends Convert {
 						$output[$targetKey] = $this->extractTable( $worksheet, $rule );
 						break;
 
+					case 'image':
+						$output[$targetKey] = $this->extractImageRule( $worksheet, $rule );
+						break;
+
 					default:
 						throw new FlexFormException( "Unknown Excel mapping rule type: {$rule['type']}" );
 				}
@@ -148,7 +201,7 @@ class SpreadsheetRuleConverter extends Convert {
 	}
 
 	/**
-	 * 'formatted' used
+	 * Check whether 'formatted' is used in any rule.
 	 *
 	 * @param array $rules
 	 *
@@ -156,7 +209,7 @@ class SpreadsheetRuleConverter extends Convert {
 	 */
 	private function rulesRequireFormatting( array $rules ): bool {
 		foreach ( $rules as $rule ) {
-			if ( !isset( $rule['value_type'] ) ) {
+			if ( !is_array( $rule ) || !isset( $rule['value_type'] ) ) {
 				continue;
 			}
 			if ( $rule['value_type'] === self::VALUE_FORMATTED ) {
@@ -168,6 +221,200 @@ class SpreadsheetRuleConverter extends Convert {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Check whether any rule requires extracting embedded images.
+	 *
+	 * @param array $rules
+	 *
+	 * @return bool
+	 */
+	private function rulesRequireImages( array $rules ): bool {
+		foreach ( $rules as $rule ) {
+			if ( !is_array( $rule ) ) {
+				continue;
+			}
+			if ( isset( $rule['type'] ) && strtolower( (string)$rule['type'] ) === self::VALUE_IMAGE ) {
+				return true;
+			}
+			if ( isset( $rule['value_type'] ) ) {
+				if ( $rule['value_type'] === self::VALUE_IMAGE ) {
+					return true;
+				}
+				if ( is_array( $rule['value_type'] ) && in_array( self::VALUE_IMAGE, $rule['value_type'], true ) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Index all drawings on a worksheet by their anchor coordinate (cached per sheet).
+	 *
+	 * @param Worksheet $sheet
+	 *
+	 * @return array
+	 */
+	private function getIndexedSheetDrawings( Worksheet $sheet ): array {
+		$sheetKey = $sheet->getTitle();
+		if ( isset( $this->sheetDrawingsCache[$sheetKey] ) ) {
+			return $this->sheetDrawingsCache[$sheetKey];
+		}
+
+		$drawingsByCoord = [];
+		foreach ( $sheet->getDrawingCollection() as $drawing ) {
+			$coord = strtoupper( $drawing->getCoordinates() );
+			$drawingsByCoord[$coord][] = $drawing;
+		}
+
+		$this->sheetDrawingsCache[$sheetKey] = $drawingsByCoord;
+
+		return $drawingsByCoord;
+	}
+
+	/**
+	 * Image Rule:
+	 * { "type": "image", "cell": "B4" }
+	 * or { "type": "image", "range": "B4:D8", "multiple": true }
+	 *
+	 * @param Worksheet $sheet
+	 * @param array $rule
+	 *
+	 * @return string|array|null
+	 * @throws \PhpOffice\PhpSpreadsheet\Exception
+	 */
+	private function extractImageRule( Worksheet $sheet, array $rule ): string|array|null {
+		$target = '';
+		if ( isset( $rule['range'] ) ) {
+			$target = (string)$rule['range'];
+		} elseif ( isset( $rule['cell'] ) ) {
+			$target = (string)$rule['cell'];
+		} elseif ( isset( $rule['col'], $rule['row'] ) ) {
+			$colIdx = $this->normalizeColIndex( $rule['col'] );
+			$target = Coordinate::stringFromColumnIndex( $colIdx ) . (int)$rule['row'];
+		}
+
+		if ( $target === '' ) {
+			return !empty( $rule['multiple'] ) ? [] : null;
+		}
+
+		$multiple = !empty( $rule['multiple'] );
+
+		return $this->extractImagesFromTarget( $sheet, $target, $multiple );
+	}
+
+	/**
+	 * Find and extract drawings matching a single cell ("B4") or range ("B4:D8").
+	 *
+	 * @param Worksheet $sheet
+	 * @param string $targetCoordOrRange
+	 * @param bool $multiple
+	 *
+	 * @return string|array|null
+	 * @throws \PhpOffice\PhpSpreadsheet\Exception
+	 */
+	private function extractImagesFromTarget(
+		Worksheet $sheet,
+		string $targetCoordOrRange,
+		bool $multiple = false
+	): string|array|null {
+		$drawingsByCoord = $this->getIndexedSheetDrawings( $sheet );
+		$target = strtoupper( trim( $targetCoordOrRange ) );
+		$foundPlaceholders = [];
+
+		if ( str_contains( $target, ':' ) ) {
+			[
+				$startCell,
+				$endCell
+			] = explode( ':', $target, 2 );
+			[
+				$startCol,
+				$startRow
+			] = Coordinate::coordinateFromString( $startCell );
+			[
+				$endCol,
+				$endRow
+			] = Coordinate::coordinateFromString( $endCell );
+			$startColIdx = Coordinate::columnIndexFromString( $startCol );
+			$endColIdx = Coordinate::columnIndexFromString( $endCol );
+
+			for ( $r = (int)$startRow; $r <= (int)$endRow; $r++ ) {
+				for ( $c = $startColIdx; $c <= $endColIdx; $c++ ) {
+					$coord = Coordinate::stringFromColumnIndex( $c ) . $r;
+					if ( isset( $drawingsByCoord[$coord] ) ) {
+						foreach ( $drawingsByCoord[$coord] as $drawing ) {
+							$placeholder = $this->extractDrawingToTemp( $drawing, $coord );
+							if ( $placeholder !== null ) {
+								$foundPlaceholders[] = $placeholder;
+							}
+						}
+					}
+				}
+			}
+		} elseif ( isset( $drawingsByCoord[$target] ) ) {
+			foreach ( $drawingsByCoord[$target] as $drawing ) {
+				$placeholder = $this->extractDrawingToTemp( $drawing, $target );
+				if ( $placeholder !== null ) {
+					$foundPlaceholders[] = $placeholder;
+				}
+			}
+		}
+
+		if ( empty( $foundPlaceholders ) ) {
+			return $multiple ? [] : null;
+		}
+
+		return $multiple ? $foundPlaceholders : $foundPlaceholders[0];
+	}
+
+	/**
+	 * Extracts a single drawing to the temp folder and returns the placeholder string.
+	 *
+	 * @param BaseDrawing $drawing
+	 * @param string $coord
+	 *
+	 * @return string|null
+	 */
+	private function extractDrawingToTemp( BaseDrawing $drawing, string $coord ): ?string {
+		$mediaDir = $this->getExcelMediaPath();
+		if ( !file_exists( $mediaDir ) ) {
+			mkdir( $mediaDir, 0775, true );
+		}
+
+		if ( $drawing instanceof Drawing ) {
+			$ext = strtolower( $drawing->getExtension() ?: 'png' );
+			$contents = file_get_contents( $drawing->getPath() );
+		} elseif ( $drawing instanceof MemoryDrawing ) {
+			$ext = match ( $drawing->getMimeType() ) {
+				MemoryDrawing::MIMETYPE_JPEG => 'jpg',
+				MemoryDrawing::MIMETYPE_GIF => 'gif',
+				default => 'png',
+			};
+			ob_start();
+			call_user_func(
+				$drawing->getRenderingFunction(),
+				$drawing->getImageResource()
+			);
+			$contents = ob_get_clean();
+		} else {
+			return null;
+		}
+
+		if ( empty( $contents ) ) {
+			return null;
+		}
+
+		$seq = count( $this->extractedImages ) + 1;
+		$fileName = sprintf( 'img_%s_%d.%s', $coord, $seq, $ext );
+		$fullPath = $mediaDir . '/' . $fileName;
+		file_put_contents( $fullPath, $contents );
+
+		$this->extractedImages[] = $fullPath;
+
+		return $this->excelGetSearchFor() . $fileName;
 	}
 
 	/**
@@ -195,6 +442,7 @@ class SpreadsheetRuleConverter extends Convert {
 						return ExcelDate::excelToDateTimeObject( $val )->format( $dateFormat );
 					}
 				}
+
 				return $cell->getFormattedValue() ?? '';
 
 			case self::VALUE_CALCULATED:
@@ -220,6 +468,10 @@ class SpreadsheetRuleConverter extends Convert {
 		string $valueType = self::VALUE_CALCULATED
 	): mixed {
 		$cellAddress = Coordinate::stringFromColumnIndex( $col ) . $row;
+		if ( strtolower( $valueType ) === self::VALUE_IMAGE ) {
+			return $this->extractImagesFromTarget( $sheet, $cellAddress, false ) ?? '';
+		}
+
 		$cell = $sheet->getCell( $cellAddress );
 
 		return $this->readCellData( $cell, $valueType );
@@ -239,6 +491,9 @@ class SpreadsheetRuleConverter extends Convert {
 		$valueType = is_string( $rule['value_type'] ?? null ) ? $rule['value_type'] : self::VALUE_CALCULATED;
 
 		if ( isset( $rule['cell'] ) ) {
+			if ( strtolower( $valueType ) === self::VALUE_IMAGE ) {
+				return $this->extractImagesFromTarget( $sheet, (string)$rule['cell'], false ) ?? '';
+			}
 			$cell = $sheet->getCell( (string)$rule['cell'] );
 
 			return $this->readCellData( $cell, $valueType );
@@ -262,10 +517,10 @@ class SpreadsheetRuleConverter extends Convert {
 	 * @throws \PhpOffice\PhpSpreadsheet\Exception
 	 */
 	private function extractList( Worksheet $sheet, array $rule ): array {
-		$col       = $this->normalizeColIndex( $rule['col'] ?? 1 );
+		$col = $this->normalizeColIndex( $rule['col'] ?? 1 );
 		$skipEmpty = $rule['skip_empty'] ?? true;
 		$valueType = is_string( $rule['value_type'] ?? null ) ? $rule['value_type'] : self::VALUE_CALCULATED;
-		$rows      = $this->resolveTargetRows( $sheet, $rule, 1 );
+		$rows = $this->resolveTargetRows( $sheet, $rule, 1 );
 
 		$list = [];
 		foreach ( $rows as $r ) {
@@ -291,10 +546,10 @@ class SpreadsheetRuleConverter extends Convert {
 	 * @throws \PhpOffice\PhpSpreadsheet\Exception
 	 */
 	private function extractKeyValue( Worksheet $sheet, array $rule ): array {
-		$keyCol    = $this->normalizeColIndex( $rule['key_col'] ?? 1 );
-		$valCol    = $this->normalizeColIndex( $rule['val_col'] ?? 2 );
+		$keyCol = $this->normalizeColIndex( $rule['key_col'] ?? 1 );
+		$valCol = $this->normalizeColIndex( $rule['val_col'] ?? 2 );
 		$valueType = is_string( $rule['value_type'] ?? null ) ? $rule['value_type'] : self::VALUE_CALCULATED;
-		$rows      = $this->resolveTargetRows( $sheet, $rule );
+		$rows = $this->resolveTargetRows( $sheet, $rule );
 
 		$kv = [];
 		foreach ( $rows as $r ) {
@@ -314,7 +569,8 @@ class SpreadsheetRuleConverter extends Convert {
 	 * @param Worksheet $sheet
 	 * @param array $rule
 	 * @param int $defaultStart
-	 * @return array<int>
+	 *
+	 * @return array
 	 */
 	private function resolveTargetRows( Worksheet $sheet, array $rule, int $defaultStart = 1 ): array {
 		if ( !empty( $rule['rows'] ) && is_array( $rule['rows'] ) ) {
@@ -322,7 +578,7 @@ class SpreadsheetRuleConverter extends Convert {
 		}
 
 		$rowStart = (int)( $rule['row_start'] ?? $defaultStart );
-		$rowEnd   = isset( $rule['row_end'] ) ? (int)$rule['row_end'] : $sheet->getHighestDataRow();
+		$rowEnd = isset( $rule['row_end'] ) ? (int)$rule['row_end'] : $sheet->getHighestDataRow();
 
 		if ( $rowEnd < $rowStart ) {
 			return [];
@@ -333,7 +589,8 @@ class SpreadsheetRuleConverter extends Convert {
 
 	/**
 	 * 4. Table with headers from a row or with custom column keys ('columns'):
-	 * (Own keys): { "type": "table", "row_start": 17, "stop_on_empty_row": true, "columns": { "B": "own label", "C": "own_label2" } }
+	 * (Own keys): { "type": "table", "row_start": 17, "stop_on_empty_row": true, "columns": { "B": "own label", "C":
+	 * "own_label2" } }
 	 * (header row): { "type": "table", "header_row": 15, "row_start": 17, "col_start": "B", "col_end": "E" }
 	 *
 	 * @param Worksheet $sheet
@@ -354,8 +611,7 @@ class SpreadsheetRuleConverter extends Convert {
 		if ( !empty( $rule['columns'] ) && is_array( $rule['columns'] ) ) {
 			foreach ( $rule['columns'] as $colKey => $customLabel ) {
 				$colIndex = $this->normalizeColIndex( $colKey );
-				$colIndex = $this->normalizeColIndex( $colKey );
-				$label    = trim( (string)$customLabel );
+				$label = trim( (string)$customLabel );
 				if ( $label !== '' ) {
 					$headers[$colIndex] = $label;
 				}
@@ -363,8 +619,7 @@ class SpreadsheetRuleConverter extends Convert {
 		} else {
 			// Otherwise get headers from $headerRow
 			$colStart = $this->normalizeColIndex( $rule['col_start'] ?? 1 );
-			$colEnd   = isset( $rule['col_end'] )
-				? $this->normalizeColIndex( $rule['col_end'] )
+			$colEnd = isset( $rule['col_end'] ) ? $this->normalizeColIndex( $rule['col_end'] )
 				: Coordinate::columnIndexFromString( $sheet->getHighestColumn( $headerRow ) );
 
 			for ( $c = $colStart; $c <= $colEnd; $c++ ) {
@@ -377,16 +632,16 @@ class SpreadsheetRuleConverter extends Convert {
 
 		$table = [];
 		foreach ( $rows as $r ) {
-			$rowData  = [];
+			$rowData = [];
 			$hasValue = false;
 
 			foreach ( $headers as $colIndex => $headerName ) {
 				$colValueType = $this->resolveTableColumnValueType( $rule, $headerName );
-				$val          = $this->getCellValueByColRow( $sheet, $colIndex, $r, $colValueType );
+				$val = $this->getCellValueByColRow( $sheet, $colIndex, $r, $colValueType );
 
 				if ( $val !== '' ) {
 					$rowData[$headerName] = $val;
-					$hasValue             = true;
+					$hasValue = true;
 				}
 			}
 
@@ -483,6 +738,7 @@ class SpreadsheetRuleConverter extends Convert {
 
 	/**
 	 * convert column letters ('E') or numbers (5) to 1-based column index (5)
+	 *
 	 * @param mixed $col
 	 *
 	 * @return int

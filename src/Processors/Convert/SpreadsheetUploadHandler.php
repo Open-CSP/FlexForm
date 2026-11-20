@@ -3,10 +3,13 @@
 namespace FlexForm\Processors\Convert;
 
 use FlexForm\Core\Config;
+use FlexForm\Core\Debug;
 use FlexForm\FlexFormException;
 use FlexForm\Processors\Content\Save;
+use FlexForm\Processors\Files\Upload;
 use FlexForm\Processors\Utilities\General;
 use MWContentSerializationException;
+use RequestContext;
 
 class SpreadsheetUploadHandler {
 
@@ -56,6 +59,16 @@ class SpreadsheetUploadHandler {
 
 		$json = $convert->convertFile();
 
+		if ( $convert instanceof SpreadsheetRuleConverter ) {
+			$this->processExtractedImages(
+				$convert,
+				$titleName,
+				$fileDetails,
+				$imageComment,
+				$json
+			);
+		}
+
 		// Now create the page in the wiki
 		if ( !Config::isDebug() ) {
 			$save = new Save();
@@ -68,6 +81,75 @@ class SpreadsheetUploadHandler {
 			} catch ( FlexFormException $e ) {
 				throw new FlexFormException( $e->getMessage(), 0, $e );
 			}
+		}
+	}
+
+	/**
+	 * Upload images extracted from Excel mapping rules and replace placeholders in the JSON.
+	 *
+	 * @param SpreadsheetRuleConverter $convert
+	 * @param string $titleName
+	 * @param array $fileDetails
+	 * @param string $imageComment
+	 * @param string $jsonContent
+	 *
+	 * @return void
+	 * @throws FlexFormException
+	 * @throws MWContentSerializationException
+	 */
+	private function processExtractedImages(
+		SpreadsheetRuleConverter $convert,
+		string $titleName,
+		array $fileDetails,
+		string $imageComment,
+		string &$jsonContent
+	): void {
+		$possibleImages = $convert->getPossibleImagesFromConversion();
+		if ( $possibleImages === false ) {
+			return;
+		}
+
+		$user            = RequestContext::getMain()->getUser();
+		$uploadProcessor = new Upload( '', $fileDetails );
+		$safeTitlePrefix = str_replace( [ '/', ':' ], '-', $titleName );
+		$fCount          = 1;
+
+		foreach ( $possibleImages as $singleImage ) {
+			$newFname = $safeTitlePrefix . '-' . basename( $singleImage );
+
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					$fCount . ' - Preparing to upload image file from Excel',
+					[
+						'$newFname'    => $newFname,
+						'$singleImage' => $singleImage,
+						'comment'      => $imageComment
+					]
+				);
+			} else {
+				$resultFileUpload = $uploadProcessor->uploadFileToWiki(
+					$singleImage,
+					$newFname,
+					$user,
+					'',
+					$imageComment,
+					wfTimestampNow()
+				);
+
+				if ( $resultFileUpload !== true ) {
+					throw new FlexFormException( (string)$resultFileUpload, 0 );
+				}
+			}
+
+			$search          = $convert->excelGetSearchFor() . basename( $singleImage );
+			$replace         = $convert->excelGetReplaceWith( $newFname );
+			$jsonSafeReplace = trim( json_encode( $replace, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ), '"' );
+			$jsonContent     = str_replace( $search, $jsonSafeReplace, $jsonContent );
+
+			if ( file_exists( $singleImage ) ) {
+				unlink( $singleImage );
+			}
+			$fCount++;
 		}
 	}
 }
