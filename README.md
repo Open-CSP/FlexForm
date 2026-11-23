@@ -93,6 +93,7 @@ Visit this documentation page https://www.open-csp.org/DevOps:Doc/FlexForm/2.0/V
 Visit : https://www.open-csp.org/DevOps:Doc/FlexForm
 
 ### Changelog
+* 2.12.0: Added image extraction to Excel mapping. Stricter MediaWiki core file upload verification. Note:Test uploads and check `$wgFileExtensions` before upgrading!
 * 2.11.1: Upped security standards
 * 2.11.0: Expanded Excel import. More information can be found in the Docs
 * 2.10.5: BugFix Edit function
