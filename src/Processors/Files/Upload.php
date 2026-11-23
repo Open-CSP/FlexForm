@@ -25,6 +25,7 @@ use MWContentSerializationException;
 use MWFileProps;
 use RequestContext;
 use Title;
+use UploadBase;
 use User;
 use MediaWiki\MediaWikiServices;
 use UtfNormal\Validator;
@@ -735,10 +736,29 @@ class Upload {
 		if ( !is_object( $title ) ) {
 			throw new FlexFormException(
 				wfMessage(
-					'flexform-fileupload-user-unknown',
+					'flexform-fileupload-file-title-invalid',
 					$base
 				)->text(), 0
 			);
+		}
+
+		// MediaWiki core security checks (MIME, extension whitelist, script/SVG detection, antivirus, hooks)
+		$localUpload = new FlexFormLocalUpload();
+		$localUpload->initializeFromLocalFile( $base, $filePath );
+		$verification = $localUpload->verifyUpload();
+
+		if ( $verification['status'] !== UploadBase::OK ) {
+			$errorMessage = $this->formatUploadVerificationError( $verification );
+			if ( Config::isDebug() ) {
+				Debug::addToDebug(
+					'UploadBase::verifyUpload() rejected ' . $filename,
+					[
+						'verification' => $verification,
+						'errorMessage' => $errorMessage
+					]
+				);
+			}
+			throw new FlexFormException( $errorMessage, 0 );
 		}
 
 		$fileRepo = MediaWikiServices::getInstance()->getRepoGroup()->getLocalRepo();
@@ -816,4 +836,45 @@ class Upload {
 
 		return true;
 	}
+
+	/**
+	 * Convert an UploadBase::verifyUpload() failure array into a readable error message.
+	 *
+	 * @param array $verification
+	 *
+	 * @return string
+	 */
+	private function formatUploadVerificationError( array $verification ): string {
+		$status = $verification['status'] ?? -1;
+
+		switch ( $status ) {
+			case UploadBase::EMPTY_FILE:
+				return wfMessage( 'emptyfile' )->text();
+			case UploadBase::FILE_TOO_LARGE:
+				return wfMessage( 'large-file', $verification['max'] ?? '' )->text();
+			case UploadBase::FILETYPE_MISSING:
+				return wfMessage( 'filetype-missing' )->text();
+			case UploadBase::FILETYPE_BADTYPE:
+				return wfMessage( 'filetype-banned-type', $verification['finalExt'] ?? '' )->text();
+			case UploadBase::ILLEGAL_FILENAME:
+				return wfMessage( 'illegalfilename', $verification['filtered'] ?? '' )->text();
+			case UploadBase::VERIFICATION_ERROR:
+				$details = $verification['details'] ?? [];
+				if ( is_array( $details ) && !empty( $details ) ) {
+					$msgKey = array_shift( $details );
+
+					return wfMessage( $msgKey, ...$details )->text();
+				}
+
+				return wfMessage( 'verification-error' )->text();
+			case UploadBase::HOOK_ABORTED:
+				return (string)( $verification['error'] ?? wfMessage( 'upload-hook-aborted' )->text() );
+			default:
+				return wfMessage(
+					'flexform-fileupload-file-errors',
+					'Upload verification failed (status ' . $status . ')'
+				)->text();
+		}
+	}
+
 }
