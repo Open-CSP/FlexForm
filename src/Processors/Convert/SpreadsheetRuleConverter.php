@@ -385,14 +385,13 @@ class SpreadsheetRuleConverter extends Convert {
 		}
 
 		if ( $drawing instanceof Drawing ) {
-			$ext = strtolower( $drawing->getExtension() ?: 'png' );
-			$contents = file_get_contents( $drawing->getPath() );
+			$path = $drawing->getPath();
+			// prevent SSRF / LFI
+			if ( !str_starts_with( $path, 'zip://' ) ) {
+				return null;
+			}
+			$contents = file_get_contents( $path );
 		} elseif ( $drawing instanceof MemoryDrawing ) {
-			$ext = match ( $drawing->getMimeType() ) {
-				MemoryDrawing::MIMETYPE_JPEG => 'jpg',
-				MemoryDrawing::MIMETYPE_GIF => 'gif',
-				default => 'png',
-			};
 			ob_start();
 			call_user_func(
 				$drawing->getRenderingFunction(),
@@ -407,7 +406,25 @@ class SpreadsheetRuleConverter extends Convert {
 			return null;
 		}
 
-		$seq = count( $this->extractedImages ) + 1;
+		$imageInfo = getimagesizefromstring( $contents );
+		if ( $imageInfo === false ) {
+			return null;
+		}
+
+		$allowedTypes = [
+			IMAGETYPE_PNG  => 'png',
+			IMAGETYPE_JPEG => 'jpg',
+			IMAGETYPE_GIF  => 'gif',
+			IMAGETYPE_WEBP => 'webp',
+		];
+
+		$imageType = $imageInfo[2] ?? 0;
+		if ( !isset( $allowedTypes[$imageType] ) ) {
+			return null;
+		}
+
+		$ext      = $allowedTypes[$imageType];
+		$seq      = count( $this->extractedImages ) + 1;
 		$fileName = sprintf( 'img_%s_%d.%s', $coord, $seq, $ext );
 		$fullPath = $mediaDir . '/' . $fileName;
 		file_put_contents( $fullPath, $contents );
