@@ -584,58 +584,63 @@ class Upload {
 			$processedFiles[$fileName]['upload-base'][] = $fileNameBase;
 			$processedFiles[$fileName]['new-name'][] = $titleName;
 
-			if ( $fileAction !== false ) {
-				$fileSlot = General::getJsonValue( 'wsform_slot', $fileDetails );
-				if ( $fileSlot === false ) {
-					$fileSlot = 'main';
-				}
-				switch ( $fileAction ) {
-					case "xls":
-					case "xlsx":
-						$spreadsheetHandler = new SpreadsheetUploadHandler();
-						$spreadsheetHandler->process(
-							$fileAction,
-							$storedFile,
-							$titleName,
-							$fileDetails,
-							$imageComment
-						);
-						break;
-					case "convert":
-						$pandocHandler = new PandocUploadHandler( $this, $filesCore );
+			try {
+				if ( $fileAction !== false ) {
+					$fileSlot = General::getJsonValue( 'wsform_slot', $fileDetails );
+					if ( $fileSlot === false ) {
+						$fileSlot = 'main';
+					}
+					switch ( $fileAction ) {
+						case "xls":
+						case "xlsx":
+							$spreadsheetHandler = new SpreadsheetUploadHandler();
+							$spreadsheetHandler->process(
+								$fileAction,
+								$storedFile,
+								$titleName,
+								$fileDetails,
+								$imageComment
+							);
+							break;
+						case "convert":
+							$pandocHandler = new PandocUploadHandler( $this, $filesCore );
 
-						$pandocHandler->process(
-							$fileActionConvertDetails,
-							$storedFile,
-							$targetFile,
-							$titleName,
-							$fileNameExtension,
-							$pageContentPrefix,
-							$pageContentSuffix,
-							$fileSlot,
-							$details,
-							$imageComment,
-							$thisUser,
-							$upload_dir
-						);
-						break;
-				}
-			} else {
-				$resultFileUpload = $this->uploadFileToWiki(
-					$upload_dir . $storedFile,
-					$titleName,
-					$thisUser,
-					$details,
-					$imageComment,
-					wfTimestampNow()
-				);
-				if ( $resultFileUpload !== true ) {
-					throw new FlexFormException(
-						$resultFileUpload, 0
+							$pandocHandler->process(
+								$fileActionConvertDetails,
+								$storedFile,
+								$targetFile,
+								$titleName,
+								$fileNameExtension,
+								$pageContentPrefix,
+								$pageContentSuffix,
+								$fileSlot,
+								$details,
+								$imageComment,
+								$thisUser,
+								$upload_dir
+							);
+							break;
+					}
+				} else {
+					$resultFileUpload = $this->uploadFileToWiki(
+						$upload_dir . $storedFile,
+						$titleName,
+						$thisUser,
+						$details,
+						$imageComment,
+						wfTimestampNow()
 					);
+					if ( $resultFileUpload !== true ) {
+						throw new FlexFormException(
+							$resultFileUpload, 0
+						);
+					}
+				}
+			} finally {
+				if ( file_exists( $upload_dir . $storedFile ) ) {
+					unlink( $upload_dir . $storedFile );
 				}
 			}
-			unlink( $upload_dir . $storedFile );
 		}
 
 		$separator = ',';

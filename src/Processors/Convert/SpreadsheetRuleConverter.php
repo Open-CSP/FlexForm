@@ -737,16 +737,22 @@ class SpreadsheetRuleConverter extends Convert {
 		if ( !empty( $rule['sheet_by_name'] ) ) {
 			$worksheet = $spreadsheet->getSheetByName( (string)$rule['sheet_by_name'] );
 		} elseif ( isset( $rule['sheet_by_id'] ) ) {
-			$worksheet = $spreadsheet->getSheet( (int)$rule['sheet_by_id'] );
+			$sheetId = (int)$rule['sheet_by_id'];
+			if ( $sheetId >= 0 && $sheetId < $spreadsheet->getSheetCount() ) {
+				$worksheet = $spreadsheet->getSheet( $sheetId );
+			}
 		} elseif ( $this->sheetByName !== false ) {
 			$worksheet = $spreadsheet->getSheetByName( (string)$this->sheetByName );
 		} elseif ( $this->sheetById !== false ) {
-			$worksheet = $spreadsheet->getSheet( (int)$this->sheetById );
+			$sheetId = (int)$this->sheetById;
+			if ( $sheetId >= 0 && $sheetId < $spreadsheet->getSheetCount() ) {
+				$worksheet = $spreadsheet->getSheet( $sheetId );
+			}
 		}
 
 		if ( $worksheet === null ) {
 			throw new FlexFormException(
-				wfMessage( 'flexform-fileupload-file-convert-excel-not-found' ), 0
+				wfMessage( 'flexform-fileupload-file-convert-excel-not-found' )->text(), 0
 			);
 		}
 
